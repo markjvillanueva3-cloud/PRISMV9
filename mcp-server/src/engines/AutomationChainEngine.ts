@@ -384,6 +384,47 @@ export class AutomationChainEngine {
       error,
     };
   }
+
+  /**
+   * Build a telemetry event AND auto-ingest it into AutomationChainTelemetryEngine
+   * (ACP-MS6 P1-U01). Use this instead of {@link createTelemetryEvent} when you
+   * want the event aggregated for `prism_telemetry:automation_chain_*` queries.
+   * Falls back silently if the telemetry engine is not available (test isolation).
+   * @returns The created event (same shape as createTelemetryEvent).
+   */
+  async recordTelemetryEvent(
+    chainId: string,
+    stepId: string,
+    status: TelemetryEvent["status"],
+    tokenCost: number,
+    latencyMs: number,
+    error?: string,
+  ): Promise<TelemetryEvent> {
+    const event = this.createTelemetryEvent(chainId, stepId, status, tokenCost, latencyMs, error);
+    try {
+      const mod = await import("./AutomationChainTelemetryEngine.js");
+      mod.automationChainTelemetryEngine.ingest(event);
+    } catch {
+      // Telemetry engine optional — keep emit path resilient.
+    }
+    return event;
+  }
+
+  /**
+   * Seed AutomationChainTelemetryEngine with the declared `token_budget` for
+   * every TaskClass (ACP-MS6 P1-U03 token_budget_utilization). Idempotent.
+   * Returns the count of chains registered.
+   */
+  async seedTelemetryBudgets(): Promise<number> {
+    const mod = await import("./AutomationChainTelemetryEngine.js");
+    let count = 0;
+    for (const taskClass of Object.keys(CHAINS) as TaskClass[]) {
+      const chain = CHAINS[taskClass];
+      mod.automationChainTelemetryEngine.recordChainBudget(chain.id, taskClass, chain.token_budget);
+      count += 1;
+    }
+    return count;
+  }
 }
 
 export const automationChainEngine = new AutomationChainEngine();

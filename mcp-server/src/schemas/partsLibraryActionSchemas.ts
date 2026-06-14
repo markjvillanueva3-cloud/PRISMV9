@@ -147,4 +147,20 @@ export const PARTS_LIBRARY_ACTION_SCHEMAS: Record<string, z.ZodType> = {
     limit: z.number().int().min(0).optional().describe("Cap on entries processed in one call. 0 or undefined = no cap."),
     tagFromEntry: z.boolean().optional().describe("Tag the new Part with customer + machine from the disk entry. Default true."),
   }),
+
+  // ── JM-DOC-POPULATION-MS0 / U-JMDOC05: bulk metadata seed of structural part_library/other rows ──
+  // Same record shape as the inbox seed bridges; the engine gates on the STRUCTURAL
+  // part_library/other classifier (part.json basename OR /R\d+/ rev folder) so the
+  // seeded count reconciles to the ledger's 30,890. Omit `records` to stream the live
+  // jm-file-inventory.jsonl and seed every structural row.
+  part_seed_jm_corpus: z.object({
+    records: z.array(z.object({
+      path: z.string().describe("Absolute file path (identity / part-derivation source)"),
+      source: z.string().describe("Corpus source (part_library)"),
+      bucket: z.string().describe("Corpus bucket (other)"),
+      customer: z.string().nullish().describe("Customer key (authoritative for customer), or null"),
+      material: z.string().nullish().describe("Material seen, or null"),
+      machine_class: z.string().nullish().describe("Machine class, or null"),
+    })).optional().describe("Structural part_library/other inventory rows to seed; omit to stream the full inventory live"),
+  }).passthrough(),
 };

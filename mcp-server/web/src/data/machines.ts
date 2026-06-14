@@ -12,16 +12,34 @@ export interface MachineEntry {
   controller: string;
 }
 
+// ── JM Die Company real machine fleet ──────────────────────────────────────────
+// The actual machines on the JM Die shop floor (Machesney Park, IL — cold-heading
+// dies & tooling for the fastener industry), NOT a generic vendor catalog.
+//   • `id` matches the canonical machine_id in jm-die-profile.ts JM_DIE_CONTROLLER_MAP
+//     and ShopConfigurationEngine — so SmartMachineSelector dedups this local seed
+//     cleanly against the live backend roster (matched by id) instead of double-listing.
+//   • Lathe specs (rpm / power / envelope / turret) are PRISM-authoritative, copied
+//     from ShopConfigurationEngine.DEFAULT_MACHINES. For lathes, maxToolDiameter carries
+//     the bar capacity (mm) and tableSize.x carries the X work-envelope (z omitted as y=0).
+//   • Mill spindle / table specs are published manufacturer data-sheet values (Hurco,
+//     Okuma GENOS, Haas, Roku-Roku). Controllers from JM_DIE_CONTROLLER_MAP.
+//   • The 3 EDMs (2 Mitsubishi sinker + 1 wire) are intentionally excluded — they have
+//     no rotary spindle, so they don't fit this rpm/power/axes capability catalog.
 export const MACHINES: MachineEntry[] = [
-  { id: "HAAS-VF2", name: "Haas VF-2", manufacturer: "Haas", type: "VMC", axes: 3, spindleMaxRpm: 8100, spindlePowerKw: 22.4, maxToolDiameter: 89, toolCapacity: 20, tableSize: { x: 762, y: 356 }, controller: "Haas NGC" },
-  { id: "HAAS-VF4", name: "Haas VF-4SS", manufacturer: "Haas", type: "VMC", axes: 3, spindleMaxRpm: 12000, spindlePowerKw: 22.4, maxToolDiameter: 89, toolCapacity: 40, tableSize: { x: 1270, y: 457 }, controller: "Haas NGC" },
-  { id: "DMG-CMX600", name: "DMG MORI CMX 600 V", manufacturer: "DMG MORI", type: "VMC", axes: 3, spindleMaxRpm: 12000, spindlePowerKw: 18.5, maxToolDiameter: 80, toolCapacity: 30, tableSize: { x: 600, y: 560 }, controller: "CELOS Siemens" },
-  { id: "DMG-DMU50", name: "DMG MORI DMU 50", manufacturer: "DMG MORI", type: "5-Axis", axes: 5, spindleMaxRpm: 20000, spindlePowerKw: 35, maxToolDiameter: 80, toolCapacity: 60, tableSize: { x: 500, y: 450 }, controller: "CELOS Siemens" },
-  { id: "MAZAK-CV5", name: "Mazak CV5-500", manufacturer: "Mazak", type: "5-Axis", axes: 5, spindleMaxRpm: 18000, spindlePowerKw: 30, maxToolDiameter: 80, toolCapacity: 40, tableSize: { x: 500, y: 400 }, controller: "SmoothX" },
-  { id: "OKUMA-MB56", name: "Okuma MB-56VA", manufacturer: "Okuma", type: "HMC", axes: 4, spindleMaxRpm: 15000, spindlePowerKw: 26, maxToolDiameter: 100, toolCapacity: 48, tableSize: { x: 560, y: 560 }, controller: "OSP-P300MA" },
-  { id: "HAAS-ST20", name: "Haas ST-20", manufacturer: "Haas", type: "Lathe", axes: 2, spindleMaxRpm: 4000, spindlePowerKw: 22.4, maxToolDiameter: 300, toolCapacity: 12, tableSize: { x: 533, y: 0 }, controller: "Haas NGC" },
-  { id: "DMG-NLX2500", name: "DMG MORI NLX 2500", manufacturer: "DMG MORI", type: "Lathe", axes: 2, spindleMaxRpm: 4000, spindlePowerKw: 26, maxToolDiameter: 350, toolCapacity: 12, tableSize: { x: 705, y: 0 }, controller: "CELOS Mitsubishi" },
-  { id: "MAZAK-INT200", name: "Mazak Integrex i-200", manufacturer: "Mazak", type: "Mill-Turn", axes: 5, spindleMaxRpm: 12000, spindlePowerKw: 30, maxToolDiameter: 80, toolCapacity: 36, tableSize: { x: 500, y: 0 }, controller: "SmoothAi" },
+  // Okuma turning centers (7) — specs from ShopConfigurationEngine (authoritative)
+  { id: "LTH-01", name: "Okuma GENOS L300-M", manufacturer: "Okuma", type: "Lathe", axes: 2, spindleMaxRpm: 5000, spindlePowerKw: 15, maxToolDiameter: 65, toolCapacity: 12, tableSize: { x: 260, y: 0 }, controller: "Okuma OSP-P300L-R" },
+  { id: "LTH-02", name: "Okuma GENOS L200E-M", manufacturer: "Okuma", type: "Lathe", axes: 2, spindleMaxRpm: 5000, spindlePowerKw: 11, maxToolDiameter: 51, toolCapacity: 12, tableSize: { x: 200, y: 0 }, controller: "Okuma OSP-P200LA-R" },
+  { id: "LTH-03", name: "Okuma LNC8", manufacturer: "Okuma", type: "Lathe", axes: 2, spindleMaxRpm: 4000, spindlePowerKw: 11, maxToolDiameter: 51, toolCapacity: 12, tableSize: { x: 200, y: 0 }, controller: "Okuma OSP-U10L" },
+  { id: "LTH-04", name: "Okuma Crown L1060", manufacturer: "Okuma", type: "Lathe", axes: 2, spindleMaxRpm: 3800, spindlePowerKw: 11, maxToolDiameter: 51, toolCapacity: 8, tableSize: { x: 200, y: 0 }, controller: "Okuma OSP-U10L" },
+  { id: "LTH-05", name: "Okuma GENOS L400II-E", manufacturer: "Okuma", type: "Lathe", axes: 2, spindleMaxRpm: 3800, spindlePowerKw: 22, maxToolDiameter: 80, toolCapacity: 12, tableSize: { x: 340, y: 0 }, controller: "Okuma OSP-P300LA-E" },
+  { id: "LTH-06", name: "Okuma LB 3000EX Big Bore", manufacturer: "Okuma", type: "Lathe", axes: 2, spindleMaxRpm: 3800, spindlePowerKw: 22, maxToolDiameter: 102, toolCapacity: 12, tableSize: { x: 320, y: 0 }, controller: "Okuma OSP-P500" },
+  { id: "LTH-07", name: "Okuma Multus B250II", manufacturer: "Okuma", type: "Mill-Turn", axes: 5, spindleMaxRpm: 5000, spindlePowerKw: 22, maxToolDiameter: 80, toolCapacity: 20, tableSize: { x: 320, y: 0 }, controller: "Okuma OSP-P300SA" },
+  // Mills (5) — published manufacturer specs; controllers from JM_DIE_CONTROLLER_MAP
+  { id: "VMC-01", name: "Hurco VM30i", manufacturer: "Hurco", type: "VMC", axes: 3, spindleMaxRpm: 12000, spindlePowerKw: 14.9, maxToolDiameter: 89, toolCapacity: 24, tableSize: { x: 1270, y: 508 }, controller: "Hurco WinMAX v10" },
+  { id: "VMC-02", name: "Okuma M460V-5AX", manufacturer: "Okuma", type: "5-Axis", axes: 5, spindleMaxRpm: 15000, spindlePowerKw: 22, maxToolDiameter: 100, toolCapacity: 48, tableSize: { x: 400, y: 400 }, controller: "Okuma OSP-P300MA-H" },
+  { id: "VMC-03", name: "Haas VF-2", manufacturer: "Haas", type: "VMC", axes: 3, spindleMaxRpm: 8100, spindlePowerKw: 22.4, maxToolDiameter: 89, toolCapacity: 20, tableSize: { x: 762, y: 356 }, controller: "Haas PRE-NGC" },
+  { id: "VMC-04", name: "Haas OM-2", manufacturer: "Haas", type: "VMC", axes: 3, spindleMaxRpm: 30000, spindlePowerKw: 3.7, maxToolDiameter: 40, toolCapacity: 20, tableSize: { x: 508, y: 254 }, controller: "Haas PRE-NGC" },
+  { id: "VMC-05", name: "Roku-Roku HC 658-II", manufacturer: "Roku-Roku", type: "VMC", axes: 3, spindleMaxRpm: 32000, spindlePowerKw: 6.3, maxToolDiameter: 40, toolCapacity: 30, tableSize: { x: 600, y: 500 }, controller: "Fanuc 31i-B5" },
 ];
 
 export interface MachineValidation {

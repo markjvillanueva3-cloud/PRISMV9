@@ -23,6 +23,24 @@ import { spawnSync } from "node:child_process";
 const LOOP_STATE_HELPER = path.join("H:", "prism", ".claude", "helpers", "loop-state.mjs");
 const NODE_BIN = process.execPath;
 
+// LOOP DISCIPLINE -- auto-invoked rules synthesized from the agent-loop articles
+// the operator sent 2026-06-09 (full source + per-rule attribution in wiki
+// [[agent-loop-design-rules]]): shannholmberg "what is agent looping" (read in
+// full), RLanceMartin "Designing loops with Fable 5", IBuzovskyi "8 Loops Inside
+// Hermes Agent", PawelHuryn "Claude Dynamic Workflows", akshay_pachaar/Opik
+// "self-repairing harness", 0x_rody anti-fabrication. Injected on every /loop so
+// the loop runs CLOSED (bounded + eval-gated), not as an open token-burning slop
+// machine. Knob: PRISM_LOOP_RULES_DISABLE=1 drops just this block.
+const LOOP_DISCIPLINE = [
+  `🔁 LOOP DISCIPLINE (auto-invoked from the agent-loop articles -- wiki [[agent-loop-design-rules]]):`,
+  `   1. CLOSED-loop by default -- clear goal -> defined steps -> an eval at EACH step -> a stop/handback. OPEN (exploratory) looping only with explicit budget headroom: on a loose standard an open loop is a "slop machine" that burns insane tokens. [shann]`,
+  `   2. EVAL-GATE every iteration -- an iter is NOT done until its eval passes (real tests + per-file scrutiny). NEVER auto-advance past an unverified iter; that ships slop. [shann + Opik self-repair]`,
+  `   3. EACH PASS FEEDS THE NEXT -- carry the prior iter's outcome/numbers forward so iter N+1 beats N; never cold-restart. The loop should get better every run. [shann]`,
+  `   4. SELF-CORRECT -- draft -> check against the goal -> fix the WEAKEST part -> repeat until it clears the requirements. [RLanceMartin / shann self-loop]`,
+  `   5. ORCHESTRATOR owns the goal, specialists own the steps, subagents do the narrow work; keep coordination deterministic + ~zero-token (route, don't reason -- R5; a Workflow coordinator spends nothing). [shann + PawelHuryn]`,
+  `   6. BUDGET is a stop condition -- nearing the token ceiling -> checkpoint + /compact, never push an open loop into a spiral (R6/R10). PRISM's multi-timescale loops only COMPOUND if each checkpoints cleanly. [IBuzovskyi]`,
+].join("\n");
+
 function readStdin() {
   try {
     if (process.stdin.isTTY) return null;
@@ -57,6 +75,20 @@ function buildContext(stdin) {
       lines.push(`   last tick: ${mine.lastTickAt}`);
       lines.push(`   ▶ Resume by passing the same /loop prompt; helper-tick after each iter:`);
       lines.push(`     node H:/prism/.claude/helpers/loop-state.mjs tick --session ${sid} --status ok --note "<one-line>"`);
+      // U-LOOP-AUTO-ADVANCE: when the CURRENT unit is fully shipped (committed +
+      // scrutiny), do NOT end-and-wait — auto-roll onto the next unit so the loop
+      // continues without a human "continue" prompt.
+      lines.push(`   ⏭ AUTO-ADVANCE when this unit is DONE (committed + scrutiny passed) — do NOT stop to wait for a prompt:`);
+      // --chatId ${sid} keeps the fleet-fallback pick PEER-CLAIM-FILTERED (never
+      // auto-rolls onto a unit another slot is building). --slot scopes the
+      // own-lane pick first. The loop auto-ends at PRISM_LOOP_MAX_ROLLS (default 8)
+      // so a human re-checkpoints — it does NOT advance the whole roadmap unattended.
+      const slotArg = mine.slot ? ` --slot ${mine.slot}` : "";
+      lines.push(`     node H:/prism/.claude/helpers/loop-state.mjs next --session ${sid} --terminal ${sid} --chatId ${sid}${slotArg}`);
+      lines.push(`     → rolls onto the resolved next unit (resume-flag → own handoff RESUME → own-lane → fleet-fallback). Read the`);
+      lines.push(`       returned nextTask, then keep going. END the loop when next returns {"exhausted":true} — including the`);
+      lines.push(`       roll-cap stop (reason:"roll-cap") which hands back for a human checkpoint after ${"${PRISM_LOOP_MAX_ROLLS:-8}"} advances.`);
+      lines.push(`     node H:/prism/.claude/helpers/loop-state.mjs end --session ${sid} --reason exhausted   # ONLY when next says exhausted`);
     } else if (mine.status === "stale" || mine.status === "abandoned") {
       lines.push(`   ⚠ loop is ${mine.status} — either resume + tick, or end:`);
       lines.push(`     node H:/prism/.claude/helpers/loop-state.mjs end --session ${sid} --reason "<why>"`);
@@ -84,7 +116,14 @@ function buildContext(stdin) {
 
   if (lines.length === 0) return null;
   lines.unshift(`─── /loop awareness ─────────────────────────────`);
-  lines.push(`💡 Karpathy R10: checkpoint state between iterations — never continue from a state you can't describe.`);
+  // Auto-invoke the loop-discipline rules synthesized from the agent-loop
+  // articles (the operator's "auto-invoke loop rules" ask). Knob drops just this
+  // block back to the bare R10 reminder.
+  if (String(process.env.PRISM_LOOP_RULES_DISABLE ?? "") !== "1") {
+    lines.push(LOOP_DISCIPLINE);
+  } else {
+    lines.push(`💡 Karpathy R10: checkpoint state between iterations -- never continue from a state you can't describe.`);
+  }
   lines.push(`────────────────────────────────────────────────`);
   return lines.join("\n");
 }

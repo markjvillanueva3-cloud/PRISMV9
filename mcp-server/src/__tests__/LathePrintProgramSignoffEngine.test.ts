@@ -251,7 +251,15 @@ describe("LathePrintProgramSignoffEngine", () => {
       const toolpath = lathePrintToolpathGeneratorEngine.generateProgram(seq, huge, STEEL, {
         max_x_mm: 5, max_z_mm: 5, max_rpm: 5000, max_feed_mm_min: 10000,
       });
-      const emitted = lathePrintProgramEmitterEngine.emit(toolpath, { controller: "fanuc" });
+      // Pre-existing pass-through: bypass the EnvelopeBlockError so signoff
+       // can see the resulting program and apply its OWN release-blocker logic
+       // (LATHE-P2P-CONSENSUS-MS4/P1-U03 audit — this test was authored before
+       // the emitter's hard envelope-block landed; opt in here keeps the test
+       // exercising signoff's blocker logic without crashing at emit time).
+      const emitted = lathePrintProgramEmitterEngine.emit(toolpath, {
+        controller: "fanuc",
+        allow_envelope_override: true,
+      });
 
       const input: SignoffInput = {
         strategy_plan: strat, sequence_plan: seq, toolpath, emitted,
@@ -344,6 +352,178 @@ describe("LathePrintProgramSignoffEngine", () => {
     });
     it("ACTIONS contains lathe_p2p_signoff_is_approved", () => {
       expect(camActions).toContain("lathe_p2p_signoff_is_approved");
+    });
+
+    it("ACTIONS contains lathe_p2p_safety_gate_enforce", () => {
+      expect(camActions).toContain("lathe_p2p_safety_gate_enforce");
+    });
+  });
+
+  // ============================================================================
+  // SAFETY GATE Ω/S(x) — LATHE-P2P-CONSENSUS-MS4/P1-U03
+  // ============================================================================
+
+  describe("Safety Gate Ω/S(x) (P1-U03)", () => {
+    function makeEmitted(checks: Array<{ check: string; status: "pass" | "fail" | "warning"; detail: string }>) {
+      return {
+        program_id: "TEST-PRG-001",
+        controller: "fanuc",
+        filename: "test.nc",
+        gcode: "(test)",
+        gcode_lines: 5,
+        dossier: {
+          program_id: "TEST-PRG-001",
+          controller: "fanuc",
+          generated_at: new Date().toISOString(),
+          generated_by: "vitest",
+          prism_version: "test",
+          total_operations: 1,
+          total_cycle_time_sec: 60,
+          total_gcode_lines: 5,
+          feature_count: 1,
+          tool_count: 1,
+          max_rpm_used: 2000,
+          max_feed_used: 0.2,
+          max_cutting_force_n: 500,
+          physics_summary: {
+            min_vc_m_min: 100,
+            max_vc_m_min: 250,
+            avg_mrr_cm3_min: 30,
+            total_material_removed_cm3: 10,
+          },
+          safety_checks: checks,
+          citations: [],
+          approval_required_from: ["machinist" as const],
+        },
+        warnings: [],
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    it("all-pass program at default thresholds → approved, Ω=1.0, S(x)=1.0", () => {
+      const emitted = makeEmitted([
+        { check: "RPM_LIMIT", status: "pass", detail: "OK" },
+        { check: "FORCE_LIMIT", status: "pass", detail: "OK" },
+        { check: "ENVELOPE", status: "pass", detail: "OK" },
+        { check: "COLLISION", status: "pass", detail: "OK" },
+        { check: "SWING", status: "pass", detail: "OK" },
+      ]);
+      const gate = lathePrintProgramSignoffEngine.enforceSafetyGate(emitted);
+      expect(gate.approved).toBe(true);
+      expect(gate.omega).toBeCloseTo(1.0, 5);
+      expect(gate.sx).toBeCloseTo(1.0, 5);
+      expect(gate.blockers).toHaveLength(0);
+      expect(gate.fail_count).toBe(0);
+    });
+
+    it("any single fail → rejected (S(x) drops below 0.98 for typical check counts)", () => {
+      const emitted = makeEmitted([
+        { check: "RPM_LIMIT", status: "pass", detail: "OK" },
+        { check: "FORCE_LIMIT", status: "pass", detail: "OK" },
+        { check: "COLLISION", status: "fail", detail: "Tool hits chuck at OP3" },
+        { check: "SWING", status: "pass", detail: "OK" },
+      ]);
+      const gate = lathePrintProgramSignoffEngine.enforceSafetyGate(emitted);
+      expect(gate.approved).toBe(false);
+      expect(gate.fail_count).toBe(1);
+      expect(gate.blockers.length).toBeGreaterThan(0);
+      expect(gate.blockers.some(b => b.check === "COLLISION")).toBe(true);
+    });
+
+    it("enforce=true on rejection throws SafetyGateRejection (envelope: do NOT emit G-code)", async () => {
+      const { SafetyGateRejection } = await import("../engines/LathePrintProgramSignoffEngine.js");
+      const emitted = makeEmitted([
+        { check: "RPM_LIMIT", status: "pass", detail: "OK" },
+        { check: "COLLISION", status: "fail", detail: "Tool hits chuck" },
+      ]);
+      expect(() =>
+        lathePrintProgramSignoffEngine.enforceSafetyGate(emitted, { enforce: true }),
+      ).toThrow(SafetyGateRejection);
+    });
+
+    it("rejection error carries full result so caller can inspect blockers", async () => {
+      const { SafetyGateRejection } = await import("../engines/LathePrintProgramSignoffEngine.js");
+      const emitted = makeEmitted([
+        { check: "RPM_LIMIT", status: "fail", detail: "Spindle overspeed" },
+        { check: "FORCE_LIMIT", status: "pass", detail: "OK" },
+      ]);
+      try {
+        lathePrintProgramSignoffEngine.enforceSafetyGate(emitted, { enforce: true });
+        throw new Error("should have thrown");
+      } catch (e) {
+        if (!(e instanceof SafetyGateRejection)) throw e;
+        expect(e.code).toBe("LATHE_P2P_SAFETY_GATE_REJECTED");
+        expect(e.result.approved).toBe(false);
+        expect(e.result.blockers.length).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it("warnings count as half-credit in Ω but penalize S(x)", () => {
+      const emitted = makeEmitted([
+        { check: "C1", status: "pass", detail: "" },
+        { check: "C2", status: "pass", detail: "" },
+        { check: "C3", status: "warning", detail: "borderline" },
+        { check: "C4", status: "pass", detail: "" },
+      ]);
+      const gate = lathePrintProgramSignoffEngine.enforceSafetyGate(emitted);
+      // Ω = (3 + 0.5*1)/4 = 0.875 (below 0.95 floor → rejected)
+      expect(gate.omega).toBeCloseTo(0.875, 5);
+      expect(gate.sx).toBeCloseTo(1 - 0.5 / 4, 5);
+      expect(gate.approved).toBe(false);
+      expect(gate.blockers.some(b => b.check === "OMEGA_THRESHOLD")).toBe(true);
+    });
+
+    it("custom floors honored (omegaFloor 0.5 + sxFloor 0.5 admits the warning case)", () => {
+      const emitted = makeEmitted([
+        { check: "C1", status: "pass", detail: "" },
+        { check: "C2", status: "warning", detail: "borderline" },
+      ]);
+      const gate = lathePrintProgramSignoffEngine.enforceSafetyGate(emitted, {
+        omegaFloor: 0.5,
+        sxFloor: 0.5,
+      });
+      expect(gate.approved).toBe(true);
+    });
+
+    it("empty safety_checks → vacuous approval (Ω=S(x)=1.0)", () => {
+      const emitted = makeEmitted([]);
+      const gate = lathePrintProgramSignoffEngine.enforceSafetyGate(emitted);
+      expect(gate.approved).toBe(true);
+      expect(gate.omega).toBe(1);
+      expect(gate.sx).toBe(1);
+    });
+
+    it("envelope acceptance: 5 typical part programs pass + 2 known-bad blocked", () => {
+      // 5 acceptance parts — each has 6 safety checks, all pass
+      const acceptanceParts = [
+        ["OD_PIN", "THREADED_SHAFT", "GROOVED", "HARD_TURN", "MULTI_OP"],
+      ].flat().map(name =>
+        makeEmitted([
+          { check: `${name}_RPM`, status: "pass", detail: "OK" },
+          { check: `${name}_FORCE`, status: "pass", detail: "OK" },
+          { check: `${name}_ENVELOPE`, status: "pass", detail: "OK" },
+          { check: `${name}_COLLISION`, status: "pass", detail: "OK" },
+          { check: `${name}_SWING`, status: "pass", detail: "OK" },
+          { check: `${name}_GRIP`, status: "pass", detail: "OK" },
+        ]),
+      );
+      for (const part of acceptanceParts) {
+        const gate = lathePrintProgramSignoffEngine.enforceSafetyGate(part);
+        expect(gate.approved).toBe(true);
+      }
+      // 2 known-bad fixtures: intentional collision; intentional envelope breach
+      const badCollision = makeEmitted([
+        { check: "RPM", status: "pass", detail: "OK" },
+        { check: "COLLISION", status: "fail", detail: "Tool intersects chuck at X=12.5 Z=-3" },
+        { check: "ENVELOPE", status: "pass", detail: "OK" },
+      ]);
+      const badEnvelope = makeEmitted([
+        { check: "RPM", status: "pass", detail: "OK" },
+        { check: "COLLISION", status: "pass", detail: "OK" },
+        { check: "ENVELOPE", status: "fail", detail: "Z=-220 exceeds machine envelope -200" },
+      ]);
+      expect(lathePrintProgramSignoffEngine.enforceSafetyGate(badCollision).approved).toBe(false);
+      expect(lathePrintProgramSignoffEngine.enforceSafetyGate(badEnvelope).approved).toBe(false);
     });
   });
 });

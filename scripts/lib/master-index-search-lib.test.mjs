@@ -20,7 +20,7 @@
 
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert";
-import { writeFileSync, mkdtempSync, rmSync, utimesSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdtempSync, rmSync, utimesSync } from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
@@ -28,6 +28,7 @@ import {
   tokenize,
   loadGraph,
   searchGraphHits,
+  explainNodeMatch,
   runMasterIndexSearch,
   loadTribalIndex,
   searchTribalHits,
@@ -36,6 +37,9 @@ import {
   DEFAULT_EXCLUDED_LAYERS,
   _resetCachesForTests,
 } from "./master-index-search-lib.mjs";
+// U-MASTER-INDEX-SIDECAR: the offline sidecar generator (File 1) — used by the
+// sidecar fast-path test block below to produce real sidecars for loadGraph.
+import { generate as generateSidecar } from "../build-graph-index.mjs";
 
 // -- fixtures -------------------------------------------------------------
 
@@ -291,6 +295,403 @@ describe("loadGraph", () => {
   });
 });
 
+// -- loadGraph: JULIETT F1 fallback (2026-05-18) --------------------------
+// When the primary system-graph.json exceeds PRISM_GRAPH_MAX_BYTES, the lib
+// must fall back to a sibling architecture-graph.json instead of returning
+// null (previous silent-degrade behavior). Knob: PRISM_GRAPH_FALLBACK_DISABLE=1
+// restores the original null-on-overflow. Override: PRISM_GRAPH_FALLBACK_PATH.
+
+describe("loadGraph: JULIETT F1 fallback", () => {
+  const FB_TMP = mkdtempSync(path.join(os.tmpdir(), "prism-misl-fb-"));
+  const PRIMARY = path.join(FB_TMP, "system-graph.json");
+  const FALLBACK = path.join(FB_TMP, "architecture-graph.json");
+  const BIG_BLOB = "x".repeat(5000); // ensures size > 200-byte test cap
+
+  before(() => {
+    writeFileSync(
+      PRIMARY,
+      JSON.stringify({ nodes: [{ id: "primary:big", label: "primary", info: BIG_BLOB }] }),
+    );
+    writeFileSync(
+      FALLBACK,
+      JSON.stringify({ nodes: [{ id: "fallback:arch", label: "ArchitectureNode", info: "fb-info" }] }),
+    );
+  });
+
+  after(() => {
+    try { rmSync(FB_TMP, { recursive: true, force: true }); } catch { /* swallow */ }
+  });
+
+  it("oversized system-graph + small architecture-graph → loads architecture (NOT null)", () => {
+    _resetCachesForTests();
+    const orig = process.env.PRISM_GRAPH_MAX_BYTES;
+    process.env.PRISM_GRAPH_MAX_BYTES = "200";
+    try {
+      const g = loadGraph(PRIMARY);
+      assert.notStrictEqual(g, null, "fallback must yield a wrapper, not null");
+      const ids = g.nodes.map(n => n.id);
+      assert.ok(ids.includes("fallback:arch"), "architecture-graph node must be loaded");
+      assert.ok(!ids.includes("primary:big"), "oversized primary node must NOT appear");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = orig;
+    }
+  });
+
+  it("PRISM_GRAPH_FALLBACK_DISABLE=1 → returns null on overflow (kill-switch works)", () => {
+    _resetCachesForTests();
+    const origLimit = process.env.PRISM_GRAPH_MAX_BYTES;
+    const origDisable = process.env.PRISM_GRAPH_FALLBACK_DISABLE;
+    process.env.PRISM_GRAPH_MAX_BYTES = "200";
+    process.env.PRISM_GRAPH_FALLBACK_DISABLE = "1";
+    try {
+      const g = loadGraph(PRIMARY);
+      assert.strictEqual(g, null, "disabled fallback must return null on overflow");
+    } finally {
+      if (origLimit === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = origLimit;
+      if (origDisable === undefined) delete process.env.PRISM_GRAPH_FALLBACK_DISABLE;
+      else process.env.PRISM_GRAPH_FALLBACK_DISABLE = origDisable;
+    }
+  });
+
+  it("non-system-graph basename → null (basename gate prevents accidental fallback)", () => {
+    // GRAPH_PATH basename is "graph.json"; fallback must NOT trigger.
+    _resetCachesForTests();
+    const orig = process.env.PRISM_GRAPH_MAX_BYTES;
+    process.env.PRISM_GRAPH_MAX_BYTES = "100";
+    try {
+      const g = loadGraph(GRAPH_PATH);
+      assert.strictEqual(g, null, "non-system-graph basename must not invoke fallback");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = orig;
+    }
+  });
+
+  it("oversized system-graph + MISSING architecture sibling → null (graceful)", () => {
+    _resetCachesForTests();
+    const isoDir = mkdtempSync(path.join(os.tmpdir(), "prism-misl-fb-iso-"));
+    const lonePrimary = path.join(isoDir, "system-graph.json");
+    writeFileSync(
+      lonePrimary,
+      JSON.stringify({ nodes: [{ id: "lone:big", info: BIG_BLOB }] }),
+    );
+    const orig = process.env.PRISM_GRAPH_MAX_BYTES;
+    process.env.PRISM_GRAPH_MAX_BYTES = "200";
+    try {
+      const g = loadGraph(lonePrimary);
+      assert.strictEqual(g, null, "missing fallback file must degrade to null, not throw");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = orig;
+      try { rmSync(isoDir, { recursive: true, force: true }); } catch { /* swallow */ }
+    }
+  });
+
+  it("PRISM_GRAPH_FALLBACK_PATH overrides sibling lookup", () => {
+    _resetCachesForTests();
+    const isoDir = mkdtempSync(path.join(os.tmpdir(), "prism-misl-fb-ovr-"));
+    const lonePrimary = path.join(isoDir, "system-graph.json");
+    const customFb = path.join(isoDir, "custom-fb.json");
+    writeFileSync(
+      lonePrimary,
+      JSON.stringify({ nodes: [{ id: "lone:big", info: BIG_BLOB }] }),
+    );
+    writeFileSync(
+      customFb,
+      JSON.stringify({ nodes: [{ id: "custom:fb", label: "CustomFallback" }] }),
+    );
+    const origLimit = process.env.PRISM_GRAPH_MAX_BYTES;
+    const origOverride = process.env.PRISM_GRAPH_FALLBACK_PATH;
+    process.env.PRISM_GRAPH_MAX_BYTES = "200";
+    process.env.PRISM_GRAPH_FALLBACK_PATH = customFb;
+    try {
+      const g = loadGraph(lonePrimary);
+      assert.notStrictEqual(g, null, "PRISM_GRAPH_FALLBACK_PATH override must yield a wrapper");
+      assert.ok(
+        g.nodes.map(n => n.id).includes("custom:fb"),
+        "custom fallback node must be loaded when override env is set",
+      );
+    } finally {
+      if (origLimit === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = origLimit;
+      if (origOverride === undefined) delete process.env.PRISM_GRAPH_FALLBACK_PATH;
+      else process.env.PRISM_GRAPH_FALLBACK_PATH = origOverride;
+      try { rmSync(isoDir, { recursive: true, force: true }); } catch { /* swallow */ }
+    }
+  });
+
+  it("oversized system-graph + OVERSIZED fallback → null (both fail cap)", () => {
+    _resetCachesForTests();
+    const isoDir = mkdtempSync(path.join(os.tmpdir(), "prism-misl-fb-both-"));
+    const bigPrimary = path.join(isoDir, "system-graph.json");
+    const bigFallback = path.join(isoDir, "architecture-graph.json");
+    writeFileSync(bigPrimary, JSON.stringify({ nodes: [{ id: "big-p", info: BIG_BLOB }] }));
+    writeFileSync(bigFallback, JSON.stringify({ nodes: [{ id: "big-fb", info: BIG_BLOB }] }));
+    const orig = process.env.PRISM_GRAPH_MAX_BYTES;
+    process.env.PRISM_GRAPH_MAX_BYTES = "200";
+    try {
+      const g = loadGraph(bigPrimary);
+      assert.strictEqual(g, null, "both-oversized must degrade to null (no second recursion)");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_GRAPH_MAX_BYTES;
+      else process.env.PRISM_GRAPH_MAX_BYTES = orig;
+      try { rmSync(isoDir, { recursive: true, force: true }); } catch { /* swallow */ }
+    }
+  });
+});
+
+// -- loadGraph: U-MASTER-INDEX-SIDECAR fast-path --------------------------
+// When a fresh `system-graph-index.json` sidecar sits beside the graph,
+// loadGraph reconstructs the index from it (seconds, full coverage) instead
+// of parsing the 372 MB graph (~138 s). Stale / schema-mismatched / malformed
+// / knob-disabled / absent sidecar → byte-identical legacy behavior.
+// Discriminator used throughout: a graph node carries an extra `x` field; the
+// COMPACT sidecar node drops it — so `g.nodes[0].x === undefined` proves the
+// sidecar path was taken, `=== 99` proves the legacy parse ran.
+
+describe("loadGraph: sidecar fast-path", () => {
+  // Build an isolated { graph, sidecar } pair in a fresh temp dir. The graph
+  // basename MUST be `system-graph.json` (the sidecar path is derived from it).
+  function makeSidecarFixture({ withSidecar = true, mutate = null } = {}) {
+    const dir = mkdtempSync(path.join(os.tmpdir(), "prism-misl-sc-"));
+    const graphPath = path.join(dir, "system-graph.json");
+    const sidecarPath = path.join(dir, "system-graph-index.json");
+    const graph = {
+      nodes: [
+        {
+          id: "eng.kienzle", label: "Kienzle Engine", layer: "L7", status: "built",
+          info: "computes cutting force constructor sample", x: 99,
+        },
+        {
+          id: "eng.taylor", label: "Taylor Engine", layer: "L7", status: "built",
+          info: "predicts cutting tool life", x: 7,
+        },
+      ],
+    };
+    writeFileSync(graphPath, JSON.stringify(graph));
+    if (withSidecar) {
+      generateSidecar({ graphPath, outPath: sidecarPath });
+      if (mutate) {
+        const sc = JSON.parse(readFileSync(sidecarPath, "utf8"));
+        mutate(sc);
+        writeFileSync(sidecarPath, JSON.stringify(sc));
+      }
+    }
+    return { dir, graphPath, sidecarPath, graphNodeCount: graph.nodes.length };
+  }
+
+  it("fresh sidecar → loadGraph reconstructs the full index from it", () => {
+    const fx = makeSidecarFixture();
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g, "loadGraph returned a wrapper");
+      assert.strictEqual(g.nodes.length, fx.graphNodeCount, "full node count from sidecar");
+      assert.ok(g.inverted instanceof Map);
+      assert.ok(g.inverted.get("kienzle"), "kienzle token indexed via the sidecar");
+      assert.strictEqual(g.nodes[0].x, undefined, "compact sidecar nodes used (not the legacy parse)");
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("stale sidecar (sourceMtimeMs < graph mtime) → ignored, legacy path", () => {
+    const fx = makeSidecarFixture({ mutate: (sc) => { sc.sourceMtimeMs = 1; } });
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g);
+      assert.strictEqual(g.nodes[0].x, 99, "legacy parse used (graph node retains .x)");
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("schemaVersion mismatch → sidecar ignored, legacy path", () => {
+    const fx = makeSidecarFixture({ mutate: (sc) => { sc.schemaVersion = "9.9.9"; } });
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.strictEqual(g.nodes[0].x, 99, "legacy parse used on schema mismatch");
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("PRISM_GRAPH_SIDECAR_DISABLE=1 → sidecar skipped, legacy path", () => {
+    const fx = makeSidecarFixture();
+    const orig = process.env.PRISM_GRAPH_SIDECAR_DISABLE;
+    process.env.PRISM_GRAPH_SIDECAR_DISABLE = "1";
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.strictEqual(g.nodes[0].x, 99, "legacy parse used when the knob disables the sidecar");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_GRAPH_SIDECAR_DISABLE;
+      else process.env.PRISM_GRAPH_SIDECAR_DISABLE = orig;
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  // MASTER-INDEX-OOM-FIX (2026-06-09): a sidecar larger than the safe parse
+  // ceiling for the live heap must be rejected so the caller falls through to
+  // the smaller architecture-graph instead of OOM-killing the hook at the
+  // fleet's 384 MB heap cap. PRISM_SIDECAR_MAX_BYTES overrides the 35%-of-heap
+  // default; setting it to 1 forces every real sidecar over the ceiling.
+  it("PRISM_SIDECAR_MAX_BYTES too small → sidecar skipped, legacy path (OOM guard)", () => {
+    const fx = makeSidecarFixture();
+    const orig = process.env.PRISM_SIDECAR_MAX_BYTES;
+    process.env.PRISM_SIDECAR_MAX_BYTES = "1";
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g, "loadGraph still returns a wrapper via the legacy parse");
+      assert.strictEqual(g.nodes[0].x, 99, "legacy parse used when sidecar exceeds the heap ceiling");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_SIDECAR_MAX_BYTES;
+      else process.env.PRISM_SIDECAR_MAX_BYTES = orig;
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("PRISM_SIDECAR_MAX_BYTES generous → sidecar still used (guard does not over-reject)", () => {
+    const fx = makeSidecarFixture();
+    const orig = process.env.PRISM_SIDECAR_MAX_BYTES;
+    process.env.PRISM_SIDECAR_MAX_BYTES = String(1024 * 1024 * 1024); // 1 GB ceiling
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g);
+      assert.strictEqual(g.nodes[0].x, undefined, "compact sidecar path taken when well under the ceiling");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_SIDECAR_MAX_BYTES;
+      else process.env.PRISM_SIDECAR_MAX_BYTES = orig;
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  // P1 guard (reviewer-caught): a non-numeric / 0 / NEGATIVE PRISM_SIDECAR_MAX_BYTES
+  // must fall back to the heap-derived default, NOT (a) treat "0" as unset-then-default
+  // silently when the operator meant "no ceiling", nor (b) be truthy at -1 and reject
+  // EVERY sidecar (Number("-1")||x === -1, size > -1 always true). The fix validates
+  // finite-and-positive; these assert the small test sidecar still loads (x===undefined).
+  it("PRISM_SIDECAR_MAX_BYTES negative → ignored, sidecar still used (not always-rejected)", () => {
+    const fx = makeSidecarFixture();
+    const orig = process.env.PRISM_SIDECAR_MAX_BYTES;
+    process.env.PRISM_SIDECAR_MAX_BYTES = "-1";
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g);
+      assert.strictEqual(g.nodes[0].x, undefined, "negative knob falls back to default; small sidecar fits and is used");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_SIDECAR_MAX_BYTES;
+      else process.env.PRISM_SIDECAR_MAX_BYTES = orig;
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("PRISM_SIDECAR_MAX_BYTES non-numeric → ignored, sidecar still used", () => {
+    const fx = makeSidecarFixture();
+    const orig = process.env.PRISM_SIDECAR_MAX_BYTES;
+    process.env.PRISM_SIDECAR_MAX_BYTES = "not-a-number";
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g);
+      assert.strictEqual(g.nodes[0].x, undefined, "garbage knob falls back to default; small sidecar used");
+    } finally {
+      if (orig === undefined) delete process.env.PRISM_SIDECAR_MAX_BYTES;
+      else process.env.PRISM_SIDECAR_MAX_BYTES = orig;
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("no sidecar file → legacy parse, behavior unchanged (regression)", () => {
+    const fx = makeSidecarFixture({ withSidecar: false });
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g);
+      assert.strictEqual(g.nodes.length, fx.graphNodeCount);
+      assert.strictEqual(g.nodes[0].x, 99, "legacy parse — graph node retains .x");
+      assert.ok(g.inverted.get("kienzle"), "kienzle token still indexed via the legacy parse");
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("unparseable sidecar → ignored, legacy path", () => {
+    const fx = makeSidecarFixture({ withSidecar: false });
+    writeFileSync(fx.sidecarPath, "{ broken json");
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.strictEqual(g.nodes[0].x, 99, "legacy parse used on an unparseable sidecar");
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("malformed sidecar nodes (null / non-object) → search degrades, never throws", () => {
+    const fx = makeSidecarFixture({
+      mutate: (sc) => { sc.nodes.push(null); sc.nodes.push("badnode"); },
+    });
+    try {
+      _resetCachesForTests();
+      const g = loadGraph(fx.graphPath);
+      assert.ok(g, "loadGraph still returns a wrapper for a malformed sidecar");
+      // searchGraphHits must filter the null / non-object elements, not throw.
+      const r = runMasterIndexSearch("cutting force", { graphPath: fx.graphPath });
+      assert.ok(Array.isArray(r.hits), "search returned a hits array (did not throw)");
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("sidecar path: a `constructor`-named token round-trips (Object.entries, not [tok])", () => {
+    const fx = makeSidecarFixture();
+    try {
+      _resetCachesForTests();
+      // "constructor" is in the kienzle node's info — it is a real own-key on
+      // build-graph-index's null-proto inverted map; loadGraph must read it
+      // back via Object.entries (a normal-object `inverted["constructor"]`
+      // would collide with Object.prototype.constructor).
+      const r = runMasterIndexSearch("constructor sample", { graphPath: fx.graphPath });
+      assert.ok(r.hits.length >= 1, "constructor token round-tripped through the sidecar");
+      assert.ok(r.hits.some((h) => h.id === "eng.kienzle"));
+    } finally {
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+
+  it("sidecar-path search result is identical to the legacy-path result (parity)", () => {
+    const fx = makeSidecarFixture();
+    const origDisable = process.env.PRISM_GRAPH_SIDECAR_DISABLE;
+    try {
+      _resetCachesForTests();
+      const viaSidecar = runMasterIndexSearch("cutting force", { graphPath: fx.graphPath });
+
+      process.env.PRISM_GRAPH_SIDECAR_DISABLE = "1";
+      _resetCachesForTests();
+      const viaLegacy = runMasterIndexSearch("cutting force", { graphPath: fx.graphPath });
+
+      assert.deepStrictEqual(
+        viaSidecar.hits.map((h) => ({ id: h.id, score: h.score })),
+        viaLegacy.hits.map((h) => ({ id: h.id, score: h.score })),
+        "sidecar and legacy paths must produce identical ranked hits",
+      );
+      assert.ok(viaSidecar.hits.length >= 1, "the parity check is non-vacuous (hits exist)");
+    } finally {
+      if (origDisable === undefined) delete process.env.PRISM_GRAPH_SIDECAR_DISABLE;
+      else process.env.PRISM_GRAPH_SIDECAR_DISABLE = origDisable;
+      rmSync(fx.dir, { recursive: true, force: true });
+    }
+  });
+});
+
 // -- searchGraphHits ------------------------------------------------------
 
 describe("searchGraphHits", () => {
@@ -304,6 +705,42 @@ describe("searchGraphHits", () => {
     assert.ok(hits[0].score > 0);
     // No L11 layer should appear
     for (const h of hits) assert.notStrictEqual(h.layer, "L11");
+  });
+  it("attaches noteCount = full wiki+memory edge count (brain-coverage, not truncated)", () => {
+    _resetCachesForTests();
+    const g = loadGraph(GRAPH_PATH);
+    const hits = searchGraphHits(g, ["kienzle"], { topK: 5 });
+    // hits[0] is the DOCUMENTED KienzleForceEngine (1 wiki + 1 memory), which
+    // out-scores the empty-knowledge duplicate-label node and survives dedup.
+    assert.strictEqual(hits[0].label, "KienzleForceEngine");
+    assert.strictEqual(hits[0].noteCount, 2, "1 wiki + 1 memory = 2 (the documented node, not the noteCount-0 dup)");
+    // every hit carries a numeric noteCount >= 0 (additive field, always present)
+    for (const h of hits) {
+      assert.strictEqual(typeof h.noteCount, "number");
+      assert.ok(h.noteCount >= 0);
+    }
+    // Deterministic inline graph (we control `inverted` + labels) so candidate
+    // selection is independent of the tokenizer / STOPWORDS. Proves noteCount is
+    // the FULL wiki+memory edge total even when it EXCEEDS the truncated
+    // wiki(3)/memory(2) display arrays — the whole point of a separate field.
+    const ig = {
+      nodes: [
+        { id: "e:doc", label: "WidgetDoc", layer: "L7",
+          knowledge: { wikiEntries: [{ name: "w1" }, { name: "w2" }, { name: "w3" }, { name: "w4" }], memoryEntries: [{ name: "m1" }, { name: "m2" }] } }, // 4+2=6
+        { id: "e:bare", label: "WidgetBare", layer: "L7", knowledge: { wikiEntries: [], memoryEntries: [] } },                                              // 0
+        { id: "e:partial", label: "WidgetPartial", layer: "L7", knowledge: { wikiEntries: [{ name: "w1" }], memoryEntries: [] } },                          // 1
+      ],
+      inverted: new Map([["widget", new Set(["e:doc", "e:bare", "e:partial"])]]),
+    };
+    const ihits = searchGraphHits(ig, ["widget"], { topK: 10 });
+    const byLabel = Object.fromEntries(ihits.map((h) => [h.label, h.noteCount]));
+    assert.strictEqual(byLabel["WidgetDoc"], 6, "4 wiki + 2 memory = 6 (FULL count)");
+    assert.strictEqual(byLabel["WidgetBare"], 0, "empty knowledge → 0");
+    assert.strictEqual(byLabel["WidgetPartial"], 1, "1 wiki + 0 memory = 1");
+    const doc = ihits.find((h) => h.label === "WidgetDoc");
+    assert.strictEqual(doc.wiki.length, 3, "wiki display array still truncated to 3");
+    assert.strictEqual(doc.memory.length, 2, "memory display array still truncated to 2");
+    assert.ok(doc.noteCount > doc.wiki.length + doc.memory.length, "noteCount(6) > truncated arrays(5): proves full count, not array length");
   });
   it("dedupes by label", () => {
     _resetCachesForTests();
@@ -334,6 +771,42 @@ describe("searchGraphHits", () => {
     const g = loadGraph(GRAPH_PATH);
     const hits = searchGraphHits(g, []);
     assert.deepStrictEqual(hits, []);
+  });
+
+  // HMEMV02 explainable retrieval (master-index surface) ------------------
+  it("explainNodeMatch: reports matched tokens + which scored fields they hit", () => {
+    const node = {
+      id: "eng.kienzleforce", label: "KienzleForceEngine", info: "cutting force model",
+      knowledge: { wikiEntries: [{ name: "kienzle-theory" }], memoryEntries: [] },
+    };
+    const e = explainNodeMatch(node, ["kienzle", "cutting", "missing"]);
+    assert.deepStrictEqual(e.matchedTokens.sort(), ["cutting", "kienzle"]);
+    // "kienzle" hits id+label+vault(wiki); "cutting" hits info -> all four fields
+    assert.ok(e.fields.includes("id"));
+    assert.ok(e.fields.includes("label"));
+    assert.ok(e.fields.includes("info"));
+    assert.ok(e.fields.includes("vault"));
+  });
+  it("explainNodeMatch: fail-soft on bad node / empty tokens", () => {
+    assert.deepStrictEqual(explainNodeMatch(null, ["x"]), { matchedTokens: [], fields: [] });
+    assert.deepStrictEqual(explainNodeMatch({ id: "a" }, []), { matchedTokens: [], fields: [] });
+  });
+  it("searchGraphHits: each hit carries explanation {matchedTokens, fields, corpus, score}", () => {
+    const ig = {
+      nodes: [
+        { id: "e:widgetdoc", label: "WidgetDoc", layer: "L7", info: "a widget thing",
+          knowledge: { wikiEntries: [], memoryEntries: [] } },
+      ],
+      inverted: new Map([["widget", new Set(["e:widgetdoc"])]]),
+    };
+    const hits = searchGraphHits(ig, ["widget"], { topK: 5 });
+    assert.strictEqual(hits.length, 1);
+    const ex = hits[0].explanation;
+    assert.ok(ex, "hit carries an explanation object");
+    assert.ok(ex.matchedTokens.includes("widget"));
+    assert.ok(Array.isArray(ex.fields) && ex.fields.length >= 1, "at least one scored field matched");
+    assert.strictEqual(ex.corpus, "L7", "corpus == node layer");
+    assert.strictEqual(ex.score, hits[0].score, "explanation.score == hit score");
   });
   it("DEFAULT_EXCLUDED_LAYERS contains L9 + L11", () => {
     assert.ok(DEFAULT_EXCLUDED_LAYERS.has("L9"));

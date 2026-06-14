@@ -116,10 +116,21 @@ vi.mock('../api/client', () => ({
   }),
   quoteHistory: vi.fn().mockResolvedValue({
     ok: true,
-    data: [
-      { id: 'Q-200-R1', status: 'draft' },
-      { id: 'Q-200-R2', status: 'review' },
-    ],
+    // Real InstantQuoteHistory contract (web/src/api/types.ts:840): a rich object,
+    // NOT a flat array. The component reads .revisions / .status_history / .current_*
+    // off this exact shape; feeding an array crashes the render at .revisions.length.
+    data: {
+      quote_id: 'Q-200',
+      current_status: 'sent',
+      current_revision: 2,
+      revisions: [
+        { id: 'Q-200-R1', quote_id: 'Q-200', revision_number: 1, unit_price_usd: 8.4, total_price_usd: 840, quantity: 100, cost_breakdown: {}, quantity_breaks: [], lead_time_options: [], dfm_issues: [], created_at: '2026-06-01T00:00:00Z' },
+        { id: 'Q-200-R2', quote_id: 'Q-200', revision_number: 2, unit_price_usd: 8.2, total_price_usd: 820, quantity: 100, cost_breakdown: {}, quantity_breaks: [], lead_time_options: [], dfm_issues: [], created_at: '2026-06-02T00:00:00Z' },
+      ],
+      status_history: [
+        { id: 'SH-1', quote_id: 'Q-200', from_status: 'draft', to_status: 'sent', created_at: '2026-06-02T00:00:00Z' },
+      ],
+    },
   }),
   quoteShareToken: vi.fn().mockResolvedValue({
     ok: true,
@@ -240,12 +251,41 @@ describe('QuoteBuilderPage', () => {
     expect(screen.getByText('Q-200')).toBeDefined();
     expect(screen.getByText('Portal and revision readiness')).toBeDefined();
     expect(screen.getByText('share-token')).toBeDefined();
-    expect(screen.getByText(/Q-200-R1 \(draft\)/i)).toBeDefined();
+    // Verifies the component read the rich InstantQuoteHistory shape correctly:
+    // 2 revisions + 1 status-history entry must render their real counts.
+    const historyLine = screen.getByText(/revision\(s\)/);
+    expect(historyLine.textContent).toMatch(/2 revision\(s\).*1 status change\(s\)/);
     expect(screen.getByText('Mounted qty breaks')).toBeDefined();
     expect(screen.getByText('Lead-time options')).toBeDefined();
     expect(screen.getByText('standard')).toBeDefined();
     expect(screen.getByText('expedited')).toBeDefined();
     expect(screen.getByText('Check clamp clearance before release')).toBeDefined();
+  });
+
+  it('degrades gracefully when the history surface returns a partial object (no white-screen)', async () => {
+    const client = await import('../api/client');
+    // Backend returned history truthy but WITHOUT the revisions/status_history arrays
+    // (degraded/partial response). Compile-time types say those arrays are always present,
+    // but a real backend hiccup can violate that -- the packet view must degrade gracefully,
+    // not crash the entire quote with "Cannot read properties of undefined (reading 'length')".
+    vi.mocked(client.quoteHistory).mockResolvedValueOnce({
+      ok: true,
+      data: { quote_id: 'Q-200', current_status: 'draft', current_revision: 1 },
+    } as unknown as Awaited<ReturnType<typeof client.quoteHistory>>);
+
+    const { QuoteBuilderPage } = await import('../pages/QuoteBuilderPage');
+    renderPage(QuoteBuilderPage);
+
+    fireEvent.click(screen.getByText('Generate Pricing Packet'));
+
+    // findByText throws if the panel never mounts -- proving the render did NOT crash on
+    // the degraded history shape (the bug would white-screen before this text appears).
+    const packetHeader = await screen.findByText('Generated pricing packet');
+    expect(packetHeader.textContent).toBe('Generated pricing packet');
+
+    // The guard renders zero counts rather than throwing on the missing arrays.
+    const historyLine = screen.getByText(/revision\(s\)/);
+    expect(historyLine.textContent).toMatch(/0 revision\(s\).*0 status change\(s\)/);
   });
 
   it('shows upstream customer context when launched from customers', async () => {

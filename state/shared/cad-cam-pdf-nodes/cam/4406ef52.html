@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>ReadMe</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>ReadMe</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/documentation/ReadMe.pdf</code></dd>
+<dt>Pages</dt><dd>43</dd>
+<dt>Text chars</dt><dd>58765</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>PAGE 1
+ReadMe for Mastercam X8
+Please review this ReadMe file for last-minute product information about
+Mastercam X8. Please report any problems to qc@mastercam.com.
+Operating Systems Supported in X8
+Mastercam X8 will no longer support 32-bit operating systems.
+Component 	Minimum 	Recommended
+OS 	Windows 7 or 8/8.1 64-bit
+Professional
+Windows 7 or 8/8.1 64-bit
+Professional
+Processor 	Intel or AMD 64-bit processor Intel i7 processor
+Memory 	4 GB 	16 GB
+Video 	OpenGL 3.0 support with 256
+MB memory. No onboard
+graphics.
+NVIDIA Quadro graphics
+card with 512 MB
+dedicated memory
+Monitor 	1280 * 1024 resolution 	1920 * 1080 resolution,
+dual monitors
+Storage 	250 GB drive with 20 GB free,
+DVD drive for installation
+250 GB Solid State Drive
+(SSD) with 20 GB free,
+DVD drive for installation
+Mouse 	3-button Microsoft
+compatible mouse
+3-button wireless
+Microsoft or Logitech
+mouse
+3D Mouse 	3DConnexion 3D mouse
+
+-- 1 of 43 --
+
+PAGE 2
+Issues Addressed in Mastercam X8 Update 4
+Issues Addressed in Mastercam X8 Update 3
+Category 	Description Bug
+Numbers
+Files 	Large file opens in X7 but not X8. 	R-02910
+Files 	Fix slow load time for files with many solids
+and toolpaths.
+R-02950
+Geometry 	Copying/Pasting geometry from one session of
+X8 to another is not correct.
+R-02710
+Import 	Importing operations from an X7 file deletes
+the tool in existing operations.
+R-02914
+Lathe 	Lathe ops are getting incorrectly marked dirty
+upon opening.
+R-03050
+Operations 	Edit selected operations - Renumber work
+offsets not working.
+R-02614
+Planes 	Opening an X7 file in X8 is changing op
+defined work offsets.
+R-02420
+Planes 	A line created between two planes moves to
+second plane.
+R-02866
+Printing 	X8 produces lesser quality than previous
+versions.
+R-02803
+Translation 	Missing half of all menus when Mill/Milling
+used.
+R-02401
+Category 	Description Bug
+Numbers
+Converters 	Add support for SOLIDWORKS 2015 	R-02393
+Converters 	Add support for SolidEdge ST7 	R-02394
+Converters 	Add support for PTC Creo 3.0 	R-02395
+Lathe 	3/8 - 16 tap in ltap tool list is not set correctly 	D-15204
+Lathe 	Lathe Rough - violating chained geometry 	R-02809
+MT Licensing 	Ambiguous error message when opening a
+machine with license that expires soon
+R-02452
+
+-- 2 of 43 --
+
+PAGE 3
+Tools 	Drop profile is not working correctly with
+custom tool defined in X7
+R-02885
+Tools 	Shoulder length less than flute length error
+when opening earlier version tools
+R-02821
+Tools 	Updating tools-6 file to x8 tooldb is changing
+slot mill and counter bore diameters
+R-02817
+Tools 	Thread pitch is not being set for inch taps
+when selecting from standard sizes drop down
+R-02832
+Tools 	Sort standard drill types in search / filter drop
+down
+R-02824
+Tools 	Selecting Yes in corrupt tool warning in Lathe
+is not updating the slot properly
+R-02383
+Tools 	Save holder is not working properly in toolpath
+dialog
+R-02823
+Tools 	Reamer is causing an issue with stock model 	R-02716
+Tools 	Migration - Updating Holder Library Changes
+Holders to Metric
+R-02522
+Tools 	Holders are not coming through in legacy
+toolpaths
+R-02819
+Tools 	GUID form temp reference positions not
+converted properly
+R-02733
+Tools 	Chamfer on reamer is updating when changing
+diameter
+R-02715
+Tools 	Tool names are not updating properly in X8 	R-02816
+Category 	Description Bug
+Numbers
+
+-- 3 of 43 --
+
+PAGE 4
+Issues Addressed in Mastercam X8 Update 2
+Issues Addressed in Mastercam X8 Update 1
+Category 	Description Bug
+Numbers
+Planes 	Unwanted Plane Created 	R-02686
+Planes 	T/Cplane Getting Set to ISO when GView is Set
+to ISO
+R-02419
+Planes 	Plane Manager Does Not Respect &quot;Planes
+ALWAYS = WCS
+R-02360
+Planes 	Getting Plane Info Inefficient 	R-02455
+Planes 	Crash When Launching After Clicking Through
+Plane Menus
+R-02482
+Planes 	Cannot Delete Unused Plane 	R-02719
+Category 	Description Bug
+Numbers
+Localization 	‘Save As’ Dialog concatenated string. 	R-02387
+Localization 	Unlocalizable Strings in Plane Manager
+Context Menu.
+R-02386
+
+-- 4 of 43 --
+
+PAGE 5
+Issues Addressed in Mastercam X8 Release
+Category 	Description Bug
+Numbers
+API 	ToolDisplay property no longer raises an “out
+of range” error in .NETHook API.
+D-14696
+Converters 	Fixed issues with Unigraphics file importer. 	D-13765
+Converters 	File/Save as STL Options dialog now enables
+the “Current WCS” option if the WCS has a
+different origin than 0,0,0.
+D-14895
+Dimensions 	Adding a symbol to a Smart Dimension no
+longer causes the dimension to be overwritten.
+D-14751
+General 	Fixed crash when user moves Shared McamX
+folder.
+B-27336
+General 	Fixed D and R keys in FastPoint mode. 	D-14863
+Graphics 	Fixed display of highlight geometry colors. 	D-14706
+Mill-Turn
+Simulation
+Showing 5-axis drill correctly in Mill-Turn with
+multiple holes.
+D-09024
+Simulator 	Polygon mesh now recognized as workpiece. 	D-08455
+Simulator 	Issues a warning if a workpiece is too big. 	D-09769
+Simulator 	Lathe Stock Flip operations now centering
+stock correctly.
+D-13378
+Simulator 	File Save STL no longer creating geometry in
+the wrong location.
+D-13392
+Simulator 	Simulator no longer acting on inactive values
+in drill cycles.
+D-13395
+Simulator 	Fixed crash when all levels are selected. 	D-13511
+Simulator 	Fixed normals in Save Stock as STL output. 	D-13717
+Simulator 	Fixed issue with custom tool and stock to leave
+on walls.
+D-13872
+Simulator 	Backplot/Verify Options no longer changing
+without user input.
+D-13992
+Toolpaths 	Import Operations no longer adding tools to
+incorrect machine group.
+B-27345
+Toolpaths 	Fixed Import Operations for Agie, Mitsubishi,
+and Makino machines.
+B-27436
+
+-- 5 of 43 --
+
+PAGE 6
+Toolpaths,
+Probe
+Fixed invalid coordinate system error when
+creating a Probe operation with a Japanese OS
+language pack.
+D-05001
+Toolpaths,
+Probe
+Calibration Center (P) now allows selection of
+the point from the part.
+D-07090
+Tools 	Fixed issue with incorrect tool number, offsets,
+and feed/speed values when posting.
+B-27332
+Tools 	Fixed delayed update of TOOLDB files. 	B-27771
+Tools 	Changing offset through tool branch in
+Toolpaths Manager now properly updating
+operation.
+B-27772
+Viewsheets 	Viewsheets no longer acting randomly. 	D-14951
+Category 	Description Bug
+Numbers
+
+-- 6 of 43 --
+
+PAGE 7
+Issues Addressed in Mastercam Beta 3
+Category 	Description Bug
+Numbers
+Backplot 	Fixed tool visibility in Backplot when using
+translucent shading.
+D-14748
+Customize 	Added support for localizing right-click menu
+in Customize dialog box.
+D-14396
+General 	Fixed Machine Type menu when launching
+Mastercam Design.
+D-14598
+General 	Fixed localization issues with function panels. 	D-14556
+General 	Fixed tooltips for operations in the Transform
+dialog box.
+D-14531
+General 	Fixed MRU list configuration control for drop-
+down toolbar menus.
+D-14467
+General 	Fixed issue with dialog boxes and panels
+hidden behind interface.
+D-14376
+General 	If enabled, viewsheets remain enabled after
+File, New.
+D-14299
+Graphics 	In Classic Backplot, the tool tip no longer
+shows through the part.
+D-14472
+Lathe 	Fixed the default tool library for VTL machine
+definitions.
+B-27206
+Lathe 	Fixed defect with stock update cutting through
+part ID.
+D-13798
+Lathe 	Lathe custom tool from a file now properly
+saves width and height in tool definition.
+D-13948
+Lathe 	Lathe toolpath chain highlighting now
+displaying correctly.
+D-14387
+Lathe Tools 	Custom lathe tools no longer causing errors
+depending on how they are selected from the
+library.
+D-14133
+Lathe Tools 	Same tool number error message no longer
+displays incorrect tool information.
+D-14269
+Machine
+Definition
+Fixed icons in Machine Definition, General
+Machine Parameters, Cplane page.
+D-13638
+
+-- 7 of 43 --
+
+PAGE 8
+Migration 	Migration no longer overwriting modified X8
+files with modified X7 files.
+B-26905
+Mill Tools 	Exiting tool editing without making changes no
+longer updating operation offsets.
+D-14366
+Mill Tools 	Copying toolpaths between machine groups
+now numbering tools properly.
+D-14335
+Mill Tools 	Fixed the Save to Library function on the
+Holder page in tree-style toolpath dialog
+boxes.
+D-14314
+Mill-Turn 	Providing motion block under Turret Park
+operation.
+B-26881
+Mill-Turn 	Fixed incorrect spindle direction warning for
+Pinch Turn operation.
+D-13466
+Mill-Turn 	Retract no longer affected by manual entry
+operation.
+D-13710
+Mill-Turn 	Invalid pickoff position no longer creates false
+error.
+D-13775
+Model Prep 	Doing a Move in Solid Prep no longer causes a
+crash if the gnomon is displayed.
+D-14390
+Planes 	Stock plane now being set to default WCS
+instead of default Cplane.
+D-14391
+Solids, Swept 	Addressed an issue with along chains after
+deleting part of the chain.
+D-14555
+Simulator 	Fixed issue with starting Simulator after editing
+plane manipulation keymap.
+D-14550
+Simulator 	Fixed a problem with running Simulator a
+second time.
+D-14380
+D-14452
+Simulator 	Added deviation values to Display Points
+information.
+D-14345
+Surface 	Fixed problem with ruled surface on two sets
+of splines.
+D-14616
+Category 	Description Bug
+Numbers
+
+-- 8 of 43 --
+
+PAGE 9
+Toolpaths 	Fixed an issue with posting incorrect tool
+number, offsets, feed rate, and spindle speed
+values.
+D-08564
+Toolpaths,
+Multiaxis
+Multiaxis roughing no longer outputting
+incorrect backfeed rate.
+D-14462
+Toolpaths,
+OptiRest
+OptiRest operation no longer creates an empty
+toolpath.
+D-14405
+Wire 	Fixed operation import/export for Agie,
+Mitsubishi, and Makino machines.
+D-14585
+Category 	Description Bug
+Numbers
+
+-- 9 of 43 --
+
+PAGE 10
+Issues Addressed in Mastercam Beta 2
+Category 	Description Bug
+Numbers
+Converters 	Correctly apply wireframe color, surface color,
+and solid color when colors are not defined in
+incoming CAD models.
+B-26360
+Converters 	Fixed wireframe colors on UG import. 	D-13344
+General 	Viewsheets now cleared correctly on File, New. D-14091
+General
+Selection
+Improved D+Z+ plane support in FastPoint
+mode.
+D-14024
+Mill Tools 	Improved the scrolling animation in the
+standalone Tool Manager.
+B-26467
+Mill Tools 	Changing overall length now properly
+updating tool display.
+D-14121
+Mill Tools 	Adding a new tool to an older lathe tool library
+or compressing it no longer maintains the
+machine pointer.
+D-14122
+Mill Tools 	Fixed issue where replacing a Mastercam
+library tool with the exact same tool created in
+the standalone Tool Manager resulted in a
+different toolpath.
+D-14124
+Mill Tools 	Updated tool projection when user changes
+the overall length.
+D-14140
+Mill Tools 	Converting tools-* library to TOOLDB via the
+Migration Wizard no longer locks the resulting
+TOOLDB file.
+D-14141
+Mill Tools 	Fixed import operations duplicate tool
+checking.
+D-14142
+Mill Tools 	“Assembly has changed” dialog box no longer
+displaying multiple times when you change
+holders in certain toolpaths.
+D-14143
+Mill Tools 	Deleting unused tools no longer causing a
+crash.
+D-14206
+Mill Tools 	Same tool number error message now
+displays correct tool information.
+D-14269
+
+-- 10 of 43 --
+
+PAGE 11
+Mill Tools 	Fixed Save to Library function on Holder page
+in Mastercam tree-style toolpath dialog boxes.
+D-14314
+Planes 	Improved performance when hiding/showing
+planes from the Plane Manager.
+D-14018
+Planes 	Work offset no longer lost when incrementally
+rotating a plane.
+D-14064
+Planes 	Work offsets now correctly updated when
+changing the Tplane for an operation.
+D-14154
+Planes 	Work offset no longer lost when dynamically
+rotating a plane.
+D-14257
+Planes 	User-specified WCS and Tplane no longer
+being changed in Lathe.
+D-14258
+Planes 	Selecting Lathe Diameter = +D+Z from the
+Planes status bar menu now activates the
+plane.
+D-14318
+Planes 	Work offsets no longer lost when opening X7
+files in X8.
+D-14319
+Planes 	Sorting in the Planes List no longer causes a
+crash.
+D-14373
+Simulator 	Fixed crash in Simulator when all levels were
+selected.
+D-13511
+Simulator 	Fixed issue with custom tool and stock to leave
+on walls.
+D-13872
+Solids 	Improved solid hide/unhide interaction 	D-14329
+Toolpaths,
+Contour
+Fixed issue with contour plunge. 	D-13722
+Toolpaths,
+Transform
+Operations with aggregate tools can now be
+transformed.
+D-14179
+Wire 	Fixed erratic motion in 4-axis wirepath with
+Direct 4-axis format.
+D-14123
+Wire 	Wire transform no longer causes “Taper
+exceeds machine limits” warning.
+D-14193
+Category 	Description Bug
+Numbers
+
+-- 11 of 43 --
+
+PAGE 12
+Issues Addressed in Mastercam Beta 1
+Category 	Description Bug
+Numbers
+API 	NETHook API calls now update the selected
+state of operations in the Toolpath Manager..
+D-13911
+Converters 	Save As AutoCAD DWG/DXF now saves to
+correct version.
+D-14025
+General 	Fixed issue where Comp Side preview did not
+match Tplane.
+D-10075
+General 	Posting no longer prompts twice to overwrite
+files with no extension.
+D-13239
+General 	Axis origin (F9) lines are now refreshed on
+plane changes.
+D-13991
+General 	Blank lines in Manual Entry operations no
+longer produce bad NC/NCI output.
+D-13806
+General 	Using F2 to un-zoom now works correctly. 	D-14045
+General 	Fixed issue where the File Save dialog was not
+saving the current file when creating a new
+part.
+D-14088
+General 	In “non-tree style” toolpaths, the tool used in
+the toolpath is now highlighted.
+D-14107
+Machine
+Simulation
+A1_5XHURCO_VMCTTAC now works in X8. 	D-06388
+Mill Tools 	Saving a tool twice to the same tool database
+no longer deletes the tool from the library.
+D-08465
+Mill Tools 	Dove tail tool is no longer invalid in Mastercam
+Simulator.
+D-08978
+Mill Tools 	Min/Max tool diameter and work piece
+material are now imported from Mastercam
+into the Extensions Tool Manager when
+searching for cut parameters.
+D-09103
+Mill Tools 	Mastercam Simulator no longer issues an
+invalid tool warning on a parametric dove-mill
+definition
+D-11199
+Mill Tools 	Fixed issue with tool profile when opening an
+MCX-6 file in X7 or X8.
+D-11200
+
+-- 12 of 43 --
+
+PAGE 13
+Mill Tools 	Fixed issue with editing the default holder in a
+toolpath.
+D-13302
+Mill Tools 	Fixed profile builder to filter out 0 length lines
+in tool profiles.
+D-13369
+Mill Tools 	Lollipop tool data in X7 updates correctly and
+no longer displays as an invalid tool in X8.
+D-13382
+Mill Tools 	Toolpath now updates when tool number is
+changed.
+D-13455
+Mill Tools 	Fixed potential data loss when updating X6
+TOOLDB to X8 (shoulder diameter, taper
+length, helix angle and helix type).
+D-13524
+Mill Tools 	Changing the &quot;tool projection&quot; by a small
+amount is no longer changing the profile of the
+tool.
+D-13674
+Mill Tools 	Fixed problem with corner radius value when
+creating a new ball tool.
+D-13701
+Mill Tools 	X6 dove mill data now updates correctly into
+X8.
+D-13708
+Mill Tools 	Fixed potential crash with extra long tool and/
+or assembly names.
+D-14094
+Mill Tools 	HolderDiameter and HolderHeight attributes
+now import into TOOLDB during migration
+from TOOLS-n files.
+B-23847
+Mill-Turn 	Turret park left with tool change now simulates
+properly.
+D-05860
+Mill-Turn 	IOF Simulation no longer freezes when using
+toolpath mode.
+D-05900
+Mill-Turn 	Simulation error on a 5-axis toolpath file fixed. 	D-05929
+Mill-Turn 	Tool simulation now shows the tool correctly. 	D-06014
+Mill-Turn 	Fixed issue with binned files not displaying a
+machine in machine simulation.
+D-06522
+Multiaxis 	5-axis Drill toolpath no longer gouging the part
+when moving between points.
+D-01716
+Category 	Description Bug
+Numbers
+
+-- 13 of 43 --
+
+PAGE 14
+Multiaxis 	Curve 5-axis toolpath no longer chaining
+geometry twice when chains need to be re-
+defined.
+D-01718
+Multiaxis 	Curve 5-axis toolpath with the &quot;Relative to
+direction&quot; option selected now works as
+expected.
+D-01719
+Multiaxis 	When creating &quot;Morph between 2 curves&quot;
+toolpath, the toolpath dialog now minimizes
+when selecting &quot;Z coordinate of a point&quot;.
+D-01839
+Multiaxis 	Convert 5-axis Tool Axis Control parameters
+no longer changed when the toolpath
+parameters are re-opened.
+D-03648
+Multiaxis 	Pattern Type images now display on the
+Project Curves, Cut Pattern page.
+D-04743
+Multiaxis 	X6 Machine Simulation XML file now works in
+X7.
+D-06017
+Multiaxis 	Starting Machine Simulation on a Japanese OS
+no longer crashes Mastercam.
+D-06257
+Multiaxis 	Blade Expert - Morph between Shroud and
+Hub strategy no longer crashes Blade Expert.
+D-06587
+Multiaxis 	Port Expert - Mastercam no longer stops
+responding after clicking on &quot;Stock&quot; in the
+toolpath parameters.
+D-06899
+Multiaxis 	Holder no longer displays below tool spindle in
+Machine Simulation.
+D-07032
+Multiaxis 	Incorrect toolpath no longer generated by
+Convert to 5axis with .lmd.
+D-07272
+Multiaxis 	Enabling entry/exit on a SWARF 5-axis
+toolpath no longer causes Mastercam to crash
+when you regenerate the operation.
+D-07710
+Planes 	Drafting entities created in &quot;Non-standard&quot;
+planes are now created at the proper &quot;Z&quot; depth.
+D-13802
+Planes 	Reinstated the warning to update operations
+when modifying work offsets in the Plane
+Manager.
+B-26410
+Category 	Description Bug
+Numbers
+
+-- 14 of 43 --
+
+PAGE 15
+Productivity
+Plus
+Heidenhain file path now written to the same
+location as the NC file.
+D-06312
+Simulator 	Verify no longer appears to gouge part when
+comp is set to &quot;Control&quot;.
+D-04933
+Simulator 	Mastercam Simulator now displays block drills
+with the correct tool tip angle.
+D-05066
+Simulator 	Fixed issue with toolplane changes on
+transformed operations.
+D-06033
+Simulator 	The projection of custom tools is now the
+same in the tool manager and Mastercam
+Simulator.
+D-06062
+Simulator 	Toolpath Nesting in Mastercam Simulator now
+recognizing tool changes.
+D-06073
+Simulator 	Verify now correctly reads tool profile data and
+no longer issues a zero length warning.
+D-06086
+Simulator 	Fixed memory issues when saving to STL at
+0.001 tolerance.
+D-06108
+Simulator 	Simulator now compensates the tools
+correctly when simulating a Transform
+Operation.
+D-06143
+Simulator 	Stock Compare keeps inputted values. 	D-06179
+Simulator 	Fixed Windows 7 32-bit Verify bug. 	D-06243
+Simulator 	Face Mill tool no longer getting unnecessary
+undercut warning.
+D-06255
+Simulator 	Canned Rough and Finish toolpaths no longer
+cause Verify to crash.
+D-06311
+Simulator 	Move list details have been added to the
+programmed feed of the tool.
+D-06380
+Simulator 	Fixed various translation issues. 	D-06394
+Simulator 	Rotary axis moves no longer &quot;unwinding&quot; in
+Verify.
+D-06444
+Simulator 	Fixed issue with Mastercam Simulator not
+displaying holders correctly in older surface
+toolpaths.
+D-06524
+Category 	Description Bug
+Numbers
+
+-- 15 of 43 --
+
+PAGE 16
+Simulator 	Toolpaths that are programmed in Control now
+showing in Simulator.
+D-06581
+Simulator 	Custom tool tip profile now projected onto
+stock model in Verify.
+D-06927
+Simulator 	Fixed issue with the Stock Opacity setting not
+retaining changes.
+D-06970
+Simulator 	Comp in Control: Verify no longer shows the
+wrong tool path.
+D-07158
+Simulator 	Fixed issue with stock positioning. 	D-07638
+Simulator 	Fixed display of imported STL files. 	D-13917
+Category 	Description Bug
+Numbers
+
+-- 16 of 43 --
+
+PAGE 17
+Issues Addressed in Mastercam X8 TP4
+Mastercam X8 Technical Preview 4 includes several bugs fixes, including the
+following list:
+Category 	Description Bug
+Numbers
+Analyze Angle 	Analyze Angle now references current C-plane. D-13479
+Code Expert 	Code Expert simulation now correctly shows
+right spindle ops offset.
+D-09876
+Code Expert 	No longer raises Invalid Path Exception
+Message Posting when running a VBScript.
+D-09943
+Code Expert 	Fixed display of Code Expert information. 	D-10122
+Code Expert 	Code Expert now able to change colors for
+Feedrate &amp; Linear Arc identifiers.
+D-13418
+Converters 	Configurations referenced in SOLIDWORKS
+assembly now imported correctly.
+D-13379
+Converters 	Non-visible surfaces in Inventor files no longer
+being imported.
+D-13454
+General 	Edit/Common Parameters no longer creates a
+new toolpath group.
+D-10012
+General 	Regenerating FBM operations created in X7 no
+longer updates mcamx7\mill\Tools tooldb.
+D-10163
+General 	Fixed issue with visible levels when opening
+parts with Level Manager already open.
+D-10173
+Graphics 	Translucent shading now shows one part
+inside another.
+D-09886
+Graphics 	Improved display of wireframe entities along
+solid edges.
+D-13420
+Graphics 	Improved display when switching between
+viewsheets.
+D-13435
+Lathe 	Lathe internal groove toolpath no longer has
+unexplained retract move.
+D-09944
+Lathe 	Lathe now has the ability to have the same
+tool number for twin turrets.
+D-09747
+Lathe 	Fixed defect with &quot;stock amount&quot; in groove
+toolpath.
+D-11207
+
+-- 17 of 43 --
+
+PAGE 18
+Lathe 	Corrected a problem with extended lead out
+when using a boring bar.
+D-13250
+Mill Tools 	Holder list now populated with holders from
+the default tool library as specified in
+Mastercam config.
+B-22385
+Mill Tools 	Corrected issue where a custom Lathe tool
+could not be copied to the upper window in
+the Mastercam Tool Manager.
+D-09605
+Mill Tools 	The graphical preview is now repainted when
+changing tool type from Endmill to Bull-
+Endmill in create tool function.
+D-09270
+Mill Tools 	Right-mouse click now selects item in Tool
+Manager.
+B-23848
+Mill Tools 	Spindle direction is now changing as expected
+when creating taps.
+D-09454
+Mill Tools 	Updated Lathe Tool Library Translator. 	D-09726
+Mill Tools 	Updating X6 Tool database to X8 no longer
+resets coolant values.
+D-09693
+Mill Tools 	DXF tools can now be created from a directory
+that contains double-byte characters in its
+name.
+D-09905
+Mill Tools 	Tools can now be deleted from a .TOOLS-7 file. D-09369
+Mill Tools 	Existing tools in Surface toolpaths can now be
+edited.
+D-09610
+Mill Tools 	Enumerations updated for localization in
+datagrid groups.
+D-10134
+Mill Tools 	Fixed crash when selecting tool in operations
+manager.
+D-08546
+Mill Tools 	Fixed crash when editing custom tool from
+DXF in Mastercam.
+D-08666
+Category 	Description Bug
+Numbers
+
+-- 18 of 43 --
+
+PAGE 19
+Issues Addressed in Mastercam X8 TP3
+Mastercam X8 Technical Preview 3 includes several bugs fixes, including the
+following list:
+Mill Turn 	Fixed issue with Mill-Turn toolplane setup on
+certain parts.
+D-09945
+Mill Turn 	Fixed issue with that disabled “Derive from
+geometry” option.
+D-13259
+Planes 	T/C plane once again switches to top after
+selecting isometric view.
+D-13279
+Nesting 	Nesting now waits for multi-thread toolpath
+operations to finish calculating.
+D-13224
+Nesting 	Improved loading of customized default sheet. D-09961
+Setup Sheet 	Setup Sheet now shows all coolant types in
+use.
+D-07953
+Setup Sheet 	Fixed issue with Setup Sheet reporting
+incorrect tool descriptions and tool names.
+D-08271
+Setup Sheet 	Added ability to output manual entry toolpaths
+in sequence with other toolpaths.
+B-22275
+Toolpaths, 2D
+High Speed
+Changed “Core” and “Area” terminology to
+“From outside” and “Stay inside”.
+B-24911
+Toolpaths,
+Surface High
+Speed
+Improved retract height for OptiRest and Rest
+Roughing.
+B-22806
+Category 	Description 	Defect #
+Add-ons 	ATP - Operations are no longer created with
+Top of Stock=0.0 instead of value in
+operations file.
+D-06136
+Converters 	Specific DWG files now open correctly in
+Mastercam.
+D-03506
+Converters 	Importing a specific SolidEdge assembly no
+longer crashes Mastercam.
+D-08539
+Category 	Description Bug
+Numbers
+
+-- 19 of 43 --
+
+PAGE 20
+Issues Addressed in Mastercam X8 TP2
+Mastercam X8 Technical Preview 2 included several bugs fixes, including the
+following list:
+Converters 	Duplicate notes no longer being produced in
+specific DWG files.
+D-09720
+General 	The &quot;Only display selected toolpaths&quot; option
+now gets saved upon re-opening a file.
+D-09180
+General 	Geometry Groups: View option is now working
+properly in X8.
+D-09804
+General 	Wrong spindle speed no longer output if entry
+override is on.
+D-09862
+Mill Tools 	Added warning for users when they are going
+to overwrite tool data in the Create Tool/Holder
+Wizard.
+B-21975
+Mill Tools 	Holder segment data now available in post
+processor.
+B-22386
+Mill Tools 	FBM Mill tools no longer generating corrupt or
+invalid file errors.
+D-08991
+Mill Tools 	Drag and dropping a compound holder
+assembly is no longer re-ordering holders.
+D-09809
+Planes 	Delete button no longer tries to delete Plane
+that cannot be deleted.
+D-09981
+Wire 	Added infinite look ahead checkbox to Agie
+dialogs.
+B-07786
+Category 	Description Bug
+Numbers
+Backplot 	Drills now displayed correctly in Classic
+Backplot with user-defined WCS.
+D-08883
+Code Expert 	Fixed an issue with ToolCallOuts in NC
+Configuration.
+D-09748
+Category 	Description 	Defect #
+
+-- 20 of 43 --
+
+PAGE 21
+Code Expert 	Code Expert editor position when searching
+for specific NCI line adjusted to be at mid-
+screen.
+D-09445
+Code Expert 	Code Editor now allows printing of a section of
+a document.
+D-09478
+File,
+Translators
+Fixed an issue with geometry missing in
+specific DWG files.
+D-09336
+File,
+Translators
+Corrected colors for incoming IGES file. 	D-09483
+File,
+Translators
+DWG file no longer missing surfaces when
+converted.
+D-09728
+Lathe 	Lathe groove operation no longer cutting too
+deep on last move.
+D-09580
+Machine
+Simulation
+External posting now properly supports
+custom tools, transform operations, and
+transform to WCS feature.
+D-09199
+Mastercam
+Simulator
+Tool changes now registering correctly in both
+Simulator and the binary NCI file.
+D-08037
+Mastercam
+Simulator
+C-axis Face Drill now shows correct path in
+Simulator.
+D-08082
+Mastercam
+Simulator
+The Hide Machine Housing button now keeps
+its setting correctly.
+D-08088
+Mastercam
+Simulator
+Stop on tool change now stops correctly even
+if only the tool number is different.
+D-08340
+Mastercam
+Simulator
+Tool numbers corrected in Move List. 	D-08586
+Mastercam
+Simulator
+Fixed error occurring in IOF C-Hook involving a
+cutoff.
+D-08911
+Mastercam
+Simulator
+Simulation is now showing 5-axis drill in Mill-
+Turn with multiple holes correctly.
+D-09024
+Mastercam
+Simulator
+Verifying a Surface High Speed toolpath
+displays correctly whether playing or stepping
+through the toolpath.
+D-09119
+Mastercam
+Simulator
+Fixed issue with incorrect tool plane on C-axis
+Face Drill toolpath after first hole.
+D-09173
+Category 	Description Bug
+Numbers
+
+-- 21 of 43 --
+
+PAGE 22
+Mastercam
+Simulator
+Mastercam Simulator and Machine Simulation
+will now run if the user changes the location of
+the My McamX folder in Configuration.
+D-09175
+Mastercam
+Simulator
+Fixed an issue with displaying C-axis motion. 	D-09251
+Mastercam
+Simulator
+Improved chamfer endmill display. 	D-09271
+Mastercam
+Simulator
+Stock transfer with spindles synced now
+shows spindles spinning.
+D-09352
+Mastercam
+Simulator
+In IOF Simulation, improved speed on the sub
+spindle operations.
+D-09533
+Mastercam
+Simulator
+Workpiece is now coming across even with arc
+issues.
+D-09662
+Mill Tools 	Using &quot;Get Holder from Library&quot; in the
+CheckHolder C-Hook now works properly.
+D-05868
+Mill Tools 	Fixed a crash when FBM creates tools from
+scratch.
+D-07862
+Mill Tools 	Fixed an issue using Lathe Tools with very long
+custom profile paths.
+D-08559
+Mill Tools 	Simulator no longer getting a tool error
+because of incorrect tool profile data.
+D-08788
+Mill Tools 	The tool material is no longer getting changed
+to Carbide when the original material was HSS
+when the tool was created in an earlier version
+(X6 or X5 tool library).
+D-08966
+Mill Tools 	Addressed issue with cutting depths being
+incorrect for flat endmill on DXF Import.
+D-09013
+Mill Tools 	Using Edit Holder option on a default tool
+assembly now properly updates Holder Name
+in tool list.
+D-09214
+Mill Tools 	Opening an X7 .TOOLDB file in X8 is no longer
+crashing X8.
+D-09268
+Mill Tools 	Chamfer size now applied properly. 	D-09553
+Mill Tools 	Undo of assemblies is no longer losing
+components.
+D-09565
+Category 	Description Bug
+Numbers
+
+-- 22 of 43 --
+
+PAGE 23
+Issues Addressed in Mastercam X8 TP1
+Mastercam X8 Technical Preview 1 included several bugs fixes, including the
+following list:
+Solids to
+Surfaces
+Fixed problem with trimmed surface
+boundaries found in X7 MU1.
+D-08827
+Toolpaths,
+Multiaxis
+Fixed erratic moves in Morph Between 2
+Curves toolpath.
+D-08749
+Toolpaths,
+Multiaxis
+Swarf toolpath now calculating correct result
+when climb cutting selected.
+D-08998
+Toolpaths,
+Multiaxis
+Mesh toolpath with a flat tool now performs 5-
+axis moves correctly.
+D-09065
+Toolpaths,
+Multiaxis
+New swarf algorithm supports additional part
+shapes.
+D-09210
+Toolpaths,
+Multiaxis
+New swarf toolpath no longer repeating itself
+based on the number of layers when layers are
+set to &quot;Slice&quot;.
+D-09273
+Toolpaths,
+Multiaxis
+Fixed an issue with a specific part in Blade
+Expert.
+D-09506
+Toolpaths,
+Probe
+Probe Calibration Center now allows selection
+of the point from the part.
+D-07090
+Xform 	Removed Xform, Drag since its functionality is
+superseded by Dynamic Xform.
+Category 	Description Bug
+Numbers
+API 	Changing the chain direction correctly affects a
+single entity.
+D-02301
+ATP 	Fixed ATP Import Operation exception. 	D-05727
+ATP 	With Educational SIM, inform user and exit
+ATP.
+D-07684
+ATP 	ATP now processes Helix Bore and Circle Mill
+toolpaths correctly.
+D-08338
+Category 	Description Bug
+Numbers
+
+-- 23 of 43 --
+
+PAGE 24
+ATP 	Fixed nesting sort order. 	D-08568
+C-Hooks 	Pts2Arcs C-Hook no longer reports &quot;Unknown
+file type&quot; when run.
+D-06624
+Code Expert 	Launching Code Expert in &quot;Editor&quot; mode no
+longer creates and uses a separate folder in
+my mcamx7\Config.
+D-05063
+Code Expert 	Bookmarks working correctly after &quot;Save As&quot;. 	D-05412
+Code Expert 	Insert Block Numbers now includes an option
+to not number comments.
+D-06610
+Code Expert 	&quot;Do not prefix with N&quot; option in Code Expert no
+longer allows Insert Block Numbers to add
+multiple sequence numbers.
+D-06621
+Create,
+Bounding Box
+Improved WCS support. 	D-06775
+Create,
+Drafting
+Fixed fractional display. 	D-06194
+Create, Point 	Endpoints now finding all cases. 	D-06411,
+D-06443
+Create, Spline 	Fixed issues with creating splines. 	D-07989
+Create,
+Surface
+Fixed issues with filleting to a curve. 	D-04521
+Create,
+Surface
+Create, Surface, Extruded no longer rotating
+surfaces by 90 degrees.
+D-05699
+Create,
+Surface
+Trim now yielding correct results. 	D-06134,
+D-06500
+Create,
+Surface
+Fixed issues with Create, Surface, Extend
+trimmed edges
+D-06639
+Create,
+Surface
+Improved speed on Create, Surface, Ruled 	D-07310
+Create,
+Surface
+Can now cancel out of Create, Surface, Trim,
+To curves even once chaining dialog box
+displays.
+D-07523
+Create,
+Surface
+Corrected issues with net surfaces. 	D-07970
+Category 	Description Bug
+Numbers
+
+-- 24 of 43 --
+
+PAGE 25
+Create,
+Surface
+Corrected issues with trimming surfaces to
+curves.
+D-08977
+File,
+Translators
+Fixed geometry creation issues when
+importing a specific Unigraphics file.
+D-06298
+File,
+Translators
+Fixed problems with annotations when
+importing a specific Unigraphics file.
+D-06560
+File,
+Translators
+Fixed crash when importing a specific STEP
+file.
+D-06607,
+D-08544
+File,
+Translators
+Fixed crash when importing a specific
+Unigraphics file.
+D-06670
+File,
+Translators
+Fixed crash when importing a specific ProE/
+Creo file.
+D-07422
+File,
+Translators
+Multiple sheet DWG file now imports correctly
+into Mastercam.
+D-08010
+File,
+Translators
+Masking option in DWG/DXF importer works in
+all cases.
+D-09238
+General 	Edit common parameters now updating all
+parameters.
+D-03585
+General 	Edit common parameters now correctly
+updating the work offset number.
+D-05076
+General 	Improved surface de-selection in large surface
+files.
+D-06097
+General 	Wire default machine can now be changed in
+configuration.
+D-06217,
+D-06676
+General 	Solids layout no longer triggers database
+corruption.
+D-06259
+General 	Screen start-up size has been adjusted. 	D-06564
+General 	Fixed issue with adding a cancel button to
+Mastercam file dialog.
+D-06754
+General 	TrueType font now stays between sessions. 	D-06900
+General 	Project Manager now saving the NCI to the
+correct folder.
+D-06957
+Category 	Description Bug
+Numbers
+
+-- 25 of 43 --
+
+PAGE 26
+General 	When opening previous version file, the
+machine definition is properly updated to
+current version.
+D-07094
+General 	Productivity+ displays in Mastercam Launcher. D-07132
+General 	Japanese characters are now being displayed
+correctly in the graphics area when a plane is
+highlighted in Plane Manager.
+D-07265
+General 	Fixed an issue with deleting passes in the
+Toolpath Editor.
+D-07313
+General 	No longer allowing the user to close a parent
+dialog box when the child dialog box is still
+open.
+D-07321
+General 	Viewsheet message appears when opening a
+current version file.
+D-07327
+General 	Removes or suppressed the &quot;Work offset
+number already used&quot; warning.
+D-07409
+General 	Solids no longer unselectable. 	D-07497
+General 	Fixed defects in changing levels in the Level
+Manager.
+D-07498
+General 	Visible level list functions properly when using
+solid functions with viewsheets.
+D-07827
+General 	Viewsheet prompt is no longer shown when
+editing operation defaults and library files.
+D-07873
+General 	Fixed issue with copying and pasting
+operations.
+D-08001,
+D-08366
+General 	Fixed drag and drop tool in Operations
+Manager.
+D-08055
+General 	Changing the &quot;Mastercam Current Version
+Parts&quot; path in configuration is no longer
+moving the &quot;shared Mcamx&quot; folder.
+D-08092
+General 	Fixed operation selection in stock model dialog
+box.
+D-08337
+General 	Toolpath group no longer keeps old machine
+group comment, even if the toolpath group is
+renamed.
+D-08416
+Category 	Description Bug
+Numbers
+
+-- 26 of 43 --
+
+PAGE 27
+General 	Using &quot;Microsoft Windows Standard&quot; file
+dialog style is no longer missing a button in the
+File, Save Some dialog.
+D-08440
+General 	EA Manager no longer disabled if operations
+are imported.
+D-08595
+General 	Fixed issue with being unable to save and then
+reopen a file.
+D-08760
+General 	Fixed issue with multithreading hanging. 	D-06238
+Graphics 	Fixed display of complicated splines 	D-04684
+Graphics 	Fixed issue with print preview of white solids. 	D-07650
+Graphics 	Fixed issue with solids going dark. 	D-07810
+Graphics 	Fixed issues with graphics when using custom
+WCS.
+D-08113
+Lathe 	Tool orientation is disabled for lathe drilling
+operations.
+D-05078
+Lathe 	The &quot;D&quot; and &quot;Z&quot; in a Transform, Mirror
+operation are no longer reversed in VTL mode.
+D-05758
+Lathe 	Remaining stock working correctly. 	D-05861
+Lathe 	Lathe Groove, Smooth Depth Cuts no longer
+skipping sections.
+D-06254
+Lathe 	Chain direction on closed contours is no
+longer ignored on splines if &quot;Use Cursor
+position&quot; is disabled.
+D-06365
+Lathe 	Improved lathe stock calculation. 	D-06376
+Lathe 	Improved processing time for lathe groove
+roughing.
+D-06398
+Lathe 	Remaining stock display corrected after
+operation with tool inspection.
+D-06466
+Lathe 	Fixed issue with tool inspection using the
+toolpath’s lead in/out arcs.
+D-06467
+Lathe 	Removed extra step when “no plunge
+allowed” is selected.
+D-06542
+Lathe 	Lathe rough toolpath no longer roughing the
+same area twice.
+D-06590
+Category 	Description Bug
+Numbers
+
+-- 27 of 43 --
+
+PAGE 28
+Lathe 	Fixed issue with Lathe dynamic rough toolpath
+gouging.
+D-06591
+Lathe 	Fixed issue with Lathe groove lead-in arcs. 	D-06875
+Lathe 	Adjust stock now highlighting the stock. 	D-06937
+Lathe 	Tool no longer ignores clearance set in Tool
+Settings dialog box when executing rapid
+move.
+D-06959
+Lathe 	Fixed issue with rotation type under axis
+control.
+D-06979
+Lathe 	Lathe Dynamic Rough now works with
+revolved stock.
+D-06999
+Lathe 	Fixed issue with display of Adjust Stock. 	D-07251
+Lathe 	When using Tool Inspection to do a pecking
+routine, the tool retracts at the end of the
+toolpath.
+D-07326
+Lathe 	Lathe operation no longer yields &quot;invalid arc&quot;
+warning in Classic Backplot and or causes
+Verify to hang.
+D-07330
+Lathe 	Tool orientation on machine corrected with
+custom tool.
+D-07475
+Lathe 	Start position in editing lathe toolpath no
+longer coming from origin.
+D-07616
+Lathe 	When using metric configuration, and using a
+cutoff toolpath, the secondary feedrate/spindle
+speed section updates correctly to mm/rev.
+D-07619
+Lathe 	Setup Sheet - Cycle Time - Reports correct
+time for Thread C operations.
+D-07744
+Lathe 	Lathe tool is no longer cutting too far. 	D-07919
+Lathe 	Fixed Lathe Groove, Peck Groove, Peck
+Parameters.
+D-08183
+Lathe 	Fixed defect in Lathe Rough toolpath found in
+X7 MU1.
+D-08509
+Lathe 	Drill Clearance correctly applied at Start and
+End of toolpath.
+D-08578
+Category 	Description Bug
+Numbers
+
+-- 28 of 43 --
+
+PAGE 29
+Lathe 	Manual Entry toolpath no longer causes X8 to
+crash upon file load.
+D-08645
+Lathe 	Fixed reference points retract. 	D-08740
+Lathe 	Lathe roughing operations are no longer
+gouging and returning a lot of collision
+warnings.
+D-08805
+Lathe 	Deselecting the Update stock option in Point
+toolpaths turns off correctly.
+D-08854
+Lathe 	Fixed gouge with Lathe Groove toolpath
+(chain).
+D-08887
+Lathe 	The correct prompt is displayed in Lathe home
+position.
+D-09010
+Lathe 	Tool Inspection point now written when
+reference points are enabled twice and set
+same.
+D-09055
+Lathe 	Miscellaneous operations are no longer grayed
+out with 2-axis lathe in right-click menu.
+D-09063
+Machine
+Simulation
+X6 XML file now runs properly in X8. 	D-05987
+Machine
+Simulation
+Fixed issue with A1_5XHURCO_VMCTTAC file. 	D-06388
+Machine
+Simulation
+Holder no longer displaying below tool
+spindle.
+D-07032
+Mastercam
+Simulator
+Improved NCI processing time. 	D-04169
+Mastercam
+Simulator
+Fixed Backplot and Verify Gviews to match
+SOLIDWORKS views.
+D-04414
+Mastercam
+Simulator
+Axis substitution file no longer shows tool
+colliding with part.
+D-04617
+Mastercam
+Simulator
+Improved support for multiple machine
+groups.
+D-04875
+Mastercam
+Simulator
+Stock Setup now being reset on File New
+correctly.
+D-04906
+Mastercam
+Simulator
+Verify no longer appears to gouge part when
+compensation is set to Control.
+D-04933
+Category 	Description Bug
+Numbers
+
+-- 29 of 43 --
+
+PAGE 30
+Mastercam
+Simulator
+Verify updates stock correctly when switching
+between machine groups.
+D-05039
+Mastercam
+Simulator
+Simulator displaying block drills with the
+correct tool tip angle.
+D-05066
+Mastercam
+Simulator
+Fixed an error that displayed if you attempted
+to verify a Lathe toolpath without defining
+stock first.
+D-05106
+Mastercam
+Simulator
+Fixed problem with Mastercam crash after
+Backplot.
+D-05257
+Mastercam
+Simulator
+Fixed inconsistent Backplot and Verify options
+when working with Mastercam Simulator.
+D-05673
+Mastercam
+Simulator
+Fixed verification of Router horizontal block
+drill.
+D-05794
+Mastercam
+Simulator
+Turret park left now simulates properly, even
+with tool change.
+D-05860
+Mastercam
+Simulator
+Fixed issue with verifying with precision set to
+High.
+D-05878
+Mastercam
+Simulator
+Simulator no longer freezes when using
+toolpath mode.
+D-05900
+Mastercam
+Simulator
+Workpiece displays in Verify in Demo/HLE
+product.
+D-05904
+Mastercam
+Simulator
+Fixed Mastercam Simulator lockup. 	D-05905
+Mastercam
+Simulator
+CPU usage now released properly when
+closing Simulator.
+D-05919
+Mastercam
+Simulator
+Fixed error on 5-axis toolpath file. 	D-05929
+Mastercam
+Simulator
+Fixed leftover STL image after selecting File,
+New.
+D-05989
+Mastercam
+Simulator
+In Mastercam for SOLIDWORKS, simulation
+messages being forced to the top.
+D-06003
+Mastercam
+Simulator
+Fixed problem with tool plane changes on
+transformed operations.
+D-06033
+Mastercam
+Simulator
+Projection of custom tools now the same in
+Tool Manager and Mastercam Simulator.
+D-06062
+Category 	Description Bug
+Numbers
+
+-- 30 of 43 --
+
+PAGE 31
+Mastercam
+Simulator
+Toolpath nesting in Simulator properly
+recognizing tool changes.
+D-06073
+Mastercam
+Simulator
+Fixed tool issue with zero length warning. 	D-06086
+Mastercam
+Simulator
+Addressed Save to STL memory problem at
+0.001 tolerance.
+D-06108
+Mastercam
+Simulator
+Fixed transform defect in Simulator. 	D-06143
+Mastercam
+Simulator
+Changing stock compare values in XML file
+now sticks.
+D-06179
+Mastercam
+Simulator
+Fixed Windows 7 32-bit issue. 	D-06243
+Mastercam
+Simulator
+Removed undercut warning for face mills. 	D-06255
+Mastercam
+Simulator
+Fixed issue with starting Simulator on
+Japanese operating system.
+D-06257
+Mastercam
+Simulator
+Fixed issue with canned rough and finish
+toolpaths.
+D-06311
+Mastercam
+Simulator
+Enhanced move list with toolpath info. 	D-06380
+Mastercam
+Simulator
+Contour-Axis substitution clockwise around
+cylinder no longer &#39;unwinds&#39; end of operation.
+D-06444
+Mastercam
+Simulator
+Contour toolpath displaying correctly in
+Simulator.
+D-06581
+Mastercam
+Simulator
+Fixed issue in Verify in Mastercam for
+SOLIDWORKS.
+D-06632
+Mastercam
+Simulator
+Fixed incorrect verify result in Lathe C-axis
+toolpath.
+D-06804
+Mastercam
+Simulator
+For custom tools defined in both quadrant 1
+and 4, the length compensation is corrected in
+Simulator.
+D-06809
+Mastercam
+Simulator
+Custom tool tip profile now projected onto
+stock model in Verify
+D-06927
+Mastercam
+Simulator
+Fixed setting for stock opacity. 	D-06970
+Category 	Description Bug
+Numbers
+
+-- 31 of 43 --
+
+PAGE 32
+Mastercam
+Simulator
+Fixed custom tool holder display with
+transform toolpath backplot.
+D-06977
+Mastercam
+Simulator
+Fixed issue with running Simulator on a 3D
+part file.
+D-07075
+Mastercam
+Simulator
+Fixed issue with errors during C-axis drill
+toolpaths.
+D-07154
+Mastercam
+Simulator
+Fixed issue with display of compensation in
+control during Verify.
+D-07158,
+D-07299,
+D-07990
+Mastercam
+Simulator
+Verify now shows correct tool number in move
+list.
+D-07344
+Mastercam
+Simulator
+Fixed issue with display of geometry lines. 	D-07474
+Mastercam
+Simulator
+Fixed stock positioning error. 	D-07638
+Mastercam
+Simulator
+Fixed transition error between operations. 	D-07771
+Mastercam
+Simulator
+Fixed incorrect order when Probing operations
+are involved.
+D-07826
+Mastercam
+Simulator
+Simulator now shows part correctly with
+custom tool (concave).
+D-07858
+Mastercam
+Simulator
+Stock Model in Verify no longer shows
+incorrect position according to user defined
+WCS.
+D-07892
+Mastercam
+Simulator
+STL saved from Verify no longer causes
+Mastercam to crash when opened.
+D-07985
+Mastercam
+Simulator
+Custom tools with transform operation no
+longer gets invalid tool in Simulator.
+D-08008
+Mastercam
+Simulator
+Simulator and Machine Simulation will now
+run if the user changes location of the My
+McamX folder in configuration.
+D-08084
+Mastercam
+Simulator
+Source toolpath’s transition to transform
+toolpath operation no longer shows incorrect
+gouge.
+D-08175
+Category 	Description Bug
+Numbers
+
+-- 32 of 43 --
+
+PAGE 33
+Mastercam
+Simulator
+Fixed issue with Japanese characters in file
+name for Save Stock as STL.
+D-08280
+Mastercam
+Simulator
+Fixed “Index out of bounds of array” error. 	D-08339
+Mastercam
+Simulator
+Stop Condition message text now supports
+Japanese characters.
+D-08364
+Mastercam
+Simulator
+Fixed model shift between stock model and
+workpiece.
+D-08717
+Mastercam
+Simulator
+Fixed issue with verify visibility. 	D-08810
+Mastercam
+Simulator
+Fixed issue with C-Axis face drill tool plane
+being incorrect after first hole.
+D-08857
+Mill Tools 	Changing the tool name in Extensions
+correctly displays in Mastercam.
+D-03458
+Mill Tools 	Naming convention for a tapered end mill now
+using shank dia. instead of tip dia.
+D-04971
+Mill Tools 	Tool coolant made compatible with MGP’s
+coolant.
+D-05092
+Mill Tools 	Deleting an assembly no longer causing an
+error.
+D-05122
+Mill Tools 	Fixed an issue with setting tool projection. 	D-05123
+Mill Tools 	Eliminated crash on right-click in database
+explorer
+D-05165
+Mill Tools 	Fixed search library when entering tool
+number.
+D-05211
+Mill Tools 	If Assign tool number sequentially option on,
+change tool number manually now works
+correctly.
+D-05219
+Mill Tools 	After deleting an assembly, Assembly Undo no
+longer missing the tool and holder.
+D-05250
+Mill Tools 	Can now delete tool from library in Tool
+Manager.
+D-05360
+Mill Tools 	Fixed auto-highlighting of fields in Tool and
+Holder Wizards.
+D-05361
+Category 	Description Bug
+Numbers
+
+-- 33 of 43 --
+
+PAGE 34
+Mill Tools 	Select Library Tool no longer crashing
+Mastercam.
+D-05461
+Mill Tools 	Multiple tool holder assemblies can now be
+added to a .TOOLDB file.
+D-05493
+Mill Tools 	Fixed crash on save to library. 	D-05501
+Mill Tools 	Tools deleted in X6 no longer show up in X8. 	D-05552
+Mill Tools 	Creating a new assembly in Tool Manager sets
+the offsets properly.
+D-05553
+Mill Tools 	Fixed validation error in holder page. 	D-05603
+Mill Tools 	Undefined tool now received correctly by
+Mastercam Simulator.
+D-05689
+Mill Tools 	Fixed radius type for boring tool. 	D-05696
+Mill Tools 	Fixed crash during custom tool creation. 	D-05697
+Mill Tools 	Fixed Get Block Drill issue. 	D-05726
+Mill Tools 	Fixed custom face mill display. 	D-05802
+Mill Tools 	Issue with custom tool holder now displays
+correctly in Mastercam Simulator.
+D-06160
+Mill Tools 	Percentage of tool stepover now brought
+correctly into Mastercam.
+D-06251
+Mill Tools 	Fixed issue with tool material code. 	D-06329
+Mill Tools 	FBM Tool list updating correctly. 	D-06333
+Mill Tools 	Projection of custom tools now matches in
+Tool Manager and Mastercam Simulator.
+D-06425
+Mill Tools 	Posting correct tool numbers. 	D-06536
+Mill Tools 	Shank diameter greater than tool diameter and
+tool projection equal to shoulder length no
+longer causing problems in holder display and
+Backplot.
+D-06595
+Mill Tools 	Assembly with two holders displays correctly
+in Backplot and Holder page.
+D-06614
+Mill Tools 	In Mill-Turn multiaxis toolpaths, selecting a
+holder then changing to another branch is no
+longer crashing Mastercam.
+D-06729
+Category 	Description Bug
+Numbers
+
+-- 34 of 43 --
+
+PAGE 35
+Mill Tools 	Fixed issue with saving tools to a library. 	D-06974
+Mill Tools 	After editing a tool in the lower window of the
+Mastercam tool manager, another random tool
+no longer is highlighted.
+D-07000
+Mill Tools 	Fixed issue with importing metric tools as inch
+values.
+D-07067
+Mill Tools 	Tool profiles with arcs display correctly. 	D-07068
+Mill Tools 	Speeds and Feeds Calculator&#39;s # of Flutes, %
+Material Cut now saving properly.
+D-07150
+Mill Tools 	Warn of duplicate tools option working
+correctly.
+D-07323
+Mill Tools 	Changing the overall length of a custom tool
+no longer crashes Mastercam.
+D-07342
+Mill Tools 	Fixed Tool Manager error where user was
+unable to add tool to tool list.
+D-07348
+Mill Tools 	Updated X6 .TOOLDB files with custom lathe
+tools can now create toolpaths.
+D-07353
+Mill Tools 	Transform operations using custom tools no
+longer create an invalid tool error in
+Mastercam Simulator.
+D-07357
+Mill Tools 	Create new database in Mastercam Tool
+Manager now overwrites existing database.
+D-07493
+Mill Tools 	Fixed issue with “barrel” tool being drawn
+inverted.
+D-07501
+Mill Tools 	Fixed duplicate tool warning when posting a
+nested file.
+D-07636
+Mill Tools 	Fixed problem with importing custom tool
+geometry from a level.
+D-07713
+Mill Tools 	Saving the same tool twice now does exactly
+that.
+D-07779
+Mill Tools 	Fixed inconsistencies with importing custom
+tool geometry from an MCX file.
+D-07901
+Mill Tools 	Fixed issue with regenerating Mill toolpaths
+causing Lathe toolpaths to be marked as dirty.
+D-08567
+Category 	Description Bug
+Numbers
+
+-- 35 of 43 --
+
+PAGE 36
+Mill Tools 	Editing a custom tool without making changes
+no longer reports an invalid tool in Verify.
+D-08676
+Mill Tools 	Fixed sequential tool numbering in ATP Import
+Operations.
+D-08686
+Mill Tools 	Fixed taper angle issue in Tool Wizard. 	D-08731
+Mill-Turn 	Fixed tool simulation error. 	D-06014
+Mill-Turn 	Mill-Turn Transform Op now respects Y-axis
+capability on lower turret.
+D-06253
+Mill-Turn 	Enhanced simulation button tooltip. 	D-06377
+Mill-Turn 	Fixed incorrect stock position in Mill-Turn
+simulation
+D-06452
+Mill-Turn 	Mill-Turn Facing toolpath transform no longer
+inverts transitions between passes.
+D-07533
+Mill-Turn 	Fixed lower turret transform tool loading error. D-08380
+Mill-Turn 	NetHASP now working properly with Code
+Expert
+D- 08673
+Mill-Turn 	Issue with Simulation – Backplot and Verify
+acceptable.
+D-08300
+Nesting 	Fixed issues with trying to bring in previous
+version files directly into Toolpath Nesting
+through “Add Operations from files” option.
+D-05506
+Nesting 	Fixed issue with dialog box resource message. D-06115
+Nesting 	Fixed issue with adding operations. 	D-06625
+Nesting 	NESTING.INI file via MCLINK now working
+correctly.
+D-07970
+Nesting 	Addressed geometry nesting error. 	D-08468
+Nesting 	Geometry nesting no longer reports error with
+chained cluster.
+D-09227
+Planes 	Planes Manager now behaving correctly when
+switching views.
+D-08129
+Planes 	WCS and T/C Planes now display correct name
+when selected from Plane Manager
+D-08329
+Router 	Fixed drill block selection tool crash. 	D-08107
+Category 	Description Bug
+Numbers
+
+-- 36 of 43 --
+
+PAGE 37
+Router Tools 	Changing the block drill sizes in MGP correctly
+propagates to the tool manager.
+D-05057
+Screen 	Statistics now giving correct entity counts. 	D-08331
+Setup Sheet 	Fixed issues with sorting. 	D-06183
+Setup Sheet 	Now includes stock diameter for cylinders. 	D-06199
+Setup Sheet 	Added tool sorting option. 	D-07452
+Setup Sheet 	Displays appropriate min/max values for X, Y,
+Z.
+D-08161
+Setup Sheet 	Work offsets no longer overwriting the tool list. D-08284
+Solids 	Fixed an associativity issue. 	D-06873
+Solids 	Fixed Solids, To Surface issues. 	D-08827
+Solids 	Solid Layout now supports WCS. 	D-09130
+Stock Model 	Resolved a conflict between stock model and
+solid layout.
+D-06035
+Stock Model 	Fixed incorrect stock model result. 	D-06171,
+D-07097
+Stock Model 	Fixed stock model crash. 	D-06955,
+D-07303
+Stock Model 	Fixed issue with stock model not processing
+“tip only” correctly.
+D-07306
+Toolpaths, 2D
+High Speed
+Fixed issue with 2D HST Blend compensation
+direction.
+D-05921
+Toolpaths, 2D
+High Speed
+Improved importing legacy Peel Mill toolpaths. D-06021
+Toolpaths, 2D
+High Speed
+2D HST island facing now leaving stock above
+islands.
+D-06135
+Toolpaths, 2D
+High Speed
+Fixed issue with Peel Mill not regenerating. 	D-06246
+Toolpaths, 2D
+High Speed
+2D HST island facing now yielding correct
+motion.
+D-06284
+Toolpaths, 2D
+High Speed
+2D HST blend no longer ignoring stepovers for
+along motion.
+D-06299
+Category 	Description Bug
+Numbers
+
+-- 37 of 43 --
+
+PAGE 38
+Toolpaths, 2D
+High Speed
+Fixed issue with 2D Dynamic Contour failing to
+process.
+D-06628
+Toolpaths, 2D
+High Speed
+Improved error handling for 2D HST
+multithread operations.
+D-06735
+Toolpaths, 2D
+High Speed
+Fixed issue with no compensation being
+output to the NCI file for Peel Mill finish pass.
+D-06745
+Toolpaths, 2D
+High Speed
+Improved Dynamic Rest detection. 	D-06880
+Toolpaths, 2D
+High Speed
+Improved Dynamic Rest motion. 	D-07164
+Toolpaths, 2D
+High Speed
+Fixed issue with Dynamic Contour cutting to
+the wrong depth.
+D-07223
+Toolpaths, 2D
+High Speed
+2D HST Area Mill no longer cutting outside the
+machining region.
+D-07230
+Toolpaths, 2D
+High Speed
+Fixed issue with incorrect pass/cut markers in
+2D HST.
+D-07468
+Toolpaths, 2D
+High Speed
+Fixed large gap in Dynamic Mill toolpath. 	D-07492
+Toolpaths, 2D
+High Speed
+Improved Dynamic Mill smoothness. 	D-07542
+Toolpaths, 2D
+High Speed
+Dynamic Core now appropriately applying
+breakthrough parameter.
+D-07612
+Toolpaths, 2D
+High Speed
+Fixed Area Mill feed plane issue. 	D-08152
+Toolpaths, 2D
+High Speed
+2D HST no longer machining inside an
+avoidance region.
+D-08410
+Toolpaths, 2D
+High Speed
+Fixed retract issue with 2D HST Blend Mill. 	D-08443
+Toolpaths,
+Circle Mill
+Improved Circle Mill stepovers when lead in/
+out enabled.
+D-08251
+Toolpaths,
+Contour
+Fixed 2D contour corner rounding and
+compensation in control.
+D-02676
+Toolpaths,
+Contour
+Fixed issue with 2D contour reversing
+direction.
+D-07138
+Category 	Description Bug
+Numbers
+
+-- 38 of 43 --
+
+PAGE 39
+Toolpaths, Drill Fixed an issue with general selection not being
+available during drill point selection.
+D-06173
+Toolpaths,
+Multiaxis
+Fixed issue with 5-axis Drill gouging the part
+between points.
+D-01716
+Toolpaths,
+Multiaxis
+When opening an X4 file with a Curve 5-axis
+toolpath in it and the chains need to be re-
+defined, when the geometry is re-chained, the
+geometry no longer gets chained twice.
+D-01718
+Toolpaths,
+Multiaxis
+Fixed an issue with Curve 5-axis with the
+&quot;Relative to direction&quot; option on in the Lines
+selection for the toolpath.
+D-01719
+Toolpaths,
+Multiaxis
+Fixed issue with dialog box not minimizing. 	D-01839
+Toolpaths,
+Multiaxis
+Convert5ax no longer changes tool axis
+control parameters then next time the toolpath
+parameters are opened.
+D-03648
+Toolpaths,
+Multiaxis
+Project Curves dialog box includes dynamic
+images for different pattern types on Cut
+Pattern page.
+D-04743
+Toolpaths,
+Multiaxis
+Convert5ax toolpath now regenerates
+correctly.
+D-05926
+Toolpaths,
+Multiaxis
+Morph between 2 Curves - Cut method &quot;Spiral&quot;
+is no longer generating multi passes when
+depths are set to &quot;First Slice Only&quot;.
+D-06419
+Toolpaths,
+Multiaxis
+Minimum tilt now recognizes check surfaces
+properly.
+D-06555
+Toolpaths,
+Multiaxis
+Fixed Blade Expert crash. 	D-06587
+Toolpaths,
+Multiaxis
+Mastercam no longer stops responding after
+clicking on &quot;Stock&quot; in the toolpath parameters.
+D-06899
+Toolpaths,
+Multiaxis
+Multi-axis toolpaths correctly generating
+toolpaths from STL Mesh.
+D-06952
+Toolpaths,
+Multiaxis
+Fixed issue with Curve 5-axis moves. 	D-07241
+Category 	Description Bug
+Numbers
+
+-- 39 of 43 --
+
+PAGE 40
+Toolpaths,
+Multiaxis
+Morph between 2 curves reports an error and
+now keeps the values that avoid the error.
+D-07266
+Toolpaths,
+Multiaxis
+Correct toolpath now generated by Convert to
+5axis with .LMD file.
+D-07272
+Toolpaths
+Multiaxis
+Tool Axis Control settings to &quot;Run Tool - At user
+given point&quot; is no longer reversed.
+D-07540
+Toolpaths,
+Multiaxis
+Fixed swarf crash. 	D-07710
+Toolpaths,
+Multiaxis
+Fixed crash when attempting to create a new
+advanced multiaxis toolpath in attached file.
+D-07992
+Toolpaths,
+Multiaxis
+Advanced multiaxis toolpath created in X6 no
+longer crashes when clicking on Parameters.
+D-08004
+Toolpath,
+Multiaxis
+Math functions are now being calculated after
+pressing [Tab] in Advanced multiaxis toolpath
+fields.
+D-08087
+Toolpath,
+Multiaxis
+Fixed cuts along curve issue. 	D-08178
+Toolpath,
+Multiaxis
+New swarf “machining side” options now
+working correctly.
+D-08256
+Toolpath,
+Multiaxis
+Fixed curve tool axis control problem. 	D-08297
+Toolpath,
+Multiaxis
+Fixed issue in Blade Expert where reposition
+moves were violating the hub boundary.
+D-08312
+Toolpath,
+Multiaxis
+New Swarf Milling toolpath now supports
+Japanese characters.
+D-08365
+Toolpath,
+Multiaxis
+Swarf toolpath now calculating correct result
+when climb milling selected.
+D-08998
+Toolpaths,
+Probe
+Fixed Heidenhein file path. 	D-06312
+Toolpaths,
+Probe
+Mastercam no longer crashes when posting
+probing operations in specific file.
+D-07486
+Toolpaths,
+Probe
+Probing data no longer lost after opening and
+closing Machine Definition Manager
+D-07508
+Toolpaths,
+Probe
+Probe now moves to selected Z position when
+measuring points.
+Category 	Description Bug
+Numbers
+
+-- 40 of 43 --
+
+PAGE 41
+Toolpaths,
+Probe
+Probing example no longer shows incorrect
+tool movement in Backplot.
+D-07915
+Toolpaths,
+Probe
+Statement label is now found after file is saved
+and re-opened.
+D-08127
+Toolpaths,
+Probe
+Fixed crash when posting probing operations
+in attached file.
+D-08173
+Toolpaths,
+Probe
+Fixed issue with probe position differences. 	D-08545
+Toolpaths,
+Surface
+Finish Contour passes output now scaled
+correctly.
+D-07299
+Toolpaths,
+Surface
+Fixed Surface Rough Pocket crash. 	D-07891
+Toolpaths,
+Surface High
+Speed
+Fixed issue with 3D HST Project toolpath using
+a tapered tool.
+D-05073
+Toolpaths,
+Surface High
+Speed
+Fixed OptiRest holder gouge 	D-05538
+Toolpaths,
+Surface High
+Speed
+Fixed error where 3D HST Project toolpath
+produces no motion.
+D-05842
+Toolpaths,
+Surface High
+Speed
+Fixed Hybrid computation error. 	D-05859
+Toolpaths,
+Surface High
+Speed
+Fixed incorrect Hybrid toolpath with check
+surfaces.
+D-06010
+Toolpaths,
+Surface High
+Speed
+Fixed an issue with OptiCore hanging during
+processing.
+D-06105
+Toolpaths,
+Surface High
+Speed
+Improved rest toolpath associativity. 	D-06208
+Toolpaths,
+Surface High
+Speed
+3D HST rapid moves no longer feed moves. 	D-06351,
+D-06374
+Category 	Description Bug
+Numbers
+
+-- 41 of 43 --
+
+PAGE 42
+Toolpaths,
+Surface High
+Speed
+OptiRest step-up parameter value stays. 	D-06364
+Toolpaths,
+Surface High
+Speed
+Corrected Area Clearance results with tapered
+tool.
+D-06420
+Toolpaths,
+Surface High
+Speed
+Fixed issue with OptiRest violating rest
+material.
+D-06966
+Toolpaths,
+Surface High
+Speed
+Fixed issue with Hybrid toolpath failing to
+process.
+D-07556
+Toolpaths,
+Surface High
+Speed
+3D HST Scallop now using stock to leave
+value.
+D-07701
+Toolpaths,
+Surface High
+Speed
+Fixed an issue with Waterline toolpath failing to
+process.
+D-08289
+Toolpaths,
+Surface High
+Speed
+Fixed Rest Roughing gouge. 	D-08316
+Toolpaths,
+Transform
+XY coordinates no longer change with older
+file.
+D-01092
+Toolpaths,
+Transform
+Transform Mirror no longer flips scallop cut
+order (using NCI).
+D-03398
+Toolpaths,
+Transform
+Fixed Transform Mirror retracts (using NCI). 	D-03970
+Toolpaths,
+Transform
+Fixed Transform Mirror erratic result (using
+NCI).
+D-04911
+Toolpaths,
+Transform
+Transform using NCI no longer reversing some
+arcs.
+D-06202
+Toolpaths,
+Transform
+Fixed retract to clearance height in transform
+operation.
+D-06470
+Toolpaths,
+Transform
+Fixed issue with Toolpath Transform missing
+area.
+D-06642
+Category 	Description Bug
+Numbers
+
+-- 42 of 43 --
+
+PAGE 43
+Toolpaths,
+Transform
+Fixed Transform Mirror with 5-axis toolpath. 	D-06644
+Toolpaths,
+Transform
+Fixed issue with Toolpath Transform chain
+direction not mapping correctly.
+D-06972
+Toolpaths,
+Transform
+Toolpath transform delta no longer showing &quot;Y&quot;
+instances when it is not used.
+D-07015
+Toolpaths,
+Transform
+Transform translate using NCI no longer
+creates incorrect toolpath.
+D-07058
+Toolpaths,
+Transform
+Transform Toolpath dialog no longer disabling
+Delta fields.
+D-07273
+Toolpaths,
+Transform
+Toolpath no longer compensated to the wrong
+side when using &#39;Source: Geometry&quot;.
+D-07550
+Toolpaths,
+Transform
+Fixed issue with transform of transform. 	D-07553
+Toolpaths,
+Transform
+Fixed issue with Transform Translate using
+wrong direction and start point when using
+geometry as source.
+D-07957
+Toolpaths,
+Transform
+Transform Translate, Helix bore toolpath that is
+transformed no longer outputs reversed arc
+moves.
+D-07968
+Toolpaths,
+Transform
+Transform Toolpath - Work offset increment
+now accepts a negative value.
+D-07988
+Toolpaths,
+Transform
+Transform Mirror, Geometry source result no
+longer different than from NCI source
+D-08135
+Toolpaths,
+Transform
+Fixed bad result in Transform Mirror when
+using geometry source.
+D-08136
+Toolpaths,
+Transform
+Fixed an issue with Transform Mirror. 	D-08138
+Xform 	Fixed an issue with projecting lines converted
+from text to a surface.
+D-04157
+Xform 	Fixed issues with Xform, Project by Normal 	D-04961
+Xform 	Corrected issues with projecting points onto
+surfaces.
+D-05318
+Xform 	Corrected problem with offset failure. 	D-07062
+Category 	Description Bug
+Numbers
+
+-- 43 of 43 --
+
+</pre>
+</body></html>

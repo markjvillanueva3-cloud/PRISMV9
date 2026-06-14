@@ -483,10 +483,14 @@ export class Fusion360LiveBridgeEngine {
    * Create a sketch with shapes on a construction plane.
    * @param params.plane - "XY" | "XZ" | "YZ" (default: "XY")
    * @param params.shapes - Array of shapes to create
+   * @param params.offset_mm - Optional offset (mm) of a construction plane from
+   *   the named base plane. Enables stacked profiles for loft / multi-level
+   *   features. Absent or 0 → sketch sits on the base plane (legacy behaviour).
    */
   async createSketch(params: {
     plane?: string;
     shapes: SketchShape[];
+    offset_mm?: number;
   }): Promise<SketchResult> {
     return this._post<SketchResult>("/sketch", params);
   }
@@ -629,6 +633,66 @@ export class Fusion360LiveBridgeEngine {
     body_index?: number;
   }): Promise<OperationResult> {
     return this._post<OperationResult>("/shell", params);
+  }
+
+  /**
+   * Sweep a closed profile along a path curve (adsk.fusion sweepFeatures).
+   * Unlocks tubes, organic extrusions along curves, twisted/tapered bodies —
+   * geometry that plain extrude/revolve cannot express. The profile and path
+   * live in SEPARATE sketches (e.g. profile on XY, path on XZ).
+   * @param params.profile_sketch_name - sketch holding the closed profile (default: most-recent sketch)
+   * @param params.path_sketch_name - sketch holding the open path curve (default: most-recent sketch ≠ profile)
+   * @param params.profile_index - which profile in the profile sketch (default 0)
+   * @param params.operation - "new_body" | "join" | "cut" | "intersect" (default "new_body")
+   * @param params.twist_deg - total twist about the path tangent (optional)
+   * @param params.taper_deg - profile draft along the path (optional)
+   */
+  async sweep(params: {
+    profile_sketch_name?: string;
+    path_sketch_name?: string;
+    profile_index?: number;
+    operation?: "new_body" | "join" | "cut" | "intersect";
+    twist_deg?: number;
+    taper_deg?: number;
+  }): Promise<OperationResult> {
+    if (params.twist_deg !== undefined && !Number.isFinite(params.twist_deg)) {
+      return { success: false, error: "sweep: twist_deg must be a finite number" };
+    }
+    if (params.taper_deg !== undefined && !Number.isFinite(params.taper_deg)) {
+      return { success: false, error: "sweep: taper_deg must be a finite number" };
+    }
+    if (params.profile_index !== undefined &&
+        (!Number.isInteger(params.profile_index) || params.profile_index < 0)) {
+      return { success: false, error: "sweep: profile_index must be a non-negative integer" };
+    }
+    return this._post<OperationResult>("/sweep", params);
+  }
+
+  /**
+   * Loft a solid/surface through 2+ profile sections (adsk.fusion loftFeatures).
+   * Unlocks transitions, organic blends, impeller/airfoil-style bodies. Sections
+   * are typically sketched on stacked offset planes — see createSketch({offset_mm}).
+   * @param params.sections - ordered list (len ≥ 2) of {sketch_name, profile_index}
+   * @param params.operation - "new_body" | "join" | "cut" | "intersect" (default "new_body")
+   * @param params.closed - connect last profile back to first (default false)
+   * @param params.output_type - "solid" | "surface" (default "solid")
+   */
+  async loft(params: {
+    sections: Array<{ sketch_name?: string; profile_index?: number }>;
+    operation?: "new_body" | "join" | "cut" | "intersect";
+    closed?: boolean;
+    output_type?: "solid" | "surface";
+  }): Promise<OperationResult> {
+    if (!Array.isArray(params.sections) || params.sections.length < 2) {
+      return { success: false, error: "loft: sections must be an array of at least 2 entries" };
+    }
+    for (let i = 0; i < params.sections.length; i++) {
+      const pi = params.sections[i]?.profile_index;
+      if (pi !== undefined && (!Number.isInteger(pi) || pi < 0)) {
+        return { success: false, error: `loft: sections[${i}].profile_index must be a non-negative integer` };
+      }
+    }
+    return this._post<OperationResult>("/loft", params);
   }
 
   // ── Export ──────────────────────────────────────────────────────

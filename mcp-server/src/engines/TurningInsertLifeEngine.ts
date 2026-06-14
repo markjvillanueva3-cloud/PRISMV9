@@ -49,6 +49,17 @@ export interface InsertLifeInput {
 
 export type InsertShape = "C" | "D" | "R" | "S" | "T" | "V" | "W" | "CNMG" | "DNMG" | "WNMG" | "VNMG" | "TNMG" | "SNMG";
 
+/**
+ * Single turning operation specification (cutting conditions + duration + label).
+ * Consumed by stochastic / sensitivity / robust / envelope-distance engines that
+ * sequence multiple ops and need a single canonical shape.
+ */
+export interface OpSpec {
+  conditions: InsertLifeInput;
+  duration_min: number;
+  label?: string;
+}
+
 export interface ChipbreakerWindow {
   name: string;
   f_min_mm: number;

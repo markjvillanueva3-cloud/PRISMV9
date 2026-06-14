@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="08f32c5cf7dcdad056dd2e240e89e0a21c0ce514a50cd8dd63ae80a6ed339510">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POST-BRIDGE-SYNERGY Priority Envelope</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>POST-BRIDGE-SYNERGY Priority Envelope</h1>
+<div class="meta">rendered from state/shared/specs/POST-BRIDGE-SYNERGY-ENVELOPE-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-27T03:08:41.206Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">POST-BRIDGE-SYNERGY-MS0 — Priority Envelope (135 units, 10 phases)</li><li class="prism-toc-l2">Envelope merge</li><li class="prism-toc-l2">Priority-ordered envelope (135 units)</li><li class="prism-toc-l2">Effort summary</li><li class="prism-toc-l2">Operator-actionable next moves</li></ul></nav><h1 class="prism-h1">POST-BRIDGE-SYNERGY-MS0 — Priority Envelope (135 units, 10 phases)</h1>
+<p><strong>Slot:</strong> echo · <strong>Date:</strong> 2026-05-26 · <strong>Triggered by:</strong> operator directive &quot;add novel ideas to other plan. develop envelope ordering in priority order&quot;</p>
+<h2 class="prism-h2">Envelope merge</h2>
+<table class="prism-md-table"><thead><tr><th>Source</th><th>Units</th><th>Status</th></tr></thead><tbody><tr><td>POST-BRIDGE-SYNERGY-COMPREHENSIVE-SCOPE (commit c302f33ade)</td><td>63</td><td>included</td></tr>
+<tr><td>POST-ALL-ENGINES-SCOPE (commit e7b73f5d84)</td><td>+60</td><td>included (123 total)</td></tr>
+<tr><td><strong>NEW Phase 9 — Genuine Inventions</strong> (Tier-A 5 + Tier-B 4 + Tier-C 3)</td><td><strong>+12</strong></td><td>new</td></tr>
+<tr><td><strong>Grand total</strong></td><td><strong>135 units</strong></td><td><strong>10 phases</strong></td></tr></tbody></table>
+<h2 class="prism-h2">Priority-ordered envelope (135 units)</h2>
+<p>Ordering principles:</p>
+<ol class="prism-md-list"><li><strong>Operator-blocking first</strong> — v11 is broken in production (holderFactor exception line 70)</li><li><strong>High ROI / low effort next</strong> — measurable $ savings within weeks</li><li><strong>Architectural anchors before bulk</strong> — bridge architecture + master-post orchestrator before wiring N engines</li><li><strong>Self-improving stack last</strong> — closed-loop depends on bridge being live</li></ol>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Phase</th><th>Unit</th><th>Effort</th><th>$-ROI/mo</th><th>Depends</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>U-V11-HOLDERFACTOR-FIX</td><td>1d</td><td>unblocker</td><td>—</td></tr>
+<tr><td>2</td><td>0</td><td>U-V11-AUTO-POCKET-FROM-LIBRARY</td><td>1d</td><td>$1.5K (operator time)</td><td>#1</td></tr>
+<tr><td>3</td><td>0</td><td>U-V11-MAGAZINE-INTEGRITY-GATE</td><td>1d</td><td>$300/scrap-event prevented</td><td>#2</td></tr>
+<tr><td>4</td><td>0</td><td>U-V11-PROVE-OUT-FLAG-EXPLICIT</td><td>0.5d</td><td>enables full-speed test</td><td>—</td></tr>
+<tr><td>5</td><td>0</td><td>U-V11-WINMAX-COMMENT-RESTORE</td><td>0.25d</td><td>v8.9 backcompat</td><td>—</td></tr>
+<tr><td>6</td><td>0</td><td>U-V11-AGGRESSIVENESS-RENAME-SHIM</td><td>0.25d</td><td>v8.9 backcompat</td><td>—</td></tr>
+<tr><td>7</td><td>9A</td><td>U-NOVEL-WEAR-MEMORY-MAGAZINE</td><td>1w</td><td><strong>$9K/mo</strong></td><td>#2</td></tr>
+<tr><td>8</td><td>9A</td><td>U-NOVEL-PER-SHOP-KC-IDENTITY</td><td>2w</td><td><strong>$12K/mo</strong></td><td>—</td></tr>
+<tr><td>9</td><td>9A</td><td>U-NOVEL-PREDICTIVE-COOLANT-ORCH</td><td>2w</td><td><strong>$3K/mo + tool life</strong></td><td>—</td></tr>
+<tr><td>10</td><td>9A</td><td>U-NOVEL-CYCLE-TIME-CONFORMAL</td><td>2w</td><td><strong>$5K/mo (quoting accuracy)</strong></td><td>—</td></tr>
+<tr><td>11</td><td>9A</td><td>U-NOVEL-OPERATOR-STYLE-TWIN</td><td>3w</td><td>$1.5K/mo + adoption</td><td>—</td></tr>
+<tr><td>12</td><td>1</td><td>U-MASTERCAM-ADDIN-RESOURCES</td><td>2w</td><td>bridge enabler</td><td>—</td></tr>
+<tr><td>13</td><td>1</td><td>U-HYPERMILL-ADDIN-RESOURCES</td><td>2w</td><td>bridge enabler</td><td>—</td></tr>
+<tr><td>14</td><td>1</td><td>U-INVENTOR-ADDIN-RESOURCES</td><td>2w</td><td>bridge enabler</td><td>—</td></tr>
+<tr><td>15</td><td>1</td><td>U-BRIDGE-CONTRACT-VERIFY</td><td>1w</td><td>parity guarantee</td><td>#12-14</td></tr>
+<tr><td>16</td><td>2</td><td>U-DB-NODE-BRIDGE</td><td>1w</td><td>unifies 23 DB reads</td><td>—</td></tr>
+<tr><td>17</td><td>2</td><td>U-WIZARD-NODE-BRIDGE</td><td>1w</td><td>mill/lathe/wire wizard contract</td><td>—</td></tr>
+<tr><td>18</td><td>2</td><td>U-SFC-NODE-BRIDGE</td><td>1w</td><td>kills 5+ duplicate SF paths</td><td>—</td></tr>
+<tr><td>19</td><td>2</td><td>U-POST-GEN-BRIDGE</td><td>1w</td><td>postgen ↔ bridge unification</td><td>#12-15</td></tr>
+<tr><td>20</td><td>2</td><td>U-DB-NODE-ABSORB-21</td><td>2w</td><td>absorbs 21 of 23 DBs in one milestone</td><td>#16</td></tr>
+<tr><td>21</td><td>7</td><td>U-LATHE-MASTERPOST-CLONE-MILL (7 engines)</td><td>3w</td><td><strong>biggest architectural gap</strong></td><td>—</td></tr>
+<tr><td>22</td><td>7</td><td>U-WEDM-ROUGH-SKIM-CASCADE-TO-MILL</td><td>1w</td><td>proven rough/finish staging</td><td>—</td></tr>
+<tr><td>23</td><td>7</td><td>U-LATHE-CSS-OPTIMIZER-TO-BALL-END</td><td>0.5w</td><td>variable RPM for ball-nose</td><td>—</td></tr>
+<tr><td>24</td><td>7</td><td>U-LATHE-BLOCK-ENGAGEMENT-TIMING-TO-MILL</td><td>0.5w</td><td>per-block accurate timing</td><td>—</td></tr>
+<tr><td>25</td><td>7</td><td>U-OPTIMAL-CONTROL-PONTRYAGIN-FEED</td><td>1w</td><td>time-optimal feed schedule</td><td>—</td></tr>
+<tr><td>26</td><td>7</td><td>U-MDOF-RCSA-STABILITY-RPM-UPGRADE</td><td>0.5w</td><td>upgrade existing SDOF rewrite</td><td>—</td></tr>
+<tr><td>27</td><td>7</td><td>U-MAGAZINE-TSP-T-WORD-ORDER</td><td>0.5w</td><td>T-word emission order</td><td>—</td></tr>
+<tr><td>28</td><td>7</td><td>U-TIMOSHENKO-DEFLECTION-MILL-WIRE</td><td>0.5w</td><td>proven in lathe boring</td><td>—</td></tr>
+<tr><td>29</td><td>7</td><td>U-WEDM-WIRE-BREAK-TO-TOOL-BREAK</td><td>1w</td><td>Weibull retrain</td><td>—</td></tr>
+<tr><td>30</td><td>7</td><td>U-WEDM-NEURAL-FORMULA-FUSION-PATTERN</td><td>1w</td><td>architectural transfer</td><td>—</td></tr>
+<tr><td>31</td><td>6</td><td>U-EMIT-CONFORMAL-PI-BANDS</td><td>2d</td><td><strong>R12 fail-loud win</strong></td><td>—</td></tr>
+<tr><td>32</td><td>6</td><td>U-EMIT-MAHALANOBIS-OOD-GATE</td><td>2d</td><td>refuse hallucinated emits</td><td>—</td></tr>
+<tr><td>33</td><td>6</td><td>U-EMIT-HIERARCHICAL-BAYES-VC-FZ</td><td>5d</td><td>per-shop/material/family pooling</td><td>#8</td></tr>
+<tr><td>34</td><td>6</td><td>U-EMIT-PARETO-FRONTIER-AT-EMIT</td><td>3d</td><td>reuses MultiObjectiveParetoEngine</td><td>—</td></tr>
+<tr><td>35</td><td>6</td><td>U-EMIT-CLOSED-FORM-TROCHOIDAL-ARC</td><td>3d</td><td>10× speedup on high-feed-mill emit</td><td>—</td></tr>
+<tr><td>36</td><td>6</td><td>U-EMIT-SE3-SLERP-5AXIS-INTERP</td><td>3d</td><td><strong>PRISM-only differentiator</strong></td><td>—</td></tr>
+<tr><td>37</td><td>6</td><td>U-EMIT-PINN-CUTTING-COMPLETE</td><td>7d</td><td>finishes 34-line stub</td><td>—</td></tr>
+<tr><td>38</td><td>6</td><td>U-EMIT-LTL-MODAL-INVARIANTS</td><td>4d</td><td><strong>PRISM-only differentiator</strong></td><td>—</td></tr>
+<tr><td>39</td><td>6</td><td>U-EMIT-SPARSE-SYMBOLIC-REGRESSION</td><td>5d</td><td><strong>PRISM-only differentiator</strong></td><td>—</td></tr>
+<tr><td>40</td><td>6</td><td>U-EMIT-VAE-GCODE-ANOMALY-GATE</td><td>5d</td><td>corpus-manifold OOD</td><td>—</td></tr>
+<tr><td>41</td><td>6</td><td>U-EMIT-DRIFT-AWARE-BANDIT-FEED</td><td>3d</td><td>reuses existing bandit + drift</td><td>—</td></tr>
+<tr><td>42</td><td>6</td><td>U-EMIT-CMM-UNCERTAINTY-PROPAGATION</td><td>3d</td><td>probe σ → WCS σ → tol σ_stack</td><td>—</td></tr>
+<tr><td>43</td><td>6</td><td>U-EMIT-SAT-COLLISION-CERTIFICATE</td><td>7d</td><td><strong>PRISM-only differentiator</strong></td><td>—</td></tr>
+<tr><td>44</td><td>6</td><td>U-EMIT-NEURAL-ODE-TOOL-WEAR</td><td>6d</td><td>improves UsuiWearModel</td><td>—</td></tr>
+<tr><td>45</td><td>6</td><td>U-EMIT-MILL-TURN-CHANNEL-DAG</td><td>6d</td><td>safe-parallel multi-channel</td><td>—</td></tr>
+<tr><td>46</td><td>9B</td><td>U-NOVEL-FAILURE-REPLAY-CAUSAL</td><td>4w</td><td>$2K + systemic improvement</td><td>digital twin</td></tr>
+<tr><td>47</td><td>9B</td><td>U-NOVEL-POST-SELF-VERIFY-HARNESS</td><td>5w</td><td>$3K/mo prevented first-piece scrap</td><td>stock-sim</td></tr>
+<tr><td>48</td><td>9B</td><td>U-NOVEL-CONSTRAINT-REPAIR-SMT</td><td>6w</td><td>$600/programmer</td><td>Z3 binding</td></tr>
+<tr><td>49</td><td>9B</td><td>U-NOVEL-GCODE-SEQUENCE-SUGGESTER</td><td>8w</td><td>reduces edits 40-70%</td><td>LoRA infra</td></tr>
+<tr><td>50</td><td>8</td><td>U-TRIBAL-HOLDER-SAFETY-GATE</td><td>2d</td><td>TIR + RPM hard gate</td><td>—</td></tr>
+<tr><td>51</td><td>8</td><td>U-TRIBAL-HSM-ENTRY-GEOMETRY-VALIDATOR</td><td>2d</td><td>helix 1-3°, ramp ≤2°</td><td>—</td></tr>
+<tr><td>52</td><td>8</td><td>U-TRIBAL-TROCHOIDAL-MOAT-OPTIMIZER</td><td>2d</td><td>50-70% window guard</td><td>—</td></tr>
+<tr><td>53</td><td>8</td><td>U-TRIBAL-COATING-HRC-COMPATIBILITY</td><td>3d</td><td>delamination thresholds</td><td>—</td></tr>
+<tr><td>54</td><td>8</td><td>U-TRIBAL-FLUTE-COUNT-BY-HRC</td><td>1d</td><td>step function selector</td><td>—</td></tr>
+<tr><td>55</td><td>8</td><td>U-TRIBAL-SLOT-FEED-DERATER</td><td>1d</td><td>inverse chip-thinning</td><td>—</td></tr>
+<tr><td>56</td><td>8</td><td>U-TRIBAL-VACUUM-FIXTURE-SIZING</td><td>2d</td><td>F_hold + gasket window</td><td>—</td></tr>
+<tr><td>57</td><td>8</td><td>U-TRIBAL-HAAS-TAP-OVERRIDE-GATE</td><td>1d</td><td>refuse pre-G84 override</td><td>—</td></tr>
+<tr><td>58</td><td>8</td><td>U-TRIBAL-ROUND-INSERT-CHIP-THINNING</td><td>3d</td><td>arc&lt;90° specialization</td><td>—</td></tr>
+<tr><td>59</td><td>8</td><td>U-TRIBAL-INSERT-SCREW-CYCLE-SCHEDULER</td><td>2d</td><td>10-change cadence</td><td>—</td></tr>
+<tr><td>60</td><td>3</td><td>U-EXTRACT-VERIFIED-POST-DB</td><td>1w</td><td>114K post-template table</td><td>#16</td></tr>
+<tr><td>61</td><td>3</td><td>U-EXTRACT-CONTROLLER-DB</td><td>3d</td><td>G/M/macro per controller</td><td>#16</td></tr>
+<tr><td>62</td><td>3</td><td>U-EXTRACT-POST-GENERATOR</td><td>1w</td><td>novel controller bring-up</td><td>#61</td></tr>
+<tr><td>63</td><td>3</td><td>U-EXTRACT-TAYLOR-COMPLETE</td><td>5d</td><td>91K Taylor C/n</td><td>—</td></tr>
+<tr><td>64</td><td>3</td><td>U-EXTRACT-CUTTING-THERMAL</td><td>1w</td><td>101K Komanduri/Jaeger</td><td>—</td></tr>
+<tr><td>65</td><td>3</td><td>U-EXTRACT-CHATTER-PREDICT</td><td>3d</td><td>stability_rpm_rewrite</td><td>—</td></tr>
+<tr><td>66</td><td>3</td><td>U-EXTRACT-KINEMATICS</td><td>3d</td><td>5-axis RTCP/G68.2/G43.4</td><td>—</td></tr>
+<tr><td>67</td><td>3</td><td>U-EXTRACT-TOOL-CATALOG-220K</td><td>1w</td><td>~220K cataloged tools</td><td>#16</td></tr>
+<tr><td>68</td><td>3</td><td>U-EXTRACT-HOLDER-INTERFACES</td><td>2d</td><td><strong>resolves U-V11-HOLDERFACTOR-FIX</strong></td><td>—</td></tr>
+<tr><td>69</td><td>3</td><td>U-EXTRACT-JOHNSON-COOK-DB</td><td>3d</td><td>plasticity params</td><td>—</td></tr>
+<tr><td>70</td><td>3</td><td>U-EXTRACT-HYBRID-TOOLPATH</td><td>1w</td><td>cross-strategy fusion</td><td>—</td></tr>
+<tr><td>71</td><td>3</td><td>U-EXTRACT-FIXTURE-DBs</td><td>3d</td><td>66K fixture catalog</td><td>#16</td></tr>
+<tr><td>72</td><td>3</td><td>U-EXTRACT-THERMAL-COMP</td><td>2d</td><td>spindle/axis growth</td><td>#64</td></tr>
+<tr><td>73</td><td>3</td><td>U-EXTRACT-AIRCUT-ELIM</td><td>3d</td><td>post_optimize_rapids</td><td>—</td></tr>
+<tr><td>74</td><td>3</td><td>U-EXTRACT-CYCLE-TIME</td><td>3d</td><td>accel/jerk timing</td><td>—</td></tr>
+<tr><td>75</td><td>3</td><td>U-EXTRACT-COLLISION-MOTION</td><td>5d</td><td>5-axis collision</td><td>—</td></tr>
+<tr><td>76</td><td>3</td><td>U-EXTRACT-EKF-DIGITAL-TWIN</td><td>1w</td><td>216K thermal+wear</td><td>—</td></tr>
+<tr><td>77</td><td>3</td><td>U-EXTRACT-EXPANDED-POSTS</td><td>3d</td><td>vendor variant coverage</td><td>#60</td></tr>
+<tr><td>78</td><td>3</td><td>U-EXTRACT-ALARMS-MASTER</td><td>5d</td><td>7 per-controller × 30-58K</td><td>—</td></tr>
+<tr><td>79</td><td>3</td><td>U-EXTRACT-ROUGHING-LOGIC</td><td>1w</td><td>81K roughing logic</td><td>—</td></tr>
+<tr><td>80</td><td>3</td><td>U-EXTRACT-SEMANTIC-MATCHER</td><td>1w</td><td>replace lexical Jaccard</td><td>—</td></tr>
+<tr><td>81</td><td>3</td><td>U-EXTRACT-NOT-FOUND-CHASE</td><td>1w</td><td>chase 25 NOT_FOUND rows</td><td>—</td></tr>
+<tr><td>82</td><td>3</td><td>U-EXTRACT-MATERIAL-AGGREGATORS</td><td>3d</td><td>reroute 280K from ai_ml</td><td>—</td></tr>
+<tr><td>83</td><td>5</td><td>U-OUTCOME-CAPTURE-ADDINS</td><td>1w</td><td>real outcome flow</td><td>#12-14</td></tr>
+<tr><td>84</td><td>5</td><td>U-OUTCOME-TO-PREDLOG-PAIR</td><td>3d</td><td>prediction ground truth</td><td>#83</td></tr>
+<tr><td>85</td><td>5</td><td>U-PER-CONTROLLER-LORA-AUTO-RETRAIN</td><td>1w</td><td>compounding accuracy</td><td>#84</td></tr>
+<tr><td>86</td><td>5</td><td>U-AB-SHADOW-PROMOTE</td><td>3d</td><td>safe rollout</td><td>#85</td></tr>
+<tr><td>87</td><td>5</td><td>U-DRIFT-DETECT-ALERT</td><td>3d</td><td>quality maintenance</td><td>#85</td></tr>
+<tr><td>88</td><td>4</td><td>U-WIRE-CHATTER-SLD</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>89</td><td>4</td><td>U-WIRE-ADAPTIVE-FEED-MOD</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>90</td><td>4</td><td>U-WIRE-TOOL-DEFLECTION</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>91</td><td>4</td><td>U-WIRE-COATING-KC11-MODIFIER</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>92</td><td>4</td><td>U-WIRE-WEAR-PHYSICS</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>93</td><td>4</td><td>U-WIRE-GILBERT-ECON</td><td>2d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>94</td><td>4</td><td>U-WIRE-MACHINE-AWARE-SF</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>95</td><td>4</td><td>U-WIRE-SFC-9AXIS-AS-ONLY-SF</td><td>5d</td><td>replaces flat autoSF</td><td>—</td></tr>
+<tr><td>96</td><td>4</td><td>U-WIRE-HEAT-TREAT-SF</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>97</td><td>4</td><td>U-WIRE-ANISOTROPIC-MAT</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>98</td><td>4</td><td>U-WIRE-MATERIAL-PHYSICS-BRIDGES</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>99</td><td>4</td><td>U-WIRE-CHIP-THINNING-COMP</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>100</td><td>4</td><td>U-WIRE-RTAC-ADAPTIVE-PHYSICS</td><td>5d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>101</td><td>4</td><td>U-WIRE-DIGITAL-TWIN-EKF</td><td>5d</td><td>wire to post</td><td>#76</td></tr>
+<tr><td>102</td><td>4</td><td>U-WIRE-INPROCESS-STOCK-VOXEL</td><td>5d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>103</td><td>4</td><td>U-WIRE-COLLISION-CERTIFY</td><td>5d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>104</td><td>4</td><td>U-WIRE-PER-CONTROLLER-LORA</td><td>5d</td><td>wire to post</td><td>#85</td></tr>
+<tr><td>105</td><td>4</td><td>U-WIRE-CROSS-CAM-ONTOLOGY</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>106</td><td>4</td><td>U-WIRE-KG-QUERY</td><td>3d</td><td>wire to post</td><td>—</td></tr>
+<tr><td>107</td><td>4</td><td>U-WIRE-OUTCOME-CLOSED-LOOP</td><td>5d</td><td>wire to post</td><td>#83</td></tr>
+<tr><td>108-137</td><td>4</td><td>U-WIRE-ORPHAN-{Bayesian/Conformal/Geodesic/Pareto/etc}</td><td>varies</td><td>30 additional orphans surfaced by grep</td><td>—</td></tr>
+<tr><td>138</td><td>9C</td><td>U-NOVEL-AUTO-BOOTSTRAP-POST-VARIANTS</td><td>6w</td><td>$5-15K/new variant</td><td>outcome capture</td></tr>
+<tr><td>139</td><td>9C</td><td>U-NOVEL-DECISION-PROVENANCE-ANNOTATION</td><td>3w</td><td>adoption / sales</td><td>—</td></tr>
+<tr><td>140</td><td>9C</td><td>U-NOVEL-MULTI-CUSTOMER-FED-KC</td><td>10w</td><td>network effect</td><td>multi-tenancy</td></tr></tbody></table>
+<p>(Phase-4 unit count corrects to 50 — the 30 additional orphans are bundled into U-WIRE-ORPHAN-* for the planning view.)</p>
+<h2 class="prism-h2">Effort summary</h2>
+<table class="prism-md-table"><thead><tr><th>Tier</th><th>Units</th><th>Single-slot total</th><th>Parallel-12-slot</th></tr></thead><tbody><tr><td>Tier-1 (Phase 0 + 9A Tier-A)</td><td>11</td><td>~3 weeks</td><td>~1 week</td></tr>
+<tr><td>Tier-2 (Phase 1+2+7+6+9B)</td><td>~50</td><td>~20 weeks</td><td>~5 weeks</td></tr>
+<tr><td>Tier-3 (Phase 3+4+5+8+9C)</td><td>~75</td><td>~30 weeks</td><td>~8 weeks</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>135</strong></td><td><strong>~53 weeks</strong></td><td><strong>~13-14 weeks</strong></td></tr></tbody></table>
+<h2 class="prism-h2">Operator-actionable next moves</h2>
+<p><strong>Iteration 22 starts here</strong> (echo /loop):</p>
+<ul class="prism-md-list"><li><strong>Iter 22</strong>: U-V11-HOLDERFACTOR-FIX (Phase 0 #1) — diagnose holderFactor undefined exception line 70 of v11 test.hnc, wire ToolAssemblyEngine + ToolHolderRegistryEngine</li><li><strong>Iter 23</strong>: U-V11-AUTO-POCKET-FROM-LIBRARY — read UserTool.magazine_position; eliminate manual pocket entry</li><li><strong>Iter 24</strong>: U-V11-MAGAZINE-INTEGRITY-GATE — pre-emit refuse on offset_drift / wrong_pocket / missing_tool</li><li><strong>Iter 25</strong>: U-V11-PROVE-OUT-FLAG-EXPLICIT — opt-in not default</li><li><strong>Iter 26</strong>: U-V11-WINMAX-COMMENT-RESTORE</li><li><strong>Iter 27</strong>: U-V11-AGGRESSIVENESS-RENAME-SHIM</li><li><strong>Iter 28</strong>: U-NOVEL-WEAR-MEMORY-MAGAZINE</li><li><strong>Iter 29-30</strong>: U-NOVEL-PER-SHOP-KC-IDENTITY</li></ul>
+<p>Cron <code class="prism-inline-code">/loop [5m] /yolo-mode</code> fires <code class="prism-inline-code">/yolo-mode</code> directive every 5 minutes. Stop hook stays armed against the milestone goal until Phase 0 closes. Operator can re-pivot at any tick.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

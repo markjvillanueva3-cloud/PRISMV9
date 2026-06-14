@@ -21,6 +21,7 @@
  */
 
 import { readFileSync, writeFileSync, renameSync, copyFileSync, existsSync, openSync, fsyncSync, closeSync, unlinkSync } from "node:fs";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 import { resolve, dirname } from "node:path";
 
 const GRAPH_PATH = resolve("H:/prism/state/shared/system-viz/system-graph.json");
@@ -470,8 +471,7 @@ function main() {
 
   const t0 = Date.now();
   console.error(`[seed-ghost-nodes] reading ${GRAPH_PATH} ...`);
-  const raw = readFileSync(GRAPH_PATH, "utf8");
-  const graph = JSON.parse(raw);
+  const graph = readGraphStreaming(GRAPH_PATH);  // off-heap: JSON.parse(readFileSync utf8) throws at >512MiB (U-VIZ-READER-CAPSAFE 2026-06-10)
   console.error(`[seed-ghost-nodes] parsed in ${Date.now()-t0}ms — nodes=${(graph.nodes||[]).length} edges=${(graph.edges||[]).length}`);
 
   graph.nodes = graph.nodes || [];

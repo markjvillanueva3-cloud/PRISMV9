@@ -1,0 +1,100 @@
+{
+  "ft_record": {
+    "success": false,
+    "error": "Invalid params for 'master_post_fine_tune_record': predicted: Invalid input: expected string, received object; actual: Invalid input: expected string, received object; controller: Invalid option: expected one of \"fanuc\"|\"siemens\"|\"haas\"|\"okuma\"|\"mazak\"|\"mitsubishi\"|\"heidenhain\"|\"hurco\"|\"brother\"|\"generic\"; operation: Invalid option: expected one of \"roughing\"|\"semi_finishing\"|\"finishing\"|\"drilling\"|\"tapping\"|\"boring\"|\"threading\"|\"probing\"|\"5axis\"|\"hsm\"|\"adaptive\"|\"unknown\"",
+    "action": "master_post_fine_tune_record",
+    "dispatcher": "prism_cam"
+  },
+  "ft_get_params": {
+    "success": false,
+    "error": "Invalid params for 'master_post_fine_tune_get_params': controller: Invalid option: expected one of \"fanuc\"|\"siemens\"|\"haas\"|\"okuma\"|\"mazak\"|\"mitsubishi\"|\"heidenhain\"|\"hurco\"|\"brother\"|\"generic\"; operation: Invalid option: expected one of \"roughing\"|\"semi_finishing\"|\"finishing\"|\"drilling\"|\"tapping\"|\"boring\"|\"threading\"|\"probing\"|\"5axis\"|\"hsm\"|\"adaptive\"|\"unknown\"",
+    "action": "master_post_fine_tune_get_params",
+    "dispatcher": "prism_cam"
+  },
+  "ft_confidence": {
+    "success": false,
+    "error": "Invalid params for 'master_post_fine_tune_confidence': controller: Invalid option: expected one of \"fanuc\"|\"siemens\"|\"haas\"|\"okuma\"|\"mazak\"|\"mitsubishi\"|\"heidenhain\"|\"hurco\"|\"brother\"|\"generic\"; operation: Invalid option: expected one of \"roughing\"|\"semi_finishing\"|\"finishing\"|\"drilling\"|\"tapping\"|\"boring\"|\"threading\"|\"probing\"|\"5axis\"|\"hsm\"|\"adaptive\"|\"unknown\"; parameter: Invalid option: expected one of \"feed_rate\"|\"spindle_speed\"|\"dwell_time\"|\"approach_distance\"|\"retract_height\"|\"stepover\"|\"stepdown\"|\"tolerance\"|\"smoothing_factor\"|\"look_ahead\"",
+    "action": "master_post_fine_tune_confidence",
+    "dispatcher": "prism_cam"
+  },
+  "unified_agi_generate": {
+    "success": true,
+    "data": {
+      "gcode": "",
+      "line_count": 0,
+      "estimated_time_sec": 0,
+      "quality_score": 0,
+      "segments_processed": 0,
+      "warnings": [
+        "No segments or G-code provided"
+      ],
+      "controller_profile": {
+        "id": "generic",
+        "name": "Generic Fanuc-compatible",
+        "families": [
+          "Generic"
+        ],
+        "features": {
+          "coolant": {
+            "flood": {
+              "on": "M8",
+              "off": "M9"
+            }
+          }
+        }
+      },
+      "provenance": {
+        "timestamp": "2026-05-31T21:42:12.640Z",
+        "session_id": "pp-agi-1780263519262-dhi5ur1uv",
+        "total_confidence": 0
+      },
+      "processing_time_ms": 0
+    }
+  },
+  "unified_agi_kinematics": {
+    "success": true,
+    "data": {
+      "valid": false,
+      "machine_id": "hurco_vmx24",
+      "topology": "unknown",
+      "way_type": "unknown",
+      "build_tier": "unknown",
+      "travel_check": {
+        "x_ok": false,
+        "y_ok": false,
+        "z_ok": false,
+        "rotary_ok": false
+      },
+      "collision_check": {
+        "safe": false,
+        "danger_zones": [
+          "Machine profile not found"
+        ]
+      },
+      "accuracy_check": {
+        "sufficient": false,
+        "machine_accuracy_mm": 0
+      },
+      "warnings": [
+        "Machine profile not found"
+      ]
+    }
+  },
+  "agi_orchestrate": {
+    "success": true,
+    "data": {}
+  },
+  "genius_generate": {
+    "success": false,
+    "error": "request.operations is not iterable",
+    "action": "master_post_genius_generate",
+    "dispatcher": "prism_cam",
+    "details": {
+      "stack": "TypeError: request.operations is not iterable\n    at MasterPostProcessorGeniusEngine.generateMasterPost (file:///H:/prism/mcp-server/dist/chunks/MasterPostProcessorGeniusEngine-YTEGFIJT.js:503:37)\n    at file:///H:/prism/mcp-server/dist/index.js:122190:97\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async McpServer.executeToolHandler (file:///H:/prism/mcp-server/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js:233:20)\n    at async file:///H:/prism/mcp-server/node_modules/@modelcontextprotocol/sdk/dist/esm/server/mcp.js:126:32\n    at async wrappedHandler (file:///H:/prism/mcp-server/node_modules/@modelcontextprotocol/sdk/dist/esm/server/index.js:125:32)"
+    }
+  },
+  "ft_clear": {
+    "ok": true,
+    "cleared": true
+  }
+}

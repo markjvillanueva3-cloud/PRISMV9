@@ -37,9 +37,21 @@ const identifierRequired = z.union([
   z.object({ catalog: z.string().min(1) }).passthrough(),
 ]);
 
-// Pagination
+// Pagination. `limit` is CLAMPED (not rejected) to PRISM_MCP_PAGINATION_MAX
+// (default 10000) so a hostile or buggy client cannot request an unbounded page
+// that materializes a whole registry into a single response (memory + payload
+// DoS). Clamping keeps the contract non-breaking: an over-max request still
+// succeeds, it is just capped. A non-positive / non-int limit is still rejected
+// by the inner schema before the clamp runs; an absent limit passes through.
+const PAGINATION_MAX = (() => {
+  const n = parseInt(process.env.PRISM_MCP_PAGINATION_MAX || "10000", 10);
+  return Number.isFinite(n) && n > 0 ? n : 10000;
+})();
+
 const pagination = {
-  limit: optPosInt,
+  limit: optPosInt.transform((v) =>
+    v === undefined ? v : Math.min(v, PAGINATION_MAX),
+  ),
   offset: z.number().int().min(0).optional(),
 };
 
@@ -356,6 +368,78 @@ const program_print_link_coverage = z.object({
 }).passthrough();
 
 // ============================================================================
+// BLACKWELL-DB-GEN-MS0/U-DB-B1 — JMDieDocIndexEngine (1 action)
+// ============================================================================
+//
+// `JMDieDocIndexEngine` queries the consolidated JM Die / DocuStrata document
+// corpus (mcp-server/data/jm-die-database/tables/documents.jsonl, 111,745 docs —
+// the JMDieDocuStrataDB store in DB_MANIFEST). Pure registry-style filter — belongs
+// alongside program_print_link_lookup + database_search. Closes the B1 gap: the
+// store was built + registered but had NO runtime consumer.
+const jm_die_doc_lookup = z.object({
+  text: z.string().optional().describe(
+    "Case-insensitive substring match across title + filename + disk_path.",
+  ),
+  role: z.string().optional().describe(
+    "Exact classification role (e.g. SCAN_GENERIC, BLUEPRINT, QUOTE, SALES_ORDER).",
+  ),
+  role_tier: z.string().optional().describe("Exact role tier (e.g. T1..T3)."),
+  notebook: z.string().optional().describe("Exact notebook bucket (e.g. Scans, JMD Quotes)."),
+  folder: z.string().optional().describe("Case-insensitive substring match on folder."),
+  has_text_layer: z.boolean().optional().describe(
+    "Filter to docs that do / don't carry an extracted text layer.",
+  ),
+  min_print_score: z.number().min(0).max(1).optional().describe(
+    "Only docs whose print_score >= this (0..1) — higher = more blueprint-like.",
+  ),
+  date_from: z.string().optional().describe(
+    "created_at lower bound (string compare on the stored created_at).",
+  ),
+  date_to: z.string().optional().describe("created_at upper bound."),
+  limit: z.number().int().min(1).max(500).optional().describe(
+    "Max records returned (default 50, hard cap 500).",
+  ),
+  docs_jsonl_path: z.string().optional().describe(
+    "Override the corpus path. Default: <repo>/mcp-server/data/jm-die-database/tables/documents.jsonl.",
+  ),
+}).passthrough();
+
+// ============================================================================
+// DB-EXPANSION/DB-GAP-LIST-B2 — JMDiePartLibraryEngine (1 action)
+// Query the consolidated JM Die part-library index (30,890 part-number-keyed records
+// built from the orphaned part.json extraction sidecars — prints/cncPrograms/cadCam join
+// with matchConfidence). Closes B2: the sidecars were produced but never databased / consumed.
+// ============================================================================
+const jm_die_part_lookup = z.object({
+  part_number: z.string().optional().describe(
+    "Exact part-number match (case-insensitive, trimmed).",
+  ),
+  part_number_contains: z.string().optional().describe(
+    "Case-insensitive substring match on part number (prefix/fuzzy lookup).",
+  ),
+  customer: z.string().optional().describe("Exact customer match (case-insensitive)."),
+  customer_contains: z.string().optional().describe(
+    "Case-insensitive substring match on customer.",
+  ),
+  match_confidence: z.enum(["miss", "loose", "ambiguous", "exact", "other"]).optional().describe(
+    "Exact blueprint↔program join confidence band.",
+  ),
+  assigned: z.boolean().optional().describe(
+    "true → only assigned (non-_UNASSIGNED) parts; false → only unassigned.",
+  ),
+  has_program_link: z.boolean().optional().describe(
+    "true → only parts with a CNC program join; false → only without.",
+  ),
+  has_cad_link: z.boolean().optional().describe("true → only parts with a CAD/CAM join."),
+  limit: z.number().int().min(1).max(500).optional().describe(
+    "Max records returned (default 50, hard cap 500).",
+  ),
+  store_jsonl_path: z.string().optional().describe(
+    "Override the store path. Default: <repo>/state/shared/databases/jm-part-library.jsonl.",
+  ),
+}).passthrough();
+
+// ============================================================================
 // MS-PRINT-PROGRAM-LOOP/U-PPL-C2 — CustomerMaterialMapEngine (2 actions)
 // ============================================================================
 //
@@ -448,6 +532,19 @@ const machine_vocab_catalog = z.object({
 
 /** A C T I O N_ D A T A_ S C H E M A S constant.
  */
+// CIMCO Edit 2026 tool-library export (CIMCO-TOOLDB-FILL-MS0) — all params optional
+const cimco_toollib_export = z
+  .object({
+    store: z.string().min(1).optional().describe("PRISM tool source store key (default EXTRACTED_DETAILED_TOOLS)"),
+    native: z.enum(["inch", "mm"]).optional().describe("Verified native linear units of the source store (no guess; default per registry)"),
+    units: z.enum(["imperial", "metric"]).optional().describe("Output CIMCO library unit system (default imperial)"),
+    source: z.string().min(1).optional().describe("Override source JSON path (default prism-reference-db/tools.json)"),
+    out: z.string().min(1).optional().describe("Override output directory for generated .tmlib files"),
+    dryRun: z.boolean().optional().describe("Compute the manifest without writing .tmlib files"),
+    dry_run: z.boolean().optional().describe("snake_case alias for dryRun"),
+  })
+  .passthrough();
+
 export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   // Material (3)
   material_get,
@@ -509,6 +606,9 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   // U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine (2 actions, mirror of prism_dev)
   program_print_link_lookup,
   program_print_link_coverage,
+  jm_die_doc_lookup,
+  // DB-EXPANSION/DB-GAP-LIST-B2: JMDiePartLibraryEngine (1 action)
+  jm_die_part_lookup,
   // MS-PRINT-PROGRAM-LOOP/U-PPL-C2: CustomerMaterialMapEngine (2 actions)
   customer_material_map_build,
   customer_material_lookup,
@@ -516,4 +616,6 @@ export const ACTION_DATA_SCHEMAS: ActionSchemaMap = {
   machine_vocab_normalize,
   machine_vocab_normalize_record,
   machine_vocab_catalog,
+  // CIMCO-TOOLDB-FILL-MS0: CIMCO Edit 2026 tool-library export
+  cimco_toollib_export,
 };

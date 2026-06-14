@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedFromSession": "claude-a6304a93/juliett",
+  "phase": "A",
+  "mode": "apply",
+  "generatedBy": "scripts/enrich-catalog-cutting-data.mjs",
+  "sources": {
+    "manufacturerSeries": 431,
+    "provenRecords": 1139
+  },
+  "isoAggregate": {
+    "P": {
+      "vc_min_m_min": 40,
+      "vc_max_m_min": 710,
+      "fz_min_mm": 0.0014,
+      "fz_max_mm": 1.1,
+      "seriesSampleSize": 84
+    },
+    "M": {
+      "vc_min_m_min": 23,
+      "vc_max_m_min": 450,
+      "fz_min_mm": 0.0013,
+      "fz_max_mm": 0.7,
+      "seriesSampleSize": 79
+    },
+    "K": {
+      "vc_min_m_min": 44,
+      "vc_max_m_min": 740,
+      "fz_min_mm": 0.003,
+      "fz_max_mm": 1.2,
+      "seriesSampleSize": 80
+    },
+    "N": {
+      "vc_min_m_min": 65,
+      "vc_max_m_min": 2000,
+      "fz_min_mm": 0.0014,
+      "fz_max_mm": 1.2,
+      "seriesSampleSize": 82
+    },
+    "S": {
+      "vc_min_m_min": 10,
+      "vc_max_m_min": 155,
+      "fz_min_mm": 0.002,
+      "fz_max_mm": 0.6,
+      "seriesSampleSize": 75
+    },
+    "H": {
+      "vc_min_m_min": 16,
+      "vc_max_m_min": 250,
+      "fz_min_mm": 0.001,
+      "fz_max_mm": 0.2,
+      "seriesSampleSize": 31
+    }
+  },
+  "vendors": {
+    "iscar-monolith-extracted.json": {
+      "file": "iscar-monolith-extracted.json",
+      "tools": 29,
+      "enriched": 0,
+      "seriesMatched": 0,
+      "unmatched": 29,
+      "cuttingDataEntries": 0
+    },
+    "kennametal-monolith-extracted.json": {
+      "file": "kennametal-monolith-extracted.json",
+      "tools": 27,
+      "enriched": 1,
+      "seriesMatched": 0,
+      "unmatched": 26,
+      "cuttingDataEntries": 3
+    },
+    "mitsubishi-monolith-extracted.json": {
+      "file": "mitsubishi-monolith-extracted.json",
+      "tools": 30,
+      "enriched": 0,
+      "seriesMatched": 0,
+      "unmatched": 30,
+      "cuttingDataEntries": 0
+    },
+    "sandvik-monolith-extracted.json": {
+      "file": "sandvik-monolith-extracted.json",
+      "tools": 34,
+      "enriched": 8,
+      "seriesMatched": 0,
+      "unmatched": 26,
+      "cuttingDataEntries": 13
+    },
+    "seco-monolith-extracted.json": {
+      "file": "seco-monolith-extracted.json",
+      "tools": 30,
+      "enriched": 6,
+      "seriesMatched": 0,
+      "unmatched": 24,
+      "cuttingDataEntries": 6
+    },
+    "tungaloy-monolith-extracted.json": {
+      "file": "tungaloy-monolith-extracted.json",
+      "tools": 22,
+      "enriched": 0,
+      "seriesMatched": 0,
+      "unmatched": 22,
+      "cuttingDataEntries": 0
+    },
+    "walter-monolith-extracted.json": {
+      "file": "walter-monolith-extracted.json",
+      "tools": 24,
+      "enriched": 2,
+      "seriesMatched": 0,
+      "unmatched": 22,
+      "cuttingDataEntries": 2
+    },
+    "zeni-monolith-extracted.json": {
+      "file": "zeni-monolith-extracted.json",
+      "tools": 54,
+      "enriched": 0,
+      "seriesMatched": 0,
+      "unmatched": 54,
+      "cuttingDataEntries": 0
+    }
+  },
+  "totals": {
+    "tools": 250,
+    "enriched": 17,
+    "seriesMatched": 0,
+    "unmatched": 233,
+    "cuttingDataEntries": 24
+  },
+  "note": "Per-ISO cutting recommendations attached to charlie's catalog skeletons from existing trusted sources. SEPARATE tree; charlie's originals untouched. Honest granularity (series/ISO-aggregate) + confidence + caveat. Phase B (vendor PDFs) refines to per-grade."
+}

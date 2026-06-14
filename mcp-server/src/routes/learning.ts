@@ -590,5 +590,32 @@ export function createLearningRouter(callTool: CallToolFn): Router {
     );
   });
 
+  // ── Document Learning (CC-EXT-MS0 P0-U07) ──────────────────────────────
+  // Express adapter for the prism_doc_learn dispatcher (documentLearningDispatcher).
+  // Upload/extract/list/get/delete document knowledge from PDFs, notes, papers.
+  router.post("/document/upload", async (req, res) => {
+    await handleRoute(res, () => callTool("prism_doc_learn", "doc_upload", req.body));
+  });
+
+  router.post("/document/extract", async (req, res) => {
+    await handleRoute(res, () => callTool("prism_doc_learn", "doc_extract", req.body));
+  });
+
+  router.get("/documents", async (_req, res) => {
+    await handleRoute(res, () => callTool("prism_doc_learn", "doc_list", {}));
+  });
+
+  router.get("/document/:id", async (req, res) => {
+    await handleRoute(res, () =>
+      callTool("prism_doc_learn", "doc_get", { document_id: req.params.id }),
+    );
+  });
+
+  router.delete("/document/:id", async (req, res) => {
+    await handleRoute(res, () =>
+      callTool("prism_doc_learn", "doc_delete", { document_id: req.params.id }),
+    );
+  });
+
   return router;
 }

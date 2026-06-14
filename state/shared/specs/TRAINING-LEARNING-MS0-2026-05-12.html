@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="7f2dfbeaf8949cf58ae8b22ce6e91dc092c6d62e4f31678b96fa7f3d62a184a9">
+<title>TRAINING-LEARNING-MS0 — Domain Starting-Template Corpus</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">TRAINING-LEARNING-MS0 — Domain Starting-Template Corpus</h1>
+<p class="provenance">Generated 2026-05-12T18:55:35.898Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#training-learning-ms0-domain-starting-template-corpus">TRAINING-LEARNING-MS0 — Domain Starting-Template Corpus</a></li>
+<li class="toc-l2"><a href="#principle-per-the-user">Principle (per the user)</a></li>
+<li class="toc-l2"><a href="#corpus-inventory-hard-counts-read-here-dont-re-derive">Corpus inventory (hard counts — read here, don&#39;t re-derive)</a></li>
+<li class="toc-l2"><a href="#acceptance-criteria-omega_floor10-per-users-strict-preference-for-all-domain-milestones">Acceptance criteria (omega_floor=1.0 per user&#39;s strict preference for all domain milestones)</a></li>
+<li class="toc-l2"><a href="#units-7-in-ms0-same-shape-as-macro-program-pipeline-ms0-narrower-scope-per-domain">Units (7 in MS0 — same shape as MACRO-PROGRAM-PIPELINE-MS0, narrower scope per domain)</a></li>
+<li class="toc-l3"><a href="#ms0-u1-lathepartfamilytemplateextractorengine-corpus-scanner-lathe">MS0-U1 — LathePartFamilyTemplateExtractorEngine + corpus scanner (Lathe)</a></li>
+<li class="toc-l3"><a href="#ms0-u2-millpartfamilytemplateextractorengine-corpus-scanner-mill">MS0-U2 — MillPartFamilyTemplateExtractorEngine + corpus scanner (Mill)</a></li>
+<li class="toc-l3"><a href="#ms0-u3-electrode-coverage-gap-audit-safety-critical-read-only">MS0-U3 — Electrode-coverage gap audit (SAFETY-CRITICAL READ-ONLY)</a></li>
+<li class="toc-l3"><a href="#ms0-u4-wedmpartfamilytemplateextractorengine-taptiteelectrodemacrobridgeengine">MS0-U4 — WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine</a></li>
+<li class="toc-l3"><a href="#ms0-u5-domain-matcher-engines-lathemillwedm-partfamilymatcher-dispatcher-exposure">MS0-U5 — Domain matcher engines (Lathe/Mill/WEDM PartFamilyMatcher) + dispatcher exposure</a></li>
+<li class="toc-l3"><a href="#ms0-u6-closed-loop-ingest-outcomes-template-variability-ranges">MS0-U6 — Closed-loop ingest (outcomes → template variability ranges)</a></li>
+<li class="toc-l3"><a href="#ms0-u7-learn-corpus-skill-close-out">MS0-U7 — /learn-corpus skill + close-out</a></li>
+<li class="toc-l2"><a href="#existing-engines-to-wire-do-not-rebuild-found-via-dedup">Existing engines to wire (do NOT rebuild — found via /dedup)</a></li>
+<li class="toc-l2"><a href="#engines-to-build-6-3-phase-scripts-1-skill">Engines to build (6 + 3 phase scripts + 1 skill)</a></li>
+<li class="toc-l2"><a href="#milestone-envelope-json-to-register-at-mcp-serverdatamilestonestraining-learning-ms0json">Milestone-envelope JSON (to register at mcp-server/data/milestones/TRAINING-LEARNING-MS0.json)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="training-learning-ms0-domain-starting-template-corpus"><a class="anchor" href="#training-learning-ms0-domain-starting-template-corpus" aria-label="Permalink to TRAINING-LEARNING-MS0 — Domain Starting-Template Corpus">#</a>TRAINING-LEARNING-MS0 — Domain Starting-Template Corpus</h1>
+<p><strong>Created:</strong> 2026-05-12 by claude-8f2683e8 (slot alpha) <strong>Triggered by:</strong> user request 2026-05-12 — &quot;add a section for training and learning in the 3 primary machine domains: mill, lathe, wire edm. to look through every single one of our prints, programs, cad/cam files. we should be able to make starting templates for common or similar type parts. dont forget about the excel macro we have for electrodes (taptites) that should be heavily present for jobs that require sinker edm burning of copper taptites into carbide inserts&quot; <strong>Status:</strong> SCOPED — units enumerated, execution deferred (the corpus scan is 24,545 files; each engine ships with tests + dispatcher wiring + round-trip). <strong>Owns:</strong> the closed-loop training pipeline that mines our existing corpus of prints/programs/CAD-CAM files and emits reusable starting templates per part family in mill / lathe / wire-EDM, including a heavy bridge to the taptite-electrode Excel macro for sinker-EDM-into-carbide jobs. <strong>Companion:</strong> <code>MACRO-PROGRAM-PIPELINE-MS0-2026-05-12.md</code> (the lathe-macro half — same shape, narrower scope). <strong>Roadmaps it docks into:</strong> <code>MILL-MASTER</code>, <code>LATHE-MASTER</code>, <code>WEDM-AGI</code> (latest), <code>OBSIDIAN-AUTOMATE-MS3</code> (training-corpus surface).</p>
+<hr>
+<h2 id="principle-per-the-user"><a class="anchor" href="#principle-per-the-user" aria-label="Permalink to Principle (per the user)">#</a>Principle (per the user)</h2>
+<blockquote>
+<p><em>&quot;Every single print, program, CAD/CAM file in our shop&quot;</em> is a training corpus. <em>&quot;Starting templates for common or similar type parts&quot;</em> — a new job that resembles 30 we&#39;ve already run should begin from a vetted skeleton, not from scratch. <em>&quot;The excel macro we have for electrodes (taptites) … sinker edm burning of copper taptites into carbide inserts&quot;</em> is a first-class asset on par with the Okuma OSP lathe macros — every electrode part in our system MUST have a corresponding entry.</p>
+</blockquote>
+<p><strong>Non-goals (explicit, to keep scope sane):</strong></p>
+<ul>
+<li>❌ NOT auto-emitting G-code from templates (the safety pipeline in <code>MACRO-PROGRAM-PIPELINE-MS0</code> handles that — templates feed it, never bypass it).</li>
+<li>❌ NOT modifying <code>Automated Program_Corrected 5-25.xlsm</code> (operator-owned, read-only audit).</li>
+<li>❌ NOT a full RAG / embedding stack from day one (catalog + cluster + template extract first; embeddings are a v2 improvement).</li>
+</ul>
+<p><strong>Critical caveat (per [[feedback_box_programs_amateur]]):</strong> Box-drive programs were written by amateurs without proper S/F discipline. <strong>Treat historical S/F values as DATA, NOT GROUND TRUTH.</strong> Template extraction extracts the <em>op-sequence</em> + <em>tool-numbering</em> + <em>fixturing pattern</em> + <em>macro-VC-var schema</em>; the <em>S/F band</em> is a stochastic distribution to compare against PRISM&#39;s physics-derived recommendation, NOT a target to converge on. If the historical S/F materially disagrees with <code>SpeedFeedOrchestrator</code>&#39;s recommendation, log it as a deviation outcome (the operator may have known something the physics didn&#39;t — or may have been an amateur) — never silently override the physics.</p>
+<hr>
+<h2 id="corpus-inventory-hard-counts-read-here-dont-re-derive"><a class="anchor" href="#corpus-inventory-hard-counts-read-here-dont-re-derive" aria-label="Permalink to Corpus inventory (hard counts — read here, don&#39;t re-derive)">#</a>Corpus inventory (hard counts — read here, don&#39;t re-derive)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>Path</th><th>Count</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>JM Die master archive</td><td><code>H:/PRISM/JM DIE/</code></td><td>24,545 production NC files</td><td>100+ customers (ITW, Alcoa, Optimas, SFS, Holo-Krome)</td></tr>
+<tr><td><strong>JM Die authoritative index v2</strong></td><td><code>H:/PRISM/Docustrata/.index/jm-die-index-v2.json</code> (10.3 MB · rebuilt 2026-05-09 via <code>phase3b-v2-rebuild-jm-index.ps1</code>)</td><td>catalog</td><td><strong>the canonical join source for all 3 corpus-scanner units</strong> — read this, don&#39;t re-walk the filesystem</td></tr>
+<tr><td>Part Library (normalized)</td><td><code>H:/PRISM/JM DIE/_PART LIBRARY/&lt;customer&gt;/&lt;pn&gt;/</code></td><td>25,028 part folders / 42,407 print pages / 10,678 program files</td><td>materialized via phase18</td></tr>
+<tr><td>Docustrata index</td><td><code>H:/PRISM/Docustrata/</code></td><td>indexed</td><td>phase15-huge + phase16-join + phase18-program-bind + phase19-customer-alias</td></tr>
+<tr><td>Electrode files</td><td>(across <code>JM DIE/</code>)</td><td><strong>73</strong> (39 .ipt · 17 .mcx-8 · 16 .iam · 1 .MIN)</td><td>hotspots: BIRMINGHAM/BFELECTRODE, NATHANS/OMG ELECTRODES ALL OD -.003, HAAS-HURCO BH-1414 ROUGHING/FINISHING</td></tr>
+<tr><td>Taptite files</td><td>(across <code>JM DIE/</code>)</td><td><strong>22</strong></td><td>CONTINENTAL MIDLAN, ATF TAP, TAPTITE 2000, TOPURA</td></tr>
+<tr><td><strong>TAPTITE ELECTRODE EXCEL MACRO</strong></td><td><code>H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm</code></td><td>5.6 MB / 2026-04-10</td><td>the canonical electrode-program generator — <strong>safety-critical, READ-ONLY for this milestone</strong></td></tr>
+<tr><td>Okuma OSP lathe macros</td><td><code>H:/PRISM/JM DIE/Macro programs/</code></td><td>4 (wafer-insert, casing, casing-counterbore, top-hat-casing)</td><td>already cataloged by <code>MacroLibraryEngine</code> (this session, U-MACRO-LIB)</td></tr>
+</tbody>
+</table></div>
+<h2 id="acceptance-criteria-omega_floor10-per-users-strict-preference-for-all-domain-milestones"><a class="anchor" href="#acceptance-criteria-omega_floor10-per-users-strict-preference-for-all-domain-milestones" aria-label="Permalink to Acceptance criteria (omega_floor=1.0 per user&#39;s strict preference for all domain milestones)">#</a>Acceptance criteria (omega_floor=1.0 per user&#39;s strict preference for all domain milestones)</h2>
+<ul>
+<li>Every new engine ships with: real tests (reference values or algebraic invariants — NO <code>toBeDefined()</code> stubs), dispatcher wiring (import + call + action enum + schema), and a round-trip E2E assertion.</li>
+<li>Coverage floor per engine: happy path + ≥3 failure modes + ≥2 adversarial inputs.</li>
+<li>Variability floor: each engine exercises ≥3 families (e.g. for lathe: wafer-insert + casing + shaft; for mill: taptite + electrode + plate; for WEDM: taptite-electrode + carbide-die + punch-die).</li>
+<li>Read-only against the Excel macro file — audits MUST NOT write to <code>.xlsm</code>.</li>
+<li>Every template-emit path is gated by S(x) ≥ 0.70 + sim + operator-in-the-loop (delegated to <code>MACRO-PROGRAM-PIPELINE-MS0</code>&#39;s gate).</li>
+</ul>
+<hr>
+<h2 id="units-7-in-ms0-same-shape-as-macro-program-pipeline-ms0-narrower-scope-per-domain"><a class="anchor" href="#units-7-in-ms0-same-shape-as-macro-program-pipeline-ms0-narrower-scope-per-domain" aria-label="Permalink to Units (7 in MS0 — same shape as MACRO-PROGRAM-PIPELINE-MS0, narrower scope per domain)">#</a>Units (7 in MS0 — same shape as MACRO-PROGRAM-PIPELINE-MS0, narrower scope per domain)</h2>
+<h3 id="ms0-u1-lathepartfamilytemplateextractorengine-corpus-scanner-lathe"><a class="anchor" href="#ms0-u1-lathepartfamilytemplateextractorengine-corpus-scanner-lathe" aria-label="Permalink to MS0-U1 — LathePartFamilyTemplateExtractorEngine + corpus scanner (Lathe)">#</a>MS0-U1 — LathePartFamilyTemplateExtractorEngine + corpus scanner (Lathe)</h3>
+<p><strong>Owner engine:</strong> <code>LathePartFamilyTemplateExtractorEngine</code> (singleton in <code>src/engines/</code>). <strong>Methods:</strong> <code>catalogCorpus({root, limit?})</code>, <code>extractTemplate(familyClusterId)</code>, <code>listTemplates()</code>, <code>getTemplate(family)</code>. <strong>Inputs:</strong> corpus root path; uses <code>MacroProgramIntelligenceEngine</code> (Okuma macros), the lathe G-code parser (Mazak/Fanuc/Mitsubishi), <code>LathePartClassifierEngine</code>, <code>turning_feature_taxonomy</code>, <code>turning_rev_profile</code>. <strong>Output:</strong> <code>TrainingTemplate</code> records (frontmatter: family, controller-baseline, representative parts, variability ranges, op-sequence, tool list, S/F bands, VC-var schema) saved into <code>mcp-server/data/training/templates/lathe/&lt;family&gt;.json</code>. <strong>Wires to:</strong> <code>prism_turning</code> actions <code>lathe_training_corpus_status</code>, <code>lathe_training_template_list</code>, <code>lathe_training_template_match</code> + schemas. ALSO wire to <code>prism_cad</code> (template-placement re-uses the macro path). <strong>Tests:</strong> ≥10 cases. Reference families: wafer-insert / casing / shaft / flange (≥3 from the corpus). Adversarial: empty corpus, malformed <code>.MIN</code>, unparseable customer dir. <strong>Companion script:</strong> <code>Docustrata/.index/phase20-lathe-template-corpus-scan.py</code> (read-only walk + classify). <strong>Seed:</strong> the existing 4 OSP macros are the wafer-insert / casing / casing-counterbore / top-hat-casing templates&#39; seed; extend with shaft (stepped/threaded/keyway), flange (bored/bolt-circle), bushing/sleeve/hub (thin-wall), tube/hollow, taptite blanks, nut blanks, electrode rod blanks.</p>
+<h3 id="ms0-u2-millpartfamilytemplateextractorengine-corpus-scanner-mill"><a class="anchor" href="#ms0-u2-millpartfamilytemplateextractorengine-corpus-scanner-mill" aria-label="Permalink to MS0-U2 — MillPartFamilyTemplateExtractorEngine + corpus scanner (Mill)">#</a>MS0-U2 — MillPartFamilyTemplateExtractorEngine + corpus scanner (Mill)</h3>
+<p><strong>Owner engine:</strong> <code>MillPartFamilyTemplateExtractorEngine</code> (singleton). <strong>Methods:</strong> same shape as U1. <strong>Inputs:</strong> uses <code>MillProgramAnalyzerEngine</code>, <code>MillProgramOptimizerEngine.analyzeProgram</code>, Mastercam <code>.mcx-8</code> parser, Inventor part-tree extractor, <code>cad_pattern_database</code>, <code>MillingStrategyLibraryEngine</code>. <strong>Output:</strong> <code>mcp-server/data/training/templates/mill/&lt;family&gt;.json</code>. <strong>Wires to:</strong> <code>prism_mill</code> (or <code>prism_cam</code>) actions <code>mill_training_corpus_status</code> / <code>_template_list</code> / <code>_template_match</code> + schemas. <strong>Tests:</strong> ≥10. Families: taptite mills + electrode mills + plates (≥3). Adversarial: malformed mcx-8, missing Inventor reference, ipt with no features. <strong>Companion script:</strong> <code>Docustrata/.index/phase20-mill-template-corpus-scan.py</code>. <strong>Seed families:</strong> Taptite mills (Continental Midland, ATF Tap), Electrode mills (BH-1414, OMG <code>ELECTRODES ALL OD -.003</code>), Plates, Brackets/housings, Mold/die inserts, Aerospace brackets (Alcoa/ITW), Sheet-metal fixtures.</p>
+<h3 id="ms0-u3-electrode-coverage-gap-audit-safety-critical-read-only"><a class="anchor" href="#ms0-u3-electrode-coverage-gap-audit-safety-critical-read-only" aria-label="Permalink to MS0-U3 — Electrode-coverage gap audit (SAFETY-CRITICAL READ-ONLY)">#</a>MS0-U3 — Electrode-coverage gap audit (SAFETY-CRITICAL READ-ONLY)</h3>
+<p><strong>Goal:</strong> verify every electrode part in our system has a corresponding entry in <code>Automated Program_Corrected 5-25.xlsm</code>. <strong>Owner script:</strong> <code>Docustrata/.index/phase20-electrode-coverage-audit.py</code> (read-only; emits a markdown + JSON report). <strong>Owner engine:</strong> <code>ElectrodeCoverageAuditEngine</code> (singleton). Methods: <code>enumerateElectrodes({roots[]})</code>, <code>parseExcelMacroRegistry({path})</code>, <code>crossReference({enumerated, registered})</code>, <code>report({format: &#39;md&#39;|&#39;json&#39;, outDir})</code>. <strong>Inputs:</strong> all corpus roots; the Excel macro path (defaulted to <code>H:/PRISM/JM DIE/Automated Program_Corrected 5-25.xlsm</code>). Read via <code>exceljs</code> or equivalent — DO NOT write to the file. <strong>Output:</strong> <code>state/shared/reports/electrode-coverage-&lt;date&gt;.{md,json}</code> with: total electrodes / by-extension / by-customer / by-hotspot / matched-in-Excel / unmatched / duplicate-names / naming-mismatch / coverage-percent. <strong>Wires to:</strong> <code>prism_edm</code> action <code>wedm_electrode_coverage_audit</code> + schema. The action is read-only — no <code>_emit_</code> partner action in this unit. <strong>Tests:</strong> ≥10. Cover: normal corpus, corpus with no electrodes, corrupt Excel, missing Excel (graceful fail with clear message), naming-variant cases (e.g. &quot;BH-1414 ROUGHING ELECTRODE&quot; vs &quot;BH-1414 ROUGH&quot;), <code>.ipt</code>-only and <code>.MIN</code>-only paths. Reference: at least the BFELECTRODE + BH-1414 + OMG family. <strong>Pre-existing inventory:</strong> 73 electrode files / 22 taptite files (counted 2026-05-12).</p>
+<h3 id="ms0-u4-wedmpartfamilytemplateextractorengine-taptiteelectrodemacrobridgeengine"><a class="anchor" href="#ms0-u4-wedmpartfamilytemplateextractorengine-taptiteelectrodemacrobridgeengine" aria-label="Permalink to MS0-U4 — WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine">#</a>MS0-U4 — WEDMPartFamilyTemplateExtractorEngine + TaptiteElectrodeMacroBridgeEngine</h3>
+<p><strong>WEDM template engine:</strong> mirror of U1/U2 — <code>WEDMPartFamilyTemplateExtractorEngine</code> over <code>JM DIE/WIRE EDM/</code> + the 26 indexed JM-Die WEDM programs. <strong>Bridge engine:</strong> <code>TaptiteElectrodeMacroBridgeEngine</code> — a READ adapter around <code>Automated Program_Corrected 5-25.xlsm</code>. Methods: <code>listRegisteredElectrodes()</code>, <code>getElectrodeRecipe(electrodeName)</code>, <code>synthesizeProgram(electrodeName, partContext)</code> (returns G-code STRING ONLY — the safety gate in <code>MACRO-PROGRAM-PIPELINE-MS0</code> decides what happens with it). <strong>Two implementation paths</strong> (build the parsed-snapshot one first; live-Excel is v2):</p>
+<ul>
+<li><strong>(a) Parsed snapshot (PRIMARY for MS0):</strong> parse the Excel macro once (via <code>exceljs</code>), dump the electrode-types tab + parametric-formula tab to <code>mcp-server/data/training/electrode-registry/snapshot.json</code>. The bridge reads the snapshot. Stale snapshot → flag.</li>
+<li><strong>(b) Live Excel (deferred to v2):</strong> drive Excel headless via COM (Windows-only) to execute the macro and read its output. Higher fidelity, more brittle.</li>
+</ul>
+<p><strong>Wires to:</strong> <code>prism_edm</code> actions <code>wedm_training_corpus_status</code>, <code>wedm_training_template_match</code>, <code>wedm_taptite_emit_from_macro</code>, <code>wedm_electrode_registry_list</code>, <code>wedm_electrode_registry_get</code> + schemas. <strong>Tests:</strong> ≥10. Families: taptite electrode + carbide-die insert + punch-die. Adversarial: missing electrode name, electrode in registry but in physical corpus (gap), electrode in corpus but not registry (the audit&#39;s job), malformed Excel. <strong>Companion script:</strong> <code>Docustrata/.index/phase20-wedm-template-corpus-scan.py</code>. <strong>Seed families:</strong> Taptite electrodes (PRIMARY), Carbide-die inserts, Punch/die sets, PCD-tipped tooling, Aerospace turbine fir-trees, Mold inserts.</p>
+<h3 id="ms0-u5-domain-matcher-engines-lathemillwedm-partfamilymatcher-dispatcher-exposure"><a class="anchor" href="#ms0-u5-domain-matcher-engines-lathemillwedm-partfamilymatcher-dispatcher-exposure" aria-label="Permalink to MS0-U5 — Domain matcher engines (Lathe/Mill/WEDM PartFamilyMatcher) + dispatcher exposure">#</a>MS0-U5 — Domain matcher engines (Lathe/Mill/WEDM PartFamilyMatcher) + dispatcher exposure</h3>
+<p><strong>Engines:</strong> <code>LathePartFamilyMatcherEngine</code>, <code>MillPartFamilyMatcherEngine</code>, <code>WEDMPartFamilyMatcherEngine</code>. <strong>Methods (all 3):</strong> <code>match({geometry, features, material, customer?, name?})</code> → <code>{family, confidence, template, nearest: [{partNumber, sxScore, runCount, lastShipped}]}</code>. Re-uses the same priority-cascade pattern as <code>MacroLibraryEngine.matchFamily()</code>. <strong>Output:</strong> the matcher feeds the <code>/lathe</code> <code>/mill</code> <code>/wedm</code> mega-command pipelines&#39; planning stage with &quot;this part is closest to X — start there&quot; + 3-5 nearest historical parts the operator can compare to. <strong>Wires to:</strong> <code>prism_turning:lathe_training_template_match</code>, <code>prism_mill:mill_training_template_match</code>, <code>prism_edm:wedm_training_template_match</code> (the dispatcher actions live in U1/U2/U4 — this unit fills out the matcher logic). <strong>Tests:</strong> ≥10 per engine. Cover at least 3 families per matcher with happy + boundary + null + adversarial.</p>
+<h3 id="ms0-u6-closed-loop-ingest-outcomes-template-variability-ranges"><a class="anchor" href="#ms0-u6-closed-loop-ingest-outcomes-template-variability-ranges" aria-label="Permalink to MS0-U6 — Closed-loop ingest (outcomes → template variability ranges)">#</a>MS0-U6 — Closed-loop ingest (outcomes → template variability ranges)</h3>
+<p><strong>Goal:</strong> every shipped part&#39;s actuals (cycle time, dim Cpk, tool life, chatter events, wire breaks, recast depth) update the matching template&#39;s variability ranges + confidence; stale templates get flagged for retirement. <strong>Owner engine:</strong> <code>TrainingTemplateContinuousLearningEngine</code> (one engine, 3 domain methods: <code>ingestLatheOutcome()</code>, <code>ingestMillOutcome()</code>, <code>ingestWEDMOutcome()</code>). Or 3 small engines if cleaner. <strong>Inputs:</strong> <code>feedback_loop_record</code> events from <code>prism_dev:feedback_record</code> + the domain AGI&#39;s continuous-learning hooks (<code>LatheAGIContinuousLearningEngine</code>, <code>MillingAGIMasterEngine</code>, <code>WireEDMAGIOrchestrator</code>). <strong>Output:</strong> updates to <code>mcp-server/data/training/templates/&lt;domain&gt;/&lt;family&gt;.json</code> — bumped <code>runCount</code>, updated <code>sxScore</code> distribution, expanded/contracted <code>variability</code> ranges. Templates with <code>staleness &gt; threshold</code> get flagged. <strong>Wires to:</strong> <code>prism_dev</code> actions <code>training_template_outcome_ingest</code> / <code>training_template_staleness_report</code>. <strong>Tests:</strong> ≥10. Cover: first outcome creates initial range, repeated outcomes converge, outlier outcome flagged not silently absorbed, staleness threshold trips at expected count, retirement workflow.</p>
+<h3 id="ms0-u7-learn-corpus-skill-close-out"><a class="anchor" href="#ms0-u7-learn-corpus-skill-close-out" aria-label="Permalink to MS0-U7 — /learn-corpus skill + close-out">#</a>MS0-U7 — <code>/learn-corpus</code> skill + close-out</h3>
+<p><strong>Skill:</strong> <code>H:/prism/.claude/commands/learn-corpus.md</code> (or extend the existing <code>/learn</code> skill). Args: <code>lathe</code> / <code>mill</code> / <code>wedm</code> / <code>electrode-audit</code> / <code>status</code> / <code>match &lt;part&gt;</code>. Replaces freehand &quot;look through prints&quot; with a deterministic pipeline. <strong>Close-out checklist:</strong></p>
+<ul>
+<li>Update <code>state/shared/specs/DOMAIN-STUDIO-NODE-MAP.md</code> with the new training-corpus nodes.</li>
+<li>Wiki/index entries for the 6 new engines + <code>phase20-*</code> scripts + <code>electrode-registry/snapshot.json</code>.</li>
+<li><code>ENGINE_DIGEST.md</code> regen.</li>
+<li>3-way scrutiny gate.</li>
+<li>Operator runs <code>/learn-corpus electrode-audit</code> once → confirms the coverage report shows 100% (or flags the gaps for follow-up).</li>
+</ul>
+<hr>
+<h2 id="existing-engines-to-wire-do-not-rebuild-found-via-dedup"><a class="anchor" href="#existing-engines-to-wire-do-not-rebuild-found-via-dedup" aria-label="Permalink to Existing engines to wire (do NOT rebuild — found via /dedup)">#</a>Existing engines to wire (do NOT rebuild — found via <code>/dedup</code>)</h2>
+<ul>
+<li><code>MacroLibraryEngine</code> (this session, U-MACRO-LIB) — the Okuma OSP lathe macros + family priority cascade. U1&#39;s seed.</li>
+<li><code>LathePartClassifierEngine</code>, <code>LatheJMDieKnowledgeEngine</code>, <code>LatheKnowledgeHarvesterEngine</code>, <code>LatheTribalInjectorEngine</code>, <code>LatheUnifiedScienceEngine</code> — already wired to <code>prism_turning</code>.</li>
+<li><code>MillProgramAnalyzerEngine</code>, <code>MillProgramOptimizerEngine</code>, <code>MillingStrategyLibraryEngine</code>, <code>MillingPhysicsKernelEngine</code>, <code>cad_pattern_database</code>, <code>cad_feature_memory_*</code> — already in the codebase.</li>
+<li><code>WEDMFeasibilityEngine</code>, <code>WEDMMLParameterOptimizerEngine</code>, <code>WEDMContinuousLearningEngine</code>, <code>WireEDMAGIOrchestrator</code>, <code>WEDMNeuralFormulaFusionEngine</code> — already in the codebase.</li>
+<li><code>PartFolderOrganizerEngine</code>, <code>BlueprintProgramJoinEngine</code>, <code>BlueprintOCREngine</code> — for resolving parts ↔ folders.</li>
+<li><code>prismSelfAwarenessEngine.searchTribalKnowledge()</code> / <code>.searchPlaybookRules()</code> — the experiential layer.</li>
+</ul>
+<h2 id="engines-to-build-6-3-phase-scripts-1-skill"><a class="anchor" href="#engines-to-build-6-3-phase-scripts-1-skill" aria-label="Permalink to Engines to build (6 + 3 phase scripts + 1 skill)">#</a>Engines to build (6 + 3 phase scripts + 1 skill)</h2>
+<ol>
+<li><code>LathePartFamilyTemplateExtractorEngine</code> + <code>LathePartFamilyMatcherEngine</code></li>
+<li><code>MillPartFamilyTemplateExtractorEngine</code> + <code>MillPartFamilyMatcherEngine</code></li>
+<li><code>WEDMPartFamilyTemplateExtractorEngine</code> + <code>WEDMPartFamilyMatcherEngine</code></li>
+<li><code>ElectrodeCoverageAuditEngine</code></li>
+<li><code>TaptiteElectrodeMacroBridgeEngine</code></li>
+<li><code>TrainingTemplateContinuousLearningEngine</code></li>
+<li><code>phase20-lathe-template-corpus-scan.py</code> / <code>phase20-mill-template-corpus-scan.py</code> / <code>phase20-wedm-template-corpus-scan.py</code> / <code>phase20-electrode-coverage-audit.py</code></li>
+<li><code>/learn-corpus</code> skill</li>
+</ol>
+<h2 id="milestone-envelope-json-to-register-at-mcp-serverdatamilestonestraining-learning-ms0json"><a class="anchor" href="#milestone-envelope-json-to-register-at-mcp-serverdatamilestonestraining-learning-ms0json" aria-label="Permalink to Milestone-envelope JSON (to register at mcp-server/data/milestones/TRAINING-LEARNING-MS0.json)">#</a>Milestone-envelope JSON (to register at <code>mcp-server/data/milestones/TRAINING-LEARNING-MS0.json</code>)</h2>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;TRAINING-LEARNING-MS0&quot;,
+  &quot;title&quot;: &quot;Domain Starting-Template Corpus (Lathe + Mill + WEDM) + Taptite-Electrode Excel-Macro Bridge&quot;,
+  &quot;status&quot;: &quot;scoped&quot;,
+  &quot;created&quot;: &quot;2026-05-12&quot;,
+  &quot;owner&quot;: &quot;claude-8f2683e8 / alpha&quot;,
+  &quot;omega_floor&quot;: 1.0,
+  &quot;roadmap_priority&quot;: 0,
+  &quot;track&quot;: &quot;training&quot;,
+  &quot;total_units&quot;: 7,
+  &quot;completed_units&quot;: 0,
+  &quot;depends_on&quot;: [&quot;MACRO-PROGRAM-PIPELINE-MS0&quot;],
+  &quot;delivers&quot;: [
+    &quot;LathePartFamilyTemplate/Matcher engines&quot;,
+    &quot;MillPartFamilyTemplate/Matcher engines&quot;,
+    &quot;WEDMPartFamilyTemplate/Matcher engines&quot;,
+    &quot;ElectrodeCoverageAuditEngine + phase20-electrode-coverage-audit.py report&quot;,
+    &quot;TaptiteElectrodeMacroBridgeEngine (parsed-snapshot path)&quot;,
+    &quot;TrainingTemplateContinuousLearningEngine&quot;,
+    &quot;/learn-corpus skill&quot;
+  ],
+  &quot;non_goals&quot;: [
+    &quot;Auto-emitting G-code (handled by MACRO-PROGRAM-PIPELINE-MS0)&quot;,
+    &quot;Modifying Automated Program_Corrected 5-25.xlsm (read-only audit only)&quot;,
+    &quot;Full RAG/embedding stack (v2)&quot;
+  ]
+}
+</code></pre>
+<hr>
+<p><strong>Bottom line:</strong> every print, program, and CAD/CAM file in our shop becomes structured training data. Each domain matcher proposes &quot;this new job looks like these 5 we&#39;ve already shipped — start from that template.&quot; The taptite-electrode Excel macro is bridged as a first-class READ-ONLY asset, every electrode part is audited for coverage. No auto-emit — the templates feed the gated pipeline in <code>MACRO-PROGRAM-PIPELINE-MS0</code>, the operator is always in the loop.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="TRAINING-LEARNING-MS0-2026-05-12.md">TRAINING-LEARNING-MS0-2026-05-12.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

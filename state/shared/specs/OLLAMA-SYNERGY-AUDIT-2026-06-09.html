@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="df3f7e7b7e5300ba90b93e92ea584f48974b0103a49efded94e6cdd91c835813">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OLLAMA-SYNERGY-AUDIT — evidence-ranked offload backlog (2026-06-09, slot:sierra)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>OLLAMA-SYNERGY-AUDIT — evidence-ranked offload backlog (2026-06-09, slot:sierra)</h1>
+<div class="meta">rendered from state/shared/specs/OLLAMA-SYNERGY-AUDIT-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-10T01:31:00.293Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">OLLAMA-SYNERGY-AUDIT — evidence-ranked offload backlog (2026-06-09, slot:sierra)</h1>
+<p><strong>Goal (operator):</strong> &quot;utilize Ollama for better task efficiency when viable; keep improving system synergy for higher token savings; make sure the Ollama LLM is fully synergized across tool-calls, /system-viz, Obsidian vault, memory, wiki, and tribal-knowledge creation + injection; find where else Ollama helps.&quot;</p>
+<p><strong>Method:</strong> 6-surface parallel audit Workflow (<code class="prism-inline-code">wf_7f974777-bf2</code>, 7 agents, all claims verified at HEAD), pre-armed with the falsified-premise finding + alpha punch list so dead premises could not be re-proposed. ROI-ranked KEEP set with file:line, model, lane.</p>
+<p><strong>Live state:</strong> Ollama daemon healthy — 10 models loaded on the idle 96GB RTX PRO 6000 Blackwell (qwen2.5-coder:1.5b/7b/32b, gpt-oss:20b/120b, qwen3-vl:8b, qwen2.5vl:7b, moondream:1.8b, llama3.2-vision:11b, nomic-embed-text). The ~5% offload rate is <strong>session shape (orchestration-heavy), not a bug</strong> — the offloader correctly keeps judgment work on Claude (R5).</p>
+<h2 class="prism-h2">SHIPPED (sierra; cross-chat permission granted 2026-06-09 unblocked the alpha/router-lane wires)</h2>
+<ul class="prism-md-list"><li><strong>#2 U-TRIBAL-QA-LLM-UNBLOCK ✅ commit <code class="prism-inline-code">6fb278a2ee</code></strong> — wired an Ollama-gated LLM Q-A path into <code class="prism-inline-code">scripts/distill-tribal.mjs</code> (was heuristic-only on the dead &quot;Ollama not loaded 2026-05-08&quot; premise). Reuses <code class="prism-inline-code">callOllama</code> + <code class="prism-inline-code">resolveSynthesisModel</code>+<code class="prism-inline-code">fetchInstalledModels</code> (no forked call path); clustering stays deterministic TF-IDF; per-cluster fail-soft to heuristic (down / model-fail / unusable text); import-safe <code class="prism-inline-code">isMain</code> guard + injectable indexPath/outputDir for tests; audit schema 1-&gt;2 (<code class="prism-inline-code">qaModel</code>/<code class="prism-inline-code">qaCounts</code>/<code class="prism-inline-code">qa_via</code>). 19/19 tests, <strong>3-of-3 A/B/C PASS</strong>. LIVE: daemon resolved gpt-oss:120b [blackwell-best], 7/7 clean retrieval questions, 0 fallback. ~70K Claude-tok/full re-distill saved. [[reference_tribal_qa_llm_unblock_2026_06_09]].</li><li><strong>gpt-oss RECONCILIATION (supersedes the rows below + #8&#39;s note):</strong> the earlier &quot;gpt-oss returns empty .response (harmony)&quot; rejection was a SYMPTOM of num_predict starvation (128 starves the <code class="prism-inline-code">thinking</code> channel) and/or the <code class="prism-inline-code">generateBlurb</code> 30s cold-load timeout — NOT a harmony incompatibility. Through <code class="prism-inline-code">callOllama</code> (num_predict&gt;=1024 + 180s timeout) gpt-oss:120b is fully viable and IS this host&#39;s <code class="prism-inline-code">search_synthesis</code> best tier. Rule: size num_predict&gt;=1024 for gpt-oss; do NOT blanket-reject it for /api/generate text.</li><li><strong>#1 T1 — U-VIZ-WIKI-NARRATIVE ✅ commit <code class="prism-inline-code">cd54edb940</code></strong> — flag-gated $0-Claude qwen2.5-coder:32b narrative for viz-&gt;wiki entries. 15 tests, 3-of-3 PASS. (gpt-oss:20b rejected live via the <code class="prism-inline-code">generateBlurb</code> path — empty .response + 38s cold-load &gt; its 30s timeout; that path&#39;s num_predict/timeout, NOT gpt-oss itself, was the issue — see #2 reconciliation. The viz-wiki generator stays on 32b; revisit gpt-oss there only with raised num_predict+timeout.)</li><li><strong>#8 U-OLLAMA-PREWARM-WIRE ✅ LIVE.</strong> Wired the orphan <code class="prism-inline-code">ollama-prewarm-on-pipeline.mjs</code> into settings.json UserPromptSubmit right after the injector (timeout 8000, mirrored C-&gt;H). Verified-safe before wiring: advisory/never-block, warmup is a detached+unref&#39;d <code class="prism-inline-code">curl -m 30</code> (self-terminates, NOT a fleet-reaper orphan), keyword-gated (/forge*,/rgs,/scrutinize,/dedup,/deep-search,/pdf-learn,/close-out,/precompact), 10-min per-model cooldown, ollama-down + already-warm guards, kill <code class="prism-inline-code">PRISM_OLLAMA_PREWARM_DISABLE=1</code>. Its PIPELINE_MODELS already map to qwen2.5-coder:32b/nomic-embed-text — the audit&#39;s &quot;align to gpt-oss:120b&quot; is REJECTED (gpt-oss harmony format returns empty .response; 32b is the validated workhorse). Validated live: /rgs -&gt; clean suppress + qwen2.5-coder_32b.iso cooldown stamp; plain prompt silent. Pairs with T2: injector surfaces routes, prewarm hides the cold-load. NOT a git artifact (settings out-of-repo).</li><li><strong>T2 — U-OLLAMA-PIPELINE-INJECTOR-WIRE ✅ LIVE.</strong> <code class="prism-inline-code">ollama-pipeline-injector.mjs</code> was an orphan (built+tested, 0 refs in settings). Wired into <code class="prism-inline-code">C:/Users/wompu/.claude/settings.json</code> UserPromptSubmit (after <code class="prism-inline-code">master-index-precheck-inject</code>, timeout 8000, mirrored C:→H:). Verified live: <code class="prism-inline-code">/rgs</code>→route block (634ch), <code class="prism-inline-code">summarize the diff</code>→verb route, plain prompt→suppressed. Advisory/fail-open/kill-switch <code class="prism-inline-code">PRISM_OLLAMA_PIPELINE_INJECT=0</code>. Surfaces concrete Ollama routes (RGS→gpt-oss:120b, scrutinize→32b reviewer-D, pdf-learn→vision, summarize/explain/classify→<code class="prism-inline-code">prism_dev:ollama_hook_query</code>) for already-eligible pipelines — the BEHAVIORAL lever the falsified-finding identified, NOT a classifier widen.</li><li><strong>#5 U-MEMO-EXTRACT-THROTTLE + U-MEMO-EXTRACT-USER-TYPE-FIX ✅ commits <code class="prism-inline-code">f1b69db664</code> + <code class="prism-inline-code">1ecf50b6be</code></strong> — fixed 3 fleet-wide defects in <code class="prism-inline-code">stop-obsidian-memory-extract.mjs</code> (PSN leg #1, the only live memo-creator): (1) fleet-GLOBAL rate file -&gt; per-session (<code class="prism-inline-code">sessionRateFile(session_id)</code> + 24h prune); (2) transcript picked by file SIZE / stdin never read -&gt; read the Stop-hook <code class="prism-inline-code">transcript_path</code> (canonical <code class="prism-inline-code">readFileSync(0)</code>), fallback by mtime; (3) user turns dropped (<code class="prism-inline-code">type:&quot;human&quot;</code>-only) -&gt; accept <code class="prism-inline-code">type:&quot;user&quot;</code> (live shape) + array content. Auto-fix bonus (scrutiny-surfaced): the <code class="prism-inline-code">execSync</code> curl-string injection + <code class="prism-inline-code">localhost</code> -&gt; canonical <code class="prism-inline-code">callOllama</code> (fetch 127.0.0.1, 15s timeout, no shell). 23/23 tests, 3-of-3 A/B/C PASS, live-validated clean (no vault writes). [[reference_memo_extract_fixes_2026_06_09]].</li><li><strong>Also (U-NAV-ACCEL-GAP-A-FALSIFIED, commits <code class="prism-inline-code">f1b69db664</code>+<code class="prism-inline-code">2c766b9308</code>):</strong> the sibling CODEBASE-NAV-ACCEL spec Gap A premise (&quot;~3,300 source files have no node&quot;) was EMPIRICALLY FALSE — the live offset index has 5,931 <code class="prism-inline-code">eng.<em></code> (5,819 atomic via <code class="prism-inline-code">generate-engine-saturate.mjs</code>) + 2,270 <code class="prism-inline-code">schema.</em></code> + <code class="prism-inline-code">alg.<em></code>/<code class="prism-inline-code">script.</em></code>/<code class="prism-inline-code">fs.*</code> all seekCard-able. Avoided a ~3,300-node duplicate generator; spec corrected. [[reference_nav_accel_gap_a_already_built_2026_06_09]].</li><li><strong>#3 U-WEEKLY-SYNTH-RESOLVER + U-WEEKLY-SYNTH-NUMPREDICT ✅ commits <code class="prism-inline-code">b5d249f4f5</code> + <code class="prism-inline-code">9697a9135a</code> + <code class="prism-inline-code">71a818b49c</code></strong> — <code class="prism-inline-code">WeeklySynthesisEngine.ts:defaultOllamaSummarizer</code> (Sunday-cron retro) now resolves its model host-aware via <code class="prism-inline-code">resolveSynthesisModel</code> instead of hardcoding 32B: env pin (<code class="prism-inline-code">PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL</code>) wins -&gt; route <code class="prism-inline-code">search_synthesis</code> to host &#39;best&#39; tier -&gt; fail-soft 32B const. Also: explicit <code class="prism-inline-code">OLLAMA_NUM_PREDICT=-1</code> (closes the harmony empty-output risk on the now-default 120b), <code class="prism-inline-code">OLLAMA_TIMEOUT_MS</code> 90s-&gt;180s, injectable <code class="prism-inline-code">resolveModel</code>+<code class="prism-inline-code">fetchImpl</code> deps, and a STALE RED test fixed (<code class="prism-inline-code">DEFAULT_OLLAMA_MODEL</code> asserted <code class="prism-inline-code">:7b</code> but code was <code class="prism-inline-code">:32b</code> since the 2026-06-04 migration), plus <code class="prism-inline-code">@ts-expect-error</code> on both <code class="prism-inline-code">scripts/lib</code> <code class="prism-inline-code">.mjs</code> imports (nets -2 tsc errors). 62/62 vitest, tsc-clean for both files, <strong>3-of-3 A/B/C PASS</strong> (×2 rounds). <strong>LIVE-VALIDATED end-to-end on home_blackwell:</strong> resolver -&gt; gpt-oss:120b [blackwell-best]; raw <code class="prism-inline-code">/api/generate</code> with <code class="prism-inline-code">num_predict:-1</code> returned an 804-char, <strong>4/4-section</strong> retro in 68s (http 200). This extends #2&#39;s <code class="prism-inline-code">callOllama</code> reconciliation to the raw <code class="prism-inline-code">/api/generate</code> path: gpt-oss:120b empty-<code class="prism-inline-code">.response</code> is a num_predict artifact, NOT harmony incompat. ~10-15K Claude-tok/week saved. [[reference_weekly_synth_resolver_2026_06_09]].</li></ul>
+<h2 class="prism-h2">REJECTED (verified dead — do NOT build)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Premise</th><th>Why dead</th></tr></thead><tbody><tr><td>R1</td><td>Widen <code class="prism-inline-code">local-llm-task-router</code> WORK_CLASS_PATTERNS to chase 30% offload</td><td>The 44 keeps are correct judgment tasks (orch/directive/safety/reasoning, R5). Widening = regression.</td></tr>
+<tr><td>R2</td><td>Wire LLM pass onto <code class="prism-inline-code">session-end-goal-synthesis</code></td><td>Dormant (0 settings refs) + reads month-stale data</td></tr>
+<tr><td>R3</td><td>&quot;synthesis scripts hardcode 7b&quot; / &quot;multi-provider-router.mjs:214 inlines 7b&quot;</td><td>FALSE at HEAD — every <code class="prism-inline-code">:7b</code> is a comment/JSDoc; all resolve to 32b via <code class="prism-inline-code">resolveSynthesisModel</code>. Punch-list #5 SHIPPED 5/6.</td></tr>
+<tr><td>R4</td><td>LLM-rerank <code class="prism-inline-code">findInGraph</code> (system-viz <code class="prism-inline-code">find</code>)</td><td>Pure substring filter, ~1060×/day — LLM = R5 + latency regression</td></tr>
+<tr><td>R5</td><td>LLM-rerank tribal/memory INJECTION hot path</td><td>Per-prompt 2.5s-timeout hot path — model call architecturally wrong</td></tr>
+<tr><td>R6</td><td>Bigger embedding model</td><td><code class="prism-inline-code">nomic-embed-text</code> is the smallest dedicated embedder; keep</td></tr>
+<tr><td>R7</td><td>LLM-summarize <code class="prism-inline-code">memory-compact.mjs</code></td><td>Byte-truncation is deterministic; LLM risks silent content loss (R12)</td></tr></tbody></table>
+<h2 class="prism-h2">KEEP — ROI-ranked backlog (lane-assigned for fleet execution)</h2>
+<p>Lane: <strong>sierra</strong>=system-viz · <strong>alpha</strong>=vault/memory/wiki/tribal/router · <strong>bravo-adj</strong>=synthesis <code class="prism-inline-code">.ts</code>. Migration-freeze gates any scheduled-task registration.</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>file:line</th><th>Model</th><th>Saving / gain</th><th>Lane</th><th>Sketch</th></tr></thead><tbody><tr><td>1</td><td><strong>U-VIZ-WIKI-NARRATIVE</strong> (sierra&#39;s top)</td><td>child generators <code class="prism-inline-code">generate-{layer,domain,dispatcher}-wiki.mjs</code> (bodies are 100% template field-dumps)</td><td>gpt-oss:20b</td><td>~135 entries × ~150-tok never-Claude &quot;what/why&quot; paragraph; lifts viz-wiki search recall</td><td><strong>sierra</strong></td><td>REUSE <code class="prism-inline-code">generateBlurb()</code> from <code class="prism-inline-code">scripts/lib/contextual-blurb.mjs</code> (fail-soft, mtime-cache) per entry; FLAG-GATE off the every-commit hot path (<code class="prism-inline-code">PRISM_VIZ_WIKI_NARRATIVE=1</code> or separate pass); keep counts/Mermaid procedural</td></tr>
+<tr><td>2</td><td>U-TRIBAL-QA-LLM-UNBLOCK ✅ <strong>SHIPPED</strong> (<code class="prism-inline-code">6fb278a2ee</code>)</td><td><code class="prism-inline-code">scripts/distill-tribal.mjs</code></td><td>host-aware (gpt-oss:120b live)</td><td>~70K Claude tok/full re-distill</td><td><strong>sierra</strong> (cross-chat)</td><td>DONE — ollama-gated LLM Q-A via callOllama+resolveSynthesisModel, per-cluster fail-soft to heuristic, TF-IDF clustering kept procedural. 19/19 + 3-of-3 + live gpt-oss:120b 7/7. Model is host-resolved (NOT the audit&#39;s 7b guess); --model / PRISM_DISTILL_TRIBAL_MODEL override.</td></tr>
+<tr><td>3</td><td>U-WEEKLY-SYNTH-RESOLVER ✅ <strong>SHIPPED</strong> (<code class="prism-inline-code">b5d249f4f5</code>+<code class="prism-inline-code">9697a9135a</code>+<code class="prism-inline-code">71a818b49c</code>)</td><td><code class="prism-inline-code">mcp-server/src/engines/WeeklySynthesisEngine.ts</code></td><td>host-aware (gpt-oss:120b live)</td><td>~10-15K Claude tok/week</td><td><strong>sierra</strong> (cross-chat)</td><td>DONE — see SHIPPED section. resolveSynthesisModel + num_predict=-1 + stale-7b-test fix. 62/62 + 3-of-3 + live 804ch/4-sections/68s.</td></tr>
+<tr><td>4</td><td>U-WIKI-NLI-LINT (no equivalent today)</td><td>live linter <code class="prism-inline-code">lint-wiki-orphans.mjs</code> (0 Ollama)</td><td>gpt-oss:20b</td><td>Periodic wiki contradiction lint — catches what nothing else does</td><td><strong>alpha</strong></td><td>Pairwise-NLI pass over page pairs via 20b → advisory report; do NOT resurrect dormant <code class="prism-inline-code">prism_wiki</code></td></tr>
+<tr><td>5</td><td>U-MEMO-EXTRACT-THROTTLE ✅ <strong>SHIPPED</strong> (<code class="prism-inline-code">f1b69db664</code>+<code class="prism-inline-code">1ecf50b6be</code>)</td><td><code class="prism-inline-code">.claude/hooks/stop-obsidian-memory-extract.mjs</code></td><td>keep 32b (via callOllama)</td><td>per-session throttle + stdin transcript_path + type:user capture + execSync-&gt;callOllama</td><td><strong>sierra</strong> (cross-chat)</td><td>DONE — see SHIPPED section. 23/23 + 3-of-3 + live.</td></tr>
+<tr><td>6</td><td>U-MEMO-CACHE-CONSOLIDATE</td><td><code class="prism-inline-code">build-memo-embedding-cache.mjs</code> (42MB JSONL) vs <code class="prism-inline-code">build-memory-embeddings-sidecar.mjs</code> int8 (<code class="prism-inline-code">:36</code>) — same corpus embedded 2×</td><td>keep nomic-embed</td><td>~2× embed cost + 42MB→17.5MB eliminated/rebuild</td><td><strong>alpha</strong></td><td>Consolidate both consumers onto the int8 sidecar; retire JSONL builder</td></tr>
+<tr><td>7</td><td>U-MEMORY-SYNTH-SCHEDULE</td><td><code class="prism-inline-code">weekly-memory-synthesis.mjs:154,120</code> (LLM theme pass default-OFF + unscheduled)</td><td>qwen2.5-coder:7b</td><td>$0-Claude weekly memo synthesis</td><td><strong>alpha</strong></td><td>⚠ GATED by migration freeze (scheduled-task registration frozen) — register weekly/monthly + flip <code class="prism-inline-code">PRISM_WEEKLY_LLM_SYNTH=1</code> when freeze lifts</td></tr>
+<tr><td>8</td><td>U-OLLAMA-PREWARM-WIRE ✅ <strong>SHIPPED</strong> (LIVE)</td><td><code class="prism-inline-code">.claude/hooks/ollama-prewarm-on-pipeline.mjs</code></td><td>warms 32b/nomic</td><td>Hides cold-load latency on pipeline prompts</td><td><strong>sierra</strong> (cross-chat)</td><td>DONE — wired after the injector in settings.json. NOTE: kept <code class="prism-inline-code">PIPELINE_MODELS</code> at 32b (did NOT align to gpt-oss:120b — gpt-oss harmony format returns empty .response, live-rejected).</td></tr>
+<tr><td>9</td><td>U-CLAUDEMD-7B-DOCFIX (doc-honesty R12)</td><td><code class="prism-inline-code">H:/prism/CLAUDE.md</code> + <code class="prism-inline-code">~/.claude/CLAUDE.md</code> §AI SYSTEM ROUTING + §TOKEN ECONOMY say <code class="prism-inline-code">qwen2.5-coder:7b</code>; all code is 32b</td><td>n/a (doc)</td><td>Kills the recurring &quot;7b hardcode&quot; false premise at the source</td><td><strong>alpha</strong></td><td>Bump both to 32b floor; note gpt-oss:120b for synthesis/reasoning</td></tr></tbody></table>
+<p><strong>Low-ROI deferrals (noted once):</strong> ghost-roost <code class="prism-inline-code">info:</code> LLM gloss (must stay procedural); Obsidian canvas node relabel (cosmetic); <code class="prism-inline-code">generate-cad-cam-pdf-tribal-seeds.mjs:9</code> stale &quot;Ollama offline&quot; (confirm-read first, sibling of #2).</p>
+<h2 class="prism-h2">Provenance</h2>
+<p>Audit workflow <code class="prism-inline-code">wf_7f974777-bf2</code> (full transcript in session subagents dir). Evidence: [[reference_obsidian_tokensavings_premise_falsified_2026_06_09]], [[reference_alpha_forge_punchlist_2026_06_04]], [[feedback_ollama_token_routing]]. Memory: [[reference_ollama_synergy_audit_2026_06_09]].</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: surface-measurement data engine awaiting Tier-3 metrology dispatcher (L2-P4-MS1/P0-U02 Batch 4). Consumer (CMM/profilometer integration) not yet built; engine is intentionally unwired until its consumer ships.
 /**
  * SurfaceMeasureEngine — Surface Measurement Data
  * ================================================
@@ -25,7 +26,7 @@ export const SurfaceMeasurementSchema = z.object({
   serialNumber: z.string().optional(),
   featureName: z.string(),
   location: z.string(),
-  parameters: z.record(z.number()),
+  parameters: z.record(z.string(), z.number()),
   cutoffLength: z.number(),
   evaluationLength: z.number(),
   traverseSpeed: z.number().optional(),

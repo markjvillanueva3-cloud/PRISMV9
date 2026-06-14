@@ -1,0 +1,22 @@
+---
+session: claude-7b9d1810
+topic: cad-fusion-live-ms0
+written_at: 2026-05-11T00:03:14.733Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-7b9d1810
+status: active
+---
+
+# HANDOFF: claude-7b9d1810
+Updated: 2026-05-11T00:03:14.733Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-7b9d1810
+
+## STATE
+Session shipped U-D3 (hook bundling 24->1 spawn, edit-bundle/bash-bundle/read-bundle + Ollama fuse + Obsidian cache, commit 4beebcc75) and U-HUSKY-PRECOMMIT-HARDEN (lint-staged config guard, commit 70cea06ca). Hook overhead per Edit cut from ~5s sequential to ~4.3s parallel, Bash 1.75s->475ms, Read 1.25s->367ms. 144 concurrent process spawns across 6 chats reduced to 6 (24x file-lock contention reduction). Settings.json patched at C:/Users/wompu/.claude/settings.json (auto-mirrored to H:). Backup at C:/Users/wompu/.claude/settings.json.pre-u-d3.bak if rollback needed. TS-error grind paused mid-PRISMUnifiedOrchestratorEngine.ts.
+
+## RESUME
+Continue TS-error grind on PRISMUnifiedOrchestratorEngine.ts (46 errors total, 6 remaining manual fixes after U-D3 detour). PROGRESS: extended TribalQueryContext/Modifiers/Constraints/Advisory type aliases applied at top of file (lines 33-90 area), tribal_risks severity union widened to include 'critical', String() coercion at lines 1395/1400, 3 engine method casts: assessForPUOA (line 1053), assessSequenceForPUOA (line 1151), suggestResequencingForPUOA (line 1168). REMAINING: cast queryTribalNaturalLanguage at lines 1256 + 1277 through (tribalKnowledgeEngine as any); rerun tsc to see what's left. Pattern: PUOA orchestrator is WIRE-EXEMPT, calls don't-exist-yet methods via dynamic dispatch. CMD: cd H:/prism/mcp-server && NODE_OPTIONS=--max-old-space-size=8192 npx tsc --noEmit 2>&1 | rtk grep PRISMUnifiedOrchestrator | head -50 ; queue after: MachiningIntelligenceOrchestratorEngine (35 errs, has test), HyperMillDeepLearningEngine (25), MachineConsumerBindingEngine (24); skip camDispatcher (peer-claimed).
+
+## CONTEXT
+

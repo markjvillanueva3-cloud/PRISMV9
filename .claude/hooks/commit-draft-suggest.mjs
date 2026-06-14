@@ -116,7 +116,7 @@ function recordEvent(decision, suggestion, latencyMs) {
 // We hit Ollama directly instead of going through the dispatcher to
 // keep the hook self-contained and below the 100-line guideline.
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_COMMIT_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_MODEL = process.env.OLLAMA_COMMIT_MODEL ?? "qwen2.5-coder:32b";
 const TIMEOUT_MS = 6_000;
 
 async function suggestDraft() {

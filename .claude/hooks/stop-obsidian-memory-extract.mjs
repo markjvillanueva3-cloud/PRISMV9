@@ -17,9 +17,11 @@
  * @hook Stop
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, openSync } from "node:fs";
-import { execSync, spawn } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync, openSync, statSync, unlinkSync } from "node:fs";
+import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { callOllama } from "../../scripts/ask-ollama.mjs";
 
 /**
  * INTEL-OLLAMA-OBSIDIAN-MS0/P1-U01: kick off obsidian-memory-sync.mjs as a
@@ -52,46 +54,130 @@ const PATTERNS_DIR = `${VAULT_ROOT}/memories/patterns`;
 const MISTAKES_DIR = `${VAULT_ROOT}/memories/mistakes`;
 
 const TRANSCRIPT_DIR = `${(process.env.USERPROFILE || process.env.HOME || "").replace(/\\/g, "/")}/.claude/projects/H--prism`;
-const RATE_FILE = "H:/prism/.claude/cache/obsidian-extract-last.json";
-const MIN_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes between extractions
+// U-MEMO-EXTRACT-THROTTLE (slot:sierra 2026-06-09): the throttle is now keyed
+// PER SESSION, not fleet-global. The old single RATE_FILE
+// (.claude/cache/obsidian-extract-last.json) meant ANY one of the 26 fleet
+// chats extracting rate-limited ALL of them for 5 min -- so the one live
+// memo-creator (PSN leg #1) almost never fired. Each session now throttles
+// independently under RATE_DIR; stale per-session files are pruned each run.
+const RATE_DIR = "H:/prism/.claude/cache/obsidian-extract";
+const MIN_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes between extractions (per session)
+const RATE_STALE_MS = 24 * 60 * 60 * 1000; // prune per-session rate files older than 24h
 
 function ensureDir(dir) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
-function checkRateLimit() {
+/**
+ * Read the Stop-hook stdin payload (carries session_id + transcript_path).
+ * Canonical PRISM pattern (mirrors session-consolidate-graph.mjs): fd 0,
+ * fail-soft to {} so a manual/no-stdin invocation never throws. Injectable
+ * rawProvider lets tests supply a payload without touching real stdin.
+ */
+function readStdinPayload(rawProvider) {
   try {
-    const last = JSON.parse(readFileSync(RATE_FILE, "utf8"));
-    return (Date.now() - last.timestamp) < MIN_INTERVAL_MS;
+    const buf = rawProvider ? rawProvider() : readFileSync(0);
+    if (!buf || buf.length === 0) return {};
+    const text = typeof buf === "string" ? buf : buf.toString("utf8");
+    if (!text.trim()) return {};
+    return JSON.parse(text);
+  } catch {
+    return {};
+  }
+}
+
+/** Sanitize a session id into a safe filename stem; empty -> "__global". */
+function sanitizeSessionId(id) {
+  if (!id || typeof id !== "string") return "__global";
+  const clean = id.replace(/[^a-zA-Z0-9._-]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, "");
+  // Reject empty or dot-only stems (".", "..") -- they make degenerate
+  // filenames. Path separators are already mapped to "_" above, so no
+  // traversal out of RATE_DIR is possible regardless of input.
+  if (!clean || /^\.+$/.test(clean)) return "__global";
+  return clean;
+}
+
+/** Per-session rate file path under RATE_DIR (no session id -> "__global"). */
+function sessionRateFile(sessionId, baseDir = RATE_DIR) {
+  return join(baseDir, `${sanitizeSessionId(sessionId)}.json`);
+}
+
+function checkRateLimit(rateFile, nowMs = Date.now()) {
+  try {
+    const last = JSON.parse(readFileSync(rateFile, "utf8"));
+    return (nowMs - last.timestamp) < MIN_INTERVAL_MS;
   } catch {
     return false;
   }
 }
 
-function recordRate() {
-  ensureDir(dirname(RATE_FILE));
-  writeFileSync(RATE_FILE, JSON.stringify({ timestamp: Date.now() }));
+function recordRate(rateFile, nowMs = Date.now()) {
+  ensureDir(dirname(rateFile));
+  writeFileSync(rateFile, JSON.stringify({ timestamp: nowMs }));
 }
 
+/**
+ * Remove per-session rate files older than maxAgeMs so RATE_DIR cannot grow
+ * unbounded across thousands of sessions. Bounded, fail-soft; returns count.
+ */
+function pruneStaleRateFiles(baseDir = RATE_DIR, maxAgeMs = RATE_STALE_MS, nowMs = Date.now()) {
+  let pruned = 0;
+  try {
+    if (!existsSync(baseDir)) return 0;
+    for (const f of readdirSync(baseDir)) {
+      if (!f.endsWith(".json")) continue;
+      const fp = join(baseDir, f);
+      try {
+        if (nowMs - statSync(fp).mtimeMs > maxAgeMs) { unlinkSync(fp); pruned++; }
+      } catch { /* concurrent prune / already gone */ }
+    }
+  } catch { /* dir unreadable */ }
+  return pruned;
+}
+
+/**
+ * Fallback transcript locator -- used ONLY when the Stop-hook stdin payload
+ * carried no transcript_path. Picks the most-recently-MODIFIED transcript by
+ * mtime (real recency) via statSync. The old code used readFileSync().length
+ * (file SIZE), which (a) picked the LARGEST transcript fleet-wide, not this
+ * session's, and (b) fully read every transcript just to measure it.
+ */
 function getLatestTranscript() {
   try {
     const files = readdirSync(TRANSCRIPT_DIR)
       .filter(f => f.endsWith(".jsonl"))
-      .map(f => ({
-        name: f,
-        path: join(TRANSCRIPT_DIR, f),
-        mtime: readFileSync(join(TRANSCRIPT_DIR, f)).length // Use size as proxy for recency
-      }))
+      .map(f => {
+        const p = join(TRANSCRIPT_DIR, f);
+        let mtime = 0;
+        try { mtime = statSync(p).mtimeMs; } catch { /* gone */ }
+        return { name: f, path: p, mtime };
+      })
       .sort((a, b) => b.mtime - a.mtime);
 
     if (files.length === 0) return null;
 
-    // Read last 30KB of most recent transcript
+    // Read last 30KB of most recently modified transcript
     const content = readFileSync(files[0].path, "utf8");
     return content.slice(-30000);
   } catch {
     return null;
   }
+}
+
+/**
+ * Resolve the transcript content for THIS session. Prefers the explicit
+ * transcript_path from the Stop-hook stdin payload (authoritative current
+ * session); falls back to the latest-by-mtime locator only if it is absent or
+ * unreadable. Returns the last 30KB (the recent window the extractor analyzes).
+ */
+function resolveTranscript(transcriptPath) {
+  if (transcriptPath && typeof transcriptPath === "string") {
+    try {
+      const norm = transcriptPath.replace(/\\/g, "/");
+      if (existsSync(norm)) return readFileSync(norm, "utf8").slice(-30000);
+    } catch { /* fall through to latest-by-mtime */ }
+  }
+  return getLatestTranscript();
 }
 
 function extractMessagesFromTranscript(transcript) {
@@ -107,32 +193,40 @@ function extractMessagesFromTranscript(transcript) {
           : entry.message.content;
         if (text) messages.push(text.slice(0, 500));
       }
-      if (entry.type === "human" && entry.message?.content) {
-        messages.push(`USER: ${entry.message.content.slice(0, 200)}`);
+      // Live Claude Code transcripts use type:"user" (older shape: "human").
+      // Accept both; content may be a string OR an array of content parts
+      // (same shape as assistant). Without this, user turns were silently
+      // dropped from the context fed to the extractor (verified: live
+      // transcripts emit zero "human" entries).
+      if ((entry.type === "user" || entry.type === "human") && entry.message?.content) {
+        const c = entry.message.content;
+        const userText = Array.isArray(c)
+          ? c.filter(p => p.type === "text").map(p => p.text).join("\n")
+          : (typeof c === "string" ? c : "");
+        if (userText) messages.push(`USER: ${userText.slice(0, 200)}`);
       }
     } catch {}
   }
   return messages.slice(-20); // Last 20 messages
 }
 
-async function queryOllama(prompt) {
-  try {
-    const body = JSON.stringify({
-      model: "qwen2.5-coder:7b",
-      prompt,
-      stream: false,
-      options: { num_predict: 300, temperature: 0.3 }
-    });
+// Extraction is a small low-temperature JSON summarization -- a short token cap
+// + short timeout keep the Stop hook fast and fail-soft.
+const EXTRACT_MODEL = "qwen2.5-coder:32b";
+const EXTRACT_NUM_PREDICT = 300;
+const EXTRACT_TIMEOUT_MS = 15000; // short -- a Stop hook must never hang on a cold model
 
-    const result = execSync(
-      `curl -s -X POST http://localhost:11434/api/generate -d '${body.replace(/'/g, "'\"'\"'")}'`,
-      { encoding: "utf-8", timeout: 15000 }
-    );
-
-    return JSON.parse(result).response?.trim() || null;
-  } catch {
-    return null;
-  }
+async function queryOllama(prompt, callImpl = callOllama) {
+  // Use the canonical callOllama helper (Node fetch -> 127.0.0.1, no shell).
+  // The prior path was `execSync(\`curl ... -d '${body}'\`)`, which interpolated
+  // attacker-influenceable TRANSCRIPT content into a shell command behind
+  // fragile single-quote escaping (command-injection risk) and targeted
+  // `localhost`, which Node resolves to IPv6 ::1 where ollama.exe (IPv4) refuses.
+  const r = await callImpl(EXTRACT_MODEL, prompt, {
+    numPredict: EXTRACT_NUM_PREDICT,
+    timeoutMs: EXTRACT_TIMEOUT_MS,
+  });
+  return r && r.ok ? r.text : null;
 }
 
 async function extractLearnings(messages) {
@@ -191,13 +285,28 @@ source: session-extract
 }
 
 async function main() {
-  // Rate limit: don't extract too frequently
-  if (checkRateLimit()) {
+  // Read the Stop-hook stdin payload -- carries session_id + transcript_path.
+  const payload = readStdinPayload();
+  const sessionId = typeof payload.session_id === "string" ? payload.session_id
+    : typeof payload.sessionId === "string" ? payload.sessionId
+    : undefined;
+  const transcriptPath = typeof payload.transcript_path === "string" ? payload.transcript_path
+    : typeof payload.transcriptPath === "string" ? payload.transcriptPath
+    : undefined;
+
+  // Prune stale per-session rate files (bounded, fail-soft) before throttling.
+  pruneStaleRateFiles();
+
+  // Rate limit PER SESSION (not fleet-global) -- don't extract too frequently.
+  const rateFile = sessionRateFile(sessionId);
+  if (checkRateLimit(rateFile)) {
     console.log(JSON.stringify({ continue: true }));
     return;
   }
 
-  const transcript = getLatestTranscript();
+  // Use THIS session's transcript (stdin transcript_path); fall back to
+  // latest-by-mtime only if the payload carried none.
+  const transcript = resolveTranscript(transcriptPath);
   if (!transcript) {
     console.log(JSON.stringify({ continue: true }));
     return;
@@ -209,7 +318,7 @@ async function main() {
     return;
   }
 
-  recordRate();
+  recordRate(rateFile);
 
   const learnings = await extractLearnings(messages);
   if (!learnings) {
@@ -225,7 +334,7 @@ async function main() {
   // Write patterns
   if (learnings.patterns?.length > 0) {
     const content = learnings.patterns.map(p => `- ${p}`).join("\n");
-    const file = writeMemory(
+    writeMemory(
       PATTERNS_DIR,
       generateFilename("pattern"),
       "Session Patterns",
@@ -238,7 +347,7 @@ async function main() {
   // Write mistakes
   if (learnings.mistakes?.length > 0) {
     const content = learnings.mistakes.map(m => `- ${m}`).join("\n");
-    const file = writeMemory(
+    writeMemory(
       MISTAKES_DIR,
       generateFilename("mistake"),
       "Session Mistakes",
@@ -251,7 +360,7 @@ async function main() {
   // Write decisions
   if (learnings.decisions?.length > 0) {
     const content = learnings.decisions.map(d => `- ${d}`).join("\n");
-    const file = writeMemory(
+    writeMemory(
       DECISIONS_DIR,
       generateFilename("decision"),
       "Session Decisions",
@@ -288,7 +397,31 @@ async function main() {
   }));
 }
 
-main().catch(err => {
-  console.error("[obsidian-extract] Error:", err.message);
-  console.log(JSON.stringify({ continue: true }));
-});
+// Run main() only when invoked directly as the hook entry point -- NOT when
+// imported by a test (importing must not read stdin / query Ollama / write).
+const isMain = (() => {
+  try { return pathToFileURL(process.argv[1] || "").href === import.meta.url; }
+  catch { return false; }
+})();
+
+if (isMain) {
+  main().catch(err => {
+    console.error("[obsidian-extract] Error:", err.message);
+    console.log(JSON.stringify({ continue: true }));
+  });
+}
+
+export {
+  readStdinPayload,
+  sanitizeSessionId,
+  sessionRateFile,
+  checkRateLimit,
+  recordRate,
+  pruneStaleRateFiles,
+  getLatestTranscript,
+  resolveTranscript,
+  extractMessagesFromTranscript,
+  MIN_INTERVAL_MS,
+  RATE_DIR,
+  RATE_STALE_MS,
+};

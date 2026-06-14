@@ -10,8 +10,8 @@
 #     up -d ollama ollama-model-preload
 #
 # What this override adds (vs the base ollama service):
-#   1. OLLAMA_KEEP_ALIVE 30m -> 24h — once a model is loaded into the RTX
-#      4080's VRAM it STAYS resident for a full day, so the next /loop or
+#   1. OLLAMA_KEEP_ALIVE 30m -> 24h — once a model is loaded into the RTX PRO
+#      6000 Blackwell 96GB VRAM it STAYS resident for a full day, so the next /loop or
 #      hook offload gets a <100ms first token instead of a 30-90s cold load.
 #      (The base compose's 30m means a model evicts between work bursts and
 #      every fresh burst pays the cold-load tax — the exact latency the
@@ -25,9 +25,9 @@
 #   - qwen2.5-coder:7b  — the offload workhorse (code explain/summarize/
 #                          classify/lint per CLAUDE.md AI routing). ~4.7GB.
 #   - qwen2.5-coder:32b — the GPU-resident heavy model. ~20GB pull, ~18GB
-#                          VRAM at q4_K_M — fits the 16GB card only with
-#                          partial CPU offload; for a pure-GPU resident
-#                          model prefer qwen2.5-coder:14b (~9GB). See README.
+#                          VRAM at q4_K_M — FULLY GPU-resident on the 96GB
+#                          Blackwell (was a partial-CPU-spill compromise on
+#                          the old 16GB RTX 4080 card). Preferred heavy model now.
 #
 # First run downloads ~25GB — expected and one-time (the volume persists).
 

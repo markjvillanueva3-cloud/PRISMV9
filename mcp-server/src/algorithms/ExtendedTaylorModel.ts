@@ -68,6 +68,23 @@ export interface TaylorInput extends AlgorithmInput {
   temperature_C?: number;
   /** Coolant type for temperature derating */
   coolant?: "dry" | "flood" | "mist" | "MQL" | "cryogenic";
+  /**
+   * When true, reproduce the canonical extended-Taylor form
+   *   T = (C / (V * f^0.1 * d^0.1))^(1/n)
+   * with no corrections (k_coat = k_temp = k_hard = 1).
+   *
+   * Used by SF engine shims (SF-PSN-WIRE-MS0/U-SFPSN-02B, 2026-05-22) to
+   * preserve pre-refactor `extendedTaylorToolLife()` outputs bit-equivalent.
+   * Skips module-side validation + range corrections; output is clamped to
+   * [1, 600] min to mirror engine clamping.
+   *
+   * Default extended form (coating/temp/hardness/ISO-group exponents) is the
+   * recommended path for new callers. inline_compat exists for anti-regression
+   * during the U-02B → U-02D transition only.
+   *
+   * @see state/shared/specs/SF-PSN-TAYLOR-FORMULA-RECONCILIATION-2026-05-22.md
+   */
+  inline_compat?: boolean;
 }
 
 // ─── Output Interface ──────────────────────────────────────────────
@@ -250,9 +267,20 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
   /**
    * Calculate tool life using Extended Taylor model.
    *
-   * Formula: T = (C × k_coat × k_temp × k_hard) / (Vc^(1/n) × f^a × ap^b)
+   * Default formula (extended): T = (C/Vc)^(1/n) × (k_coat × k_temp × k_hard) / ((f/0.30)^a × (ap/2.0)^b)
+   * inline_compat formula (engine-equivalent): T = (C / (V × f^0.1 × d^0.1))^(1/n), clamped [1, 600], no corrections.
+   *
+   * @see state/shared/specs/SF-PSN-TAYLOR-FORMULA-RECONCILIATION-2026-05-22.md for the inline_compat contract.
    */
   calculate(input: TaylorInput): TaylorOutput {
+    // U-SFPSN-02B inline_compat short-circuit — preserves engine's pre-refactor
+    // extendedTaylorToolLife() outputs bit-equivalent. Skips the main path's
+    // validate() + range warnings + correction stack because the engine's inline
+    // never did any of those.
+    if (input.inline_compat) {
+      return this.calculateInlineCompat(input);
+    }
+
     const validation = this.validate(input);
     if (!validation.valid) {
       throw new Error(`Taylor validation failed: ${(validation.errors ?? []).join(", ")}`);
@@ -411,6 +439,104 @@ class ExtendedTaylorModelImpl implements Algorithm<TaylorInput, TaylorOutput> {
       computed_at: new Date().toISOString(),
       algorithm_version: ExtendedTaylorModelImpl.VERSION,
       warnings,
+    };
+  }
+
+  /**
+   * inline_compat path — reproduces UltimateSpeedFeedEngine's pre-shim
+   * extendedTaylorToolLife() bit-equivalent:
+   *
+   *   T = (C / (V × f^0.1 × d^0.1))^(1/n)
+   *   T_clamped = max(1, min(600, T))
+   *
+   * No coating / temperature / hardness / ISO-exponent corrections.
+   * Pre-floors f at 0.01 and ap at 0.1 (engine convention).
+   *
+   * Resolves C, n, isoGroup from input.material (MaterialPhysics object) →
+   * input.material (string in CANONICAL_MATERIAL_DB) → input.iso_group →
+   * default ISO P (no warnings emitted to remain output-shape-stable).
+   *
+   * @see state/shared/specs/SF-PSN-TAYLOR-FORMULA-RECONCILIATION-2026-05-22.md §3
+   */
+  private calculateInlineCompat(input: TaylorInput): TaylorOutput {
+    const Vc = input.Vc_m_min;
+    // Pre-floor mirrors engine's inline `Math.max(0.01, feed_mm || 0.15)` /
+    // `Math.max(0.1, doc_mm || 2.0)`. Callers already apply the `|| default`
+    // before reaching here; we still floor defensively for bit-equivalence
+    // when invoked directly with sub-minimum values.
+    const f = Math.max(0.01, input.f_mm);
+    const ap = Math.max(0.1, input.ap_mm);
+
+    // Resolve Taylor constants — identical precedence to main path, no warnings.
+    let C: number;
+    let n: number;
+    let isoGroup: ISOGroup;
+    let materialSource: string;
+
+    if (input.material && typeof input.material === "object") {
+      C = input.material.taylor_C;
+      n = input.material.taylor_n;
+      isoGroup = input.material.iso_group;
+      materialSource = input.material.name ?? "custom";
+    } else if (typeof input.material === "string") {
+      const mat = CANONICAL_MATERIAL_DB[input.material];
+      if (mat) {
+        C = mat.taylor_C;
+        n = mat.taylor_n;
+        isoGroup = mat.iso_group;
+        materialSource = input.material;
+      } else {
+        isoGroup = ((input.iso_group ?? "P") as ISOGroup);
+        const taylor = CANONICAL_TAYLOR[isoGroup];
+        C = taylor.C;
+        n = taylor.n;
+        materialSource = `ISO-${isoGroup}`;
+      }
+    } else if (input.iso_group) {
+      isoGroup = input.iso_group as ISOGroup;
+      const taylor = CANONICAL_TAYLOR[isoGroup];
+      C = taylor.C;
+      n = taylor.n;
+      materialSource = `ISO-${isoGroup}`;
+    } else {
+      isoGroup = "P";
+      C = CANONICAL_TAYLOR.P.C;
+      n = CANONICAL_TAYLOR.P.n;
+      materialSource = "default-steel";
+    }
+
+    // Canonical extended-Taylor: T = (C / (V × f^m × d^p))^(1/n), m = p = 0.1.
+    // Operation order must match engine's inline exactly for bit-equivalence:
+    //   Math.pow(C / (Vc * Math.pow(f, m) * Math.pow(ap, p)), 1 / n)
+    const m = 0.1;
+    const p = 0.1;
+    const T_raw = Math.pow(C / (Vc * Math.pow(f, m) * Math.pow(ap, p)), 1 / n);
+    const T_min = Math.max(1, Math.min(600, T_raw));
+
+    // Safety score: conservative — inline_compat is a behaviour-preserving
+    // shim, not the validated extended form. Fixed components keep the output
+    // shape stable across fixtures.
+    const safety = computeSafetyScore(0.85, 0.95, 0.9, 0.9);
+
+    return {
+      tool_life_min: createAtomicValue(T_min, "min", 15, "Taylor-inline-compat", safety.score,
+        `T = (${C}/(${Vc}*${f}^${m}*${ap}^${p}))^(1/${n})`),
+      base_life_min: createAtomicValue(T_raw, "min", 15, "Taylor-inline-compat-unclamped", safety.score,
+        `unclamped T before max(1, min(600, T))`),
+      taylor_C: createAtomicValue(C, "m/min", 5, materialSource, 0.95),
+      taylor_n: createAtomicValue(n, "-", 5, materialSource, 0.95),
+      feed_exponent: m,
+      depth_exponent: p,
+      coating_factor: 1.0,
+      temperature_factor: 1.0,
+      hardness_factor: 1.0,
+      total_correction: 1.0,
+      changes_per_hour: createAtomicValue(60 / T_min, "/hour", 15, "derived", safety.score,
+        "60 / tool_life_min"),
+      safety,
+      computed_at: new Date().toISOString(),
+      algorithm_version: ExtendedTaylorModelImpl.VERSION,
+      warnings: [],
     };
   }
 

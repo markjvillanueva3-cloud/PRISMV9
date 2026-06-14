@@ -73,7 +73,7 @@ async function probeOllama() {
     process.stdout.write(`  Start Ollama with: ollama serve   (or: docker compose up -d ollama)\n`);
   } else {
     process.stdout.write(`  REACHABLE: yes\n`);
-    process.stdout.write(`  Installed models: ${probe.models.length > 0 ? probe.models.join(", ") : "(none — run `ollama pull qwen2.5-coder:7b`)"}\n`);
+    process.stdout.write(`  Installed models: ${probe.models.length > 0 ? probe.models.join(", ") : "(none — run `ollama pull qwen2.5-coder:32b`)"}\n`);
   }
   process.stdout.write("\n");
 

@@ -3,8 +3,11 @@
  * a unified speed/feed recommendation pipeline.
  *
  * Orchestrates resolution of machine, tool, material, holder, coolant,
- * workholding, CAM strategy, and geometry context before delegating to
- * physics engines (Kienzle force, Taylor life, Loewen-Shaw thermal, etc.).
+ * workholding, CAM strategy, and geometry context, then applies inline
+ * Kienzle-force / Taylor-life physics against canonical constants plus
+ * inline thermal + stability approximations. NOTE: thermal and stability
+ * are NOT yet algorithm-module composed — JaegerTempField / StabilityLobe
+ * module wiring is tracked by milestone SF-PSN-WIRE-MS0.
  *
  * References:
  *   - UltimateSpeedFeedEngine (core speed/feed physics)
@@ -34,6 +37,10 @@ import type { ISOGroup } from "../physics/constants.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
 import { crossProcessNeuralLearningEngine } from "./CrossProcessNeuralLearningEngine.js";
 import type { OutcomeRecord } from "./CrossProcessOutcomeStore.js";
+// CATALOG-APP-WIRING-MS0/U7: exact tool-geometry resolution from the 62.7K corpus.
+// No circular dependency — neither engine imports this orchestrator.
+import { catalogCorpusLoaderEngine } from "./CatalogCorpusLoaderEngine.js";
+import { toolCatalogEngine as corpusToolCatalogEngine } from "./ToolCatalogEngine.js";
 
 function getMonteCarloEngine(): any {
   return monteCarloEngine as any;
@@ -157,6 +164,7 @@ export interface OrchestratorInput {
   tool_grade?: string;                  // manufacturer grade (e.g. "IC928")
   insert_grade?: string;                // insert grade override (e.g. "GC4325", "IC928")
   tool_series?: string;                 // manufacturer series (e.g. "CoroMill 390")
+  tool_catalog_id?: string;             // exact CatalogTool id (e.g. "corpus:Accupro:ACCU-0.1250") — resolves real geometry from the 62.7K corpus
 
   // ── Holder (4) ──
   holder_type?: "shrink_fit" | "hydraulic" | "ER_collet" | "Weldon" | "milling_chuck";
@@ -310,6 +318,22 @@ export interface OrchestratorResult {
 
   // ── Tribal knowledge (TK-2 consumer wiring) ──
   tribal_tips?: KnowledgeTip[];
+
+  // ── PSN provenance (SF-PSN-WIRE-MS0 U-SFPSN-10) ──
+  // Aggregated declaration of which PSN surfaces + algorithm modules
+  // contributed to this recommendation. Populated by compute() from the
+  // proven/miner/wiki/memory decision-prior results at steps 1.5-1.8 plus
+  // the composed algorithm modules registered with engines_called.
+  // Closes audit F1-F9: SF output now declares contributing PSN surfaces.
+  psn_surfaces?: {
+    proven?: { found: boolean; source: string };
+    miner?: { found: boolean; source: string; sampleCount?: number };
+    wiki?: { found: boolean; source: string; confidence: number; citationCount: number };
+    memory?: { found: boolean; source: string; confidence: number };
+    outcome_feedback_loop?: { enabled: boolean; sink: string };
+    algorithm_modules_composed: string[];
+    aggregate_confidence: number;
+  };
 }
 
 export interface LimitingFactor {
@@ -1342,9 +1366,35 @@ export class SpeedFeedOrchestratorEngine {
     const hasSeries = input.tool_series !== undefined;
     const op = input.operation ?? "milling";
 
-    // ── ToolRegistry fallback (95K tools) — enrich from catalog when grade/series given ──
+    // ── CatalogCorpus exact-id resolution (62.7K corpus) — highest-precision path ──
+    // When tool_catalog_id is given (e.g. "corpus:Accupro:ACCU-0.1250"), resolve the
+    // real cataloged geometry from toolCatalogEngine (loaded via the corpus loader).
+    // This is an EXACT lookup, more precise than the fuzzy ToolRegistry fallback below.
+    // (CATALOG-APP-WIRING-MS0/U7, slot:romeo) — maps CatalogTool.physical into the
+    // regTool shape so the existing av() default-resolution plumbing picks it up.
     let regTool: { geometry?: any; substrate?: string; coating?: any; catalog_number?: string } | undefined;
-    if ((hasGrade || hasSeries) && !hasDia) {
+    if (input.tool_catalog_id) {
+      try {
+        catalogCorpusLoaderEngine.ensureLoaded(); // idempotent, fail-soft
+        const ct = corpusToolCatalogEngine.lookup(input.tool_catalog_id);
+        if (ct) {
+          regTool = {
+            geometry: {
+              diameter: ct.physical?.cutting_diameter_mm,
+              flutes: ct.flute_count,
+              flute_length: ct.physical?.flute_length_mm || undefined,
+              corner_radius: ct.physical?.corner_radius_mm,
+              helix_angle: ct.helix_angle_deg,
+            },
+            substrate: ct.material,
+            coating: ct.coating,
+            catalog_number: ct.designation,
+          };
+        }
+      } catch { /* corpus loader / catalog not available — fall through to registry/defaults */ }
+    }
+    // ── ToolRegistry fallback (95K tools) — enrich from catalog when grade/series given ──
+    if (!regTool && (hasGrade || hasSeries) && !hasDia) {
       try {
         const { toolRegistry } = require("../registries/ToolRegistry.js") as any;
         if (toolRegistry?.loaded) {
@@ -2144,6 +2194,235 @@ export class SpeedFeedOrchestratorEngine {
     return { source: "none", found: false };
   }
 
+  // ==========================================================================
+  // SPEEDFEED MINER EVIDENCE (SF-PSN-WIRE-MS0 U-SFPSN-06, 2026-05-23 juliett)
+  // ==========================================================================
+
+  /**
+   * Query raw-program mining evidence as a decision prior.
+   * Lazy-loads ProgramDatabaseEngine + SpeedFeedMinerEngine, mines matching
+   * records, returns matching stats row as AtomicValue prior.
+   *
+   * Confidence: 0.82 (below proven=0.88 — miner is raw shop-floor, not curated;
+   * above handbook=0.85 only when sample_count >= 30 — for now scale linearly
+   * with sample_count up to 0.82 cap).
+   *
+   * Pattern: behaviour-equivalent to queryProvenParameters() — try/catch with
+   * {found:false} fall-through so a missing miner / empty corpus never breaks
+   * the orchestrator pipeline. Mirrors the proven-aggregator wire site.
+   *
+   * Wired per SF-PSN-VALUE-NODE-AUDIT-2026-05-22 finding F8 — addresses the
+   * audit gap "SpeedFeedMinerEngine composed by zero SF engines (0 hits)".
+   */
+  private queryMinerEvidence(input: OrchestratorInput): {
+    cssSpeed?: AtomicValue<number>;
+    feedRate?: AtomicValue<number>;
+    source: string;
+    found: boolean;
+    sampleCount?: number;
+  } {
+    try {
+      // Lazy load to avoid circular dependency + cold-start cost when corpus empty
+      const { programDatabaseEngine } = require("./ProgramDatabaseEngine.js");
+      const { speedFeedMinerEngine } = require("./SpeedFeedMinerEngine.js");
+
+      // Query corpus by machine_type + operation (material is freeform, filter after)
+      const opCategory = this.mapToProvenOperation(input);
+      const records = programDatabaseEngine.query({
+        machine_type: input.machine_type,
+        operation_type: opCategory && opCategory !== "unknown" ? opCategory : undefined,
+      });
+
+      if (!records || records.length === 0) {
+        return { source: "miner:no-corpus-match", found: false };
+      }
+
+      // Cap to first 500 records — protects against full-corpus mine on every SF call
+      const sampleRecords = records.length > 500 ? records.slice(0, 500) : records;
+
+      const mineResult = speedFeedMinerEngine.mine(sampleRecords);
+      if (!mineResult || !mineResult.stats || mineResult.stats.length === 0) {
+        return { source: "miner:no-stats", found: false };
+      }
+
+      // Find matching stats row: same operation + machine_type + (loose) material match
+      const materialKey = (input.material || "").toLowerCase();
+      const machineKey = input.machine_type || "";
+      const matchingStats = mineResult.stats.filter((s: { material: string; operation: string; machine_type: string; sample_count: number }) => {
+        const opMatch = s.operation === opCategory;
+        const machineMatch = !machineKey || s.machine_type === machineKey;
+        const materialMatch = !materialKey || s.material.toLowerCase().includes(materialKey) || materialKey.includes(s.material.toLowerCase());
+        return opMatch && machineMatch && materialMatch;
+      });
+
+      if (matchingStats.length === 0) {
+        return { source: "miner:no-row-match", found: false };
+      }
+
+      // Pick the row with the highest sample_count for stability
+      const top = matchingStats.reduce((a: { sample_count: number }, b: { sample_count: number }) => a.sample_count >= b.sample_count ? a : b) as {
+        material: string;
+        operation: string;
+        machine_type: string;
+        sample_count: number;
+        speed_median: number;
+        feed_median: number;
+      };
+
+      if (top.sample_count < 3) {
+        return { source: `miner:low-samples(${top.sample_count})`, found: false };
+      }
+
+      // Confidence scales with sample_count, capped at 0.82
+      const confidence = Math.min(0.82, 0.50 + top.sample_count * 0.01);
+      const source = `miner:${top.material}|${top.operation}|${top.machine_type}:n=${top.sample_count}`;
+
+      return {
+        cssSpeed: top.speed_median > 0 ? {
+          value: top.speed_median,
+          confidence,
+          source,
+        } : undefined,
+        feedRate: top.feed_median > 0 ? {
+          value: top.feed_median,
+          confidence,
+          source,
+        } : undefined,
+        source,
+        found: true,
+        sampleCount: top.sample_count,
+      };
+    } catch {
+      // ProgramDatabaseEngine / SpeedFeedMinerEngine not loaded, or corpus empty
+      return { source: "miner:none", found: false };
+    }
+  }
+
+  // ==========================================================================
+  // WIKI/TRIBAL EVIDENCE (SF-PSN-WIRE-MS0 U-SFPSN-08, 2026-05-23 juliett)
+  // ==========================================================================
+
+  /**
+   * Query the wiki/tribal knowledge surface as decision evidence.
+   * Lazy-loads PRISMSelfAwarenessEngine and runs a sync substring search
+   * over the cached tribal corpus for "{material} {operation}" tokens.
+   *
+   * Returns the top citation set + an aggregate confidence (mean of hit
+   * confidences, capped 0.75 since tribal tips are heuristic not measured).
+   *
+   * Pattern: behaviour-equivalent to queryProvenParameters() / queryMinerEvidence() —
+   * try/catch fall-through to {found:false} so a missing self-awareness
+   * engine / empty corpus never breaks the orchestrator pipeline.
+   *
+   * Wired per SF-PSN-VALUE-NODE-AUDIT-2026-05-22 finding F4 — addresses
+   * the audit gap "wiki consult — machinability / cutting-physics wiki
+   * entries as decision evidence".
+   */
+  private queryWikiEvidence(input: OrchestratorInput): {
+    citations: Array<{ tip: string; category: string; confidence: number }>;
+    confidence: number;
+    source: string;
+    found: boolean;
+  } {
+    try {
+      const { prismSelfAwarenessEngine } = require("./PRISMSelfAwarenessEngine.js");
+
+      // Build query from material + operation; both optional but at least one
+      // must be present for a meaningful tribal query.
+      const material = (input.material || "").toString().toLowerCase();
+      const operation = (input.operation || "").toString().toLowerCase();
+      if (!material && !operation) {
+        return { citations: [], confidence: 0, source: "wiki:no-query-tokens", found: false };
+      }
+
+      // Two-pass: prefer combined query, fall back to material alone if zero hits.
+      const combined = [material, operation].filter(Boolean).join(" ").trim();
+      let hits = prismSelfAwarenessEngine.searchTribalKnowledgeSync(combined, { limit: 5 });
+      if ((!hits || hits.length === 0) && material) {
+        hits = prismSelfAwarenessEngine.searchTribalKnowledgeSync(material, { limit: 5 });
+      }
+
+      if (!hits || hits.length === 0) {
+        return { citations: [], confidence: 0, source: "wiki:no-match", found: false };
+      }
+
+      const citations = hits.slice(0, 3).map((h: { tip: string; category: string; confidence: number }) => ({
+        tip: (h.tip || "").substring(0, 200),
+        category: h.category || "general",
+        confidence: typeof h.confidence === "number" ? h.confidence : 0.7,
+      }));
+
+      const aggConfidence = Math.min(
+        0.75,
+        citations.reduce((sum: number, c: { confidence: number }) => sum + c.confidence, 0) / Math.max(1, citations.length)
+      );
+
+      return {
+        citations,
+        confidence: aggConfidence,
+        source: `wiki:tribal:n=${hits.length}:q="${combined.substring(0, 40)}"`,
+        found: true,
+      };
+    } catch {
+      return { citations: [], confidence: 0, source: "wiki:none", found: false };
+    }
+  }
+
+  // ==========================================================================
+  // OBSIDIAN MEMORY RECALL (SF-PSN-WIRE-MS0 U-SFPSN-07, 2026-05-23 juliett)
+  // ==========================================================================
+
+  /**
+   * Query cross-session Obsidian-brain memory for prior SF outcomes on the same
+   * material/operation context. Lazy-loads ConversationalMemoryEngine.findJob()
+   * (sync, in-memory job store) — returns the matching JobContext as a recall
+   * prior with confidence 0.70 (below wiki=0.75 since recall is a single-shot
+   * match rather than aggregated citations).
+   *
+   * Pattern: behaviour-equivalent to queryProvenParameters / queryMinerEvidence
+   * / queryWikiEvidence — try/catch fall-through to {found:false}. The
+   * orchestrator's compute() is SYNC, so we use findJob (sync) rather than
+   * the QdrantMemoryEngine async recall (which would force compute() async).
+   * Async semantic recall via QdrantMemoryEngine is a future U-SFPSN-07-ASYNC
+   * follow-up when compute() can be promoted.
+   *
+   * Wired per SF-PSN-VALUE-NODE-AUDIT-2026-05-22 finding F3 — addresses
+   * the audit gap "obsidian-brain/memory NOT connected to SF decisioning".
+   */
+  private queryObsidianMemoryEvidence(input: OrchestratorInput): {
+    jobId?: string;
+    material?: string;
+    confidence: number;
+    source: string;
+    found: boolean;
+  } {
+    try {
+      const { findJob } = require("./ConversationalMemoryEngine.js");
+
+      const material = (input.material || "").toString();
+      if (!material) {
+        return { confidence: 0, source: "memory:no-material-key", found: false };
+      }
+
+      const job = findJob(material);
+      if (!job || !job.id) {
+        return { confidence: 0, source: "memory:no-prior-job", found: false };
+      }
+
+      // Recall confidence is fixed at 0.70 — single prior job match is weaker
+      // than aggregated wiki citations (0.75) or miner statistics (up to 0.82).
+      return {
+        jobId: job.id,
+        material: job.material,
+        confidence: 0.70,
+        source: `memory:obsidian-brain:job=${job.id}:material=${job.material ?? "unknown"}`,
+        found: true,
+      };
+    } catch {
+      return { confidence: 0, source: "memory:none", found: false };
+    }
+  }
+
   private mapToProvenMaterial(input: OrchestratorInput): string {
     // Map ISO group to proven material group
     const isoMap: Record<string, string> = {
@@ -2259,6 +2538,37 @@ export class SpeedFeedOrchestratorEngine {
       formulas_used.push(`Proven program baseline: ${proven.source}`);
     }
     if (resumeFrom <= 8) cpm.checkpoint('query_proven_params', 8, proven, Date.now() - t0);
+
+    // ── Step 1.6: Query SpeedFeed Miner Evidence (SF-PSN-WIRE-MS0 U-SFPSN-06) ──
+    // Raw NC-program mining as a decision prior. Complements queryProvenParameters
+    // (curated, conf 0.88) with miner evidence (raw, conf scales to 0.82 by sample_count).
+    // Per audit F8: previously composed by ZERO SF engines.
+    t0 = Date.now();
+    const minerEvidence = this.queryMinerEvidence(input);
+    if (minerEvidence.found) {
+      engines_called.push("SpeedFeedMinerEngine");
+      formulas_used.push(`Miner evidence: ${minerEvidence.source}`);
+    }
+
+    // ── Step 1.7: Query Wiki/Tribal Evidence (SF-PSN-WIRE-MS0 U-SFPSN-08) ──
+    // Tribal-knowledge wiki citations as decision evidence + provenance.
+    // Per audit F4: SF output should cite contributing wiki entries.
+    t0 = Date.now();
+    const wikiEvidence = this.queryWikiEvidence(input);
+    if (wikiEvidence.found) {
+      engines_called.push("PRISMSelfAwarenessEngine");
+      formulas_used.push(`Wiki evidence: ${wikiEvidence.source} [conf=${wikiEvidence.confidence.toFixed(2)}]`);
+    }
+
+    // ── Step 1.8: Query Obsidian Memory Recall (SF-PSN-WIRE-MS0 U-SFPSN-07) ──
+    // Cross-session memory of prior SF outcomes on the same material.
+    // Per audit F3: obsidian-brain/memory not connected to SF decisioning.
+    t0 = Date.now();
+    const memoryEvidence = this.queryObsidianMemoryEvidence(input);
+    if (memoryEvidence.found) {
+      engines_called.push("ConversationalMemoryEngine");
+      formulas_used.push(`Memory recall: ${memoryEvidence.source} [conf=${memoryEvidence.confidence.toFixed(2)}]`);
+    }
 
     // ── Step 2: Core Speed/Feed Physics ──
     const D = tool.diameter_mm.value;
@@ -3161,6 +3471,46 @@ export class SpeedFeedOrchestratorEngine {
           confidence: input.calibration_overrides.confidence,
         };
       }
+    }
+
+    // ── SF-PSN-WIRE-MS0 U-SFPSN-10: aggregate PSN provenance ──
+    // Closes audit F1-F9: SF output declares which PSN surfaces + algorithm
+    // modules contributed to this recommendation, with per-source confidence.
+    // Data sources: proven (step 1.5), minerEvidence (1.6), wikiEvidence (1.7),
+    // memoryEvidence (1.8), plus engines_called for the algorithm modules.
+    {
+      const algorithmModules = engines_called.filter(e =>
+        // Match algorithm modules (suffix -Model/-Lobe/-Field or known names)
+        /Model$|Lobe$|Field$|Diagram$|Selector$|^Kienzle|^Taylor|^Gilbert|^Jaeger|^Stability|^FRF|^RCSA/.test(e)
+      );
+      const confidences: number[] = [];
+      if (proven.found) confidences.push(0.88);
+      if (minerEvidence.found && typeof minerEvidence.sampleCount === "number") {
+        confidences.push(Math.min(0.82, 0.50 + minerEvidence.sampleCount * 0.01));
+      }
+      if (wikiEvidence.found) confidences.push(wikiEvidence.confidence);
+      if (memoryEvidence.found) confidences.push(memoryEvidence.confidence);
+      const aggregateConfidence = confidences.length > 0
+        ? confidences.reduce((a, b) => a + b, 0) / confidences.length
+        : 0;
+
+      result.psn_surfaces = {
+        proven: { found: proven.found, source: proven.source },
+        miner: { found: minerEvidence.found, source: minerEvidence.source, sampleCount: minerEvidence.sampleCount },
+        wiki: {
+          found: wikiEvidence.found,
+          source: wikiEvidence.source,
+          confidence: wikiEvidence.confidence,
+          citationCount: wikiEvidence.citations.length,
+        },
+        memory: { found: memoryEvidence.found, source: memoryEvidence.source, confidence: memoryEvidence.confidence },
+        outcome_feedback_loop: {
+          enabled: true,
+          sink: "SpeedFeedDeepLearningEngine.recordFeedback → SFCOutcomeCaptureWireEngine (U-SFPSN-09)",
+        },
+        algorithm_modules_composed: algorithmModules,
+        aggregate_confidence: Math.round(aggregateConfidence * 1000) / 1000,
+      };
     }
 
     // ── TK-2: Tribal knowledge consumer wiring ──

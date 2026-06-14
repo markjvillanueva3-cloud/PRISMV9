@@ -474,7 +474,7 @@ function uniqueStrings(items: string[]) {
   return Array.from(new Set(items.filter(Boolean)));
 }
 
-// @ts-expect-error unused helper retained for future wiring
+// Retained for future wiring (underscore prefix exempts from no-unused).
 function _stripFileExtension(value: string) {
   return value.replace(/\.[^.]+$/, '');
 }

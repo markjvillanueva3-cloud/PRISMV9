@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hermes/Zebra Ops — PRISM Fleet Control</title>
+<style>
+  :root { color-scheme: dark; }
+  body{font:13px/1.5 ui-monospace,Consolas,monospace;background:#0e1117;color:#c9d1d9;margin:0;padding:20px;max-width:1400px}
+  h1,h2{color:#58a6ff;margin:0 0 8px}
+  h1{font-size:20px;border-bottom:1px solid #30363d;padding-bottom:6px}
+  h2{font-size:14px;margin-top:18px}
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:12px}
+  .muted{color:#7d8590;font-size:11px}
+  .ok{color:#3fb950}.deny{color:#f85149}.warn{color:#d29922}
+  table{border-collapse:collapse;width:100%;font-size:11px}
+  td,th{padding:3px 6px;border-bottom:1px solid #21262d;text-align:left;vertical-align:top}
+  th{color:#7d8590;font-weight:600}
+  .row-flash{animation:flash 6s ease-in-out 1;background:rgba(248,81,73,.16) !important}
+  @keyframes flash { 0%,100%{background:transparent} 25%,75%{background:rgba(248,81,73,.30)} 50%{background:rgba(248,81,73,.10)} }
+  .pulse-zebra{animation:pulseZ 1.8s ease-in-out 3;background:rgba(210,153,34,.18) !important}
+  @keyframes pulseZ { 0%,100%{background:transparent} 50%{background:rgba(210,153,34,.40)} }
+  form{display:grid;gap:6px;margin-top:6px}
+  form input,form textarea,form select{background:#0e1117;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:5px 7px;font:inherit}
+  form button{background:#238636;color:white;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font:inherit;width:fit-content}
+  form button:hover{background:#2ea043}
+  form button.deny{background:#da3633}
+  form button.deny:hover{background:#f85149}
+  .status{margin-top:6px;font-size:11px}
+  .pill{display:inline-block;padding:1px 6px;border-radius:9px;font-size:10px;font-weight:600;margin-right:4px}
+  .pill-ok{background:rgba(63,185,113,.18);color:#3fb950}
+  .pill-deny{background:rgba(248,81,73,.18);color:#f85149}
+  .pill-zebra{background:rgba(210,153,34,.25);color:#d29922}
+  .pill-green{background:rgba(63,185,113,.22);color:#3fb950}
+  .pill-amber{background:rgba(210,153,34,.22);color:#d29922}
+  .pill-red{background:rgba(248,81,73,.22);color:#f85149}
+  .pill-unknown{background:rgba(125,133,144,.22);color:#7d8590}
+  .psn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px}
+  .psn-leg{background:#0e1117;border:1px solid #21262d;border-radius:4px;padding:6px 8px}
+  .psn-leg .name{font-weight:600;font-size:12px}
+  .psn-leg .signal{font-size:11px;color:#7d8590;margin-top:2px}
+  .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+  .truncate{max-width:380px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<h1>Hermes/Zebra Ops — PRISM Fleet Control</h1>
+<p class="muted">Live control surface for the 12-chat fleet. Read panels poll <code>:8767/api/*</code> every 5 s. Forms POST through the same control server — every operation guarded by ZebraFleetGovernorEngine and audited to <code>state/shared/hzp-dash-audit.jsonl</code>.</p>
+
+<div class="card" style="margin-bottom:14px">
+  <h2>Summary</h2>
+  <div id="summary" class="muted">loading…</div>
+</div>
+
+<div class="card" style="margin-bottom:14px">
+  <h2>PSN Health Strip — 11 legs (HZD-PSN-01)</h2>
+  <div id="psn-strip" class="muted">loading…</div>
+</div>
+
+<div class="panels">
+  <div class="card"><h2>Audit tail (recent control ops)</h2><div id="audit-tbl" class="muted">loading…</div></div>
+  <div class="card"><h2>Chat bus (zebra-flagged in amber)</h2><div id="chat-tbl" class="muted">loading…</div></div>
+  <div class="card"><h2>Active assignments</h2><div id="claims-tbl" class="muted">loading…</div></div>
+  <div class="card"><h2>Escalation queue</h2><div id="escal-tbl" class="muted">loading…</div></div>
+  <div class="card"><h2>Refuse-rule promotion candidates</h2><div id="refuse-tbl" class="muted">loading…</div></div>
+  <div class="card"><h2>Recent vetoes</h2><div id="veto-tbl" class="muted">loading…</div></div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2>Operator controls (POST to :8767)</h2>
+  <div class="controls">
+    <div>
+      <h2 style="font-size:12px;margin-top:0">Assign task</h2>
+      <form id="f-assign">
+        <input name="slot" placeholder="slot (e.g. bravo)" required>
+        <input name="task_id" placeholder="task id (optional)">
+        <input name="task_text" placeholder="task text (must match slot domain)" required>
+        <button type="submit">Assign</button>
+        <div class="status muted" data-status></div>
+      </form>
+    </div>
+    <div>
+      <h2 style="font-size:12px;margin-top:0">Bus send</h2>
+      <form id="f-bus">
+        <input name="from" placeholder="from (e.g. operator)" required value="operator">
+        <input name="to" placeholder="to (zebra | bravo | <slot> | fleet)">
+        <textarea name="message" placeholder="message" required rows="2"></textarea>
+        <button type="submit">Send</button>
+        <div class="status muted" data-status></div>
+      </form>
+    </div>
+    <div>
+      <h2 style="font-size:12px;margin-top:0">Escalate task</h2>
+      <form id="f-escalate">
+        <input name="task_id" placeholder="task id" required>
+        <input name="failure_reason" placeholder="failure reason" required>
+        <input name="attempts_so_far" type="number" min="1" placeholder="attempts (>=1)">
+        <button type="submit" class="deny">Escalate</button>
+        <div class="status muted" data-status></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const CTL = "http://127.0.0.1:8767";
+const POLL_MS = 5000;
+const TRUNCATE_DEFAULT = 60;
+const seenAuditIds = new Set();
+const seenChatIds = new Set();
+let firstLoad = true;
+
+function truncate(s, n) {
+  const len = (typeof n === "number" && n > 0) ? n : TRUNCATE_DEFAULT;
+  const str = String(s == null ? "" : s);
+  return str.length > len ? str.slice(0, len - 1) + "..." : str;
+}
+
+function el(tag, attrs, children) {
+  const node = document.createElement(tag);
+  if (attrs) {
+    for (const k of Object.keys(attrs)) {
+      const v = attrs[k];
+      if (v == null) continue;
+      if (k === "className") node.className = v;
+      else if (k === "title") node.title = String(v);
+      else node.setAttribute(k, String(v));
+    }
+  }
+  if (children != null) {
+    const arr = Array.isArray(children) ? children : [children];
+    for (const c of arr) {
+      if (c == null) continue;
+      if (typeof c === "string" || typeof c === "number") node.appendChild(document.createTextNode(String(c)));
+      else node.appendChild(c);
+    }
+  }
+  return node;
+}
+
+function replaceChildren(parent, ...nodes) {
+  while (parent.firstChild) parent.removeChild(parent.firstChild);
+  for (const n of nodes) {
+    if (n == null) continue;
+    parent.appendChild(typeof n === "string" ? document.createTextNode(n) : n);
+  }
+}
+
+async function jget(url) {
+  try {
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  } catch (e) { return { ok: false, error: String(e) }; }
+}
+
+async function jpost(routePath, body) {
+  try {
+    const r = await fetch(CTL + routePath, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return await r.json();
+  } catch (e) { return { ok: false, error: String(e) }; }
+}
+
+function authPill(authorized) {
+  return el("span", { className: "pill " + (authorized ? "pill-ok" : "pill-deny") }, authorized ? "AUTH" : "DENY");
+}
+
+function zebraPill() {
+  return el("span", { className: "pill pill-zebra" }, "ZEBRA");
+}
+
+function makeTable(headers) {
+  const thead = el("thead", null, el("tr", null, headers.map(h => el("th", null, h))));
+  const tbody = el("tbody");
+  const table = el("table", null, [thead, tbody]);
+  return { table, tbody };
+}
+
+function timeHHMMSS(iso) { return String(iso || "").slice(11, 19); }
+
+function renderAuditTable(rows) {
+  const host = document.getElementById("audit-tbl");
+  if (!rows.length) {
+    replaceChildren(host, el("div", { className: "muted" }, "no ops yet — POST something through the operator controls below"));
+    return;
+  }
+  const { table, tbody } = makeTable(["time", "", "op", "actor", "task", "reason"]);
+  for (const e of rows.slice().reverse()) {
+    const isNew = !seenAuditIds.has(e.audit_id) && !firstLoad;
+    seenAuditIds.add(e.audit_id);
+    const tr = el("tr", isNew ? { className: "row-flash" } : null);
+    tr.appendChild(el("td", { className: "muted" }, timeHHMMSS(e.ts)));
+    tr.appendChild(el("td", null, authPill(e.authorized)));
+    tr.appendChild(el("td", null, String(e.operation)));
+    const actorCell = el("td", null);
+    actorCell.appendChild(document.createTextNode(String(e.actor)));
+    if (e.target_slot) {
+      actorCell.appendChild(document.createTextNode("→"));
+      const b = el("b", null, String(e.target_slot));
+      actorCell.appendChild(b);
+    }
+    tr.appendChild(actorCell);
+    tr.appendChild(el("td", { className: "truncate", title: e.task_text || "" }, truncate(e.task_text, 50)));
+    tr.appendChild(el("td", { className: "muted truncate", title: e.authority_reason || "" }, truncate(e.authority_reason, 40)));
+    tbody.appendChild(tr);
+  }
+  replaceChildren(host, table);
+}
+
+function renderChatTable(rows) {
+  const host = document.getElementById("chat-tbl");
+  if (!rows.length) {
+    replaceChildren(host, el("div", { className: "muted" }, "no bus traffic"));
+    return;
+  }
+  const { table, tbody } = makeTable(["time", "route", "message"]);
+  for (const m of rows.slice().reverse()) {
+    const id = m.audit_id || (String(m.ts) + "|" + String(m.from) + "|" + String(m.message));
+    const isNew = !seenChatIds.has(id) && !firstLoad;
+    seenChatIds.add(id);
+    const flashClass = m.addressed_to_zebra && isNew ? "pulse-zebra" : (isNew ? "row-flash" : "");
+    const tr = el("tr", flashClass ? { className: flashClass } : null);
+    tr.appendChild(el("td", { className: "muted" }, timeHHMMSS(m.ts)));
+    const routeCell = el("td", null, [String(m.from || ""), "→"]);
+    routeCell.appendChild(el("b", null, String(m.to || "fleet")));
+    tr.appendChild(routeCell);
+    const msgCell = el("td", null);
+    if (m.addressed_to_zebra) msgCell.appendChild(zebraPill());
+    msgCell.appendChild(el("span", { className: "truncate", title: m.message || "" }, truncate(m.message, 80)));
+    tr.appendChild(msgCell);
+    tbody.appendChild(tr);
+  }
+  replaceChildren(host, table);
+}
+
+function renderClaims(rows) {
+  const host = document.getElementById("claims-tbl");
+  if (!rows.length) {
+    replaceChildren(host, el("div", { className: "muted" }, "no active assignments"));
+    return;
+  }
+  const { table, tbody } = makeTable(["slot", "task", "text", "state", "since"]);
+  for (const c of rows) {
+    const tr = el("tr");
+    tr.appendChild(el("td", null, el("b", null, String(c.slot || ""))));
+    tr.appendChild(el("td", null, String(c.task_id || "")));
+    tr.appendChild(el("td", { className: "truncate", title: c.task_text || "" }, truncate(c.task_text, 60)));
+    tr.appendChild(el("td", { className: "muted" }, String(c.state || "")));
+    tr.appendChild(el("td", { className: "muted" }, timeHHMMSS(c.assigned_at)));
+    tbody.appendChild(tr);
+  }
+  replaceChildren(host, table);
+}
+
+function renderEscalations(rows) {
+  const host = document.getElementById("escal-tbl");
+  if (!rows.length) {
+    replaceChildren(host, el("div", { className: "muted" }, "queue empty"));
+    return;
+  }
+  const { table, tbody } = makeTable(["time", "task", "reason", "n"]);
+  for (const e of rows.slice().reverse()) {
+    const tr = el("tr");
+    tr.appendChild(el("td", { className: "muted" }, timeHHMMSS(e.ts)));
+    tr.appendChild(el("td", null, String(e.task_id || "")));
+    tr.appendChild(el("td", { className: "truncate", title: e.failure_reason || "" }, truncate(e.failure_reason, 70)));
+    tr.appendChild(el("td", { className: "muted" }, e.attempts_so_far == null ? "" : String(e.attempts_so_far)));
+    tbody.appendChild(tr);
+  }
+  replaceChildren(host, table);
+}
+
+function renderRefuse(rows) {
+  const host = document.getElementById("refuse-tbl");
+  if (!rows.length) {
+    replaceChildren(host, el("div", { className: "muted" }, "no candidates pending"));
+    return;
+  }
+  const { table, tbody } = makeTable(["time", "slot", "rule"]);
+  for (const r of rows.slice().reverse()) {
+    const tr = el("tr");
+    tr.appendChild(el("td", { className: "muted" }, timeHHMMSS(r.ts)));
+    tr.appendChild(el("td", null, el("b", null, String(r.slot || ""))));
+    tr.appendChild(el("td", { className: "truncate", title: r.rule || "" }, truncate(r.rule, 70)));
+    tbody.appendChild(tr);
+  }
+  replaceChildren(host, table);
+}
+
+function renderVetoes(rows) {
+  const host = document.getElementById("veto-tbl");
+  if (!rows.length) {
+    replaceChildren(host, el("div", { className: "muted" }, "no vetoes recorded"));
+    return;
+  }
+  const { table, tbody } = makeTable(["time", "slot", "task", "reason"]);
+  for (const v of rows.slice().reverse()) {
+    const tr = el("tr");
+    tr.appendChild(el("td", { className: "muted" }, timeHHMMSS(v.ts)));
+    tr.appendChild(el("td", null, el("b", null, String(v.slot || ""))));
+    tr.appendChild(el("td", null, String(v.task_id || "")));
+    tr.appendChild(el("td", { className: "truncate", title: v.reason || "" }, truncate(v.reason, 60)));
+    tbody.appendChild(tr);
+  }
+  replaceChildren(host, table);
+}
+
+function renderPsnStrip(report) {
+  const host = document.getElementById("psn-strip");
+  if (!report || !report.legs) {
+    replaceChildren(host, el("div", { className: "muted" }, "psn-health.json not yet generated — run `node H:/prism/scripts/generate-psn-health-features.mjs`"));
+    return;
+  }
+  const summary = report.summary || { green: 0, amber: 0, red: 0, unknown: 0 };
+  const header = el("div", { className: "muted", style: "margin-bottom:8px;font-size:11px" },
+    `${report.legs.length} legs - `,
+    el("span", { className: "pill pill-green" }, String(summary.green)),
+    " ",
+    el("span", { className: "pill pill-amber" }, String(summary.amber)),
+    " ",
+    el("span", { className: "pill pill-red" }, String(summary.red)),
+    " ",
+    el("span", { className: "pill pill-unknown" }, String(summary.unknown)),
+    " - generated ",
+    String(report.generated_at || "").slice(11, 19),
+  );
+  const grid = el("div", { className: "psn-grid" });
+  for (const leg of report.legs) {
+    const pillCls = "pill pill-" + (leg.status || "unknown");
+    const card = el("div", { className: "psn-leg", title: leg.signal || "" },
+      el("div", { className: "name" },
+        el("span", { className: pillCls }, (leg.status || "?").toUpperCase()),
+        " ", String(leg.id), ". ", String(leg.name),
+      ),
+      el("div", { className: "signal" }, String(leg.signal || "")),
+    );
+    grid.appendChild(card);
+  }
+  replaceChildren(host, header, grid);
+}
+
+function renderSummary(state) {
+  const host = document.getElementById("summary");
+  if (state.error || state.ok === false) {
+    replaceChildren(host, el("span", { className: "deny" }, "control-server: " + String(state.error || "unreachable")));
+    return;
+  }
+  const parts = [
+    "souls: ", el("b", null, String(state.souls && state.souls.count || 0)),
+    "  |  audit lines: ", el("b", null, String(state.audit_lines || 0)),
+    "  |  escalations: ", el("b", null, String(state.escalation_depth || 0)),
+    "  |  port " + String(state.port || ""),
+  ];
+  replaceChildren(host, ...parts);
+}
+
+async function refresh() {
+  const [state, tail, psnHealth] = await Promise.all([
+    jget(CTL + "/api/state"),
+    jget(CTL + "/api/audit/tail"),
+    jget("/staging/psn-health.json"),
+  ]);
+  const opsFile = await jget("/staging/hermes-zebra-ops.json");
+  renderSummary(state);
+  renderPsnStrip(psnHealth && psnHealth.legs ? psnHealth : null);
+  renderAuditTable((tail && tail.tail) || []);
+  const ops = (opsFile && opsFile.panels) ? opsFile.panels : {};
+  renderChatTable(ops.chat_bus_tail || []);
+  renderClaims(ops.active_claims || []);
+  renderEscalations(ops.escalations || []);
+  renderRefuse(ops.refuse_promotion_queue || []);
+  renderVetoes(ops.vetoes || []);
+  firstLoad = false;
+}
+
+function renderStatus(form, result) {
+  const status = form.querySelector("[data-status]");
+  if (!status) return;
+  if (result.ok) {
+    const ok = el("span", { className: "ok" }, "OK " + String(result.audit_id || "ok"));
+    const nodes = [ok];
+    if (result.reason) {
+      nodes.push(document.createTextNode(" "));
+      nodes.push(el("span", { className: "muted" }, String(result.reason)));
+    }
+    replaceChildren(status, ...nodes);
+  } else {
+    const deny = el("span", { className: "deny" }, "DENY " + String(result.reason || result.error || "denied"));
+    const nodes = [deny];
+    if (result.audit_id) {
+      nodes.push(document.createTextNode(" "));
+      nodes.push(el("span", { className: "muted" }, String(result.audit_id)));
+    }
+    replaceChildren(status, ...nodes);
+  }
+}
+
+function bindForm(id, routePath, mutate) {
+  const f = document.getElementById(id);
+  f.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const fd = new FormData(f);
+    const body = {};
+    for (const entry of fd.entries()) {
+      const k = entry[0], v = entry[1];
+      if (v === "" || v == null) continue;
+      body[k] = (k === "attempts_so_far") ? Number(v) : v;
+    }
+    if (mutate) mutate(body);
+    const r = await jpost(routePath, body);
+    renderStatus(f, r);
+    refresh();
+  });
+}
+
+bindForm("f-assign",   "/api/fleet/assign",   (b) => { b.actor = b.actor || "operator"; });
+bindForm("f-bus",      "/api/fleet/bus-send", (b) => { b.kind = b.kind || "msg"; });
+bindForm("f-escalate", "/api/fleet/escalate", (b) => { b.actor = b.actor || "operator"; });
+
+refresh();
+setInterval(refresh, POLL_MS);
+</script>
+
+</body>
+</html>

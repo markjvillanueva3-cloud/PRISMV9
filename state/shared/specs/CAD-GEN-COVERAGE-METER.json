@@ -1,0 +1,589 @@
+{
+  "generatedAt": "2026-06-12T15:33:22.855Z",
+  "galaxyCount": 38,
+  "metric": "generation-operation coverage (engine code, operation-context). Wiki/tribal are knowledge-presence only, not capability.",
+  "totals": {
+    "categories": 25,
+    "covered": 4,
+    "shallow": 4,
+    "absent": 17,
+    "coveredPct": 16,
+    "touchedPct": 32,
+    "essentialGaps": [
+      "sketch-subtractive",
+      "patterns",
+      "boolean",
+      "surface-generated",
+      "reference-geom",
+      "sheet-metal",
+      "weldments",
+      "die-design",
+      "assembly-mates",
+      "import-repair",
+      "2d-drawing"
+    ]
+  },
+  "perCategory": {
+    "sketch-additive": {
+      "label": "Sketch additive (extrude/revolve/sweep/loft)",
+      "essential": true,
+      "state": "covered",
+      "coveringGalaxies": [
+        {
+          "galaxy": "agent-orchestration",
+          "hits": 1,
+          "state": "shallow"
+        },
+        {
+          "galaxy": "cad-fusion-live",
+          "hits": 8,
+          "state": "covered"
+        },
+        {
+          "galaxy": "database-expansion",
+          "hits": 1,
+          "state": "shallow"
+        },
+        {
+          "galaxy": "fleet-hygiene",
+          "hits": 5,
+          "state": "covered"
+        },
+        {
+          "galaxy": "hypermill",
+          "hits": 10,
+          "state": "covered"
+        },
+        {
+          "galaxy": "speed-feed",
+          "hits": 2,
+          "state": "shallow"
+        }
+      ],
+      "totalHits": 27
+    },
+    "sketch-subtractive": {
+      "label": "Sketch subtractive (cut/pocket/groove)",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "dress-up": {
+      "label": "Dress-up (fillet/chamfer/shell/draft/rib)",
+      "essential": true,
+      "state": "covered",
+      "coveringGalaxies": [
+        {
+          "galaxy": "hypermill",
+          "hits": 22,
+          "state": "covered"
+        },
+        {
+          "galaxy": "quoting",
+          "hits": 3,
+          "state": "shallow"
+        }
+      ],
+      "totalHits": 25
+    },
+    "holes": {
+      "label": "Hole family (cbore/csink/tap/wizard)",
+      "essential": true,
+      "state": "covered",
+      "coveringGalaxies": [
+        {
+          "galaxy": "quoting",
+          "hits": 15,
+          "state": "covered"
+        }
+      ],
+      "totalHits": 15
+    },
+    "threads-coils": {
+      "label": "Threads / helical / coil",
+      "essential": true,
+      "state": "shallow",
+      "coveringGalaxies": [
+        {
+          "galaxy": "cad-fusion-live",
+          "hits": 1,
+          "state": "shallow"
+        },
+        {
+          "galaxy": "quoting",
+          "hits": 1,
+          "state": "shallow"
+        }
+      ],
+      "totalHits": 2
+    },
+    "patterns": {
+      "label": "Patterns / replication",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "boolean": {
+      "label": "Boolean / combine",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "surface-patch": {
+      "label": "Surface patch types (NURBS/Bezier/Coons)",
+      "essential": false,
+      "state": "shallow",
+      "coveringGalaxies": [
+        {
+          "galaxy": "cad-fusion-live",
+          "hits": 1,
+          "state": "shallow"
+        }
+      ],
+      "totalHits": 1
+    },
+    "surface-generated": {
+      "label": "Surface generated (ruled/lofted/swept/boundary/fill)",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "surface-modify": {
+      "label": "Surface modify (offset/trim/knit/extend/continuity)",
+      "essential": false,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "subd-direct": {
+      "label": "Sub-D / direct / mesh-to-BREP",
+      "essential": false,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "reference-geom": {
+      "label": "Reference geometry (planes/axes/CS)",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "curves": {
+      "label": "Curves (spline/projected/intersection/helix)",
+      "essential": true,
+      "state": "shallow",
+      "coveringGalaxies": [
+        {
+          "galaxy": "quoting",
+          "hits": 1,
+          "state": "shallow"
+        }
+      ],
+      "totalHits": 1
+    },
+    "sheet-metal": {
+      "label": "Sheet metal (flange/bend/hem/flat-pattern)",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "weldments": {
+      "label": "Weldments (members/gusset/weld-bead/cut-list)",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "mold-tooling": {
+      "label": "Mold & tooling (parting/core-cavity/electrode)",
+      "essential": true,
+      "state": "covered",
+      "coveringGalaxies": [
+        {
+          "galaxy": "quoting",
+          "hits": 6,
+          "state": "covered"
+        }
+      ],
+      "totalHits": 6
+    },
+    "die-design": {
+      "label": "Die design (strip/blank/draw/springback)",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "casting-plastic": {
+      "label": "Casting / plastic features (draft/core-print/snap)",
+      "essential": false,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "assembly-mates": {
+      "label": "Assembly mates / joints",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "assembly-patterns": {
+      "label": "Assembly component patterns",
+      "essential": false,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "top-down": {
+      "label": "Top-down / skeleton",
+      "essential": false,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "parametric-config": {
+      "label": "Parametric / configuration control",
+      "essential": true,
+      "state": "shallow",
+      "coveringGalaxies": [
+        {
+          "galaxy": "business",
+          "hits": 1,
+          "state": "shallow"
+        }
+      ],
+      "totalHits": 1
+    },
+    "import-repair": {
+      "label": "Import / repair / feature-recognition",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "2d-drawing": {
+      "label": "2D drawing generation",
+      "essential": true,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    },
+    "generative": {
+      "label": "Generative / topology optimization",
+      "essential": false,
+      "state": "absent",
+      "coveringGalaxies": [],
+      "totalHits": 0
+    }
+  },
+  "perGalaxy": {
+    "academy": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "agent-orchestration": {
+      "covered": [],
+      "shallow": [
+        "sketch-additive"
+      ],
+      "absentCount": 24
+    },
+    "ai-training": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "backend-helper": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "blueprint-vision": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "bug-hunting": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "business": {
+      "covered": [],
+      "shallow": [
+        "parametric-config"
+      ],
+      "absentCount": 24
+    },
+    "cad": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "cad-fusion-live": {
+      "covered": [
+        "sketch-additive"
+      ],
+      "shallow": [
+        "threads-coils",
+        "surface-patch"
+      ],
+      "absentCount": 22
+    },
+    "cam": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "compliance-safety": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "corpus-aggregation": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "database-expansion": {
+      "covered": [],
+      "shallow": [
+        "sketch-additive"
+      ],
+      "absentCount": 24
+    },
+    "discovery": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "dormant-data": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "fleet-hygiene": {
+      "covered": [
+        "sketch-additive"
+      ],
+      "shallow": [],
+      "absentCount": 24
+    },
+    "frontend-app": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "hermes-zulu": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "hypermill": {
+      "covered": [
+        "sketch-additive",
+        "dress-up"
+      ],
+      "shallow": [],
+      "absentCount": 23
+    },
+    "knowledge-conversion": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "lathe": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "lib": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "mcp-server": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "mill": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "mit-curriculum": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "pdf-corpus": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "pdf-corpus-mill": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "plugins": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "post-processor": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "quality": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "quoting": {
+      "covered": [
+        "holes",
+        "mold-tooling"
+      ],
+      "shallow": [
+        "dress-up",
+        "threads-coils",
+        "curves"
+      ],
+      "absentCount": 20
+    },
+    "shop-floor": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "speed-feed": {
+      "covered": [],
+      "shallow": [
+        "sketch-additive"
+      ],
+      "absentCount": 24
+    },
+    "system-viz": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "token-optimization": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "tribal-knowledge": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "wedm": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    },
+    "wiring": {
+      "covered": [],
+      "shallow": [],
+      "absentCount": 25
+    }
+  },
+  "knowledgePresence": {
+    "categoriesTouched": 25,
+    "of": 25,
+    "byCategory": {
+      "sketch-additive": true,
+      "sketch-subtractive": true,
+      "dress-up": true,
+      "holes": true,
+      "threads-coils": true,
+      "patterns": true,
+      "boolean": true,
+      "surface-patch": true,
+      "surface-generated": true,
+      "surface-modify": true,
+      "subd-direct": true,
+      "reference-geom": true,
+      "curves": true,
+      "sheet-metal": true,
+      "weldments": true,
+      "mold-tooling": true,
+      "die-design": true,
+      "casting-plastic": true,
+      "assembly-mates": true,
+      "assembly-patterns": true,
+      "top-down": true,
+      "parametric-config": true,
+      "import-repair": true,
+      "2d-drawing": true,
+      "generative": true
+    }
+  },
+  "qualitative": {
+    "notes": [
+      {
+        "galaxy": "hypermill",
+        "ok": true,
+        "note": "The galaxy still lacks any sketch‑based subtractive modeling capability—i.e., the ability to create cut/pocket/groove features directly from sketches."
+      },
+      {
+        "galaxy": "quoting",
+        "ok": true,
+        "note": "The galaxy still lacks the core feature‑based solid‑modeling capability of creating geometry directly from sketches—i.e., additive and subtractive operations such as extrude/revolve/sweep/loft (and their corresponding cuts/pockets) that form the foundation of most CAD designs."
+      },
+      {
+        "galaxy": "cad-fusion-live",
+        "ok": true,
+        "note": "The galaxy still lacks a core subtractive‑feature engine—i.e., the capability to turn sketches into cut/pocket/groove operations that remove material from solid bodies."
+      },
+      {
+        "galaxy": "fleet-hygiene",
+        "ok": true,
+        "note": "The galaxy’s CAD system still lacks a comprehensive sketch‑subtractive capability—i.e., the ability to generate cut, pocket and groove features that remove material from solid models."
+      },
+      {
+        "galaxy": "speed-feed",
+        "ok": true,
+        "note": "The galaxy’s CAD generation still fundamentally lacks any subtractive sketch‑based capability—there are no cut, pocket, or groove features to remove material from solid bodies."
+      },
+      {
+        "galaxy": "agent-orchestration",
+        "ok": true,
+        "note": "The galaxy’s greatest missing CAD‑generation ability is any sketch‑driven subtractive feature creation—i.e., the capacity to produce cuts, pockets, grooves, or similar material‑removal operations from sketches."
+      },
+      {
+        "galaxy": "business",
+        "ok": true,
+        "note": "The galaxy’s CAD system still completely lacks any sketch‑driven solid modeling—no ability to create basic additive or subtractive features like extrudes, revolves, cuts, or pockets."
+      },
+      {
+        "galaxy": "database-expansion",
+        "ok": true,
+        "note": "The galaxy still lacks a comprehensive parametric solid‑modeling engine that can create both additive (extrude/revolve) and subtractive (cut, pocket, groove) features from sketches—i.e., the core ability to generate fully defined 3D solids through combined sketch‑based extrusion and subtraction."
+      }
+    ],
+    "routing": {
+      "total": 8,
+      "ollama": 8,
+      "claude": 0
+    },
+    "fallback": {
+      "needed": false,
+      "lane": null,
+      "tasks": []
+    },
+    "model": "gpt-oss:120b"
+  }
+}

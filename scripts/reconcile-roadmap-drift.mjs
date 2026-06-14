@@ -4,8 +4,9 @@
 // only when its `shipped[]` array (or non-zero completed_units) proves
 // progress greater than what the index already records.
 
-import { readFileSync, writeFileSync, existsSync, renameSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
+import { atomicWriteJson } from "./lib/atomic-json.mjs";
 
 const REPO = "H:/prism";
 const INDEX_PATH = resolve(REPO, "mcp-server/data/roadmap-index.json");
@@ -141,9 +142,9 @@ if (changes.length === 0) {
   process.exit(0);
 }
 
-const tmp = INDEX_PATH + ".tmp";
-writeFileSync(tmp, JSON.stringify(index, null, 2));
-renameSync(tmp, INDEX_PATH);
+// U-ROADMAP-INDEX-WRITER-CONSOLIDATE: atomic write via the shared helper
+// (scripts/lib/atomic-json.mjs) — replaces an inline fixed-".tmp" copy.
+atomicWriteJson(INDEX_PATH, index);
 
 console.log(`Reconciled ${changes.length} milestones (forward-only):`);
 for (const c of changes) {

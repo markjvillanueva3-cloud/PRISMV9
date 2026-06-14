@@ -1,0 +1,480 @@
+{
+  "summary": "Multi-modal sweep of the PRISM brain (PSN 11 legs + compounding stack) to find concrete net-benefit upgrades/features, deduped + ranked",
+  "agentCount": 8,
+  "logs": [
+    "scanned 7/7 facets; 41 raw candidates"
+  ],
+  "result": {
+    "ranked": [
+      {
+        "rank": 1,
+        "name": "wire-amp2-refresh-to-stop-hook (+cron floor)",
+        "facet": "amplifier-roadmap / memory-governance / fleet-propagation (MERGED)",
+        "what": "Add .claude/hooks/stop-galaxy-synthesis-refresh.mjs cloned from stop-obsidian-memory-feed.mjs (shared-stamp ~30-60min global throttle + detached fire-and-forget + {continue:true} + .err breadcrumb) that spawns galaxy-synthesis-refresh.mjs, treating documented exit-3 (Ollama-down) as benign-deferred; wire into Stop chain in settings.json. Optionally also a phase-offset scheduled task mirroring install-fleet-reaper-task.ps1 as a freshness floor.",
+        "why": "Closes the single named operational gap: AMP2 is built+tested but 100% MANUAL, so the per-galaxy synthesis the whole fleet consumes silently rots between human runs. AMP2 is content-hash incremental so a throttled Stop trigger is cheap+idempotent. stop-compounding-budget.mjs is the named host and stop-obsidian-memory-feed.mjs gives the exact reusable pattern.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Pairs with synthesis-claim-ledger so a 20-chat Stop stampede doesn't re-synthesize the same galaxies; ledger can ship after.",
+        "evidence": "VERIFIED this session: grep galaxy-synthesis-refresh in .claude/hooks/+settings.json = EMPTY. galaxy-synthesis-refresh.mjs:27-31 exit-code contract + line 8 'Wire to a cron / Stop hook'; galaxy-meta-synthesis.md §Roadmap amp#2 'extends stop-compounding-budget'; stop-obsidian-memory-feed.mjs:40-99 clone pattern"
+      },
+      {
+        "rank": 2,
+        "name": "regrade-nn-eval-on-existing-checkpoint (un-dormant the lie)",
+        "facet": "NN/GNN",
+        "what": "Run `node scripts/lib/nn-graph-eval.mjs --checkpoint state/shared/nn-graph/graphsage-checkpoint.json` to refresh the stale NN-EVAL.json against the current 636-ghost graph — eval-only, no training.",
+        "why": "NN-EVAL.json (VERIFIED poolSize:0, deferred:true) misreports the blocker as data-side when 636 ghost.unwired-engine nodes provably exist in the live graph. This single cheap re-run replaces the lie with truth: either the 8-d model now grades at a real number, or buildHoldout's 0.8-confidence+valid-dispatcher filter thins 636 below 2 — a DIFFERENT, actionable problem. Highest-leverage fix for the most-cited brain gap.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": false,
+        "dependencies": "Out-of-session host run (parses 546MB graph); lighter than retrain — holdout scoring only.",
+        "evidence": "VERIFIED: NN-EVAL.json poolSize 0 / deferred true / auroc undefined. retrain-lifecycle.jsonl ghostCount:636; scripts/lib/nn-graph-eval.mjs buildHoldout filter (isValidDispatcher + confidence>=0.8 + label-unique) + runAssessment"
+      },
+      {
+        "rank": 3,
+        "name": "recall-eval-harness",
+        "facet": "RECALL stack",
+        "what": "Build scripts/memory-recall-eval.mjs: ~40 labeled query->expected-memory pairs (from real captured queries + galaxy/domain anchors) scored precision@k / recall@k / MRR / nDCG over runMemoryIndexSearch, run BM25-only vs hybrid to quantify the dense path's lift.",
+        "why": "NO recall-quality metric exists anywhere (grep for *eval*recall/precision returned nothing). Every tuning lever (RRF k, top-K, weights, int8 precision, domain boost, magnitude fusion) is currently unfalsifiable. This harness is the compounding prerequisite that turns four other RECALL upgrades from guesswork into measured A/B gains.",
+        "effort": "M",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "",
+        "evidence": "grep scripts/*eval*recall*/precision = NONE; runMemoryIndexSearch returns {tokens,hits,source} (master-index-search-lib.mjs:557-638) directly drivable; memory-index-search-hybrid.test.mjs proves dense load-bearing but measures no quality"
+      },
+      {
+        "rank": 4,
+        "name": "stale-sidecar-auto-rebuild-wire (memory recall corpus)",
+        "facet": "RECALL stack",
+        "what": "Wire build-memory-index-sidecar.mjs + build-memory-embeddings-sidecar.mjs --resume into a throttled Stop hook (mirror fleet-reaper-stop.mjs) and/or a CronCreate task so the recall corpus refreshes automatically.",
+        "why": "The whole RECALL stack silently rots: rebuilds are unwired (scheduled_tasks.json shows build-memory-index=false, grep found 0 hook callers), so the live embeddings sidecar is already 2h+ stale and record-count-diverged from BM25 (11017 vs 11021). Recently-captured memories are dense-unreachable until a human rebuilds — directly defeats 'the brain compounds'.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "",
+        "evidence": "grep -rl build-memory-embeddings/build-memory-index in .claude/+scripts (non-test) = EMPTY; scheduled_tasks.json build-memory-*=false; live mtimes BM25 07:13 vs embeddings 04:52; hybrid-memory-retrieval.md:69 'Should be re-run on Stop/cron' (aspirational)"
+      },
+      {
+        "rank": 5,
+        "name": "wire-wiki-tribal-embed+audit-to-scheduled-task",
+        "facet": "Wiki+Tribal",
+        "what": "Add a 'PRISM Wiki-Tribal Embed' scheduled task (S4U+AtStartup, phase-offset, mirror install-fleet-reaper-task.ps1) running embed-all-wiki.mjs --apply -> wiki-tribal-cross-ref-audit.mjs -> audit-tribal-coverage-by-domain.mjs nightly, Ollama-health-gated.",
+        "why": "VERIFIED zero wiring (grep both settings.json = 0 matches for any embed/audit/coverage script); the mature backfill+audit stack is 100% manual and the audit already trails the index 3 days (2026-05-27 vs 2026-05-30). Wiki Link Healer IS scheduled, proving the slot pattern is available+unused. embed-all-wiki is resumable+idempotent so nightly re-runs are cheap — makes the 31.5%->target climb continuous instead of a one-off chore.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Pairs with add-concurrent-writer-lock-to-tribal-index (introduces a 2nd writer on the 25003-entry index).",
+        "evidence": "grep settings.json = 0 for embed-all-wiki/wiki-tribal-cross-ref-audit/audit-tribal-coverage; Get-ScheduledTask: Wiki Link Healer present, no embed/tribal task; .wiki-tribal-cross-ref-audit.json generatedAt 2026-05-27 vs tribal-embed-index.json 2026-05-30"
+      },
+      {
+        "rank": 6,
+        "name": "synthesis-claim-ledger (precondition for 20x lever)",
+        "facet": "fleet-propagation",
+        "what": "Clone slot-task-claim.mjs lockfile-guarded atomic RMW into state/shared/galaxy-synthesis-claims.json keyed by galaxy+sourceHash; B1 reflection loop and AMP2 refresh claim a (galaxy,sourceHash) before synthesizing and skip any galaxy a live peer claimed-fresh.",
+        "why": "Eliminates the dominant redundant-work waste: today N concurrent chats each re-synthesize all 35 galaxies (~20min/run Ollama); the claim makes each galaxy synthesized once per content-hash epoch, freeing the other N-1 Claudes to cover distinct galaxies — the precondition for amplifier #3 fleet-distributed synthesis.",
+        "effort": "M",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Unblocks fleet-distributed-synthesis-dispatch (#3) and de-stampedes the rank-1 AMP2 Stop wire.",
+        "evidence": "slot-task-claim.mjs:32-70 atomic tmp+rename + stale-TTL + schema readOnly guard (reusable); galaxy-reflection-synthesis.mjs:262-291 per-galaxy loop with NO cross-slot coordination; :44-49 computeSourceHash gives epoch key; grep state/shared synthesis.*claim = NONE"
+      },
+      {
+        "rank": 7,
+        "name": "cross-galaxy-contradiction-surfacer + real-galaxy validation gate",
+        "facet": "amplifier-roadmap #6 / fleet-propagation (MERGED)",
+        "what": "Promote the CONTRADICTION: line galaxy-meta-synthesis already parses out of the buried _meta_synthesis body into state/shared/specs/GALAXY-CONTRADICTIONS.md (advisoryOnly+mustHumanVerify) + a chat-bus 'contradiction-detected' event; ADD a validation gate rejecting cluster members not in slot-galaxy-map.mjs SLOT_GALAXY_MAP to kill the hallucinated-galaxy class.",
+        "why": "Activates dormant amplifier #6 — the contradiction-discovery half is already PAID FOR (buildClusterPrompt asks Ollama, buildMetaDoc emits) but dead-ends as buried prose driving nothing (R7 surface-don't-average). As 35 brains accumulate across 20 parallel chats, silent doctrine drift is the dominant failure mode. The validation gate fixes a live data-integrity bug (phantom 'hermes-zebra' galaxy in live _meta_synthesis.md).",
+        "effort": "M",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Best with chat-bus publish layer; degrades to empty queue (never wrong) when Ollama was down at L2 run-time.",
+        "evidence": "galaxy-meta-synthesis.mjs:129 'CONTRADICTION:' prompt + :134-145 parseClusterNaming + :184-191 buildMetaDoc emits to body only; live _meta_synthesis.md:33 phantom 'hermes-zebra' NOT in slot-galaxy-map.mjs:28-53"
+      },
+      {
+        "rank": 8,
+        "name": "durable-memory-size-watchdog-gate",
+        "facet": "memory-governance",
+        "what": "Add .claude/hooks/stop-memory-size-watch.mjs that imports the exported measure() from memory-size-watch.mjs and emits a LOUD systemMessage (U-MEMORY-COMPRESS pointer-only, <=200 char/entry) at warn>=90% / critical>=97% of the 24576B ceiling. Throttle like the obsidian feed; reuse exports (R8).",
+        "why": "The one-shot U-MEMORY-COMPRESS without a durable watchdog ALREADY let MEMORY.md silently re-grow past the ceiling (24688B/100.5%, fleet-wide recall truncation). The script's own header says it 'ran only on-demand'; a Stop-gated check makes the 200-line pointer discipline self-enforcing — the documented root-cause fix.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "",
+        "evidence": "memory-size-watch.mjs:5-10 ('index re-grew to 23826B/96.9%'), thresholds :30-33, exports measure/tailHistory :145; CLAUDE.md Recent regressions 2026-05-16 ceiling entry 'Watchdog gap is the root cause; the one-shot is not enough'"
+      },
+      {
+        "rank": 9,
+        "name": "scheduled-cron-regen-floor (system-viz graph)",
+        "facet": "system-viz",
+        "what": "Add a Windows scheduled task (mirror install-fleet-reaper-task.ps1 S4U) running `node scripts/regen-viz.mjs` every ~2h as a freshness floor, independent of commit/Stop frequency.",
+        "why": "Live stat showed graph+sidecar went 7.3h old with no regen — the ONLY refresh triggers are post-commit (needs a commit) and the 3h Stop-backstop (needs a chat Stop); a quiet-commit/low-Stop window silently degrades the whole fleet's search freshness. A time-based floor closes the gap commit+Stop triggers structurally cannot. (NOTE: this corrects the brief's '2.2h stale sidecar' — sidecar was actually -0.01h behind graph; the real gap is the regen FLOOR, not the sidecar.)",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "",
+        "evidence": "Live stat graph_age_hrs 7.31 / sidecar_age 7.30 / sidecar_behind_graph -0.01h; .claude/scheduled_tasks.json no system-viz/regen entry; scripts/regen-viz.mjs:384 sidecar stage; stop-graph-staleness-backstop.mjs DEFAULT_THRESHOLD_HRS=3 (Stop-only)"
+      },
+      {
+        "rank": 10,
+        "name": "force-retrain-768d-then-regrade",
+        "facet": "NN/GNN",
+        "what": "Run `node scripts/nn-graph-retrain-lifecycle.mjs --force` against the live 636-ghost graph: builds 768-d embedding source, trains stratified candidate, evaluates, auto-promotes IFF gate clears; then re-run nn-graph-eval.mjs.",
+        "why": "THE single command producing the first HONEST grade of PSN leg #10: trains the already-wired 768-d+stratified model on the real graph (NEVER done — every lifecycle run logged action:skip for days because drift sits 4.4% under the 10% band). Either ships the model or tells you exactly which gate it missed.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": false,
+        "dependencies": "Heavy out-of-session host run (--max-old-space-size=8192, 546MB parse + 30-epoch train). Dead retrain.lock PID 84420 self-reclaims.",
+        "evidence": "nn-graph-retrain-lifecycle.mjs defaultTrain passes --embedding-source + --node-type-field layer + --neg-p-hard 0.7 + promoteDecision; retrain-lifecycle.jsonl ghostCount:636 action:skip every run; train-run.log live model 8-d AUROC=0.096"
+      },
+      {
+        "rank": 11,
+        "name": "tighten-drift-bands-so-nn-lifecycle-self-fires",
+        "facet": "NN/GNN",
+        "what": "Lower the drift floor in nn-graph-retrain-lifecycle.mjs via existing env knobs in the scheduled-task def: minNodeDeltaPct/minEdgeDeltaPct 10->~4 (or maxAgeHours 168->48).",
+        "why": "The lifecycle is built for autonomy but is functionally INERT — node drift 4-4.4% vs a 10% band, ghost drift 0.0% vs 25%, so it has skipped for days and will keep skipping. Tightening makes the autonomous retrain real instead of theatrical, so leg #10 re-grades without a human each time the graph or trainer changes.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Best paired with rank-10 force-retrain to seed the first real baseline.",
+        "evidence": "nn-graph-retrain-lifecycle.mjs LIFECYCLE_DEFAULTS (minNodeDeltaPct:10, maxAgeHours:168) + resolveCfg env knobs; retrain-lifecycle.jsonl 'nodes 4.4%, edges 3.5%, ghosts 0.0%; baseline age 105.2h < 168h'"
+      },
+      {
+        "rank": 12,
+        "name": "add-concurrent-writer-lock-to-tribal-index",
+        "facet": "Wiki+Tribal",
+        "what": "Wrap the read-modify-write in embed-wiki-into-tribal-index.mjs / embed-all-wiki.mjs / prune-stale-tribal-entries.mjs in a shared O_EXCL lockfile (like stop-obsidian-memory-feed.mjs) so the 25003-entry index survives a scheduled task + write-hook + manual run racing.",
+        "why": "All three scripts' headers explicitly warn the tmp+rename is torn-write safe but NOT concurrent-writer safe ('if either is ever scheduled, a shared lock is required'). The rank-5 scheduled task + auto-embed-on-write introduce exactly that concurrency — the lock is the prerequisite that turns automation from a corruption risk into a safe one.",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Logically gates rank-5 (scheduled embed) and auto-embed-on-write; reuse stop-obsidian-memory-feed.mjs O_EXCL convention.",
+        "evidence": "embed-wiki-into-tribal-index.mjs:267-273 KNOWN-comment 'NOT concurrent-writer safe... shared lock (or append-only index) required'; embed-all-wiki.mjs Concurrency header repeats it; prune-stale writes same INDEX_PATH"
+      },
+      {
+        "rank": 13,
+        "name": "hybrid-bm25+dense-master-index-search",
+        "facet": "system-viz",
+        "what": "Add a dense-embedding recall arm to the master-index search (currently BM25-lite + lexical-rerank only) fused via RRF, reusing the A6 int8 nomic recall sidecar shipped this session; embed graph node label+info into a sibling vector sidecar built alongside system-graph-index.json (offline regen stage).",
+        "why": "MasterIndexEngine.ts has_embedding:false — the fleet's PRIMARY search substrate is purely lexical, so synonym/paraphrase queries miss nodes BM25 token-overlap can't reach. A dense arm gives semantic recall to every UserPromptSubmit inject AND every subagent pre-search. A6 already proved the BM25+dense+RRF pattern this session.",
+        "effort": "L",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Reuses A6 hybrid+int8 nomic sidecar (commit a2e0a7012d); needs an offline graph-node embed stage in regen (sibling to build-graph-index.mjs) so the per-prompt hook stays I/O-light. Validate via rank-3 recall-eval-harness.",
+        "evidence": "master-index-search-lib.mjs W_LABEL/W_ID/W_INFO BM25 weights, no embedding logic (8 'embedding' hits all comments); MasterIndexEngine.ts has_embedding:false; build-graph-index.mjs offline sidecar pattern to mirror"
+      },
+      {
+        "rank": 14,
+        "name": "fleet-distributed-synthesis-dispatch (amplifier #3 — the 20x lever)",
+        "facet": "amplifier-roadmap",
+        "what": "A /galaxy-synthesize-<slot> path (or /checkin-<slot> /loop step) where the slot's OWN Claude regenerates ITS galaxy's patterns/<g>_synthesis.md — reproducing reflection-synthesis.mjs's exact frontmatter + computeSourceHash (sha256[:12] of sorted namespace/name+description+opening) — instead of Ollama 7B, then runs galaxy-synthesis-refresh.mjs --no-cascade for that galaxy + one L2 re-run after the fleet settles.",
+        "why": "Roadmap names this 'the 20x lever' — up to ~20 specialized slot-Claudes synthesizing in parallel, GPU-free and higher quality than the 7B B1 uses. The hash/cascade ingest machinery already exists; #3 is mostly an authoring-path + fleet-coordination change. Each slot already owns its galaxy MEMORY.md per the registry.",
+        "effort": "L",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "REQUIRES synthesis-claim-ledger (rank-6) for coordination. The slot-Claude writer MUST emit byte-compatible frontmatter+sourceHash or refresh.classifyGalaxy mis-flags every slot-written doc stale; needs fleet coordination so the single L2 re-run fires once after slots settle.",
+        "evidence": "galaxy-meta-synthesis.md §Roadmap #3 '20x parallel, GPU-free, higher quality than 7B'; reflection-synthesis.mjs computeSourceHash :44-49 + buildSynthesisDoc frontmatter :154-187; refresh.mjs classifyGalaxy hash-compare :73-83; MEMORY.md per-slot galaxy registry"
+      },
+      {
+        "rank": 15,
+        "name": "triage-the-unclassified-26715-bucket",
+        "facet": "Wiki+Tribal",
+        "what": "Extend lib/wiki-domain-classifier.mjs so the _unclassified bucket (26715 wiki files / 19577 missing = 75% of the entire gap) splits into real domains (architecture/{formulas,tests,engines,monolith-modules,frontends,hooks,skills,milestones} prefixes), then re-rank backfill priority on the corrected map.",
+        "why": "_unclassified holds 75% of all missing embeddings and 70% of all wiki files — coverage % and every per-domain triage decision is dominated by an undifferentiated blob. Classifying it is the single highest-leverage map move: sharpens the priority queue AND likely reveals signal-bearing subtrees (formulas 7316, engines 3178) deserve embedding while templated leaves deprioritize.",
+        "effort": "M",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "Feeds rank-16 priority-backfill ordering.",
+        "evidence": "worstRanked _unclassified coverage 0.2672 / 26715 files / 19577 missing; missing histogram architecture/formulas 7316, tests 4572, engines 3178, monolith-modules 1679, frontends 1567, hooks 751 — all landing in _unclassified"
+      },
+      {
+        "rank": 16,
+        "name": "priority-backfill-worst-domains-first",
+        "facet": "Wiki+Tribal",
+        "what": "Drive embed-all-wiki's worklist from audit-tribal-coverage-by-domain.mjs worstRanked order: dev-infra (1194 missing/1.08%), post-processor (169/9.63%), wedm (1095/19.78%), sfc (168/25%) first, instead of arbitrary tree-walk order.",
+        "why": "These are real-content domains at near-zero coverage the fleet queries constantly; a domain at 1% gains far more recall per embedding than one near full, so the same Ollama budget buys disproportionately more brain capability and closes the named brief gaps (dev-infra, post-processor) directly.",
+        "effort": "S",
+        "leverage": "high",
+        "buildable_now": true,
+        "dependencies": "audit-tribal-coverage-by-domain.mjs emits worstRanked + sampleMissing; add a --worklist/--domain-order mode to embed-all-wiki. Sharpened by rank-15 unclassified triage.",
+        "evidence": ".wiki-tribal-coverage-by-domain.json worstRanked: dev-infra 0.0108 (1194/1207), post-processor 0.0963 (169/187), wedm 0.1978 (1095/1365), sfc 0.25 (168/224)"
+      },
+      {
+        "rank": 17,
+        "name": "synthesis-helped-refuted-ledger (amplifier #4 foundation)",
+        "facet": "amplifier-roadmap",
+        "what": "Append-only JSONL state/shared/synthesis-recall-feedback.jsonl of {synthesisKey, galaxy, slot, signal:helped|refuted, evidence, ts} written when a chat consumes a patterns/<g>_synthesis via slot-context-bundle / brain-recall, plus an aggregator copied from kip-lora-rotation.mjs helpRate logic so meta-synthesis/refresh down-weight refuted L1 syntheses and rank doctrine candidates by validation, not domain count.",
+        "why": "#4 is greenfield for synthesis and the substrate every later self-correction needs; today detectDoctrineCandidates ranks ONLY by members.length with no validation input. Reusing the proven kip-lora-rotation {helped} aggregation (R8) avoids re-inventing the schema and the silent-no-op traps it already solved.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Unblocks realtime-synthesis-propagation (#5 / rank-21).",
+        "evidence": "grep: no helped/refuted ledger touches galaxy synthesis; galaxy-meta-synthesis.mjs:149-156 detectDoctrineCandidates sorts by members.length only; reuse scripts/lib/kip-lora-rotation.mjs:165-228 (helped/count->helpRate) + validate-ghost-wires.mjs confirmed/refuted/pending lifecycle"
+      },
+      {
+        "rank": 18,
+        "name": "galaxy-brain-freshness-dashboard",
+        "facet": "fleet-propagation / memory-governance (MERGED)",
+        "what": "A script (+ optional /system-viz ghost roost) reporting per-galaxy: synthesis exists?, stored vs current cluster sourceHash (fresh/stale/new/thin via classifyGalaxy), synthesizedAt age, last claimant slot, tribal-embedding coverage % — one table. Optionally fold in MEMORY.md bytes/%/status (memory-size-watch.measure()), last Obsidian-feed receipt, C:->H: mirror drift.",
+        "why": "Makes the compounding brain OBSERVABLE instead of trusted: routes the next free chat to the stalest/least-covered galaxy, and surfaces the brief's named gaps (31.5% coverage, stale syntheses) currently invisible. Gives the golf hygiene slot one pickup signal.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Reuses classifyGalaxy (read-only wrapper); last-claimant column from rank-6 synthesis-claim-ledger (degrade gracefully if absent); feed-liveness row from rank-19 telemetry.",
+        "evidence": "galaxy-synthesis-refresh.mjs:73-83 classifyGalaxy computes fresh|stale|new|thin per galaxy; 35 synthesis files on disk; Glob galaxy.*dashboard/freshness = NONE; memory-size-watch.mjs:145 exports measure()"
+      },
+      {
+        "rank": 19,
+        "name": "obsidian-feed-success-telemetry",
+        "facet": "memory-governance",
+        "what": "Upgrade stop-obsidian-memory-feed.mjs stamp from {timestamp} to {timestamp, spawnedPid, lastError} and have spawned obsidian-memory-sync.mjs append a JSONL receipt (files-copied, _legacy reconcile count, lock-contention) inside its existing O_EXCL lock. Pure observability — throttle/lock/reconcile unchanged.",
+        "why": "Auto-feed robustness is strong (lock+reconcile in the worker) but there is ZERO signal proving the feed fired — a silently-stalled feed drifts memories out of the Obsidian brain invisibly. The hook only writes a breadcrumb on FAILURE today; a success receipt makes the pipeline verifiable (R12 fail-loud).",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Read obsidian-memory-sync.mjs to add receipt inside its existing lock; feeds rank-18 dashboard liveness row.",
+        "evidence": "stop-obsidian-memory-feed.mjs:41 STAMP_FILE, :70-75 recordStamp writes only {timestamp}, :101-109 .err breadcrumb only on failure (no success telemetry)"
+      },
+      {
+        "rank": 20,
+        "name": "hybrid-fire-telemetry (recall source visibility)",
+        "facet": "RECALL stack",
+        "what": "Surface the existing-but-ignored `source` field (hybrid|sidecar|live) from runMemoryIndexSearch into the hook output and a rolling telemetry JSONL (reuse scripts/recall-fire-telemetry.mjs which already exists), so the fleet sees real hybrid-activation rate + circuit-breaker trip frequency.",
+        "why": "runMemoryIndexSearch already returns source but memory-index-precheck-inject.mjs discards it — zero visibility into whether hybrid is actually firing fleet-wide or silently stuck on BM25 (e.g. a wedged Ollama keeping the circuit tripped). Telemetry turns the fail-safe ladder's silent degradations into a measurable health signal.",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "",
+        "evidence": "memory-index-precheck-inject.mjs:77 destructures only {tokens,hits} — drops source; lib emits source on all 3 paths (:600,603,607,637); scripts/recall-fire-telemetry.mjs exists (Glob) as reusable sink"
+      },
+      {
+        "rank": 21,
+        "name": "embeddings-staleness-gate (recall sidecar)",
+        "facet": "RECALL stack",
+        "what": "Add a sourceMtimeMs check to tryLoadEmbeddingsSidecar mirroring tryLoadMemorySidecar's graceful-stale path (use-anyway + stderr advisory when behind the BM25 sidecar's sourceMtimeMs), so embeddings drift is observable and the divergence is logged.",
+        "why": "The embeddings sidecar can silently fall arbitrarily behind the BM25 corpus (NO gate today) — dense candidates then rank an out-of-date document set with zero operator signal. A staleness advisory makes the rot visible; cheap complement to the rank-4 auto-rebuild.",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "",
+        "evidence": "tryLoadEmbeddingsSidecar (lib:430-458) does NOT read mtime/stat; tryLoadMemorySidecar (:231-287) compares sc.sourceMtimeMs + stderr-warns; embeddings builder stores sourceMtimeMs (:164) but never validates it"
+      },
+      {
+        "rank": 22,
+        "name": "synthesis-publish-to-bus + realtime-consume (amplifier #5)",
+        "facet": "fleet-propagation / amplifier-roadmap (MERGED)",
+        "what": "When B1/AMP2 writes a galaxy synthesis (or a fresh L3 doctrine candidate / high-signal helped event), append a {kind:'synthesis-published', galaxy, sourceHash, summary} message to state/shared/chat-bus/messages/; chat-bus-inject.mjs renders synthesis-published events newer than the reader's cursor as a one-line note in its existing brief.",
+        "why": "Turns next-session-only propagation into within-minutes real-time propagation (amplifier #5): a synthesis produced by slot A is visible to all live peers on their next prompt via the cursor bus they already poll — the fleet compounds at prompt cadence, not session boundaries.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": false,
+        "dependencies": "Most meaningful once synthesis-helped-refuted-ledger (rank-17) emits a high-signal event worth propagating; needs slot->domain routing to avoid fleet-wide noise.",
+        "evidence": "chat-bus-inject.mjs:114-133 cursor logic, :219-235 per-kind rendering (switches on m.kind — 'synthesis-published' is a small extension), :42-46 MESSAGES_DIR; galaxy-reflection-synthesis.mjs:189-197 writeSynthesisDoc single emit point; AGENT_CHAT.jsonl live 122KB"
+      },
+      {
+        "rank": 23,
+        "name": "surface-synthesis-to-affinity-slot (consume gap)",
+        "facet": "fleet-propagation",
+        "what": "Extend slot-context-bundle-inject.mjs (already maps slot->galaxy via SLOT_GALAXY_MAP + surfaces galaxy artifacts) to also inject a compact pointer to that slot's own patterns/<galaxy>_synthesis.md freshness + top recurring-pattern line, so each domain chat sees its galaxy's compounded synthesis at every prompt.",
+        "why": "Closes the consume gap: today the synthesis is only reachable via diffuse fleet-wide memory recall, never pushed to the one chat whose domain it summarizes; surfacing it to the affinity slot means the freshest cross-session domain reasoning is in-context every turn — compounding at the chat level, not just recall.",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Higher value once rank-22 bus-publish exists (can show 'refreshed Xm ago by peer').",
+        "evidence": "slot-context-bundle-inject.mjs:75-101 resolves galaxy via SLOT_GALAXY_MAP + stat-checks galaxy artifacts — adding a stat+head of patterns/<galaxy>_synthesis.md is the same pattern; doc currently NOT surfaced"
+      },
+      {
+        "rank": 24,
+        "name": "query-time-galaxy-domain-boost (recall)",
+        "facet": "RECALL stack",
+        "what": "In tryHybridFuse, when the query maps to a domain (reuse the slot->domain map tribal-by-domain-inject uses), apply a small multiplicative boost to fused records in the matching galaxy namespace before truncation — closing the A3 'generic-header brains rank low cross-domain' limit at query time.",
+        "why": "A3 widened the corpus to 34 galaxy brains but the wiki flags they still rank >60 on domain queries (lathe 61, wedm 33) because headers describe FILE FORMAT not domain; a query-time domain prior surfaces the right brain without re-indexing.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Validate via rank-3 recall-eval-harness (confirm it helps cross-domain without hurting in-domain).",
+        "evidence": "hybrid-memory-retrieval.md:112-137 galaxies/lathe >200->61, wedm->33 post-A3; tryHybridFuse (lib:508-555) applies NO namespace/domain weighting; MEMORY.md confirms slot->domain map (tribal-by-domain-inject)"
+      },
+      {
+        "rank": 25,
+        "name": "synthesis-gap-from-singletons+thin (amplifier #6 second half)",
+        "facet": "amplifier-roadmap",
+        "what": "Extend the contradiction scan to also surface clusterByAffinity's `singletons` (galaxies with no cross-domain edge) and refresh's `thin` galaxies into the same advisory queue as KNOWLEDGE-GAP candidates — domains the brain knows in isolation but holds no cross-domain rule for, or whose memory cluster is too sparse to synthesize.",
+        "why": "Both signals are already computed deterministically and discarded for gap purposes (L2 returns singletons with comment 'isolation is itself informative'; refresh labels thin). Surfacing them is the 'gap' half of #6 at marginal cost over the contradiction extractor (shared output file).",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Ships best alongside rank-7 contradiction-surfacer (shared CONTRADICTION/GAP queue file).",
+        "evidence": "galaxy-meta-synthesis.mjs:81-101 clusterByAffinity returns {clusters, singletons} + 'isolation is itself informative, not an error'; galaxy-synthesis-refresh.mjs:75 classifyGalaxy 'thin'"
+      },
+      {
+        "rank": 26,
+        "name": "auto-embed-tribal-on-wiki-write",
+        "facet": "Wiki+Tribal",
+        "what": "Add a Stop/PostToolUse hook that git-diffs knowledge/wiki/**/*.md touched this session and calls embed-wiki-into-tribal-index.mjs --apply on the new/changed leaves, keeping coverage monotonic as the wiki grows.",
+        "why": "embed-wiki-into-tribal-index.mjs exists specifically because a prior loop shipped 3 wiki .md files WITHOUT embedding them ('feature works was a lie', U-TRIBAL-EMBED-GAP). A write-time hook structurally prevents that recurring class so a new leaf can never silently become non-retrievable; mirrors the shipped stop-bug-finding-wiki-gate.mjs detect-then-act precedent.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": false,
+        "dependencies": "REQUIRES rank-12 concurrent-writer lock (introduces a 2nd writer alongside the rank-5 scheduled task); reuse embed-wiki-into-tribal-index.mjs (idempotent/all-or-nothing); throttle per fleet Stop.",
+        "evidence": "embed-wiki-into-tribal-index.mjs header documents commit d716d20a96 shipping 3 wikis without embed step; CLAUDE.md stop-bug-finding-wiki-gate.mjs analogous wired Stop hook"
+      },
+      {
+        "rank": 27,
+        "name": "wire-wiki-precheck-fallback-embeddings-refresh",
+        "facet": "Wiki+Tribal",
+        "what": "Add build-wiki-embeddings.mjs to the same nightly task so the SEPARATE int8 _embeddings.jsonl cosine-fallback corpus (consumed by wiki-precheck-inject on BM25 miss) stays fresh, and verify wiki-precheck top-K against it.",
+        "why": "There are TWO embedding corpora and BOTH are manual-only; when the precheck fallback is stale/incomplete the hook silently degrades to BM25-only, losing paraphrase/synonym recall on every keyword-matched UserPromptSubmit. Refreshing restores full-strength wiki CONSUMPTION fleet-wide.",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Needs _leaf-index.jsonl current (run build-wiki-leaf-index.mjs first); sha1-caches so only changed entries re-embed. Rides rank-5 nightly task.",
+        "evidence": "build-wiki-embeddings.mjs header: _embeddings.jsonl 'Consumed by wiki-precheck-inject.mjs as a fallback when BM25-lite yields zero candidates'; distinct from tribal-embed-index.json + equally unwired (0 settings.json matches)"
+      },
+      {
+        "rank": 28,
+        "name": "rrf-magnitude-aware-fusion (recall)",
+        "facet": "RECALL stack",
+        "what": "Augment the rank-only RRF with score-magnitude awareness: min-max normalize BM25 and dense scores into a weighted convex blend (tunable alpha), or keep RRF but weight each ranking list so a confident exact-token hit isn't flattened to the same 1/(k+rank) as a marginal one.",
+        "why": "Current fusion maps bm25Ranked to keys discarding the W_NAME/W_DESC magnitude entirely — treats a 9.0 triple-token name match identically to a 1.0 single-body-touch by rank position alone, losing strong lexical signal. Standard improvement, measurable via the eval harness.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Needs rank-3 recall-eval-harness to pick alpha/weights without regressing (rank-only RRF is robust precisely because it needs no tuning — this MUST be measured).",
+        "evidence": "reciprocalRankFusion (lib:392-406) pure rank-only; tryHybridFuse:542 `(bm25Ranked||[]).map(recordKey)` drops the .score from :590-593; scoreMemoryRecord (:190-208) computes W_NAME 3.0/W_ALIAS 3.0/W_DESC 2.5 magnitudes then throws them away"
+      },
+      {
+        "rank": 29,
+        "name": "surface-eval-freshness-in-nn-eval",
+        "facet": "NN/GNN",
+        "what": "Add a gradedAt / graphFingerprintAt timestamp + a staleVsGraph boolean to NN-EVAL.json (compare its embedded fingerprint to the live graph's), and surface deferred-reason + AUROC into the PSN leg-#10 status bundle so 'UNGRADED' shows whether the number is current or weeks old.",
+        "why": "The entire confusion this facet resolves is that NN-EVAL.json's poolSize:0 was trusted as current when it predates the 636 ghosts by ~2 weeks. A freshness stamp turns a silently-stale artifact into a self-flagging one, so the next session sees 'graded 14d ago, graph has moved' instead of re-deriving the data-vs-model distinction from scratch.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Highest value paired with rank-2 regrade (stamps the fresh grade).",
+        "evidence": "VERIFIED NN-EVAL.json poolSize:0, deferred:true, no gradedAt/auroc; runAssessment result shape has no graph-fingerprint timestamp; retrain-lifecycle.jsonl ghostCount:636"
+      },
+      {
+        "rank": 30,
+        "name": "memory-to-wiki-promotion-detector",
+        "facet": "memory-governance",
+        "what": "Advisory scripts/memory-promotion-candidates.mjs (+ optional Stop-advisory) flagging feedback_*/reference_* memory files referenced N+ times across CLAUDE.md/wiki or aged past a threshold as promotion candidates per the fleeting->memory->wiki->CLAUDE.md-pointer path, queuing flagged files for wiki+tribal embedding. Advisory only, never auto-promote.",
+        "why": "The promotion ladder exists as doctrine but is fully manual; automating candidate surfacing turns the compounding-knowledge ladder into a self-feeding pipeline and routes hot memories into the tribal embedding path (attacks the 31.5% coverage gap from the memory side).",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Read WIKI_SCHEMA.md promotion rules + reuse WikiIndexMaintainerEngine lock/attribution (don't duplicate, R8). Feeds rank-15/16 backfill worklist.",
+        "evidence": "CLAUDE.md KNOWLEDGE VAULT 'Promotion path: fleeting -> memory -> wiki -> CLAUDE.md pointer'; MEMORY.md states 641 feedback_/reference_ files in C:/auto-memory; brief wiki<->tribal 31.5% gap"
+      },
+      {
+        "rank": 31,
+        "name": "promote-768d-rag-candidate-if-graded",
+        "facet": "NN/GNN",
+        "what": "Evaluate the already-on-disk graphsage-checkpoint-768d-rag-upgrade.json (149.8K) and graphsage-checkpoint.candidate.json (2.9M) via runAssessment; if either clears the gate, promote through the lifecycle's defaultPromote (preserves live as .prev).",
+        "why": "TWO un-evaluated 768-d-era checkpoints already sit in the nn-graph dir — they may already beat the live 8-d AUROC=0.096 model. Grading is near-free and could ship a better model with NO retrain, or prove the 768-d feature swap alone is insufficient (escalate to heterophily-aware aggregator).",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": false,
+        "dependencies": "Out-of-session eval; confirm each candidate's metadata.inputDim/embeddingSource to interpret the grade. Overlaps rank-2 regrade machinery.",
+        "evidence": "ls state/shared/nn-graph/ (graphsage-checkpoint-768d-rag-upgrade.json + graphsage-checkpoint.candidate.json present, un-promoted); promoteDecision/defaultPromote in nn-graph-retrain-lifecycle.mjs"
+      },
+      {
+        "rank": 32,
+        "name": "post-commit-regen-failure-into-stop-advisory",
+        "facet": "system-viz",
+        "what": "The post-commit hook runs system-viz-on-commit.mjs detached with output discarded; route the existing .last-regen-failure.json / sidecarOk=false marker into the Stop-hook advisory stream (not just SessionStart) so a silently-failed on-commit regen is caught within minutes, not at next session start.",
+        "why": "A detached, stderr-discarded regen that OOMs or PID-skips leaves the graph frozen, observable only at next SessionStart (6h threshold) — meanwhile every chat's search runs on a frozen graph. Routing the already-written failure marker into the dense Stop stream (26 chats Stop frequently) makes a failed refresh loud quickly.",
+        "effort": "S",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Failure marker already written (system-viz-on-commit.mjs writeRegenFailure U-GO-B4) + read by sessionstart-graph-staleness-inject.mjs; just add the same read to a Stop advisory hook.",
+        "evidence": ".git/hooks/post-commit `node scripts/system-viz-on-commit.mjs >/dev/null 2>&1 &`; system-viz-on-commit.mjs writeRegenFailure()+sidecarOk :124-136,406-409; sessionstart-graph-staleness-inject.mjs decideStalenessAdvisory reads .last-regen-failure.json (SessionStart-only today)"
+      },
+      {
+        "rank": 33,
+        "name": "memory-health-dashboard",
+        "facet": "memory-governance",
+        "what": "scripts/memory-health-dashboard.mjs (text + --json, mirror node-staleness-rank.mjs contract) aggregating MEMORY.md bytes/%/status (memory-size-watch.measure()), last Obsidian-feed receipt, AMP2 last-refresh hash staleness, C:->H: mirror drift, wiki<->tribal coverage %.",
+        "why": "Memory governance has no single observability surface — ceiling pressure, feed liveness, stale synthesis, mirror drift are each only visible via separate ad-hoc scripts. One dashboard makes silent degradation loud and gives golf one pickup signal. (Overlaps rank-18 galaxy-freshness-dashboard — consider merging into one brain-health surface.)",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Feed-liveness row depends on rank-19 telemetry; rest buildable now. Strong merge candidate with rank-18.",
+        "evidence": "memory-size-watch.mjs:145 exports measure(); confirmed siblings scripts/audit-memory-dbs.mjs + memory-garden-scan.mjs (Glob) are separate surfaces with no unified view"
+      },
+      {
+        "rank": 34,
+        "name": "subagent-shared-sidecar-cache (system-viz search latency)",
+        "facet": "system-viz",
+        "what": "loadGraph's mtime cache is process-lifetime only, so each subagent spawn (fresh node subprocess) re-pays the 152MB sidecar reconstruct; persist the rebuilt {nodes,inverted} as a binary/mmap-friendly artifact, or run a tiny resident index daemon, so SubagentStart events don't each re-parse it.",
+        "why": "Per the lib's own docstring the mtime cache 'only helps WITHIN ONE invocation' — with frequent subagent spawns across ~26 chats the reconstruct cost is paid repeatedly; a shared/resident index amortizes it across the fleet, lowering per-spawn latency on the search every subagent depends on.",
+        "effort": "M",
+        "leverage": "med",
+        "buildable_now": true,
+        "dependencies": "Sidecar reconstructs ~1.5s; needs a daemon or pre-serialized inverted-index artifact + IPC (HOOK-SYNERGY-MS0 SQLite WAL coordination store is a candidate transport).",
+        "evidence": "master-index-search-lib.mjs loadGraph docstring :224-230 ('mtime cache only helps WITHIN ONE invocation... Subsequent SubagentStart events re-pay the cold parse'); sidecar 152.6MB measured"
+      },
+      {
+        "rank": 35,
+        "name": "fix-stale-staleness-telemetry-source",
+        "facet": "system-viz",
+        "what": "Find and refresh whatever telemetry source emitted the 'sidecar 2.2h stale' banner in this session's brief — live stat proves the sidecar is current (-0.01h behind graph), so the banner reads a stale cached metric, not the live mtime delta.",
+        "why": "A staleness alarm that fires on stale telemetry is cry-wolf — it trains the fleet to ignore the signal, so when search genuinely degrades the alarm is dismissed. Grounding the banner in the live graph-vs-sidecar mtime delta (which sessionstart-graph-staleness-inject already computes correctly) restores trust. Subsumed somewhat by rank-9 (the real fix is the regen floor) + rank-29 (freshness stamping) — list for completeness, low standalone value.",
+        "effort": "S",
+        "leverage": "low",
+        "buildable_now": true,
+        "dependencies": "Correct live computation exists in sessionstart-graph-staleness-inject.mjs decideStalenessAdvisory; task is locating the divergent cached source.",
+        "evidence": "Live stat sidecar_behind_graph -0.01h (sidecar generatedAt 07:20:29 vs graph mtime 07:20:12, sourceMtimeMs matches) contradicts brief's '2.2h STALE'"
+      },
+      {
+        "rank": 36,
+        "name": "heterophily-aware-aggregator (NN, scope-on-failure)",
+        "facet": "NN/GNN",
+        "what": "Add an H2GCN-style ego/neighbor-separated aggregator as an opt-in cfg branch in the GraphSAGE model — try ONLY if force-retrain (rank-10) + 768-d features still miss AUROC>=0.78.",
+        "why": "AUROC=0.096 is a textbook heterophily anti-correlation — vanilla SAGE mean-aggregation on a type-imbalanced graph mixes signal across dissimilar neighbors. If the 768-d feature swap + stratified negatives don't lift it, ego/neighbor separation is the structural fix. Building speculatively now is premature; named next lever on empirical failure.",
+        "effort": "L",
+        "leverage": "high",
+        "buildable_now": false,
+        "dependencies": "GATED on rank-10 force-retrain result — only build if the 768-d stratified model empirically fails the gate (scope-on-failure, per CLAUDE.md NN-1).",
+        "evidence": "CLAUDE.md NN-GRAPH-MS2 NN-1 'next lever is a heterophily-aware aggregator (H2GCN-style ego/neighbor separation) — scope only on empirical failure'; train-run.log AUROC=0.0961; scripts/lib/graphsage-model.mjs current mean-aggregation"
+      }
+    ],
+    "top_picks": [
+      {
+        "name": "wire-amp2-refresh-to-stop-hook (rank 1)",
+        "rationale": "THE single named operational gap. S-effort, buildable-now, clones an already-wired pattern (stop-obsidian-memory-feed). Makes the entire COMPOUND stack (B1->L2/L3->AMP2->AMP-CONSUME) self-maintaining instead of rotting between manual runs. Verified this session: zero wiring exists. Highest leverage-per-line on the board."
+      },
+      {
+        "name": "regrade-nn-eval-on-existing-checkpoint (rank 2)",
+        "rationale": "Un-dormants PSN leg #10 with one cheap eval-only run. Verified NN-EVAL.json poolSize:0/deferred:true is a STALE LIE — 636 ghosts provably exist. Replaces the misreported data-side blocker with the true verdict (model grades, or the holdout filter is the real bottleneck) — resolves the most-cited brain gap before spending a heavy retrain."
+      },
+      {
+        "name": "recall-eval-harness (rank 3)",
+        "rationale": "The measurement substrate the whole RECALL stack lacks — no recall-quality metric exists anywhere today. Every other recall tuning lever (domain boost, magnitude fusion, RRF k) is unfalsifiable without it. Build once, unblock four downstream upgrades; the compounding prerequisite for measured rather than blind brain improvement."
+      },
+      {
+        "name": "stale-sidecar-auto-rebuild-wire (rank 4)",
+        "rationale": "Stops the live RECALL corpus from silently rotting — sidecars are unwired (verified: scheduled_tasks build-memory-*=false, 0 hook callers) and already 2h+ stale + record-diverged. S-effort, mirrors fleet-reaper-stop. Pairs with rank-1 and rank-5 as the 'wire the three unwired refresh pipelines' theme that closes the brain's biggest silent-rot class."
+      },
+      {
+        "name": "wire-wiki-tribal-embed+audit-to-scheduled-task (rank 5)",
+        "rationale": "Directly attacks the flagged 31.5% wiki<->tribal coverage gap and makes the climb continuous. Verified zero wiring; the resumable+idempotent backfill stack is fully manual and the audit already trails 3 days. The Wiki Link Healer task proves the slot pattern is available. Same 'wire the unwired refresh' theme as picks 1+4."
+      }
+    ],
+    "quick_wins": [
+      "wire-amp2-refresh-to-stop-hook (rank 1) — S, closes the one named operational gap; clone stop-obsidian-memory-feed.mjs",
+      "stale-sidecar-auto-rebuild-wire (rank 4) — S, recall corpus stops rotting; mirror fleet-reaper-stop.mjs",
+      "wire-wiki-tribal-embed+audit-to-scheduled-task (rank 5) — S, 31.5% coverage climb goes continuous; mirror install-fleet-reaper-task.ps1",
+      "synthesis-claim-ledger (rank 6, M-but-S-ish) — clone slot-task-claim.mjs; eliminates 35-galaxy redundant re-synthesis across N chats",
+      "durable-memory-size-watchdog-gate (rank 8) — S, MEMORY.md ceiling self-enforcing; reuse memory-size-watch.measure() export",
+      "scheduled-cron-regen-floor (rank 9) — S, system-viz graph freshness floor independent of commit/Stop cadence",
+      "tighten-drift-bands-so-nn-lifecycle-self-fires (rank 11) — S, env-knob change makes the inert NN retrain real",
+      "add-concurrent-writer-lock-to-tribal-index (rank 12) — S, prerequisite that makes rank-5 automation corruption-safe",
+      "priority-backfill-worst-domains-first (rank 16) — S, same Ollama budget buys disproportionate recall (dev-infra 1.08%)",
+      "hybrid-fire-telemetry (rank 20) — S, surface the already-returned `source` field; reuse recall-fire-telemetry.mjs",
+      "embeddings-staleness-gate (rank 21) — S, makes recall-sidecar drift observable",
+      "obsidian-feed-success-telemetry (rank 19) — S, proves the auto-feed actually fired (R12 fail-loud)"
+    ],
+    "gaps_noted": "CROSS-CUTTING THEME: the brain's #1 systemic weakness is UNWIRED REFRESH PIPELINES — five independently-built, tested, working refresh stacks (AMP2 galaxy-synthesis, memory-recall sidecars, wiki-tribal embed+audit, wiki-precheck fallback embeddings, system-viz regen floor) all rely on a human to run them. Each rots silently. The highest-compounding meta-move is a SINGLE 'brain-refresh' Stop hook + one phase-offset scheduled task that fans out to all five (Ollama-health-gated, throttled, claim-coordinated) rather than five separate wires — consider consolidating ranks 1/4/5/9/27 into one orchestrator. SECOND THEME: NO falsifiable quality metrics anywhere — recall has no eval harness (rank 3), the NN leg's only grade is a stale lie (rank 2), and synthesis quality has no helped/refuted signal (rank 17); the brain cannot tell if any tuning helps. THIRD: two dashboards proposed (rank 18 galaxy-freshness + rank 33 memory-health) should MERGE into one brain-health surface for golf. FACETS MISSED: (a) PRISM-AI / aiSystemRouterEngine (PSN leg #11) was not scanned by any of the 7 facets — the router that decides Claude-vs-Ollama-vs-dispatcher is unexamined for staleness/quality; (b) Algorithms + Formulas (PSN legs #8/#9) had zero facet coverage — no audit of whether the 120+ formulas/algorithms are discoverable/embedded in the recall corpus; (c) PRISM-OS (leg #2) unexamined; (d) data-integrity bug found incidentally (phantom 'hermes-zebra' galaxy in live _meta_synthesis.md) needs the rank-7 validation gate regardless of priority — it is actively corrupting L2 output now; (e) the C:->H: mirror-drift governance is mentioned only as a dashboard row, never audited for actual divergence this session."
+  }
+}

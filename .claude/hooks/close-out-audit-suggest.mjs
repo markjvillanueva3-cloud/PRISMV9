@@ -134,6 +134,14 @@ async function main() {
     c.data.results.reduce((s, r) => s + (Array.isArray(r.candidates) ? r.candidates.length : 0), 0) : 0;
   lines.push(`Last audit: ${Math.round(c.ageHours * 10) / 10}h ago${stale ? " ⚠ STALE — re-run recommended" : ""}`);
   lines.push(`Candidates flagged: **${allCount}** (advisory only — human-verify before flipping envelope)`);
+  // Surface partial-milestone-drift class (audit schemaVersion >= 1.2.0 — sidecar added 2026-05-23 charlie).
+  const pmdCount = c.data && c.data.partial_milestone_drift && Array.isArray(c.data.partial_milestone_drift.candidates)
+    ? c.data.partial_milestone_drift.candidates.length : 0;
+  const silentCount = c.data && c.data.silent_close_out_debt && c.data.silent_close_out_debt.summary
+    ? (c.data.silent_close_out_debt.summary.cases_found || 0) : 0;
+  if (pmdCount > 0 || silentCount > 0) {
+    lines.push(`Other drift classes: silent close-out **${silentCount}** · partial-milestone **${pmdCount}** (in-progress + pending unit + engine on disk; ~half are AI-TRAINING false-positives)`);
+  }
   if (top.length > 0) {
     lines.push("");
     lines.push(`Top ${top.length} by confidence:`);

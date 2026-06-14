@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -112,7 +113,7 @@ function classifyByTokens(stem) {
 function repair() {
   if (!fs.existsSync(GRAPH)) throw new Error("graph missing: " + GRAPH);
   const t0 = Date.now();
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
 
   // Index nodes for O(1) lookup
   const byId = new Map();
@@ -266,7 +267,7 @@ function repair() {
   }
   graph.engineReclassifyRepairedAt = new Date().toISOString();
 
-  fs.writeFileSync(GRAPH, JSON.stringify(graph));
+  writeGraphStreamingAtomic(GRAPH, graph);  // per-element+atomic: JSON.stringify(graph) throws Invalid-string-length at >512MiB (U-VIZ-POSTMERGE-CAPSAFE 2026-06-10)
   const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
   return { stats, elapsed };
 }

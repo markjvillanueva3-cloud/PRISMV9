@@ -56,6 +56,58 @@ function readStdinSessionId() {
   return null;
 }
 
+function readArgSessionId() {
+  // HS-01 ROOT FIX (2026-06-10): accept the session id as an explicit CLI arg
+  // (`--session-id <id>` / `--terminal <id>` / first bare positional). A Bash
+  // caller (the `STABLE=$(stable-session-id.mjs)` pattern in /precompact +
+  // /handoff) has NO stdin, and with N concurrent chats sharing one cwd the
+  // PID-pin disambiguation fails -> the heuristic chain fell through to the
+  // "most-recently-touched cached session" guess, which silently returned a
+  // PEER chat's id (confirmed live: claude-c48a1aff for session db273e77),
+  // miskeying the handoff so the resume could not find it. The MODEL always
+  // knows its own session_id (the Chat Isolation line), so an explicit arg is
+  // the most authoritative anchor of all -- no heuristic, no peer-miskey.
+  // Accepts the full uuid OR a `claude-<hex>` form; deriveTerminalFromIdentifier
+  // normalizes both to `claude-<first8>`.
+  try {
+    const argv = process.argv.slice(2);
+    let raw = null;
+    for (let i = 0; i < argv.length; i++) {
+      if ((argv[i] === "--session-id" || argv[i] === "--terminal") && argv[i + 1]) { raw = argv[i + 1]; break; }
+      if (raw === null && !argv[i].startsWith("-")) raw = argv[i]; // first bare positional
+    }
+    if (!raw || typeof raw !== "string") return null;
+    raw = raw.trim().replace(/^claude-(?:sid-)?/i, "");
+    if (raw.length >= 8 && /^[0-9a-f][0-9a-f-]{7,}$/i.test(raw)) return raw.slice(0, 36);
+  } catch { /* ignore */ }
+  return null;
+}
+
+function readEnvSessionId() {
+  // HS-01 FLEET-WIDE FIX (2026-06-10): the Claude Code harness exports
+  // CLAUDE_CODE_SESSION_ID into EVERY tool subprocess's environment, scoped to
+  // THIS chat's process. Unlike the shared PID-pin file / cwd cache (which leak
+  // across concurrent chats sharing one project dir), a per-process env var
+  // CANNOT be another chat's id. So a BARE Bash caller --
+  // `STABLE=$(stable-session-id.mjs)`, no CLI arg, no stdin (the /precompact +
+  // /handoff pattern, 24 bare call sites + 78 per-slot wrappers) -- now has a
+  // deterministic, correct anchor with ZERO caller edits. This is ranked ABOVE
+  // the PID-pin heuristic (anchor 2): the pin is the exact chain that silently
+  // returned a PEER's id (claude-c48a1aff for session db273e77), the HS-01
+  // miskey. A non-Claude process (e.g. a scheduled-task cron) has no such env
+  // var -> returns null -> falls through to the existing heuristics, unchanged.
+  // NB: distinct from the legacy CLAUDE_SESSION_ID manual-override read at
+  // anchor (3) -- different name; the HARNESS sets CLAUDE_CODE_SESSION_ID.
+  try {
+    const sid = process.env.CLAUDE_CODE_SESSION_ID;
+    if (typeof sid === "string") {
+      const t = sid.trim();
+      if (t.length >= 8 && /^[0-9a-f][0-9a-f-]{7,}$/i.test(t)) return t.slice(0, 36);
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
 function readClaudeTranscriptSessionId() {
   // Second-best anchor: Claude Code writes transcript JSONL files under
   // ~/.claude/projects/<project-hash>/<session-id>.jsonl.
@@ -151,10 +203,13 @@ function readPidPinnedSessionId() {
     });
     const cwdSids = [...new Set(cwdMatches.map((e) => e.session_id))];
     if (cwdSids.length === 1) return cwdSids[0];
-    // Pre-existing fallback retained: single fresh sid in the whole registry.
-    // Still useful when only one chat is alive and its PID walk failed.
-    const uniqueSids = [...new Set(Object.values(fresh).map((e) => e.session_id))];
-    if (uniqueSids.length === 1) return uniqueSids[0];
+    // HS-01 ROOT FIX (2026-06-10): REMOVED the "single fresh sid in the whole
+    // registry" fallback. It returned a PEER chat's id whenever THIS chat's pin
+    // was stale but exactly one peer's pin was fresh (uniqueSids=[peer], len 1)
+    // -- the live miskey (claude-c48a1aff for db273e77). The ancestry walk + the
+    // cwd-match above are the only RELIABLE pin resolutions; if both miss, return
+    // null and let the caller fall through to anchor 0 (explicit --session-id) or
+    // the loud refuse-on-ambiguous, never a confident wrong peer.
     return null;
   } catch { return null; }
 }
@@ -211,9 +266,23 @@ function getParentPid(pid) {
 }
 
 function getStableIdentifier() {
+  // (0) Explicit session id via CLI arg -- the MOST authoritative anchor (the
+  //     model knows its own id; a Bash caller has no stdin). HS-01 root fix.
+  const argSid = readArgSessionId();
+  if (argSid) return `claude-sid-${argSid}`;
+
   // (1) Claude's own session_id via stdin (most stable — survives /compact)
   const stdinSid = readStdinSessionId();
   if (stdinSid) return `claude-sid-${stdinSid}`;
+
+  // (1.5) Harness-exported env session id (CLAUDE_CODE_SESSION_ID). Per-process,
+  //       deterministic, set by Claude Code in every tool subprocess -> the
+  //       fleet-wide fix for BARE Bash callers (no CLI arg, no stdin). Ranked
+  //       ABOVE the PID-pin heuristic below, which is the chain that miskeyed
+  //       to a PEER's id (HS-01). Survives /compact (the session_id is stable
+  //       across compaction within one conversation).
+  const envSid = readEnvSessionId();
+  if (envSid) return `claude-sid-${envSid}`;
 
   // (2) PID-anchored pin (most reliable when called from Bash).
   //     Walks parent PIDs to find Claude Code's PID in the pin registry
@@ -325,12 +394,24 @@ function main() {
       .filter((s) => s?.session_id && s?.last_seen)
       .filter((s) => (now - new Date(s.last_seen).getTime()) < RECENT_CACHE_MS)
       .sort((a, b) => new Date(b.last_seen).getTime() - new Date(a.last_seen).getTime());
-    if (recent.length > 0 && process.env.PRISM_STABLE_ID_HARD_FAIL !== "1") {
+    // HS-01 ROOT FIX (2026-06-10): only trust the most-recent cached id when it
+    // is UNAMBIGUOUS (exactly one distinct recent session). With >=2 recent
+    // sessions (the concurrent-fleet case) "most-recent" is a GUESS that silently
+    // miskeys the handoff to a PEER chat (confirmed live: returned claude-c48a1aff
+    // for session db273e77). When ambiguous, refuse -> the caller passes the
+    // explicit id (now supported via --session-id, anchor 0).
+    const distinctRecent = [...new Set(recent.map((s) => s.session_id))];
+    if (distinctRecent.length === 1 && process.env.PRISM_STABLE_ID_HARD_FAIL !== "1") {
       process.stderr.write(
-        `stable-session-id: anchors unresolved — falling back to most-recently-touched cached session (last_seen ${recent[0].last_seen}). Set PRISM_STABLE_ID_HARD_FAIL=1 to disable.\n`
+        `stable-session-id: anchors unresolved -- single recent cached session (${distinctRecent[0]}); using it. Pass --session-id to be explicit.\n`
       );
-      console.log(recent[0].session_id);
+      console.log(distinctRecent[0]);
       return;
+    }
+    if (distinctRecent.length > 1) {
+      process.stderr.write(
+        `stable-session-id: anchors unresolved AND ${distinctRecent.length} recent sessions active -- refusing to GUESS (would miskey the handoff to a peer). Pass: stable-session-id.mjs --session-id <your-session-id>.\n`
+      );
     }
     process.stderr.write(
       "stable-session-id: unresolved — pass session_id via stdin JSON, "

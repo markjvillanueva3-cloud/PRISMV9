@@ -5,7 +5,7 @@
  * - MilestoneTrackingEngine: 14-milestone template, create/advance/skip, auto-advance, events
  * - CustomerPortalEngine: token CRUD, validation, rate limiting, portal views, quality docs, messages
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MilestoneTrackingEngine } from "../engines/MilestoneTrackingEngine.js";
 import { CustomerPortalEngine } from "../engines/CustomerPortalEngine.js";
 
@@ -300,14 +300,21 @@ describe("CustomerPortalEngine", () => {
     });
 
     it("rejects expired token", () => {
-      const token = engine.createToken({
-        token_type: "quote", entity_id: "Q-EXP", expires_in_days: 1,
-      });
-      // Manually expire it
-      (token as any).expires_at = new Date(Date.now() - 86400000).toISOString();
-      const result = engine.validateToken(token.token);
-      expect(result.valid).toBe(false);
-      expect(result.reason).toContain("expired");
+      // Persisted store: the returned token is a snapshot, not a live handle, so
+      // we age the clock past the stored expires_at instead of mutating the object.
+      vi.useFakeTimers();
+      try {
+        vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
+        const token = engine.createToken({
+          token_type: "quote", entity_id: "Q-EXP", expires_in_days: 1,
+        });
+        vi.setSystemTime(new Date("2026-01-03T00:00:00Z")); // 2 days later: token is now expired
+        const result = engine.validateToken(token.token);
+        expect(result.valid).toBe(false);
+        expect(result.reason).toContain("expired");
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it("checks scope requirement", () => {
@@ -334,8 +341,11 @@ describe("CustomerPortalEngine", () => {
       const token = engine.createToken({ token_type: "quote", entity_id: "Q-STATS" });
       engine.validateToken(token.token);
       engine.validateToken(token.token);
-      expect(token.access_count).toBe(2);
-      expect(token.last_accessed).toBeTruthy();
+      // Re-read from the store: access stats must be PERSISTED, not just mutated on
+      // a local reference (which the old Map-aliased impl relied on).
+      const stored = engine.listTokens("Q-STATS")[0];
+      expect(stored.access_count).toBe(2);
+      expect(stored.last_accessed).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
   });
 

@@ -321,6 +321,30 @@ const attendance_report = z.object({
 
 const who_clocked_in = z.object({}).passthrough();
 
+const commission_report = z.object({
+  deals: z.array(z.object({
+    salesperson: z.string(),
+    revenue: z.number(),
+    cost: z.number().optional(),
+    margin: z.number().optional(),
+    deal_id: optStr,
+    closed_date: optStr,
+  })).optional(),
+  tiers: z.array(z.object({ min_margin_pct: z.number(), rate_pct: z.number() })).optional(),
+  period: optStr,
+}).passthrough();
+
+const daily_flash_generate = z.object({
+  date: optStr,
+  requestedBy: optStr,
+}).passthrough();
+
+const daily_flash_email = z.object({
+  date: optStr,
+  requestedBy: optStr,
+  recipients: z.array(z.string()).optional(),
+}).passthrough();
+
 // ============================================================================
 // PAYROLL (3)
 // ============================================================================
@@ -1440,6 +1464,103 @@ const customer_top = z.object({
   limit: z.number().int().optional(),
 }).passthrough();
 
+const customer_revenue_concentration = z.object({}).passthrough();
+
+const customer_growth_trends = z.object({
+  window_days: z.number().int().positive().optional(),
+}).passthrough();
+
+const customer_normalize = z.object({
+  apply: z.boolean().optional(),
+}).passthrough();
+
+const customer_portfolio_sources = z.object({}).passthrough();
+
+const customer_portfolio_list = z.object({}).passthrough();
+
+// customer_name feeds path.join(archiveRoot, name) inside the engine — reject
+// path separators and parent-dir traversal so a query cannot escape the archive.
+const safeCustomerName = z.string().min(1).max(120)
+  .regex(/^[A-Za-z0-9 ._&'()-]+$/, "letters, digits, spaces and ._&'()- only")
+  .refine((s) => !s.includes(".."), "parent-directory traversal is not allowed");
+
+const customer_portfolio_mine = z.object({
+  customer_name: safeCustomerName,
+}).passthrough();
+
+const customer_portfolio_harvest = z.object({
+  // Capped: each customer mines up to MAX_PROGRAMS_PER_CUSTOMER .MIN files
+  // synchronously — an uncapped harvest is a multi-second blocking call.
+  max_customers: z.number().int().positive().max(200).optional(),
+}).passthrough();
+
+const customer_portfolio_audit = z.object({}).passthrough();
+
+const customer_portfolio_profile = z.object({
+  name_query: safeCustomerName,
+}).passthrough();
+
+// ── ERP Quality (ERP-sync layer, distinct from prism_business `quality_ncr_*`) ──
+
+const inspectionTypeEnum = z.enum(["first_article", "in_process", "final", "receiving"]);
+const ncrDispositionEnum = z.enum(["scrap", "rework", "use_as_is", "return_to_vendor", "pending"]);
+
+const erp_quality_record_inspection = z.object({
+  inspection: z.object({
+    workOrderNumber: z.string().min(1),
+    operationNumber: z.number().int().nonnegative(),
+    partNumber: z.string().min(1),
+    inspectorId: z.string().min(1),
+    inspectionType: inspectionTypeEnum,
+    result: z.enum(["pass", "fail", "conditional"]),
+    characteristics: z.array(z.unknown()),
+    serialNumber: z.string().optional(),
+    notes: z.string().optional(),
+  }).passthrough(),
+}).passthrough();
+
+const erp_quality_create_ncr = z.object({
+  ncr: z.object({
+    workOrderNumber: z.string().min(1),
+    partNumber: z.string().min(1),
+    quantity: z.number().int().nonnegative(),
+    defectType: z.string().min(1),
+    defectDescription: z.string().min(1),
+    disposition: ncrDispositionEnum,
+    createdBy: z.string().min(1),
+    rootCause: z.string().optional(),
+    correctiveAction: z.string().optional(),
+  }).passthrough(),
+}).passthrough();
+
+const erp_quality_close_ncr = z.object({
+  ncr_id: z.string().min(1),
+  disposition: ncrDispositionEnum,
+  closed_by: z.string().min(1),
+  corrective_action: z.string().optional(),
+}).passthrough();
+
+const erp_quality_metrics = z.object({
+  work_order_number: z.string().min(1),
+}).passthrough();
+
+const erp_quality_sync = z.object({
+  work_order_number: z.string().min(1),
+}).passthrough();
+
+const erp_quality_inspections_by_type = z.object({
+  work_order_number: z.string().min(1),
+  inspection_type: inspectionTypeEnum,
+}).passthrough();
+
+const erp_quality_open_ncrs = z.object({
+  work_order_number: z.string().min(1).optional(),
+}).passthrough();
+
+const erp_quality_inspection_trend = z.object({
+  days: z.number().int().positive().max(365).optional(),
+}).passthrough();
+
 // ============================================================================
 // INTEGRATION / EXPORT (6)
 // ============================================================================
@@ -2124,6 +2245,9 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
   timecard_summary,
   attendance_report,
   who_clocked_in,
+  commission_report,
+  daily_flash_generate,
+  daily_flash_email,
   // Payroll
   payroll_create_period,
   payroll_run,
@@ -2306,6 +2430,23 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
   customer_pipeline,
   customer_analytics,
   customer_top,
+  customer_revenue_concentration,
+  customer_growth_trends,
+  customer_normalize,
+  customer_portfolio_sources,
+  customer_portfolio_list,
+  customer_portfolio_mine,
+  customer_portfolio_harvest,
+  customer_portfolio_audit,
+  customer_portfolio_profile,
+  erp_quality_record_inspection,
+  erp_quality_create_ncr,
+  erp_quality_close_ncr,
+  erp_quality_metrics,
+  erp_quality_sync,
+  erp_quality_inspections_by_type,
+  erp_quality_open_ncrs,
+  erp_quality_inspection_trend,
   // Integration / Export
   integration_export_qb,
   integration_export_csv,
@@ -2541,4 +2682,183 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
     max_tools: z.number().int().positive().optional().describe("Max tool crib capacity"),
     idle_days_threshold: z.number().int().positive().optional().describe("Days idle before flagging for retirement (default 90)"),
   }).passthrough(),
+
+  // ==========================================================================
+  // BRIDGE-WIRING — previously-unwired Business engines (U-BRIDGE-WIRE-BUSINESS)
+  // ==========================================================================
+
+  // EngineeringChangeOrderEngine — ECO/ECN change-package validation
+  eco_validate: z.object({
+    record: z.object({
+      id: str.describe("ECO identifier"),
+      title: str.describe("Change title"),
+      change_class: z.enum(["I", "II"]).describe("EIA-649 change class (I=major, II=minor)"),
+      regulated_industry: z.boolean().describe("Aerospace / regulated-medical change?"),
+      reason: str.describe("Reason for change"),
+      impact: z.array(z.object({
+        artifact_type: z.enum(["drawing", "bom", "spec", "process_sheet", "test_procedure", "firmware"]).describe("Artifact type"),
+        artifact_id: str.describe("Artifact identifier"),
+        current_rev: z.string().describe("Current revision"),
+        new_rev: z.string().describe("New revision"),
+      })).describe("Affected artifacts"),
+      approvals: z.array(z.object({
+        role: z.enum(["engineering", "quality", "manufacturing", "supply_chain", "regulatory", "program_management"]).describe("Approver role"),
+        approver: str.describe("Approver name"),
+        approved_date: optStr.describe("Approval date ISO"),
+        esig_part11_compliant: optBool.describe("Part 11 e-signature compliant?"),
+      })).describe("Approval signatures"),
+      in_stock: z.array(z.object({
+        part_number: str.describe("Part number"),
+        quantity: z.number().describe("In-stock quantity"),
+        disposition: z.enum(["use_as_is", "rework", "scrap", "return_to_supplier", "not_applicable"]).describe("Disposition decision"),
+        rationale: optStr.describe("Disposition rationale"),
+      })).describe("In-stock material disposition"),
+      effectivity_date: str.describe("Effectivity ISO-8601 date"),
+      serial_cut_in: optStr.describe("Serial / lot cut-in"),
+      config_record_closed: z.boolean().describe("Configuration record closed?"),
+    }).describe("ECO change package"),
+    now: optStr.describe("Date for effectivity validation; defaults to now"),
+    class_i_approvers: z.array(z.enum(["engineering", "quality", "manufacturing", "supply_chain", "regulatory", "program_management"])).optional().describe("Required Class I approvers"),
+    class_ii_approvers: z.array(z.enum(["engineering", "quality", "manufacturing", "supply_chain", "regulatory", "program_management"])).optional().describe("Required Class II approvers"),
+  }),
+
+  // QdrantCapacityPlannerEngine — pre-flight disk/RAM estimate for a vector ingestion
+  qdrant_capacity_plan: z.object({
+    collection: z.object({
+      existingPoints: z.number().int().nonnegative().describe("Points already in the collection"),
+      addingPoints: z.number().int().nonnegative().describe("Points this ingestion will add"),
+      vectorDim: z.number().int().positive().describe("Vector dimensionality"),
+      precision: z.enum(["float32", "float16", "int8"]).describe("Component precision"),
+      payloadAvgBytes: z.number().nonnegative().describe("Average per-point payload bytes"),
+      hnswM: z.number().int().min(4).max(64).optional().describe("HNSW M parameter (default 16)"),
+    }).describe("Collection ingestion plan"),
+    host: z.object({
+      diskFreeMB: z.number().nonnegative().describe("Free disk MB"),
+      ramFreeMB: z.number().nonnegative().describe("Free RAM MB"),
+    }).describe("Host availability"),
+  }),
+
+  qdrant_capacity_max_fraction: z.object({
+    collection: z.object({
+      existingPoints: z.number().int().nonnegative().describe("Points already in the collection"),
+      addingPoints: z.number().int().nonnegative().describe("Points this ingestion will add"),
+      vectorDim: z.number().int().positive().describe("Vector dimensionality"),
+      precision: z.enum(["float32", "float16", "int8"]).describe("Component precision"),
+      payloadAvgBytes: z.number().nonnegative().describe("Average per-point payload bytes"),
+      hnswM: z.number().int().min(4).max(64).optional().describe("HNSW M parameter (default 16)"),
+    }).describe("Collection ingestion plan"),
+    host: z.object({
+      diskFreeMB: z.number().nonnegative().describe("Free disk MB"),
+      ramFreeMB: z.number().nonnegative().describe("Free RAM MB"),
+    }).describe("Host availability"),
+  }),
+
+  // ERPToolInventoryEngine — ERP tool-crib inventory search
+  erp_tool_search: z.object({
+    query: str.describe("Search term (tool id / description / part number)"),
+    category: z.enum(["end_mill", "drill", "insert", "tap", "reamer", "boring_bar", "holder", "other"]).optional().describe("Optional category filter"),
+  }),
+
+  // QuoteToOrderBridgeEngine — bridge a fresh quote estimate into an ERP order
+  quote_to_order: z.object({
+    input: z.object({
+      quantity: z.number().positive().describe("Order quantity"),
+      material: str.describe("Workpiece material key (e.g. aluminum_6061)"),
+      complexity: z.enum(["simple", "medium", "complex", "very_complex"]).describe("Part complexity"),
+      part_name: str.optional().describe("Part name"),
+      part_number: str.optional().describe("Part number"),
+      machine_type: str.optional().describe("Machine type — assigned to all work orders"),
+      rush: z.boolean().optional().describe("Rush quote — drives priority + rush lead time"),
+      operations: z.array(z.object({
+        name: str.describe("Operation label"),
+        type: str.describe("Operation type"),
+        cycle_time_min: z.number().nonnegative().optional().describe("Per-part cycle time, minutes"),
+        setup_time_min: z.number().nonnegative().optional().describe("One-time setup time, minutes"),
+      })).optional().describe("Operations to fan out into work orders"),
+    }).passthrough().describe("Quote estimate input (forwarded to QuoteEstimatorEngine)"),
+    customer: str.describe("Customer name — required; a quote estimate carries none"),
+    part_number: str.optional().describe("Override order part number"),
+    priority: z.number().int().min(1).max(5).optional().describe("Override priority (1=highest)"),
+    due_date: str.optional().describe("Override due date (ISO YYYY-MM-DD)"),
+    notes: str.optional().describe("Extra notes appended after the quote trace note"),
+    create_work_orders: z.boolean().optional().describe("Create per-operation work orders (default true)"),
+    confirm: z.boolean().optional().describe("Transition the new order draft→confirmed (default false)"),
+  }),
+
+  // WorkOrderScheduleBridgeEngine — schedule every open OrderManager work-order
+  schedule_open_work_orders: z.object({
+    machines: z.array(z.object({
+      machine_id: str.describe("Machine identifier"),
+      machine_name: str.describe("Display name"),
+      type: str.describe("Machine type — must match work-order .machine for assignment"),
+      available_hours_per_day: z.number().positive().describe("Daily working hours"),
+      current_load_hours: z.number().nonnegative().describe("Already-committed hours"),
+      efficiency: z.number().positive().max(1).describe("0-1, machine efficiency factor"),
+    })).min(1).describe("Machine fleet available to the schedule (required, non-empty)"),
+    strategy: z.enum(["EDD", "SPT", "priority", "balanced"]).optional().describe("Schedule strategy (default 'balanced')"),
+    filterMachine: str.optional().describe("Restrict to WOs assigned to a single machine"),
+    defaultSetupMin: z.number().nonnegative().optional().describe("Fallback setup time per WO (default 0)"),
+    workOrders: z.array(z.object({}).passthrough()).optional().describe("Override the OrderManager open set (dry-run mode)"),
+  }),
+
+  // WorkOrderScheduleBridgeEngine — capacity what-if for a single work-order
+  what_if_work_order: z.object({
+    work_order_id: str.describe("WO id (e.g. WO-0001)"),
+    desired_start: str.optional().describe("Desired start (ISO YYYY-MM-DD); defaults to today"),
+  }),
+
+  // QuoteToOrderBridgeEngine — bridge an already-computed quote result into an ERP order
+  order_from_quote: z.object({
+    quote: z.object({
+      quote_id: str.describe("Quote identifier"),
+      part_name: str.describe("Part name"),
+      quantity: z.number().positive().describe("Quote quantity"),
+      pricing: z.object({
+        unit_price: z.number().describe("Quoted unit price"),
+        total_price: z.number().describe("Quoted total price"),
+        adjustments: z.object({
+          rush_premium_pct: z.number().nullable().describe("Rush premium % — non-null implies a rush quote"),
+        }).passthrough(),
+      }).passthrough(),
+      lead_time: z.object({
+        total_standard_days: z.number().nonnegative().describe("Standard lead time, days"),
+        total_rush_days: z.number().nonnegative().describe("Rush lead time, days"),
+      }).passthrough(),
+      confidence_score: z.number().describe("Quote confidence score (10-100)"),
+    }).passthrough().describe("A QuoteEstimatorEngine.estimate() result"),
+    customer: str.describe("Customer name — required"),
+    material: str.optional().describe("Workpiece material (the quote result carries none)"),
+    machine: str.optional().describe("Default machine for work orders"),
+    operations: z.array(z.object({
+      name: str.describe("Operation label"),
+      machine: str.optional().describe("Per-operation machine override"),
+      cycle_time_min: z.number().nonnegative().optional().describe("Per-part cycle time, minutes"),
+      setup_time_min: z.number().nonnegative().optional().describe("One-time setup time, minutes"),
+    })).optional().describe("Operations to fan out into work orders"),
+    part_number: str.optional().describe("Override order part number"),
+    priority: z.number().int().min(1).max(5).optional().describe("Override priority (1=highest)"),
+    due_date: str.optional().describe("Override due date (ISO YYYY-MM-DD)"),
+    notes: str.optional().describe("Extra notes appended after the quote trace note"),
+    create_work_orders: z.boolean().optional().describe("Create per-operation work orders (default true)"),
+    confirm: z.boolean().optional().describe("Transition the new order draft→confirmed (default false)"),
+  }),
+
+  // ──────────────────────────────────────────────────────────────────────
+  // WIRE-BUSINESS-DIRECT-MS0/U-VICTOR-BUSINESS-DIRECT (slot:victor, 2026-05-26)
+  // 3 schemas for previously-unwired business sub-engines. Passthrough at the
+  // dispatcher edge — each engine validates its own input via a stricter
+  // engine-internal Zod schema. Future units can tighten per-action.
+  // ──────────────────────────────────────────────────────────────────────
+  scenario_batch_run: z.object({}).passthrough()
+    .describe("ScenarioBatchRunnerEngine.run — execute a batch of scenarios (BatchRunOptions). Returns a BatchRunReport (per-scenario verdicts + aggregate metrics). Engine validates input via its own internal schema."),
+  rfq_orchestrator_list_records: z.object({
+    customer_id: optStr.describe("Optional customer-id filter"),
+    status: optStr.describe("Optional status filter (draft/submitted/won/lost/expired)"),
+  }).passthrough()
+    .describe("RFQToOrderOrchestratorEngine.listRecords — list RFQ→Order pipeline records, optionally filtered by customer_id + status. Read-only operator-facing query."),
+  monolith_roughing_machine_get: z.object({
+    id: optStr.describe("Machine config id to fetch (preferred)"),
+    machine_id: optStr.describe("Alias for id"),
+  }).passthrough()
+    .describe("MonolithRoughingMachineConfigsEngine.getConfig — fetch one roughing-machine config by id, or call listIds() when no id is supplied (read-only discovery)."),
 };

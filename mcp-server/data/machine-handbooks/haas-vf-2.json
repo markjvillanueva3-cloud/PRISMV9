@@ -1,0 +1,206 @@
+{
+  "id": "haas-vf-2",
+  "machine_id": "VMC-03",
+  "manufacturer": "Haas",
+  "model": "VF-2",
+  "version": "1.0.0",
+  "created_at": "2026-06-03T00:00:00Z",
+  "updated_at": "2026-06-03T00:00:00Z",
+
+  "cover_info": {
+    "manufacturer": "Haas",
+    "model_family": "VF",
+    "models_covered": ["VF-2", "VF-2 (PRE-NGC Classic Control)"],
+    "language": "en",
+    "source": {
+      "handbook_title": "Haas VF-2 published specifications (Haas Automation spec sheet) + Haas Classic Control operator/programming reference",
+      "extraction_method": "web_scrape",
+      "confidence": 0.82,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "spindle_specs": {
+    "max_rpm": 8100,
+    "min_rpm": 0,
+    "power_continuous_kw": 22.4,
+    "power_peak_kw": 22.4,
+    "torque_max_nm": 122,
+    "taper_type": "CT40",
+    "drive_type": "direct",
+    "warmup_procedure": "Run the spindle warm-up program (O02020 on Classic control) or ramp S1000/5min, S3000/5min, S6000/5min, S8100/5min after idle >4 hours.",
+    "source": {
+      "handbook_title": "Haas VF-2 spindle performance specification (40-taper inline direct-drive vector, 30 hp, 90 ft-lb @ 2000 rpm; standard VF-2)",
+      "extraction_method": "web_scrape",
+      "confidence": 0.82,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "axis_kinematics": {
+    "axes": [
+      { "name": "X", "travel_mm": 762, "rapid_mm_min": 25400, "max_feed_mm_min": 16500, "repeatability_um": 2.5, "accuracy_um": 5 },
+      { "name": "Y", "travel_mm": 406, "rapid_mm_min": 25400, "max_feed_mm_min": 16500, "repeatability_um": 2.5, "accuracy_um": 5 },
+      { "name": "Z", "travel_mm": 508, "rapid_mm_min": 25400, "max_feed_mm_min": 16500, "repeatability_um": 2.5, "accuracy_um": 5 }
+    ],
+    "simultaneous_axes": 3,
+    "work_envelope_mm": { "x": 762, "y": 406, "z": 508 },
+    "spindle_to_table_max_mm": 610,
+    "source": {
+      "handbook_title": "Haas VF-2 travel & accuracy specification (30 x 16 x 20 in, 1000 ipm rapids, positioning 0.0002 in / repeatability 0.0001 in)",
+      "extraction_method": "web_scrape",
+      "confidence": 0.8,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "controller_features": {
+    "controller_manufacturer": "Haas",
+    "controller_model": "Haas Classic Control (PRE-NGC)",
+    "custom_g_codes": [
+      { "code": "G12", "description": "Circular pocket milling clockwise (Haas-specific canned pocket).", "syntax": "G12 I[radius] K[finish radius] Q[step] F[feed]", "example": "G12 I12.5 K25. Q3. F500" },
+      { "code": "G13", "description": "Circular pocket milling counterclockwise (Haas-specific canned pocket).", "syntax": "G13 I[radius] K[finish radius] Q[step] F[feed]", "example": "G13 I12.5 K25. Q3. F500" },
+      { "code": "G150", "description": "General pocket milling using a defined sub-program contour (Haas).", "syntax": "G150 P[sub] X.. Y.. Z.. I[step] K[depth] Q[plunge] F[feed]", "example": "G150 P1000 X0. Y0. Z-10. I5. K10. Q2. F600" },
+      { "code": "G103", "description": "Block look-ahead limit. P0 = max look-ahead; P1..15 restricts buffered blocks (debugging / macro synchronization).", "syntax": "G103 P[blocks]", "example": "G103 P15" },
+      { "code": "G187", "description": "Setting smoothness / accuracy control. P1=rough, P2=medium, P3=finish; E sets corner-rounding tolerance.", "syntax": "G187 P[level] E[tolerance]", "example": "G187 P3 E0.0254" },
+      { "code": "G43", "description": "Tool length compensation (positive).", "syntax": "G43 H[offset] Z[pos]", "example": "G43 H1 Z25." },
+      { "code": "G54", "description": "Work coordinate system 1 (G54-G59 + G110-G129 additional offsets).", "syntax": "G54", "example": "G54" },
+      { "code": "G83", "description": "Peck drilling canned cycle (full retract).", "syntax": "G83 Z[depth] R[ref] Q[peck] F[feed]", "example": "G83 Z-30. R2. Q4. F150" },
+      { "code": "G84", "description": "Rigid tapping canned cycle.", "syntax": "G84 Z[depth] R[ref] F[feed=pitch x rpm]", "example": "G84 Z-15. R3. F1.5" },
+      { "code": "G65", "description": "Macro subprogram call (requires Macros option).", "syntax": "G65 P[prog] A.. B..", "example": "G65 P9100 A50. B0.5" }
+    ],
+    "custom_m_codes": [
+      { "code": "M03", "description": "Spindle CW.", "modal": true },
+      { "code": "M04", "description": "Spindle CCW.", "modal": true },
+      { "code": "M05", "description": "Spindle stop.", "modal": true },
+      { "code": "M06", "description": "Tool change (carousel ATC).", "modal": false },
+      { "code": "M08", "description": "Flood coolant ON.", "modal": true },
+      { "code": "M09", "description": "Coolant OFF.", "modal": true },
+      { "code": "M19", "description": "Spindle orient.", "modal": false },
+      { "code": "M88", "description": "Through-spindle coolant ON (if TSC equipped).", "modal": true },
+      { "code": "M89", "description": "Through-spindle coolant OFF (if TSC equipped).", "modal": true },
+      { "code": "M97", "description": "Local subprogram call (by line number P).", "modal": false },
+      { "code": "M98", "description": "Subprogram call (by program number P).", "modal": false },
+      { "code": "M99", "description": "Subprogram return / program loop.", "modal": false },
+      { "code": "M30", "description": "Program end and reset.", "modal": false }
+    ],
+    "macro_support": {
+      "type": "FANUC-style Macros (Haas Macros option)",
+      "variable_range": "#1-#33 (local), #100-#199 and #500-#999 (global), #1000+ (system/inputs)",
+      "supports_goto": true
+    },
+    "probing_cycles": [
+      { "cycle_code": "G31", "description": "Skip / probe touch (Haas Wireless Intuitive Probing - WIPS).", "parameters": ["X", "Y", "Z", "F"] }
+    ],
+    "max_tool_offsets": 200,
+    "max_work_offsets": 26,
+    "conversational_mode": true,
+    "high_speed_machining": true,
+    "look_ahead_blocks": 80,
+    "source": {
+      "handbook_title": "Haas Classic Control (PRE-NGC) programming reference — G/M code set, WIPS probing, Macros option, G187 smoothing",
+      "extraction_method": "web_scrape",
+      "confidence": 0.78,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "alarm_codes": [],
+  "parts_book": [],
+
+  "maintenance_schedule": [
+    {
+      "task_id": "VF2-MAINT-001",
+      "task": "Check way-lube reservoir level",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": ["Check lube reservoir sight level", "Refill with Vactra No. 2 / ISO VG68 way oil if low", "Confirm lube pump cycles on power-up"],
+      "parts_needed": [],
+      "safety_warnings": ["Use only Haas-approved way lubricant"],
+      "estimated_time_min": 5,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Haas VF-2 generic preventive-maintenance checklist (parts intentionally omitted — no public OEM PN)", "extraction_method": "web_scrape", "confidence": 0.7, "extracted_at": "2026-06-03T00:00:00Z" }
+    },
+    {
+      "task_id": "VF2-MAINT-002",
+      "task": "Check coolant concentration and level",
+      "interval": "weekly",
+      "category": "inspection",
+      "procedure_steps": ["Measure concentration with refractometer (target 6-9%)", "Top up coolant tank", "Skim tramp oil if present"],
+      "parts_needed": [],
+      "safety_warnings": ["Wear nitrile gloves"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Haas VF-2 generic preventive-maintenance checklist", "extraction_method": "web_scrape", "confidence": 0.7, "extracted_at": "2026-06-03T00:00:00Z" }
+    },
+    {
+      "task_id": "VF2-MAINT-003",
+      "task": "Clean spindle taper and inspect air filter",
+      "interval": "monthly",
+      "category": "cleaning",
+      "procedure_steps": ["Clean CT40 taper with lint-free cloth", "Blow out control-cabinet air filter", "Verify spindle air-blast functioning"],
+      "parts_needed": [],
+      "safety_warnings": ["Spindle stopped before cleaning taper"],
+      "estimated_time_min": 15,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Haas VF-2 generic preventive-maintenance checklist", "extraction_method": "web_scrape", "confidence": 0.7, "extracted_at": "2026-06-03T00:00:00Z" }
+    }
+  ],
+
+  "programming_tips": [
+    {
+      "topic": "G187 Surface Smoothing vs Accuracy",
+      "controller_dialect": "Haas Classic (PRE-NGC)",
+      "code_example": "G187 P3 E0.0254 (Finish: tight corner tolerance for 3D contour)\nG01 X... Y... Z... F4000\nG187 P1 (Rough: faster corners)",
+      "description": "G187 trades corner accuracy against feed-rate continuity. P3 (finish) holds the programmed path tightly for surface quality; P1 (rough) allows corner rounding so the machine does not decelerate at every block. Use E to set the allowable corner-rounding tolerance in inches.",
+      "gotchas": ["Leaving G187 P3 active during roughing slows the cycle substantially", "E tolerance is in current units (inch on a PRE-NGC inch machine) — verify G20/G21 state"],
+      "related_alarms": [],
+      "applicable_operations": ["3d_finishing", "hsm_roughing", "contour_milling"],
+      "source": { "handbook_title": "Haas Classic Control programming reference — G187", "extraction_method": "web_scrape", "confidence": 0.75, "extracted_at": "2026-06-03T00:00:00Z" }
+    },
+    {
+      "topic": "G103 Look-Ahead for Macro Synchronization",
+      "controller_dialect": "Haas Classic (PRE-NGC)",
+      "code_example": "G103 P1 (Force single-block look-ahead so macro reads current position)\n#100 = #5041 (Read live X machine position)\nG103 P0 (Restore full look-ahead for cutting)",
+      "description": "By default the Haas control buffers many blocks ahead, so a macro that reads a position variable may read a value many blocks in the future. G103 P1 forces single-block execution so macro position reads are current; restore G103 P0 afterward to regain HSM throughput.",
+      "gotchas": ["Forgetting G103 P0 after the macro section leaves the machine in slow single-block mode", "Position system variables (#5021+) are only meaningful with limited look-ahead"],
+      "related_alarms": [],
+      "applicable_operations": ["macro_programming", "in_process_gauging"],
+      "source": { "handbook_title": "Haas Classic Control programming reference — G103 + macro variables", "extraction_method": "web_scrape", "confidence": 0.75, "extracted_at": "2026-06-03T00:00:00Z" }
+    }
+  ],
+
+  "safety_limits": [
+    { "parameter": "Maximum spindle speed", "max_value": 8100, "unit": "RPM", "consequence_of_violation": "Spindle overspeed fault; potential bearing damage", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Haas VF-2 spindle specification", "extraction_method": "web_scrape", "confidence": 0.8, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "X-axis travel", "max_value": 762, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Haas VF-2 travel specification", "extraction_method": "web_scrape", "confidence": 0.8, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Y-axis travel", "max_value": 406, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Haas VF-2 travel specification", "extraction_method": "web_scrape", "confidence": 0.8, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Z-axis travel", "max_value": 508, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Haas VF-2 travel specification", "extraction_method": "web_scrape", "confidence": 0.8, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Maximum table load", "max_value": 1361, "unit": "kg", "consequence_of_violation": "Axis servo overload, accuracy loss", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Haas VF-2 table specification (3000 lb)", "extraction_method": "web_scrape", "confidence": 0.75, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Maximum tool weight in ATC", "max_value": 5.4, "unit": "kg", "consequence_of_violation": "Carousel ATC overload / dropped tool", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Haas VF-2 tool-changer specification (12 lb)", "extraction_method": "web_scrape", "confidence": 0.75, "extracted_at": "2026-06-03T00:00:00Z" } }
+  ],
+
+  "coolant_specs": {
+    "coolant_types": [
+      { "type": "Water-soluble semi-synthetic", "concentration_pct_min": 6, "concentration_pct_max": 9 }
+    ],
+    "tank_capacity_liters": 208,
+    "pump_pressure_bar": 1.7,
+    "through_spindle": false,
+    "mql_capable": false,
+    "chip_conveyor_type": "Auger (standard) / optional chip conveyor",
+    "source": { "handbook_title": "Haas VF-2 coolant system specification (55 gal standard flood tank)", "extraction_method": "web_scrape", "confidence": 0.7, "extracted_at": "2026-06-03T00:00:00Z" }
+  },
+
+  "tooling_constraints": {
+    "max_tool_diameter_mm": 89,
+    "max_tool_length_mm": 305,
+    "max_tool_weight_kg": 5.4,
+    "magazine_capacity": 20,
+    "tool_change_time_sec": 4.2,
+    "taper_type": "CT40",
+    "pull_stud_type": "CT40 (45-deg or 30-deg pull stud per setup)",
+    "gauge_line_mm": 50.8,
+    "adjacent_pocket_clearance_mm": 152,
+    "source": { "handbook_title": "Haas VF-2 tooling / ATC specification (20+1 carousel, 3.5 in max dia full / 6 in no-adjacent, 12 in length, 12 lb)", "extraction_method": "web_scrape", "confidence": 0.75, "extracted_at": "2026-06-03T00:00:00Z" }
+  }
+}

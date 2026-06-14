@@ -10,6 +10,7 @@
 
 import { z } from "zod";
 import type { ActionSchemaMap } from "./actionSchemaTypes.js";
+import { IA_DEPTH_VALUES } from "../engines/IntelligenceAmplificationEngine.js";
 
 // ============================================================================
 // REUSABLE FIELD SCHEMAS
@@ -482,6 +483,24 @@ const assist_safety = z.object({
 }).passthrough();
 
 // ============================================================================
+// IntelligenceAmplificationEngine (3) — WIRE-INTAMP-MS0/U-WIRE-INTAMP
+// Surfaces tribal-knowledge amplification (formula + tribal + MIT + JM Die corpora)
+// through prism_intelligence so foxtrot-domain consumers can query without a
+// direct engine import.
+const ia_amplify = z.object({
+  query: z.string().min(1).describe("Natural-language query to amplify against the knowledge base"),
+  domain: optStr.describe("Optional domain filter (e.g. milling, lathe, wedm)"),
+  // Depth enum sourced from IA_DEPTH_VALUES (engine) — single source of truth, no drift.
+  depth: z.enum(IA_DEPTH_VALUES).optional().describe("Amplification depth — affects scoring multiplier"),
+  includeAssetTypes: z.array(z.enum(["formula", "algorithm", "tribal", "mit", "jmdie", "engine"]))
+    .optional().describe("Restrict source types considered (default: all)"),
+}).passthrough();
+const ia_get_source = z.object({
+  id: z.string().min(1).describe("Knowledge source id (e.g. kienzle, taylor, sld, tribal_thin_wall)"),
+}).passthrough();
+const ia_list_sources = z.object({}).passthrough().describe("List all loaded knowledge sources");
+
+// ============================================================================
 // AIFeatureAutoRegistryEngine (7) — U-AI-WIRE
 const ai_feature_discover = z.object({}).passthrough().describe("Discover AI features");
 const ai_feature_find = z.object({ query: z.string(), domain: optStr }).passthrough();
@@ -738,10 +757,141 @@ const xproc_blend_weight_report = z.object({
   alpha_max: z.number().min(0.5).max(1).default(0.95),
 }).passthrough().describe("Decompose α into base/calib/drift contributions for audit.");
 
+// ============================================================================
+// FeatureStoreEngine (3) — JULIETT-DB-BRIDGE/U-DB-BRIDGE-05 (2026-05-25)
+// Exposes the previously-UNWIRED FeatureStoreEngine to the MCP layer.
+// Spec: state/shared/specs/JULIETT-DB-BRIDGE-PLAN-2026-05-25.md
+// ============================================================================
+
+const OUTCOME_DOMAINS = ["mill","lathe","wedm","cad","cam","grinder","sinker","welder","quote","other"] as const;
+
+const feature_store_query = z.object({
+  domain: z.enum(OUTCOME_DOMAINS).describe("Outcome domain (mill/lathe/wedm/cad/cam/grinder/sinker/welder/quote/other)"),
+  feature_group: z.string().min(1).describe("Feature group name (e.g. 'cutting_outcome', 'tool_wear_signal')"),
+  feature_group_version: z.string().optional().default("v1").describe("Feature group version; new schema = new shard file"),
+  entity_ids: z.array(z.string().min(1)).min(1).describe("Entity IDs to retrieve features for"),
+  as_of_ts: z.string().datetime().optional().describe("AS-OF timestamp (ISO 8601); omit for NOW. Point-in-time correctness — no future leakage."),
+  feature_keys: z.array(z.string().min(1)).optional().describe("Subset of feature keys to return; omit for all"),
+}).passthrough().describe("Point-in-time feature retrieval from FeatureStoreEngine (training-safe, no temporal leakage).");
+
+const feature_store_put = z.object({
+  domain: z.enum(OUTCOME_DOMAINS).describe("Outcome domain"),
+  feature_group: z.string().min(1).describe("Feature group name"),
+  feature_group_version: z.string().optional().default("v1").describe("Schema version"),
+  entity_id: z.string().min(1).describe("Entity ID (e.g. job_id, part_id, tool_id)"),
+  event_ts: z.string().datetime().describe("Observation timestamp (ISO 8601) — when the feature was observed"),
+  lineage_id: z.string().optional().describe("Trace ID linking this row back to its upstream pipeline run"),
+  feature_values: z.record(z.string(), z.unknown()).describe("Feature key→value map (JSON-serializable)"),
+  source_event_id: z.string().optional().describe("Source event id (e.g. outcome bus event id) for provenance"),
+}).passthrough().describe("Append a feature row to the FeatureStoreEngine (append-only, atomic-write).");
+
+const feature_store_stats = z.object({}).passthrough().describe("List FeatureStoreEngine groups + row counts + bytes per (domain, group, version) shard.");
+
+// ============================================================================
+// CatalogUnifiedQueryEngine (1) — JULIETT-DB-BRIDGE/U-DB-BRIDGE-03 (2026-05-25)
+// Bridges 4 similar catalog DBs in one call (Material + Tool + Coating + Machine).
+// ============================================================================
+
+const ISO_GROUPS_ENUM = ["P","M","K","N","S","H","X"] as const;
+
+const catalog_unified_match = z.object({
+  material: z.string().min(1).describe("Material name or id (e.g. '4140', 'Ti6Al4V', 'AL_6061-T6')"),
+  op_type: z.string().optional().describe("Operation type filter for tools (mill/turn/drill/...)"),
+  iso_group: z.enum(ISO_GROUPS_ENUM).optional().describe("Override ISO group (else derived from material); P/M/K/N/S/H/X"),
+  max_per_catalog: z.number().int().min(1).max(50).optional().describe("Max items per catalog (default 5, hard cap 50)"),
+}).passthrough().describe("Cross-catalog unified query: material + compatible tools + coatings + machine candidates in one call. Designed for quoting/frontend intake.");
+
+// ============================================================================
+// JULIETT-DB-BRIDGE-MS0/U-DB-MONOLITH-UNIFIED-QUERY (2026-05-27, slot juliett)
+// Unified routing across 12 standalone Monolith*Engine ports — closes the
+// "Monolith (9)" unwired gap in BUILD_STATE.
+// ============================================================================
+
+const MONOLITH_SUBJECT_ENUM = [
+  "controllers",        // MonolithControllerDatabaseEngine — 11 CNCs / 6 vendors
+  "machine_specs",      // MonolithMachineSpecStandardEngine — 8-section canonical spec
+  "stock_positions",    // MonolithStockPositionsDatabaseEngine — 18 hyperMILL positions
+  "roughing_configs",   // MonolithRoughingMachineConfigsEngine — 18 machines + inheritance
+  "macro_schema",       // MonolithMacroDatabaseSchemaEngine — 8 tables + 4-dialect DDL
+  "fusion_posts",       // MonolithFusionPostDatabaseEngine — 11 vendors / 153 posts
+  "mfr_catalog",        // MonolithManufacturerCatalogManifestEngine — 13 mfrs + stats
+  "gateway",            // MonolithFinalCatalogGatewayManifestEngine — 21 mfrs + 18 routes
+  "zeni",               // MonolithZeniCatalogManifestEngine — 5 grades + 13 CNMG sizes
+  "consolidated",       // MonolithConsolidatedCatalogManifestEngine — 22 mfrs + 10 Guhring
+  "final",              // MonolithFinalCatalogManifestEngine — extended chuck specs
+  "major_mfrs",         // MonolithMajorManufacturersCatalogManifestEngine — Sandvik + 6 peers
+] as const;
+
+const monolith_query = z.object({
+  subject: z.enum(MONOLITH_SUBJECT_ENUM).describe("Which monolith engine to query (12 standalone ports)"),
+  query: z.string().optional().describe("Free-text search (engine-specific match fields)"),
+  id: z.string().optional().describe("Specific record id lookup (alternative to query)"),
+  limit: z.number().int().min(1).max(50).optional().describe("Max results (default 20, cap 50)"),
+}).passthrough().describe("Unified query surface across all 12 standalone Monolith*Engine ports. Subject enum dispatches to the right engine. Returns the engine's native record shape (varies per subject) plus `subject` + `ok` for client routing. Closes the 'Monolith (9)' unwired gap.");
+
+// CatalogConsumerAdapterEngine — 8-consumer adapter (U-DB-BRIDGE-CONSUMERS)
+const CONSUMERS_ENUM = ["speedfeed","post","masterpost","mill_wizard","lathe_wizard","wedm_wizard","quoting","cadcam"] as const;
+const catalog_resolve_for_consumer = z.object({
+  consumer: z.enum(CONSUMERS_ENUM).describe("Named consumer category — selects param transforms + extras"),
+  material: z.string().min(1).describe("Material name or id"),
+  op_type: z.string().optional().describe("Operation type filter"),
+  iso_group: z.enum(ISO_GROUPS_ENUM).optional().describe("Override ISO group P/M/K/N/S/H/X"),
+  machine_class: z.string().optional().describe("Machine class hint for post/masterpost/wizard (e.g. 'hurco', 'okuma', 'mitsubishi', 'haas', 'fanuc')"),
+  max_per_catalog: z.number().int().min(1).max(50).optional().describe("Override per-consumer default max"),
+}).passthrough().describe("Catalog cross-match tailored for a named consumer (speedfeed/post/masterpost/{mill,lathe,wedm}_wizard/quoting/cadcam). Returns the catalog_unified_match base + consumer-specific extras (coolant for quoting; controller hint for post; kc1.1+mc for speedfeed; iso emphasis; etc.).");
+
+// MachineQualityScoreEngine — U-DB-MACHINE-QUALITY-SCORE (2026-05-25)
+const REP_TIERS_ENUM = ["S","A","B","C","D"] as const;
+const machine_quality_score = z.object({
+  machine: z.record(z.string(), z.unknown()).optional().describe("Full machine record (else looked up by machine_id)"),
+  machine_id: z.string().min(1).optional().describe("Machine id to look up via registryManager.machines.get()"),
+  manufacturer_tier: z.enum(REP_TIERS_ENUM).optional().describe("Override S/A/B/C/D reputation tier (else derived from manufacturer)"),
+}).passthrough().refine((d) => d.machine || d.machine_id, { message: "must provide either machine or machine_id" })
+  .describe("Compute composite 0-100 machine quality score (reputation + controller + way + accuracy μm + motion + smoothing + mass) + accuracy_compensation_factor for downstream consumer calculations.");
+
+const machine_quality_audit = z.object({}).passthrough().describe("Audit ALL machines in registry — count missing high-ROI fields per machine, surface worst 25 records by missing-field count.");
+
+// MachineQualityScoreEngine — Phase 5 consumer wires (U-DB-MACHINE-QUALITY-CONSUMERS)
+const QUALITY_CONSUMERS_ENUM = ["wizard","sfc","post","my_shop","roi"] as const;
+const machine_quality_for_consumer = z.object({
+  consumer: z.enum(QUALITY_CONSUMERS_ENUM).describe("Named consumer surface — wizard/sfc/post/my_shop/roi"),
+  machine: z.record(z.string(), z.unknown()).optional(),
+  machine_id: z.string().min(1).optional(),
+  manufacturer_tier: z.enum(REP_TIERS_ENUM).optional(),
+}).passthrough().refine((d) => d.machine || d.machine_id, { message: "must provide machine or machine_id" })
+  .describe("Machine quality score wrapped with consumer-specific payload shape (wizard UI card / SF derate factor / post controller-class / My-Shop missing-field punch list / ROI upgrade signal).");
+
+const machine_compare_upgrade_outsource = z.object({
+  current_machine: z.record(z.string(), z.unknown()).optional(),
+  current_machine_id: z.string().min(1).optional(),
+  candidate_machine: z.record(z.string(), z.unknown()).optional(),
+  candidate_machine_id: z.string().min(1).optional(),
+  upgrade_cost_usd: z.number().positive().optional().describe("Upgrade purchase cost for payback analysis"),
+  annual_revenue_usd: z.number().positive().optional().describe("Current annual revenue at current quality"),
+}).passthrough().refine((d) => (d.current_machine || d.current_machine_id) && (d.candidate_machine || d.candidate_machine_id),
+  { message: "must provide both current and candidate machine inputs" })
+  .describe("Compare CURRENT vs CANDIDATE machine for upgrade-vs-outsource decision. Returns recommendation (upgrade/outsource/stay/investigate) + payback_years when cost+revenue inputs provided.");
+
 // EXPORT MAP — 49 core actions
 // ============================================================================
 
 export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
+  // FeatureStoreEngine (3) — U-DB-BRIDGE-05
+  feature_store_query,
+  feature_store_put,
+  feature_store_stats,
+  // CatalogUnifiedQueryEngine (1) — U-DB-BRIDGE-03
+  catalog_unified_match,
+  // MonolithUnifiedQuery (1) — U-DB-MONOLITH-UNIFIED-QUERY (2026-05-27)
+  monolith_query,
+  // CatalogConsumerAdapterEngine (1) — U-DB-BRIDGE-CONSUMERS
+  catalog_resolve_for_consumer,
+  // MachineQualityScoreEngine (2) — U-DB-MACHINE-QUALITY-SCORE
+  machine_quality_score,
+  machine_quality_audit,
+  // MachineQualityScoreEngine consumer wires (2) — U-DB-MACHINE-QUALITY-CONSUMERS (Phase 5)
+  machine_quality_for_consumer,
+  machine_compare_upgrade_outsource,
   // IntelligenceEngine (11)
   job_plan,
   setup_sheet,
@@ -804,6 +954,10 @@ export const ACTION_INTELLIGENCE_SCHEMAS: ActionSchemaMap = {
   assist_confidence,
   assist_mistakes,
   assist_safety,
+  // IntelligenceAmplificationEngine (3) — WIRE-INTAMP-MS0/U-WIRE-INTAMP
+  ia_amplify,
+  ia_get_source,
+  ia_list_sources,
   // AIFeatureAutoRegistryEngine (7)
   ai_feature_discover,
   ai_feature_find,

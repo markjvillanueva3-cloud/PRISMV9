@@ -111,6 +111,19 @@ describe("extractWikilinks", () => {
   it("returns [] when there are no wikilinks", () => {
     expect(extractWikilinks("no links here")).toStrictEqual([]);
   });
+
+  it("captures the TARGET of an aliased wikilink (regression: aliased links were dropped entirely)", () => {
+    // Obsidian display-alias syntax `[[target|alias]]`. The old regex demanded
+    // `]]` straight after the target and matched NOTHING here, so both links
+    // vanished from the backlink graph.
+    const text = "see [[force-kienzle|the Kienzle model]] and [[itw|ITW Inc.]] and [[plain]]";
+    expect(extractWikilinks(text)).toStrictEqual(["force-kienzle", "itw", "plain"]);
+  });
+
+  it("handles an alias with surrounding whitespace and an empty alias", () => {
+    const text = "[[ target | display text ]] then [[other|]]";
+    expect(extractWikilinks(text)).toStrictEqual(["target", "other"]);
+  });
 });
 
 describe("extractClaimedValue — finds numeric assertions for kc1.1 / Taylor", () => {

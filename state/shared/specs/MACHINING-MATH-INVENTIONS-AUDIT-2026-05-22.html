@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="8873abab8d3d56eab57fba6b669d837ba1dd94d0ba5f8b5b68afcc5c079650ef">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Machining × Math/Science — Invention &amp; Enhancement Opportunities Audit</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Machining × Math/Science — Invention &amp; Enhancement Opportunities Audit</h1>
+<div class="meta">rendered from state/shared/specs/MACHINING-MATH-INVENTIONS-AUDIT-2026-05-22.md</div>
+<div class="meta">Generated 2026-05-22T20:24:48.821Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Machining × Math/Science — Invention &amp; Enhancement Opportunities Audit</li><li class="prism-toc-l2">1. Scope statement (Phase 1)</li><li class="prism-toc-l2">2. Phase-2 — what this audit is NOT re-covering</li><li class="prism-toc-l2">3. The meta-pattern this audit surfaces</li><li class="prism-toc-l2">4. Findings (Phase 3 — each with verification channel)</li><li class="prism-toc-l3">F0 — Precision/accuracy engine cluster DORMANT · P0 · operator-directed</li><li class="prism-toc-l3">F1 — Closed-loop RL adaptive control policy · HIGH · cross-surface wiring</li><li class="prism-toc-l3">F2 — Causal-inference scrap root-cause analyzer · HIGH · cross-surface wiring</li><li class="prism-toc-l3">F3 — Active-learning DOE for material × tool characterization · MEDIUM</li><li class="prism-toc-l3">F4 — Variational toolpath generation · MEDIUM</li><li class="prism-toc-l3">F5 — Symbolic G-code compiler optimization pass · HIGH (cycle-time)</li><li class="prism-toc-l3">F6 — Persistent-homology toolpath validity check · MEDIUM</li><li class="prism-toc-l3">F7 — Controller look-ahead-state model · MEDIUM-HIGH (cycle-time)</li><li class="prism-toc-l3">F8 — Coupled-PDE multi-physics solver verification · MEDIUM</li><li class="prism-toc-l2">5. Karpathy anti-drift checkpoint (Phase 5, after 8 findings)</li><li class="prism-toc-l2">5b. Phase 4B — Peer review outcome</li><li class="prism-toc-l2">6. Recommended roadmap units (advisory — additive to prior-spec units)</li><li class="prism-toc-l2">7. Bottom line</li></ul></nav><h1 class="prism-h1">Machining × Math/Science — Invention &amp; Enhancement Opportunities Audit</h1>
+<blockquote class="prism-quote"><strong><code class="prism-inline-code">/forge-audit-v2</code></strong> · slot november · 2026-05-22 · session <code class="prism-inline-code">b4c5e890</code> / stable <code class="prism-inline-code">claude-db0678d4</code>.</blockquote>
+<blockquote class="prism-quote"><strong>Scope brief:</strong> *&quot;look at all machining concepts, every domain of machining, tool paths,</blockquote>
+<blockquote class="prism-quote">algorithms, formulas, cad, cam, g and m code, controllers, coding logic, post processors and see</blockquote>
+<blockquote class="prism-quote">if there are avenues of inventions or enhancements utilizing our vast math and science</blockquote>
+<blockquote class="prism-quote">resources.&quot;*</blockquote>
+<blockquote class="prism-quote"><strong>5th and final spec</strong> of the session&#39;s math-research arc — builds on</blockquote>
+<blockquote class="prism-quote"><code class="prism-inline-code">CALRESCO-COMPLEXITY-APPLICABILITY</code>, <code class="prism-inline-code">TOPOLOGY-MATH-CAD-CAM-APPLICABILITY</code>,</blockquote>
+<blockquote class="prism-quote"><code class="prism-inline-code">CALRESCO-MATH-CONCEPTS-CATALOGUE</code>, <code class="prism-inline-code">MATH-SCIENCE-COVERAGE-AUDIT</code> (all 2026-05-22). Advisory —</blockquote>
+<blockquote class="prism-quote">nothing injected into <code class="prism-inline-code">atomic-roadmap.json</code>.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Scope statement (Phase 1)</h2>
+<p>I am auditing <strong>machining-domain surfaces × PRISM&#39;s math/science arsenal</strong> — looking for <em>invention/enhancement opportunities</em> the prior four specs did <strong>not</strong> enumerate. The verification channel is per-finding grep baselines plus the new META artifact <code class="prism-inline-code">scripts/machining-math-intersection-map.mjs</code>, which measures <strong>file-level co-occurrence</strong> of a math primitive and its target manufacturing surface — a <em>siloed</em> math primitive (high total occurrence count, zero intersection with the target surface) is a quantifiable enhancement opportunity.</p>
+<h2 class="prism-h2">2. Phase-2 — what this audit is NOT re-covering</h2>
+<p>Findings already enumerated in the prior four specs and not duplicated here: <strong>Pareto/multiobjective surfacing</strong> (CALResCo F1) · <strong>GNN variety seeding</strong> (F2) · <strong>Hebbian memory crystallization</strong> (F3) · <strong>SOC dashboard</strong> (F4) · <strong>Edge-of-chaos signature detector</strong> (F5) · <strong>Euler–Poincaré gate / homology features</strong> (Topology T1) · <strong>Morse–Reeb decomposition</strong> (T2) · <strong>Medial-axis spines</strong> (T3) · <strong>C-space homotopy / rapid linking</strong> (T4/T5) · <strong>TDA chatter bridge</strong> (T6) · <strong>5-axis singularity chambers</strong> (T7) · <strong>Post FSM verification</strong> (T8) · <strong>Fractal surface metrology</strong> (CalrescoMath C4) · <strong>NK landscape ruggedness</strong> (C5) · <strong>CA microstructure</strong> (C7) · <strong>L-system AM geometry</strong> (C8) · <strong>Interval safety bounds</strong> (MathAudit F3) · <strong>Optimal transport</strong> (F2) · <strong>Spectral mesh-Laplacian</strong> (F4) · <strong>Differentiable physics</strong> (F6) · <strong>Post output optimizer pass</strong> (the chat answer immediately preceding this audit).</p>
+<p>This audit covers the <em>remaining</em> gap class — the <strong>invention opportunity</strong> the prior specs exposed but did not enumerate.</p>
+<h2 class="prism-h2">3. The meta-pattern this audit surfaces</h2>
+<p><code class="prism-inline-code">grep</code> baselines on the math/science primitives versus the manufacturing-process surfaces show a striking pattern:</p>
+<table class="prism-md-table"><thead><tr><th>Math primitive</th><th>Total occ / files</th><th>Files coupling to process-control / QC / DOE</th></tr></thead><tbody><tr><td><code class="prism-inline-code">xproc_qlearn</code> / <code class="prism-inline-code">xproc_policy</code> / <code class="prism-inline-code">xproc_bandit</code> (RL)</td><td><strong>90 occ / 15 files</strong></td><td>~0 in RTAC / adaptive engines</td></tr>
+<tr><td><code class="prism-inline-code">xproc_causal_*</code> / <code class="prism-inline-code">do_calculus</code> / <code class="prism-inline-code">counterfactual</code></td><td><strong>88 occ / 15 files</strong></td><td>~0 in scrap / QC root-cause engines</td></tr>
+<tr><td><code class="prism-inline-code">LagrangianMechanics</code> (variational)</td><td><strong>6 occ / 1 file</strong></td><td>0 in toolpath generators</td></tr></tbody></table>
+<p>**M1 (meta) — PRISM&#39;s AI/reasoning math is impressively built out and well-wired <em>within the AI surface</em>, but it is <strong>siloed</strong> from the manufacturing process surfaces it would improve most.<strong> The recurring &quot;invention&quot; opportunity in every finding below is the same shape: cross-wire an already-built math primitive into the manufacturing engine that needs it. The prior audit&#39;s Finding 1 (&quot;assembly not absence&quot;) refines here to </strong>cross-surface wiring not new math.**</p>
+<h2 class="prism-h2">4. Findings (Phase 3 — each with verification channel)</h2>
+<h3 class="prism-h3">F0 — Precision/accuracy engine cluster DORMANT · P0 · operator-directed</h3>
+<p><strong>This is the headline finding.</strong> PRISM built a complete precision-machining engine cluster — the math required to deliver <strong>0.00005&quot; / 1.27 μm / sub-micron accuracy</strong> — and <strong>none of it is wired into any workflow.</strong> Every grep on every action name returns hits <em>only</em> in dispatcher schemas and the lazy-import boilerplate. No engine, no strategy, no orchestrator, no pipeline ever calls these actions in the live execution path.</p>
+<table class="prism-md-table"><thead><tr><th>Engine cluster (action names)</th><th>Total occ / files</th><th>All hits in</th><th>Status</th></tr></thead><tbody><tr><td><strong>Accuracy</strong> — <code class="prism-inline-code">acc_21_error_model</code>, <code class="prism-inline-code">acc_abbe_offset</code>, <code class="prism-inline-code">acc_volumetric</code>, <code class="prism-inline-code">acc_ball_bar</code>, <code class="prism-inline-code">acc_thermal_error</code></td><td>7 / 2</td><td>camDispatcher + ToolRouterEngine</td><td><strong>DORMANT</strong></td></tr>
+<tr><td><strong>Diamond turning</strong> — <code class="prism-inline-code">diamond_turning_surface</code>, <code class="prism-inline-code">_forces</code>, <code class="prism-inline-code">_wear</code>, <code class="prism-inline-code">_machine_config</code></td><td>10 / 1</td><td>calcDispatcher <strong>only</strong></td><td><strong>DORMANT</strong></td></tr>
+<tr><td><strong>Laser interferometer</strong> — <code class="prism-inline-code">laser_interferometer_wavelength</code>, <code class="prism-inline-code">_comp_table</code>, <code class="prism-inline-code">_plan</code>, <code class="prism-inline-code">_deadpath</code></td><td>10 / 1</td><td>calcDispatcher <strong>only</strong></td><td><strong>DORMANT</strong></td></tr>
+<tr><td><strong>SPM statistical monitoring</strong> — <code class="prism-inline-code">spm_hotelling_t2</code>, <code class="prism-inline-code">_pca_monitoring</code>, <code class="prism-inline-code">_hmm_condition</code>, <code class="prism-inline-code">_bootstrap_ci</code>, <code class="prism-inline-code">_sprt</code>, <code class="prism-inline-code">_combined_spc</code></td><td>9 / 2</td><td>camDispatcher + ToolRouterEngine</td><td><strong>DORMANT</strong></td></tr>
+<tr><td><strong>Probe drift / thermal / vibration</strong> — <code class="prism-inline-code">cad_probe_drift_record</code>/<code class="prism-inline-code">_analyze</code>/<code class="prism-inline-code">_history</code>, <code class="prism-inline-code">thermal_machine_error</code>, <code class="prism-inline-code">vibration_isolator_calc</code>, <code class="prism-inline-code">cad_machine_capability_get</code></td><td>15 / 2</td><td>cadDispatcher + calcDispatcher</td><td><strong>DORMANT</strong></td></tr></tbody></table>
+<p><strong>Why this is the highest-leverage finding in the audit:</strong> a program for a diamond-turning lens or any ultra-precision job currently runs through the generic toolpath/post/strategy pipelines and <strong>never receives the sub-micron thermal/error/probe-drift compensation those engines were built to provide.</strong> The math is there. The workflows don&#39;t summon it.</p>
+<p><strong>Activation map (each engine → its natural consumer surface, where the wiring belongs):</strong></p>
+<table class="prism-md-table"><thead><tr><th>Engine</th><th>Natural consumer to wire into</th></tr></thead><tbody><tr><td><code class="prism-inline-code">acc_thermal_error</code>, <code class="prism-inline-code">acc_volumetric</code>, <code class="prism-inline-code">acc_21_error_model</code>, <code class="prism-inline-code">thermal_machine_error</code></td><td><code class="prism-inline-code">post_inject_motion</code>, <code class="prism-inline-code">post_inject_hsm</code>, <code class="prism-inline-code">post_advanced_physics</code>, <code class="prism-inline-code">post_inject_thermal</code> — inject error compensation into emitted G-code</td></tr>
+<tr><td><code class="prism-inline-code">acc_abbe_offset</code>, <code class="prism-inline-code">acc_ball_bar</code>, <code class="prism-inline-code">acc_21_error_model</code>, <code class="prism-inline-code">acc_volumetric</code></td><td><code class="prism-inline-code">cad_machine_capability_get</code>, <code class="prism-inline-code">machine_capability_lookup</code>, <code class="prism-inline-code">machine_capability_compare</code> — feed measured error model into machine cap <strong>upstream of strategy selection</strong> so the toolpath generator sees the volumetric envelope before, not after, emission (peer-review refinement)</td></tr></tbody></table>
+<p><strong>Important nuance (peer-review-surfaced):</strong> <code class="prism-inline-code">ToolRouterEngine.ts</code> keyword-routes operator queries like &quot;volumetric accuracy&quot; / &quot;ball bar&quot; / &quot;hotelling&quot; to these precision actions — so the actions appear live to a <em>human</em> asking the right question. But <strong>no engine-to-engine call site exists</strong>: nothing in the strategy/toolpath/post pipeline ever invokes them. The activation gap is not &quot;no one can reach them&quot; — it is &quot;no workflow ever invokes them in the live execution path.&quot; | <code class="prism-inline-code">diamond_turning_<em></code> (4) | <code class="prism-inline-code">cam_strategy_recommend</code>, <code class="prism-inline-code">mastercam_strategy_recommend</code>, finish-strategy selectors — invoked when machine type = diamond-turning or material requires optical finish | | <code class="prism-inline-code">laser_interferometer_</em></code> (4) | <code class="prism-inline-code">machine_warmup_calculate</code>, <code class="prism-inline-code">machine_capability_compare</code>, <code class="prism-inline-code">setup_sheet_generate</code> — calibration + warm-up planning | | <code class="prism-inline-code">spm_<em></code> (6) | <code class="prism-inline-code">quality_kpis</code>, <code class="prism-inline-code">quality_spc_chart</code>, <code class="prism-inline-code">nelson_spc_evaluate</code>, <code class="prism-inline-code">spc_calculate</code> — multivariate process monitoring + condition diagnosis | | <code class="prism-inline-code">cad_probe_drift_</em></code> (3) | <code class="prism-inline-code">probe_routine_generate</code>, <code class="prism-inline-code">cad_probe_record</code>, <code class="prism-inline-code">probe_gdt_interpret</code>, <code class="prism-inline-code">probe_wcs_setup</code> — probing pipeline | | <code class="prism-inline-code">vibration_isolator_calc</code> | <code class="prism-inline-code">cad_machine_capability_get</code>, <code class="prism-inline-code">machine_capability_lookup</code> — vibration isolation in the machine profile |</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>verifies_via:
+  tool: &quot;node scripts/machining-math-intersection-map.mjs --json (6 precision intersections)&quot;
+  expected_signal: &quot;every precision-cluster intersection rates &#39;siloed&#39; (math present, surface present, 0 co-occurrence)&quot;
+  baseline: &quot;ALL 6 precision clusters: siloed (math hits 0 in their natural consumer files)&quot;
+  re_run_cost: &quot;~3 s&quot;</code></pre>
+<h3 class="prism-h3">F1 — Closed-loop RL adaptive control policy · HIGH · cross-surface wiring</h3>
+<p><strong>Math present:</strong> <code class="prism-inline-code">xproc_qlearn_<em></code>, <code class="prism-inline-code">xproc_policy_</em></code>, <code class="prism-inline-code">xproc_bandit_<em></code> — 90 occ across 15 files, fully wired in <code class="prism-inline-code">aiReasoningDispatcher</code>, <code class="prism-inline-code">AIMLFormulasEngine</code>, <code class="prism-inline-code">AlgorithmRegistry</code>. <strong>Gap:</strong> zero occurrences of these RL terms in PRISM&#39;s adaptive-control engines (<code class="prism-inline-code">RTAC</em></code>, <code class="prism-inline-code">AdaptiveControllerModel</code>, <code class="prism-inline-code">adaptive_feedrate</code>, <code class="prism-inline-code">adaptive_spindle_*</code>). <strong>Invention:</strong> an end-to-end trainable policy: state = (spindle load, acoustic, force, thermal, wear-estimate); action = (feed override, RPM override, axial-DOC trim); reward = (production-rate × quality_score − chatter_event − wear_event). Compose with the existing rtac targets/metrics — the loop closes without any new math.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>verifies_via:
+  tool: &quot;node scripts/machining-math-intersection-map.mjs --json (intersection: rl_x_adaptive_control)&quot;
+  baseline: &quot;math:15 files / surface:N files / intersection:~0 (siloed)&quot;
+  re_run_cost: &quot;~3 s&quot;</code></pre>
+<h3 class="prism-h3">F2 — Causal-inference scrap root-cause analyzer · HIGH · cross-surface wiring</h3>
+<p><strong>Math present:</strong> <code class="prism-inline-code">xproc_causal_learn_dag</code>, <code class="prism-inline-code">xproc_do_identify</code>, <code class="prism-inline-code">xproc_counterfactual_query</code>, <code class="prism-inline-code">xproc_mediation_decompose</code> — 88 occ across 15 files. <strong>Gap:</strong> zero occurrences in scrap / QC / NCR / FAI engines. Existing scrap analysis is statistical (<code class="prism-inline-code">scrap_analyze</code>, <code class="prism-inline-code">scrap_trend</code>), not <em>causal-counterfactual</em>. <strong>Invention:</strong> given a scrapped part + its recorded process history (sensor log, tool history, material lot), return <em>&quot;had we used X instead of Y, the scrap probability would have been Z%.&quot;</em> This is the distinction between SPC (&quot;the chart drifted&quot;) and structural causality (&quot;the tool batch caused it&quot;). Compose with PRISM&#39;s traceability + xproc_causal — no new math.</p>
+<h3 class="prism-h3">F3 — Active-learning DOE for material × tool characterization · MEDIUM</h3>
+<p><strong>Math present:</strong> <code class="prism-inline-code">xproc_active_select</code>, <code class="prism-inline-code">xproc_active_rationale</code>, Bayesian optimization, Latin hypercube, Morris screening. <strong>Gap:</strong> Taylor/Kienzle coefficient estimation today uses fixed empirical tables + manual DOE. Active learning + Bayesian optimization can plan a <strong>near-minimum-cost experiment sequence</strong> that maximally reduces parameter uncertainty per cut — characterize a new material × tool combination in 12–20 cuts instead of 60+. Direct labor saving.</p>
+<pre class="prism-codeblock" data-lang="yaml"><code>verifies_via:
+  tool: &quot;node scripts/machining-math-intersection-map.mjs --json (intersection: active_x_taylor)&quot;
+  baseline: &quot;intersection:~0 (active learning not wired to material-property estimation)&quot;
+  re_run_cost: &quot;~3 s&quot;</code></pre>
+<h3 class="prism-h3">F4 — Variational toolpath generation · MEDIUM</h3>
+<p><strong>Math present:</strong> <code class="prism-inline-code">LagrangianMechanics.ts</code> (6 occ, 1 file) — full Lagrangian-mechanics module already implemented. <strong>Gap:</strong> the Lagrangian module is used for <em>mechanics</em> (rigid-body dynamics), not for toolpath generation. The <strong>calculus of variations</strong> is the principled way to generate toolpaths that minimize a cost <em>functional</em> — e.g., minimize ∫(α·chatter_risk + β·thermal_load + γ·wear_rate)·ds subject to surface + clearance + axis-limit constraints. The Euler–Lagrange equation gives a PDE PRISM&#39;s FEM/ODE solvers can attack. <strong>Invention:</strong> wire <code class="prism-inline-code">LagrangianMechanics</code> + the chatter/thermal/wear cost engines into a toolpath-generation pass that returns a <strong>globally-optimal path under explicit cost weights</strong> — a genuinely different solver class than the heuristic-strategy + parameter-sweep approach now used.</p>
+<h3 class="prism-h3">F5 — Symbolic G-code compiler optimization pass · HIGH (cycle-time)</h3>
+<p><strong>Math present:</strong> classical compiler-theory passes — dead-code elimination, constant folding, peephole optimization, control-flow analysis, value-numbering. <strong>Gap:</strong> grep <code class="prism-inline-code">peephole|dead.?code.?elim|constant.?fold|gcode.?(ast|compile)</code> → 1 unrelated hit in <code class="prism-inline-code">OutcomeDriftCalibrationBridgeEngine</code> (ML context). No symbolic-compiler pass over G-code exists. <strong>Invention:</strong> treat G-code as a typed programming language with modal state. A compiler pass over the AST: (a) <strong>dead-code elim</strong> — rapid moves that never approach (b) <strong>constant fold</strong> — redundant modal re-asserts (c) <strong>peephole</strong> — adjacent rapids that should be linked (d) <strong>loop unrolling / re-rolling</strong> — synthesize subprograms from repeated patterns (e) <strong>canned-cycle synthesis</strong> — detect drill-retract sequences → G81/G83/G84. Composes with the <code class="prism-inline-code">U-POST-OUTPUT-OPTIMIZER-PASS</code> recommended in the prior chat answer.</p>
+<h3 class="prism-h3">F6 — Persistent-homology toolpath validity check · MEDIUM</h3>
+<p><strong>Math present:</strong> <code class="prism-inline-code">topology_persistence</code>, <code class="prism-inline-code">topology_homology</code>, <code class="prism-inline-code">voxel_remove_path</code>, <code class="prism-inline-code">voxelize_mesh</code>. <strong>Gap:</strong> the time-evolving voxel-removal volume has changing topology (Betti numbers): β₀ tracks connected components (parting detection), β₁ tracks loops/handles (web formation), β₂ tracks voids. PRISM has each primitive but no <em>time-series persistent homology over the simulated material-removal volume</em>. <strong>Invention:</strong> before running, simulate the removal sequence and track (β₀, β₁, β₂) at each Z-level or each operation boundary. <strong>β₀ spikes → premature parting</strong>; <strong>β₁ drops to zero unexpectedly → thin-web collapse</strong>; <strong>β₂ jumps → stranded chip cavity</strong>. Catches process-physics issues that geometric checks miss. Composes with the TDA chatter finding T6.</p>
+<h3 class="prism-h3">F7 — Controller look-ahead-state model · MEDIUM-HIGH (cycle-time)</h3>
+<p><strong>Math present:</strong> discrete-event simulation primitives, time-series, queueing-theory engines (<code class="prism-inline-code">queue_mm1</code>, <code class="prism-inline-code">queue_mmc</code>, <code class="prism-inline-code">queue_production_line</code>). <strong>Gap:</strong> grep <code class="prism-inline-code">look.?ahead.?model|controller.?state.?simul|block.?queue.?model</code> → 1 unrelated hit (<code class="prism-inline-code">HSMDwellAtCornerEngine</code>). No model of the controller&#39;s own look-ahead buffer state exists. <strong>Invention:</strong> a discrete-event simulator of the controller&#39;s internal block queue, feed-look-ahead, and jerk-limit machinery — so the post can <strong>predict where the controller will decelerate</strong> and pre-shape the program so deceleration is intentional, not surprise. Different controllers (Fanuc 30i+, Siemens 840D, Heidenhain iTNC/TNC7) have different look-ahead depths; the model is parameterized per controller. Real cycle-time savings on every program.</p>
+<h3 class="prism-h3">F8 — Coupled-PDE multi-physics solver verification · MEDIUM</h3>
+<p><strong>Math present:</strong> <code class="prism-inline-code">PhysicsMLHybridEngine</code> (8 occ), <code class="prism-inline-code">ThermalFEAModel</code>, <code class="prism-inline-code">multi_physics_simulate</code>, <code class="prism-inline-code">hybrid_coupled_physics</code> — coupled-physics machinery exists. <strong>Gap (verification needed, not asserted absence):</strong> PRISM&#39;s coupling appears to be ML/hybrid + ML fusion rather than a <em>true</em> coupled tensor-PDE solver (thermal ↔ mechanical ↔ vibrational coupling with adjoint-method sensitivities). Confirm whether the coupled solver does fully-implicit Newton-iteration on the coupled system, or whether it composes sequential one-physics solves. <strong>Invention if true gap:</strong> a fully-coupled implicit solver for the thermo-mechanical-vibrational PDE, exposing <strong>adjoint-method sensitivities</strong> for gradient-based process optimization (composes with the prior audit&#39;s <code class="prism-inline-code">U-DIFFERENTIABLE-PHYSICS</code>).</p>
+<h2 class="prism-h2">5. Karpathy anti-drift checkpoint (Phase 5, after 8 findings)</h2>
+<p>On brief? Yes — every finding answers &quot;invention/enhancement using PRISM&#39;s existing math.&quot; Catalog vs. audit? Ranked 8 by leverage, not 50 by enumeration. Verified or asserted? Every finding has a grep baseline; F8 explicitly downgraded to &quot;verify before claiming.&quot; Wandering? No — all in the machining × math intersection space.</p>
+<h2 class="prism-h2">5b. Phase 4B — Peer review outcome</h2>
+<p>An independent <code class="prism-inline-code">reviewer</code> subagent (isolation: worktree) <strong>verified F0&#39;s dormancy claim by random sampling</strong>: grepped 4 random precision-engine action names (<code class="prism-inline-code">acc_thermal_error</code>, <code class="prism-inline-code">diamond_turning_surface</code>, <code class="prism-inline-code">laser_interferometer_plan</code>, <code class="prism-inline-code">spm_hotelling_t2</code>) — every hit is in a dispatcher file (<code class="prism-inline-code">camDispatcher</code>, <code class="prism-inline-code">calcDispatcher</code>, or <code class="prism-inline-code">cadDispatcher</code>) plus one keyword-routing entry in <code class="prism-inline-code">ToolRouterEngine.ts</code>. <strong>F0 PASSES.</strong> All eight broader findings (F1–F8) also PASS against the intersection-map evidence. Overall verdict: <strong>SHIP</strong>.</p>
+<p>Reviewer-surfaced refinements (both adopted above in F0):</p>
+<ol class="prism-md-list"><li><strong>Pre-strategy capability injection &gt; post-emit compensation when both are available</strong> —</li></ol>
+<p><code class="prism-inline-code">acc_volumetric</code> was originally mapped only to post-time emission; it now also wires upstream    into <code class="prism-inline-code">cad_machine_capability_get</code> so strategy selectors see the volumetric envelope <em>before</em>    toolpath generation.</p>
+<ol class="prism-md-list"><li><strong>Keyword-router exposure is humans-only, not engine-to-engine</strong> —</li></ol>
+<p><code class="prism-inline-code">ToolRouterEngine.ts</code> routes operator queries to these dormant actions, but no engine actually    calls them. The action looks live to a user; the workflow ignores it. F0&#39;s framing now reflects    this.</p>
+<h2 class="prism-h2">6. Recommended roadmap units (advisory — additive to prior-spec units)</h2>
+<table class="prism-md-table"><thead><tr><th>Pri</th><th>Unit</th><th>Finding</th><th>Why</th></tr></thead><tbody><tr><td><strong>P0</strong></td><td><code class="prism-inline-code">U-PRECISION-ENGINE-ACTIVATION</code> — wire the ~22 dormant precision-cluster actions (acc_<em>, diamond_turning_</em>, laser_interferometer_<em>, spm_</em>, cad_probe_drift_*, thermal_machine_error, vibration_isolator_calc) into their natural consumer surfaces per F0 activation map. Milestone-scale; start with <code class="prism-inline-code">acc_thermal_error</code> → <code class="prism-inline-code">post_inject_motion</code> (highest-immediate-value compensation pathway)</td><td><strong>F0</strong></td><td>Operator-directed; sub-micron accuracy class is currently unreachable because the engines are dormant</td></tr>
+<tr><td><strong>P0</strong></td><td><code class="prism-inline-code">U-RL-CLOSED-LOOP-ADAPTIVE</code> — wire <code class="prism-inline-code">xproc_qlearn</code>/<code class="prism-inline-code">policy</code>/<code class="prism-inline-code">bandit</code> into RTAC adaptive-control loop; reward = (rate × quality − chatter − wear)</td><td>F1</td><td>Highest learning compounding; math 100% ready</td></tr>
+<tr><td><strong>P0</strong></td><td><code class="prism-inline-code">U-CAUSAL-SCRAP-ROOT-CAUSE</code> — wire <code class="prism-inline-code">xproc_causal_*</code> onto scrap/QC pipeline; emit counterfactual root-cause per scrap event</td><td>F2</td><td>Different <em>class</em> of analysis than SPC; math ready</td></tr>
+<tr><td><strong>P1</strong></td><td><code class="prism-inline-code">U-GCODE-COMPILER-PASS</code> — symbolic G-code optimizer: dead-code elim + constant fold + peephole + subprogram/canned-cycle synthesis. Composes with <code class="prism-inline-code">U-POST-OUTPUT-OPTIMIZER-PASS</code></td><td>F5</td><td>Cycle-time on every program forever</td></tr>
+<tr><td><strong>P1</strong></td><td><code class="prism-inline-code">U-CONTROLLER-LOOKAHEAD-MODEL</code> — DES sim of controller buffer; per-dialect parameterized; feeds pre-emptive feed-shaping</td><td>F7</td><td>Cycle-time; bounds the surprise class</td></tr>
+<tr><td><strong>P1</strong></td><td><code class="prism-inline-code">U-ACTIVE-DOE-TAYLOR</code> — Bayesian-active sequential DOE for Taylor/Kienzle estimation on new material × tool</td><td>F3</td><td>Labor-saving; reduces 60-cut characterization to ~15</td></tr>
+<tr><td><strong>P2</strong></td><td><code class="prism-inline-code">U-VARIATIONAL-TOOLPATH</code> — wire <code class="prism-inline-code">LagrangianMechanics</code> + cost engines into toolpath generation under cost-functional minimization</td><td>F4</td><td>New solver class; provably-optimal under stated cost</td></tr>
+<tr><td><strong>P2</strong></td><td><code class="prism-inline-code">U-PERSISTENT-HOMOLOGY-REMOVAL</code> — Betti-tracking on time-evolved voxel removal; β₀/β₁/β₂ event detection</td><td>F6</td><td>Catches parting/web-collapse pre-run</td></tr>
+<tr><td><strong>P2</strong></td><td><code class="prism-inline-code">U-COUPLED-PDE-VERIFY</code> — audit <code class="prism-inline-code">PhysicsMLHybridEngine</code>&#39;s coupling: confirm true coupled-PDE vs. sequential; expose adjoint if not</td><td>F8</td><td>Verification-then-build; small if already covered</td></tr></tbody></table>
+<h2 class="prism-h2">7. Bottom line</h2>
+<p>**The headline finding is F0 — the precision-engine cluster (acc_<em>, diamond_turning_</em>, laser_interferometer_<em>, spm_</em>, cad_probe_drift_<em>, thermal_machine_error, vibration_isolator_calc) is fully dormant.</em>* PRISM has built ~22 actions that together deliver sub-micron / 0.00005&quot; accuracy, and <em>none of them are called by anything except the dispatcher boilerplate</em>. Wiring this cluster into the activation map in F0 unlocks an entire precision class PRISM cannot currently deliver.</p>
+<p>The shape of this audit&#39;s findings <em>re-confirms the meta-finding of the prior four specs at a deeper level</em>: PRISM&#39;s mathematical surface is so broad that the highest-leverage moves are almost never &quot;add new math&quot; — they are <strong>cross-surface wiring of math primitives that already exist on the AI/reasoning side onto the manufacturing process surfaces (adaptive control, scrap analysis, toolpath generation, G-code emission) that don&#39;t yet use them.</strong> RL = 90 occ on the AI side / 0 on the adaptive-control side. Causal inference = 88 occ on the AI side / 0 on the scrap-analysis side. Build the cross-wires (F1, F2 above are P0). Then the formal-CS gaps the AI engines don&#39;t fill — symbolic G-code compilation (F5) and controller look-ahead simulation (F7) — are the next highest-leverage <em>genuinely new</em> engines.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

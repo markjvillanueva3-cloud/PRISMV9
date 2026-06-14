@@ -1,0 +1,163 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "HERMES-AGI-ARCHITECTURE-MS0",
+  "title": "AGI architecture gaps — 12 units closing Voxyz 12-layer audit + Kimi 300-agent swarm pattern",
+  "status": "not_started",
+  "created_at": "2026-05-24T05:50:00.000Z",
+  "created_by": "claude-ea80ce2f slot bravo",
+  "spec_file": "state/shared/specs/HERMES-AGI-ARCHITECTURE-RESEARCH-2026-05-24.md",
+  "derived_from": [
+    "https://x.com/Voxyz_ai/status/2058222816474919343 (12 Layers Every AI User Should Understand in 2026)",
+    "https://x.com/kirillk_web3/status/2057497197638242362 (Kimi Agent Swarm: 300-Agent Parallel System)",
+    "mcp-server/data/milestones/HERMES-MEMORY-VAULT-MS0.json (sister)",
+    "mcp-server/data/milestones/HERMES-CAPABILITY-EXPANSION-MS0.json (sister)",
+    "mcp-server/data/milestones/HERMES-MCP-PLUGIN-INVENTORY-MS0.json (sister)"
+  ],
+  "psn_legs_touched": [2, 3, 4, 6, 7, 11],
+  "units": [
+    {
+      "id": "U-HAGI01",
+      "title": "Durable workflow layer — Temporal/Inngest-class long-flow orchestration (Voxyz L9)",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Voxyz L9 gap: PRISM has /loop + handoffs + scheduled tasks but no Temporal/Inngest-class durable orchestration. Long flows survive /compact only via per-chat handoffs. Build a durable workflow primitive: tasks can pause for human approval, resume across crashes/restarts, retry partials without restart, produce concrete artifacts, pick up state on next run. Wire either as in-house engine (durableWorkflowEngine.mjs) OR as Inngest MCP integration (build/buy choice — eval both in spec).",
+      "exit_criteria": "engine + dispatcher action + 4 retry/resume tests + 1 sample 24h-spanning workflow (e.g. JM-Die customer quote pipeline)",
+      "estimated_loc": "~350 LOC engine + ~150 LOC tests + sample"
+    },
+    {
+      "id": "U-HAGI02",
+      "title": "Unified control plane — consolidate identity/permissions/budget/audit/kill-switch (Voxyz L12)",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Voxyz L12 gap: PRISM has scattered control — slot-soul refuse-lists + claim system + scrutiny gates + safety tiers (Ω/S(x)) + cost ledger (U-HCAP03) + slot-commit-enforce (shipped). But NO unified layer answering 'who is this agent acting as / what may it touch / what's its budget / kill switch'. Build `prism_control_plane` dispatcher with 8 actions: identity_resolve, permission_check, budget_remaining, tenant_boundary_check, approval_required, audit_query, kill_switch, summary. Aggregates existing surfaces; no replacement, additive.",
+      "exit_criteria": "dispatcher + 8 actions + integration with cost-ledger + 6 enforcement tests + 1 control-plane dashboard",
+      "estimated_loc": "~300 LOC dispatcher + ~120 LOC tests + dashboard"
+    },
+    {
+      "id": "U-HAGI03",
+      "title": "Coordinator-fan-out swarm pattern — Kimi-style N parallel sub-agents w/ central coordinator",
+      "priority": "P0",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": ["U-HAGI04", "U-HAGI05"],
+      "description": "Kimi pattern: 300 parallel sub-agents synthesized by 1 coordinator. PRISM today: octopus 5-voice (mesh, fixed N) + Hermes Council (U-HCAP12 queued, sequential rounds) + 26-slot fleet (long-running peers). Build `coordinatorSwarmEngine` with `swarm(taskSpec, fanOut=N)` API: spawn N parallel Task tool invocations or WASM agents, coordinator collects outputs, synthesizes. Bounded by per-swarm budget (U-HCAP03) + concurrency cap. R12 fail-soft: partial-result merge on sub-agent failure.",
+      "exit_criteria": "engine + dispatcher action + 5 fan-out tests (N=10, N=50, N=100 + 2 partial-failure paths) + 1 sample swarm (40-paper lit review)",
+      "estimated_loc": "~400 LOC engine + ~150 LOC tests + sample"
+    },
+    {
+      "id": "U-HAGI04",
+      "title": "Auto-decomposition primitives — convert 'do N things' into N parallel sub-tasks",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": ["U-HAGI03"],
+      "blocks": [],
+      "description": "Kimi auto-decomposes 'review 40 papers' → 40 parallel sub-tasks. PRISM today: operator writes the for-loop. Build `taskDecomposerEngine.decompose(prosePrompt) → SubTask[]`. Pattern detection: enumerate-then-process / batch-transform / fan-out-collect. Feeds U-HAGI03 swarm spec. R12 fail-soft: ambiguous prompts surface a clarifying question rather than guess.",
+      "exit_criteria": "engine + 6 decomposition patterns + 5 round-trip tests (decomp → swarm → synthesize)",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HAGI05",
+      "title": "Batch deliverable production — multi-customer multi-quote in parallel (PrismApp-scale)",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": ["U-HAGI03"],
+      "blocks": [],
+      "description": "PRISM's QuoteToShip today is single-customer single-quote. JM-Die has 100+ active customers; PrismApp commercial scale means N customer quotes/day. Build `batchQuoteEngine` riding on U-HAGI03 swarm: takes a customer-list + part-list, fans out N parallel QuoteToShip pipelines, synthesizes a batch report. Cost-ledger integration; per-customer scrutiny. Excel batch output via U-HCAP08.",
+      "exit_criteria": "engine + dispatcher action + 4 batch tests + 1 sample 10-customer batch run",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HAGI06",
+      "title": "PrismApp web work-surface scaffolding — public-facing UI shell (Voxyz L1)",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Voxyz L1 gap: PRISM operator-facing surfaces are CLI/Obsidian. PrismApp commercial launch needs a web UI. Scaffold under `mcp-server/web/prismapp/` (separate from operator web): customer login, dashboard, quote submission form, job status board, billing pane. React/Vite scaffold; auth via Supabase MCP (already wired); state via REST to PRISM dispatchers. This unit is the SHELL only — feature pages are follow-up MS.",
+      "exit_criteria": "Vite+React scaffold + 5 page shells + auth wire + 1 dispatcher round-trip + README",
+      "estimated_loc": "~600 LOC TS + scaffold + README"
+    },
+    {
+      "id": "U-HAGI07",
+      "title": "A2A protocol layer — formal agent-to-agent collaboration (Voxyz L5 second axis)",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Voxyz L5: MCP plugs agents into tools; A2A (Agent-to-Agent, Google-donated to Linux Foundation 2025) plugs agents into other agents. PRISM today has chat-bus (JSONL) + octopus (5-voice mesh) + Hermes Council (sequential rounds) — none are A2A-protocol-compliant. Build A2A-conformant interface wrapping PSN's existing fleet so external Hermes-native agents can collaborate with PRISM slots. Outbound: PSN slots can invoke external A2A agents (e.g. a customer's domain agent).",
+      "exit_criteria": "A2A interface lib + 4 protocol-conformance tests + 1 external-agent demo round-trip",
+      "estimated_loc": "~300 LOC + ~150 LOC tests"
+    },
+    {
+      "id": "U-HAGI08",
+      "title": "Source chain / provenance tracking — every conclusion cites its sources (Voxyz L8)",
+      "priority": "P1",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Voxyz L8: 'Finding the right thing + citing the source is what makes the answer trustworthy.' PRISM today: master-index returns hits with scores, but downstream dispatchers don't propagate citation chains. Build `sourceChainEngine` + middleware that decorates every engine return with `{value, sources: [{path, score, retrieved_at, used_for}]}`. Operator-visible chain in every advisory; PrismApp UI surfaces 'why this recommendation' on click.",
+      "exit_criteria": "engine + decorator middleware + 5 round-trip tests across master-index + tribal + memory + 1 UI integration example",
+      "estimated_loc": "~250 LOC + ~120 LOC tests"
+    },
+    {
+      "id": "U-HAGI09",
+      "title": "Policy test suite — adversarial / forbidden-action / jailbreak / edge-case eval (Voxyz L10)",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Voxyz L10 gap: U-HCAP05 eval harness covers memory recall + tool-use + plan-completion. Missing: deliberate hard cases (forbidden actions, weird inputs, jailbreak attempts, edge cases the operator worries about). Build `policyTestSuiteEngine` with curated `state/shared/eval-suites/policy/*.json` cases: physics-constant tampering, safety-threshold weakening, peer-claim violation, inline-physics-constant attempts, jailbreak prompts. Weekly cron; reports to dashboard.",
+      "exit_criteria": "engine + 30 curated policy test cases + dispatcher action + weekly cron + 1 baseline report",
+      "estimated_loc": "~250 LOC + ~80 LOC tests + 30 policy cases"
+    },
+    {
+      "id": "U-HAGI10",
+      "title": "Tenant boundary enforcement — multi-customer data isolation (Voxyz L12 sub-axis)",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": ["U-HAGI02"],
+      "blocks": [],
+      "description": "Voxyz L12 sub-gap: PrismApp will host multiple customers. JM-Die data must NOT leak into ACME Mfg deployment in shared infra. Build `tenantBoundaryEngine` with per-request tenant tag, dispatcher middleware that validates every cross-tenant read/write, audit-log on every boundary check. Wire into U-HAGI02 control plane. Default-deny on tenant mismatch; explicit override only.",
+      "exit_criteria": "engine + dispatcher middleware + 6 tenant-isolation tests + audit-log integration",
+      "estimated_loc": "~300 LOC + ~150 LOC tests"
+    },
+    {
+      "id": "U-HAGI11",
+      "title": "Unified kill switch + budget caps — single operator-pull-the-plug primitive",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": ["U-HAGI02"],
+      "blocks": [],
+      "description": "Voxyz L12 sub-gap: PRISM has scattered disable knobs (PRISM_*_DISABLE per hook). No single 'stop everything' button for an operator who just saw something wrong. Build `killSwitchEngine` with 3 levels: SOFT (block new requests, drain in-flight), HARD (terminate in-flight too), NUCLEAR (HARD + revoke all credentials). Operator dashboard button + CLI command. Audit every invocation.",
+      "exit_criteria": "engine + 3-level CLI + dashboard button + 4 level-progression tests",
+      "estimated_loc": "~250 LOC + ~100 LOC tests"
+    },
+    {
+      "id": "U-HAGI12",
+      "title": "12-layer self-audit reporter — continuous PSN ↔ Voxyz framework coverage check",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Continuous audit that maps PSN's 11 legs × Voxyz's 12 layers and surfaces any layer where PRISM's coverage drops below threshold. Today: this spec carries the audit; once shipped, it goes stale within weeks. Build `selfAuditReporterEngine` that walks engine inventory + dispatcher registry + memory namespaces + scrutiny ledger and produces a per-layer coverage report. Weekly cron + Stop-hook surfacing when coverage regresses.",
+      "exit_criteria": "engine + 11x12 matrix audit + dashboard + Stop-hook + 1 baseline report",
+      "estimated_loc": "~300 LOC + ~120 LOC tests"
+    }
+  ],
+  "synergy_axes": {
+    "psn_leg_2_prism_os": ["U-HAGI01", "U-HAGI02", "U-HAGI06", "U-HAGI11"],
+    "psn_leg_3_wiki": ["U-HAGI08", "U-HAGI12"],
+    "psn_leg_4_memory": ["U-HAGI08"],
+    "psn_leg_6_sysviz": ["U-HAGI12"],
+    "psn_leg_7_engines": ["U-HAGI01", "U-HAGI02", "U-HAGI09", "U-HAGI10", "U-HAGI11"],
+    "psn_leg_11_prism_ai": ["U-HAGI03", "U-HAGI04", "U-HAGI05", "U-HAGI07", "U-HAGI08", "U-HAGI12"]
+  },
+  "advisory": "All 12 units are operator-reviewable + operator-gated. Multi-tenant + kill-switch + control-plane changes are SAFETY-CRITICAL — every unit gets full 3-of-3 scrutiny + a dedicated policy-test pass. U-HAGI06 PrismApp scaffold is shell-only; feature pages are follow-up MS. R12 fail-soft on durable workflow / coordinator / decomposer / A2A — partial result merge over silent corruption.",
+  "mustHumanVerify": true,
+  "notes": "Fourth sister to HMEMV-MS0 (11 memory) + HCAP-MS0 (16 capability) + HMPI-MS0 (14 integration). Combined: 53 units + 1 enforcement hook close the full Hermes-frontier + AGI-architecture audit. Built on user directive 2026-05-24 + Voxyz 12-layer reference architecture + Kimi 300-agent swarm pattern. Spec also outlines 4 follow-up MS (HQUAL/HPROD/HCUST/HRATCH) covering quality-verification, production-hardening, customer/multi-tenant, AI-compounding-ratchet — those total ~50+ additional units the operator can promote later."
+}

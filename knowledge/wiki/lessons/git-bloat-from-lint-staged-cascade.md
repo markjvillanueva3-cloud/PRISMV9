@@ -6,6 +6,7 @@ author: claude-99eca613
 related:
   - feedback_lint_staged_cascade
   - feedback_conflict_fork_rule
+domain: backend-dev
 ---
 
 # Git Bloat from lint-staged Cascade

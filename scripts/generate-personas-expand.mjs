@@ -20,6 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -63,7 +64,7 @@ const PERSONAS = [
 
 function generate() {
   if (!fs.existsSync(GRAPH)) return { error: "graph-missing", newNodes: [], newEdges: [], stats: {} };
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
   const existingIds = new Set(graph.nodes.map(n => n.id));
 
   const newNodes = [];

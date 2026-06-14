@@ -163,6 +163,37 @@ const live_tool = z.object({
 }).passthrough();
 
 // ============================================================================
+// live_tool_plan — LatheLiveToolingPlannerEngine (FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-LIVE-TOOLING)
+// SDK-boundary contract; the engine's own zod is the authoritative validator.
+// ============================================================================
+
+const live_tool_plan = z.object({
+  operation: z
+    .enum(["cross_drilling", "c_axis_milling", "y_axis_milling"])
+    .describe("Driven-tooling operation class to plan"),
+  tool: z
+    .object({ diameter: posNum })
+    .passthrough()
+    .describe("Live-tool spec (diameter required; rpm/feedRate optional)"),
+  stock: z.object({}).passthrough().optional().describe("Bar/billet stock"),
+  hole: z
+    .object({})
+    .passthrough()
+    .optional()
+    .describe("Cross-drill hole geometry"),
+  feature: z
+    .object({})
+    .passthrough()
+    .optional()
+    .describe("C-axis / Y-axis feature geometry"),
+  machineConfig: z
+    .object({})
+    .passthrough()
+    .optional()
+    .describe("Machine envelope flags (hasYAxis etc.)"),
+}).passthrough();
+
+// ============================================================================
 // bar_pull — BarPullerTimingEngine
 // ============================================================================
 
@@ -352,6 +383,437 @@ const lathe_shop_optimize_customer = z.object({
   })).min(1).describe("Array of programs to batch-optimize."),
 }).passthrough().describe("Batch-optimize all programs from a customer with aggregate summary (avg scores, total improvement, safety fixes, cycle-time savings).");
 
+// U-LATHE-PROG-OPT-WIRE: expose LatheProgramOptimizerEngine upgrade surfaces
+// (analyze was already wired as lathe_program_analyze — these complete the trio)
+const lathe_program_optimize = z.object({
+  content: z.string().min(1).describe("Lathe G-code program text to upgrade in place (returns the upgraded text + line-by-line change log + before/after metrics)."),
+  file_path: z.string().optional().describe("Optional file path for context extraction (material inference from CAM header, program-number recovery)."),
+}).passthrough().describe("Generate an upgraded version of a JM Die lathe program with all auto-fixable issues applied (missing G50, excessive cutoff feed, missing M30, missing coolant, point-to-point → canned cycle, etc.). Returns OptimizedProgram with original, optimized, changes[], metrics, and per-line patches.");
+
+const lathe_program_estimate = z.object({
+  content: z.string().min(1).describe("Lathe G-code program text to estimate improvement for (cheaper than full generate; surfaces top issues + projected % gain before committing to the upgrade)."),
+  file_path: z.string().optional().describe("Optional file path for context (material/program number recovery)."),
+}).passthrough().describe("Pre-upgrade improvement estimate: projected score gain, cycle-time reduction %, tool-life improvement %, issue breakdown by severity, top issues by impact. Returns ImprovementEstimate without rewriting the program.");
+
+// U-WIRE-LATHE-BIRDNEST: chip-wrap risk prediction (LATHE-PRO-MS7) — surfaces bird's-nest risk + ranked mitigations + safety notes
+const lathe_bird_nest_predict = z.object({
+  material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO group (P=steel, M=stainless, K=cast iron, N=aluminum, S=superalloy, H=hardened) — sets default ductility."),
+  ductility: z.enum(["low", "medium", "high", "very_high"]).optional().describe("Explicit ductility override — wins over iso-group default if set."),
+  vc_m_min: z.number().positive().describe("Cutting speed in m/min."),
+  feed_mm_rev: z.number().positive().describe("Feed per revolution in mm — higher feed shortens chips."),
+  doc_mm: z.number().positive().describe("Depth of cut in mm."),
+  clearance_length_mm: z.number().positive().describe("Length clearance between chuck face and tailstock (or part end), mm."),
+  length_over_diameter: z.number().positive().describe("Part L/D ratio — slender parts wrap more."),
+  lead_angle_deg: z.number().optional().describe("Insert lead angle in degrees (0 = straight, 90 = right angle)."),
+  chipbreaker: z.enum(["flat", "light", "medium", "aggressive"]).describe("Chipbreaker geometry class on the insert."),
+  coolant: z.enum(["dry", "mist", "flood", "hpc", "tsc"]).describe("Coolant delivery method — TSC/HPC dramatically reduces wrap risk."),
+  inverted_mounting: z.boolean().optional().describe("True for rear-facing / upside-down mounted tool — chips fall by gravity."),
+}).passthrough().describe("Predict bird's-nest chip-wrap risk on a turning operation. Returns risk_score (0..1), risk_level (low/moderate/high/severe), predicted_chip_length_mm, factor breakdown, reasoning[], ranked mitigations[], and severity-tiered safety_notes[].");
+
+const lathe_bird_nest_stats = z.object({}).passthrough().describe("Read bird's-nest predictor model metadata (model description + factor list + risk levels). No input.");
+
+// U-WIRE-LATHE-PARTING-CLEAR: parting-off chip-clearance + coolant-jet evaluation (LATHE-PRO-MS7)
+const lathe_parting_clearance_evaluate = z.object({
+  blade_width_mm: z.number().positive().describe("Parting blade or grooving insert kerf width, mm."),
+  slot_depth_mm: z.number().positive().describe("Slot depth from OD to bottom, mm. For full parting this is OD/2."),
+  bar_od_mm: z.number().positive().describe("Bar OD at the parting plane, mm."),
+  feed_mm_rev: z.number().positive().describe("Feed per revolution, mm/rev."),
+  vc_m_min: z.number().positive().describe("Cutting speed at OD, m/min."),
+  coolant_pressure_bar: z.number().nonnegative().describe("Coolant pressure at the nozzle, bar. Zero = dry."),
+  nozzle_diameter_mm: z.number().positive().optional().describe("Nozzle orifice diameter, mm (default 2.5)."),
+  coolant_targeted: z.boolean().optional().describe("True if coolant is aimed axially into the slot (coherent jet) vs generic flood."),
+  material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO group — affects chip stickiness (M/N/S are higher risk)."),
+  peck_depth_mm: z.number().positive().optional().describe("Existing peck depth if any, mm. Omit for continuous-feed evaluation."),
+}).passthrough().describe("Evaluate parting / deep-grooving chip-clearance + coolant-jet reach. Returns verdict (safe/marginal/high_risk/unsafe), aspect_ratio, coolant_reach_mm + coolant_adequate, recommended peck cycle (depth × count × dwell), chip volume per peck, risk_factors[], recommendations[], and projected extra cycle time from pecking.");
+
+const lathe_parting_clearance_stats = z.object({}).passthrough().describe("Read parting chip-clearance model metadata (model + ISO groups + formulas). No input.");
+
+// U-WIRE-LATHE-PART-COST: 7-bucket cost-per-part model (LATHE-PRO-MS10)
+const lathe_part_cost_compute = z.object({
+  cycle_time_s: z.number().nonnegative().describe("Total per-piece cycle time, seconds."),
+  machine_rate_per_hr: z.number().nonnegative().describe("Loaded machine rate, dollars per hour."),
+  operations: z.array(z.object({
+    op: z.string().min(1).describe("Operation identifier (e.g. rough_turn, finish_turn, face, thread)."),
+    cycle_time_s: z.number().nonnegative().describe("Cycle-time contribution of this operation, seconds."),
+    tool_life_s: z.number().positive().describe("Expected tool life on the active insert/edge, seconds."),
+    insert_cost: z.number().nonnegative().describe("Cost per insert (whole insert, not per edge)."),
+    edges_per_insert: z.number().int().positive().describe("Usable cutting edges per insert (e.g. 4 for CNMG)."),
+    holder_amort_per_edge: z.number().nonnegative().optional().describe("Optional holder amortization charged per edge."),
+  }).passthrough()).describe("Per-operation tool-cost inputs — tool bucket is summed across these."),
+  part_mass_kg: z.number().nonnegative().describe("Finished part mass, kg."),
+  waste_mass_kg: z.number().nonnegative().describe("Remnant + chip + scrap-allowance mass, kg."),
+  material_price_per_kg: z.number().nonnegative().describe("Stock material price per kg."),
+  setup_time_s: z.number().nonnegative().describe("First-piece setup time, seconds (amortized over batch_size)."),
+  setup_rate_per_hr: z.number().nonnegative().describe("Setup labor rate, dollars per hour (may differ from run rate)."),
+  batch_size: z.number().int().positive().describe("Batch size for setup-cost amortization. Must be >= 1."),
+  scrap_rate: z.number().min(0).max(1).optional().describe("Scrap-rate fraction 0..1 (default 0.02 for proven, ~0.10 for new)."),
+  spindle_power_kw: z.number().nonnegative().optional().describe("Average spindle power during cut, kW (for energy bucket)."),
+  energy_price_per_kwh: z.number().nonnegative().optional().describe("Energy price, dollars per kWh."),
+  secondary_ops: z.array(z.object({
+    name: z.string().min(1).describe("Secondary op name (deburr, wash, inspect, heat-treat)."),
+    cost: z.number().nonnegative().describe("Per-piece cost of this secondary op."),
+  })).optional().describe("Optional named secondary operations."),
+}).passthrough().describe("Compute the 7-bucket per-part cost decomposition for a lathe/turning operation: machine + tool (per-op amortized) + material + setup (batch-amortized) + quality (scrap loss) + energy + secondary. Returns buckets, total_cost, total_cost_with_scrap_amortized, per_op_tool_cost, breakdown_pct[], reasoning[].");
+
+const lathe_part_cost_stats = z.object({}).passthrough().describe("Read 7-bucket cost-model metadata (bucket list + canonical references). No input.");
+
+// U-WIRE-LATHE-SUBSPINDLE-PURGE: sub-spindle transfer purge timing (LATHE-PRO-MS7 — Citizen/Tsugami/Okuma LT/Mazak Multiplex)
+const lathe_subspindle_purge_plan = z.object({
+  main_rpm: z.number().nonnegative().describe("Main spindle rpm at the moment of transfer request."),
+  decel_rps2: z.number().positive().optional().describe("Maximum spindle deceleration in revolutions per second squared (default 50, typical 30-80 for lathes)."),
+  transfer_length_mm: z.number().positive().describe("Part length at transfer in mm."),
+  transfer_diameter_mm: z.number().positive().describe("Part diameter at the transfer face in mm."),
+  material_iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO group — M/N are sticky and add air-blast time."),
+  coolant_pressure_bar: z.number().nonnegative().describe("Coolant pressure during cut (bar) — higher pressure requires longer coolant-off lead."),
+  air_blast_available: z.boolean().describe("Whether an air-blast line is available for chip purge."),
+  air_blast_pressure_bar: z.number().positive().optional().describe("Air-blast pressure in bar, if available."),
+  synchronous_transfer: z.boolean().optional().describe("True if the controller supports phase-matched synchronous transfer (faster approach)."),
+  controller: z.enum(["okuma_osp", "fanuc", "mazatrol", "siemens", "citizen_l20", "generic"]).optional().describe("Controller family — affects emitted M-code hints in each phase."),
+}).passthrough().describe("Plan a sub-spindle (twin-spindle / Swiss) part-transfer purge sequence. Returns phases[] (coolant_off, air_blast, decel, approach, chuck_release, transfer_grip, verify) with per-phase duration_sec + M-code hints, contamination_risk classification (low/moderate/high), total_transfer_time_sec, and operator-facing recommendations.");
+
+const lathe_subspindle_purge_stats = z.object({}).passthrough().describe("Read sub-spindle transfer purge model metadata (phases modeled + supported controllers). No input.");
+
+// U-WIRE-LATHE-OP-TIME-BREAKDOWN: detailed per-op time decomposition (LATHE-PRO-MS5)
+const lathe_op_time_compute = z.object({
+  cut_length_mm: z.number().positive().describe("Total material-removal length across all features in this op, mm."),
+  feed_mm_min: z.number().positive().describe("Average feed rate across the op, mm/min."),
+  pass_count: z.number().int().positive().optional().describe("Number of ap passes (roughing + finishing). Default 1."),
+  rapid_travel_mm: z.number().nonnegative().optional().describe("Total rapid travel in this op, mm. Default = 0.4 × cut_length."),
+  rapid_feed_mm_min: z.number().positive().optional().describe("Rapid velocity in mm/min. Default 30000."),
+  tool_changes: z.number().int().nonnegative().optional().describe("Number of tool changes in this op. Default 0."),
+  tool_change_sec: z.number().nonnegative().optional().describe("Seconds per tool-change indexer cycle. Default 4."),
+  thread_cycles: z.number().int().nonnegative().optional().describe("Thread cycles (G92/G76). Default 0."),
+  thread_cycle_sec: z.number().nonnegative().optional().describe("Seconds per thread-cycle overhead. Default 2."),
+  probe_sequences: z.number().int().nonnegative().optional().describe("Number of probing sequences. Default 0."),
+  probe_sec_each: z.number().nonnegative().optional().describe("Seconds per probing sequence. Default 8."),
+  chip_pause_interval_sec: z.number().nonnegative().optional().describe("Periodic chip-conveyor pause interval, seconds. 0 = disabled (default)."),
+  chip_pause_duration_sec: z.number().nonnegative().optional().describe("Chip-conveyor pause duration, seconds. Default 3."),
+  spindle_rpm: z.number().nonnegative().optional().describe("Spindle speed RPM (for ramp time)."),
+  spindle_accel_rps2: z.number().positive().optional().describe("Spindle acceleration in rev/s². Default 150."),
+  load_unload_sec: z.number().nonnegative().optional().describe("Load/unload seconds (operator or bar-feeder). Default 15."),
+  fixed_overhead_sec: z.number().nonnegative().optional().describe("Fixed op overhead (program header, M30). Default 5."),
+}).passthrough().describe("Decompose a lathe operation into 9 time buckets (cutting / air_rapid / tool_change / thread / probe / chip_conveyor_pause / spindle_ramp / load_unload / fixed_overhead) with productive_fraction + bottleneck + breakdown_pct + advisory notes[].");
+
+const lathe_op_time_aggregate = z.object({
+  ops: z.array(z.object({
+    cutting_sec: z.number().nonnegative(),
+    air_rapid_sec: z.number().nonnegative(),
+    tool_change_sec: z.number().nonnegative(),
+    thread_sec: z.number().nonnegative(),
+    probe_sec: z.number().nonnegative(),
+    chip_conveyor_pause_sec: z.number().nonnegative(),
+    spindle_start_stop_sec: z.number().nonnegative(),
+    load_unload_sec: z.number().nonnegative(),
+    fixed_overhead_sec: z.number().nonnegative(),
+    total_sec: z.number().nonnegative(),
+    productive_fraction: z.number().min(0).max(1),
+    breakdown_pct: z.record(z.string(), z.number()),
+    bottleneck: z.string(),
+    notes: z.array(z.string()),
+  }).passthrough()).min(1).describe("Array of per-op time breakdowns (from lathe_op_time_compute)."),
+  lot_size: z.number().int().positive().describe("Number of pieces in the lot — total = per-piece × lot_size."),
+}).passthrough().describe("Aggregate multiple op breakdowns into a per-piece + lot-total + lot-hours run-time estimate.");
+
+const lathe_op_time_stats = z.object({}).passthrough().describe("Read op-time breakdown model metadata (bucket list + canonical defaults). No input.");
+
+// U-WIRE-LATHE-REPLAY-FRAME: block-by-block replay frame compiler (LATHE-PRO-MS12)
+const lathe_replay_frame_compile = z.object({
+  program_id: z.string().min(1).describe("Source NC program identifier for the replay sequence."),
+  blocks: z.array(z.object({
+    n: z.number().int().nonnegative().describe("NC block N-number."),
+    x_mm: z.number().describe("Tool-tip X position in mm at end of this block."),
+    z_mm: z.number().describe("Tool-tip Z position in mm at end of this block."),
+    elapsed_seconds_delta: z.number().nonnegative().describe("Elapsed seconds added by this block (>=0)."),
+    swept_delta_r_mm: z.number().nonnegative().optional().describe("Swept radial chip volume delta, mm — optional for highlight shading."),
+    swept_delta_z_mm: z.number().nonnegative().optional().describe("Swept axial chip volume delta, mm — optional for highlight shading."),
+    breach_component: z.enum(["chuck", "tailstock", "steady_rest", "x_limit", "z_limit"]).optional().describe("Component the toolpath breached in this block (if any) — sets breach_flag on the frame."),
+    caption: z.string().optional().describe("Operator-facing caption override; default is auto-built from N/XZ/elapsed/breach."),
+  }).passthrough()).min(1).describe("Per-block end-state inputs ordered by execution time."),
+  fps: z.number().int().positive().max(240).optional().describe("Frame-rate cap (frames per second). Default 30."),
+}).passthrough().describe("Compile a sequence of front-end replay frames for block-by-block lathe NC viewer. Returns frames[] with cumulative_seconds + breach_flag, breach_frame_indices[] punch-list, and total_seconds. Pure data marshalling — no rendering.");
+
+const lathe_replay_frame_stats = z.object({}).passthrough().describe("Read replay-frame compiler metadata (reference). No input.");
+
+// U-WIRE-LATHE-PART-CLASSIFIER: 15-family part classifier (LATHE-PRO-MS3)
+const LATHE_PART_FAMILY_ENUM = z.enum([
+  "shaft", "flange", "disc", "sleeve", "bushing", "pulley", "coupling", "hub",
+  "spacer", "cap", "plug", "nipple", "forging_blank", "casting_blank", "tube_hollow",
+]);
+
+const _partGeometryInputShape = z.object({
+  length_mm: z.number().positive().describe("Overall part length in mm."),
+  max_od_mm: z.number().positive().describe("Maximum OD in mm."),
+  min_od_mm: z.number().nonnegative().optional().describe("Minimum OD in mm (0 if no step-down)."),
+  bore_id_mm: z.number().nonnegative().optional().describe("Through-bore diameter in mm (0 / undefined if solid)."),
+  wall_thickness_mm: z.number().nonnegative().optional().describe("Minimum wall thickness in mm — computed from OD/ID if omitted."),
+  stock_form: z.enum(["bar", "forging", "casting", "hex_bar", "tube", "pre_machined"]).optional(),
+  features: z.array(z.string()).optional().describe("Feature-signature keywords (e.g. 'keyway', 'thread', 'bolt_circle')."),
+  tightest_tolerance_mm: z.number().positive().optional(),
+  has_bolt_circle: z.boolean().optional(),
+  has_keyway: z.boolean().optional(),
+  has_threads: z.boolean().optional(),
+  has_grooves: z.boolean().optional(),
+  od_step_count: z.number().int().nonnegative().optional(),
+  blind_bore: z.boolean().optional(),
+  threaded_both_ends: z.boolean().optional(),
+  iso_group: z.string().optional(),
+}).passthrough();
+
+const lathe_part_classify = _partGeometryInputShape.describe("Classify a turned part into one of 15 families (shaft/flange/disc/sleeve/bushing/pulley/coupling/hub/spacer/cap/plug/nipple/forging_blank/casting_blank/tube_hollow). Returns family + confidence + workholding default + roughing cycle + sequence_template + thermal_approach + thin_wall_risk + secondary_families.");
+
+const lathe_part_classify_batch = z.object({
+  parts: z.array(_partGeometryInputShape).min(1).describe("Array of part-geometry inputs to classify in one call."),
+}).passthrough().describe("Bulk-classify N parts and return N ClassificationResult entries in input order.");
+
+const lathe_part_family_profile = z.object({
+  family: LATHE_PART_FAMILY_ENUM.describe("Family name to look up — one of the 15 enum values."),
+}).passthrough().describe("Return the full FamilyProfile (workholding, roughing cycle, sequence template, thermal approach, thin-wall risk flag) for a named family.");
+
+const lathe_part_family_list = z.object({}).passthrough().describe("List all 15 lathe part families with their canonical workholding + roughing-cycle defaults. No input.");
+
+// U-WIRE-LATHE-PROG-COST: programming cost model (LATHE-AWARE-HARDEN-MS11)
+const PROGRAMMING_STYLE_ENUM = z.enum(["macro", "hardcode", "cam", "conversational"]);
+const PART_COMPLEXITY_ENUM = z.enum(["simple", "moderate", "complex", "very_complex"]);
+const PROGRAMMING_COST_OPTIONS = z.object({
+  profile_id: z.string().optional(),
+  cam_seat_cost_per_hr: z.number().nonnegative().optional(),
+  programmer_rate_per_hr: z.number().nonnegative().optional(),
+  machine_rate_per_hr: z.number().nonnegative().optional(),
+  setup_rate_per_hr: z.number().nonnegative().optional(),
+  feature_surcharge_pct: z.number().nonnegative().optional(),
+}).passthrough();
+
+const lathe_programming_cost_estimate = z.object({
+  style: PROGRAMMING_STYLE_ENUM.describe("Programming style — macro (parametric), hardcode (line-by-line), cam (CAM-package), conversational (controller-driven)."),
+  complexity: PART_COMPLEXITY_ENUM.describe("Part complexity tier."),
+  lot_size: z.number().int().positive().describe("Number of parts in the lot (>= 1)."),
+  options: PROGRAMMING_COST_OPTIONS.optional().describe("Optional rate overrides + shop-profile selection."),
+}).passthrough().describe("Estimate programming + setup + cycle + CAM-seat costs for one (style, complexity, lot) combination. Returns bucket breakdown + total + per-part + rate-assumptions for traceability.");
+
+const lathe_programming_cost_compare = z.object({
+  controller: z.string().optional().describe("Controller hint (e.g. okuma_osp, fanuc) — passed through to the style selector."),
+  part_complexity: PART_COMPLEXITY_ENUM.describe("Part complexity tier."),
+  lot_size: z.number().int().positive().describe("Number of parts in the lot."),
+  has_threading: z.boolean().optional(),
+  has_live_tooling: z.boolean().optional(),
+  requires_5axis: z.boolean().optional(),
+  available_cam_seats: z.number().int().nonnegative().optional(),
+  options: PROGRAMMING_COST_OPTIONS.optional(),
+}).passthrough().describe("Compare all 4 programming styles for a part spec — returns ranked array with per-style cost + per-part cost + applicability notes.");
+
+const lathe_programming_cost_breakeven = z.object({
+  macro_investment_hr: z.number().nonnegative().describe("Extra upfront programming hours for macro vs hardcode."),
+  lot_sizes: z.array(z.number().int().positive()).min(1).describe("Lot sizes to analyze (e.g. [10, 50, 100, 500])."),
+  complexity: PART_COMPLEXITY_ENUM.optional().describe("Part complexity (default 'moderate')."),
+  options: PROGRAMMING_COST_OPTIONS.optional(),
+}).passthrough().describe("Crossover analysis — at what lot size does macro programming pay back its extra upfront investment vs hardcode? Returns per-lot cost delta + break-even point + recommendation.");
+
+const lathe_programming_cost_stats = z.object({}).passthrough().describe("Read programming-cost-model metadata (styles supported + default CAM seat rate + shop-config status). No input.");
+
+// U-WIRE-LATHE-PERF-SLO: production-SLO registry (LATHE-PROD-READY-MS0)
+const LATHE_SLO_METRIC_ENUM = z.enum([
+  "parting_cycle_time_ms",
+  "program_generation_ms",
+  "first_piece_approval_min",
+  "tool_change_ms",
+  "setup_sheet_render_ms",
+  "simulation_completion_ms",
+  "collision_check_ms",
+  "feed_override_latency_ms",
+]);
+const SLO_TARGET_SCHEMA = z.object({
+  metric: LATHE_SLO_METRIC_ENUM,
+  percentile: z.union([z.literal(50), z.literal(90), z.literal(95), z.literal(99)]),
+  threshold: z.number().nonnegative(),
+  unit: z.enum(["ms", "min"]),
+  window_size: z.number().int().positive(),
+  min_samples: z.number().int().positive(),
+  description: z.string(),
+  remediation: z.string(),
+}).passthrough();
+
+const lathe_slo_targets = z.object({}).passthrough().describe("List the canonical lathe production SLO targets (parting/program-gen/first-piece/tool-change/setup-sheet/sim/collision/feed-override). No input.");
+const lathe_slo_get_target = z.object({ metric: LATHE_SLO_METRIC_ENUM }).passthrough().describe("Read one SLO target by metric name.");
+const lathe_slo_set_target = z.object({ target: SLO_TARGET_SCHEMA }).passthrough().describe("Override an existing target or add a new one. Shop-specific tuning entrypoint.");
+const lathe_slo_record_sample = z.object({ metric: LATHE_SLO_METRIC_ENUM, value: z.number().nonnegative() }).passthrough().describe("Ingest one metric sample into the rolling window for `metric`. Value units depend on the target (ms or min).");
+const lathe_slo_sample_count = z.object({ metric: LATHE_SLO_METRIC_ENUM }).passthrough().describe("Current sample count in the rolling window for `metric`.");
+const lathe_slo_evaluate = z.object({ metric: LATHE_SLO_METRIC_ENUM }).passthrough().describe("Compute the percentile verdict for `metric` — returns breach status, observed percentile value, sample count, and operational remediation.");
+const lathe_slo_dashboard = z.object({}).passthrough().describe("Full SLO dashboard snapshot across all configured metrics. No input.");
+const lathe_slo_clear_samples = z.object({ metric: LATHE_SLO_METRIC_ENUM.optional() }).passthrough().describe("Reset rolling window for `metric` (or all metrics if omitted). Diagnostic/test entrypoint.");
+
+// U-WIRE-LATHE-LORA-SAFETY-EVAL: LoRA-output safety evaluator (LATHE-LORA-MS0)
+const MACHINE_LIMITS_SCHEMA = z.object({
+  max_spindle_rpm: z.number().positive(),
+  max_feed_ipm: z.number().positive(),
+  max_rapid_ipm: z.number().positive(),
+  min_clearance_inch: z.number().nonnegative(),
+  chuck_max_rpm: z.number().positive(),
+}).passthrough();
+const SAFETY_CONFIG_SCHEMA = z.object({
+  limits: MACHINE_LIMITS_SCHEMA.optional(),
+  require_g50_clamp: z.boolean().optional(),
+  require_coolant_check: z.boolean().optional(),
+  collision_keywords_required: z.number().int().nonnegative().optional(),
+  s_x_threshold: z.number().min(0).max(1).optional(),
+}).passthrough();
+// SafetyEvaluation object pass-through schema — used by isSafe / summary / consumers.
+const SAFETY_EVALUATION_SCHEMA = z.object({
+  overall_score: z.number(),
+  s_x_score: z.number(),
+  spindle_safety: z.number(),
+  feed_safety: z.number(),
+  collision_awareness: z.number(),
+  operational_safety: z.number(),
+  issues: z.array(z.unknown()),
+  passed: z.boolean(),
+  veto_reason: z.string().optional(),
+}).passthrough();
+
+const lathe_lora_safety_evaluate = z.object({
+  output: z.string().min(1).describe("LoRA-generated text / G-code to evaluate for safety compliance."),
+  context: z.object({
+    operation: z.string().optional().describe("Optional operation hint (e.g. parting, threading)."),
+  }).passthrough().optional(),
+}).passthrough().describe("Evaluate a LoRA-model output for lathe safety compliance — returns overall_score (0-100), s_x_score (0-1), per-dimension scores (spindle/feed/collision/operational), issues[] with severity, passed boolean, and veto_reason if hard veto fired.");
+
+const lathe_lora_safety_is_safe = z.object({
+  evaluation: SAFETY_EVALUATION_SCHEMA.describe("SafetyEvaluation object from a prior evaluate() call."),
+}).passthrough().describe("Quick boolean check: is this SafetyEvaluation result above the configured s_x_threshold? Cheaper than re-running evaluate().");
+
+const lathe_lora_safety_summary = z.object({
+  evaluation: SAFETY_EVALUATION_SCHEMA.describe("SafetyEvaluation object from a prior evaluate() call."),
+}).passthrough().describe("Produce an operator-facing text summary of a SafetyEvaluation result.");
+
+const lathe_lora_safety_set_config = z.object({
+  config: SAFETY_CONFIG_SCHEMA.describe("Partial config override — only the fields you want to change."),
+}).passthrough().describe("Override the safety evaluator config (machine limits, s_x_threshold, etc.) — shop-specific tuning entrypoint.");
+
+const lathe_lora_safety_get_config = z.object({}).passthrough().describe("Read the current safety evaluator config (machine limits + thresholds). No input.");
+
+const lathe_lora_safety_threshold = z.object({}).passthrough().describe("Read the current S(x) threshold value (default 0.70). No input.");
+
+// U-WIRE-LATHE-LORA-REASON-EVAL: LoRA reasoning-chain evaluator (LATHE-LORA-MS0)
+const REASONING_CONFIG_SCHEMA = z.object({
+  min_explanation_length: z.number().int().nonnegative().optional(),
+  require_justification: z.boolean().optional(),
+  require_steps: z.boolean().optional(),
+  domain_term_threshold: z.number().int().nonnegative().optional(),
+  passing_score: z.number().min(0).max(100).optional(),
+}).passthrough();
+const REASONING_EVALUATION_SCHEMA = z.object({
+  overall_score: z.number(),
+  coherence_score: z.number(),
+  domain_score: z.number(),
+  justification_score: z.number(),
+  structure_score: z.number(),
+  completeness_score: z.number(),
+  findings: z.array(z.unknown()),
+  passed: z.boolean(),
+}).passthrough();
+
+const lathe_lora_reason_evaluate = z.object({
+  output: z.string().min(1).describe("LoRA-generated reasoning text to evaluate."),
+}).passthrough().describe("Evaluate a LoRA reasoning output across 5 dimensions (coherence / domain / justification / structure / completeness). Returns overall_score (0-100), per-dimension scores, findings[] with quality grading, and passed boolean against the configured passing_score.");
+
+const lathe_lora_reason_summary = z.object({
+  evaluation: REASONING_EVALUATION_SCHEMA.describe("ReasoningEvaluation object from a prior evaluate() call."),
+}).passthrough().describe("Produce an operator-facing text summary of a ReasoningEvaluation result.");
+
+const lathe_lora_reason_suggestions = z.object({
+  evaluation: REASONING_EVALUATION_SCHEMA.describe("ReasoningEvaluation object from a prior evaluate() call."),
+}).passthrough().describe("Extract improvement-suggestion strings from a ReasoningEvaluation result (one per finding that carries a .suggestion).");
+
+const lathe_lora_reason_set_config = z.object({
+  config: REASONING_CONFIG_SCHEMA.describe("Partial config override — only the fields you want to change."),
+}).passthrough().describe("Override reasoning evaluator config (min explanation length, passing score, term threshold, etc.).");
+
+const lathe_lora_reason_get_config = z.object({}).passthrough().describe("Read the current reasoning evaluator config. No input.");
+
+// U-WIRE-LATHE-COOLANT-ADVISOR: coolant delivery recommender (LATHE-PRO-MS5)
+const lathe_coolant_advise = z.object({
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO group — P steel, M stainless, K cast iron, N aluminum, S superalloy, H hardened."),
+  operation: z.enum(["roughing", "finishing", "drilling", "threading", "parting", "grooving", "boring"]).describe("Lathe operation type."),
+  tool_material: z.enum(["carbide", "ceramic", "cbn", "hss", "diamond"]).describe("Tool / insert material."),
+  Vc_m_min: z.number().positive().optional().describe("Cutting speed in m/min — higher speeds bias toward high-pressure / cryogenic."),
+  ap_mm: z.number().positive().optional().describe("Depth of cut in mm — bigger ap raises chip-control importance."),
+  deep_hole: z.boolean().optional().describe("L/D > 3 deep hole drilling — boosts HPC recommendation."),
+  hard_turning: z.boolean().optional().describe("Workpiece ≥ 45 HRC — biases toward dry / CBN / ceramic."),
+  cryo_available: z.boolean().optional().describe("Shop has LN2 cryogenic infrastructure available."),
+  sustainability_priority: z.enum(["low", "medium", "high"]).optional().describe("Shop sustainability preference — high biases toward MQL / dry."),
+  thru_spindle_available: z.boolean().optional().describe("Lathe has through-spindle coolant plumbing — enables HPC."),
+}).passthrough().describe("Recommend a coolant delivery mode (flood / high_pressure / mist / mql / dry / cryogenic) for a lathe operation. Returns recommendation + confidence + reasoning[] + ranked alternatives[] with applicability scores.");
+
+const lathe_coolant_stats = z.object({}).passthrough().describe("Read coolant advisor metadata. No input.");
+
+// U-WIRE-LATHE-CHUCK-JAW-SETUP: soft-jaw setup calculator (LATHE-PRO-MS11)
+const lathe_chuck_jaw_compute = z.object({
+  part_od_mm: z.number().positive().describe("Part OD to grip in mm."),
+  part_od_tol_mm: z.number().nonnegative().describe("Part OD tolerance band in mm (total, +/- equally distributed)."),
+  clamp_force_kn: z.number().positive().describe("Clamp force per jaw in kN at the master jaw."),
+  jaw_modulus_mpa: z.number().positive().optional().describe("Jaw material elastic modulus, MPa (default 210000 for steel)."),
+  jaw_contact_area_mm2: z.number().positive().optional().describe("Jaw contact area in mm² (default 300 typical soft-jaw)."),
+  jaw_mass_kg: z.number().positive().describe("Jaw mass in kg (each, master + soft combined)."),
+  jaw_centroid_radius_mm: z.number().positive().describe("Jaw centroid radius from spindle axis in mm."),
+  chuck_rated_max_rpm: z.number().positive().describe("Chuck-rated max RPM (manufacturer spec)."),
+  operating_rpm: z.number().nonnegative().describe("Intended operating RPM for the operation."),
+  step_required: z.boolean().optional().describe("Step / face required (compute step bore-face depth)."),
+  step_z_mm: z.number().optional().describe("Step Z reference from chuck face in mm (only used when step_required=true)."),
+  use_master_pressure: z.boolean().optional().describe("Whether the jaws are bored under master pressure — recommended; warning emitted when false."),
+}).passthrough().describe("Compute soft-jaw bore + grip length + centrifugal-lift safety margin for a lathe chuck setup. Returns bore_diameter, springback, min/recommended grip lengths, max_safe_rpm_balance, operating_rpm_safe boolean, warnings[] + reasoning[]. ISO 16156 + NIST SP 960-18 compliant.");
+
+const lathe_chuck_jaw_stats = z.object({}).passthrough().describe("Read chuck-jaw setup engine metadata (canonical references). No input.");
+
+// U-WIRE-LATHE-CSS-OPTIMIZER: CSS clamp + G96/G97 mode selector (LATHE-PRO)
+const lathe_css_optimize = z.object({
+  Vc_m_min: z.number().positive().describe("Target cutting velocity in m/min."),
+  max_od_mm: z.number().positive().describe("Largest X diameter in the cut, mm."),
+  min_od_mm: z.number().positive().describe("Smallest X diameter in the cut, mm (>0; near-centerline → triggers G50 clamp)."),
+  rated_max_rpm: z.number().positive().describe("Maximum safe spindle RPM for chuck + workpiece (manufacturer rated)."),
+  min_rpm: z.number().positive().optional().describe("Minimum useful RPM (default 50)."),
+  cut_length_mm: z.number().nonnegative().optional().describe("Total Z-axis cut length, mm — used for cycle-time delta."),
+  f_mm_rev: z.number().positive().optional().describe("Feed rate, mm/rev — used for cycle-time delta."),
+}).passthrough().describe("Optimize Constant Surface Speed (G96) usage. Returns recommended G50 RPM clamp, clamp_activates_at_diameter_mm, RPM at max/min OD, true_css_fraction, clamped_fraction, prefer_g97 boolean, optional cycle-time CSS-vs-G97 delta when cut_length + feed are provided.");
+
+const lathe_css_select_mode = z.object({
+  Vc_m_min: z.number().positive(),
+  diameter_mm: z.number().positive().describe("Feature diameter in mm."),
+  rated_max_rpm: z.number().positive(),
+  feature_length_mm: z.number().nonnegative().describe("Feature length in mm — short features (<5mm) favor G97 for simplicity."),
+}).passthrough().describe("Pick G96 (CSS) vs G97 (constant RPM) for a single feature. Returns {mode, rpm, reasoning}.");
+
+const lathe_css_stats = z.object({}).passthrough().describe("Read CSS optimizer metadata. No input.");
+
+// U-WIRE-LATHE-LORA-REWARD-SHAPE: RL reward shaping for LoRA fine-tuning (LATHE-LORA-MS0)
+const REWARD_RESULT_SCHEMA = z.object({
+  total_reward: z.number(),
+  components: z.array(z.unknown()),
+  bonuses: z.array(z.string()),
+  penalties: z.array(z.string()),
+}).passthrough();
+
+const lathe_lora_reward_calc = z.object({
+  output: z.string().min(1).describe("LoRA model output to score."),
+  context: z.object({
+    instruction: z.string().optional(),
+    expected_type: z.string().optional(),
+  }).passthrough().optional().describe("Optional instruction + expected output type hint."),
+}).passthrough().describe("Calculate the shaped reward for a LoRA model output across syntax/semantics/safety/domain components. Returns RewardResult with total_reward, components[], bonuses[], penalties[].");
+
+const lathe_lora_reward_threshold = z.object({
+  result: REWARD_RESULT_SCHEMA.describe("RewardResult from a prior calculateReward() call."),
+  threshold: z.number().optional().describe("Threshold to check against (default 0)."),
+}).passthrough().describe("Check if a reward result meets a threshold (default 0). Returns boolean.");
+
+const lathe_lora_reward_summary = z.object({
+  result: REWARD_RESULT_SCHEMA.describe("RewardResult from a prior calculateReward() call."),
+}).passthrough().describe("Operator-facing text summary of a reward result.");
+
+const lathe_lora_reward_set_config = z.object({
+  config: z.object({}).passthrough().describe("Partial RewardConfig override (component weights)."),
+}).passthrough().describe("Override reward shaping config (component weights, penalty strengths).");
+
+const lathe_lora_reward_get_config = z.object({}).passthrough().describe("Read the current reward shaping config. No input.");
+
 const lathe_expert_material_strategy = z.object({
   category: z.enum([
     "mild_steel", "alloy_steel", "stainless_steel", "hardened_steel",
@@ -450,6 +912,62 @@ const lathe_neural_intel_stats = z.object({}).passthrough()
 
 const lathe_jmdie_extract_operations = z.object({}).passthrough()
   .describe("Extract operation sequences from JM Die archive (no input).");
+
+// ─── FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-TRIBAL-WIRE: lathe tribal knowledge → lathe AI bridge ─
+
+/** Lathe machining context (InjectionContext) used to bias tribal sourcing. */
+const _latheTribalContext = z.object({
+  material: z.string().optional().describe("Material name (e.g. '4140 steel')."),
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO material group."),
+  operation: z.string().optional().describe("Lathe operation (e.g. 'turn_rough', 'bore')."),
+  machine: z.string().optional().describe("Machine name/id."),
+  controller: z.string().optional().describe("Controller/dialect."),
+  customer: z.string().optional().describe("Customer name."),
+  features: z.array(z.string()).optional().describe("Part feature list."),
+  complexity: z
+    .enum(["simple", "moderate", "complex", "very_complex"])
+    .optional()
+    .describe("Job complexity."),
+  keywords: z.array(z.string()).optional().describe("Extra corpus-search keywords."),
+}).passthrough();
+
+const lathe_tribal_integrate = z.object({
+  context: _latheTribalContext.optional().describe("Lathe machining context."),
+  options: z.object({
+    limitPerTarget: z.number().int().positive().optional()
+      .describe("Max tips injected per target (default 5)."),
+    minRelevance: z.number().min(0).max(1).optional()
+      .describe("Injector relevance floor (default 0.15)."),
+    includeCorpus: z.boolean().optional()
+      .describe("Source tips from the tribal corpus (default true)."),
+  }).passthrough().optional().describe("Injection tuning options."),
+}).passthrough().describe("Source lathe tribal knowledge and inject it into the lathe AI system.");
+
+const lathe_tribal_adjustment = z.object({
+  material: z.string().min(1).describe("ISO material group (P/M/K/N/S/H) or material name."),
+  operation: z.string().min(1).describe("Lathe operation (turn_rough, face, bore, thread, ...)."),
+  conditions: z.object({
+    overhangRatio: z.number().nonnegative().optional()
+      .describe("Boring-bar/tool overhang ratio (length/diameter)."),
+    partLengthDiameterRatio: z.number().nonnegative().optional()
+      .describe("Unsupported part length/diameter ratio."),
+    interruptedCut: z.boolean().optional().describe("True when the OD cut is interrupted."),
+    insertWearVbMm: z.number().nonnegative().optional()
+      .describe("Measured insert flank wear VB in millimetres."),
+  }).passthrough().optional().describe("Runtime conditions that gate expert heuristics."),
+}).passthrough().describe("Tribal-derived rpm/feed/doc factors for a lathe operation.");
+
+const lathe_tribal_failure_check = z.object({
+  material: z.string().optional().describe("ISO material group filter (optional)."),
+  operation: z.string().optional().describe("Lathe operation filter (optional)."),
+}).passthrough().describe("Look up lathe failure modes for a material/operation pair.");
+
+const lathe_tribal_source_corpus = z.object({
+  context: _latheTribalContext.optional().describe("Lathe machining context."),
+}).passthrough().describe("Query the tribal corpus for lathe-relevant tips.");
+
+const lathe_tribal_integration_stats = z.object({}).passthrough()
+  .describe("Read lathe tribal-integration coverage statistics (no input).");
 
 // ─── ENGINE-WIRE-LATHE-MS0/U-WIRE-LATHE-BATCH5: 6 unwired LoRA-cadence/post-uncertainty/deep-reasoning engines ─
 
@@ -755,6 +1273,31 @@ const lathe_workholding_expanding_mandrel = z.object({
   material: z.string().optional().describe("Material name."),
 }).passthrough().describe(
   "Expanding mandrel grip via Lame thick-wall equations (LatheWorkholdingEngine.calculateExpandingMandrel). p = Δ·E/(r·((r_o²+r_i²)/(r_o²-r_i²)+ν)). Returns contact pressure + grip torque + SF.",
+);
+
+// U-WIRE-EMA: ExpandingMandrelEngine.analyze — the DYNAMIC grip model, distinct
+// from lathe_workholding_expanding_mandrel above. Keyed on actuator_force_n + rpm
+// (not radial interference), and uniquely returns centrifugal_loss + max_safe_rpm.
+const lathe_expanding_mandrel_analyze = z.object({
+  mandrel: z.object({
+    nominal_od_mm: posNum.describe("Mandrel OD when relaxed (mm, >0)."),
+    expanded_od_mm: posNum.describe("Mandrel OD when fully expanded (mm, >0)."),
+    grip_length_mm: posNum.describe("Length of the gripping zone (mm, >0)."),
+    material: z.enum(["4140", "4340", "S7", "D2", "H13"]).describe("Mandrel body material."),
+  }).describe("Mandrel geometry + material."),
+  part: z.object({
+    bore_id_mm: posNum.describe("Part bore ID the mandrel grips (mm, >0)."),
+    material: z.string().describe("Part material (e.g. 4140, 316, 6061, Ti-6Al-4V)."),
+    outer_od_mm: optPosNum.describe("Part OD (mm) — used for the centrifugal calc."),
+    mass_kg: optPosNum.describe("Part mass (kg) — used for the retention-force check."),
+    wall_thickness_mm: optPosNum.describe("Wall thickness at the bore (mm) — for deformation analysis."),
+  }).describe("Part geometry + material."),
+  actuator_force_n: posNum.describe("Applied actuator force on the draw tube (N, >0)."),
+  rpm: z.number().min(0).describe("Operating spindle speed (RPM, ≥0)."),
+  mu: z.number().min(0.05).max(1).optional().describe("Mandrel–bore friction coefficient (default 0.15 steel-steel dry)."),
+  cutting_force_n: optPosNum.describe("Cutting force being transmitted (N) — if provided, checks capacity."),
+}).passthrough().describe(
+  "Expanding-mandrel dynamic grip analysis (ExpandingMandrelEngine.analyze). Actuator-force-driven grip with centrifugal de-rating; returns grip pressure, max transmitted torque, centrifugal loss, max_safe_rpm, retention force, and an ISO grips_safely verdict. Distinct from lathe_workholding_expanding_mandrel (Lame interference-fit model).",
 );
 
 const lathe_workholding_magnetic_chuck = z.object({
@@ -1117,6 +1660,43 @@ const lathe_backtrace_trace = z.object({
 /** LatheProgramBacktraceEngine.getStats — no params. */
 const lathe_backtrace_stats = z.object({});
 
+// ============================================================================
+// FEATURE-GAP-AUDIT-MS0/U-BRIDGE-WIRE-OKUMA — 4 unwired Okuma engines
+// ============================================================================
+
+/** OkumaMachineStepIngesterEngine.parseContent — STEP AP203/AP214/AP242 axis-frame extraction. */
+const okuma_step_parse = z.object({
+  content: z.string().min(1).describe("STEP file body (ISO 10303-21 — HEADER + DATA sections)."),
+  source_name: z.string().optional().describe("Logical name for the source (defaults to 'in-memory')."),
+}).passthrough().describe(
+  "Parse a STEP CAD file and return detected machine axes + CARTESIAN_POINT/DIRECTION/AXIS2_PLACEMENT_3D counts. Okuma LB3000/LU300/Multus families.",
+);
+
+/** OkumaMacroConverterBridgeEngine.convert — Okuma OSP macro/G-code → ISO-compatible G-code. */
+const okuma_macro_convert = z.object({
+  source: z.string().min(1).describe("Okuma OSP source (G&M codes + macro variable definitions)."),
+  python_binary: z.string().optional().describe("Override path to python interpreter for full converter."),
+  converter_path: z.string().optional().describe("Override path to the Python converter script."),
+}).passthrough().describe(
+  "Convert Okuma OSP-dialect source program. Falls back to TS converter if Python pipeline is unavailable. Returns { converted_gcode, source_lines, output_lines, variables_resolved, warnings, runner }.",
+);
+
+/** OkumaManualTipExtractorEngine.extractFromText — text → classified tribal tips. */
+const okuma_manual_tips_extract = z.object({
+  text: z.string().min(1).describe("Already-extracted Okuma manual text (run /pdf-learn or pdftotext first)."),
+  manual_name: z.string().optional().describe("Logical name for the source manual (used as tip source attribution)."),
+}).passthrough().describe(
+  "Extract warnings/tips/procedures/examples/specifications from Okuma manual text. Returns { tips[], tip_counts, sections_detected, warnings_found }.",
+);
+
+/** OkumaGosigerTranscriptMinerEngine.mineAllTranscripts — Gosiger video tribal tip mining. */
+const okuma_transcript_mine = z.object({
+  video_ids: z.array(z.string().min(1)).optional()
+    .describe("Filter — restrict mining to these video ids. Omit to mine all configured transcripts."),
+}).passthrough().describe(
+  "Mine Okuma/Gosiger training-video transcripts for tribal tips. Returns { transcriptsProcessed, totalTipsExtracted, tipsByCategory, tips[], errors[] }.",
+);
+
 const lathe_softjaw_boring = z.object({
   bore_diameter_mm: posNum.describe("Target finished bore diameter in mm (>0) — clearance fit to the Op1 finished OD."),
   bore_depth_mm: posNum.describe("Bore depth in mm (>0)."),
@@ -1126,11 +1706,161 @@ const lathe_softjaw_boring = z.object({
   "Generate a standalone soft-jaw boring program (LatheMultiOpPlannerEngine.generateSoftJawBoring). Returns { bore_diameter_mm, bore_depth_mm, bore_tolerance_mm:0.025, gcode (controller-specific rough+finish bore), notes[] }.",
 );
 
+// ============================================================================
+// BACKEND-DEV-LOOP/U-WIRE-LATHE-GA — LatheGeneticAlgorithmEngine schemas
+// ============================================================================
+
+const latheObjectiveSchema = z.object({
+  name: z.string().min(1).describe("Objective name (e.g. mrr, surface_finish, tool_life)"),
+  weight: z.number().finite().describe("Relative weight (sum of weights typically 1.0)"),
+  type: z.enum(["minimize", "maximize"]).optional().describe("Optimization direction"),
+}).passthrough().describe("LatheObjective for GA fitness function");
+
+const lathe_ga_optimize_parameters = z.object({
+  material: z.string().min(1).describe("Material name (resolves against CANONICAL_MATERIAL_DB)"),
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO material group override"),
+  operation: z.enum(["roughing", "finishing", "threading", "grooving", "boring", "facing"]).describe("Operation type"),
+  machine: z.object({
+    max_spindle_rpm: z.number().positive().describe("Machine spindle RPM ceiling"),
+    max_power_kw: z.number().positive().describe("Machine motor power kW"),
+    max_feed_mm_rev: z.number().positive().describe("Max feed per rev mm"),
+    max_rapid_mm_min: z.number().positive().describe("Max rapid travel mm/min"),
+    turret_stations: z.number().int().positive().describe("Number of turret stations"),
+  }).describe("Machine envelope limits"),
+  tool: z.object({
+    insert_grade: z.string().min(1).describe("Insert grade code (e.g. KC5010)"),
+    nose_radius_mm: z.number().positive().describe("Insert nose radius mm"),
+    approach_angle_deg: z.number().positive().describe("Lead angle deg"),
+    max_depth_mm: z.number().positive().describe("Max DOC the tool can sustain"),
+    tool_life_ref_min: z.number().positive().optional().describe("Reference tool life in minutes (default 60)"),
+  }).describe("Tool specifications"),
+  workpiece: z.object({
+    diameter_mm: z.number().positive().describe("Workpiece diameter mm"),
+    length_mm: z.number().positive().describe("Workpiece length mm"),
+    stock_allowance_mm: z.number().nonnegative().describe("Material removal allowance mm"),
+  }).describe("Workpiece geometry"),
+  objectives: z.array(latheObjectiveSchema).min(1).describe("Optimization objectives (at least one)"),
+  constraints: z.array(z.record(z.string(), z.unknown())).optional().describe("Additional LatheConstraint records"),
+  config: z.record(z.string(), z.unknown()).optional().describe("Partial GA config overrides"),
+}).passthrough().describe("Manufacturing-aware GA optimization input (Kienzle + Taylor fitness)");
+
+const lathe_ga_optimize_tool_sequence = z.object({
+  operations: z.array(z.object({
+    name: z.string().min(1).describe("Operation name (unique key)"),
+    time_min: z.number().positive().describe("Operation duration minutes"),
+    tool_id: z.string().min(1).describe("Tool identifier — sequence minimizes tool changes"),
+    dependencies: z.array(z.string()).optional().describe("Operation names that must complete first"),
+  })).min(1).describe("Operations to sequence (min 1)"),
+  config: z.record(z.string(), z.unknown()).optional().describe("Partial GA config overrides"),
+}).passthrough().describe("Tool-change-aware op sequencer via GA permutation encoding");
+
+const lathe_ga_optimize_multi_pass = z.object({
+  total_stock_mm: z.number().positive().describe("Total stock to remove mm"),
+  constraints: z.object({
+    max_doc_mm: z.number().positive().describe("Maximum depth-of-cut per pass mm"),
+    min_doc_mm: z.number().positive().describe("Minimum viable DOC per pass mm"),
+    max_passes: z.number().int().positive().describe("Maximum number of passes"),
+    tool_stability_factor: z.number().positive().describe("Tool stability multiplier (1.0 = baseline)"),
+  }).optional().describe("Pass-distribution constraints (defaulted by dispatcher case)"),
+  objectives: z.array(latheObjectiveSchema).optional().describe("Optimization objectives — defaults to cutting_time + tool_wear weighted sum"),
+  config: z.record(z.string(), z.unknown()).optional().describe("Partial GA config overrides"),
+}).passthrough().describe("Multi-pass DOC distribution GA optimizer (minimizes time + wear)");
+
+// ============================================================================
+// BRIDGE-WIRING/U-BRIDGE-WIRE-TURNING — 6 unwired Turning engines
+// SDK-boundary contracts. Each engine throws on bad input (its own validation
+// is authoritative); these Zod schemas validate the required fields for
+// fail-fast and pass optional knobs through to the engine's bounds checks.
+// ============================================================================
+
+/** OpSpec — shared by envelope-distance / sensitivity / stochastic-plan. */
+const turningBridgeOpSpec = z.object({
+  conditions: z.object({
+    iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).describe("ISO 513 material group"),
+    Vc_m_min: posNum.describe("Cutting speed m/min"),
+    f_mm_rev: posNum.describe("Feed mm/rev"),
+    ap_mm: posNum.describe("Depth of cut mm"),
+  }).passthrough().describe("InsertLifeInput operating conditions"),
+  duration_min: z.number().nonnegative().describe("Operation duration minutes"),
+  label: z.string().optional().describe("Human-readable operation label"),
+}).passthrough().describe("Turning operation spec (conditions + duration)");
+
+/** SPTInput thread spec — shared by the 3 thread bridge engines.
+ *  Mirrors devActionSchemas ttro_run thread bounds for cross-dispatcher parity. */
+const turningBridgeThreadSpec = z.object({
+  thread_form: z.enum(["UN", "metric", "ACME", "trapezoidal", "buttress"])
+    .describe("Thread profile family"),
+  pitch_mm: z.number().positive().max(50).describe("Thread pitch mm"),
+  major_diameter_mm: z.number().positive().max(1000).describe("Major (nominal) diameter mm"),
+  internal: z.boolean().describe("true = internal thread, false = external"),
+  infeed_method: z.enum(["radial", "flank", "modified_flank", "alternating_flank", "constant_area"])
+    .describe("Single-point infeed strategy"),
+  total_depth_mm: z.number().positive().max(100).describe("Full thread depth mm"),
+  spindle_rpm: z.number().positive().max(50_000).describe("Spindle speed RPM"),
+  num_passes: z.number().int().min(1).max(30).describe("Number of cutting passes"),
+  spring_passes: z.number().int().min(0).max(10).describe("Spring (no-infeed) passes"),
+  lead_in_mm: z.number().min(0).max(100).describe("Lead-in distance mm"),
+  lead_out_mm: z.number().min(0).max(100).describe("Lead-out / overtravel mm"),
+  thread_length_mm: z.number().positive().max(10_000).describe("Threaded length mm"),
+  material_tensile_MPa: z.number().positive().max(10_000).describe("Material UTS MPa"),
+}).describe("SPTInput single-point thread spec");
+
+// turning_envelope_distance — TurningEnvelopeDistanceEngine.run
+const turning_envelope_distance = z.object({
+  ops: z.array(turningBridgeOpSpec).min(1)
+    .describe("Operations to evaluate against the envelope rules"),
+  rules_context: z.object({
+    material: z.string().min(1).describe("Workpiece material name"),
+  }).passthrough().optional()
+    .describe("Rule-generation context — engine builds the rule set"),
+  rule_set: z.object({}).passthrough().optional()
+    .describe("Pre-built rule set (alternative to rules_context)"),
+  borderline_threshold: z.number().min(0).max(2).optional()
+    .describe("|centre_distance_norm| ≥ this flags borderline (default 0.9)"),
+}).passthrough().refine(
+  (v) => v.rules_context !== undefined || v.rule_set !== undefined,
+  { message: "either rules_context or rule_set is required" },
+).describe("Graduated distance-to-envelope metric for turning operations");
+
+// turning_sensitivity_analysis — TurningSensitivityAnalysisEngine.run
+const turning_sensitivity_analysis = z.object({
+  ops: z.array(turningBridgeOpSpec).min(1).describe("Operations in the production plan"),
+  batch_size: z.number().int().positive().describe("Parts per batch"),
+  nominal_mm: posNum.describe("Nominal critical dimension mm"),
+  tolerance_mm: posNum.describe("Bilateral tolerance mm"),
+}).passthrough().describe("Local-OAT + Morris sensitivity over the MS1+MS2 turning cascade");
+
+// turning_stochastic_production_plan — TurningStochasticPlanEngine.run
+const turning_stochastic_production_plan = z.object({
+  ops: z.array(turningBridgeOpSpec).min(1).describe("Operations in the production plan"),
+  batch_size: z.number().int().positive().describe("Parts per batch"),
+  nominal_mm: posNum.describe("Nominal critical dimension mm"),
+  tolerance_mm: posNum.describe("Bilateral tolerance mm"),
+}).passthrough().describe("Monte-Carlo P5/P50/P95 envelope over the MS1+MS2 turning cascade");
+
+// turning_thread_optimize — TurningThreadOptimizerEngine.optimize
+const turning_thread_optimize = z.object({
+  thread: turningBridgeThreadSpec,
+  tolerance_class: z.enum(["6g", "6H", "4g", "4H", "2A", "3A", "2B", "3B"]).optional()
+    .describe("ISO 965-1 / ASME B1.1 pitch-diameter class"),
+}).passthrough().describe("Threading capstone — sensitivity + stochastic + robust + ISO 965-1 gate");
+
+// turning_thread_sensitivity — TurningThreadSensitivityEngine.run
+const turning_thread_sensitivity = z.object({
+  thread: turningBridgeThreadSpec,
+}).passthrough().describe("OAT variability apportionment over the single-point thread cascade");
+
+// turning_thread_stochastic_plan — TurningThreadStochasticPlanEngine.run
+const turning_thread_stochastic_plan = z.object({
+  thread: turningBridgeThreadSpec,
+}).passthrough().describe("Monte-Carlo P5/P50/P95 envelope for single-point threading");
+
 export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   chuck_force,
   tailstock,
   steady_rest,
   live_tool,
+  live_tool_plan,
   bar_pull,
   thread_single_point,
   part_off_force,
@@ -1157,6 +1887,92 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_troubleshoot_overhang,
   lathe_predictive_tool_wear,
 
+  // U-LATHE-PROG-OPT-WIRE: LatheProgramOptimizerEngine upgrade trio (analyze was already in BATCH3)
+  lathe_program_optimize,
+  lathe_program_estimate,
+
+  // U-WIRE-LATHE-BIRDNEST: chip-wrap risk prediction (LATHE-PRO-MS7)
+  lathe_bird_nest_predict,
+  lathe_bird_nest_stats,
+
+  // U-WIRE-LATHE-PARTING-CLEAR: parting chip-clearance evaluation (LATHE-PRO-MS7)
+  lathe_parting_clearance_evaluate,
+  lathe_parting_clearance_stats,
+
+  // U-WIRE-LATHE-PART-COST: 7-bucket cost-per-part model (LATHE-PRO-MS10)
+  lathe_part_cost_compute,
+  lathe_part_cost_stats,
+
+  // U-WIRE-LATHE-SUBSPINDLE-PURGE: sub-spindle transfer purge timing (LATHE-PRO-MS7)
+  lathe_subspindle_purge_plan,
+  lathe_subspindle_purge_stats,
+
+  // U-WIRE-LATHE-OP-TIME-BREAKDOWN: 9-bucket op-time decomposition (LATHE-PRO-MS5)
+  lathe_op_time_compute,
+  lathe_op_time_aggregate,
+  lathe_op_time_stats,
+
+  // U-WIRE-LATHE-REPLAY-FRAME: block-by-block replay frame compiler (LATHE-PRO-MS12)
+  lathe_replay_frame_compile,
+  lathe_replay_frame_stats,
+
+  // U-WIRE-LATHE-PART-CLASSIFIER: 15-family part classifier (LATHE-PRO-MS3)
+  lathe_part_classify,
+  lathe_part_classify_batch,
+  lathe_part_family_profile,
+  lathe_part_family_list,
+
+  // U-WIRE-LATHE-PROG-COST: programming cost model (LATHE-AWARE-HARDEN-MS11)
+  lathe_programming_cost_estimate,
+  lathe_programming_cost_compare,
+  lathe_programming_cost_breakeven,
+  lathe_programming_cost_stats,
+
+  // U-WIRE-LATHE-PERF-SLO: production-SLO registry (LATHE-PROD-READY-MS0)
+  lathe_slo_targets,
+  lathe_slo_get_target,
+  lathe_slo_set_target,
+  lathe_slo_record_sample,
+  lathe_slo_sample_count,
+  lathe_slo_evaluate,
+  lathe_slo_dashboard,
+  lathe_slo_clear_samples,
+
+  // U-WIRE-LATHE-LORA-SAFETY-EVAL: LoRA-output safety evaluator (LATHE-LORA-MS0)
+  lathe_lora_safety_evaluate,
+  lathe_lora_safety_is_safe,
+  lathe_lora_safety_summary,
+  lathe_lora_safety_set_config,
+  lathe_lora_safety_get_config,
+  lathe_lora_safety_threshold,
+
+  // U-WIRE-LATHE-LORA-REASON-EVAL: LoRA reasoning-chain evaluator (LATHE-LORA-MS0)
+  lathe_lora_reason_evaluate,
+  lathe_lora_reason_summary,
+  lathe_lora_reason_suggestions,
+  lathe_lora_reason_set_config,
+  lathe_lora_reason_get_config,
+
+  // U-WIRE-LATHE-COOLANT-ADVISOR: coolant delivery recommender (LATHE-PRO-MS5)
+  lathe_coolant_advise,
+  lathe_coolant_stats,
+
+  // U-WIRE-LATHE-CHUCK-JAW-SETUP: soft-jaw setup calculator (LATHE-PRO-MS11)
+  lathe_chuck_jaw_compute,
+  lathe_chuck_jaw_stats,
+
+  // U-WIRE-LATHE-CSS-OPTIMIZER: CSS clamp + mode selector (LATHE-PRO)
+  lathe_css_optimize,
+  lathe_css_select_mode,
+  lathe_css_stats,
+
+  // U-WIRE-LATHE-LORA-REWARD-SHAPE: RL reward shaping for LoRA fine-tuning (LATHE-LORA-MS0)
+  lathe_lora_reward_calc,
+  lathe_lora_reward_threshold,
+  lathe_lora_reward_summary,
+  lathe_lora_reward_set_config,
+  lathe_lora_reward_get_config,
+
   // BATCH4 schemas: tribal/science/reasoning/neural/jmdie
   lathe_tribal_stats,
   lathe_unified_science_version,
@@ -1164,6 +1980,13 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_kinematics_get_machine_specs,
   lathe_neural_intel_stats,
   lathe_jmdie_extract_operations,
+
+  // FEATURE-GAP-AUDIT-MS0/U-GAP-LATHE-TRIBAL-WIRE: lathe tribal knowledge → lathe AI bridge
+  lathe_tribal_integrate,
+  lathe_tribal_adjustment,
+  lathe_tribal_failure_check,
+  lathe_tribal_source_corpus,
+  lathe_tribal_integration_stats,
 
   // BATCH5 schemas: LoRA-cadence/post-uncertainty/deep-reasoning
   lathe_lora_cadence_state,
@@ -1258,6 +2081,7 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   lathe_workholding_expanding_mandrel,
   lathe_workholding_magnetic_chuck,
   lathe_workholding_stock_form,
+  lathe_expanding_mandrel_analyze,
 
   // WIRE-UNWIRED-MS0/U-WIRE-LSO: LatheSequenceOptimizerEngine — 2 surfaces
   lathe_sequence_optimize,
@@ -1294,4 +2118,113 @@ export const TURNING_ACTION_SCHEMAS: ActionSchemaMap = {
   // WIRE-UNWIRED-MS0/U-WIRE-LBACKTRACE: LatheProgramBacktraceEngine — 2 surfaces
   lathe_backtrace_trace,
   lathe_backtrace_stats,
+
+  // FEATURE-GAP-AUDIT-MS0/U-BRIDGE-WIRE-OKUMA: 4 unwired Okuma engines
+  okuma_step_parse,
+  okuma_macro_convert,
+  okuma_manual_tips_extract,
+  okuma_transcript_mine,
+
+  // BACKEND-DEV-LOOP/U-WIRE-LATHE-GA: LatheGeneticAlgorithmEngine — 3 surfaces
+  lathe_ga_optimize_parameters,
+  lathe_ga_optimize_tool_sequence,
+  lathe_ga_optimize_multi_pass,
+
+  // BRIDGE-WIRING/U-BRIDGE-WIRE-TURNING: 6 unwired Turning engines
+  turning_envelope_distance,
+  turning_sensitivity_analysis,
+  turning_stochastic_production_plan,
+  turning_thread_optimize,
+  turning_thread_sensitivity,
+  turning_thread_stochastic_plan,
+
+  // WIRE-UNWIRED-LOOP-TURNING/BATCH-A: 56 orphan engines — passthrough schemas
+  lathe_orchestration_calculate: z.object({}).passthrough(),
+  eccentric_turning_get_stats: z.object({}).passthrough(),
+  lathe_deep_learning_find_similar_jobs: z.object({
+    material: z.string().optional(),
+    operation: z.string().optional(),
+    machine_type: z.string().optional(),
+  }).passthrough(),
+  lathe_unified_ai_generate_process_plan: z.object({}).passthrough(),
+  lathe_dl_intel_get_stats: z.object({}).passthrough(),
+  lathe_resource_knowledge_get_base: z.object({}).passthrough(),
+  lathe_rl_get_stats: z.object({}).passthrough(),
+  lathe_meta_learning_maml_train: z.object({}).passthrough(),
+  lathe_archive_training_get_stats: z.object({}).passthrough(),
+  lathe_style_selector_select: z.object({}).passthrough(),
+  lathe_part_family_planning_analyze: z.object({}).passthrough(),
+  lathe_transfer_learning_transfer: z.object({}).passthrough(),
+  lathe_lora_program_parser_parse: z.object({
+    content: z.string(),
+    file_name: z.string().optional(),
+  }),
+  lathe_lora_example_generator_generate: z.object({}).passthrough(),
+  lathe_lora_dataset_validator_validate: z.object({
+    examples: z.array(z.record(z.string(), z.unknown())),
+  }),
+  lathe_lora_transfer_strategy_list: z.object({}).passthrough(),
+  lathe_lora_training_monitor_init: z.object({}).passthrough(),
+  lathe_lora_physics_evaluator_evaluate: z.object({
+    output: z.string(),
+    context: z.object({
+      material: z.string().optional(),
+      iso_group: z.string().optional(),
+    }).optional(),
+  }),
+  lathe_lora_merge_strategy_recommend: z.object({
+    adapter_ids: z.array(z.string()),
+  }),
+  lathe_lora_quantization_estimate_size: z.object({
+    model_id: z.string(),
+    config: z.record(z.string(), z.unknown()).optional(),
+  }),
+  lathe_lora_model_optimizer_get_profile: z.object({}).passthrough(),
+  lathe_lora_ollama_deployer_generate: z.object({}).passthrough(),
+  lathe_lora_inference_gateway_get_config: z.object({}).passthrough(),
+  lathe_lora_reasoning_chain_get_templates: z.object({}).passthrough(),
+  lathe_lora_neural_bridge_get_config: z.object({}).passthrough(),
+  lathe_lora_neural_orch_start_pipeline: z.object({
+    input: z.string(),
+    metadata: z.record(z.string(), z.unknown()).optional(),
+  }),
+  lathe_lora_program_miner_detect_dialect: z.object({
+    program_text: z.string(),
+  }),
+  lathe_lora_knowledge_curator_get_config: z.object({}).passthrough(),
+  lathe_lora_pipeline_coord_create: z.object({
+    name: z.string().optional(),
+    stages: z.array(z.record(z.string(), z.unknown())).optional(),
+  }).passthrough(),
+  turning_strategy_catalog_select: z.object({}).passthrough(),
+  lathe_ai_feature_get_stats: z.object({}).passthrough(),
+  lathe_advanced_ops_live_tooling: z.object({}).passthrough(),
+  lathe_deep_ai_harden_analyze: z.object({}).passthrough(),
+  lathe_intelligence_get_stats: z.object({}).passthrough(),
+  lathe_print_ingest_ingest: z.object({}).passthrough(),
+  lathe_feature_recognizer_recognize: z.object({}).passthrough(),
+  lathe_print_setup_select: z.object({}).passthrough(),
+  lathe_print_dl_intel_predict: z.object({}).passthrough(),
+  lathe_safety_predicate_evaluate: z.object({}).passthrough(),
+  lathe_lora_physics_aug_infer_extract: z.object({
+    response: z.string(),
+  }),
+  lathe_proof_carrying_emit: z.object({}).passthrough(),
+  lathe_print_tolerance_stack_propagate: z.object({}).passthrough(),
+  lathe_thermodynamics_heat_gen: z.object({}).passthrough(),
+  lathe_opus_reasoning_forward: z.object({}).passthrough(),
+  lathe_unified_physics_analyze: z.object({}).passthrough(),
+  lathe_knowledge_graph_ingest: z.object({}).passthrough(),
+  lathe_print_reasoning_explain: z.object({}).passthrough(),
+  lathe_tribal_integration_source_corpus: z.object({}).passthrough(),
+  lathe_print_sequence_plan: z.object({}).passthrough(),
+  lathe_print_feature_strategy_select: z.object({}).passthrough(),
+  lathe_print_program_emit: z.object({}).passthrough(),
+  lathe_print_program_signoff_generate: z.object({}).passthrough(),
+  lathe_program_audit_pipeline_run: z.object({
+    content: z.string(),
+  }),
+  jmdie_lathe_program_upgrade: z.object({}).passthrough(),
+  jmdie_lathe_program_upgrade_v2: z.object({}).passthrough(),
+  lathe_program_library_search: z.object({}).passthrough(),
 };

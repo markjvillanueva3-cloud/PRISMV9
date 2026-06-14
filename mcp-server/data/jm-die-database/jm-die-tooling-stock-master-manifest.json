@@ -1,0 +1,1298 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "jm-die-tooling-stock-master-manifest",
+  "generated": "2026-05-29",
+  "shop": "J.M. Tool & Die, LLC",
+  "builtBy": "scripts/compile-jm-tooling-stock-manifest.mjs (slot:juliett, database-expansion)",
+  "design": "Sources kept SEPARATE + cross-referenced (operator directive 2026-05-29). This manifest INDEXES every source with path + record count + classification; it does NOT copy records (they stay authoritative in src/data / the vendor-report catalogs / the monolith).",
+  "honesty": ".ts and monolith record counts are APPROXIMATE (regex/grep marker counts), flagged approx:true. .json counts are exact array lengths. No dollar figures (hotel financial-invariant).",
+  "grandTotals": {
+    "mfr_catalog_files": 77,
+    "mfr_catalog_records_approx": 153394,
+    "tool_spec_records": 149973,
+    "holder_records": 4216,
+    "workholding_records": 0,
+    "purchased_tooling_vendors": 59,
+    "purchased_stock_lines": 2212,
+    "manufacturer_catalog_index_entries": 45
+  },
+  "sources": {
+    "PURCHASED": {
+      "description": "What JM Die actually bought (DocuStrata QuickBooks vendor report, 2014-2026).",
+      "artifacts": [
+        {
+          "path": "mcp-server/data/jm-die-database/jm-die-tooling-catalog.json",
+          "kind": "purchased_tooling_by_vendor",
+          "records": 59
+        },
+        {
+          "path": "mcp-server/data/jm-die-database/jm-die-stock-material-catalog.json",
+          "kind": "purchased_stock_material",
+          "lines": 2212
+        }
+      ],
+      "crossRef": "vendor names reconcile with hotel's mcp-server/data/state/jm-die-vendor-registry.json (174 vendors)."
+    },
+    "MFR_CATALOGS": {
+      "description": "Manufacturer tool/insert/holder spec catalogs extracted to mcp-server/src/data/ (the bulk of the tooling universe).",
+      "catalogIndex": {
+        "path": "mcp-server/data/tool-catalog-inventory.json",
+        "catalogs": 45,
+        "note": "TOOL-CATALOG-INGEST-MS0 index of 45 source PDFs by manufacturer/type."
+      },
+      "byManufacturer": {
+        "emuge_tool": 13717,
+        "additional_tool": 13258,
+        "kennametal_turning": 11868,
+        "osg_tools": 11550,
+        "indexable_tool": 11542,
+        "catalog_c010b": 7991,
+        "sumitomo_tool": 7617,
+        "yg1_tools": 6793,
+        "ampc_tool": 6475,
+        "tungaloy_turning": 5537,
+        "iscar_tools": 5449,
+        "global_cnc": 3681,
+        "guhring_tool": 3422,
+        "guhring_tools": 3421,
+        "ingersoll_tool": 3171,
+        "accupro_tools": 3015,
+        "flash_tools": 2485,
+        "tungaloy_us": 2485,
+        "sandvik_tool": 2419,
+        "sandvik_tools": 2418,
+        "unknown_endmill": 2043,
+        "widia_2022": 1735,
+        "unknown_tools": 1649,
+        "tungaloy_drill": 1565,
+        "mitsubishi_tool": 1434,
+        "korloy_rotating": 1385,
+        "seco_tool": 1225,
+        "seco_tools": 1224,
+        "big_daishowa": 1208,
+        "unknown_insert": 1045,
+        "tungaloy_endmill": 804,
+        "kennametal_holemaking": 682,
+        "seco_endmill": 651,
+        "camfix_tools": 626,
+        "iscar_turning": 625,
+        "hypermill": 587,
+        "ampc_tools": 555,
+        "unknown_drill": 506,
+        "tungaloy_holder": 495,
+        "haimer_holder": 490,
+        "haimer_holders": 489,
+        "regofix_holder": 420,
+        "hsm_advisor": 391,
+        "tungaloy_tooling": 356,
+        "rapidkut_tools": 352,
+        "korloy_turning": 313,
+        "ma_ford": 292,
+        "dormer_pramet": 267,
+        "korloy_tools": 263,
+        "kennametal_milling": 206,
+        "niagara_tool": 172,
+        "horn_tool": 144,
+        "iscar_endmill": 129,
+        "unknown_holder": 117,
+        "seco_toolholders": 103,
+        "mitsubishi_turning": 92,
+        "kennametal_threading": 70,
+        "tungaloy_insert": 66,
+        "unknown": 57,
+        "osg_holder": 52,
+        "iscar_insert": 44,
+        "guhring_holder": 24,
+        "guhring_holders": 23,
+        "osg_drill": 22,
+        "unknown_threading": 22,
+        "osg_endmill": 20,
+        "emuge_threading": 11,
+        "sgs_tool": 10,
+        "emuge_tools": 8,
+        "turning_vendor": 6,
+        "guhring_drill": 5
+      },
+      "files": [
+        {
+          "file": "mcp-server/src/data/emuge-tool-catalog.ts",
+          "manufacturer": "emuge_tool",
+          "kind": "tooling",
+          "records": 13717,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/additional-tool-catalog.ts",
+          "manufacturer": "additional_tool",
+          "kind": "tooling",
+          "records": 13258,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/osg-tools-extracted.json",
+          "manufacturer": "osg_tools",
+          "kind": "tooling",
+          "records": 11550,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "edp",
+            "manufacturer",
+            "type",
+            "material",
+            "cutting_diameter_mm",
+            "page",
+            "shank_diameter_mm",
+            "flute_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/indexable-tool-catalog.ts",
+          "manufacturer": "indexable_tool",
+          "kind": "tooling",
+          "records": 11542,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/kennametal-turning-catalog.ts",
+          "manufacturer": "kennametal_turning",
+          "kind": "turning",
+          "records": 10238,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/catalog-c010b-extracted.json",
+          "manufacturer": "catalog_c010b",
+          "kind": "tooling",
+          "records": 7991,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/sumitomo-tool-catalog.ts",
+          "manufacturer": "sumitomo_tool",
+          "kind": "tooling",
+          "records": 7617,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/yg1-tools-extracted.json",
+          "manufacturer": "yg1_tools",
+          "kind": "tooling",
+          "records": 6793,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/ampc-tool-catalog.ts",
+          "manufacturer": "ampc_tool",
+          "kind": "tooling",
+          "records": 6475,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/iscar-tools-extracted.json",
+          "manufacturer": "iscar_tools",
+          "kind": "tooling",
+          "records": 5449,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "projection_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/global-cnc-tool-catalog.ts",
+          "manufacturer": "global_cnc",
+          "kind": "tooling",
+          "records": 3681,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/guhring-tool-catalog.ts",
+          "manufacturer": "guhring_tool",
+          "kind": "tooling",
+          "records": 3422,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/guhring-tools-extracted.json",
+          "manufacturer": "guhring_tools",
+          "kind": "tooling",
+          "records": 3421,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "article",
+            "cutting_diameter_mm",
+            "page",
+            "shank_diameter_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/ingersoll-tool-catalog.ts",
+          "manufacturer": "ingersoll_tool",
+          "kind": "tooling",
+          "records": 3171,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/accupro-tools-extracted.json",
+          "manufacturer": "accupro_tools",
+          "kind": "tooling",
+          "records": 3015,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm",
+            "flute_length_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-turning-catalog.ts",
+          "manufacturer": "tungaloy_turning",
+          "kind": "turning",
+          "records": 2976,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-turning-extracted.json",
+          "manufacturer": "tungaloy_turning",
+          "kind": "turning",
+          "records": 2561,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "insert_shape",
+            "shape_code",
+            "clearance_angle",
+            "tolerance_class",
+            "fixing_type",
+            "nose_radius_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/flash-tools-extracted.json",
+          "manufacturer": "flash_tools",
+          "kind": "tooling",
+          "records": 2485,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "flute_length_mm",
+            "corner_radius_mm",
+            "flute_count"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/sandvik-tool-catalog.ts",
+          "manufacturer": "sandvik_tool",
+          "kind": "tooling",
+          "records": 2419,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/sandvik-tools-extracted.json",
+          "manufacturer": "sandvik_tools",
+          "kind": "tooling",
+          "records": 2418,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm",
+            "page",
+            "shank_diameter_mm",
+            "flute_length_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-us-drill-extracted.json",
+          "manufacturer": "tungaloy_us",
+          "kind": "drilling",
+          "records": 2139,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown-endmill-extracted.json",
+          "manufacturer": "unknown_endmill",
+          "kind": "milling",
+          "records": 2043,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown-tools-extracted.json",
+          "manufacturer": "unknown_tools",
+          "kind": "tooling",
+          "records": 1649,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/kennametal-turning-extracted.json",
+          "manufacturer": "kennametal_turning",
+          "kind": "turning",
+          "records": 1630,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "bore_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/mitsubishi-tool-catalog.ts",
+          "manufacturer": "mitsubishi_tool",
+          "kind": "tooling",
+          "records": 1434,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/korloy-rotating-extracted.json",
+          "manufacturer": "korloy_rotating",
+          "kind": "tooling",
+          "records": 1385,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/seco-tool-catalog.ts",
+          "manufacturer": "seco_tool",
+          "kind": "tooling",
+          "records": 1225,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/seco-tools-extracted.json",
+          "manufacturer": "seco_tools",
+          "kind": "tooling",
+          "records": 1224,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "flute_length_mm",
+            "corner_radius_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/big-daishowa-holder-extracted.json",
+          "manufacturer": "big_daishowa",
+          "kind": "holders",
+          "records": 1208,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/widia-2022-turning-catalog.ts",
+          "manufacturer": "widia_2022",
+          "kind": "turning",
+          "records": 1122,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-drill-extracted.json",
+          "manufacturer": "tungaloy_drill",
+          "kind": "drilling",
+          "records": 1074,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown-insert_grade-extracted.json",
+          "manufacturer": "unknown_insert",
+          "kind": "inserts",
+          "records": 892,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-endmill-catalog.ts",
+          "manufacturer": "tungaloy_endmill",
+          "kind": "milling",
+          "records": 804,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/kennametal-holemaking-extracted.json",
+          "manufacturer": "kennametal_holemaking",
+          "kind": "drilling",
+          "records": 682,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "flute_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/seco-endmill-extracted.json",
+          "manufacturer": "seco_endmill",
+          "kind": "milling",
+          "records": 651,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/camfix-tools-extracted.json",
+          "manufacturer": "camfix_tools",
+          "kind": "tooling",
+          "records": 626,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm",
+            "wf_mm",
+            "overall_length_mm",
+            "insert_designation"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/iscar-turning-extracted.json",
+          "manufacturer": "iscar_turning",
+          "kind": "turning",
+          "records": 625,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm",
+            "overall_length_mm",
+            "wf_mm",
+            "projection_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/widia-2022-extracted.json",
+          "manufacturer": "widia_2022",
+          "kind": "tooling",
+          "records": 613,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "insert_shape",
+            "shape_code",
+            "ic_mm",
+            "edge_length_mm",
+            "thickness_mm",
+            "nose_radius_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/hypermill-tools.json",
+          "manufacturer": "hypermill",
+          "kind": "tooling",
+          "records": 587,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "id",
+            "name",
+            "comment",
+            "ordering_code",
+            "tool_type",
+            "tool_type_id",
+            "manufacturer",
+            "cutting_material"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/ampc-tools-extracted.json",
+          "manufacturer": "ampc_tools",
+          "kind": "tooling",
+          "records": 555,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown-drill-extracted.json",
+          "manufacturer": "unknown_drill",
+          "kind": "drilling",
+          "records": 506,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-holder-catalog.ts",
+          "manufacturer": "tungaloy_holder",
+          "kind": "holders",
+          "records": 495,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-drill-catalog.ts",
+          "manufacturer": "tungaloy_drill",
+          "kind": "drilling",
+          "records": 491,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/haimer-holder-catalog.ts",
+          "manufacturer": "haimer_holder",
+          "kind": "holders",
+          "records": 490,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/haimer-holders-extracted.json",
+          "manufacturer": "haimer_holders",
+          "kind": "holders",
+          "records": 489,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "taper",
+            "holder_type",
+            "bore_diameter_mm",
+            "page",
+            "body_diameter_mm",
+            "d2_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/regofix-holder-catalog.ts",
+          "manufacturer": "regofix_holder",
+          "kind": "holders",
+          "records": 420,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/hsm-advisor-tools.json",
+          "manufacturer": "hsm_advisor",
+          "kind": "tooling",
+          "records": 391,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "name",
+            "brand",
+            "library",
+            "type",
+            "type_raw",
+            "tool_number",
+            "tool_material",
+            "coating"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-tooling-extracted.json",
+          "manufacturer": "tungaloy_tooling",
+          "kind": "tooling",
+          "records": 356,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "holder_type",
+            "source_page",
+            "clamping",
+            "insert_shape",
+            "cutting_edge_angle_deg",
+            "hand",
+            "shank_height_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/rapidkut-tools-extracted.json",
+          "manufacturer": "rapidkut_tools",
+          "kind": "tooling",
+          "records": 352,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "flute_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-us-tool-catalog.ts",
+          "manufacturer": "tungaloy_us",
+          "kind": "tooling",
+          "records": 346,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/korloy-turning-extracted.json",
+          "manufacturer": "korloy_turning",
+          "kind": "turning",
+          "records": 313,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm",
+            "corner_radius_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/ma-ford-tools-extracted.json",
+          "manufacturer": "ma_ford",
+          "kind": "tooling",
+          "records": 292,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/dormer-pramet-tool-catalog.ts",
+          "manufacturer": "dormer_pramet",
+          "kind": "tooling",
+          "records": 267,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/korloy-tools-extracted.json",
+          "manufacturer": "korloy_tools",
+          "kind": "tooling",
+          "records": 263,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/kennametal-milling-extracted.json",
+          "manufacturer": "kennametal_milling",
+          "kind": "milling",
+          "records": 206,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "subtype",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm",
+            "max_depth_of_cut_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/niagara-tool-catalog.ts",
+          "manufacturer": "niagara_tool",
+          "kind": "tooling",
+          "records": 172,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/unknown-insert-extracted.json",
+          "manufacturer": "unknown_insert",
+          "kind": "inserts",
+          "records": 153,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/horn-tool-catalog.ts",
+          "manufacturer": "horn_tool",
+          "kind": "tooling",
+          "records": 144,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/iscar-endmill-extracted.json",
+          "manufacturer": "iscar_endmill",
+          "kind": "milling",
+          "records": 129,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown-holder-extracted.json",
+          "manufacturer": "unknown_holder",
+          "kind": "holders",
+          "records": 117,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/seco-toolholders-catalog.ts",
+          "manufacturer": "seco_toolholders",
+          "kind": "holders",
+          "records": 103,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/mitsubishi-turning-catalog.ts",
+          "manufacturer": "mitsubishi_turning",
+          "kind": "turning",
+          "records": 92,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/kennametal-threading-extracted.json",
+          "manufacturer": "kennametal_threading",
+          "kind": "threading",
+          "records": 70,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-insert_grade-extracted.json",
+          "manufacturer": "tungaloy_insert",
+          "kind": "inserts",
+          "records": 66,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown_solid-tools-extracted.json",
+          "manufacturer": "unknown",
+          "kind": "tooling",
+          "records": 57,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "type",
+            "cutting_diameter_mm",
+            "shank_diameter_mm",
+            "overall_length_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/osg-holder-extracted.json",
+          "manufacturer": "osg_holder",
+          "kind": "holders",
+          "records": 52,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/iscar-insert_grade-extracted.json",
+          "manufacturer": "iscar_insert",
+          "kind": "inserts",
+          "records": 44,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/guhring-holder-catalog.ts",
+          "manufacturer": "guhring_holder",
+          "kind": "holders",
+          "records": 24,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/guhring-holders-extracted.json",
+          "manufacturer": "guhring_holders",
+          "kind": "holders",
+          "records": 23,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "taper",
+            "holder_type",
+            "series",
+            "bore_diameter_mm",
+            "body_diameter_mm",
+            "d4_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/osg-drill-extracted.json",
+          "manufacturer": "osg_drill",
+          "kind": "drilling",
+          "records": 22,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/unknown-threading-extracted.json",
+          "manufacturer": "unknown_threading",
+          "kind": "threading",
+          "records": 22,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/osg-endmill-extracted.json",
+          "manufacturer": "osg_endmill",
+          "kind": "milling",
+          "records": 20,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/emuge-threading-extracted.json",
+          "manufacturer": "emuge_threading",
+          "kind": "threading",
+          "records": 11,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/sgs-tool-catalog.ts",
+          "manufacturer": "sgs_tool",
+          "kind": "tooling",
+          "records": 10,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/emuge-tools-extracted.json",
+          "manufacturer": "emuge_tools",
+          "kind": "tooling",
+          "records": 8,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type",
+            "cutting_diameter_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/turning-vendor-catalog-loader.ts",
+          "manufacturer": "turning_vendor",
+          "kind": "turning",
+          "records": 6,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/guhring-drill-extracted.json",
+          "manufacturer": "guhring_drill",
+          "kind": "drilling",
+          "records": 5,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        }
+      ]
+    },
+    "HOLDERS": {
+      "description": "Tool-holder spec data (taper, gauge length, bore, body dia).",
+      "files": [
+        {
+          "file": "mcp-server/src/data/big-daishowa-holder-extracted.json",
+          "manufacturer": "big_daishowa",
+          "kind": "holders",
+          "records": 1208,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/tungaloy-holder-catalog.ts",
+          "manufacturer": "tungaloy_holder",
+          "kind": "holders",
+          "records": 495,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/haimer-holder-catalog.ts",
+          "manufacturer": "haimer_holder",
+          "kind": "holders",
+          "records": 490,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/haimer-holders-extracted.json",
+          "manufacturer": "haimer_holders",
+          "kind": "holders",
+          "records": 489,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "taper",
+            "holder_type",
+            "bore_diameter_mm",
+            "page",
+            "body_diameter_mm",
+            "d2_mm"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/regofix-holder-catalog.ts",
+          "manufacturer": "regofix_holder",
+          "kind": "holders",
+          "records": 420,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/unknown-holder-extracted.json",
+          "manufacturer": "unknown_holder",
+          "kind": "holders",
+          "records": 117,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/seco-toolholders-catalog.ts",
+          "manufacturer": "seco_toolholders",
+          "kind": "holders",
+          "records": 103,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/osg-holder-extracted.json",
+          "manufacturer": "osg_holder",
+          "kind": "holders",
+          "records": 52,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "type"
+          ]
+        },
+        {
+          "file": "mcp-server/src/data/guhring-holder-catalog.ts",
+          "manufacturer": "guhring_holder",
+          "kind": "holders",
+          "records": 24,
+          "approx": true,
+          "format": "ts",
+          "sampleKeys": []
+        },
+        {
+          "file": "mcp-server/src/data/guhring-holders-extracted.json",
+          "manufacturer": "guhring_holders",
+          "kind": "holders",
+          "records": 23,
+          "approx": false,
+          "format": "json",
+          "sampleKeys": [
+            "designation",
+            "manufacturer",
+            "taper",
+            "holder_type",
+            "series",
+            "bore_diameter_mm",
+            "body_diameter_mm",
+            "d4_mm"
+          ]
+        }
+      ],
+      "fusionToolHolders": {
+        "path": "mcp-server/data/fusion-programs/fusion-tool-holders.json",
+        "records": 795
+      }
+    },
+    "MONOLITH": {
+      "kind": "monolith",
+      "path": "H:/PRISM/PRISM_v8_89_002_TRUE_100_PERCENT.html",
+      "exists": true,
+      "bytes": 48618381,
+      "note": "Original PRISM monolith build (v8.89.002, ~944,903 lines). Tool DBs below were ported to mcp-server/src/engines/{ToolHolderDatabaseEngine,ToolDatabaseBridgeEngine}.ts (bridge/loader code) and re-extracted into the MFR_CATALOGS src/data files. Source-of-record for provenance; not a live query surface.",
+      "embeddedDatabases": [
+        {
+          "database": "PRISM_BIG_DAISHOWA_HOLDER_DATABASE",
+          "lineHits": 10
+        },
+        {
+          "database": "PRISM_CUTTING_TOOL_DATABASE_V2",
+          "lineHits": 11
+        },
+        {
+          "database": "PRISM_TOOL_HOLDER_INTERFACES_COMPLETE",
+          "lineHits": 27
+        },
+        {
+          "database": "PRISM_CUTTING_TOOL_DATABASE",
+          "lineHits": 12
+        }
+      ],
+      "approx": true,
+      "portedEngines": [
+        "mcp-server/src/engines/ToolHolderDatabaseEngine.ts",
+        "mcp-server/src/engines/ToolDatabaseBridgeEngine.ts"
+      ]
+    }
+  },
+  "crossReferences": [
+    "PURCHASED.jm-die-tooling-catalog vendors ↔ MFR_CATALOGS.byManufacturer (a purchased carbide vendor maps to its mfr spec catalog).",
+    "PURCHASED.jm-die-stock-material grades ↔ (material domain; no mfr tool catalog — reconcile with ALRO/CINCINNATI steel suppliers).",
+    "MONOLITH.embeddedDatabases ↔ MFR_CATALOGS (big-daishowa holders) + HOLDERS (the monolith DBs were re-extracted into these src/data files).",
+    "ALL ↔ hotel mcp-server/data/state/jm-die-vendor-registry.json (174 vendors) for AP/vendor-master linkage."
+  ],
+  "forHotelERP": {
+    "purpose": "Material-master + tooling/consumable catalog + vendor-preference seed, kept as separate cross-referenced tables.",
+    "recommendations": [
+      "Material-master: seed from PURCHASED.jm-die-stock-material (grades JM Die actually stocks: H13, M2, S7, D2, A2...).",
+      "Tooling-master / spec lookup: seed from MFR_CATALOGS (manufacturer spec catalogs) — what tooling EXISTS, with specs.",
+      "Vendor-preference / sourcing: cross MFR_CATALOGS manufacturers with PURCHASED tooling vendors (who JM Die actually buys carbide/inserts/etc. from).",
+      "Holder library: HOLDERS (big-daishowa 1208, fusion 795, haimer, guhring) for setup-sheet + tool-assembly.",
+      "Reorder cadence: PURCHASED occurrences + date-range (NOT $; reconcile cost from QuickBooks)."
+    ]
+  }
+}

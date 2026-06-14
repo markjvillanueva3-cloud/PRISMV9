@@ -134,7 +134,7 @@ const ThresholdsSchema = z.object({
 const TestConfigSchema = z.object({
   originalPath: z.string().min(1),
   thresholds: ThresholdsSchema.partial().optional(),
-  generateOptions: z.record(z.unknown()).optional(),
+  generateOptions: z.record(z.string(), z.unknown()).optional(),
 });
 
 // ── Default thresholds ───────────────────────────────────────────────────────

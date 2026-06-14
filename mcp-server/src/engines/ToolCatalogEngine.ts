@@ -2047,19 +2047,46 @@ export class ToolCatalogEngine {
   }
 
   private _loadGlobalCNCTools(): void {
+    // DB-COVERAGE-GAPFILL-MS0/U-GCNC01. The Global CNC catalog source carries two
+    // populations: ~2,416 guide BUSHINGS (work-guides, NOT cutting tools) + ~1,264
+    // live-tooling HOLDERS across 9 families. The catalog must hold only the holders.
+    //
+    // IMPORTANT — source-agnostic filtering: in production the loader's JSON is emitted
+    // by build-catalog-json.mjs from GLOBAL_CNC_TOOLS (includes every bushing); in tests
+    // it is the pre-filtered src/data/global-cnc-tools.json. Filtering HERE (the single
+    // chokepoint both paths flow through) keeps the catalog identical regardless of which
+    // source feeds the loader, instead of relying on the upstream file being pre-cleaned.
+    const MAX_PLAUSIBLE_BORE_MM = 200; // turret/holder bore ceiling; corpus has 1016mm (40") extraction errors
     for (const gt of getGlobalCncTools()) {
       const id = `GCNC-${gt.partNumber}`;
       if (this.tools.has(id)) continue;
 
-      const toolType = (gt.type === "driven_tool" ? "end_mill" :
-                        gt.type === "boring_bar_holder" ? "boring_bar" :
+      // Guide/collet bushings are not cutting tools — never enter the tool catalog.
+      if (gt.type === "bushing") continue;
+
+      // Map each holder family to the closest catalog type:
+      //  - driven_* → end_mill   (live rotating mills/drills)
+      //  - *_id/boring → boring_bar (internal/ID work)
+      //  - od/vdi/capto/generic holders → turning_tool (OD turning + turret interfaces)
+      const toolType = (gt.type === "driven_tool" || gt.type === "driven_drill_mill" || gt.type === "driven_toolholder" ? "end_mill" :
+                        gt.type === "boring_bar_holder" || gt.type === "id_holder" ? "boring_bar" :
                         "turning_tool") as CatalogTool["type"];
 
-      // Look up real dimensions from PDF-extracted data (565-page catalog)
+      // Look up real dimensions from PDF-extracted data (565-page catalog).
       const dim = getGlobalCNCDimension(gt.partNumber);
       const boreDia = dim?.boreDia_mm ?? 0;
       const bodyOD = dim?.bodyOD_mm ?? 0;
       const oal = dim?.oal_mm ?? 0;
+
+      // Drop records whose extracted geometry is unusable — an implausible bore or a
+      // zero overall length would poison collision-envelope / feeds-speeds consumers
+      // exactly as a bad cutting diameter would. Symmetric, fail-loud-by-omission guard.
+      if (!(boreDia > 0) || boreDia > MAX_PLAUSIBLE_BORE_MM || !(oal > 0)) continue;
+
+      // The bore is a cutting diameter only for ID/boring work; for OD-turning and pure
+      // turret/interface holders it is the bar-seat bore, NOT a machining diameter — so
+      // leave cutting_diameter_mm 0 there rather than posing a misleading cutting Ø.
+      const cuttingDia = toolType === "boring_bar" ? boreDia : 0;
 
       this.tools.set(id, {
         id,
@@ -2069,10 +2096,10 @@ export class ToolCatalogEngine {
         type: toolType,
         material: "carbide",
         physical: {
-          cutting_diameter_mm: boreDia,
+          cutting_diameter_mm: cuttingDia,
           shank_diameter_mm: bodyOD,
           overall_length_mm: oal,
-          flute_length_mm: boreDia > 0 ? boreDia : 0,
+          flute_length_mm: cuttingDia,
         },
         iso_groups: ["P", "M", "K"],
         operations: toolType === "boring_bar" ? ["bore"] :

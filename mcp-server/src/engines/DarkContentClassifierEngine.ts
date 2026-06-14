@@ -306,7 +306,7 @@ export class DarkContentClassifierEngine {
    * Batch classifies multiple files.
    */
   static classifyBatch(
-    files: Array<{ path: string; metadata?: Parameters<typeof this.classifyFile>[1] }>
+    files: Array<{ path: string; metadata?: Parameters<typeof DarkContentClassifierEngine.classifyFile>[1] }>
   ): ContentAssessment[] {
     return files.map((f) => this.classifyFile(f.path, f.metadata));
   }

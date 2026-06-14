@@ -1,27 +1,667 @@
 {
-  "deferred": true,
-  "reason": "insufficient-reference-pool",
+  "deferred": false,
+  "assessedAt": "2026-06-06T05:59:03.419Z",
+  "holdoutN": 62,
+  "embeddingMode": "direct",
   "checkpointPresent": true,
-  "poolSize": 0,
-  "checkpointMeta": {
-    "trainedAt": "2026-05-16T21:34:13.774Z",
-    "nodeCount": 20460,
-    "cappedNodes": 5998,
-    "truncated": true,
-    "edgeCount": 6562,
-    "trainEdgeCount": 5250,
-    "testEdgeCount": 1312,
-    "evalNegativeCount": 1312,
-    "epochs": 30,
-    "trained": true,
-    "finalLoss": 0.7372709108514249,
-    "inputDim": 8,
-    "hiddenDim": 64,
-    "embedDim": 32,
-    "auroc": 0.09607579891061868,
-    "brierRaw": 0.3252856030347025,
-    "brierCalibrated": 0.24947944373141195,
-    "calibratorReliable": true,
-    "calibratorN": 2624
-  }
+  "holdoutSplit": "stratified",
+  "heldClasses": 6,
+  "gates": {
+    "auroc": 0.78,
+    "macroF1": 0.55,
+    "brier": 0.15
+  },
+  "metrics": {
+    "auroc": 0.8084,
+    "macroF1": 0.4389,
+    "brier": 0.179,
+    "accuracy": 0.6613
+  },
+  "degeneracy": {
+    "isDegenerate": false,
+    "mode": "none",
+    "distinctConfidences": 44,
+    "distinctPredictions": 6,
+    "dominantClass": "prism_turning",
+    "dominantShare": 0.4355,
+    "detail": "discriminating (varied confidence + classes)"
+  },
+  "buckets": [
+    {
+      "range": "[0.00, 0.20)",
+      "count": 0,
+      "meanProb": null,
+      "accuracy": null,
+      "brier": null
+    },
+    {
+      "range": "[0.20, 0.40)",
+      "count": 19,
+      "meanProb": 0.3354,
+      "accuracy": 0.3684,
+      "brier": 0.2297
+    },
+    {
+      "range": "[0.40, 0.60)",
+      "count": 18,
+      "meanProb": 0.4681,
+      "accuracy": 0.6111,
+      "brier": 0.2631
+    },
+    {
+      "range": "[0.60, 0.80)",
+      "count": 6,
+      "meanProb": 0.6508,
+      "accuracy": 0.6667,
+      "brier": 0.2068
+    },
+    {
+      "range": "[0.80, 1.00)",
+      "count": 19,
+      "meanProb": 0.8,
+      "accuracy": 1,
+      "brier": 0.04
+    }
+  ],
+  "grade": {
+    "pass": false,
+    "verdict": "shipped-research-only",
+    "failures": [
+      "macro-F1 0.4389 < 0.55",
+      "Brier 0.1790 > 0.15"
+    ]
+  },
+  "selective": {
+    "curve": [
+      {
+        "tau": 0.4,
+        "coverage": 0.6935,
+        "emitted": 43,
+        "brier": 0.1567,
+        "macroF1": 0.5459,
+        "accuracy": 0.7907,
+        "classesEmitted": 5,
+        "brierClears": false,
+        "macroF1Clears": false
+      },
+      {
+        "tau": 0.45,
+        "coverage": 0.5484,
+        "emitted": 34,
+        "brier": 0.1223,
+        "macroF1": 0.4645,
+        "accuracy": 0.8235,
+        "classesEmitted": 4,
+        "brierClears": true,
+        "macroF1Clears": false
+      },
+      {
+        "tau": 0.5,
+        "coverage": 0.4677,
+        "emitted": 29,
+        "brier": 0.1013,
+        "macroF1": 0.5867,
+        "accuracy": 0.8966,
+        "classesEmitted": 3,
+        "brierClears": true,
+        "macroF1Clears": true
+      },
+      {
+        "tau": 0.55,
+        "coverage": 0.4355,
+        "emitted": 27,
+        "brier": 0.0923,
+        "macroF1": 0.4833,
+        "accuracy": 0.8889,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": false
+      },
+      {
+        "tau": 0.6,
+        "coverage": 0.4032,
+        "emitted": 25,
+        "brier": 0.08,
+        "macroF1": 0.4881,
+        "accuracy": 0.92,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": false
+      },
+      {
+        "tau": 0.65,
+        "coverage": 0.3387,
+        "emitted": 21,
+        "brier": 0.0444,
+        "macroF1": 1,
+        "accuracy": 1,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": true
+      },
+      {
+        "tau": 0.7,
+        "coverage": 0.3226,
+        "emitted": 20,
+        "brier": 0.0406,
+        "macroF1": 1,
+        "accuracy": 1,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": true
+      },
+      {
+        "tau": 0.75,
+        "coverage": 0.3226,
+        "emitted": 20,
+        "brier": 0.0406,
+        "macroF1": 1,
+        "accuracy": 1,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": true
+      },
+      {
+        "tau": 0.8,
+        "coverage": 0.3065,
+        "emitted": 19,
+        "brier": 0.04,
+        "macroF1": 1,
+        "accuracy": 1,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": true
+      }
+    ],
+    "deployPoint": {
+      "found": true,
+      "productionMinConf": 0.7,
+      "productionPoint": {
+        "tau": 0.7,
+        "coverage": 0.3226,
+        "emitted": 20,
+        "brier": 0.0406,
+        "macroF1": 1,
+        "accuracy": 1,
+        "classesEmitted": 2,
+        "brierClears": true,
+        "macroF1Clears": true
+      },
+      "maxCoveragePoint": {
+        "tau": 0.5,
+        "coverage": 0.4677,
+        "emitted": 29,
+        "brier": 0.1013,
+        "macroF1": 0.5867,
+        "accuracy": 0.8966,
+        "classesEmitted": 3,
+        "brierClears": true,
+        "macroF1Clears": true
+      },
+      "robustAboveGate": true,
+      "totalClasses": 6
+    },
+    "deployGrade": {
+      "pass": true,
+      "verdict": "deploy-ready-selective",
+      "failures": [],
+      "productionGate": 0.7,
+      "operatingPoint": {
+        "tau": 0.7,
+        "coverage": 0.3226,
+        "emitted": 20,
+        "brier": 0.0406,
+        "macroF1": 1,
+        "accuracy": 1,
+        "classesEmitted": 2,
+        "totalClasses": 6
+      },
+      "maxCoveragePoint": {
+        "tau": 0.5,
+        "coverage": 0.4677,
+        "brier": 0.1013,
+        "macroF1": 0.5867
+      },
+      "robustAboveGate": true,
+      "concentrated": true,
+      "globalAuroc": 0.8084,
+      "note": "Anchored on the PRODUCTION confidence gate (GNN_DEFAULTS.minConf), NOT the most-favorable τ. tier-5 emits above the gate and DEFERS the rest (coverage<1) to the LLM tier. AUROC is the full-holdout ranking metric; Brier+macro-F1 are the emitted-set quality at the production gate. NOTE: the emitted set spans only 2 of 6 dispatcher classes — macro-F1 is over that subset (the high-confidence band is concentrated), NOT all classes. Full-holdout grade is retained for transparency. maxCoveragePoint shows the tradeoff if the gate were lowered."
+    }
+  },
+  "samples": [
+    {
+      "engine": "FiveAxisAIUltraIntelligenceEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_5axis",
+      "confidence": 0.412,
+      "correct": true
+    },
+    {
+      "engine": "FiveAxisDecisionEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_5axis",
+      "confidence": 0.5115,
+      "correct": true
+    },
+    {
+      "engine": "FiveAxisLoRADatasetBuilderEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_5axis",
+      "confidence": 0.4488,
+      "correct": true
+    },
+    {
+      "engine": "FiveAxisOrchestrationEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_5axis",
+      "confidence": 0.4965,
+      "correct": true
+    },
+    {
+      "engine": "ConsensusNeuralFeedbackEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_ai",
+      "confidence": 0.4378,
+      "correct": true
+    },
+    {
+      "engine": "PhysicsNeuralBridgeEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_ai",
+      "confidence": 0.4227,
+      "correct": true
+    },
+    {
+      "engine": "DecisionReasoningEngine",
+      "predicted": "prism_calc",
+      "truth": "prism_ai",
+      "confidence": 0.2729,
+      "correct": false
+    },
+    {
+      "engine": "LLMEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_ai",
+      "confidence": 0.5625,
+      "correct": false
+    },
+    {
+      "engine": "MixerAgitatorEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_ai",
+      "confidence": 0.2843,
+      "correct": true
+    },
+    {
+      "engine": "MLLineageEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_ai",
+      "confidence": 0.6095,
+      "correct": false
+    },
+    {
+      "engine": "CoolantStrategyEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_calc",
+      "confidence": 0.6356,
+      "correct": false
+    },
+    {
+      "engine": "CoolantStrategyAdapter",
+      "predicted": "prism_5axis",
+      "truth": "prism_calc",
+      "confidence": 0.2995,
+      "correct": false
+    },
+    {
+      "engine": "SolidCAMAIOrchestrationEngine",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.3644,
+      "correct": true
+    },
+    {
+      "engine": "Fusion360CADGeneratorAdapter",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.5428,
+      "correct": true
+    },
+    {
+      "engine": "FusionMaterialPhysicsBridge",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.3544,
+      "correct": true
+    },
+    {
+      "engine": "SprutCAMBridgeEngine",
+      "predicted": "prism_safety",
+      "truth": "prism_cam",
+      "confidence": 0.398,
+      "correct": false
+    },
+    {
+      "engine": "MastercamControllerCatalogEngine",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.3591,
+      "correct": true
+    },
+    {
+      "engine": "HyperMillSchemaUnifier",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.3827,
+      "correct": true
+    },
+    {
+      "engine": "AutodeskFusionMCPProxyEngine",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "InventorCAMStrategyEngine",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.4039,
+      "correct": true
+    },
+    {
+      "engine": "WEDMNeuralFormulaFusionEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_cam",
+      "confidence": 0.3521,
+      "correct": false
+    },
+    {
+      "engine": "FiveAxisToolpathSynthesisEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_cam",
+      "confidence": 0.4252,
+      "correct": false
+    },
+    {
+      "engine": "TebisCAMBridgeEngine",
+      "predicted": "prism_safety",
+      "truth": "prism_cam",
+      "confidence": 0.4589,
+      "correct": false
+    },
+    {
+      "engine": "CAMUtilityEngines",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.6077,
+      "correct": true
+    },
+    {
+      "engine": "CrossCAMComparisonLedgerEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_cam",
+      "confidence": 0.3871,
+      "correct": false
+    },
+    {
+      "engine": "PhysicsFusionConvergenceEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_cam",
+      "confidence": 0.2783,
+      "correct": false
+    },
+    {
+      "engine": "CAMTrainingExtractionAggregatorEngine",
+      "predicted": "prism_ai",
+      "truth": "prism_cam",
+      "confidence": 0.3126,
+      "correct": false
+    },
+    {
+      "engine": "CAMPhase5Stubs",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.4001,
+      "correct": true
+    },
+    {
+      "engine": "InventorCAMCodeGeneratorEngine",
+      "predicted": "prism_cam",
+      "truth": "prism_cam",
+      "confidence": 0.653,
+      "correct": true
+    },
+    {
+      "engine": "WEDMSafetyEnvelopeEngine",
+      "predicted": "prism_cam",
+      "truth": "prism_safety",
+      "confidence": 0.3301,
+      "correct": false
+    },
+    {
+      "engine": "WorkholdingRetrofitAdvisorEngine",
+      "predicted": "prism_calc",
+      "truth": "prism_safety",
+      "confidence": 0.3611,
+      "correct": false
+    },
+    {
+      "engine": "WorkholdingSelectionEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_safety",
+      "confidence": 0.2835,
+      "correct": false
+    },
+    {
+      "engine": "LatheMasterPostSelfAwarenessEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheLoRAOllamaDeployerEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheLoRAMergeStrategyEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheLoRAModelOptimizerEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LathePostProcessorAIEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.6272,
+      "correct": true
+    },
+    {
+      "engine": "LatheUnifiedAIOrchestrator",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheReinforcementLearningEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "EccentricTurningEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_turning",
+      "confidence": 0.3711,
+      "correct": false
+    },
+    {
+      "engine": "LatheMasterOrchestratorFacadeEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheLoRAExampleGeneratorEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "TurningStrategyCatalog",
+      "predicted": "prism_safety",
+      "truth": "prism_turning",
+      "confidence": 0.4309,
+      "correct": false
+    },
+    {
+      "engine": "LatheLoRAProgramParserEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheLoRAInferenceGatewayEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheQualityGateEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheLoRAProgramMinerEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheTransferLearningEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheThermodynamicsEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.4702,
+      "correct": true
+    },
+    {
+      "engine": "LatheUnifiedPhysicsOrchestrationEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.3751,
+      "correct": true
+    },
+    {
+      "engine": "LatheAIUltraEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheAdvancedOperationsEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.583,
+      "correct": true
+    },
+    {
+      "engine": "LathePartFamilyPlanningEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LatheMetaLearningEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "LathePostRegressionTestGeneratorEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.7716,
+      "correct": true
+    },
+    {
+      "engine": "SwissTypeDecisionEngine",
+      "predicted": "prism_safety",
+      "truth": "prism_turning",
+      "confidence": 0.4838,
+      "correct": false
+    },
+    {
+      "engine": "LatheSelfAwarenessIntegrationEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    },
+    {
+      "engine": "BarFeedPitchOptimizerEngine",
+      "predicted": "prism_safety",
+      "truth": "prism_turning",
+      "confidence": 0.4898,
+      "correct": false
+    },
+    {
+      "engine": "LiveToolingIntelligenceEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.2824,
+      "correct": true
+    },
+    {
+      "engine": "LiveToolingSyntaxEngine",
+      "predicted": "prism_5axis",
+      "truth": "prism_turning",
+      "confidence": 0.3235,
+      "correct": false
+    },
+    {
+      "engine": "SwissTypeIntelligenceEngine",
+      "predicted": "prism_safety",
+      "truth": "prism_turning",
+      "confidence": 0.4453,
+      "correct": false
+    },
+    {
+      "engine": "LatheDeepAIHardeningEngine",
+      "predicted": "prism_turning",
+      "truth": "prism_turning",
+      "confidence": 0.8,
+      "correct": true
+    }
+  ]
 }

@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM System Viz Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1014; --panel: #1a1c23; --panel-2: #232631;
+    --fg: #e4e6eb; --fg-dim: #9aa0a8; --border: #2c303a;
+    --ok: #4ade80; --warn: #fbbf24; --fail: #f87171;
+    --info: #60a5fa; --link: #93c5fd; --accent: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.25rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px; line-height: 1.5; }
+  h1 { font-size: 1.5rem; margin: 0 0 0.15rem 0; }
+  h2 { font-size: 1rem; margin: 1.25rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg);
+    letter-spacing: 0.02em; text-transform: uppercase; font-weight: 600; }
+  .meta { color: var(--fg-dim); font-size: 0.8rem; margin-bottom: 0.5rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; margin-bottom: 0.5rem; }
+  .grid { display: grid; gap: 0.5rem; }
+  .cards { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 0.5rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.55rem 0.75rem; }
+  .card .lbl { font-size: 0.72rem; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.03em; }
+  .card .val { font-size: 1.35rem; font-weight: 600; margin: 0.1rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.7rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th, td { text-align: left; padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; }
+  th { color: var(--fg-dim); font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.04em; font-size: 0.7rem; }
+  tr:last-child td { border-bottom: none; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .dim  { color: var(--fg-dim); }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 0.7rem; font-weight: 500; }
+  .pill-live    { background: rgba(74,222,128,0.15);  color: var(--ok); }
+  .pill-stale   { background: rgba(251,191,36,0.15);  color: var(--warn); }
+  .pill-dead    { background: rgba(248,113,113,0.15); color: var(--fail); }
+  .pill-idle    { background: rgba(154,160,168,0.15); color: var(--fg-dim); }
+  .pill-unknown { background: rgba(96,165,250,0.15);  color: var(--info); }
+  .pill-P       { background: rgba(74,222,128,0.15);  color: var(--ok); }
+  .pill-F       { background: rgba(248,113,113,0.15); color: var(--fail); }
+  .pill-none    { background: rgba(154,160,168,0.15); color: var(--fg-dim); }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .links { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; margin-bottom: 1rem; }
+  .links a { padding: 0.25rem 0.6rem; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; }
+  .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  @media (max-width: 900px) { .col2 { grid-template-columns: 1fr; } }
+  .loader { color: var(--fg-dim); padding: 2rem; text-align: center; }
+  .err { color: var(--fail); padding: 1rem; background: rgba(248,113,113,0.07);
+    border: 1px solid rgba(248,113,113,0.3); border-radius: 4px; }
+  .note { background: rgba(167,139,250,0.07); border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 4px; padding: 0.5rem 0.75rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--fg-dim); }
+  .note strong { color: var(--accent); }
+  .footer { color: var(--fg-dim); font-size: 0.7rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .subject { max-width: 600px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fleet-summary { color: var(--fg-dim); margin-bottom: 0.4rem; font-size: 0.78rem; }
+  .fleet-summary .live  { color: var(--ok); }
+  .fleet-summary .stale { color: var(--warn); }
+  .fleet-summary .dead  { color: var(--fail); }
+  .fleet-summary .idle  { color: var(--fg-dim); }
+</style>
+</head>
+<body>
+
+<h1>PRISM System Viz Dashboard</h1>
+<div class="meta">
+  <span id="refresh-meta">loading…</span>
+  &middot; <a href="/briefing" target="_blank">/briefing</a>
+  &middot; auto-refresh every 30s
+</div>
+
+<div class="note">
+  <strong>3D viewer:</strong> live at <a href="/3d" style="color:var(--accent);font-weight:600">/3d</a> — 5,000-node layer-stratified point cloud (downsampled from 283k via <a href="/api/graph-snapshot?limit=5000">/api/graph-snapshot</a>),
+  color by status, hover/click/search wired. Edges + ghost-roost overlays coming in next iter.
+  This dashboard surfaces live build state, fleet, scrutiny, commits, exec audit.
+  Raw data: <a href="/system-graph.json">/system-graph.json</a> (546 MB) &middot;
+  <a href="/system-graph-index.json">/system-graph-index.json</a> (145 MB).
+</div>
+
+<div class="links">
+  <a href="/healthz">/healthz</a>
+  <a href="/api/snapshot">/api/snapshot</a>
+  <a href="/briefing">/briefing</a>
+  <a href="/briefing.json">/briefing.json</a>
+  <a href="/system-graph-index.json">/system-graph-index.json</a>
+</div>
+
+<div id="root"><div class="loader">Loading snapshot from /api/snapshot …</div></div>
+
+<div class="footer">
+  Served by <span class="mono">_server.cjs</span> at <span class="mono">state/shared/system-viz/</span>.
+  Data: <span class="mono">BUILD_STATE.json</span>, <span class="mono">chat-slots.json</span>,
+  <span class="mono">EXECUTIVE-BRIEFING.json</span>, <span class="mono">SCRUTINY_LEDGER.json</span>, <span class="mono">git log</span>.
+</div>
+
+<script>
+"use strict";
+
+// All rendering uses createElement + textContent — no innerHTML on dynamic data.
+
+function el(tag, props, children) {
+  const e = document.createElement(tag);
+  if (props) {
+    for (const k of Object.keys(props)) {
+      const v = props[k];
+      if (v == null) continue;
+      if (k === "class")    e.className = String(v);
+      else if (k === "text") e.textContent = String(v);
+      else if (k === "href") e.setAttribute("href", String(v));
+      else                  e.setAttribute(k, String(v));
+    }
+  }
+  if (children) {
+    for (const c of children) {
+      if (c == null) continue;
+      e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    }
+  }
+  return e;
+}
+
+function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+const fmt = (n) => n == null ? "—" : Number(n).toLocaleString("en-US");
+function truncate(s, n) { return s && s.length > n ? s.slice(0, n - 1) + "…" : s; }
+
+function card(lbl, val, cls, hint) {
+  const children = [
+    el("div", { class: "lbl", text: lbl }),
+    el("div", { class: "val", text: fmt(val) }),
+  ];
+  if (hint) children.push(el("div", { class: "hint", text: hint }));
+  return el("div", { class: "card " + (cls || "") }, children);
+}
+
+function buildHeadlineCards(h) {
+  const grid = el("div", { class: "grid cards" });
+  grid.appendChild(card("Engines built", h.built_engines, "ok",
+    fmt(h.built_with_wiki) + " have wiki"));
+  grid.appendChild(card("Needs wiring", h.needs_wiring, h.needs_wiring > 500 ? "warn" : "ok",
+    "engines on disk, no dispatcher"));
+  grid.appendChild(card("Pending units", h.needs_building_active_units, "info",
+    fmt(h.pending_milestones_with_activity) + " active milestones"));
+  grid.appendChild(card("Frontend pending", h.needs_frontend_merge_count,
+    h.needs_frontend_merge_count ? "warn" : "ok", "merges awaited"));
+  grid.appendChild(card("Envelope drift", h.drift_milestones,
+    h.drift_milestones > 50 ? "warn" : "ok", "claim vs git"));
+  grid.appendChild(card("Stale milestones", h.stale_milestones,
+    h.stale_milestones > 100 ? "warn" : "ok", "no recent activity"));
+  return grid;
+}
+
+function ageBadge(min) {
+  if (min == null) return el("span", { class: "pill pill-unknown", text: "?" });
+  if (min <= 1)    return el("span", { class: "pill pill-live", text: "now" });
+  if (min < 60) {
+    const cls = min <= 5 ? "pill-live" : min <= 15 ? "pill-stale" : "pill-dead";
+    return el("span", { class: "pill " + cls, text: min + "m" });
+  }
+  return el("span", { class: "pill pill-dead", text: (min / 60).toFixed(1) + "h" });
+}
+
+function buildUnwiredDomains(td) {
+  if (!td || !td.length) return el("div", { class: "dim", text: "none" });
+  const tbody = el("tbody");
+  td.slice(0, 8).forEach((d) => {
+    const name = d.domain || d.name || (Array.isArray(d) ? d[0] : "(other)");
+    const count = d.count != null ? d.count : (Array.isArray(d) ? d[1] : "?");
+    tbody.appendChild(el("tr", null, [
+      el("td", { class: "mono", text: String(name) }),
+      el("td", { text: fmt(count) }),
+    ]));
+  });
+  const table = el("table", null, [
+    el("thead", null, [el("tr", null, [
+      el("th", { text: "Domain" }),
+      el("th", { text: "Unwired" }),
+    ])]),
+    tbody,
+  ]);
+  return table;
+}
+
+function buildFleet(fleet) {
+  if (!fleet || !fleet.slots || !fleet.slots.length) return el("div", { class: "dim", text: "no slot data" });
+  const wrap = document.createDocumentFragment();
+  const summary = el("div", { class: "fleet-summary" });
+  summary.appendChild(document.createTextNode(fleet.count + " slots · "));
+  summary.appendChild(el("span", { class: "live", text: fleet.live + " live" }));
+  summary.appendChild(document.createTextNode(" · "));
+  summary.appendChild(el("span", { class: "stale", text: fleet.stale + " stale" }));
+  summary.appendChild(document.createTextNode(" · "));
+  summary.appendChild(el("span", { class: "dead", text: fleet.dead + " dead" }));
+  summary.appendChild(document.createTextNode(" · "));
+  summary.appendChild(el("span", { class: "idle", text: fleet.idle + " idle" }));
+  wrap.appendChild(summary);
+
+  const tbody = el("tbody");
+  for (const s of fleet.slots) {
+    const pillCls = "pill pill-" + (s.status || "unknown");
+    tbody.appendChild(el("tr", null, [
+      el("td", { class: "mono", text: s.slot }),
+      el("td", null, [el("span", { class: pillCls, text: s.status })]),
+      el("td", { class: "mono dim", text: s.chatId || "—" }),
+      el("td", { text: s.topic || "—" }),
+      el("td", { class: "dim", text: s.activity || "—" }),
+      el("td", null, [ageBadge(s.ageMin)]),
+    ]));
+  }
+  const table = el("table", null, [
+    el("thead", null, [el("tr", null, [
+      el("th", { text: "Slot" }),
+      el("th", { text: "Status" }),
+      el("th", { text: "Chat" }),
+      el("th", { text: "Topic" }),
+      el("th", { text: "Activity" }),
+      el("th", { text: "Heartbeat" }),
+    ])]),
+    tbody,
+  ]);
+  wrap.appendChild(table);
+  return wrap;
+}
+
+function buildCommits(commits) {
+  if (!commits || !commits.length) return el("div", { class: "dim", text: "git unavailable" });
+  const tbody = el("tbody");
+  for (const c of commits.slice(0, 12)) {
+    tbody.appendChild(el("tr", null, [
+      el("td", { class: "mono dim", text: c.hash }),
+      el("td", { class: "subject", text: truncate(c.subject, 90) }),
+      el("td", { class: "dim", text: c.ago }),
+    ]));
+  }
+  return el("table", null, [
+    el("thead", null, [el("tr", null, [
+      el("th", { text: "Hash" }),
+      el("th", { text: "Subject" }),
+      el("th", { text: "When" }),
+    ])]),
+    tbody,
+  ]);
+}
+
+function buildScrutiny(sc) {
+  if (!sc || !sc.recent || !sc.recent.length) return el("div", { class: "dim", text: "ledger empty" });
+  const wrap = document.createDocumentFragment();
+  wrap.appendChild(el("div", { class: "fleet-summary",
+    text: sc.totalCleared + " cleared · " + sc.totalOpen + " open" }));
+
+  const tbody = el("tbody");
+  for (const s of sc.recent) {
+    const pill = (v) => {
+      const cls = v === "P" ? "pill-P" : v === "F" ? "pill-F" : "pill-none";
+      return el("span", { class: "pill " + cls, text: v });
+    };
+    tbody.appendChild(el("tr", null, [
+      el("td", { class: "mono dim", text: s.sessionId }),
+      el("td", null, [pill(s.opus)]),
+      el("td", null, [pill(s.claude)]),
+      el("td", null, [pill(s.codex)]),
+      el("td", { class: "dim", text: s.cleared ? "cleared" : "open" }),
+    ]));
+  }
+  wrap.appendChild(el("table", null, [
+    el("thead", null, [el("tr", null, [
+      el("th", { text: "Session" }),
+      el("th", { text: "A" }),
+      el("th", { text: "B" }),
+      el("th", { text: "C" }),
+      el("th", { text: "Status" }),
+    ])]),
+    tbody,
+  ]));
+  return wrap;
+}
+
+function buildBriefing(b) {
+  const wrap = document.createDocumentFragment();
+  const bh = b && b.headline ? b.headline : {};
+  const grid = el("div", { class: "grid cards" });
+  let n = 0;
+  for (const k of Object.keys(bh)) {
+    if (n >= 8) break;
+    const v = bh[k];
+    if (v == null || typeof v === "object") continue;
+    grid.appendChild(el("div", { class: "card" }, [
+      el("div", { class: "lbl", text: k }),
+      el("div", { class: "val", text: fmt(v) }),
+    ]));
+    n++;
+  }
+  wrap.appendChild(grid);
+  if (b && b.generatedAt) {
+    const ann = el("div", { class: "dim", style: "margin-top:0.4rem;font-size:0.75rem" });
+    ann.appendChild(document.createTextNode("generated " + b.generatedAt + " — "));
+    ann.appendChild(el("a", { href: "/briefing", text: "full briefing" }));
+    wrap.appendChild(ann);
+  }
+  return wrap;
+}
+
+function buildStaleMilestones(list) {
+  const tbody = el("tbody");
+  for (const m of list) {
+    const id = m.id || m.milestone || m.name || (typeof m === "string" ? m : JSON.stringify(m));
+    const last = m.lastActivity || m.last_activity || m.updatedAt || "—";
+    tbody.appendChild(el("tr", null, [
+      el("td", { class: "mono", text: String(id) }),
+      el("td", { class: "dim", text: String(last) }),
+    ]));
+  }
+  return el("table", null, [
+    el("thead", null, [el("tr", null, [
+      el("th", { text: "Milestone" }),
+      el("th", { text: "Last activity" }),
+    ])]),
+    tbody,
+  ]);
+}
+
+function panel(child) { return el("div", { class: "panel" }, [child]); }
+
+// System-viz self-health cards (sierra domain): graph regen freshness + dead-edge
+// integrity, from snap.vizHealth. Uses the same card() helper (no innerHTML).
+function buildVizHealthCards(vh) {
+  if (!vh) return null;
+  const wrap = el("div");
+  const grid = el("div", { class: "grid cards" });
+  const vmap = { green: "ok", stale: "warn", failed: "fail", unknown: "info" };
+  const vlabel = { green: "🟢 GREEN", stale: "🟡 STALE", failed: "🔴 FAILED", unknown: "—" };
+  grid.appendChild(card("Graph regen", vlabel[vh.verdict] || vh.verdict, vmap[vh.verdict] || "info",
+    vh.lastRegenAgeH != null ? vh.lastRegenAgeH + "h ago · " + (vh.graphMB != null ? vh.graphMB + "MB" : "?") : "no regen record"));
+  if (vh.integrity) {
+    const ig = vh.integrity;
+    grid.appendChild(card("Graph nodes", ig.nodeCount != null ? ig.nodeCount.toLocaleString() : "?", "info",
+      ig.edgeCount != null ? ig.edgeCount.toLocaleString() + " edges" : ""));
+    grid.appendChild(card("Dead edges", ig.deadEdges != null ? ig.deadEdges.toLocaleString() : "?",
+      (ig.deadDefect > 0 ? "warn" : "ok"),
+      ig.deadDefect != null ? ig.deadDefect.toLocaleString() + " defect · " + (ig.deadAdvisory != null ? ig.deadAdvisory.toLocaleString() + " advisory" : "") : ""));
+  }
+  grid.appendChild(card("Pending augm.", vh.pendingCount != null ? vh.pendingCount : "?",
+    (vh.pendingCount ? "warn" : "ok"), "sidecar " + (vh.sidecarOk ? "ok" : "stale")));
+  if (vh.masterIndex) {
+    const mi = vh.masterIndex;
+    const mimap = { fresh: "ok", stale: "warn", failed: "fail", missing: "warn", unknown: "info" };
+    const milabel = { fresh: "🟢 fresh", stale: "🟡 STALE", failed: "🔴 FAILED", missing: "🔴 missing", unknown: "—" };
+    grid.appendChild(card("Master-index", milabel[mi.verdict] || mi.verdict, mimap[mi.verdict] || "info",
+      mi.verdict === "stale" ? mi.behindH + "h behind graph · " + (mi.hint || "rebuild")
+      : mi.verdict === "failed" ? ("rebuild FAILED: " + String(mi.error || "?").slice(0, 60) + " · " + (mi.hint || "rebuild"))
+      : mi.verdict === "missing" ? (mi.hint || "build sidecar")
+      : "search sidecar current"));
+  }
+  wrap.appendChild(grid);
+  // Quick deep-links into the 3D viewer (uses the /3d?q= param) — dashboard↔viz round-trip.
+  wrap.appendChild(el("div", { class: "fleet-summary" }, [
+    "explore: ",
+    el("a", { href: "/3d", text: "3D map", style: "color:var(--accent)" }),
+    " · ",
+    el("a", { href: "/3d?q=gap", text: "knowledge gaps", style: "color:var(--accent)" }),
+    " · ",
+    el("a", { href: "/3d?q=unwired", text: "unwired", style: "color:var(--accent)" }),
+  ]));
+  if (vh.lastFailure) {
+    wrap.appendChild(el("div", { class: "fleet-summary",
+      text: "⚠ last regen FAILED — stage \"" + (vh.lastFailure.stage || "?") + "\" exit " + (vh.lastFailure.exitCode != null ? vh.lastFailure.exitCode : "?") + "; re-run regen-viz.mjs" }));
+  }
+  return wrap;
+}
+
+// Graph utilization cards (sierra "utilization" mandate): hub/sink/orphan/ghost
+// from snap.utilization (parsed from AWARENESS-SNAPSHOT.md, no graph parse).
+// Orphans = built-but-unwired punch list; ghosts = dead-code / unrealized roadmap.
+function buildUtilizationCards(u) {
+  if (!u) return null;
+  const wrap = el("div");
+  const grid = el("div", { class: "grid cards" });
+  grid.appendChild(card("Hubs", u.hub != null ? u.hub.toLocaleString() : "?", "ok", "central infrastructure"));
+  grid.appendChild(card("Sinks", u.sink != null ? u.sink.toLocaleString() : "?", "info", "well-used utility"));
+  grid.appendChild(card("Orphans", u.orphan != null ? u.orphan.toLocaleString() : "?", (u.orphan ? "warn" : "ok"), "built but unwired — punch list"));
+  grid.appendChild(card("Ghosts", u.ghost != null ? u.ghost.toLocaleString() : "?", "info", "dead-code / unrealized roadmap"));
+  wrap.appendChild(grid);
+  const scanTxt = (u.scanned != null && u.total != null)
+    ? "scanned " + u.scanned.toLocaleString() + " / " + u.total.toLocaleString() + " nodes" : "";
+  const ageTxt = u.ageH != null ? " · snapshot " + u.ageH + "h old" : "";
+  wrap.appendChild(el("div", { class: "fleet-summary" }, [
+    scanTxt + ageTxt + " · drill: ",
+    el("a", { href: "/3d", text: "3D map", style: "color:var(--accent)" }),
+    " · /utilization-dashboard for full per-node classification",
+  ]));
+  if (Array.isArray(u.topOrphans) && u.topOrphans.length) {
+    const items = [document.createTextNode("top orphans to wire: ")];
+    u.topOrphans.forEach((o, i) => {
+      if (i) items.push(document.createTextNode(", "));
+      // Clickable deep-link: punch-list orphan → highlighted in the 3D map
+      // (/3d?q= is the documented shareable-filtered-view contract). Turns the
+      // wiring punch list into one-click navigation instead of a name to hunt.
+      items.push(el("a", {
+        class: "mono",
+        href: "/3d?q=" + encodeURIComponent(o.name),
+        text: o.name,
+        title: o.layer + " — open in 3D map",
+        style: "color:var(--accent)",
+      }));
+    });
+    wrap.appendChild(el("div", { class: "fleet-summary" }, items));
+  }
+  return wrap;
+}
+
+function render(snap) {
+  const root = document.getElementById("root");
+  const meta = document.getElementById("refresh-meta");
+  clear(meta);
+  meta.appendChild(document.createTextNode("snapshot at "));
+  meta.appendChild(el("span", { class: "mono", text: snap.generatedAt }));
+
+  clear(root);
+
+  if (snap.build && snap.build.headline) {
+    root.appendChild(buildHeadlineCards(snap.build.headline));
+  }
+
+  if (snap.vizHealth) {
+    root.appendChild(el("h2", { text: "System-viz health" }));
+    const vh = buildVizHealthCards(snap.vizHealth);
+    if (vh) root.appendChild(vh);
+  }
+
+  if (snap.utilization) {
+    root.appendChild(el("h2", { text: "Graph utilization" }));
+    const u = buildUtilizationCards(snap.utilization);
+    if (u) root.appendChild(u);
+  }
+
+  const col2 = el("div", { class: "col2" });
+  const left = el("div");
+  const right = el("div");
+
+  left.appendChild(el("h2", { text: "Top unwired domains" }));
+  left.appendChild(panel(buildUnwiredDomains(snap.build && snap.build.topUnwiredDomains)));
+  left.appendChild(el("h2", { text: "Fleet — chat slots" }));
+  left.appendChild(panel(buildFleet(snap.fleet)));
+  left.appendChild(el("h2", { text: "Scrutiny ledger" }));
+  left.appendChild(panel(buildScrutiny(snap.scrutiny)));
+
+  right.appendChild(el("h2", { text: "Recent commits" }));
+  right.appendChild(panel(buildCommits(snap.commits)));
+  if (snap.briefing) {
+    right.appendChild(el("h2", { text: "Briefing summary" }));
+    right.appendChild(panel(buildBriefing(snap.briefing)));
+  }
+  if (snap.build && snap.build.staleMilestones && snap.build.staleMilestones.length) {
+    right.appendChild(el("h2", { text: "Stale milestones (top)" }));
+    right.appendChild(panel(buildStaleMilestones(snap.build.staleMilestones)));
+  }
+
+  col2.appendChild(left);
+  col2.appendChild(right);
+  root.appendChild(col2);
+}
+
+async function refresh() {
+  try {
+    const r = await fetch("/api/snapshot", { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const snap = await r.json();
+    render(snap);
+  } catch (e) {
+    const root = document.getElementById("root");
+    clear(root);
+    root.appendChild(el("div", { class: "err",
+      text: "Failed to load snapshot: " + (e.message || String(e)) }));
+  }
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>

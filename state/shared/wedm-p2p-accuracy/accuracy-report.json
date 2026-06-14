@@ -1,0 +1,262 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedBy": "wedm-print-to-program-accuracy.ts (slot:mike)",
+  "note": "iter-1 = parameter-selection layer (getJMDiePatternForMaterial). Not full G-code emission. meanReproductionAccuracyPct is a REGRESSION-LOCK over the predictor's own N=3 calibration set (the entire raw-G-code wire corpus), NOT out-of-sample accuracy — it cannot drop below 100% until a held-out corpus is added. The genuine print->program gaps live in patternsUnreachable / techTableUnreachable (R7 divergent selectors).",
+  "corpus": {
+    "rawWireGCode": 3,
+    "excludedTrivial": 1,
+    "minFilesExcluded": "Okuma lathe — see reference_min_files_not_wire_programs"
+  },
+  "meanReproductionAccuracyPct": 100,
+  "results": [
+    {
+      "id": "ITW-SHAKEPROOF-500-30540",
+      "material": "D2",
+      "isProduction": true,
+      "parsed": {
+        "e_codes": [
+          "E1221",
+          "E1222",
+          "E1223",
+          "E1224"
+        ],
+        "pass_count": 4,
+        "h_offsets": {
+          "H175": 0,
+          "H1": 0.0085,
+          "H2": 0.0064,
+          "H3": 0.0058,
+          "H4": 0.0053
+        },
+        "feed_rates": [
+          0.12,
+          0.24,
+          0.21,
+          0.2
+        ],
+        "m_codes": [
+          "M01",
+          "M02",
+          "M20",
+          "M21",
+          "M58",
+          "M78",
+          "M80",
+          "M81",
+          "M82",
+          "M83",
+          "M84",
+          "M85",
+          "M90",
+          "M91"
+        ],
+        "uses_taper": false,
+        "e_code_family": "E12xx_standard_4pass",
+        "move_count": 67,
+        "raw_lines": 144
+      },
+      "familyMatch": true,
+      "thicknessBand": {
+        "lo_mm": 0.5,
+        "hi_mm": 15
+      },
+      "passCountMatch": true,
+      "offsetExact": true,
+      "offsetMaxAbsErrIn": 0,
+      "feedExact": true,
+      "feedMaxAbsErrIpm": 0,
+      "taperMatch": true,
+      "score": 1,
+      "gaps": []
+    },
+    {
+      "id": "NOZE-TEST",
+      "material": "stainless",
+      "isProduction": true,
+      "parsed": {
+        "e_codes": [
+          "E2821",
+          "E2822",
+          "E2823",
+          "E2824",
+          "E2825"
+        ],
+        "pass_count": 5,
+        "h_offsets": {
+          "H175": 0,
+          "H1": 0,
+          "H2": 0,
+          "H3": 0,
+          "H4": 0,
+          "H5": 0
+        },
+        "feed_rates": [
+          0.16,
+          0.23,
+          0.26,
+          0.3,
+          0.3
+        ],
+        "m_codes": [
+          "M02",
+          "M20",
+          "M21",
+          "M58",
+          "M78",
+          "M80",
+          "M81",
+          "M82",
+          "M83",
+          "M84",
+          "M85",
+          "M90",
+          "M91"
+        ],
+        "uses_taper": true,
+        "e_code_family": "E28xx_taper_5pass",
+        "move_count": 73,
+        "raw_lines": 115
+      },
+      "familyMatch": true,
+      "thicknessBand": {
+        "lo_mm": 0.5,
+        "hi_mm": 80
+      },
+      "passCountMatch": true,
+      "offsetExact": true,
+      "offsetMaxAbsErrIn": 0,
+      "feedExact": true,
+      "feedMaxAbsErrIpm": 0,
+      "taperMatch": true,
+      "score": 1,
+      "gaps": []
+    },
+    {
+      "id": "FIOCCHI-38CAL-CANNELURE",
+      "material": "D2",
+      "isProduction": true,
+      "parsed": {
+        "e_codes": [
+          "E1281",
+          "E1282",
+          "E1283",
+          "E1284",
+          "E1285"
+        ],
+        "pass_count": 5,
+        "h_offsets": {
+          "H175": 0,
+          "H1": 0.00995,
+          "H2": 0.00725,
+          "H3": 0.00585,
+          "H4": 0.00535,
+          "H5": 0.0052
+        },
+        "feed_rates": [
+          0.06,
+          0.15,
+          0.12,
+          0.16,
+          0.13
+        ],
+        "m_codes": [
+          "M01",
+          "M02",
+          "M20",
+          "M21",
+          "M58",
+          "M78",
+          "M80",
+          "M81",
+          "M82",
+          "M83",
+          "M84",
+          "M85",
+          "M90",
+          "M91"
+        ],
+        "uses_taper": false,
+        "e_code_family": "E12xx_heavy_5pass",
+        "move_count": 996,
+        "raw_lines": 1477
+      },
+      "familyMatch": true,
+      "thicknessBand": {
+        "lo_mm": 15.5,
+        "hi_mm": 80
+      },
+      "passCountMatch": true,
+      "offsetExact": true,
+      "offsetMaxAbsErrIn": 0,
+      "feedExact": true,
+      "feedMaxAbsErrIpm": 0,
+      "taperMatch": true,
+      "score": 1,
+      "gaps": []
+    },
+    {
+      "id": "WIRE-5IN-SQUARE",
+      "material": "unknown",
+      "isProduction": false,
+      "parsed": {
+        "e_codes": [],
+        "pass_count": 0,
+        "h_offsets": {},
+        "feed_rates": [],
+        "m_codes": [
+          "M30"
+        ],
+        "uses_taper": false,
+        "e_code_family": "unknown",
+        "move_count": 2,
+        "raw_lines": 11
+      },
+      "familyMatch": false,
+      "thicknessBand": {
+        "lo_mm": null,
+        "hi_mm": null
+      },
+      "passCountMatch": false,
+      "offsetExact": false,
+      "offsetMaxAbsErrIn": null,
+      "feedExact": false,
+      "feedMaxAbsErrIpm": null,
+      "taperMatch": true,
+      "score": null,
+      "gaps": [
+        "no E-codes — non-parameterized test program; not scoreable as a print→program reproduction"
+      ]
+    }
+  ],
+  "declaredFamilies": [
+    "E12xx_standard_4pass",
+    "E12xx_heavy_5pass",
+    "E28xx_taper_5pass",
+    "E952_acu_7pass_thin",
+    "E56xx_acu_7pass_thick"
+  ],
+  "registryFamilies": [
+    "E12xx_standard_4pass",
+    "E12xx_heavy_5pass",
+    "E28xx_taper_5pass",
+    "E952_acu_7pass_thin",
+    "E56xx_acu_7pass_thick"
+  ],
+  "patternsReachable": [
+    "E12xx_heavy_5pass",
+    "E12xx_standard_4pass",
+    "E28xx_taper_5pass"
+  ],
+  "patternsUnreachable": [
+    "E952_acu_7pass_thin",
+    "E56xx_acu_7pass_thick"
+  ],
+  "techTableReachable": [
+    "E12xx_heavy_5pass",
+    "E12xx_standard_4pass",
+    "E28xx_taper_5pass",
+    "E56xx_acu_7pass_thick",
+    "E952_acu_7pass_thin"
+  ],
+  "techTableUnreachable": []
+}

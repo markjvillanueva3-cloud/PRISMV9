@@ -512,5 +512,262 @@ describe("LathePrintSequencePlannerEngine", () => {
     it("ACTIONS array contains lathe_p2p_sequence_autofix", () => {
       expect(camActions).toContain("lathe_p2p_sequence_autofix");
     });
+
+    it("ACTIONS array contains lathe_p2p_sequence_plan_consensus", () => {
+      expect(camActions).toContain("lathe_p2p_sequence_plan_consensus");
+    });
+  });
+
+  // ============================================================================
+  // CONSENSUS-GATED SEQUENCING — LATHE-P2P-CONSENSUS-MS4/P0-U02
+  // ============================================================================
+
+  describe("Consensus-Gated Sequencing (P0-U02)", () => {
+    it("generateCandidatePlans returns 3 distinct candidate orderings", () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const candidates = lathePrintSequencePlannerEngine.generateCandidatePlans(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+      );
+      expect(candidates).toHaveProperty("A_precedence");
+      expect(candidates).toHaveProperty("B_tool_minimized");
+      expect(candidates).toHaveProperty("C_setup_minimized");
+      // All 3 candidates must have the same op count (lossless re-ordering)
+      const opCounts = [
+        candidates.A_precedence.operations.length,
+        candidates.B_tool_minimized.operations.length,
+        candidates.C_setup_minimized.operations.length,
+      ];
+      expect(new Set(opCounts).size).toBe(1);
+      expect(opCounts[0]).toBe(ALCOA_DIE_PIN.length);
+    });
+
+    it("deterministic case — unanimous consensus on A_precedence at confidence 0.95", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          consensusDecide: async (_q) => ({
+            answer: "A_precedence",
+            confidence: 0.95,
+            voters: ["claude", "codex", "gemini", "ollama"],
+            auditId: "audit-test-unanimous",
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_label).toBe("A_precedence");
+      expect(result.consensus.confidence).toBeCloseTo(0.95, 5);
+      expect(result.consensus.voters).toHaveLength(4);
+      expect(result.consensus.agreement_met).toBe(true);
+      expect(result.escalated_to_human).toBe(false);
+      expect(result.consensus.auditId).toBe("audit-test-unanimous");
+      expect(result.selected_plan.valid).toBe(true);
+    });
+
+    it("ambiguous case — winner at threshold (0.75) is accepted, no escalation", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          agreementThreshold: 0.75,
+          consensusDecide: async (_q) => ({
+            answer: "B_tool_minimized",
+            confidence: 0.75,
+            voters: ["claude", "codex", "ollama"],
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_label).toBe("B_tool_minimized");
+      expect(result.consensus.agreement_met).toBe(true);
+      expect(result.escalated_to_human).toBe(false);
+    });
+
+    it("below-threshold confidence flags escalated_to_human (still returns plan)", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          agreementThreshold: 0.75,
+          consensusDecide: async (_q) => ({
+            answer: "C_setup_minimized",
+            confidence: 0.4,
+            voters: ["claude"],
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_label).toBe("C_setup_minimized");
+      expect(result.consensus.confidence).toBeCloseTo(0.4, 5);
+      expect(result.consensus.agreement_met).toBe(false);
+      expect(result.escalated_to_human).toBe(true);
+      // Plan is still returned — operator decides, pipeline does not hard-fail.
+      expect(result.selected_plan.operations.length).toBe(ALCOA_DIE_PIN.length);
+    });
+
+    it("seam failure (consensus throws) → fail-open to A_precedence", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          consensusDecide: async () => {
+            throw new Error("all voices down");
+          },
+          publish: () => {},
+        },
+      );
+      expect(result.selected_label).toBe("A_precedence");
+      expect(result.consensus.confidence).toBe(0);
+      expect(result.consensus.voters).toHaveLength(0);
+      expect(result.escalated_to_human).toBe(true);
+    });
+
+    it("unknown-vote answer falls back to A_precedence (input validation)", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          consensusDecide: async () => ({
+            answer: "nonexistent_label",
+            confidence: 0.9,
+            voters: ["claude"],
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.selected_label).toBe("A_precedence");
+    });
+
+    it("publishes one outcome event per call (observability seam)", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const events: unknown[] = [];
+      await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          consensusDecide: async () => ({
+            answer: "A_precedence",
+            confidence: 0.9,
+            voters: ["claude", "codex"],
+          }),
+          publish: (e) => events.push(e),
+        },
+      );
+      expect(events).toHaveLength(1);
+      const evt = events[0] as { kind: string; domain: string; lineage_id: string; schemaVersion: string };
+      expect(evt.kind).toBe("cross_process_decision");
+      expect(evt.domain).toBe("lathe");
+      expect(evt.schemaVersion).toBe("1.1.0");
+      expect(typeof evt.lineage_id).toBe("string");
+      expect(evt.lineage_id.length).toBeGreaterThan(0);
+    });
+
+    it("default consensus seam throws under VITEST (R12 guard)", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      // No consensusDecide injected → default seam fires the vitestConsensusGuard.
+      // The engine catches the throw (fail-open) but the verdict is empty.
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        { publish: () => {} },
+      );
+      expect(result.selected_label).toBe("A_precedence");
+      expect(result.consensus.voters).toHaveLength(0);
+    });
+
+    it("invalid strategy plan throws (R12 fail-loud on bad input)", async () => {
+      await expect(
+        lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+          { plan_id: "bogus" } as never,
+          STOCK_STANDARD,
+          ALCOA_DIE_PIN,
+          { publish: () => {} },
+        ),
+      ).rejects.toThrow(/Invalid strategy plan/);
+    });
+
+    it("custom agreementThreshold respected (e.g. 0.9 strict)", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          agreementThreshold: 0.9,
+          consensusDecide: async () => ({
+            answer: "A_precedence",
+            confidence: 0.85, // would pass default 0.75, fails strict 0.9
+            voters: ["claude", "codex", "gemini"],
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.consensus.threshold).toBeCloseTo(0.9, 5);
+      expect(result.consensus.agreement_met).toBe(false);
+      expect(result.escalated_to_human).toBe(true);
+    });
+
+    it("jobId is propagated when supplied (cross-stage event linkage)", async () => {
+      const stratPlan = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+        ALCOA_DIE_PIN,
+        ALUMINUM,
+      );
+      const result = await lathePrintSequencePlannerEngine.planSequenceWithConsensus(
+        stratPlan,
+        STOCK_STANDARD,
+        ALCOA_DIE_PIN,
+        {
+          jobId: "job-jm-die-pin-2026-05-23",
+          consensusDecide: async () => ({
+            answer: "A_precedence",
+            confidence: 0.95,
+            voters: ["claude"],
+          }),
+          publish: () => {},
+        },
+      );
+      expect(result.job_id).toBe("job-jm-die-pin-2026-05-23");
+    });
   });
 });

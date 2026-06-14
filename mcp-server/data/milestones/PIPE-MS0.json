@@ -1,0 +1,417 @@
+{
+  "id": "PIPE-MS0",
+  "title": "Print-to-Program Pipeline — Upload Print → Get CNC Program",
+  "track": "PIPE",
+  "version": "1.0.0",
+  "created_at": "2026-03-14T00:00:00Z",
+  "status": "in_progress",
+  "total_units": 12,
+  "completed_units": 4,
+  "reconcile_note": "KILO-P2P-RECONCILE-MS0/U-KP2P-04 (2026-05-22, ADVISORY, mustHumanVerify): 4 of 12 units flipped not_started→complete after on-disk verification (engine exists + dispatcher-wired + tests). 8 units remain genuine pending backlog. Full per-unit verdict: state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md.",
+  "description": "Build the crown jewel pipeline: User uploads engineering print (PDF/photo/DXF) or CAD file → system extracts features → selects tools FROM USER'S INVENTORY → generates operation sequence → calculates physics-backed S/F → assembles CNC program with correct post for their machine → generates setup sheet + cost estimate + ROI suggestions for upgrades. Two paths: (1) Print→CAD→CAM→Program (full reconstruction), (2) Print→Program (direct using templates + user library).",
+  "units": [
+    {
+      "id": "P0-U01",
+      "title": "PrintToGeometryEngine — 2D Drawing → 3D CadQuery Model",
+      "status": "complete",
+      "reconcile_note": "KILO-P2P-RECONCILE-MS0/U-KP2P-04 (2026-05-22, ADVISORY mustHumanVerify): flipped not_started→complete — PrintToGeometryEngine.ts on disk + 1 dispatcher reference + 2 test files. See state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md.",
+      "priority": "P0",
+      "description": "New engine that takes BlueprintOCR output (extracted dimensions, features, GD&T) and generates a CadQuery Python script that creates the 3D solid model. Uses feature-driven modeling: holes→cylinders, pockets→subtract boxes, bosses→extrude, chamfers→chamfer ops. Handles prismatic parts (mill/turn profiles). Outputs CadQuery script + estimated geometry envelope.",
+      "acceptance_criteria": [
+        "Engine: PrintToGeometryEngine.ts with convert() method",
+        "Input: BlueprintAnalysis (from BlueprintOCREngine)",
+        "Output: { cadquery_script: string, features: Feature[], envelope: BoundingBox, confidence: number }",
+        "Handles: rectangular parts, cylindrical parts, parts with holes/pockets/slots/chamfers",
+        "Uses CadQuery primitives: box, cylinder, hole, pocket, chamfer, fillet, shell",
+        "Wired to cadDispatcher as 'print_to_geometry' action",
+        "Tests: ≥5 (simple plate with holes, shaft with keyway, bracket, boss, complex prismatic)",
+        "Build: 0 TS errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P0-U02",
+      "title": "InventoryAwareToolSelectorEngine — Match Features to User's Tools",
+      "status": "complete",
+      "reconcile_note": "KILO-P2P-RECONCILE-MS0/U-KP2P-04 (2026-05-22, ADVISORY mustHumanVerify): flipped not_started→complete — InventoryAwareToolSelectorEngine.ts on disk + 3 dispatcher references + 3 test files. See state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md.",
+      "priority": "P0",
+      "description": "New engine that takes a feature list + user's tool library and finds the BEST available tools from what the user actually owns. Falls back to catalog recommendations for missing tools with 'you need to buy this' suggestions. Considers: tool condition (worn tools get derating), holder compatibility, machine magazine capacity, tool change minimization.",
+      "acceptance_criteria": [
+        "Engine: InventoryAwareToolSelectorEngine.ts",
+        "Input: { features: Feature[], user_tools: UserTool[], machine: MachineProfile, preferences: { optimize_for: string } }",
+        "Output: { tool_assignments: Array<{ feature, tool, from_inventory: boolean, confidence }>, missing_tools: Array<{ feature, recommended_tool, estimated_cost, buy_link? }>, magazine_layout: ToolSlot[], tool_changes: number }",
+        "Integrates with UserToolLibraryEngine for user's actual inventory",
+        "Derates worn tools (reduces recommended S/F by condition factor)",
+        "Suggests tool consolidation (one tool for multiple features when possible)",
+        "Wired to camDispatcher as 'inventory_tool_select' action",
+        "Tests: ≥5 (full inventory match, partial inventory, empty inventory, worn tools, tool consolidation)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P0-U03",
+      "title": "ROIAdvisorEngine — Upgrade Suggestions with Payback Analysis",
+      "status": "complete",
+      "reconcile_note": "KILO-P2P-RECONCILE-MS0/U-KP2P-04 (2026-05-22, ADVISORY mustHumanVerify): flipped not_started→complete — ROIAdvisorEngine.ts on disk + 1 dispatcher reference + 2 test files. See state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md.",
+      "priority": "P0",
+      "description": "New engine that analyzes the gap between user's current inventory/machine capabilities and optimal setup, then suggests purchases with ROI justification. Considers: tool cost vs per-part savings, machine upgrade vs outsourcing, holder upgrades (shrink fit vs ER collet), coolant upgrades (flood vs MQL vs through-tool). Calculates payback period based on user's part volume.",
+      "acceptance_criteria": [
+        "Engine: ROIAdvisorEngine.ts",
+        "Input: { current_setup: { tools, machine, holders }, optimal_setup: { tools, machine, holders }, annual_volume: number, current_cycle_time_min: number, current_tool_cost_per_part: number }",
+        "Output: { suggestions: Array<{ item, current, recommended, cost, savings_per_part, payback_parts, payback_months, priority }>, total_investment, total_annual_savings, overall_roi_pct }",
+        "Categories: tool_upgrade, holder_upgrade, machine_upgrade, coolant_upgrade, workholding_upgrade",
+        "Calculates: cycle time reduction, tool life improvement, quality improvement, scrap reduction",
+        "Wired to businessDispatcher as 'roi_advisor' action",
+        "Tests: ≥4 (tool upgrade ROI, machine upgrade ROI, mixed upgrades, break-even analysis)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P1-U01",
+      "title": "PrintToProgramPipelineEngine — Master Orchestrator",
+      "status": "complete",
+      "reconcile_note": "KILO-P2P-RECONCILE-MS0/U-KP2P-04 (2026-05-22, ADVISORY mustHumanVerify): flipped not_started→complete — PrintToProgramPipelineEngine.ts on disk (143.7K) + wired in camDispatcher (print_to_program_full/_enhanced/_plan/_validate, confirmed by U-KP2P-02 P2P-WIRING-MATRIX) + 20 test files. This is the silent close-out debt named in the KILO-P2P-RECONCILE-MS0 brief. See state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md.",
+      "priority": "P1",
+      "description": "Master pipeline engine that chains: BlueprintOCR → PrintToGeometry → FeatureRecognition → InventoryAwareToolSelector → OperationSequencer → SpeedFeedOrchestrator → CNCProgramAssembler → PostProcessorPipeline → SetupSheet → QuoteEstimator → ROIAdvisor. Single entry point with progress tracking and partial results. Two modes: (1) 'full' — complete pipeline, (2) 'direct' — skip CAD generation (user provides features or G-code template).",
+      "acceptance_criteria": [
+        "Engine: PrintToProgramPipelineEngine.ts",
+        "Input: { print_file?: Buffer, cad_file?: Buffer, features?: Feature[], machine: string, user_tool_library_id?: string, quantity: number, optimize_for: 'productivity'|'tool_life'|'cost'|'quality' }",
+        "Output: { gcode_program: string, setup_sheet: SetupSheet, cost_estimate: QuoteResult, roi_suggestions: ROISuggestion[], pipeline_log: StageResult[], total_confidence: number }",
+        "Chains 10 engines with error handling per stage",
+        "Partial results available (if CAD generation fails, still provides feature analysis)",
+        "Progress callback for UI progress bar",
+        "Wired to camDispatcher as 'print_to_program' action",
+        "Tests: ≥3 (full pipeline, direct mode, partial failure recovery)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P1-U02",
+      "title": "PhotoToBlueprint Bridge — Camera/Phone Photo Processing",
+      "status": "not_started",
+      "priority": "P1",
+      "description": "Engine that pre-processes phone/camera photos of prints: deskew, contrast enhancement, perspective correction, OCR quality improvement. Outputs clean image suitable for BlueprintOCREngine. Uses: Hough transform for edge detection, perspective warp, adaptive thresholding.",
+      "acceptance_criteria": [
+        "Engine: PhotoToBlueprintEngine.ts",
+        "Input: { image: Buffer, format: 'jpeg'|'png' }",
+        "Output: { cleaned_image: Buffer, orientation: 'portrait'|'landscape', confidence: number, warnings: string[] }",
+        "Handles: rotation correction, perspective warp, contrast enhancement",
+        "Wired to cadDispatcher as 'photo_to_blueprint' action",
+        "Tests: ≥3"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P1-U03",
+      "title": "CADFileImportEngine — STEP/IGES/DXF Direct Import",
+      "status": "not_started",
+      "priority": "P1",
+      "description": "Engine that parses CAD file formats (STEP AP203/AP214, IGES, DXF) and extracts feature geometry directly. For STEP/IGES: uses text parsing for simple solids (B-rep face extraction). For DXF: entity parsing (LINE, ARC, CIRCLE, LWPOLYLINE). Outputs feature list compatible with PartGeometryPipelineEngine.",
+      "acceptance_criteria": [
+        "Engine: CADFileImportEngine.ts",
+        "Supported: DXF (2D entities → feature inference), STEP (limited B-rep → bounding box + basic features)",
+        "Output: { features: Feature[], material_hint?: string, units: 'mm'|'inch', bounding_box: BoundingBox }",
+        "DXF: extracts circles as holes, rectangles as pockets, polylines as profiles",
+        "STEP: extracts planar faces, cylindrical faces, bounding box (basic level)",
+        "Wired to cadDispatcher as 'cad_import' action",
+        "Tests: ≥4 (DXF with holes, DXF with pockets, simple STEP, format detection)"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P2-U01",
+      "title": "Pipeline Web Page — /pipeline Route",
+      "status": "not_started",
+      "priority": "P2",
+      "description": "Create the Pipeline page in the web app. Multi-step wizard: (1) Upload (print PDF/photo/CAD file or describe part), (2) Review extracted features, (3) Select machine from user's machines, (4) Review tool assignments from inventory, (5) Review operation sequence + S/F, (6) Generate program + setup sheet + quote, (7) ROI suggestions. Each step shows results and allows edits before proceeding.",
+      "acceptance_criteria": [
+        "Page: PipelinePage.tsx at /pipeline route",
+        "7-step wizard with back/forward navigation",
+        "File upload (drag & drop) for PDF/DXF/STEP/JPEG/PNG",
+        "Feature editor (add/remove/modify detected features)",
+        "Machine selector (from user's registered machines)",
+        "Tool assignment table (inventory tools highlighted, missing tools flagged)",
+        "Operation sequence viewer with drag-to-reorder",
+        "G-code preview with syntax highlighting",
+        "Setup sheet preview",
+        "Cost breakdown card",
+        "ROI suggestions panel",
+        "Full pipeline: types + API + hook + page",
+        "Build: 0 TS errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P2-U02",
+      "title": "Pipeline Backend Route + API Client",
+      "status": "not_started",
+      "priority": "P2",
+      "description": "Create Express route /api/v1/pipeline with endpoints for each pipeline stage + full pipeline run. Multipart file upload support.",
+      "acceptance_criteria": [
+        "Route: C:/PRISM/mcp-server/src/routes/pipeline.ts",
+        "Endpoints: POST /upload (multipart), POST /analyze, POST /tools, POST /sequence, POST /program, POST /full-pipeline",
+        "Multipart file upload with multer",
+        "API client: C:/PRISM/web/src/api/pipeline.ts",
+        "Types: C:/PRISM/web/src/types/pipeline.ts",
+        "Hook: C:/PRISM/web/src/hooks/usePipeline.ts",
+        "Build: 0 TS errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P2-U03",
+      "title": "User Machine Registry — Save My Machines",
+      "status": "not_started",
+      "priority": "P2",
+      "description": "Allow users to register their specific machines (model, controller, spindle, magazine slots, tooling). Persisted via UserMachineRegistryEngine. UI: machine cards on Settings page.",
+      "acceptance_criteria": [
+        "Engine: UserMachineRegistryEngine.ts (CRUD for user machines)",
+        "Data: machine_name, model, controller, max_rpm, max_power_kw, taper, magazine_slots, registered_tools[]",
+        "Wired to machineSetupDispatcher as 'user_machine_add/list/update/remove'",
+        "Settings page updated with 'My Machines' section",
+        "Tests: ≥3"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P3-U01",
+      "title": "Template Library — Common Part Programs",
+      "status": "not_started",
+      "priority": "P3",
+      "description": "Curated library of common part program templates (plate with holes, shaft, bracket, housing, flange) that users can customize. Accelerates the Print→Program path by pre-filling typical features/operations.",
+      "acceptance_criteria": [
+        "Engine: PartTemplateCatalogEngine.ts",
+        "Templates: flat_plate, shaft, bracket, housing, flange, bushing, spacer, adapter_plate, angle_bracket, mounting_block (10 minimum)",
+        "Each template: default features, operations, typical materials, S/F ranges",
+        "Wired to camDispatcher as 'template_list/template_apply'",
+        "Tests: ≥3"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P3-U02",
+      "title": "Pipeline History & Learning",
+      "status": "not_started",
+      "priority": "P3",
+      "description": "Save pipeline runs with actual results. Track: predicted vs actual cycle time, tool life, scrap rate. Use FeedbackPersistenceEngine to improve future predictions.",
+      "acceptance_criteria": [
+        "Pipeline runs saved to state/pipeline-history/",
+        "Predicted vs actual tracking (user enters actual after running job)",
+        "Calibration suggestions based on prediction accuracy",
+        "Wired to businessDispatcher as 'pipeline_history_save/list/compare'",
+        "Tests: ≥2"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "P3-U03",
+      "title": "Pipeline Integration Tests",
+      "status": "not_started",
+      "priority": "P3",
+      "description": "End-to-end integration tests for the full pipeline. Test with sample prints/parts through complete flow.",
+      "acceptance_criteria": [
+        "Test file: pipeline-integration.test.ts",
+        "Tests: full pipeline (print→program), direct mode (features→program), photo mode, CAD import mode, inventory-constrained mode",
+        "≥8 tests total",
+        "All pass with 0 errors"
+      ],
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "pipe-ms0-gate",
+    "mcp_action": "prism_pipe:pipe_ms0_run",
+    "skill_command": "/pipe-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "pipe-ms0-gate"
+    ],
+    "new_actions": [
+      "pipe_ms0_run"
+    ],
+    "new_skills": [
+      "/pipe-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the crown jewel pipeline: User uploads engineering print (PDF/photo/DXF) or CAD file → system extracts features → selects tools FROM USER'S INVENTORY → generates operation sequence → calculates physics-backed S/F → assembles CNC program with correct post for their machine → generates setup sheet + cost estimate + ROI suggestions for upgrades. Two paths: (1) Print→CAD→CAM→Program (full reconstruction), (2) Print→Program (direct using templates + user library).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

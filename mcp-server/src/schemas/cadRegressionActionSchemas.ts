@@ -177,6 +177,49 @@ const cad_regression_report_summary = z
   })
   .passthrough();
 
+// ── CINF11 HTML/PDF variants — U-CINF11 spec deliverables (printable=true → standalone HTML5 doc for browser Print → Save as PDF)
+const cad_regression_report_snapshot_html = z
+  .object({
+    snapshot: z.any().describe("DashboardSnapshot from CINF08"),
+    printable: z
+      .boolean()
+      .optional()
+      .describe("true → standalone HTML5 doc with embedded print CSS; false (default) → HTML fragment"),
+  })
+  .passthrough();
+const cad_regression_report_diff_html = z
+  .object({
+    diff: z.any().describe("DiffReport from CINF10"),
+    rowLimit: z.number().int().positive().optional(),
+    printable: z.boolean().optional(),
+  })
+  .passthrough();
+const cad_regression_report_trend_html = z
+  .object({
+    trend: z.any().describe("TrendReport from CINF10"),
+    printable: z.boolean().optional(),
+  })
+  .passthrough();
+const cad_regression_report_hotspots_html = z
+  .object({
+    hotspots: z.any().describe("HotspotReport from CINF10"),
+    printable: z.boolean().optional(),
+  })
+  .passthrough();
+const cad_regression_report_summary_html = z
+  .object({
+    snapshot: z.any().optional(),
+    diff: z.any().optional(),
+    trend: z.any().optional(),
+    hotspots: z.any().optional(),
+    rowLimit: z.number().int().positive().optional(),
+    printable: z
+      .boolean()
+      .optional()
+      .describe("true → standalone PDF-ready HTML5 doc (stakeholder export target)"),
+  })
+  .passthrough();
+
 // ── CINF12 — Spec-named MCP aliases ──────────────────────────────────────────
 // Thin facades over Orchestrator/Dashboard/Analyzer/Triage/Report so external
 // MCP clients can invoke the envelope-documented names. Schemas MIRROR the
@@ -329,6 +372,11 @@ export const ACTION_CAD_REGRESSION_SCHEMAS: ActionSchemaMap = {
   cad_regression_report_trend,
   cad_regression_report_hotspots,
   cad_regression_report_summary,
+  cad_regression_report_snapshot_html,
+  cad_regression_report_diff_html,
+  cad_regression_report_trend_html,
+  cad_regression_report_hotspots_html,
+  cad_regression_report_summary_html,
   // CINF12 spec aliases
   start_batch,
   get_progress,

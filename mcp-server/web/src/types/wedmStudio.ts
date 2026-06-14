@@ -351,14 +351,29 @@ export interface SelectionParams {
 
 /** POST /start-holes */
 export interface StartHolesParams {
-  features: PartFeature[];
+  // 2026-05-27 iter25 — features is the legacy seed shape; iter26 adds the
+  // origin+start_holes+material+wire shape StepWcs L235-L240 builds when the
+  // operator has already picked the start hole geometry interactively.
+  features?: PartFeature[];
+  origin?: { x: number; y: number } | null;
+  start_holes?: StartHole[];
+  material?: string;
+  wire_diameter_mm?: number;
 }
 
 /** POST /toolpath */
 export interface ToolpathParams {
-  features: PartFeature[];
-  contours: ProfileContour[];
-  start_holes: StartHole[];
+  // 2026-05-27 iter25 — StepToolpath L258 builds the toolpath from prepared
+  // profiles + tabs + sequence (when classify+plan stages already ran);
+  // legacy /toolpath route still accepts the feature+contour seed.
+  features?: PartFeature[];
+  contours?: ProfileContour[];
+  start_holes?: StartHole[];
+  profiles?: ToolpathProfile[];
+  tabs?: TabPosition[];
+  // sequence can be raw ids (legacy) or CuttingSequenceEntry rows; the planner
+  // accepts both via discriminated parsing on the server side.
+  sequence?: unknown[];
   material?: string;
   wire_diameter_mm?: number;
 }

@@ -42,6 +42,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { atomicWriteJson } from "./lib/atomic-json.mjs";
 
 const PRISM = "H:/prism";
 const ATOMIZED_DIR = path.join(PRISM, "state/shared/specs/atomized");
@@ -316,7 +317,10 @@ function main() {
     index.total_milestones = Object.keys(ms).length;
     index.updated_at = NOW;
     index._last_devtools_register = { at: NOW, by: "claude-0f522935", added: idxAdded, updated: idxUpdated, version: VERSION };
-    fs.writeFileSync(INDEX_PATH, JSON.stringify(index, null, 2) + "\n");
+    // U-ROADMAP-INDEX-WRITER-CONSOLIDATE: atomic write via the shared helper
+    // (scripts/lib/atomic-json.mjs) — per-PID temp removes the concurrent-
+    // writer tmp collision the inline fixed-".tmp" copy shared with peers.
+    atomicWriteJson(INDEX_PATH, index);
     idxTotal = index.total_milestones;
   }
 

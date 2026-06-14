@@ -249,3 +249,37 @@ describe("domainBoostFor", () => {
     assert.equal(domainBoostFor(null, ["mill"]), 0);
   });
 });
+
+describe("activeSlotName", () => {
+  it("resolves the slot KEY for a matching chatId", async () => {
+    writeSlots({ slots: { oscar: { chatId: "claude-aaaa1111" }, mike: { chatId: "claude-bbbb2222" } } });
+    const { activeSlotName } = await reload();
+    assert.equal(activeSlotName("claude-aaaa1111"), "oscar");
+    assert.equal(activeSlotName("claude-bbbb2222"), "mike");
+  });
+
+  it("returns null for a chatId with no matching slot (no peer leak)", async () => {
+    writeSlots({ slots: { oscar: { chatId: "claude-aaaa1111" } } });
+    const { activeSlotName } = await reload();
+    assert.equal(activeSlotName("claude-9999dead"), null);
+  });
+
+  it("returns null for null/empty chatId", async () => {
+    writeSlots({ slots: { oscar: { chatId: "claude-aaaa1111" } } });
+    const { activeSlotName } = await reload();
+    assert.equal(activeSlotName(null), null);
+    assert.equal(activeSlotName(""), null);
+  });
+
+  it("returns null when the slots file is missing", async () => {
+    const { activeSlotName } = await reload();
+    assert.equal(activeSlotName("claude-aaaa1111"), null);
+  });
+
+  it("tolerates malformed slots json (fail-soft)", async () => {
+    writeFileSync(slotsPath, "{not valid json", "utf8");
+    const { activeSlotName } = await reload();
+    assert.doesNotThrow(() => activeSlotName("claude-aaaa1111"));
+    assert.equal(activeSlotName("claude-aaaa1111"), null);
+  });
+});

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="8b02b62026d5c94130f68bfb4255a2607007ca9a5b21688595ecc3406c636f7d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI/UX — AI-proposed visual mutations are flag-gated</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>UI/UX — AI-proposed visual mutations are flag-gated</h1>
+<div class="meta">rendered from knowledge/wiki/code-tribal/ui-ux-ai-mutations-flag-gated.md</div>
+<div class="meta">Generated 2026-05-26T14:25:34.996Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><hr class="prism-hr">
+<p>title: UI/UX — AI-proposed visual mutations are flag-gated type: code-tribal domain: frontend created: 2026-05-26 slot: quebec unit: U-F2-FEATURE-FLAG-GUARD spec: state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md §6 / §9 status: doctrine</p>
+<hr class="prism-hr">
+<h1 class="prism-h1">UI/UX — AI-proposed visual mutations are flag-gated</h1>
+<p>Doctrine that pairs with [[frontend-codex]]&#39;s &quot;don&#39;t duplicate Codex pages&quot; rule. Closes the silent-deploy class of bug where an agent&#39;s plausible-but-wrong UI lands directly in front of the customer.</p>
+<h2 class="prism-h2">Rule</h2>
+<p>Every AI-proposed visual mutation ships <strong>behind a feature flag that defaults to OFF</strong>. The operator activates the flag after reviewing both rendered states; the default branch ships with the flag off, so the live experience is unchanged until the operator opts in.</p>
+<h2 class="prism-h2">Why</h2>
+<ul class="prism-md-list"><li>An AI agent can generate plausible-but-wrong UI: broken state coverage (missing loading/empty/error branches), off-design-language vs Calculator Studio, accessibility regressions, layout breaks on the shop-floor tablet/gloves/glare profile.</li><li>Without a flag, the customer becomes the first reviewer — that is the failure mode this rule prevents.</li><li>It also closes the <strong>silent-collision class</strong>: two parallel chats both auto-deploying competing visual mutations cancel each other out at runtime; behind flags both can coexist and the operator picks the winner.</li></ul>
+<h2 class="prism-h2">Implementation pattern</h2>
+<p>Vite-style env + localStorage hot-toggle (no new flag library; both already work in <code class="prism-inline-code">web/</code>):</p>
+<pre class="prism-codeblock" data-lang="tsx"><code>// web/src/lib/feature-flags.ts (sketch)
+export function flagOn(name: string): boolean {
+  const ls = typeof window !== &quot;undefined&quot; ? window.localStorage : null;
+  if (ls?.getItem(`prism.feature.${name}`) === &quot;on&quot;) return true;
+  const envKey = `VITE_FEATURE_${name.replace(/-/g, &quot;_&quot;).toUpperCase()}`;
+  return import.meta.env[envKey] === &quot;on&quot;;
+}
+
+// at the call site
+{flagOn(&quot;partprofile-redesign&quot;) ? &lt;NewPartProfile /&gt; : &lt;PartProfile /&gt;}</code></pre>
+<p>Build-time activation: <code class="prism-inline-code">.env.production</code> adds <code class="prism-inline-code">VITE_FEATURE_PARTPROFILE_REDESIGN=on</code> once the operator approves.</p>
+<h2 class="prism-h2">Scope</h2>
+<table class="prism-md-table"><thead><tr><th>Type</th><th>Flag-gated?</th><th>Why</th></tr></thead><tbody><tr><td>New page</td><td>yes</td><td>High-blast-radius surface change</td></tr>
+<tr><td>Redesigned component</td><td>yes</td><td>Visual mutation of existing surface</td></tr>
+<tr><td>New dashboard widget</td><td>yes</td><td>Visual addition</td></tr>
+<tr><td>New modal/drawer</td><td>yes</td><td>New surface</td></tr>
+<tr><td>Copy rewrite that changes UX intent</td><td>yes</td><td>Soft visual mutation</td></tr>
+<tr><td>Bug fix (broken loading state, wrong color, off-by-one padding)</td><td>no</td><td>Restoring intent, not mutating it</td></tr>
+<tr><td>Pure-text typo fix</td><td>no</td><td>No UX change</td></tr>
+<tr><td>Internal-only / admin routes</td><td>no</td><td>Operator IS the customer</td></tr>
+<tr><td>Chat changes inside an already-flagged surface</td><td>no</td><td>Parent flag IS the gate</td></tr>
+<tr><td>Operator hand-typed code</td><td>no</td><td>Operator IS the gate</td></tr></tbody></table>
+<h2 class="prism-h2">Workflow</h2>
+<ol class="prism-md-list"><li>Search <code class="prism-inline-code">web/</code> for existing pages matching the requested change → if found, apply [[frontend-codex]] (improve existing, don&#39;t duplicate).</li><li>Wrap the new surface in <code class="prism-inline-code">flagOn(&quot;&lt;name&gt;&quot;)</code>.</li><li>Ship both code paths; flag defaults OFF.</li><li>PR description names the flag, what it touches, and how to toggle it on (DevTools → Application → localStorage → set <code class="prism-inline-code">prism.feature.&lt;name&gt;</code> = <code class="prism-inline-code">&#39;on&#39;</code>).</li><li>Operator validates the flagged-on render in dev/staging/prod-with-localStorage-override BEFORE flipping <code class="prism-inline-code">VITE_FEATURE_*</code> to <code class="prism-inline-code">&#39;on&#39;</code> at build time.</li><li>After a quiet activation week, a separate cleanup PR deletes the flag and the old code path.</li></ol>
+<h2 class="prism-h2">Anti-regression</h2>
+<ul class="prism-md-list"><li>A PR that adds a new visual surface without a <code class="prism-inline-code">flagOn(...)</code> wrapper is a doctrine violation. The 3-of-3 scrutiny gate&#39;s arm-A/B/C is expected to flag this; the existing <code class="prism-inline-code">pre-frontend-page-create-audit</code> hook continues to handle the duplicate-existing-page class.</li><li>An LLM that proposes a visual mutation without naming the flag in its plan has skipped step 2 — ask it to re-plan with the flag.</li></ul>
+<h2 class="prism-h2">Verification</h2>
+<ul class="prism-md-list"><li>Grep new <code class="prism-inline-code">web/src/</code> commits for <code class="prism-inline-code">VITE_FEATURE_<em></code> or <code class="prism-inline-code">prism.feature.</em></code> — any new visual surface should be findable by one of those tokens.</li><li>Operator toggles the flag on in DevTools localStorage and reviews the flagged-on render before any build-time activation.</li></ul>
+<h2 class="prism-h2">Provenance</h2>
+<p>Codified from <code class="prism-inline-code">state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md</code> (quebec iter6) §6 U-F2-FEATURE-FLAG-GUARD, P0, 1h documentation-only. Lands as doctrine alongside the spec (no code change in this unit; the doctrine sets the contract for every subsequent visual-mutation unit).</p>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[frontend-codex]] — don&#39;t duplicate Codex pages; flag-gating sits ABOVE this rule.</li><li><code class="prism-inline-code">state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md</code> §6 — atomic units, including U-F2.</li><li><code class="prism-inline-code">state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md</code> §9.2-9.3 — micro-frontend timing + 2026 SE practices that this doctrine front-runs.</li><li>[[feedback_backend_before_frontend]] — operator-gated frontend doctrine that this doctrine inherits from.</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

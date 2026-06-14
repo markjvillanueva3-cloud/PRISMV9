@@ -212,6 +212,8 @@ function buildQueuedNotice(promptHash) {
 }
 
 async function main() {
+  // Disable knob (TOKEN-EFFICIENCY-INJECT/U-KNOB-CLOSE) -- silence this injector.
+  if (process.env.PRISM_AUTO_CONSENSUS_DISABLE === "1") return writeOutput("");
   const input = readStdinJson();
   const prompt = typeof input.prompt === "string" ? input.prompt : "";
   const sessionId = typeof input.session_id === "string" ? input.session_id : null;
@@ -226,10 +228,22 @@ async function main() {
   }
 
   const enqueued = enqueueForBackground(prompt, sessionId);
-  if (enqueued) {
+  // U-INJECT-DRIFT-FIX (india 2026-06-12): the queued-notice is pure FYI -- the enqueue + Stop-hook
+  // drain happen regardless, and its sha8 changes every prompt so dedup cannot suppress it. Silence it
+  // by default (saves ~331B every dev-prompt cache-miss); show via PRISM_AUTO_CONSENSUS_VERBOSE=1. The
+  // valuable cache-HIT notice above is unaffected.
+  if (enqueued && process.env.PRISM_AUTO_CONSENSUS_VERBOSE === "1") {
     return writeOutput(buildQueuedNotice(hashPrompt(prompt)));
   }
   return writeOutput("");
 }
 
-main().catch(() => writeOutput(""));
+export { detectIntent, isOptOut, hashPrompt, tryRecall, enqueueForBackground, extractAnswer, main };
+
+// Run only as a direct hook invocation, never on import (keeps the test harness clean;
+// stops a test import from blocking on fd 0 / running a live main). Mirrors the isDirect
+// guard in auto-consensus-critical-edit.mjs + consensus-queue-drain.mjs.
+const isDirect = (process.argv[1] || "").replace(/\\/g, "/").endsWith("auto-consensus-userprompt.mjs");
+if (isDirect) {
+  main().catch(() => writeOutput(""));
+}

@@ -1,5 +1,14 @@
 # PATCH-SIBLING — CLAUDE.md back-flow for token-savings audit
 
+> **RESOLVED 2026-05-20 (slot lima, U-LIMA-B1).** The 3 regression entries are now
+> archived in `state/shared/CLAUDE-REGRESSIONS-ARCHIVE.md` (§Back-flowed historical
+> regressions) — all three findings are resolved-historical. The doctrine portion
+> (`scripts/token-savings-rank.mjs` META) is already wiki-captured at
+> `knowledge/wiki/architecture/audit-token-savings-2026-05-17.md`. The literal
+> CLAUDE.md splice was NOT performed: CLAUDE.md became golf-only after this patch
+> was authored (U-OBF-GOLF guard). golf may optionally add a 1-line META pointer
+> to the OLLAMA-PIPELINE section, or delete this file — content is fully preserved.
+
 **Author:** claude-77971357 slot lima
 **Date:** 2026-05-17
 **Reason:** CLAUDE.md is peer-claimed by claude-de04081e (chat-bus shows active edit-lock, 4m left at start of audit). Per JULIETT-12CHAT-ALLOCATION-MS0 patch-sibling convention, dropping the back-flow lines here for whoever splices next.

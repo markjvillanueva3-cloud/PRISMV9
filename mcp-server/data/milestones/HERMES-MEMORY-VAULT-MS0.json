@@ -1,0 +1,203 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "HERMES-MEMORY-VAULT-MS0",
+  "title": "Hermes Memory Vault — close 7 gaps vs Simback's 2026-05-23 Hermes Memory Guidebook + 4 deeper Obsidian/Qdrant/Hermes synergies",
+  "status": "in_progress",
+  "created_at": "2026-05-23T21:00:00.000Z",
+  "created_by": "claude-ea80ce2f slot bravo",
+  "spec_file": "state/shared/specs/HERMES-MEMORY-VAULT-RESEARCH-2026-05-23.md",
+  "derived_from": [
+    "state/shared/specs/HERMES-PSN-RAG-SYNERGY-RESEARCH-2026-05-23.md",
+    "state/shared/specs/HERMES-OCTOPUS-COORDINATION-RESEARCH-2026-05-23.md",
+    "https://x.com/KSimback/status/2058262328496554021 (Simback Hermes Memory Guidebook)"
+  ],
+  "psn_legs_touched": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    10,
+    11
+  ],
+  "units": [
+    {
+      "id": "U-HMEMV01",
+      "title": "Mnemosyne-style tiered consolidation — working/episodic/long-term memory promotion",
+      "priority": "P0",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [
+        "U-HMEMV04"
+      ],
+      "description": "Auto-promote memory entries through working→episodic→long-term tiers. Today feedback→reference→wiki is manual. Build a Stop-hook driver that scans recent feedback_*.md, increments a reference-count + age signal, and proposes promotion when threshold crossed. Pure-core lib + driver. Operator-gated promote, NEVER auto-mutates wiki.",
+      "exit_criteria": "lib + tests (≥6 cases, 3 spanning tier transitions) + Stop driver + advisory output",
+      "estimated_loc": "~150 LOC lib + ~80 LOC driver",
+      "verified_commit": "dd38559c21"
+    },
+    {
+      "id": "U-HMEMV02",
+      "title": "Explainable retrieval — yantrikdb-style 'why retrieved' trace on every master-index hit",
+      "priority": "P0",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Extend master-index-precheck-inject.mjs output to include per-hit explanation: matched tokens, BM25 component scores, corpus name, embedding-distance breakdown. Operator can audit WHY each suggestion surfaced. Lower-effort high-leverage UX win.",
+      "exit_criteria": "extended scoring lib + test cases asserting explanation structure",
+      "notes": "PARTIAL (slot:zulu 2026-06-10): RECALL surface DONE -- memory-index-search-lib.mjs runMemoryIndexSearch now returns per-hit `explanation` {matchedTokens, corpus, denseArm (qdrant|scan|null), denseSim, bm25Score, rrf} on EVERY path (hybrid + sidecar + live), threaded through tryHybridFuse; memory-index-precheck-inject.mjs renders a compact [via <arm> <cosine> bm25:<n> matched:<toks>] tag when PRISM_MEMORY_INDEX_EXPLAIN=1 (default OFF -> byte-identical fleet-wide, no per-prompt token cost). matchedTokens() exported, 4 tests (73 lib total). LIVE: real hit -> 'arm=qdrant denseSim=0.70 bm25=14 matched=[obsidian,hermes,acceleration]'. NOTE (R7): the spec literally named master-index-precheck-inject (the system-graph BM25-only surface); built on the memory-VAULT recall surface instead -- it is the milestone-faithful (HERMES-MEMORY-VAULT) + higher-value target (the only surface with dense/BM25 fusion worth explaining). DONE 2026-06-10: master-index surface ALSO shipped (commit U-HMEMV02-MASTERINDEX) -- explainNodeMatch() + searchGraphHits per-hit `explanation` {matchedTokens, fields, corpus, score} + master-index-precheck-inject.mjs render tag (PRISM_MASTER_INDEX_EXPLAIN=1, default OFF), 60 master-index tests. BOTH surfaces (recall + master-index) complete; status -> completed.",
+      "estimated_loc": "~80 LOC lib changes + ~50 LOC tests"
+    },
+    {
+      "id": "U-HMEMV03",
+      "title": "Temporal-aware recall — 'what did I believe about X at time T?' point-in-time memory query",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "First-class point-in-time recall over the memory dir + wiki via git log. Today operators do `git show <ref>:<path>` manually. Build prism_memory:recall_at_time action that walks memory git log + reconstructs the state-of-belief at the requested timestamp. Matches Mnemosyne's standout feature per Simback.",
+      "exit_criteria": "lib + dispatcher action + ≥3 spanning time-window tests",
+      "estimated_loc": "~150 LOC"
+    },
+    {
+      "id": "U-HMEMV04",
+      "title": "Background 'dream cycle' — overnight synthesis pass (GBrain pattern)",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [
+        "U-HMEMV01"
+      ],
+      "blocks": [],
+      "description": "Scheduled task running off-peak that scans recent memories + wiki + tribal, surfaces contradictions, proposes consolidations + cross-references. Builds on close-out-audit but adds synthesis. Operator-gated promote. Bigger version of `audit-close-out-candidates.mjs`.",
+      "exit_criteria": "scheduled task + lib + ≥3 dream-cycle reports under state/shared/dream-cycle/",
+      "estimated_loc": "~200 LOC",
+      "verified_commit": "23de0e7881"
+    },
+    {
+      "id": "U-HMEMV05",
+      "title": "Memory-router intercept — auto-inject relevant memory into ANY LLM dispatch (Mem0 pattern)",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Extend aiSystemRouterEngine.route() with a preMemoryInject phase: every routed call automatically receives top-K relevant memory hits as system-context prefix. Today auto-injectors fire only on UserPromptSubmit; this extends to every internal LLM dispatch (octopus, prismCreativeReasoning, etc).",
+      "exit_criteria": "router extension + tests + smoke through prism_ai dispatcher",
+      "estimated_loc": "~100 LOC + ~60 LOC tests",
+      "verified_commit": "0b905a6c5c"
+    },
+    {
+      "id": "U-HMEMV06",
+      "title": "Reflect-on-own-memory — Hindsight-style reasoning over memory store",
+      "priority": "P2",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "prismCreativeReasoningEngine.reflect(memoryStore) periodically synthesizes patterns from accumulated memories. Closes the 'memory + reasoning' loop the article highlights as uniquely valuable when running multi-agent fleets on shared memory.",
+      "exit_criteria": "engine extension + 1 batch reflection per slot per week",
+      "estimated_loc": "~120 LOC",
+      "verified_commit": "f3dce73b8d"
+    },
+    {
+      "id": "U-HMEMV07",
+      "title": "Predictive memory warmup — FlowState-QMD pattern (pre-load likely-next memory hits)",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [
+        "U-HMEMV01"
+      ],
+      "blocks": [],
+      "description": "Based on session activity pattern, pre-load likely-next memory hits into the rag index cache. Rides on octopus-record-lib outcomes — frequently-followed prompt patterns inform warmup. Eliminates first-hit latency.",
+      "exit_criteria": "warmup lib + integration with stale-ness check (U-HFR05); ≥3 prediction patterns tested",
+      "estimated_loc": "~100 LOC"
+    },
+    {
+      "id": "U-HMEMV08",
+      "title": "Obsidian Bases integration — frontmatter-pivoted views over wiki+memory",
+      "priority": "P1",
+      "status": "completed",
+      "depends_on": [],
+      "blocks": [],
+      "description": "Obsidian Bases (2025+ feature) lets you build database-style views from frontmatter fields. PRISM's wiki+memory already use frontmatter (name/description/type/tags). Ship .base files that expose: (a) memory-by-type, (b) wiki-by-domain, (c) shipped-skills-by-slot. Operator gets instant pivot tables without leaving Obsidian.",
+      "exit_criteria": "≥3 .base files committed + screenshot in spec",
+      "estimated_loc": "~50 LOC + Base config files"
+    },
+    {
+      "id": "U-HMEMV09",
+      "title": "Qdrant migration — tribal+wiki+memory vectors → Qdrant collection (filtered hybrid retrieval)",
+      "priority": "P1",
+      "status": "in_progress",
+      "depends_on": [],
+      "blocks": [
+        "U-HMEMV07"
+      ],
+      "description": "Migrate tribal-embed-index.json + wiki vector index to a local Qdrant instance. Unlocks: scale beyond 10K entries, filtered semantic search (per-leg/per-domain), sparse+dense hybrid, scalar/binary quantization (smaller mem), persistent+restartable. INTEL-OLLAMA-OBSIDIAN-MS0/P13 already added the Qdrant docker-compose; this unit wires the corpora.",
+      "exit_criteria": "Qdrant collection seeded from existing indexes + reRankerEngine fallback path preserved",
+      "notes": "PARTIAL 2-of-3 corpora (slot:zulu 2026-06-10/11): (1) MEMORY corpus DONE -- prism_memories seeded with 17,032 vault-memory vectors (producer populate-qdrant-memories.mjs a165f4166e) + LIVE recall consumer (memory-index-search-lib.mjs denseRankViaQdrant) sources dense from Qdrant ANN, linear int8 scan fail-soft (PRISM_MEMORY_QDRANT_DISABLE=1). (2) WIKI corpus DONE -- prism_wiki seeded with 53,930 wiki concept-leaf vectors (producer populate-qdrant-wiki.mjs + shared OOM-proof streamPopulateQdrant, commit U-HMEMV09-WIKI-PRODUCER; the 137MB _embeddings.jsonl OOMed the non-streaming loader) + LIVE consumer (wiki-precheck-inject.mjs semanticFallback -> qdrantRankWiki ANN, linear 137MB scan fail-soft, PRISM_WIKI_QDRANT_DISABLE=1, U-HMEMV09-WIKI-CONSUMER 7f01daa8ec). points_count==53,930 (0 id collisions), ANN kienzle->kienzle-force-model@0.849; 16+6 tests, 2-of-2 scrutiny each. (3) TRIBAL corpus DEFERRED -- tribal-embed-index is sharded/mid-clobber-recovery + 533MB (see [[reference_qdrant_tribal_migration_defer_2026_06_09]]); blocked until sierra's recovery settles. streamPopulateQdrant is the OOM-proof producer ready when tribal unblocks.",
+      "estimated_loc": "~250 LOC + migration script"
+    },
+    {
+      "id": "U-HMEMV10",
+      "title": "Hermes-MemoryProvider compliance — expose PRISM PSN as a Hermes-compatible provider",
+      "priority": "P2",
+      "status": "not_started",
+      "depends_on": [
+        "U-HMEMV05",
+        "U-HMEMV09"
+      ],
+      "blocks": [],
+      "description": "Wrap PRISM's PSN-via-master-index as a Hermes MemoryProvider ABC-compatible interface (extends MemoryProvider). Externally exposes search/store/forget. Lets Hermes-native agents use PRISM as their L2 provider. Cross-agent PSN benefit without bridging.",
+      "exit_criteria": "MemoryProvider stub + 4 ABC methods + integration test via Hermes harness if available; else contract-only",
+      "estimated_loc": "~200 LOC"
+    },
+    {
+      "id": "U-HMEMV11",
+      "title": "Dataview-runtime queries — operator-callable queries from inside Obsidian over PRISM state",
+      "priority": "P2",
+      "status": "completed",
+      "depends_on": [
+        "U-HMEMV08"
+      ],
+      "blocks": [],
+      "description": "Ship Dataview query snippets under knowledge/wiki/queries/*.md that operators can copy into their daily-notes / dashboards. Queries: (a) shipped this week by slot, (b) deferred close-outs, (c) memory by promotion-readiness, (d) wiki orphans. Each is a single-file md with frontmatter + dataview JS-LIKE syntax.",
+      "exit_criteria": "≥4 query snippets + README explaining each",
+      "estimated_loc": "~150 lines markdown"
+    }
+  ],
+  "synergy_axes": {
+    "psn_leg_3_wiki": [
+      "U-HMEMV01",
+      "U-HMEMV02",
+      "U-HMEMV04",
+      "U-HMEMV08",
+      "U-HMEMV11"
+    ],
+    "psn_leg_4_memory": [
+      "U-HMEMV01",
+      "U-HMEMV02",
+      "U-HMEMV03",
+      "U-HMEMV04",
+      "U-HMEMV05"
+    ],
+    "psn_leg_5_tribal": [
+      "U-HMEMV04",
+      "U-HMEMV09"
+    ],
+    "psn_leg_6_sysviz": [
+      "U-HMEMV06"
+    ],
+    "psn_leg_10_nn": [
+      "U-HMEMV09"
+    ],
+    "psn_leg_11_prism_ai": [
+      "U-HMEMV05",
+      "U-HMEMV06",
+      "U-HMEMV10"
+    ]
+  },
+  "advisory": "All 11 units are operator-reviewable + operator-gated promote; nothing in this milestone mutates live wiki/memory/CLAUDE.md without operator action.",
+  "mustHumanVerify": true,
+  "notes": [
+    "Derived from Simback's article (2026-05-23) comparing PRISM vs Hermes 3-layer architecture; PRISM exceeds on 7 axes (doctrine, wiki, system-viz, fleet, PSN, multi-vendor, closed-loop) but has 7 frontier gaps + 4 deeper synergies (Obsidian Bases/Dataview + Qdrant + Hermes-MemoryProvider compliance).",
+    "[2026-06-10 slot:zulu DRIFT-FIX] Envelope was all-not_started despite shipped units. R12 git+live verification: HMEMV01/04/05/06 marked completed (01=51 tests dd38559c21; 04=LIVE dreams/2026-06-10.md 23de0e7881; 05=classifier+13 tests 0b905a6c5c; 06=closeout f3dce73b8d). HMEMV02(explainable)/03(temporal) left not_started -- queued as builds, both assess-memos confirm unbuilt. HMEMV07-11 have closeout commit ed62a8e1db (claims 11/11) BUT the shipped engines (ContextBlockPacker/MemoryDiff/NamespaceMigration/HybridIndex/QuantizationProfile) do NOT map to the unit specs (predictive-warmup/Obsidian-Bases/Qdrant/MemoryProvider/Dataview); HMEMV09 Qdrant migration is LIVE-VERIFIED UNBUILT (17K vectors absent from Qdrant, container :6333 has only engines/skills/formulas collections) -- the #1 high-ROI build. Left not_started pending per-unit functional verification; do NOT mass-complete on the commit subject alone."
+  ]
+}

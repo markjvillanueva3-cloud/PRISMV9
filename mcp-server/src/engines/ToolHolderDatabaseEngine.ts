@@ -5,7 +5,13 @@
  * Standards: ANSI B5.50, JIS B6339, DIN 69893, ISO 26623, DIN 69880, DIN 2080, DIN 6499
  *
  * Source: PRISM v8.89 monolith PRISM_TOOL_HOLDER_INTERFACES_COMPLETE.js
+ *
+ * Cross-CAM axis: each spec may carry the canonical {interface family × taper size × contact type}
+ * categorization from ../data/holder-categorization.ts (CAM-agnostic; portable 1:1 across Fusion/
+ * hyperMILL/Mastercam/Esprit). The per-size spindle physics below stay authoritative here; the
+ * `category` field is the separable taxonomy axis (taper size + dual-contact/BIG-PLUS).
  */
+import type { HolderCategory } from "../data/holder-categorization.js";
 
 export interface ToolHolderSpec {
   id: string;
@@ -13,6 +19,8 @@ export interface ToolHolderSpec {
   standard: string;
   max_rpm: number;
   use_case: string;
+  /** Canonical CAM-agnostic taper-size × contact-type axis (see ../data/holder-categorization.ts). */
+  category?: HolderCategory;
   // Optional fields depending on type
   taper?: string;
   form?: string;

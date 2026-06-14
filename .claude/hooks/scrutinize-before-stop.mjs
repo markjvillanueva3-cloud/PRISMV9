@@ -201,6 +201,14 @@ async function main() {
   }
 
   const raw = readStdinSafe();
+  // stop_hook_active guard (slot:alpha 2026-06-11, STOP-HOOK-PROGRESS-MS0): a re-fired Stop
+  // carries stop_hook_active:true -- approve immediately so this gate never re-blocks past the
+  // harness CLAUDE_CODE_STOP_HOOK_BLOCK_CAP (operator-reported 'blocked 9 consecutive times').
+  // Monotonic-safe: only adds an early-approve path; it never blocks more.
+  try {
+    const _shaIn = raw ? JSON.parse(raw) : {};
+    if (_shaIn && _shaIn.stop_hook_active === true) { console.log(JSON.stringify({ continue: true })); return; }
+  } catch { /* not JSON -> fall through to normal scrutiny */ }
   let payload = {};
   try {
     payload = raw ? JSON.parse(raw) : {};

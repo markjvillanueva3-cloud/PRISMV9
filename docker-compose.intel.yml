@@ -1,0 +1,103 @@
+# INTEL-OLLAMA-OBSIDIAN-MS0 / P13-U02 (slot:kilo) — Intel stack orchestration.
+#
+# Additive compose override. Does NOT modify the shared docker-compose.yml
+# (same convention as docker-compose.ollama-preload.yml + ollama-bridge.yml).
+# Brings up the embeddings/vector intel stack together as a coherent unit:
+#
+#   docker compose \
+#     -f docker-compose.yml \
+#     -f docker-compose.intel.yml \
+#     up -d qdrant ollama ollama-nomic-preload
+#
+# What this override adds (vs the base stack):
+#   1. qdrant — switches from `image:` to `build:` against docker/qdrant.Dockerfile
+#      so the PRISM-flavored config (telemetry disabled, shop-floor offline
+#      doctrine per `feedback_no_public_h_drive`) bakes in. The customized
+#      variant is tagged `prism/qdrant:v1.17.0-intel` (NOT the upstream
+#      `qdrant/qdrant:v1.17.0` tag) — this prevents plain `docker compose up`
+#      from silently shadowing the upstream cached image with the customized
+#      build. Re-pulling the upstream tag stays a no-op (separate tag).
+#   2. ollama-nomic-preload — one-shot init service that waits for Ollama to be
+#      healthy, then pulls `nomic-embed-text` (~270MB, 768-dim embeddings). This
+#      is the embedder Qdrant ingests against. Mirrors the
+#      ollama-model-preload pattern (`docker-compose.ollama-preload.yml`).
+#      Exits 0 when done (`restart: "no"`).
+#
+# Exit conditions (per P13-U02 envelope):
+#   ✓ Qdrant (6333) + Ollama (11434) + nomic-embed-text orchestrated together
+#   ✓ Health-check endpoints exposed (carried from base compose)
+#   ✓ Volume-mounted to H: drive (carried from base compose's bind-mounts)
+#   ✓ Auto-start on Docker Desktop launch — sibling deliverable
+#     `.claude/hooks/docker-intel-autostart.mjs` (shipped in the same P13-U02
+#     commit). If you read this file at a commit that does NOT contain that
+#     hook yet, auto-start is a manual `docker compose -f ... up -d` away
+#     (the line below) until the hook lands.
+#
+# PREREQUISITE: Docker Desktop must be running. The base compose's volumes
+# bind to ./data/docker-volumes/qdrant + ./data/docker-volumes/ollama; on a
+# fresh checkout these dirs may not yet exist. The companion autostart hook
+# `mkdir -p`s them when present, but the compose-up itself does NOT — if you
+# invoke `docker compose ... up -d` manually on a fresh checkout, create the
+# two dirs first:  `mkdir -p data/docker-volumes/{qdrant,ollama}`.
+#
+# Rollback (per envelope): `docker compose -f docker-compose.yml -f
+# docker-compose.intel.yml down` + `git rm docker-compose.intel.yml`.
+
+services:
+  # Switch qdrant from upstream `image:` to `build:` against the PRISM-baked
+  # Dockerfile. Service-level merge in compose v3.x: the override's `build:`
+  # plus an explicit distinct `image:` tag results in a fresh local-only tag
+  # — the upstream `qdrant/qdrant:v1.17.0` tag is NOT overwritten.
+  qdrant:
+    image: prism/qdrant:v1.17.0-intel
+    build:
+      context: .
+      dockerfile: docker/qdrant.Dockerfile
+    # All other base attributes (container_name, ports, volumes, env vars,
+    # healthcheck, networks) are inherited from docker-compose.yml. The
+    # override's role is purely to swap image source — service contract is
+    # unchanged so plain `docker compose ps qdrant` looks identical to base.
+
+  # One-shot embedder preload. Pulls nomic-embed-text into the ollama volume
+  # so Qdrant ingestion has the embedder warm without paying cold-pull time
+  # on first use. Pattern mirrors docker-compose.ollama-preload.yml.
+  ollama-nomic-preload:
+    image: ollama/ollama:latest
+    container_name: prism-ollama-nomic-preload
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      # Talk to the sibling daemon over the compose network, not localhost.
+      OLLAMA_HOST: "ollama:11434"
+      # nomic-embed-text is the canonical embedder for Qdrant ingestion across
+      # PRISM (768-dim, ~270MB, MIT license). Override via NOMIC_MODELS if a
+      # future intel-stack adds a second embedder (e.g. all-MiniLM-L6-v2).
+      NOMIC_MODELS: "nomic-embed-text"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        echo "[ollama-nomic-preload] warming embedder: $${NOMIC_MODELS}"
+        for m in $${NOMIC_MODELS}; do
+          echo "[ollama-nomic-preload] pull $${m}"
+          ollama pull "$${m}" || { echo "[ollama-nomic-preload] FAILED $${m}" >&2; exit 1; }
+        done
+        echo "[ollama-nomic-preload] done — $${NOMIC_MODELS} resident in volume"
+    networks:
+      - prism-net
+    # One-shot: pull, report, exit. Never restart — a finished preload
+    # restarting would re-pull on every daemon bounce (same rationale as
+    # docker-compose.ollama-preload.yml).
+    restart: "no"
+
+networks:
+  prism-net:
+    # Defined in docker-compose.yml; re-declared here for compose's merge
+    # layer. The canonical invocation always layers on top of the base file
+    # — this override's qdrant + preload services depend on base-defined
+    # attributes (container_name, ports, healthcheck, volumes) and will
+    # NOT come up cleanly standalone. The `driver: bridge` line makes
+    # compose's merge resolve to a single bridge network rather than warn
+    # about a missing definition.
+    driver: bridge

@@ -403,6 +403,66 @@ export class CoatingSelectionAdapter {
   preferredForIsoGroup(iso: IsoGroup): CoatingCandidate[] {
     return COATINGS.filter((c) => c.preferred_iso.includes(iso));
   }
+
+  /**
+   * Compatible (usable) ISO workpiece groups for a tool given its coating
+   * chemistry + substrate. BROADER than the per-coating `preferred_iso`
+   * (which is the recommended best-fit subset) — this is the "what can this
+   * tool legitimately cut" set used to GATE per-material-group cutting-preset
+   * emission, so a tool is only populated for material domains it is
+   * metallurgically suited to (the operator's "only populate compatible
+   * material types" constraint).
+   *
+   * Rationale (ASM Metals Handbook Vol.16 Machining; Sandvik/Kennametal
+   * coating-application guidance):
+   *  - Al-bearing high-temp PVD (TiAlN/AlTiN/AlCrN/TiAlSiN/nanocomposite, and
+   *    generic "Ti-coated"): ferrous + superalloy + hardened [P,M,K,S,H].
+   *    EXCLUDES aluminum N — Al affinity causes built-up edge / galling.
+   *  - TiN (low-temp PVD): general purpose incl. light aluminum [P,M,K,N], not S/H.
+   *  - TiCN (harder carbonitride): ferrous [P,M,K] — not aluminum (Ti affinity → BUE).
+   *  - Unknown/unidentified coating → conservative [P,M,K] (never S/H without a verified film).
+   *  - Uncoated / polished carbide: non-ferrous + cast iron [N,K] (sharp edge, no BUE).
+   *  - DLC: non-ferrous / abrasive non-metal [N] only.
+   *  - PCD: non-ferrous / composite / graphite [N] only — NEVER ferrous (carbon graphitizes).
+   *  - CBN: hardened steel + cast iron [H,K] — not soft steel / aluminum.
+   *  - CVD-alumina / ceramic: cast iron + superalloy high-speed [K,S].
+   *  - HSS substrate: [P,M,K,N] — cuts cast iron but lacks the hot-hardness for S/H.
+   *
+   * @param coating free-text coating/material descriptor (e.g. "TiAlN", "ti coated", "uncoated", "PCD")
+   * @param substrate optional substrate ("carbide" | "hss" | "cermet" | "ceramic" | "cbn" | "pcd")
+   * @returns compatible ISO groups (non-empty subset of P/M/K/N/S/H)
+   */
+  compatibleIsoGroups(coating?: string, substrate?: string): IsoGroup[] {
+    const c = (coating || "").toLowerCase();
+    const s = (substrate || "").toLowerCase();
+
+    // HSS lacks hot-hardness → never S/H, but DOES cut cast iron (K): HSS taps,
+    // reamers and form tools run gray/ductile iron daily (K is abrasion-limited,
+    // not hot-hardness-limited). Overrides coating.
+    if (/hss|high[ -]?speed steel/.test(s) || /\bhss\b/.test(c)) return ["P", "M", "K", "N"];
+
+    // Superhard / specialty coatings (most specific first).
+    if (/\bpcd\b|polycrystalline diamond/.test(c) || /\bpcd\b/.test(s)) return ["N"];
+    if (/\bcbn\b|cubic boron/.test(c) || /\bcbn\b/.test(s)) return ["H", "K"];
+    if (/ceramic|al2o3|alumina|\bcvd\b/.test(c) || /ceramic/.test(s)) return ["K", "S"];
+    if (/dlc|diamond[ -]?like/.test(c)) return ["N"];
+    // Al-bearing high-temp PVD (incl. generic "Ti coated"): ferrous family, NOT aluminum.
+    if (/tialn|altin|alcrn|tialsin|altisin|nanocomposite|tisin|ti[ -]?coat/.test(c)) return ["P", "M", "K", "S", "H"];
+    // TiN (low-temp PVD): general purpose incl. light aluminum, not high-temp S/H.
+    if (/\btin\b|titanium nitride/.test(c)) return ["P", "M", "K", "N"];
+    // TiCN (harder carbonitride): ferrous general — NOT aluminum (Ti affinity → BUE).
+    if (/ticn|carbonitride/.test(c)) return ["P", "M", "K"];
+    // Explicitly uncoated / polished: non-ferrous + cast iron (sharp edge, no BUE).
+    if (/uncoated|polished|bright/.test(c)) return ["N", "K"];
+    // Explicit non-ferrous intent.
+    if (/alum|non[ -]?ferrous|brass|copper|graphite|plastic/.test(c)) return ["N"];
+    // Unknown coating → CONSERVATIVE default: only the low-consequence ferrous-soft
+    // set [P,M,K]. NEVER grant S (superalloy) or H (hardened) to an UNIDENTIFIED
+    // coating — those domains demand a verified high-temp/superhard film and a wrong
+    // coating there fails catastrophically (thermal runaway / edge fracture), not
+    // recoverably. An identified Al-bearing/CBN/etc. coating reaches its own branch above.
+    return ["P", "M", "K"];
+  }
 }
 
 // ────────────────────────────────────────────────────────────────────────

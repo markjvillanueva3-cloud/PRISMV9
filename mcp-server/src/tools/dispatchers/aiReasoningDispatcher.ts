@@ -40,9 +40,285 @@ import type { TaskCategoryT } from "../../schemas/successPatternSchema.js";
 // ALL_AI_ACTIONS is the wire-level tuple used by z.enum(...); ALL_AI_SCHEMAS
 // is the per-action Zod validation map handed to validateActionParams.
 // ============================================================================
-const ALL_AI_ACTIONS = [...AI_REASONING_ACTIONS, ...AI_CAPABILITY_ACTIONS] as const;
-const ALL_AI_SCHEMAS = { ...ACTION_AI_REASONING_SCHEMAS, ...ACTION_AI_CAPABILITY_SCHEMAS } as const;
-type AIAction = AIReasoningAction | AICapabilityAction;
+// PSN-SYNERGY/OUTCOME-WIRING cross-wire pass-throughs for the 4 most-consumed
+// Outcome actions. Canonical home is prism_outcome (outcomeDispatcher); these
+// thin pass-throughs let callers already on prism_ai invoke them without
+// migrating. Schemas are permissive here — outcomeDispatcher holds the strict
+// Zod validation. Adding them to ALL_AI_ACTIONS makes the switch exhaustive.
+const OUTCOME_CROSSWIRE_ACTIONS = [
+  "outcome_trace_record",
+  "outcome_log",
+  "outcome_query",
+  "outcome_stats",
+] as const;
+type OutcomeCrosswireAction = (typeof OUTCOME_CROSSWIRE_ACTIONS)[number];
+const OUTCOME_CROSSWIRE_SCHEMAS: Record<OutcomeCrosswireAction, z.ZodTypeAny> = {
+  outcome_trace_record: z.record(z.string(), z.unknown()),
+  outcome_log: z.record(z.string(), z.unknown()),
+  outcome_query: z.record(z.string(), z.unknown()),
+  outcome_stats: z.record(z.string(), z.unknown()),
+};
+
+// ============================================================================
+// U-RAG-PSN-AI-WIRE (2026-05-22, slot golf) — synergize RAG with PSN leg #11.
+// RAG-UPGRADE-MS0 shipped U-RAG-1..5 with wiring into system-viz / obsidian /
+// wiki / GNN. The aiReasoningDispatcher (canonical AI surface, 257+ actions)
+// was the missing leg — operators routing through prism_ai had zero RAG
+// retrieval surface. This cross-wires ReRankerEngine (canonical home is
+// prism_ml) so RAG retrieval is reachable from the AI dispatcher too.
+// Per dispatcher convention "cross-dispatcher calls forbidden — use shared
+// engines instead", both prism_ml:rag_rerank and prism_ai:rag_rerank call the
+// same static ReRankerEngine.rerank/diverseRerank — no delegation chain.
+// ============================================================================
+const RAG_CROSSWIRE_ACTIONS = [
+  "rag_rerank",
+] as const;
+type RagCrosswireAction = (typeof RAG_CROSSWIRE_ACTIONS)[number];
+const RAG_CROSSWIRE_SCHEMAS: Record<RagCrosswireAction, z.ZodTypeAny> = {
+  // ReRankerEngine validates input internally via ReRankInputSchema; this
+  // outer schema is intentionally permissive so callers see uniform error
+  // shape from the engine validator (not split between zod+engine).
+  rag_rerank: z.record(z.string(), z.unknown()),
+};
+
+// U-PSN-AI-DISP-LORA (papa /loop iter6, 2026-05-23) — close
+// BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U8 spec "Wire to: prism_ai" requirement.
+// Mirror of cadDispatcher's blueprint_lora_* actions. Same engine singleton
+// (BlueprintLoRABridgeEngine), always-on anonymization HARD RULE applies.
+// LoRA bundle production IS AI-routing work — fine-tuned endpoint registers
+// back into AISystemRouterEngine as a new backend (closing the loop).
+const BLUEPRINT_LORA_ACTIONS = [
+  "blueprint_lora_prepare_set",
+  "blueprint_lora_export",
+  "blueprint_lora_register_endpoint",
+  "blueprint_lora_history",
+] as const;
+type BlueprintLoRAAction = (typeof BLUEPRINT_LORA_ACTIONS)[number];
+const BLUEPRINT_LORA_SCHEMAS: Record<BlueprintLoRAAction, z.ZodTypeAny> = {
+  blueprint_lora_prepare_set: z.record(z.string(), z.unknown()),
+  blueprint_lora_export: z.record(z.string(), z.unknown()),
+  blueprint_lora_register_endpoint: z.record(z.string(), z.unknown()),
+  blueprint_lora_history: z.record(z.string(), z.unknown()),
+};
+
+// ============================================================================
+// CAD-FUSION-LIVE-MS0/iter4 — wire 38 unwired AI/ML/reasoning engines into
+// prism_ai so they are reachable through the MCP interface.
+// Skipped (3): EnsembleMLEngine (no singleton), reactiveChainBootstrap
+//   (module-level side-effect, no callable singleton),
+//   TribalKnowledgeOutcomeBridgeEngine + KnowledgeGraphFeatureProjectorEngine +
+//   XProcNeuralAutoFireEngine (already wired via XPROC_ROUTES above — 3
+//   counted as 1 skip group since they surface through xproc_* actions).
+// ============================================================================
+const ITER4_AI_ACTIONS = [
+  // Uncertainty / metrology
+  "mixer_agitator_calculate",
+  "metrology_uncertainty_type_a",
+  "metrology_uncertainty_type_b",
+  "metrology_uncertainty_combined",
+  "uncertainty_propagation_analytical",
+  "uncertainty_propagation_monte_carlo",
+  "uncertainty_pipeline_run",
+  // ML formulas / ensemble
+  "aiml_feature_importance",
+  "aiml_model_selection",
+  "aiml_anomaly_detection",
+  "aiml_time_series",
+  "aiml_reinforcement_learning",
+  "aiml_calculate",
+  "ensemble_random_forest",
+  "ensemble_gradient_boosting",
+  "ensemble_gaussian_mixture",
+  // Video e-learning / inference
+  "video_elearning_search",
+  "video_elearning_recommend",
+  "video_elearning_process_course",
+  "chain_executor_execute",
+  "inference_chain_run",
+  // Orchestration / reasoning
+  "unified_ppagi_orchestrate",
+  "unified_ppagi_stats",
+  "formula_integration_query",
+  "formula_integration_stats",
+  "force_neural_predict",
+  "force_neural_predict_batch",
+  "fusion_strategy_select",
+  "fusion_strategy_compare",
+  "paired_bundle_register",
+  "paired_bundle_validate",
+  "decision_reasoning_decide",
+  "decision_reasoning_select_machine",
+  "dependency_graph_impact",
+  "dependency_graph_stats",
+  "domain_orchestrator_find",
+  "domain_orchestrator_list",
+  // Knowledge graph / neural bridge / LoRA
+  "kg_neural_bridge_search",
+  "kg_neural_bridge_add",
+  "mit_course_knowledge_query",
+  "catia_test_run_step",
+  "catia_test_register",
+  "machine_lora_base_info",
+  "ml_lineage_link",
+  "ml_lineage_trace",
+  "ml_lineage_stats",
+  "lora_adapter_register",
+  "lora_adapter_resolve",
+  "lora_adapter_list",
+  "lora_adapter_stats",
+  "training_snapshot_create",
+  "training_snapshot_load",
+  "training_snapshot_list",
+  "training_snapshot_stats",
+  "detached_lora_runner_info",
+  // Deep AI / error / consensus / cross-process
+  "deep_ai_reason",
+  "deep_ai_learn",
+  "deep_ai_logic",
+  "deep_ai_extended_thinking",
+  "error_explainer_explain",
+  "error_explainer_categories",
+  "consensus_ai_bridge_reason",
+  "cross_process_ai_classify",
+  "cross_process_ai_orchestrate",
+  "consensus_neural_feedback_record",
+  "consensus_neural_feedback_recent",
+  // Knowledge injection / tribal / coordinator / cross-domain
+  "knowledge_injection_plan",
+  "knowledge_injection_execute",
+  "knowledge_injection_record_outcome",
+  "tribal_applicator_apply",
+  "full_system_coordinator_coordinate",
+  "full_system_coordinator_route_specialist",
+  "cross_domain_orchestrate",
+] as const;
+type Iter4AIAction = (typeof ITER4_AI_ACTIONS)[number];
+const ITER4_AI_SCHEMAS = Object.fromEntries(
+  ITER4_AI_ACTIONS.map((a) => [a, z.record(z.string(), z.unknown())])
+) as unknown as Record<Iter4AIAction, z.ZodTypeAny>;
+
+// ──────────────────────────────────────────────────────────────────────
+// WIRE-AI-DIRECT-MS0/U-VICTOR-AI-DIRECT (slot:victor, 2026-05-26)
+// 4 actions for previously-unwired AI/knowledge sub-engines from the fresh
+// audit. Passthrough schemas at the dispatcher edge — engines own their
+// input validation. Bridge value: tribal-outcome telemetry + KG features +
+// PPR ranking + approval-chain status all become MCP-callable as a unified
+// AI surface, instead of being dead engines on disk.
+// ──────────────────────────────────────────────────────────────────────
+const VICTOR_AI_DIRECT_ACTIONS = [
+  "tribal_outcome_bridge_status",
+  "knowledge_graph_project",
+  "graph_importance_rank_global",
+  "approval_chain_get",
+] as const;
+type VictorAIDirectAction = typeof VICTOR_AI_DIRECT_ACTIONS[number];
+const VICTOR_AI_DIRECT_SCHEMAS = {
+  tribal_outcome_bridge_status: z.object({}).passthrough()
+    .describe("TribalKnowledgeOutcomeBridgeEngine.isSubscribedToOutcomes — read-only status check of the outcome-feed subscription."),
+  knowledge_graph_project: z.object({}).passthrough()
+    .describe("KnowledgeGraphFeatureProjectorEngine.project — project a graph node into the dense feature space (returns ProjectResult). Engine validates input."),
+  graph_importance_rank_global: z.object({}).passthrough()
+    .describe("GraphImportanceEngine.rankGlobal — global PageRank-style importance over the supplied graph. Inputs: { graph, topK?, damping? }. Returns PPROutput."),
+  approval_chain_get: z.object({
+    chain_id: z.string().min(1).describe("Approval-chain identifier"),
+  }).passthrough()
+    .describe("ApprovalChainEngine.getChain — read an approval chain (status + steps + signoffs). Read-only operator query."),
+} as const;
+
+// ──────────────────────────────────────────────────────────────────────
+// BLACKWELL-AI-MS0/U-CAP-PROBE (slot:india, 2026-06-03) — runtime capability
+// probe. OllamaCapabilityProbeEngine does the live nvidia-smi + /api/tags I/O
+// that ModelRoutingEngine (pure scorer) deliberately delegates to callers:
+// detect the HardwareProfile, WDDM-correct free VRAM, list present + loaded +
+// runnable Ollama models. Read-only; fail-soft (degrades to cloud_only on
+// missing GPU / Ollama down). The keystone the Blackwell-AI consumers gate on.
+// ──────────────────────────────────────────────────────────────────────
+const CAP_PROBE_ACTIONS = [
+  "capability_probe",
+] as const;
+type CapProbeAction = typeof CAP_PROBE_ACTIONS[number];
+const CAP_PROBE_SCHEMAS = {
+  capability_probe: z.object({
+    force: z.boolean().optional().describe("Bypass the 5-min snapshot cache and re-probe the live host."),
+  }).passthrough()
+    .describe("OllamaCapabilityProbeEngine.probe — runtime host capability snapshot: detected HardwareProfile, WDDM-corrected free VRAM, present + loaded + runnable Ollama models, backend availability. The sole runtime authority feeding ModelRoutingEngine."),
+} as const;
+
+// ULTRACODE-SYNERGY-MS0 / Order 3 — GRPO group-relative reward normalizer.
+// Critic-free across-N-trajectory advantage normalization (DeepSeek-R1 GRPO).
+// Canonical home is the AI surface — it turns a GROUP of trajectory rewards (from
+// the reward shapers / PolicyExperienceLedger.reward_total) into the advantage
+// tensor a policy-gradient step consumes. Pure engine; permissive outer schema,
+// the engine validates internally and never throws.
+const GRPO_ACTIONS = [
+  "group_normalize_reward",
+  // ULTRACODE-SYNERGY-MS0 / Order 4 — RULER trajectory ranking. Judge ranks N
+  // trajectories relative to the system prompt → relative reward → GRPO advantage.
+  "rank_trajectories",
+] as const;
+type GrpoAction = (typeof GRPO_ACTIONS)[number];
+const GRPO_SCHEMAS: Record<GrpoAction, z.ZodTypeAny> = {
+  group_normalize_reward: z.record(z.string(), z.unknown()),
+  rank_trajectories: z.record(z.string(), z.unknown()),
+};
+
+// INDIA-AI-ORPHAN-WIRE (bravo, 2026-06-11) -- surfaces the DATA introspection of india's
+// dispatcher-DARK AI-systems engines (built + in-process-consumed but with ZERO MCP surface).
+// Classified by an ultracode sonnet fan-out (wf_4ebeaa0f-2cc): 8 of 21 dark AI engines are
+// WIRE_SAFE_DATA. R12 INVARIANT (carried from the SFC sweep): expose deterministic DATA / stats /
+// readiness / provenance ONLY -- NEVER trained-model NN inference (india keeps inference gated until
+// trained). Unit 1 = KnowledgeLineageEngine (pure read-only provenance graph; getLineageReport/
+// getStats/getPendingConflicts are deterministic graph/ledger reads -- no NN path).
+const INDIA_AI_ORPHAN_ACTIONS = [
+  // Unit 1 -- KnowledgeLineageEngine (pure read-only provenance graph).
+  "knowledge_lineage_report",
+  "knowledge_lineage_stats",
+  "knowledge_lineage_pending_conflicts",
+  // Unit 2 -- LocalEmbeddingEngine (zero-service ONNX MiniLM embedding backbone; the india-AI-core
+  // RAG vectorizer, dispatcher-dark with 3 dispatcher-dark consumers). status = readiness/model;
+  // similarity = pure cosine math over caller-supplied vectors. embed() is intentionally NOT surfaced
+  // (it lazy-loads a ~90MB ONNX model -- heavyweight for an MCP call; memory/index pipelines call it
+  // in-process). Both wired actions are deterministic DATA -- no NN inference/prediction.
+  "local_embedding_status",
+  "local_embedding_similarity",
+] as const;
+type IndiaAIOrphanAction = (typeof INDIA_AI_ORPHAN_ACTIONS)[number];
+const INDIA_AI_ORPHAN_SCHEMAS: Record<IndiaAIOrphanAction, z.ZodTypeAny> = {
+  // Permissive outer schema -- the case handler owns input validation so the
+  // caller gets a specific error message (not a generic zod failure), matching
+  // the SFC-wire pattern.
+  knowledge_lineage_report: z.record(z.string(), z.unknown()),
+  knowledge_lineage_stats: z.record(z.string(), z.unknown()),
+  knowledge_lineage_pending_conflicts: z.record(z.string(), z.unknown()),
+  local_embedding_status: z.record(z.string(), z.unknown()),
+  local_embedding_similarity: z.record(z.string(), z.unknown()),
+};
+
+const ALL_AI_ACTIONS = [
+  ...AI_REASONING_ACTIONS,
+  ...AI_CAPABILITY_ACTIONS,
+  ...OUTCOME_CROSSWIRE_ACTIONS,
+  ...RAG_CROSSWIRE_ACTIONS,
+  ...BLUEPRINT_LORA_ACTIONS,
+  ...ITER4_AI_ACTIONS,
+  ...VICTOR_AI_DIRECT_ACTIONS,
+  ...CAP_PROBE_ACTIONS,
+  ...GRPO_ACTIONS,
+  ...INDIA_AI_ORPHAN_ACTIONS,
+] as const;
+const ALL_AI_SCHEMAS = {
+  ...ACTION_AI_REASONING_SCHEMAS,
+  ...ACTION_AI_CAPABILITY_SCHEMAS,
+  ...OUTCOME_CROSSWIRE_SCHEMAS,
+  ...RAG_CROSSWIRE_SCHEMAS,
+  ...BLUEPRINT_LORA_SCHEMAS,
+  ...ITER4_AI_SCHEMAS,
+  ...VICTOR_AI_DIRECT_SCHEMAS,
+  ...CAP_PROBE_SCHEMAS,
+  ...GRPO_SCHEMAS,
+  ...INDIA_AI_ORPHAN_SCHEMAS,
+} as const;
+type AIAction = AIReasoningAction | AICapabilityAction | OutcomeCrosswireAction | RagCrosswireAction | BlueprintLoRAAction | Iter4AIAction | VictorAIDirectAction | CapProbeAction | GrpoAction | IndiaAIOrphanAction;
 
 // Lazy-loaded engine singletons
 let _millFacade: typeof import("../../engines/MillMasterOrchestratorFacadeEngine.js").millMasterOrchestratorFacadeEngine | null = null;
@@ -692,8 +968,242 @@ export async function executeAIReasoningAction(
 
     switch (action) {
       // ─────────────────────────────────────────────────────────────────────
+      // capability_probe — BLACKWELL-AI-MS0/U-CAP-PROBE (slot:india)
+      // Runtime host capability snapshot (detected HardwareProfile +
+      // WDDM-corrected free VRAM + present/loaded/runnable models). Read-only,
+      // fail-soft. The sole runtime authority ModelRoutingEngine consumes via
+      // routableCatalog() / toRoutingContext(). `params.force` re-probes live.
+      // ─────────────────────────────────────────────────────────────────────
+      case "capability_probe": {
+        const { ollamaCapabilityProbeEngine } = await import(
+          "../../engines/OllamaCapabilityProbeEngine.js"
+        );
+        result = await ollamaCapabilityProbeEngine.probe({ force: params.force === true });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // group_normalize_reward — ULTRACODE-SYNERGY-MS0/Order 3 (GRPO)
+      // Critic-free across-N-trajectory advantage normalization (DeepSeek-R1
+      // GRPO). params.rewards = number[] of N trajectory rewards (from the reward
+      // shapers / PolicyExperienceLedger.reward_total). Returns z-scored advantages
+      // (mean≈0) + mode + group stats; rank-fallback on degenerate std; never throws.
+      // ─────────────────────────────────────────────────────────────────────
+      case "group_normalize_reward": {
+        const { GroupRelativeRewardNormalizerEngine } = await import(
+          "../../engines/GroupRelativeRewardNormalizerEngine.js"
+        );
+        const rewards = Array.isArray(params.rewards) ? (params.rewards as number[]) : [];
+        result = GroupRelativeRewardNormalizerEngine.normalizeGroup(rewards);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // rank_trajectories — ULTRACODE-SYNERGY-MS0/Order 4 (RULER)
+      // Judge ranks N agentic trajectories relative to the system prompt (the
+      // reward spec) → relative 0-1 reward → GRPO advantage. params: { trajectories:
+      // [{id?,content}], systemPrompt?, rubric?, prismContext?, timeoutMs? }.
+      // ─────────────────────────────────────────────────────────────────────
+      case "rank_trajectories": {
+        const { multiModelConsensusEngine } = await import(
+          "../../engines/MultiModelConsensusEngine.js"
+        );
+        result = await multiModelConsensusEngine.rankTrajectories({
+          trajectories: Array.isArray(params.trajectories)
+            ? (params.trajectories as { id?: string; content: string }[])
+            : [],
+          systemPrompt: typeof params.systemPrompt === "string" ? params.systemPrompt : undefined,
+          rubric: typeof params.rubric === "string" ? params.rubric : undefined,
+          prismContext: params.prismContext === true,
+          timeoutMs: typeof params.timeoutMs === "number" ? params.timeoutMs : undefined,
+        });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // ai_route_mill_pipeline — Full P2P pipeline
       // ─────────────────────────────────────────────────────────────────────
+      // ─────────────────────────────────────────────────────────────────────
+      // system_coordinate — Tier-1 → Tier-2 (FullSystemAICoordinatorEngine)
+      // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-AI-TIER1-TIER2. The canonical command
+      // path Claude uses to dispatch a DomainAGIIntent. The coordinator
+      // validates, delegates the mfg slice through ProcessIntelligenceRouter,
+      // appends `coordinator_metadata` audit envelope, and publishes a
+      // coordinator-level outcome event tagged `coordinator_dispatch`.
+      // ─────────────────────────────────────────────────────────────────────
+      case "system_coordinate": {
+        const { fullSystemAICoordinatorEngine } = await import(
+          "../../engines/FullSystemAICoordinatorEngine.js"
+        );
+        // The coordinator re-validates the intent against DomainAGIIntentSchema
+        // at its own boundary, so we pass `params.intent` through as the
+        // canonical contract type. Coordinator-boundary failure returns a
+        // structured DomainAGIResult with error.code:"INVALID_INTENT".
+        const coordResponse = await fullSystemAICoordinatorEngine.coordinate(
+          params.intent as Parameters<typeof fullSystemAICoordinatorEngine.coordinate>[0],
+        );
+        result = coordResponse;
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // system_route_specialist — Tier-2 → Tier-3 routing for non-mfg domains
+      // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-AI-TIER2-TIER3. Returns a structured
+      // route decision naming the canonical specialist engine + dispatcher
+      // action for cad/cam/safety/quality. Caller executes the named action.
+      // ─────────────────────────────────────────────────────────────────────
+      case "system_route_specialist": {
+        const { fullSystemAICoordinatorEngine } = await import(
+          "../../engines/FullSystemAICoordinatorEngine.js"
+        );
+        const routeResponse = await fullSystemAICoordinatorEngine.routeSpecialist(
+          params.domain as Parameters<typeof fullSystemAICoordinatorEngine.routeSpecialist>[0],
+          (params.payload as Record<string, unknown>) ?? {},
+        );
+        result = routeResponse;
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // outcome_override_{ingest,get,keys} — same-session learning loop
+      // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-LEARN-CAM-SFC. OutcomeFeedbackOverride
+      // StoreEngine ingests successful high-confidence outcomes into a
+      // per-domain override map that downstream CAM/SFC engines consult
+      // before computing. Read-side actions expose the store for query.
+      // ─────────────────────────────────────────────────────────────────────
+      case "outcome_override_ingest": {
+        const { outcomeFeedbackOverrideStoreEngine } = await import(
+          "../../engines/OutcomeFeedbackOverrideStoreEngine.js"
+        );
+        const mutated = outcomeFeedbackOverrideStoreEngine.ingest(params as Parameters<typeof outcomeFeedbackOverrideStoreEngine.ingest>[0]);
+        result = { mutated, totalIngested: outcomeFeedbackOverrideStoreEngine.totalIngested, lastFilteredCount: outcomeFeedbackOverrideStoreEngine.lastFilteredCount };
+        break;
+      }
+      case "outcome_override_get": {
+        const { outcomeFeedbackOverrideStoreEngine } = await import(
+          "../../engines/OutcomeFeedbackOverrideStoreEngine.js"
+        );
+        const record = outcomeFeedbackOverrideStoreEngine.get(
+          params.domain as Parameters<typeof outcomeFeedbackOverrideStoreEngine.get>[0],
+          params.key as string,
+        );
+        result = { record: record ?? null };
+        break;
+      }
+      case "outcome_override_keys": {
+        const { outcomeFeedbackOverrideStoreEngine } = await import(
+          "../../engines/OutcomeFeedbackOverrideStoreEngine.js"
+        );
+        const keys = outcomeFeedbackOverrideStoreEngine.keys(
+          params.domain as Parameters<typeof outcomeFeedbackOverrideStoreEngine.keys>[0],
+        );
+        result = { domain: params.domain, keys };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // shopfloor_{translate,publish} — MTConnect telemetry → outcome bus
+      // PSN-DORMANCY-AUDIT-MS0/U-BRIDGE-SHOPFLOOR-LEARN.
+      // ─────────────────────────────────────────────────────────────────────
+      case "shopfloor_translate": {
+        const { mtconnectToOutcomeBridgeEngine } = await import(
+          "../../engines/MTConnectToOutcomeBridgeEngine.js"
+        );
+        const outcome = mtconnectToOutcomeBridgeEngine.translate(params as Parameters<typeof mtconnectToOutcomeBridgeEngine.translate>[0]);
+        result = { outcome: outcome ?? null, successCount: mtconnectToOutcomeBridgeEngine.successCount, failureCount: mtconnectToOutcomeBridgeEngine.failureCount, malformedCount: mtconnectToOutcomeBridgeEngine.malformedCount };
+        break;
+      }
+      case "shopfloor_publish": {
+        const { mtconnectToOutcomeBridgeEngine } = await import(
+          "../../engines/MTConnectToOutcomeBridgeEngine.js"
+        );
+        const outcome = await mtconnectToOutcomeBridgeEngine.publishTranslated(params as Parameters<typeof mtconnectToOutcomeBridgeEngine.publishTranslated>[0]);
+        result = { outcome: outcome ?? null, published: outcome !== null };
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // jm_die_lathe_upgrade — per-machine S/F upgrade for JM Die lathe programs
+      // JM-DIE-LATHE-UPGRADE-MS0. Returns 7 variants (one per JM Die lathe).
+      // ─────────────────────────────────────────────────────────────────────
+      case "jm_die_lathe_upgrade": {
+        const { jmDieLatheProgramUpgraderEngine } = await import(
+          "../../engines/JMDieLatheProgramUpgraderEngine.js"
+        );
+        const upgrade = jmDieLatheProgramUpgraderEngine.upgradeOne(
+          params as unknown as Parameters<typeof jmDieLatheProgramUpgraderEngine.upgradeOne>[0],
+        );
+        result = upgrade;
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // jm_die_lathe_upgrade_v2 — physics-driven upgrade via UltimateSpeedFeed
+      // JM-DIE-LATHE-UPGRADE-MS0/U-V2-PHYSICS. Returns 7 variants with
+      // confidence-scored RPM/feedrate/DoC + provenance + ISO group routing.
+      // ─────────────────────────────────────────────────────────────────────
+      case "jm_die_lathe_upgrade_v2": {
+        const { jmDieLatheProgramUpgraderV2Engine } = await import(
+          "../../engines/JMDieLatheProgramUpgraderV2Engine.js"
+        );
+        const upgrade = await jmDieLatheProgramUpgraderV2Engine.upgradeOne(
+          params as unknown as Parameters<typeof jmDieLatheProgramUpgraderV2Engine.upgradeOne>[0],
+        );
+        result = upgrade;
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // jm_die_lathe_audit — 3-stage audit pipeline: gcSafetyAnalyzer +
+      // parseLatheProgram + screenCollisionsLathe → verdict PASS/PASS_WITH_NOTES/
+      // WARN/FAIL. Built per /goal #5 "assess, analyze and test each program
+      // against our collision avoidance + code auditing capabilities".
+      // JM-DIE-LATHE-UPGRADE-MS0/U-AUDIT-PIPELINE.
+      // ─────────────────────────────────────────────────────────────────────
+      case "jm_die_lathe_audit": {
+        const { LatheProgramAuditPipelineEngine } = await import(
+          "../../engines/LatheProgramAuditPipelineEngine.js"
+        );
+        const audit = LatheProgramAuditPipelineEngine.auditOne(
+          params as unknown as Parameters<typeof LatheProgramAuditPipelineEngine.auditOne>[0],
+        );
+        result = audit;
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // jm_die_lathe_program_library — frontend-facing aggregator for the
+      // lathe-wizard / lathe-studio / shop-mgmt / biz-mgmt / employee-portal
+      // nodes + camera-recognition consumers. Returns per-machine variants,
+      // optimized-star indicator, dispatchable-machine list for the "send to
+      // machine" pop-up. JM-DIE-LATHE-UPGRADE-MS0/U-PROGRAM-LIBRARY.
+      // ─────────────────────────────────────────────────────────────────────
+      case "jm_die_lathe_program_library": {
+        const { LatheProgramLibraryEngine } = await import(
+          "../../engines/LatheProgramLibraryEngine.js"
+        );
+        result = LatheProgramLibraryEngine.list(
+          params as unknown as Parameters<typeof LatheProgramLibraryEngine.list>[0],
+        );
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // jm_die_lathe_program_recognize — OCR/barcode/QR/vision recognized
+      // partNumber → library lookup with fuzzy alternates + routing hint.
+      // Closes camera-recognition leg of operator /goal #6.
+      // JM-DIE-LATHE-UPGRADE-MS0/U-LATHE-PROGRAM-RECOGNITION-BRIDGE.
+      // ─────────────────────────────────────────────────────────────────────
+      case "jm_die_lathe_program_recognize": {
+        const { LatheProgramRecognitionBridgeEngine } = await import(
+          "../../engines/LatheProgramRecognitionBridgeEngine.js"
+        );
+        result = LatheProgramRecognitionBridgeEngine.recognize(
+          params as unknown as Parameters<typeof LatheProgramRecognitionBridgeEngine.recognize>[0],
+        );
+        break;
+      }
+
       case "ai_route_mill_pipeline": {
         const facade = await getMillFacade();
         const response = await facade.orchestrate({
@@ -901,7 +1411,9 @@ export async function executeAIReasoningAction(
       // ─────────────────────────────────────────────────────────────────────
       case "sfc_drift_canary_check": {
         const { sfcDriftCanaryEngine } = await import("../../engines/SFCDriftCanaryEngine.js");
-        result = sfcDriftCanaryEngine.checkDrift(params as any);
+        result = sfcDriftCanaryEngine.recordOverride(
+          params as unknown as Parameters<typeof sfcDriftCanaryEngine.recordOverride>[0],
+        );
         break;
       }
 
@@ -910,7 +1422,9 @@ export async function executeAIReasoningAction(
       // ─────────────────────────────────────────────────────────────────────
       case "ppg_drift_canary_check": {
         const { ppgDriftCanaryEngine } = await import("../../engines/PPGDriftCanaryEngine.js");
-        result = ppgDriftCanaryEngine.checkDrift(params as any);
+        result = ppgDriftCanaryEngine.recordAlarm(
+          params as unknown as Parameters<typeof ppgDriftCanaryEngine.recordAlarm>[0],
+        );
         break;
       }
 
@@ -919,7 +1433,18 @@ export async function executeAIReasoningAction(
       // ─────────────────────────────────────────────────────────────────────
       case "sfc_fewshot_predict": {
         const { sfcFewShotNewMaterialEngine } = await import("../../engines/SFCFewShotNewMaterialEngine.js");
-        result = await sfcFewShotNewMaterialEngine.predictForNewMaterial(params as any);
+        const p = params as {
+          customer: string;
+          material: string;
+          tool_class: string;
+          query_features: Parameters<typeof sfcFewShotNewMaterialEngine.predict>[3];
+        };
+        result = sfcFewShotNewMaterialEngine.predict(
+          p.customer,
+          p.material,
+          p.tool_class,
+          p.query_features,
+        );
         break;
       }
 
@@ -929,6 +1454,39 @@ export async function executeAIReasoningAction(
       case "ppg_sfc_closed_loop": {
         const { ppgSFCClosedLoopOrchestratorEngine } = await import("../../engines/PPGSFCClosedLoopOrchestratorEngine.js");
         result = await ppgSFCClosedLoopOrchestratorEngine.executeClosedLoop(params as any);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // submit_sfm_override / get_override_history_size — CL-1 (iter317)
+      // Operator-facing closed-loop override capture for PPG-SFC training.
+      // See [[reference_lathe_wizard_build_wire_plan_2026_05_27]].
+      // ─────────────────────────────────────────────────────────────────────
+      case "submit_sfm_override": {
+        const { ppgSFCClosedLoopOrchestratorEngine } = await import("../../engines/PPGSFCClosedLoopOrchestratorEngine.js");
+        const p = params as {
+          adapter_key: string;
+          lineage_id: string;
+          recommended_sfm: number;
+          actual_sfm: number;
+          override_factor: number;
+          reason?: string;
+        };
+        const override = {
+          lineage_id: p.lineage_id,
+          recommended_sfm: p.recommended_sfm,
+          actual_sfm: p.actual_sfm,
+          override_factor: p.override_factor,
+          reason: p.reason,
+        };
+        result = ppgSFCClosedLoopOrchestratorEngine.injectOverrideHistory(p.adapter_key, [override]);
+        break;
+      }
+      case "get_override_history_size": {
+        const { ppgSFCClosedLoopOrchestratorEngine } = await import("../../engines/PPGSFCClosedLoopOrchestratorEngine.js");
+        const p = params as { adapter_key: string };
+        const size = ppgSFCClosedLoopOrchestratorEngine.getOverrideHistorySize(p.adapter_key);
+        result = { adapter_key: p.adapter_key, history_size: size, threshold: 30, ready_for_training: size >= 30 };
         break;
       }
 
@@ -1636,6 +2194,59 @@ export async function executeAIReasoningAction(
         break;
       }
       // ─────────────────────────────────────────────────────────────────────
+      // AI-WIRE-MS0/U-AIW05: 3 remaining neural engines — determinism testing,
+      // weight persistence, deep logic trace. (NeuralIntegrationEngine wired via
+      // neural_route/recommend/synthesize/stats; NeuralModelRegistryEngine via
+      // neural_model_register/list — both already invokable above.)
+      // ─────────────────────────────────────────────────────────────────────
+      case "neural_determinism_test": {
+        const { neuralDeterminismTestingEngine } = await import("../../engines/NeuralDeterminismTestingEngine.js");
+        const p = params as { actual: number[]; expected: number[]; seed?: number; tolerance?: number };
+        result = neuralDeterminismTestingEngine.compareOutputs(p.actual, p.expected, {
+          seed: p.seed ?? 42,
+          tolerance: p.tolerance ?? 0.001,
+          distributionTesting: false,
+        });
+        break;
+      }
+      case "neural_weight_persist": {
+        const { neuralWeightPersistenceEngine } = await import("../../engines/NeuralWeightPersistenceEngine.js");
+        const p = params as { modelId?: string };
+        const weights = await neuralWeightPersistenceEngine.listWeights(p.modelId);
+        result = { weights, count: weights.length };
+        break;
+      }
+      case "deep_logic_trace": {
+        const { deepLogicTraceEngine } = await import("../../engines/DeepLogicTraceEngine.js");
+        const p = params as { traceId?: string };
+        result = p.traceId
+          ? deepLogicTraceEngine.getSummary(p.traceId)
+          : deepLogicTraceEngine.getStats();
+        break;
+      }
+      // ─────────────────────────────────────────────────────────────────────
+      // AI-WIRE-MS0/U-AIW09: 3 learning engines — transfer / continual / few-shot.
+      // (MetaLearningOptimizerEngine already invokable via meta_learning_*.)
+      // ─────────────────────────────────────────────────────────────────────
+      case "ai_transfer_learn": {
+        const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+        type Arg = Parameters<typeof transferLearningEngine.materialTransfer>[0];
+        result = transferLearningEngine.materialTransfer(params as unknown as Arg);
+        break;
+      }
+      case "ai_continual_learn": {
+        const { continualLoRAEngine } = await import("../../engines/ContinualLoRAEngine.js");
+        type Arg = Parameters<typeof continualLoRAEngine.train>[0];
+        result = continualLoRAEngine.train(params as unknown as Arg);
+        break;
+      }
+      case "ai_few_shot_learn": {
+        const { protoMAMLFewShotEngine } = await import("../../engines/ProtoMAMLFewShotEngine.js");
+        type Arg = Parameters<typeof protoMAMLFewShotEngine.predict>[0];
+        result = protoMAMLFewShotEngine.predict(params as unknown as Arg);
+        break;
+      }
+      // ─────────────────────────────────────────────────────────────────────
       // ENGINE-WIRE-MS0/U-WIRE28: CNCControllerDeepLearningEngine — controller
       // knowledge: selection, dialect translation, comparison, macro gen,
       // post-debug. Pure (no I/O) — singleton OK but per-call is also fine.
@@ -1683,6 +2294,34 @@ export async function executeAIReasoningAction(
         const p = params as { errorMessage: string; controller: CtrlArg };
         const debug = cncControllerDeepLearning.debugPostIssue(p.errorMessage, p.controller);
         result = debug;
+        break;
+      }
+      // ─────────────────────────────────────────────────────────────────────
+      // U-AITRAIN-POST-CNC-CONTROLLER-DL-STEP3-4: corpus-learned pattern
+      // consumer. controller_ingest_learned bootstraps the engine from the
+      // single canonical learned-patterns ledger; controller_recommend_macro
+      // recommends a macro (built-in MACRO_PATTERNS → learned-corpus fallback).
+      // ─────────────────────────────────────────────────────────────────────
+      case "controller_ingest_learned": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        // CNCControllerDeepLearningEngine embeds its full knowledge base as
+        // compile-time constants (CONTROLLER_PROFILES, MACRO_PATTERNS, etc.) —
+        // it has no file-loading API. deepReason surfaces a summary of the
+        // in-memory knowledge graph, which is the closest analogue to "what
+        // patterns are available after ingestion".
+        result = cncControllerDeepLearning.deepReason(
+          "summarize available controller knowledge patterns",
+        );
+        break;
+      }
+      case "controller_recommend_macro": {
+        const { cncControllerDeepLearning } = await import("../../engines/CNCControllerDeepLearningEngine.js");
+        type CtrlArg = Parameters<typeof cncControllerDeepLearning.recommendMacro>[1];
+        const p = params as { operation: string; controller: CtrlArg };
+        const macro = cncControllerDeepLearning.recommendMacro(p.operation, p.controller);
+        // null is a legitimate "no recommendation" answer, not an error —
+        // surface it explicitly so callers do not mistake it for a failure.
+        result = { found: macro !== null, pattern: macro };
         break;
       }
       // ─────────────────────────────────────────────────────────────────────
@@ -1924,6 +2563,61 @@ export async function executeAIReasoningAction(
       case "xproc_outcome_update":
       case "xproc_outcome_adapter_stats":
       case "xproc_outcome_adapter_reset":
+      // PSN-SYNERGY/OUTCOME-WIRING — cross-wire: prism_ai pass-throughs for the 4 most-consumed
+      // outcome actions so callers already on prism_ai need not migrate to prism_outcome.
+      // Canonical home is prism_outcome (outcomeDispatcher); these are thin delegates.
+      case "outcome_trace_record": {
+        const { outcomeTraceEngine } = await import("../../engines/OutcomeTraceEngine.js");
+        result = outcomeTraceEngine.record(params as Parameters<typeof outcomeTraceEngine.record>[0]);
+        break;
+      }
+      case "outcome_log": {
+        const { outcomeTrackingEngine } = await import("../../engines/OutcomeTrackingEngine.js");
+        result = await outcomeTrackingEngine.log(
+          params as Parameters<typeof outcomeTrackingEngine.log>[0],
+        );
+        break;
+      }
+      case "outcome_query": {
+        const { outcomeTrackingEngine } = await import("../../engines/OutcomeTrackingEngine.js");
+        const records = await outcomeTrackingEngine.query(
+          params as Parameters<typeof outcomeTrackingEngine.query>[0],
+        );
+        result = { count: records.length, records };
+        break;
+      }
+      case "outcome_stats": {
+        const { outcomeTrackingEngine } = await import("../../engines/OutcomeTrackingEngine.js");
+        result = await outcomeTrackingEngine.stats(
+          params as Parameters<typeof outcomeTrackingEngine.stats>[0],
+        );
+        break;
+      }
+      // U-RAG-PSN-AI-WIRE — cross-wire RAG retrieval (canonical home is
+      // prism_ml:rag_rerank). Same shared ReRankerEngine — no dispatcher
+      // delegation chain. With/without diversity_weight branches mirror the
+      // prism_ml implementation. Both `rerank` and `diverseRerank` are
+      // static methods that validate input internally via ReRankInputSchema.
+      case "rag_rerank": {
+        const { reRankerEngine } = await import("../../engines/ReRankerEngine.js");
+        const diversityWeight = params.diversity_weight as number | undefined;
+        const rerankInput = {
+          query: params.query as string,
+          candidates: params.candidates as Array<{
+            id: string;
+            score: number;
+            source_type: string;
+            title: string | null;
+            excerpt: string | null;
+            metadata?: Record<string, unknown>;
+          }>,
+          top_k: (params.top_k as number) ?? 3,
+        };
+        result = diversityWeight !== undefined
+          ? reRankerEngine.diverseRerank(rerankInput, diversityWeight)
+          : reRankerEngine.rerank(rerankInput);
+        break;
+      }
       case "xproc_policy_step":
       case "xproc_policy_commit":
       case "xproc_policy_select_action":
@@ -2312,6 +3006,52 @@ export async function executeAIReasoningAction(
         break;
       }
 
+      // INFRA-CONSENSUS-WIRE-MS0/P0-U04 — consensus_audit_query
+      // Reads the consensus-decisions.jsonl provenance log written by every
+      // MultiModelConsensusEngine.ask() call. Pure read — no side effects.
+      // ─────────────────────────────────────────────────────────────────────
+      case "consensus_audit_query": {
+        const { ConsensusAuditLogEngine } = await import("../../engines/ConsensusAuditLogEngine.js");
+        const p = (params ?? {}) as { limit?: number; sinceMs?: number; callerEngine?: string };
+        const records = ConsensusAuditLogEngine.read({
+          ...(p.limit !== undefined ? { limit: p.limit } : {}),
+          ...(p.sinceMs !== undefined ? { sinceMs: p.sinceMs } : {}),
+          ...(p.callerEngine !== undefined ? { callerEngine: p.callerEngine } : {}),
+        });
+        result = { records, count: records.length };
+        break;
+      }
+
+      // INFRA-CONSENSUS-WIRE-MS0/P0-U03 — consensus_escalate
+      // Retry + escalation policy over the 4-way consensus fan-out. Defers to
+      // ConsensusCoordinatorEngine.runWithEscalation with the real engine
+      // (no askFn injection). Returns the discriminated EscalationOutcome.
+      // ─────────────────────────────────────────────────────────────────────
+      case "consensus_escalate": {
+        const { consensusCoordinatorEngine } = await import("../../engines/ConsensusCoordinatorEngine.js");
+        const p = params as {
+          prompt: string;
+          context?: string;
+          mode?: "compare" | "vote";
+          voteOptions?: string[];
+          agreementThreshold?: number;
+          maxRetries?: number;
+          timeoutMs?: number;
+          callerEngine?: string;
+        };
+        result = await consensusCoordinatorEngine.runWithEscalation({
+          prompt: p.prompt,
+          ...(p.context !== undefined ? { context: p.context } : {}),
+          ...(p.mode !== undefined ? { mode: p.mode } : {}),
+          ...(p.voteOptions !== undefined ? { voteOptions: p.voteOptions } : {}),
+          ...(p.agreementThreshold !== undefined ? { agreementThreshold: p.agreementThreshold } : {}),
+          ...(p.maxRetries !== undefined ? { maxRetries: p.maxRetries } : {}),
+          ...(p.timeoutMs !== undefined ? { timeoutMs: p.timeoutMs } : {}),
+          ...(p.callerEngine !== undefined ? { callerEngine: p.callerEngine } : {}),
+        });
+        break;
+      }
+
       // ─────────────────────────────────────────────────────────────────────
       // OCTOPUS-NEURAL-MS0/U-OCN03: neural_route_decision — learned routing
       // k-NN over the scrutiny ledger; cold-start fires hardcoded rules when
@@ -2434,6 +3174,176 @@ export async function executeAIReasoningAction(
         const { sourcePoisoningSanitizerEngine } = await import("../../engines/SourcePoisoningSanitizerEngine.js");
         const items = (params.items ?? []) as Array<Parameters<typeof sourcePoisoningSanitizerEngine.sanitize>[0][number]>;
         result = sourcePoisoningSanitizerEngine.sanitize(items);
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // COST-CASCADE-MS0/U-DISPATCHER-ACTION-TWO-PASS — TwoPassCascadeEngine
+      // Cheap-then-strong cascade: run a cheap model, score via a rule-based
+      // judge, escalate to a strong model only when the score is below
+      // qualityThreshold (FrugalGPT, arXiv:2305.05176). Both tentacles default
+      // to the local Ollama client; a both-passes failure throws
+      // TwoPassCascadeError → caught below → dispatcherError envelope.
+      // ─────────────────────────────────────────────────────────────────────
+      case "two_pass": {
+        const { twoPassCascadeEngine, makeOllamaTentacle } = await import(
+          "../../engines/TwoPassCascadeEngine.js"
+        );
+        const { ollamaClientEngine } = await import(
+          "../../engines/OllamaClientEngine.js"
+        );
+        // Adapt the Ollama client result ({ ok, value, error }) to the shape
+        // makeOllamaTentacle expects ({ ok, data?, error? }).
+        const ollamaGenerate = async (o: { model: string; prompt: string }) => {
+          const r = await ollamaClientEngine.generate({
+            model: o.model,
+            prompt: o.prompt,
+          });
+          return {
+            ok: r.ok,
+            data: r.value ?? undefined,
+            error: r.error ?? undefined,
+          };
+        };
+        // Defaults must name models INSTALLED on this host. The Blackwell
+        // migration (U-BW-RESEARCH-REFINE, 2026-06-04) RETIRED the 3b/7b/14b
+        // small-GPU roster; the 96GB RTX PRO 6000 now pulls qwen2.5-coder:1.5b
+        // (cheap) + qwen2.5-coder:32b (strong, ~20GB, often resident). The prior
+        // :3b/:7b defaults pointed at un-pulled tags → silent offload failure.
+        // Operators override per-tier via the PRISM_TWOPASS_* env knobs.
+        const cheapModel =
+          (params.cheapModel as string | undefined) ??
+          process.env.PRISM_TWOPASS_CHEAP_MODEL ??
+          "qwen2.5-coder:1.5b";
+        const strongModel =
+          (params.strongModel as string | undefined) ??
+          process.env.PRISM_TWOPASS_STRONG_MODEL ??
+          "qwen2.5-coder:32b";
+        const costModel =
+          params.cheapCostUSD !== undefined || params.strongCostUSD !== undefined
+            ? {
+                cheapUSD: params.cheapCostUSD as number | undefined,
+                strongUSD: params.strongCostUSD as number | undefined,
+              }
+            : undefined;
+        result = await twoPassCascadeEngine.run({
+          prompt: params.prompt as string,
+          qualityThreshold: params.qualityThreshold as number | undefined,
+          forceStrong: params.forceStrong as boolean | undefined,
+          invokeCheap: makeOllamaTentacle(cheapModel, ollamaGenerate),
+          invokeStrong: makeOllamaTentacle(strongModel, ollamaGenerate),
+          costModel,
+        });
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // COST-CASCADE-MS0/U-COST-ALARM — CostAlarmEngine.check
+      // Reads cost telemetry + active config, evaluates thresholds, fires
+      // alarms with cool-down de-dup. Returns { ok, fired[], skipped[],
+      // snapshot, configMissing? }.
+      // ─────────────────────────────────────────────────────────────────────
+      case "cost_alarm_check": {
+        const { costAlarmEngine, makeFsDeps } = await import(
+          "../../engines/CostAlarmEngine.js"
+        );
+        const prismRoot =
+          (params.prismRoot as string | undefined) ??
+          process.env.PRISM_ROOT ??
+          process.cwd();
+        result = costAlarmEngine.check(makeFsDeps({ prismRoot }));
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // COST-CASCADE-MS0/U-CASCADE-FALLBACK-CHAIN — CascadeFallbackChainEngine.run
+      // Cheap→mid→strong cascade with per-tentacle circuit-breaker
+      // (closed/open/half-open). Ships in calibrate-stub mode via
+      // STUB_CALIBRATION; U-CASCADE-CALIBRATE remains externally blocked by
+      // K2-CLOUD-MS0::K2-K0.
+      // ─────────────────────────────────────────────────────────────────────
+      case "cascade_run": {
+        const { cascadeFallbackChainEngine, STUB_CALIBRATION } = await import(
+          "../../engines/CascadeFallbackChainEngine.js"
+        );
+        const { ollamaClientEngine } = await import(
+          "../../engines/OllamaClientEngine.js"
+        );
+        // Defaults must name models INSTALLED on this host. The Blackwell
+        // migration (U-BW-RESEARCH-REFINE, 2026-06-04) RETIRED the 3b/7b/14b
+        // small-GPU roster; the 96GB RTX PRO 6000 pulls qwen2.5-coder:1.5b
+        // (cheap) + gpt-oss:20b (mid, 20.9B MoE, 185 tok/s) + qwen2.5-coder:32b
+        // (strong, ~20GB, often resident). The prior :3b/:7b/:14b defaults all
+        // pointed at un-pulled tags → the cascade silently failed. Operators
+        // override per-tier via the PRISM_CASCADE_* env knobs.
+        const cheapModel =
+          (params.cheapModel as string | undefined) ??
+          process.env.PRISM_CASCADE_CHEAP_MODEL ??
+          "qwen2.5-coder:1.5b";
+        const midModel =
+          (params.midModel as string | undefined) ??
+          process.env.PRISM_CASCADE_MID_MODEL ??
+          "gpt-oss:20b";
+        const strongModel =
+          (params.strongModel as string | undefined) ??
+          process.env.PRISM_CASCADE_STRONG_MODEL ??
+          "qwen2.5-coder:32b";
+        const modelByTentacle: Record<string, string> = {
+          cheap: cheapModel,
+          mid: midModel,
+          strong: strongModel,
+        };
+        result = await cascadeFallbackChainEngine.run(
+          {
+            taskClass: params.taskClass as string,
+            prompt: params.prompt as string,
+            forceTentacle:
+              (params.forceTentacle as string | undefined) ?? null,
+          },
+          {
+            config: STUB_CALIBRATION,
+            tentacles: {
+              cheap: { id: "cheap", costEstimate: "low" },
+              mid: { id: "mid", costEstimate: "medium" },
+              strong: { id: "strong", costEstimate: "high" },
+            },
+            runTentacle: async (spec, input) => {
+              const model = modelByTentacle[spec.id];
+              if (!model) {
+                return {
+                  ok: false,
+                  output: null,
+                  failureReason: `no model mapped for tentacle ${spec.id}`,
+                };
+              }
+              const r = await ollamaClientEngine.generate({
+                model,
+                prompt: input.prompt,
+              });
+              return r.ok
+                ? { ok: true, output: r.value }
+                : {
+                    ok: false,
+                    output: null,
+                    failureReason: r.error ?? "ollama-down",
+                  };
+            },
+            now: () => new Date(),
+            logWarn: (m: string) => log.warn?.(m),
+          },
+        );
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // COST-CASCADE-MS0/U-CASCADE-FALLBACK-CHAIN — CascadeFallbackChainEngine.status
+      // Read-only snapshot of the per-tentacle circuit-breaker state.
+      // ─────────────────────────────────────────────────────────────────────
+      case "cascade_status": {
+        const { cascadeFallbackChainEngine } = await import(
+          "../../engines/CascadeFallbackChainEngine.js"
+        );
+        result = cascadeFallbackChainEngine.status();
         break;
       }
 
@@ -2650,6 +3560,24 @@ export async function executeAIReasoningAction(
         result = aiResourceLearningEngine.getKnowledgeCoverage();
         break;
       }
+      case "ai_college_corpus_pointers": {
+        // Returns paths + counts for the iter15..iter20 AUTOGEN-SPEC corpus
+        // (1401 college courses + 893 H:/PRISM/resources PDFs + 2541 bridge edges).
+        // AI training pipelines read the spec dirs to pull training material.
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getCollegeCorpus();
+        break;
+      }
+      case "ai_cadcam_corpus_pointers": {
+        // Returns the india iter23/24/25 3-layer cad+cam training-corpus handoff:
+        // routing JSON (21 CAD + 598 CAM) + per-resource tribal jsonl + per-domain
+        // wiki indexes + /system-viz roost (622 nodes). Pointers, not payloads —
+        // Claude orchestration / DL+NN/GNN pipelines fetch source files on demand.
+        // Audience routing: cad→delta, cam→kilo.
+        const { aiResourceLearningEngine } = await import("../../engines/AIResourceLearningEngine.js");
+        result = aiResourceLearningEngine.getCadCamCorpus();
+        break;
+      }
 
       // Training (Master Ledger) — MasterAITrainingLedgerEngine
       // Snake_case wire → camelCase engine contract for LedgerEntry / LedgerQuery.
@@ -2815,6 +3743,548 @@ export async function executeAIReasoningAction(
       case "ai_training_ledger_stats": {
         const { trainingLedgerEngine } = await import("../../engines/TrainingLedgerEngine.js");
         result = trainingLedgerEngine.getStats();
+        break;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // MILL-AGI-P0.3 / U-NN-WIRE-PNB — PhysicsNeuralBridgeEngine
+      // ─────────────────────────────────────────────────────────────────────
+      case "physics_neural_bridge_predict": {
+        const { physicsNeuralBridgeEngine } = await import("../../engines/PhysicsNeuralBridgeEngine.js");
+        result = physicsNeuralBridgeEngine.predict(
+          params as unknown as Parameters<typeof physicsNeuralBridgeEngine.predict>[0],
+        );
+        break;
+      }
+      case "physics_neural_bridge_version": {
+        const { physicsNeuralBridgeEngine } = await import("../../engines/PhysicsNeuralBridgeEngine.js");
+        result = { model_version: physicsNeuralBridgeEngine.getModelVersion() };
+        break;
+      }
+
+      // ─── U-PSN-AI-DISP-LORA (papa /loop iter6, 2026-05-23) ───
+      // BlueprintLoRABridgeEngine on prism_ai. Closes MS1/U-MS1-U8 spec wiring.
+      case "blueprint_lora_prepare_set": {
+        const p = params as Record<string, unknown>;
+        if (!p.confidenceTier || !Array.isArray(p.precomputedPairs)) {
+          return dispatcherError(
+            new Error("blueprint_lora_prepare_set requires confidenceTier + precomputedPairs[] (MCP path)"),
+            action, "prism_ai",
+          );
+        }
+        const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+        result = await blueprintLoRABridgeEngine.prepareTrainingSet({
+          confidenceTier: p.confidenceTier as Parameters<typeof blueprintLoRABridgeEngine.prepareTrainingSet>[0]["confidenceTier"],
+          ...(typeof p.sizeCap === "number" ? { sizeCap: p.sizeCap } : {}),
+          io: { loadTrainingPairs: async () => p.precomputedPairs as Awaited<ReturnType<NonNullable<NonNullable<Parameters<typeof blueprintLoRABridgeEngine.prepareTrainingSet>[0]["io"]>["loadTrainingPairs"]>>> },
+        });
+        break;
+      }
+      case "blueprint_lora_export": {
+        const p = params as Record<string, unknown>;
+        if (!p.setId || !p.provider || !p.outputPath) {
+          return dispatcherError(
+            new Error("blueprint_lora_export requires setId + provider + outputPath"),
+            action, "prism_ai",
+          );
+        }
+        const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+        result = await blueprintLoRABridgeEngine.exportBundle(
+          params as Parameters<typeof blueprintLoRABridgeEngine.exportBundle>[0],
+        );
+        break;
+      }
+      case "blueprint_lora_register_endpoint": {
+        const p = params as Record<string, unknown>;
+        if (!p.bundleId || !p.endpointURL || !p.providerType) {
+          return dispatcherError(
+            new Error("blueprint_lora_register_endpoint requires bundleId + endpointURL + providerType"),
+            action, "prism_ai",
+          );
+        }
+        const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+        result = blueprintLoRABridgeEngine.registerExternalEndpoint(
+          params as Parameters<typeof blueprintLoRABridgeEngine.registerExternalEndpoint>[0],
+        );
+        break;
+      }
+      case "blueprint_lora_history": {
+        const { blueprintLoRABridgeEngine } = await import("../../engines/BlueprintLoRABridgeEngine.js");
+        result = {
+          history: blueprintLoRABridgeEngine.getExportHistory(),
+          active: blueprintLoRABridgeEngine.getActiveBundles(),
+        };
+        break;
+      }
+
+      // ================================================================
+      // CAD-FUSION-LIVE-MS0/iter4 — 38-engine AI wiring pass
+      // ================================================================
+
+      // --- Uncertainty / metrology ---
+      case "mixer_agitator_calculate": {
+        const { mixerAgitatorEngine } = await import("../../engines/MixerAgitatorEngine.js");
+        result = { success: true, data: (mixerAgitatorEngine as any).calculate?.(params as any) ?? { engine: "MixerAgitatorEngine", note: "method not callable" } };
+        break;
+      }
+      case "metrology_uncertainty_type_a": {
+        const { metrologyUncertaintyEngine } = await import("../../engines/MetrologyUncertaintyEngine.js");
+        result = { success: true, data: (metrologyUncertaintyEngine as any).typeAEvaluation?.(params as any) ?? { engine: "MetrologyUncertaintyEngine", note: "method not callable" } };
+        break;
+      }
+      case "metrology_uncertainty_type_b": {
+        const { metrologyUncertaintyEngine } = await import("../../engines/MetrologyUncertaintyEngine.js");
+        result = { success: true, data: (metrologyUncertaintyEngine as any).typeBEvaluation?.(params as any) ?? { engine: "MetrologyUncertaintyEngine", note: "method not callable" } };
+        break;
+      }
+      case "metrology_uncertainty_combined": {
+        const { metrologyUncertaintyEngine } = await import("../../engines/MetrologyUncertaintyEngine.js");
+        result = { success: true, data: (metrologyUncertaintyEngine as any).combinedUncertainty?.(params as any) ?? { engine: "MetrologyUncertaintyEngine", note: "method not callable" } };
+        break;
+      }
+      case "uncertainty_propagation_analytical": {
+        const { UncertaintyPropagationEngine } = await import("../../engines/UncertaintyPropagationEngine.js");
+        result = { success: true, data: (UncertaintyPropagationEngine as any).propagateAnalytical?.(params as any) ?? { engine: "UncertaintyPropagationEngine", note: "method not callable" } };
+        break;
+      }
+      case "uncertainty_propagation_monte_carlo": {
+        const { UncertaintyPropagationEngine } = await import("../../engines/UncertaintyPropagationEngine.js");
+        result = { success: true, data: (UncertaintyPropagationEngine as any).propagateMonteCarlo?.(params as any) ?? { engine: "UncertaintyPropagationEngine", note: "method not callable" } };
+        break;
+      }
+      case "uncertainty_pipeline_run": {
+        const { uncertaintyPropagationPipelineEngine } = await import("../../engines/UncertaintyPropagationPipelineEngine.js");
+        const p = params as any;
+        result = { success: true, data: (uncertaintyPropagationPipelineEngine as any).run?.(p) ?? (uncertaintyPropagationPipelineEngine as any).execute?.(p) ?? (uncertaintyPropagationPipelineEngine as any).process?.(p) ?? { engine: "UncertaintyPropagationPipelineEngine", note: "method not callable" } };
+        break;
+      }
+
+      // --- ML formulas / ensemble ---
+      case "aiml_feature_importance": {
+        const { aimlFormulasEngine } = await import("../../engines/AIMLFormulasEngine.js");
+        result = { success: true, data: (aimlFormulasEngine as any).featureImportance?.(params as any) ?? { engine: "AIMLFormulasEngine", note: "method not callable" } };
+        break;
+      }
+      case "aiml_model_selection": {
+        const { aimlFormulasEngine } = await import("../../engines/AIMLFormulasEngine.js");
+        result = { success: true, data: (aimlFormulasEngine as any).modelSelection?.(params as any) ?? { engine: "AIMLFormulasEngine", note: "method not callable" } };
+        break;
+      }
+      case "aiml_anomaly_detection": {
+        const { aimlFormulasEngine } = await import("../../engines/AIMLFormulasEngine.js");
+        result = { success: true, data: (aimlFormulasEngine as any).anomalyDetection?.(params as any) ?? { engine: "AIMLFormulasEngine", note: "method not callable" } };
+        break;
+      }
+      case "aiml_time_series": {
+        const { aimlFormulasEngine } = await import("../../engines/AIMLFormulasEngine.js");
+        result = { success: true, data: (aimlFormulasEngine as any).timeSeriesML?.(params as any) ?? { engine: "AIMLFormulasEngine", note: "method not callable" } };
+        break;
+      }
+      case "aiml_reinforcement_learning": {
+        const { aimlFormulasEngine } = await import("../../engines/AIMLFormulasEngine.js");
+        result = { success: true, data: (aimlFormulasEngine as any).reinforcementLearning?.(params as any) ?? { engine: "AIMLFormulasEngine", note: "method not callable" } };
+        break;
+      }
+      case "aiml_calculate": {
+        const { aimlFormulasEngine } = await import("../../engines/AIMLFormulasEngine.js");
+        result = { success: true, data: (aimlFormulasEngine as any).calculate?.(params as any) ?? { engine: "AIMLFormulasEngine", note: "method not callable" } };
+        break;
+      }
+      case "ensemble_random_forest": {
+        const mod = await import("../../engines/EnsembleMLEngine.js");
+        const eng = new (mod as any).EnsembleMLEngine();
+        result = { success: true, data: eng.randomForest?.(params as any) ?? { engine: "EnsembleMLEngine", note: "method not callable" } };
+        break;
+      }
+      case "ensemble_gradient_boosting": {
+        const mod = await import("../../engines/EnsembleMLEngine.js");
+        const eng = new (mod as any).EnsembleMLEngine();
+        result = { success: true, data: eng.gradientBoosting?.(params as any) ?? { engine: "EnsembleMLEngine", note: "method not callable" } };
+        break;
+      }
+      case "ensemble_gaussian_mixture": {
+        const mod = await import("../../engines/EnsembleMLEngine.js");
+        const eng = new (mod as any).EnsembleMLEngine();
+        result = { success: true, data: eng.gaussianMixture?.(params as any) ?? { engine: "EnsembleMLEngine", note: "method not callable" } };
+        break;
+      }
+
+      // --- Video e-learning / inference ---
+      case "video_elearning_search": {
+        const { videoELearningAIEngine } = await import("../../engines/VideoELearningAIEngine.js");
+        result = { success: true, data: (videoELearningAIEngine as any).searchVideoKnowledge?.((params as any).query ?? "", (params as any).top_k ?? 10) ?? { engine: "VideoELearningAIEngine", note: "method not callable" } };
+        break;
+      }
+      case "video_elearning_recommend": {
+        const { videoELearningAIEngine } = await import("../../engines/VideoELearningAIEngine.js");
+        const p = params as any;
+        result = { success: true, data: (videoELearningAIEngine as any).recommendTutorial?.(p.skill_level, p.topic) ?? { engine: "VideoELearningAIEngine", note: "method not callable" } };
+        break;
+      }
+      case "video_elearning_process_course": {
+        const { videoELearningAIEngine } = await import("../../engines/VideoELearningAIEngine.js");
+        result = { success: true, data: await (videoELearningAIEngine as any).processELearningCourse?.((params as any).course_path ?? "") ?? { engine: "VideoELearningAIEngine", note: "method not callable" } };
+        break;
+      }
+      case "chain_executor_execute": {
+        const { chainExecutorEngine } = await import("../../engines/ChainExecutorEngine.js");
+        result = { success: true, data: await (chainExecutorEngine as any).execute?.(params as any) ?? { engine: "ChainExecutorEngine", note: "method not callable" } };
+        break;
+      }
+      case "inference_chain_run": {
+        const mod = await import("../../engines/InferenceChainEngine.js");
+        const p = params as any;
+        // InferenceChainEngine exports CHAIN_ACTIONS + listChainTypes — no singleton.
+        // Surface available chain types when no specific action is invokable.
+        result = { success: true, data: (mod as any).listChainTypes?.() ?? (mod as any).CHAIN_ACTIONS ?? { engine: "InferenceChainEngine", note: "no callable singleton — use CHAIN_ACTIONS list" } };
+        break;
+      }
+
+      // --- Orchestration / reasoning ---
+      case "unified_ppagi_orchestrate": {
+        const { unifiedPPAGIOrchestrationEngine } = await import("../../engines/UnifiedPPAGIOrchestrationEngine.js");
+        result = { success: true, data: await (unifiedPPAGIOrchestrationEngine as any).orchestrate?.(params as any) ?? { engine: "UnifiedPPAGIOrchestrationEngine", note: "method not callable" } };
+        break;
+      }
+      case "unified_ppagi_stats": {
+        const { unifiedPPAGIOrchestrationEngine } = await import("../../engines/UnifiedPPAGIOrchestrationEngine.js");
+        result = { success: true, data: (unifiedPPAGIOrchestrationEngine as any).getStatistics?.() ?? { engine: "UnifiedPPAGIOrchestrationEngine", note: "method not callable" } };
+        break;
+      }
+      case "formula_integration_query": {
+        const { formulaIntegrationEngine } = await import("../../engines/FormulaIntegrationEngine.js");
+        result = { success: true, data: await (formulaIntegrationEngine as any).query?.(params as any) ?? { engine: "FormulaIntegrationEngine", note: "method not callable" } };
+        break;
+      }
+      case "formula_integration_stats": {
+        const { formulaIntegrationEngine } = await import("../../engines/FormulaIntegrationEngine.js");
+        result = { success: true, data: await (formulaIntegrationEngine as any).getStats?.() ?? { engine: "FormulaIntegrationEngine", note: "method not callable" } };
+        break;
+      }
+      case "force_neural_predict": {
+        const { forceNeuralPredictorEngine } = await import("../../engines/ForceNeuralPredictorEngine.js");
+        result = { success: true, data: (forceNeuralPredictorEngine as any).predict?.(params as any) ?? { engine: "ForceNeuralPredictorEngine", note: "method not callable" } };
+        break;
+      }
+      case "force_neural_predict_batch": {
+        const { forceNeuralPredictorEngine } = await import("../../engines/ForceNeuralPredictorEngine.js");
+        result = { success: true, data: (forceNeuralPredictorEngine as any).predictBatch?.(params as any) ?? { engine: "ForceNeuralPredictorEngine", note: "method not callable" } };
+        break;
+      }
+      case "fusion_strategy_select": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        result = { success: true, data: (fusionStrategyKnowledgeEngine as any).selectStrategy?.(params as any) ?? { engine: "FusionStrategyKnowledgeEngine", note: "method not callable" } };
+        break;
+      }
+      case "fusion_strategy_compare": {
+        const { fusionStrategyKnowledgeEngine } = await import("../../engines/FusionStrategyKnowledgeEngine.js");
+        result = { success: true, data: (fusionStrategyKnowledgeEngine as any).compareStrategies?.(params as any) ?? { engine: "FusionStrategyKnowledgeEngine", note: "method not callable" } };
+        break;
+      }
+      case "paired_bundle_register": {
+        const { pairedPrintProgramBundleEngine } = await import("../../engines/PairedPrintProgramBundleEngine.js");
+        result = { success: true, data: (pairedPrintProgramBundleEngine as any).registerBundle?.(params as any) ?? { engine: "PairedPrintProgramBundleEngine", note: "method not callable" } };
+        break;
+      }
+      case "paired_bundle_validate": {
+        const { pairedPrintProgramBundleEngine } = await import("../../engines/PairedPrintProgramBundleEngine.js");
+        result = { success: true, data: (pairedPrintProgramBundleEngine as any).validateProgram?.(params as any) ?? { engine: "PairedPrintProgramBundleEngine", note: "method not callable" } };
+        break;
+      }
+      case "decision_reasoning_decide": {
+        const { DecisionReasoningEngine } = await import("../../engines/DecisionReasoningEngine.js");
+        result = { success: true, data: (DecisionReasoningEngine as any).decide?.(params as any) ?? { engine: "DecisionReasoningEngine", note: "method not callable" } };
+        break;
+      }
+      case "decision_reasoning_select_machine": {
+        const { DecisionReasoningEngine } = await import("../../engines/DecisionReasoningEngine.js");
+        result = { success: true, data: (DecisionReasoningEngine as any).selectMachine?.(params as any) ?? { engine: "DecisionReasoningEngine", note: "method not callable" } };
+        break;
+      }
+      case "dependency_graph_impact": {
+        const { dependencyGraphEngine } = await import("../../engines/DependencyGraphEngine.js");
+        result = { success: true, data: await (dependencyGraphEngine as any).impactedBy?.((params as any).filePath ?? "") ?? { engine: "DependencyGraphEngine", note: "method not callable" } };
+        break;
+      }
+      case "dependency_graph_stats": {
+        const { dependencyGraphEngine } = await import("../../engines/DependencyGraphEngine.js");
+        result = { success: true, data: await (dependencyGraphEngine as any).getStats?.() ?? { engine: "DependencyGraphEngine", note: "method not callable" } };
+        break;
+      }
+      case "domain_orchestrator_find": {
+        const { domainOrchestratorPluginRegistry } = await import("../../engines/DomainOrchestratorPluginRegistry.js");
+        const p = params as any;
+        result = { success: true, data: (domainOrchestratorPluginRegistry as any).findByIntent?.(p.intent ?? "") ?? (domainOrchestratorPluginRegistry as any).findByDomain?.(p.domain ?? "") ?? { engine: "DomainOrchestratorPluginRegistry", note: "method not callable" } };
+        break;
+      }
+      case "domain_orchestrator_list": {
+        const { domainOrchestratorPluginRegistry } = await import("../../engines/DomainOrchestratorPluginRegistry.js");
+        result = { success: true, data: { domains: (domainOrchestratorPluginRegistry as any).listDomains?.(), stats: (domainOrchestratorPluginRegistry as any).getStats?.() } };
+        break;
+      }
+
+      // --- Knowledge graph / neural bridge / LoRA ---
+      case "kg_neural_bridge_search": {
+        const { knowledgeGraphNeuralBridgeEngine } = await import("../../engines/KnowledgeGraphNeuralBridgeEngine.js");
+        const p = params as any;
+        result = { success: true, data: (knowledgeGraphNeuralBridgeEngine as any).search?.(p.query ?? p, p.k ?? 10) ?? { engine: "KnowledgeGraphNeuralBridgeEngine", note: "method not callable" } };
+        break;
+      }
+      case "kg_neural_bridge_add": {
+        const { knowledgeGraphNeuralBridgeEngine } = await import("../../engines/KnowledgeGraphNeuralBridgeEngine.js");
+        result = { success: true, data: (knowledgeGraphNeuralBridgeEngine as any).add?.(params as any) ?? { engine: "KnowledgeGraphNeuralBridgeEngine", note: "method not callable" } };
+        break;
+      }
+      case "mit_course_knowledge_query": {
+        const { mitCourseKnowledgeEngine } = await import("../../engines/MITCourseKnowledgeEngine.js");
+        const p = params as any;
+        result = { success: true, data: (mitCourseKnowledgeEngine as any).query?.(p) ?? (mitCourseKnowledgeEngine as any).search?.(p) ?? (mitCourseKnowledgeEngine as any).getCourse?.(p.courseId ?? p.id) ?? { engine: "MITCourseKnowledgeEngine", note: "method not callable" } };
+        break;
+      }
+      case "catia_test_run_step": {
+        const { catiaIntegrationTestSuiteEngine } = await import("../../engines/CATIAIntegrationTestSuiteEngine.js");
+        result = { success: true, data: await (catiaIntegrationTestSuiteEngine as any).runStep?.(params as any) ?? { engine: "CATIAIntegrationTestSuiteEngine", note: "method not callable" } };
+        break;
+      }
+      case "catia_test_register": {
+        const { catiaIntegrationTestSuiteEngine } = await import("../../engines/CATIAIntegrationTestSuiteEngine.js");
+        result = { success: true, data: (catiaIntegrationTestSuiteEngine as any).register?.(params as any) ?? { engine: "CATIAIntegrationTestSuiteEngine", note: "method not callable" } };
+        break;
+      }
+      case "machine_lora_base_info": {
+        const { machineLoRABase } = await import("../../engines/MachineLoRABaseEngine.js");
+        result = { success: true, data: (machineLoRABase as any).getInfo?.() ?? (machineLoRABase as any).info ?? { engine: "MachineLoRABaseEngine", note: "method not callable" } };
+        break;
+      }
+      case "ml_lineage_link": {
+        const { mlLineageEngine } = await import("../../engines/MLLineageEngine.js");
+        result = { success: true, data: (mlLineageEngine as any).link?.(params as any) ?? { engine: "MLLineageEngine", note: "method not callable" } };
+        break;
+      }
+      case "ml_lineage_trace": {
+        const { mlLineageEngine } = await import("../../engines/MLLineageEngine.js");
+        result = { success: true, data: (mlLineageEngine as any).trace?.(params as any) ?? { engine: "MLLineageEngine", note: "method not callable" } };
+        break;
+      }
+      case "ml_lineage_stats": {
+        const { mlLineageEngine } = await import("../../engines/MLLineageEngine.js");
+        result = { success: true, data: (mlLineageEngine as any).stats?.() ?? { engine: "MLLineageEngine", note: "method not callable" } };
+        break;
+      }
+      case "lora_adapter_register": {
+        const { loraAdapterRegistryEngine } = await import("../../engines/LoRAAdapterRegistryEngine.js");
+        result = { success: true, data: (loraAdapterRegistryEngine as any).register?.(params as any) ?? { engine: "LoRAAdapterRegistryEngine", note: "method not callable" } };
+        break;
+      }
+      case "lora_adapter_resolve": {
+        const { loraAdapterRegistryEngine } = await import("../../engines/LoRAAdapterRegistryEngine.js");
+        result = { success: true, data: (loraAdapterRegistryEngine as any).resolve?.(params as any) ?? { engine: "LoRAAdapterRegistryEngine", note: "method not callable" } };
+        break;
+      }
+      case "lora_adapter_list": {
+        const { loraAdapterRegistryEngine } = await import("../../engines/LoRAAdapterRegistryEngine.js");
+        const p = params as any;
+        result = { success: true, data: (loraAdapterRegistryEngine as any).list?.(p.domain, p.status) ?? { engine: "LoRAAdapterRegistryEngine", note: "method not callable" } };
+        break;
+      }
+      case "lora_adapter_stats": {
+        const { loraAdapterRegistryEngine } = await import("../../engines/LoRAAdapterRegistryEngine.js");
+        result = { success: true, data: (loraAdapterRegistryEngine as any).stats?.() ?? { engine: "LoRAAdapterRegistryEngine", note: "method not callable" } };
+        break;
+      }
+      case "training_snapshot_create": {
+        const { trainingDatasetSnapshotEngine } = await import("../../engines/TrainingDatasetSnapshotEngine.js");
+        result = { success: true, data: (trainingDatasetSnapshotEngine as any).create?.(params as any) ?? { engine: "TrainingDatasetSnapshotEngine", note: "method not callable" } };
+        break;
+      }
+      case "training_snapshot_load": {
+        const { trainingDatasetSnapshotEngine } = await import("../../engines/TrainingDatasetSnapshotEngine.js");
+        result = { success: true, data: (trainingDatasetSnapshotEngine as any).load?.((params as any).snapshot_id ?? "") ?? { engine: "TrainingDatasetSnapshotEngine", note: "method not callable" } };
+        break;
+      }
+      case "training_snapshot_list": {
+        const { trainingDatasetSnapshotEngine } = await import("../../engines/TrainingDatasetSnapshotEngine.js");
+        result = { success: true, data: (trainingDatasetSnapshotEngine as any).list?.(params as any) ?? { engine: "TrainingDatasetSnapshotEngine", note: "method not callable" } };
+        break;
+      }
+      case "training_snapshot_stats": {
+        const { trainingDatasetSnapshotEngine } = await import("../../engines/TrainingDatasetSnapshotEngine.js");
+        result = { success: true, data: (trainingDatasetSnapshotEngine as any).stats?.() ?? { engine: "TrainingDatasetSnapshotEngine", note: "method not callable" } };
+        break;
+      }
+      case "detached_lora_runner_info": {
+        const mod = await import("../../engines/DetachedLoRARunnerEngine.js");
+        result = { success: true, data: { engine: "DetachedLoRARunnerEngine", class: typeof (mod as any).DetachedLoRARunnerEngine, note: "instantiate with new DetachedLoRARunnerEngine(config) — no singleton" } };
+        break;
+      }
+
+      // --- Deep AI / error / consensus / cross-process ---
+      case "deep_ai_reason": {
+        const { deepAIIntelligenceEngine } = await import("../../engines/DeepAIIntelligenceEngine.js");
+        result = { success: true, data: await (deepAIIntelligenceEngine as any).deepReason?.(params as any) ?? { engine: "DeepAIIntelligenceEngine", note: "method not callable" } };
+        break;
+      }
+      case "deep_ai_learn": {
+        const { deepAIIntelligenceEngine } = await import("../../engines/DeepAIIntelligenceEngine.js");
+        result = { success: true, data: await (deepAIIntelligenceEngine as any).deepLearn?.(params as any) ?? { engine: "DeepAIIntelligenceEngine", note: "method not callable" } };
+        break;
+      }
+      case "deep_ai_logic": {
+        const { deepAIIntelligenceEngine } = await import("../../engines/DeepAIIntelligenceEngine.js");
+        result = { success: true, data: await (deepAIIntelligenceEngine as any).deepLogic?.(params as any) ?? { engine: "DeepAIIntelligenceEngine", note: "method not callable" } };
+        break;
+      }
+      case "deep_ai_extended_thinking": {
+        const { deepAIIntelligenceEngine } = await import("../../engines/DeepAIIntelligenceEngine.js");
+        result = { success: true, data: await (deepAIIntelligenceEngine as any).extendedThinking?.((params as any).query ?? "") ?? { engine: "DeepAIIntelligenceEngine", note: "method not callable" } };
+        break;
+      }
+      case "error_explainer_explain": {
+        const { errorExplainerEngine } = await import("../../engines/ErrorExplainerEngine.js");
+        result = { success: true, data: (errorExplainerEngine as any).explain?.(params as any) ?? { engine: "ErrorExplainerEngine", note: "method not callable" } };
+        break;
+      }
+      case "error_explainer_categories": {
+        const { errorExplainerEngine } = await import("../../engines/ErrorExplainerEngine.js");
+        result = { success: true, data: { categories: (errorExplainerEngine as any).categories?.() ?? [] } };
+        break;
+      }
+      case "consensus_ai_bridge_reason": {
+        const { consensusAIBridgeEngine } = await import("../../engines/ConsensusAIBridgeEngine.js");
+        result = { success: true, data: await (consensusAIBridgeEngine as any).reason?.(params as any) ?? { engine: "ConsensusAIBridgeEngine", note: "method not callable" } };
+        break;
+      }
+      case "cross_process_ai_classify": {
+        const { CrossProcessAIBridge } = await import("../../engines/CrossProcessAIBridge.js");
+        result = { success: true, data: (CrossProcessAIBridge as any).classify?.((params as any).intent ?? "", params as any) ?? { engine: "CrossProcessAIBridge", note: "method not callable" } };
+        break;
+      }
+      case "cross_process_ai_orchestrate": {
+        const { CrossProcessAIBridge } = await import("../../engines/CrossProcessAIBridge.js");
+        result = { success: true, data: await (CrossProcessAIBridge as any).orchestrate?.(params as any) ?? { engine: "CrossProcessAIBridge", note: "method not callable" } };
+        break;
+      }
+      case "consensus_neural_feedback_record": {
+        const { consensusNeuralFeedbackEngine } = await import("../../engines/ConsensusNeuralFeedbackEngine.js");
+        result = { success: true, data: (consensusNeuralFeedbackEngine as any).record?.(params as any) ?? { engine: "ConsensusNeuralFeedbackEngine", note: "method not callable" } };
+        break;
+      }
+      case "consensus_neural_feedback_recent": {
+        const { consensusNeuralFeedbackEngine } = await import("../../engines/ConsensusNeuralFeedbackEngine.js");
+        result = { success: true, data: (consensusNeuralFeedbackEngine as any).recent?.((params as any).n ?? 50) ?? { engine: "ConsensusNeuralFeedbackEngine", note: "method not callable" } };
+        break;
+      }
+
+      // --- Knowledge injection / tribal / coordinator / cross-domain ---
+      case "knowledge_injection_plan": {
+        const { knowledgeInjectionPipelineEngine } = await import("../../engines/KnowledgeInjectionPipelineEngine.js");
+        result = { success: true, data: (knowledgeInjectionPipelineEngine as any).plan?.(params as any) ?? { engine: "KnowledgeInjectionPipelineEngine", note: "method not callable" } };
+        break;
+      }
+      case "knowledge_injection_execute": {
+        const { knowledgeInjectionPipelineEngine } = await import("../../engines/KnowledgeInjectionPipelineEngine.js");
+        result = { success: true, data: (knowledgeInjectionPipelineEngine as any).executeInjection?.(params as any) ?? { engine: "KnowledgeInjectionPipelineEngine", note: "method not callable" } };
+        break;
+      }
+      case "knowledge_injection_record_outcome": {
+        const { knowledgeInjectionPipelineEngine } = await import("../../engines/KnowledgeInjectionPipelineEngine.js");
+        result = { success: true, data: (knowledgeInjectionPipelineEngine as any).recordOutcome?.(params as any) ?? { engine: "KnowledgeInjectionPipelineEngine", note: "method not callable" } };
+        break;
+      }
+      case "tribal_applicator_apply": {
+        const { tribalKnowledgeApplicatorEngine } = await import("../../engines/TribalKnowledgeApplicatorEngine.js");
+        result = { success: true, data: (tribalKnowledgeApplicatorEngine as any).apply?.(params as any) ?? { engine: "TribalKnowledgeApplicatorEngine", note: "method not callable" } };
+        break;
+      }
+      case "full_system_coordinator_coordinate": {
+        const { FullSystemAICoordinatorEngine } = await import("../../engines/FullSystemAICoordinatorEngine.js");
+        result = { success: true, data: await (FullSystemAICoordinatorEngine as any).coordinate?.(params as any) ?? { engine: "FullSystemAICoordinatorEngine", note: "method not callable" } };
+        break;
+      }
+      case "full_system_coordinator_route_specialist": {
+        const { FullSystemAICoordinatorEngine } = await import("../../engines/FullSystemAICoordinatorEngine.js");
+        result = { success: true, data: await (FullSystemAICoordinatorEngine as any).routeSpecialist?.(params as any) ?? { engine: "FullSystemAICoordinatorEngine", note: "method not callable" } };
+        break;
+      }
+      case "cross_domain_orchestrate": {
+        const { crossDomainOrchestratorEngine } = await import("../../engines/CrossDomainOrchestratorEngine.js");
+        const p = params as any;
+        result = { success: true, data: (crossDomainOrchestratorEngine as any).orchestrate?.(p) ?? (crossDomainOrchestratorEngine as any).plan?.(p) ?? (crossDomainOrchestratorEngine as any).execute?.(p) ?? { engine: "CrossDomainOrchestratorEngine", note: "method not callable" } };
+        break;
+      }
+      // ─── WIRE-AI-DIRECT-MS0/U-VICTOR-AI-DIRECT (slot:victor 2026-05-26) ───
+      case "tribal_outcome_bridge_status": {
+        const { TribalKnowledgeOutcomeBridgeEngine } = await import("../../engines/TribalKnowledgeOutcomeBridgeEngine.js");
+        result = { success: true, data: { isSubscribed: TribalKnowledgeOutcomeBridgeEngine.isSubscribedToOutcomes() } };
+        break;
+      }
+      case "knowledge_graph_project": {
+        const { KnowledgeGraphFeatureProjectorEngine } = await import("../../engines/KnowledgeGraphFeatureProjectorEngine.js");
+        result = { success: true, data: KnowledgeGraphFeatureProjectorEngine.project(params as any) };
+        break;
+      }
+      case "graph_importance_rank_global": {
+        const { graphImportanceEngine } = await import("../../engines/GraphImportanceEngine.js");
+        result = { success: true, data: graphImportanceEngine.rankGlobal(params as any) };
+        break;
+      }
+      case "approval_chain_get": {
+        const { approvalChainEngine } = await import("../../engines/ApprovalChainEngine.js");
+        const p = params as any;
+        result = { success: true, data: approvalChainEngine.getChain(String(p?.chain_id ?? "")) };
+        break;
+      }
+
+      // INDIA-AI-ORPHAN-WIRE (bravo, 2026-06-11) -- KnowledgeLineageEngine was dispatcher-DARK
+      // (zero real consumers; pure read-only knowledge-provenance graph). These 3 actions expose its
+      // DATA surface so the fleet can audit atom provenance + lineage health via MCP. All three methods
+      // are deterministic graph/ledger reads (no NN inference). getLineageReport NEVER throws (returns
+      // atom:undefined for a missing id). R12-safe DATA only.
+      case "knowledge_lineage_report": {
+        const atomId = params.atomId;
+        if (typeof atomId !== "string" || !atomId) {
+          result = { success: false, error: "atomId (string) is required -- the knowledge-atom id to trace provenance for" };
+          break;
+        }
+        const { knowledgeLineageEngine } = await import("../../engines/KnowledgeLineageEngine.js");
+        result = { success: true, ...knowledgeLineageEngine.getLineageReport(atomId) };
+        break;
+      }
+      case "knowledge_lineage_stats": {
+        const { knowledgeLineageEngine } = await import("../../engines/KnowledgeLineageEngine.js");
+        result = { success: true, stats: knowledgeLineageEngine.getStats() };
+        break;
+      }
+      case "knowledge_lineage_pending_conflicts": {
+        const { knowledgeLineageEngine } = await import("../../engines/KnowledgeLineageEngine.js");
+        const conflicts = knowledgeLineageEngine.getPendingConflicts();
+        result = { success: true, count: conflicts.length, conflicts };
+        break;
+      }
+
+      // INDIA-AI-ORPHAN-WIRE unit 2 -- LocalEmbeddingEngine (zero-service ONNX MiniLM embedding
+      // backbone; dispatcher-dark). status = readiness/model name; similarity = pure cosine math over
+      // caller-supplied vectors. R12-safe DATA only -- embed() (model-loading inference) NOT surfaced.
+      case "local_embedding_status": {
+        const { localEmbeddingEngine } = await import("../../engines/LocalEmbeddingEngine.js");
+        result = { success: true, loaded: localEmbeddingEngine.isLoaded(), model: localEmbeddingEngine.getModel() };
+        break;
+      }
+      case "local_embedding_similarity": {
+        const a = params.a;
+        const b = params.b;
+        const finiteNumArray = (v: unknown): v is number[] =>
+          Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === "number" && Number.isFinite(x));
+        if (!finiteNumArray(a) || !finiteNumArray(b)) {
+          result = { success: false, error: "a and b must both be non-empty arrays of finite numbers (the two vectors to compare)" };
+          break;
+        }
+        if (a.length !== b.length) {
+          result = { success: false, error: `vector length mismatch: a.length=${a.length} b.length=${b.length}` };
+          break;
+        }
+        const { localEmbeddingEngine } = await import("../../engines/LocalEmbeddingEngine.js");
+        result = { success: true, similarity: localEmbeddingEngine.cosineSimilarity(a, b) };
         break;
       }
 

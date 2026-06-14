@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-25T20:53:30.963Z",
+  "generatedBy": "combo-efficiency-baseline.mjs",
+  "substrates": {
+    "obsidian": {
+      "status": "RED",
+      "reason": "4136 broken (no total)",
+      "brokenCount": 4136,
+      "breakPct": null,
+      "totalLinks": null,
+      "wikiDir": "knowledge/wiki",
+      "memDir": "knowledge/memories"
+    },
+    "systemViz": {
+      "status": "UNKNOWN",
+      "reason": "awareness-missing",
+      "unwiredEngines": null,
+      "ghostCount": null,
+      "orphanCount": null
+    },
+    "masterIndex": {
+      "status": "RED",
+      "reason": "take-rate 0.0% (0/1176)",
+      "fires": 1176,
+      "takes": 0,
+      "takeRate": 0,
+      "dominantClassifier": "backendAuditChain",
+      "dominantShare": 0.7261904761904762,
+      "healthSignal": "takeup-wiring-broken"
+    },
+    "ollama": {
+      "status": "RED",
+      "reason": "offload 5.3% (47/879)",
+      "offloaded": 47,
+      "keptOnClaude": 832,
+      "offloadRate": 0.053469852104664393,
+      "tokensSaved": 10151,
+      "silentSuggestions": 150,
+      "injectedSuggestions": 45
+    }
+  },
+  "comboUmbrella": {
+    "status": "OBSERVED",
+    "reason": "678 hits / 155 nudges / 320,500 tokens saved",
+    "nudges": 155,
+    "hits": 678,
+    "savedTokens": 320500,
+    "misses": 2228,
+    "ledgersWithData": 5
+  },
+  "overall": {
+    "score": 0,
+    "zone": "RED",
+    "contributingCount": 3,
+    "unknownCount": 1
+  },
+  "blockers": [
+    "obsidian: 4136 broken (no total)",
+    "systemViz UNKNOWN: awareness-missing",
+    "masterIndex: take-rate 0.0% (0/1176)",
+    "ollama: offload 5.3% (47/879)"
+  ],
+  "recommendations": [
+    "Run P0-U01 (Revive Ollama) — gates P1-U02 wiki link densifier + P1-U03 bridge surfacer if Ollama-shaped.",
+    "Run P1-U01 (take-rate fix) — biggest single leverage; turns nudges into adoptions.",
+    "Run P1-U02 (wiki link densifier) — closes broken `[[name]]` tokens."
+  ]
+}

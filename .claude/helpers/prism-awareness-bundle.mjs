@@ -27,7 +27,7 @@
  *   curl -X POST http://127.0.0.1:11434/api/generate -d "$(jq -n \
  *     --arg sys "$(node H:/PRISM/.claude/helpers/prism-awareness-bundle.mjs --brief)" \
  *     --arg p   "explain Kienzle for 4140" \
- *     '{model:"deepseek-r1:14b", system:$sys, prompt:$p, stream:false}')"
+ *     '{model:"gpt-oss:120b", system:$sys, prompt:$p, stream:false}')"
  *
  * Or call via MCP from any of the three CLIs:
  *   prism_context:ollama_context_wrap { prompt, mode: "standard" }

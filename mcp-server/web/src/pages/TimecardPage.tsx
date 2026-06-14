@@ -108,7 +108,7 @@ function normalizeTimecardSummary(
           hours: Number(job?.hours ?? 0),
           cost:
             Number(job?.cost ?? 0)
-            || operationDetails.reduce((sum, detail) => sum + detail.cost, 0),
+            || operationDetails.reduce((sum: number, detail: { cost: number }) => sum + detail.cost, 0),
           operations: Array.isArray(job?.operations)
             ? job.operations.map((operation: unknown) => String(operation))
             : [],

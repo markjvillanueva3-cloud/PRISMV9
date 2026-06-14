@@ -41,7 +41,10 @@ export type TaskClass =
   | "reasoning"
   | "code_review"
   | "search"
+  | "blueprint_extraction"
+  | "corpus_harvest"
   | "calculation"
+  | "system_viz"
   | "unknown";
 
 export interface RouteDecision {
@@ -85,8 +88,26 @@ export class AISystemRouterEngine {
     if (/(review|audit|critique|check)/.test(t)) {
       return "code_review";
     }
+    // SIERRA system-viz galaxy (U-PSGB-SIERRA 2026-05-29): graph/viz-infrastructure
+    // tasks route to the PRISM MCP master-index surface, NOT generic search. Placed
+    // BEFORE search so "regen the viz" / "query the system graph" / "ghost-roost" win.
+    if (/(system[\s-]?viz|regen[\s-]?viz|ghost[\s-]?roost|master[\s-]?index|system[\s-]?graph|utilization[\s-]?dashboard|viz[\s-]?(query|drift|regen)|graph[\s-]?(drift|regen))/.test(t)) {
+      return "system_viz";
+    }
     if (/(search|find|lookup|grep|locate)/.test(t)) {
       return "search";
+    }
+    // BLUEPRINT-OCR-TRAINING-MS1 capabilities (BlueprintExtractionRAGEngine,
+    // PDFBlueprintPatternRescueEngine, BlueprintCoverageAuditEngine,
+    // BlueprintLoRABridgeEngine, JMDieArchiveBackAnnotationEngine).
+    // Placed AFTER code_review + search so "review the ocr engine" routes to
+    // code_review and "find blueprints with X" routes to search.
+    if (/(blueprint|\bocr\b|title[\s-]?block|gd[\s&-]?t|\bgdt\b|callout|print[\s-]?(read|extract)|drawing[\s-]?(read|extract))/.test(t)) {
+      return "blueprint_extraction";
+    }
+    // BlueprintCorpusHarvestEngine — MIT + vendor PDF + online corpus.
+    if (/(corpus[\s-]?(harvest|ingest|build|enumerate)|harvest[\s-]?(mit|vendor|online|pdf|drafting))/.test(t)) {
+      return "corpus_harvest";
     }
     if (/(calculate|compute|formula|equation)/.test(t)) {
       return "calculation";
@@ -115,9 +136,19 @@ export class AISystemRouterEngine {
         estimatedCost = "high";
         break;
       case "ml_inference":
-        primary = "ollama-codellama";
-        fallback = ["ollama-deepseek", "claude-haiku"];
-        reason = "ML inference is cheap on local Ollama; falls back to Haiku";
+        // BLACKWELL-MODEL-INTEGRATION-MS0 P2 (2026-06-06): the old enum values
+        // "ollama-codellama"/"ollama-deepseek" named NEVER-INSTALLED models — they
+        // were stale routing targets on this advisory engine (route() is read-only,
+        // zero runtime impact, so this never mis-dispatched real traffic, but the
+        // names were confusing dead references). ML inference now delegates to the
+        // local MCP surface (prism_ml:* / prism_ai:*); the REAL local-model pick is
+        // made at RUNTIME by ModelRoutingEngine/the offloader against /api/tags
+        // (gpt-oss:120b > gpt-oss:20b > qwen2.5-coder:32b once each is pulled),
+        // never by this static advisory router. Falls back to Haiku if MCP is down.
+        primary = "local-mcp";
+        fallback = ["claude-haiku"];
+        reason =
+          "ML inference dispatches to local MCP actions (prism_ml/prism_ai); the runtime router picks the local model from /api/tags (gpt-oss:120b > gpt-oss:20b > qwen2.5-coder:32b), falling back to Haiku if MCP is unavailable";
         estimatedCost = "free";
         break;
       case "batch_processing":
@@ -144,10 +175,28 @@ export class AISystemRouterEngine {
         reason = "Search uses local indexes (Grep/MASTER_INDEX) — no LLM needed";
         estimatedCost = "free";
         break;
+      case "blueprint_extraction":
+        primary = "local-mcp";
+        fallback = ["claude-sonnet"];
+        reason = "Blueprint extraction routes to local MCP actions (blueprint_rag_extract, cad_pdf_blueprint_extract, cad_gdt_callout_parse, blueprint_coverage_audit) — vision LLM is invoked inside the RAG engine, not by the router";
+        estimatedCost = "low";
+        break;
+      case "corpus_harvest":
+        primary = "local-mcp";
+        fallback = ["claude-haiku"];
+        reason = "Corpus harvest (MIT/vendor/online) runs via BlueprintCorpusHarvestEngine MCP actions (corpus_harvest_mit, corpus_harvest_vendor, corpus_harvest_online, corpus_build_index) — deterministic, no LLM needed";
+        estimatedCost = "free";
+        break;
       case "calculation":
         primary = "local-mcp";
         fallback = ["claude-haiku"];
         reason = "Calculations dispatch to PRISM physics engines (deterministic)";
+        estimatedCost = "free";
+        break;
+      case "system_viz":
+        primary = "local-mcp";
+        fallback = ["claude-haiku"];
+        reason = "System-viz/graph tasks dispatch to PRISM MCP (prism_session:master_index_query / prism_knowledge:obsidian_viz_*); CLI fallback scripts/system-viz-query.mjs when :3100 down";
         estimatedCost = "free";
         break;
       default:
@@ -263,7 +312,7 @@ export class AISystemRouterEngine {
   getStats() {
     return {
       backends_known: 8,
-      task_classes: 9,
+      task_classes: 12,
       cache_ttl_ms: this.cacheTtlMs,
       cache_entries: this.healthCache.size,
     };

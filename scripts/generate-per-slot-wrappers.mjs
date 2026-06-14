@@ -13,11 +13,31 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const SLOT_NAMES = ["alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliett","kilo","lima"];
+// 2026-05-19: expanded from 13 (alpha..mike) to 26 (full NATO alphabet) per
+// operator directive to support a larger concurrent fleet. Strictly additive —
+// chat-slots schemaVersion stays at 2 because new keys default to null on
+// next assertSlotFile() (same pattern as the 10→12→13 expansions earlier).
+const SLOT_NAMES = [
+  "alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliett","kilo","lima","mike",
+  "november","oscar","papa","quebec","romeo","sierra","tango","uniform","victor","whiskey","xray","yankee","zulu",
+];
 const OUT_DIR = "H:/prism/.claude/commands";
 const DRY = process.env.PRISM_PERSLOT_WRAPPER_DRY_RUN === "1";
 
 const COMMANDS = {
+  // 2026-05-19: NEW — auto-generate /checkin-<nato> for slots that don't have
+  // a hand-written variant. The hand-written /checkin-alpha through
+  // /checkin-mike skills have slot-specific prose (golf-owns-the-reaper, mike's
+  // "13th fleet slot" note, etc.) — `onlyIfMissing: true` keeps the generator
+  // from clobbering them. New slots (november..zulu) get the generic template.
+  checkin: {
+    description: (slot) => `Force-claim slot ${slot.toUpperCase()} + run the full /checkin pipeline. NATO-phonetic shortcut for \`/checkin --preferSlot ${slot} --force\`.`,
+    canonical: "/checkin",
+    canonicalPath: "H:/prism/.claude/commands/checkin.md (project) and ~/.claude/commands/checkin.md (global)",
+    purpose: (slot) => `it binds THIS chat to the \`${slot}\` slot before the standard /checkin pipeline runs — guarantees the handoff bind, drift check, commit hygiene, BUILD_STATE inject, system-viz ping, and pickup candidates are all keyed to the right slot`,
+    note: "Slot-claim wrapper for /checkin. The /checkin pipeline body is canonical — this skill just ensures the slot binding is correct first. Args after /checkin-<slot> are forwarded to /checkin (including /loop, /goal, /pick-unit, etc.).",
+    onlyIfMissing: true
+  },
   precompact: {
     description: (slot) => `Force-claim slot ${slot.toUpperCase()} + run the full /precompact pipeline. NATO-phonetic shortcut for slot-bound precompact handoff.`,
     canonical: "/precompact",
@@ -60,8 +80,24 @@ This wrapper exists because ${cfg.purpose(slot)}. ${cfg.note}
 
 ## Slot binding (replaces ${cfg.canonical} Step 1 / Step 2)
 
+> **AUTO-ENFORCED (U-SLOT-BIND-ENFORCE, 2026-05-18).** The
+> \`slot-bind-enforce.mjs\` UserPromptSubmit hook ALREADY force-claimed the
+> \`${SLOT}\` slot deterministically the instant this \`/${commandName}\`
+> prompt was submitted — using the harness \`session_id\` from stdin
+> (authoritative), NOT a hand-copied id. If the hook injected a
+> \`✅ slot-bind-enforce: slot \\\`${SLOT}\\\` deterministically bound to
+> \\\`claude-<id>\\\`\` line into your context, **use that exact chat id** for
+> every chat-slots / slot-task-claim / handoff call this session and SKIP the
+> bash below — re-running it is redundant (the hook's idempotent fast-path
+> already no-ops a correct binding). Only run the bash manually if the hook
+> emitted a \`⚠️ no harness session_id\` advisory (no stdin id — the fallback
+> path), and in that case STABLE MUST come from the LIVE
+> \`**Chat Isolation:**\` line in THIS session's context, NEVER from a
+> conversation summary / handoff (a stale id there is the exact cross-chat
+> unit-collision bug this hook was built to kill).
+
 \`\`\`bash
-STABLE="claude-<8hex-from-Chat-Isolation-line>"
+STABLE="claude-<8hex-from-the-LIVE-Chat-Isolation-line>"   # fallback only
 BRANCH=$(git -C H:/prism rev-parse --abbrev-ref HEAD 2>/dev/null)
 SLOT="${SLOT}"
 TOPIC="${TOPIC}"
@@ -96,9 +132,12 @@ for (const cmd of Object.keys(COMMANDS)) {
     targets.push(outPath);
     planned++;
     if (DRY) continue;
+    const cfg = COMMANDS[cmd];
     if (fs.existsSync(outPath)) {
-      // Don't clobber existing — but verify content matches; if it differs, log a warning.
-      // Idempotent re-runs should be safe.
+      // If the command is flagged onlyIfMissing (e.g. /checkin-<nato>, which
+      // has hand-written variants for slots 1-13), NEVER overwrite — only
+      // create if missing. Otherwise: verify content matches; rewrite if drifted.
+      if (cfg.onlyIfMissing) continue;
       const existing = fs.readFileSync(outPath, "utf8");
       const fresh = renderWrapper(cmd, slot);
       if (existing.trim() === fresh.trim()) continue; // already correct

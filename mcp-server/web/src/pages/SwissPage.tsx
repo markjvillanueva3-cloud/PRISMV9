@@ -19,7 +19,7 @@ interface GuideBushingState {
   concentricity_um: number;
 }
 
-export default function SwissPage(): JSX.Element {
+export default function SwissPage() {
   const [guideBushing, setGuideBushing] = useState<GuideBushingState>({
     diameter_mm: 12.0, wear_pct: 12, concentricity_um: 3,
   });

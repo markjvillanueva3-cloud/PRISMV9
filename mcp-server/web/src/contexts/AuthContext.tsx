@@ -180,6 +180,51 @@ export function useAuth(): AuthContextValue {
   return ctx;
 }
 
+/**
+ * Non-throwing variant of useAuth: returns the context value or null when no
+ * AuthProvider is mounted. Used by surfaces that must render without auth
+ * (component tests, marketing demo, fresh boot before login) but still want to
+ * personalize when auth IS available — e.g. Academy progress namespacing
+ * (PRISM-ACADEMY-MOBILE-MS0/U-PAM-AUTH).
+ */
+export function useAuthOptional(): AuthContextValue | null {
+  return useContext(AuthContext);
+}
+
+/**
+ * Test-only: wrap children with a custom auth context value. Lets unit tests
+ * exercise auth-dependent hooks (e.g. useStudentId) without instantiating the
+ * real AuthProvider — no fetch calls, no 15-min session timer, no storage IO.
+ *
+ * The exported `value` type is intentionally permissive (Partial<…>) because
+ * tests only need to set the fields each test cares about; everything else
+ * defaults to a logged-out-but-mounted state.
+ */
+export function TestAuthProvider({
+  value,
+  children,
+}: {
+  value?: Partial<AuthContextValue> | null;
+  children: ReactNode;
+}) {
+  if (value === null) {
+    return <AuthContext.Provider value={null}>{children}</AuthContext.Provider>;
+  }
+  const filled: AuthContextValue = {
+    isAuthenticated: false,
+    isLoading: false,
+    token: null,
+    userId: null,
+    employee: null,
+    clearance_level: 'shop_floor',
+    login: async () => {},
+    logout: () => {},
+    displayName: '',
+    ...(value ?? {}),
+  };
+  return <AuthContext.Provider value={filled}>{children}</AuthContext.Provider>;
+}
+
 /** Check if a clearance level meets or exceeds the minimum required. */
 export function meetsMinClearance(
   userLevel: ClearanceLevel,

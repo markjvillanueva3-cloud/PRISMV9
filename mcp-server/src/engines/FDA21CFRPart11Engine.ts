@@ -1532,7 +1532,7 @@ export class FDA21CFRPart11Engine {
    * Get engine metrics.
    */
   getMetrics(): {
-    metrics: typeof this.metrics;
+    metrics: FDA21CFRPart11Engine["metrics"];
     auditTrailLength: number;
     usersCount: number;
     activeSessions: number;

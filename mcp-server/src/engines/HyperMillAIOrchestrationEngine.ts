@@ -24,7 +24,11 @@ import {
 } from "./HyperMillDeepLearningEngine.js";
 import { hyperMillStrategyEngine } from "./HyperMillStrategyEngine.js";
 import { hyperMillMaterialBridgeEngine } from "./HyperMillMaterialBridgeEngine.js";
-import { hyperMillMaterialPhysicsBridge } from "./HyperMillMaterialPhysicsBridge.js";
+// Milling-physics is computed via the shared MastercamMaterialPhysicsBridge —
+// it is the canonical Kienzle/Taylor milling-physics bridge and produces the
+// MillingPhysicsOutput shape consumed below. HyperMillMaterialPhysicsBridge
+// exposes only material-resolution, not a full milling-physics pass.
+import { mastercamMaterialPhysicsBridge } from "./MastercamMaterialPhysicsBridge.js";
 import { hyperMillStrategyKnowledgeEngine } from "./HyperMillStrategyKnowledgeEngine.js";
 
 // ============================================================================
@@ -355,7 +359,7 @@ export class HyperMillAIOrchestrationEngine {
         source: "HyperMillMaterialPhysicsBridge"
       });
 
-      const physicsResult = hyperMillMaterialPhysicsBridge.calculateMillingPhysics({
+      const physicsResult = mastercamMaterialPhysicsBridge.calculateMillingPhysics({
         material_id: request.material_id,
         tool_diameter_mm: request.tool_diameter_mm,
         tool_flutes: request.tool_flutes || 4,

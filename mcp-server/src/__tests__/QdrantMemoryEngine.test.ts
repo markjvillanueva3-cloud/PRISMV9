@@ -281,3 +281,111 @@ describe("QdrantMemoryEngine", () => {
     }
   });
 });
+
+// ── canonical read mapping + cross-schema payload tolerance ──────────────
+// Regression coverage for the keystone fix: the MCP memory surface was dead
+// ("qdrant not connected") because the singleton never connected its store,
+// and even connected it queried empty prism_memory_<kind> collections rather
+// than the populated prism_engines/skills/formulas/wiki/memories. These tests
+// lock the read-mapping (default prefix only), write-isolation, and the
+// payload-tolerant hitToItem so recall is useful across all 3 indexing schemas.
+describe("QdrantMemoryEngine canonical read mapping + payload tolerance", () => {
+  it("readCollectionFor() maps canonical kinds to populated collections (default prefix)", () => {
+    const e = new QdrantMemoryEngine(); // default prefix "prism_memory"
+    expect(e.readCollectionFor("engine")).toBe("prism_engines");
+    expect(e.readCollectionFor("skill")).toBe("prism_skills");
+    expect(e.readCollectionFor("formula")).toBe("prism_formulas");
+    expect(e.readCollectionFor("wiki")).toBe("prism_wiki");
+    expect(e.readCollectionFor("note")).toBe("prism_memories");
+    // unmapped kinds fall back to the prism_memory_<kind> write target
+    expect(e.readCollectionFor("tip")).toBe("prism_memory_tip");
+    expect(e.readCollectionFor("outcome")).toBe("prism_memory_outcome");
+  });
+
+  it("readCollectionFor() keeps prism_memory_<kind> isolation for a custom prefix", () => {
+    const e = new QdrantMemoryEngine({ collectionPrefix: "test_mem" });
+    expect(e.readCollectionFor("engine")).toBe("test_mem_engine");
+    expect(e.readCollectionFor("note")).toBe("test_mem_note");
+  });
+
+  it("writes still target collectionFor() (prism_memory_<kind>), never the populated collection", () => {
+    const e = new QdrantMemoryEngine(); // default prefix
+    // collectionFor is the write/delete target and must stay prism_memory_<kind>
+    // so a stray remember()/forgetAll() can never corrupt or wipe prism_engines.
+    expect(e.collectionFor("engine")).toBe("prism_memory_engine");
+    expect(e.collectionFor("note")).toBe("prism_memory_note");
+  });
+
+  it("recall() renders System-2 {name,description,externalId} asset payloads", async () => {
+    const store = makeFakeStore();
+    const engine = new QdrantMemoryEngine({
+      store,
+      embedder: makeDeterministicEmbedder(8),
+      vectorSize: 8,
+      collectionPrefix: "test_mem",
+    });
+    await store.upsert("test_mem_engine", [
+      {
+        id: "uuid-1",
+        vector: [1, 0, 0, 0, 0, 0, 0, 0],
+        payload: {
+          kind: "engine",
+          name: "SprayDryingEngine",
+          description: "Spray drying process analysis",
+          externalId: "engine:SprayDryingEngine",
+          sourceFile: "SprayDryingEngine.ts",
+          tags: [],
+        },
+      },
+    ]);
+    const got = await engine.recall({ kind: "engine", query: "spray drying" });
+    expect(got.ok).toBe(true);
+    if (got.ok) {
+      expect(got.value.length).toBe(1);
+      expect(got.value[0].text).toBe("SprayDryingEngine - Spray drying process analysis");
+      expect(got.value[0].metadata.externalId).toBe("engine:SprayDryingEngine");
+      expect(got.value[0].metadata.name).toBe("SprayDryingEngine");
+      // kind is already a top-level field, so it must NOT be duplicated into metadata
+      expect(got.value[0].metadata.kind).toBeUndefined();
+    }
+  });
+
+  it("recall() renders System-1 {node_id} vault/wiki sidecar payloads", async () => {
+    const store = makeFakeStore();
+    const engine = new QdrantMemoryEngine({
+      store,
+      embedder: makeDeterministicEmbedder(8),
+      vectorSize: 8,
+      collectionPrefix: "test_mem",
+    });
+    await store.upsert("test_mem_wiki", [
+      { id: 42, vector: [0, 1, 0, 0, 0, 0, 0, 0], payload: { node_id: "tip-nx-054" } },
+    ]);
+    const got = await engine.recall({ kind: "wiki", query: "anything" });
+    expect(got.ok).toBe(true);
+    if (got.ok) {
+      expect(got.value[0].text).toBe("tip-nx-054");
+      expect(got.value[0].metadata.node_id).toBe("tip-nx-054");
+    }
+  });
+
+  it("injected disconnected store is never auto-connected (autoConnect gate)", async () => {
+    let connectCalls = 0;
+    const fake = {
+      isConnected: () => false,
+      connect: async () => {
+        connectCalls++;
+        return { ok: true, value: undefined };
+      },
+    } as unknown as QdrantVectorStoreEngine;
+    const engine = new QdrantMemoryEngine({
+      store: fake,
+      embedder: makeDeterministicEmbedder(8),
+      vectorSize: 8,
+    });
+    const r = await engine.recall({ kind: "note", query: "x" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error).toMatch(/not connected/);
+    expect(connectCalls).toBe(0); // injected store -> lazy auto-connect must NOT fire
+  });
+});

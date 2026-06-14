@@ -49,6 +49,7 @@ import {
   CANONICAL_KIENZLE,
   CANONICAL_TAYLOR,
   CANONICAL_MATERIAL_DB,
+  buildMaterialPhysics,
   type ISOGroup,
   type MaterialPhysics,
 } from "../physics/constants.js";
@@ -641,27 +642,10 @@ class KnowledgeSynthesizer {
   }
 
   private getDefaultPhysics(iso: ISOGroup): MaterialPhysics {
-    const kienzle = CANONICAL_KIENZLE[iso];
-    const taylor = CANONICAL_TAYLOR[iso];
-    const baseVc = { P: 200, M: 130, K: 180, N: 400, S: 45, H: 80 }[iso];
-
-    return {
-      name: `Default ${iso}`,
-      iso_group: iso,
-      kc1_1: kienzle.kc1_1,
-      mc: kienzle.mc,
-      taylor_C: taylor.C,
-      taylor_n: taylor.n,
-      k_thermal: 40,
-      sigma_y_MPa: 400,
-      density_kg_m3: 7850,
-      hardness_HB: 200,
-      vc_base_roughing: baseVc,
-      vc_base_finishing: baseVc * 1.3,
-      machinability_factor: 1.0,
-      cp_J_kgK: 480,
-      E_GPa: 200,
-    };
+    // buildMaterialPhysics fills every cutting-physics field from the
+    // canonical per-ISO tables (Kienzle, Taylor, turning speeds,
+    // machinability, modulus) — complete and runtime-safe.
+    return buildMaterialPhysics({ name: `Default ${iso}` }, iso);
   }
 }
 

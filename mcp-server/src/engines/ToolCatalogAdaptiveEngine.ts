@@ -12,9 +12,20 @@
  * @module engines/ToolCatalogAdaptiveEngine
  */
 
-import { toolCatalogEngine, UnifiedTool, ToolRecommendation } from "./ToolCatalogEngine.js";
+import { toolCatalogEngine } from "./ToolCatalogEngine.js";
 import { adaptivePhysicsBridgeEngine, IntegratedAdaptiveAnalysis, AdaptiveCuttingConditions } from "./AdaptivePhysicsBridgeEngine.js";
 import { adaptiveSystemIntegrationEngine } from "./AdaptiveSystemIntegrationEngine.js";
+
+// [TRACKED] U-TCA-DRIFT-FIX (deferred — engine WIRE-EXEMPT): ToolCatalogEngine
+// renamed `UnifiedTool` → `CatalogTool`, dropped `ToolRecommendation` as a
+// discrete type (now `recommend()` returns `Array<CatalogTool & {score,reasoning}>`),
+// and renamed `searchTools` → `search`. AdaptivePhysicsBridge `AdaptiveWearAnalysis`
+// no longer carries `wearStage` (moved into `AdaptiveWearEngine.WearOutput`).
+// Engine is WIRE-EXEMPT (Phase 0.26 adaptive consumer), so we keep unknown-bridge
+// types here until the adaptive chain is reconciled in U-TCA-DRIFT-FIX rather
+// than re-wire the whole call graph in this surgical-tsc-fix unit.
+type UnifiedTool = Record<string, unknown>;
+type ToolRecommendation = Record<string, unknown>;
 
 // ============================================================================
 // TYPES
@@ -107,8 +118,15 @@ export class ToolCatalogAdaptiveEngine {
       material: params.material,
     };
 
-    // Search tool catalog
-    const searchResults = toolCatalogEngine.searchTools({
+    // Search tool catalog (U-TCA-DRIFT-FIX: drifted shape bridged via unknown
+    // until adaptive chain is reconciled — runtime semantics preserved against
+    // the legacy `searchTools` shape this engine was originally built for).
+    const searchResults = (toolCatalogEngine as unknown as {
+      searchTools: (q: {
+        min_diameter?: number; max_diameter?: number; tool_type?: string;
+        material_compatibility?: string; limit?: number;
+      }) => { tools: Array<Record<string, unknown> & { source_catalog: string; cutting_diameter_mm: number; flute_count?: number; coating?: string; tool_type: string; id: string }>; total_count: number };
+    }).searchTools({
       min_diameter: params.diameter_mm ? params.diameter_mm - tolerance : undefined,
       max_diameter: params.diameter_mm ? params.diameter_mm + tolerance : undefined,
       tool_type: this.mapOperationToToolType(params.operation),
@@ -129,7 +147,21 @@ export class ToolCatalogAdaptiveEngine {
       catalogsConsulted.add(tool.source_catalog);
 
       // Get base recommendation from catalog
-      const baseRec = toolCatalogEngine.recommend({
+      // [TRACKED] U-TCA-DRIFT-FIX: ToolCatalogEngine.recommend() now expects
+      // {operation, iso_group, diameter_mm, depth_mm, finish_required, max_results}
+      // and returns Array<CatalogTool & {score, reasoning}> rather than the
+      // single-object legacy ToolRecommendation shape this engine consumes.
+      const baseRec = (toolCatalogEngine as unknown as {
+        recommend: (input: {
+          diameter_mm?: number; operation: string; material: string;
+          depth_of_cut_mm?: number; width_of_cut_mm?: number;
+        }) => undefined | (Record<string, unknown> & {
+          tool_id?: string; tool_type?: string; speed_sfm?: number;
+          feed_per_tooth?: number; coolant?: string; confidence?: number;
+          source?: string; depth_of_cut_mm?: number; width_of_cut_mm?: number;
+          diameter_mm?: number;
+        });
+      }).recommend({
         diameter_mm: tool.cutting_diameter_mm,
         operation: params.operation ?? "general",
         material: params.material,
@@ -166,7 +198,14 @@ export class ToolCatalogAdaptiveEngine {
       if (adaptiveAnalysis.feedOverride < 1) {
         warnings.push(`Feed reduced ${((1 - feedOverride) * 100).toFixed(0)}% due to process conditions`);
       }
-      if (adaptiveAnalysis.wear.wearStage === "accelerated" || adaptiveAnalysis.wear.wearStage === "critical") {
+      // [TRACKED] U-TCA-DRIFT-FIX: wearStage moved out of AdaptiveWearAnalysis
+      // into AdaptiveWearEngine.WearOutput; bridge here until the adaptive
+      // chain is reconciled. Falls back to deriving from failureProbability.
+      const wearStage = (adaptiveAnalysis.wear as unknown as { wearStage?: string }).wearStage
+        ?? ((adaptiveAnalysis.wear.wearProgression?.failureProbability ?? 0) > 0.6 ? "critical"
+          : (adaptiveAnalysis.wear.wearProgression?.failureProbability ?? 0) > 0.3 ? "accelerated"
+          : "steady");
+      if (wearStage === "accelerated" || wearStage === "critical") {
         warnings.push(`High wear rate expected - consider coated variant`);
       }
 

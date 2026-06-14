@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="665228814e645c5b6bec8d887be2c1fa08f7b4fb40e0bdb9be2b524f8d0c4cf1">
+<title>AI / NN / Wiring Opportunity Map — 2026-05-17</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">AI / NN / Wiring Opportunity Map — 2026-05-17</h1>
+<p class="provenance">Generated 2026-05-18T17:34:19.583Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#ai-nn-wiring-opportunity-map-2026-05-17">AI / NN / Wiring Opportunity Map — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#survey-context">Survey context</a></li>
+<li class="toc-l2"><a href="#1-neural-network-improvements-ranked">§1 — Neural-network improvements (ranked)</a></li>
+<li class="toc-l3"><a href="#nn-1-highest-leverage-graphsage-feature-dimensionality-8-d-768-d">NN-1 [HIGHEST LEVERAGE] — GraphSAGE feature dimensionality: 8-d → 768-d</a></li>
+<li class="toc-l3"><a href="#nn-2-operational-not-a-code-unit-regen-viz-has-not-run-since-the-u1-seed-stage">NN-2 [OPERATIONAL, not a code unit] — regen-viz has not run since the U1 seed stage</a></li>
+<li class="toc-l3"><a href="#nn-3-operational-the-ms1-stratified-retrain">NN-3 [OPERATIONAL] — the MS1 stratified retrain</a></li>
+<li class="toc-l2"><a href="#2-ai-system-improvements">§2 — AI-system improvements</a></li>
+<li class="toc-l2"><a href="#3-wiring-opportunities-coordination-required">§3 — Wiring opportunities — COORDINATION REQUIRED</a></li>
+<li class="toc-l2"><a href="#4-coordination-map-14-loop-state-entries-5-running-peers">§4 — Coordination map (14 loop-state entries; 5 running peers)</a></li>
+<li class="toc-l2"><a href="#5-sequenced-build-plan-for-subsequent-loop-iterations-operators">§5 — Sequenced build plan (for subsequent loop iterations / operators)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="ai-nn-wiring-opportunity-map-2026-05-17"><a class="anchor" href="#ai-nn-wiring-opportunity-map-2026-05-17" aria-label="Permalink to AI / NN / Wiring Opportunity Map — 2026-05-17">#</a>AI / NN / Wiring Opportunity Map — 2026-05-17</h1>
+<blockquote>
+<p><strong>advisoryOnly · mustHumanVerify</strong> — produced by slot <code>alpha</code> (session <code>23c10eea</code>) on a <code>/loop</code> directive: <em>&quot;work on the ai systems… use /system-viz to find neural network opportunities of improvement and ai system improvements. also find wiring opportunities.&quot;</em> This is the <strong>discovery</strong> half of that directive. Every scoped unit below must be dedup-checked (<code>duplicationGuardEngine.mustCheckBeforeCreating</code>) and physics-reviewed before a <code>/forge-*</code> invocation.</p>
+</blockquote>
+<h2 id="survey-context"><a class="anchor" href="#survey-context" aria-label="Permalink to Survey context">#</a>Survey context</h2>
+<ul>
+<li><strong>Memory state at survey:</strong> commit <strong>97.4% CRITICAL</strong> (fleet-memory-monitor flagged it, recommended <code>/compact</code>). Heavy builds (regen-viz, GNN retrain, full <code>npm run build</code>) are R6-unsafe this window — they OOM-kill sessions (see <code>## Recent regressions</code> → regen-viz SIGKILL-under-pressure). Discovery + scoping is the memory-safe deliverable; the builds are sequenced for a sub-90%-commit window.</li>
+<li><strong>Sources:</strong> <code>system-viz-query</code> (<code>find neural</code>, <code>coverage-by-domain</code>, <code>roadmap-candidates</code>), <code>state/shared/nn-graph/NN-EVAL.json</code>, <code>loop-state list</code> (14 active peer loops).</li>
+</ul>
+<h2 id="1-neural-network-improvements-ranked"><a class="anchor" href="#1-neural-network-improvements-ranked" aria-label="Permalink to §1 — Neural-network improvements (ranked)">#</a>§1 — Neural-network improvements (ranked)</h2>
+<h3 id="nn-1-highest-leverage-graphsage-feature-dimensionality-8-d-768-d"><a class="anchor" href="#nn-1-highest-leverage-graphsage-feature-dimensionality-8-d-768-d" aria-label="Permalink to NN-1 [HIGHEST LEVERAGE] — GraphSAGE feature dimensionality: 8-d → 768-d">#</a>NN-1 [HIGHEST LEVERAGE] — GraphSAGE feature dimensionality: 8-d → 768-d</h3>
+<ul>
+<li><strong>Evidence (hard):</strong> <code>NN-EVAL.json</code> → <code>checkpointMeta.inputDim = 8</code>, <code>auroc = 0.0961</code> (anti-correlated — worse than the 0.5 random floor).</li>
+<li><strong>Root cause (triply documented in [[nn-graph-ms0]]):</strong> heterophily — same-type nodes are <em>not</em> preferentially linked. NN-GRAPH-MS1 (<code>U-NNG-PIPELINE-STRATIFIED-WIRE</code>, commit <code>97c9286311</code>) already fixed the <em>negative-sampling distribution</em>. The <strong>remaining model-side lever is feature richness</strong> — an 8-d hand-feature vector cannot separate 372k structurally-similar nodes.</li>
+<li><strong>The fix is unusually cheap because the features ALREADY EXIST:</strong> the wiki brain ships <strong>14,738 int8 768-d nomic-embed-text vectors</strong> at <code>knowledge/wiki/architecture/_embeddings.jsonl</code> (per CLAUDE-BRIEF &quot;Semantic index&quot;). NN-1 is a feature-<strong>source swap</strong>, not feature engineering from scratch.</li>
+<li><strong>Scoped unit — <code>U-NNG-768D-FEATURES</code>:</strong>
+<ul>
+<li>Touch: <code>scripts/lib/graphsage-train-pipeline.mjs</code> (feature loader — add an <code>--embedding-source &lt;jsonl&gt;</code> path that joins node-id → 768-d vector, falling back to the 8-d hand-features when a node has no embedding); <code>graphsage-trainer.mjs</code> (<code>inputDim</code> is read from the feature matrix — verify it is not hard-coded 8).</li>
+<li>Keep the 8-d path <strong>byte-identical</strong> when <code>--embedding-source</code> is unset (preserves <code>PRISM_NNG_DISABLE</code> discipline + the MS1 legacy-parity invariant).</li>
+<li>Memory note: needs reading 2 source files + <strong>one retrain</strong> — do at <strong>&lt;90% commit</strong>.</li>
+<li>Auto-promotion is already wired: the U2 self-retrain lifecycle (<code>nn-graph-retrain-lifecycle.mjs</code>) will auto-promote the retrained checkpoint <strong>IFF</strong> it clears AUROC≥0.78 / macroF1≥0.55 / Brier≤0.15. No deploy code needed.</li>
+</ul></li>
+<li><strong>Risk:</strong> if 768-d still under-performs, the next lever is a heterophily-aware aggregator (H2GCN-style ego/neighbor separation) — a larger unit, scope only if NN-1 fails.</li>
+</ul>
+<h3 id="nn-2-operational-not-a-code-unit-regen-viz-has-not-run-since-the-u1-seed-stage"><a class="anchor" href="#nn-2-operational-not-a-code-unit-regen-viz-has-not-run-since-the-u1-seed-stage" aria-label="Permalink to NN-2 [OPERATIONAL, not a code unit] — regen-viz has not run since the U1 seed stage">#</a>NN-2 [OPERATIONAL, not a code unit] — regen-viz has not run since the U1 seed stage</h3>
+<ul>
+<li><strong>Evidence:</strong> <code>NN-EVAL.json</code> → <code>deferred:true, reason:&quot;insufficient-reference-pool&quot;, poolSize:0</code>. NN-GRAPH-MS2 U1 added the <code>seed-ghost-from-unwired.mjs</code> stage to <code>regen-viz.mjs</code>, but no regen has run since — so the live graph still carries 0 reference ghosts and the eval cannot grade.</li>
+<li><strong>Action:</strong> an operator (or the hourly regen cron) runs <code>regen-viz</code> <strong>once at &lt;90% commit</strong> → poolSize &gt;0 → eval transitions <code>deferred → graded</code>. Do <strong>not</strong> run regen-viz at 97% commit (documented SIGKILL-under-pressure class).</li>
+</ul>
+<h3 id="nn-3-operational-the-ms1-stratified-retrain"><a class="anchor" href="#nn-3-operational-the-ms1-stratified-retrain" aria-label="Permalink to NN-3 [OPERATIONAL] — the MS1 stratified retrain">#</a>NN-3 [OPERATIONAL] — the MS1 stratified retrain</h3>
+<ul>
+<li><code>node scripts/lib/graphsage-train-pipeline.mjs --node-type-field layer --neg-p-hard 0.7</code> against the real 372k-node graph. Out-of-session, memory-heavy. Superseded by NN-1 if <code>U-NNG-768D-FEATURES</code> lands first (the 768-d retrain subsumes it).</li>
+</ul>
+<h2 id="2-ai-system-improvements"><a class="anchor" href="#2-ai-system-improvements" aria-label="Permalink to §2 — AI-system improvements">#</a>§2 — AI-system improvements</h2>
+<ul>
+<li><strong>3-tier AI bridge units (<code>ghost → built</code>)</strong> — CLAUDE-BRIEF documents the hierarchy (Claude T1 · <code>FullSystemAICoordinator</code> T2 · 7 domain-specialist AIs T3). A prior forge-audit flagged &quot;PRISM AI 3-tier bridge units&quot; as pending but <strong>un-scoped</strong>. <em>This needs its own audit pass</em> — I have NOT verified which bridges are ghost vs built; do not treat as shovel-ready. Honest gap, not a scoped unit.</li>
+<li><strong><code>xproc-neural-*</code> surface</strong> — <code>system-viz find neural</code> shows the <code>xproc-neural-{train,predict,evaluate,save,load,metrics,reset}</code> actions present in the <code>prism_ai</code> dispatcher enum, i.e. <strong>wired</strong>. No defect found; no unit.</li>
+<li><strong><code>octopus-neural-ms0</code> worktree is archived/drained</strong> — <code>system-viz</code> lists it under <code>wt.archived.*</code>. Confirmed dead; no action.</li>
+</ul>
+<h2 id="3-wiring-opportunities-coordination-required"><a class="anchor" href="#3-wiring-opportunities-coordination-required" aria-label="Permalink to §3 — Wiring opportunities — COORDINATION REQUIRED">#</a>§3 — Wiring opportunities — COORDINATION REQUIRED</h2>
+<ul>
+<li><code>coverage-by-domain</code>: <strong>132/3274 = 4% wired</strong>. Top unwired: Misc 1630 · Other 605 · Lathe 188 · Hyper 68 · Cross 67.</li>
+<li><strong>This is peer <code>18b69120</code>&#39;s lane</strong> — its loop is <em>&quot;wire unwired engines + ghost-wire nodes from /system-viz&quot;</em>, <strong>iter 12/20, ACTIVE</strong>. Per R7 lane discipline, alpha does <strong>not</strong> compete on generic engine wiring.</li>
+<li><strong>Coordination handoff to <code>18b69120</code>:</strong> when wiring the <code>Cross</code>/<code>Other</code> domains, prioritise AI-reasoning engines (<code>*AGI*</code>, <code>*Neural*</code>, <code>*Reasoning*</code>, <code>*DeepLearning*</code>) — they unblock the §2 3-tier bridge work. Alpha does the AI-opportunity discovery; <code>18b69120</code> does the execution it is already doing. No collision.</li>
+</ul>
+<h2 id="4-coordination-map-14-loop-state-entries-5-running-peers"><a class="anchor" href="#4-coordination-map-14-loop-state-entries-5-running-peers" aria-label="Permalink to §4 — Coordination map (14 loop-state entries; 5 running peers)">#</a>§4 — Coordination map (14 loop-state entries; 5 running peers)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Peer</th><th>Task</th><th>Lane vs alpha</th></tr></thead>
+<tbody>
+<tr><td><code>18b69120</code></td><td>wire unwired engines + ghost-wire nodes (iter 12)</td><td><strong>owns wiring</strong> — defer §3</td></tr>
+<tr><td><code>a61ea33b</code></td><td>fix tsc errors until gone (iter 5)</td><td>orthogonal</td></tr>
+<tr><td><code>c0f06dee</code></td><td>COMMAND-KERNEL-MS0 units</td><td>orthogonal</td></tr>
+<tr><td><code>773c6214</code></td><td>yolo-mode: all units (iter 14)</td><td>broad — watch for NN-graph overlap</td></tr>
+<tr><td><code>58bd7f4e</code></td><td>system-viz upgrades (ended)</td><td>feeds NN-2 (graph regen)</td></tr>
+</tbody>
+</table></div>
+<p>Alpha&#39;s NN-GRAPH lane (<code>scripts/nn-graph-retrain-lifecycle.mjs</code>, <code>nn-graph-eval.mjs</code>, <code>graphsage-*</code>) is <strong>not claimed by any peer loop</strong> — NN-1 is collision-free.</p>
+<h2 id="5-sequenced-build-plan-for-subsequent-loop-iterations-operators"><a class="anchor" href="#5-sequenced-build-plan-for-subsequent-loop-iterations-operators" aria-label="Permalink to §5 — Sequenced build plan (for subsequent loop iterations / operators)">#</a>§5 — Sequenced build plan (for subsequent loop iterations / operators)</h2>
+<ol>
+<li><strong>NN-2</strong> (operational) — run <code>regen-viz</code> at &lt;90% commit → unblocks the eval data-side gate.</li>
+<li><strong>NN-1</strong> (<code>U-NNG-768D-FEATURES</code>) — the build; the single highest-leverage NN unit. Memory-gate it: only at &lt;90% commit. Auto-promotes via the U2 lifecycle on gate-pass.</li>
+<li><strong>§2 3-tier bridge audit</strong> — a discovery unit of its own before any bridge build.</li>
+<li><strong>§3</strong> stays with peer <code>18b69120</code>; alpha contributes the AI-engine priority sub-list only.</li>
+</ol>
+<hr>
+<p><em>Generated 2026-05-17 by slot alpha, session 23c10eea. Advisory — verify every claim against live state before acting. Memory-safe deliverable produced under a 97.4%-commit constraint; the builds it scopes are explicitly deferred to a sub-90%-commit window.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="AI-NN-WIRING-OPPORTUNITY-MAP-2026-05-17.md">AI-NN-WIRING-OPPORTUNITY-MAP-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

@@ -1,12 +1,18 @@
 /**
- * PRISM Infrastructure Dispatcher — INFRA-1-2 + INFRA-MS0
+ * PRISM Infrastructure Dispatcher — INFRA-1-2 + INFRA-MS0 + WIRE-UNWIRED-MS0
  * =============================================
  *
- * prism_infra — 25 actions for database health, persistence monitoring,
- * migration status, registry sync, semantic search, job queue, event bus,
- * ML model registry, plugin lifecycle, auth health, calibration.
+ * prism_infra — infrastructure surface covering database health, persistence
+ * monitoring, migration status, registry sync, semantic search, job queue,
+ * event bus, ML model registry, plugin lifecycle, auth health, calibration,
+ * and (WIRE-UNWIRED-MS0) read-only observability for IngestionOrchestrator,
+ * PerformanceBudget, RegistryFederation, and BatchProcessor.
  *
- * @version 2.0.0
+ * Action count is the z.enum() list inside `registerInfraDispatcher` — never
+ * inline a number here (drifts on every wire-up). See ACTION_INFRA_SCHEMAS
+ * in `src/schemas/infraActionSchemas.ts` for the canonical schema map.
+ *
+ * @version 2.1.0
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
@@ -19,7 +25,7 @@ import { ACTION_INFRA_SCHEMAS } from "../../schemas/infraActionSchemas.js";
 export function registerInfraDispatcher(server: McpServer): void {
   server.tool(
     "prism_infra",
-    "Infrastructure tools: DB health, search, jobs, events, ML models, plugins, auth, calibration. Actions: db_health, persistence_health, migration_status, registry_sync_status, seed_registries, infra_summary, search_semantic, search_stats, job_enqueue, job_status, job_stats, event_publish, event_recent, event_stats, model_register, model_list, model_stats, plugin_register, plugin_validate, plugin_activate, plugin_list, auth_health, usage_stats, calibration_status, calibration_overrides_preview",
+    "Infrastructure tools: DB health, search, jobs, events, ML models, plugins, auth, calibration. Actions: db_health, persistence_health, migration_status, registry_sync_status, seed_registries, infra_summary, search_semantic, search_stats, job_enqueue, job_status, job_stats, event_publish, event_recent, event_stats, model_register, model_list, model_stats, plugin_register, plugin_validate, plugin_activate, plugin_list, auth_health, usage_stats, calibration_status, calibration_overrides_preview, ingestion_stats, ingestion_get_failed, perf_budget_list, perf_budget_stats, perf_budget_violations, perf_budget_report, registry_fed_query, registry_fed_get, registry_fed_list, registry_fed_stats, batch_queue_size, batch_stats, batch_persist_stats, diff_stats, diff_persist_stats, diff_would_change, diff_invalidate, config_get, config_get_with_meta, config_list, config_validate, config_export, evt_emit, evt_history, evt_replay, evt_subscriptions_list, evt_dead_letter, evt_stats, sys_health_check, sys_health_liveness, sys_health_readiness, sys_health_components, sys_health_history, q_get_job, q_list_jobs, q_stats, q_list_queues, log_query, log_stats, log_get_config",
     {
       action: z.enum([
         "db_health", "persistence_health", "migration_status",
@@ -42,6 +48,20 @@ export function registerInfraDispatcher(server: McpServer): void {
         "perf_budget_list", "perf_budget_stats", "perf_budget_violations", "perf_budget_report",
         // WIRE-UNWIRED-MS0/U-WIRE-REGFED: RegistryFederationEngine read-only federation
         "registry_fed_query", "registry_fed_get", "registry_fed_list", "registry_fed_stats",
+        // WIRE-UNWIRED-MS0/U-WIRE-BATCH-PROCESSOR: BatchProcessor read-only observability
+        "batch_queue_size", "batch_stats", "batch_persist_stats",
+        // WIRE-UNWIRED-MS0/U-WIRE-DIFF-ENGINE: DiffEngine read-only + admin (no writeIfChanged exposure — would let MCP clients write to any path)
+        "diff_stats", "diff_persist_stats", "diff_would_change", "diff_invalidate",
+        // WIRE-UNWIRED-MS0/U-WIRE-CONFIG-ENGINE: ConfigEngine read-only (no set/delete/import/clear exposure — config writes go through typed adapters)
+        "config_get", "config_get_with_meta", "config_list", "config_validate", "config_export",
+        // WIRE-UNWIRED-MS0/U-WIRE-EVENT-ENGINE: EventEngine in-process pub/sub (distinct from eventBusEngine — subscribe/unsubscribe not MCP-shaped)
+        "evt_emit", "evt_history", "evt_replay", "evt_subscriptions_list", "evt_dead_letter", "evt_stats",
+        // WIRE-UNWIRED-MS0/U-WIRE-HEALTH-ENGINE: HealthEngine read-only (sys_health_ prefix — health_check is taken by prism_session)
+        "sys_health_check", "sys_health_liveness", "sys_health_readiness", "sys_health_components", "sys_health_history",
+        // WIRE-UNWIRED-MS0/U-WIRE-QUEUE-ENGINE: QueueEngine read-only (q_ prefix — job_* is taken by durableJobQueueEngine)
+        "q_get_job", "q_list_jobs", "q_stats", "q_list_queues",
+        // WIRE-UNWIRED-MS0/U-WIRE-LOGGING-ENGINE: LoggingEngine read-only (write/configure/clear not MCP-exposed)
+        "log_query", "log_stats", "log_get_config",
       ]).describe("Infrastructure action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -417,6 +437,213 @@ export function registerInfraDispatcher(server: McpServer): void {
           case "registry_fed_stats": {
             const { registryFederationEngine } = await import("../../engines/RegistryFederationEngine.js");
             result = { stats: await registryFederationEngine.getStats() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-BATCH-PROCESSOR: BatchProcessor read-only observability
+          case "batch_queue_size": {
+            const { batchProcessor } = await import("../../engines/BatchProcessor.js");
+            result = { queue_size: batchProcessor.getQueueSize() };
+            break;
+          }
+          case "batch_stats": {
+            const { batchProcessor } = await import("../../engines/BatchProcessor.js");
+            result = { stats: batchProcessor.getStats() };
+            break;
+          }
+          case "batch_persist_stats": {
+            const { batchProcessor } = await import("../../engines/BatchProcessor.js");
+            batchProcessor.persistStats();
+            result = { ok: true, persisted: true };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-DIFF-ENGINE: DiffEngine read-only + admin
+          case "diff_stats": {
+            const { diffEngine } = await import("../../engines/DiffEngine.js");
+            result = { stats: diffEngine.getStats() };
+            break;
+          }
+          case "diff_persist_stats": {
+            const { diffEngine } = await import("../../engines/DiffEngine.js");
+            diffEngine.persistStats();
+            result = { ok: true, persisted: true };
+            break;
+          }
+          case "diff_would_change": {
+            const { diffEngine } = await import("../../engines/DiffEngine.js");
+            const p = params as { file_path: string; content: string };
+            result = { would_change: diffEngine.wouldChange(p.file_path, p.content) };
+            break;
+          }
+          case "diff_invalidate": {
+            const { diffEngine } = await import("../../engines/DiffEngine.js");
+            const p = params as { file_path: string };
+            diffEngine.invalidateChecksum(p.file_path);
+            result = { ok: true, invalidated: p.file_path };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-CONFIG-ENGINE: ConfigEngine read-only
+          case "config_get": {
+            const { configEngine } = await import("../../engines/ConfigEngine.js");
+            const p = params as { key: string };
+            const value = configEngine.get(p.key);
+            result = { key: p.key, value: value === undefined ? null : value };
+            break;
+          }
+          case "config_get_with_meta": {
+            const { configEngine } = await import("../../engines/ConfigEngine.js");
+            const p = params as { key: string };
+            const entry = configEngine.getWithMeta(p.key);
+            result = { key: p.key, entry: entry ?? null };
+            break;
+          }
+          case "config_list": {
+            const { configEngine } = await import("../../engines/ConfigEngine.js");
+            const p = params as { prefix?: string };
+            const entries = p.prefix
+              ? configEngine.getByPrefix(p.prefix)
+              : configEngine.getAll();
+            result = { count: entries.length, entries };
+            break;
+          }
+          case "config_validate": {
+            const { configEngine } = await import("../../engines/ConfigEngine.js");
+            result = { validation: configEngine.validate() };
+            break;
+          }
+          case "config_export": {
+            const { configEngine } = await import("../../engines/ConfigEngine.js");
+            const p = params as { include_secrets?: boolean };
+            result = { config: configEngine.exportConfig(p.include_secrets ?? false) };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-EVENT-ENGINE: in-process pub/sub bus
+          case "evt_emit": {
+            const { eventEngine } = await import("../../engines/EventEngine.js");
+            const p = params as {
+              topic: string;
+              payload: unknown;
+              source?: string;
+              correlation_id?: string;
+            };
+            const event = eventEngine.emit(p.topic, p.payload, p.source ?? "system", p.correlation_id);
+            result = { event };
+            break;
+          }
+          case "evt_history": {
+            const { eventEngine } = await import("../../engines/EventEngine.js");
+            const p = params as { topic?: string; limit?: number };
+            result = { events: eventEngine.getHistory(p.topic, p.limit ?? 50) };
+            break;
+          }
+          case "evt_replay": {
+            const { eventEngine } = await import("../../engines/EventEngine.js");
+            const p = params as { topic: string; since?: string };
+            result = { replayed: eventEngine.replay(p.topic, p.since) };
+            break;
+          }
+          case "evt_subscriptions_list": {
+            const { eventEngine } = await import("../../engines/EventEngine.js");
+            result = { subscriptions: eventEngine.listSubscriptions() };
+            break;
+          }
+          case "evt_dead_letter": {
+            const { eventEngine } = await import("../../engines/EventEngine.js");
+            const p = params as { limit?: number };
+            result = { dead_letter: eventEngine.getDeadLetter(p.limit ?? 50) };
+            break;
+          }
+          case "evt_stats": {
+            const { eventEngine } = await import("../../engines/EventEngine.js");
+            result = { stats: eventEngine.stats() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-HEALTH-ENGINE: HealthEngine read-only probes
+          case "sys_health_check": {
+            const { healthEngine } = await import("../../engines/HealthEngine.js");
+            result = { health: healthEngine.check() };
+            break;
+          }
+          case "sys_health_liveness": {
+            const { healthEngine } = await import("../../engines/HealthEngine.js");
+            result = { liveness: healthEngine.liveness() };
+            break;
+          }
+          case "sys_health_readiness": {
+            const { healthEngine } = await import("../../engines/HealthEngine.js");
+            result = { readiness: healthEngine.readiness() };
+            break;
+          }
+          case "sys_health_components": {
+            const { healthEngine } = await import("../../engines/HealthEngine.js");
+            result = { components: healthEngine.listComponents() };
+            break;
+          }
+          case "sys_health_history": {
+            const { healthEngine } = await import("../../engines/HealthEngine.js");
+            const p = params as { limit?: number };
+            result = { history: healthEngine.getHistory(p.limit ?? 50) };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-QUEUE-ENGINE: QueueEngine read-only
+          case "q_get_job": {
+            const { queueEngine } = await import("../../engines/QueueEngine.js");
+            const p = params as { job_id: string };
+            result = { job: queueEngine.getJob(p.job_id) ?? null };
+            break;
+          }
+          case "q_list_jobs": {
+            const { queueEngine } = await import("../../engines/QueueEngine.js");
+            const p = params as {
+              queue_name: string;
+              status?: "pending" | "processing" | "completed" | "failed" | "cancelled" | "dead_letter";
+            };
+            const jobs = queueEngine.listJobs(p.queue_name, p.status);
+            result = { count: jobs.length, jobs };
+            break;
+          }
+          case "q_stats": {
+            const { queueEngine } = await import("../../engines/QueueEngine.js");
+            const p = params as { queue_name: string };
+            result = { stats: queueEngine.stats(p.queue_name) };
+            break;
+          }
+          case "q_list_queues": {
+            const { queueEngine } = await import("../../engines/QueueEngine.js");
+            result = { queues: queueEngine.listQueues() };
+            break;
+          }
+          // WIRE-UNWIRED-MS0/U-WIRE-LOGGING-ENGINE: LoggingEngine read-only
+          case "log_query": {
+            const { loggingEngine } = await import("../../engines/LoggingEngine.js");
+            const p = params as {
+              level?: "trace" | "debug" | "info" | "warn" | "error" | "fatal";
+              namespace?: string;
+              since?: string;
+              until?: string;
+              search?: string;
+              correlation_id?: string;
+              limit?: number;
+            };
+            const entries = loggingEngine.query({
+              level: p.level,
+              namespace: p.namespace,
+              since: p.since,
+              until: p.until,
+              search: p.search,
+              correlation_id: p.correlation_id,
+              limit: p.limit,
+            });
+            result = { count: entries.length, entries };
+            break;
+          }
+          case "log_stats": {
+            const { loggingEngine } = await import("../../engines/LoggingEngine.js");
+            result = { stats: loggingEngine.stats() };
+            break;
+          }
+          case "log_get_config": {
+            const { loggingEngine } = await import("../../engines/LoggingEngine.js");
+            result = { config: loggingEngine.getConfig() };
             break;
           }
         }

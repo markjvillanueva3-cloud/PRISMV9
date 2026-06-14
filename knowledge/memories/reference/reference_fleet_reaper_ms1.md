@@ -1,11 +1,12 @@
 ---
 name: reference_fleet_reaper_ms1
 description: FLEET-REAPER-MS1 Phase 2 — leftover-bash classifier + soft RAM relief + GPU/Ollama coordinator + alpha-slot guardian.
-metadata: 
-  node_type: memory
-  type: reference
-  originSessionId: b6c4b196-15eb-4d95-9474-abf1c8fbcb8c
+aliases: reference_fleet_reaper_ms1
+type: reference
+source: prism-memory
+synced: 2026-06-09T14:54:09.116Z
 ---
+
 
 FLEET-REAPER-MS1 (Phase 2, shipped 2026-05-14, strictly additive over [[reference_fleet_reaper]] MS0). 6 units. Commit map: units 1-5 (bash classifier, soft relief, GPU probe, Ollama coord, hint consumer) shipped in feature commit `f22a86d74`, reverse-merged into `cad-fusion-live-ms0` at `ac1b260ae`; unit 6 (alpha-slot guardian) + the doc-sync ship in a follow-on commit. Reframe: "kill more" → "use what's idle" — the box runs near commit-memory ceiling while the GPU sits idle.
 

@@ -1,13 +1,26 @@
-// WIRE-EXEMPT: U-EFF25 stub — real engine never existed; millDispatcher pulls it lazily via dynamic import
 /**
- * MillPrintToProgramEngine — stub (U-EFF25).
+ * MillPrintToProgramEngine — thin delegator to the real MillingPrintToProgramEngine.
  *
- * millDispatcher "program" bucket. Real print-to-program engine never
- * existed on any branch; stub satisfies TS2307 until a real one is wired.
+ * STUB-RESCUE (slot:bravo 2026-05-27, U-STUB-HUNT-09, mill-galaxy). Original was
+ * tagged "U-EFF25 stub — SUPERSEDED" because millDispatcher had been rewired to
+ * MillingPrintToProgramEngine but MillMasterOrchestratorFacadeEngine still
+ * imported this shim and got `{ok:false, stub:true}` back. Per
+ * feedback_never_delete_only_disable we cannot remove the file, but we CAN
+ * replace the stub body with a delegator so the facade gets a real
+ * MillingProgramResult from the canonical engine. Zero new physics, zero new
+ * pipeline logic — pure adapter that forwards generate() → runFullPipeline().
+ *
+ * @version 2.0.0 — restored from stub via delegation
  */
-class MillPrintToProgramEngine {
-  generate(input: Record<string, unknown>): Record<string, unknown> {
-    return { ok: false, stub: true, input };
+import { millingPrintToProgramEngine, type MillingInput, type MillingProgramResult } from "./MillingPrintToProgramEngine.js";
+
+export class MillPrintToProgramEngine {
+  /**
+   * Delegate to the real pipeline. Accepts either a typed MillingInput or a
+   * dictionary that conforms to it (the facade passes a generic Record).
+   */
+  generate(input: MillingInput | Record<string, unknown>): MillingProgramResult {
+    return millingPrintToProgramEngine.runFullPipeline(input as MillingInput);
   }
 }
 

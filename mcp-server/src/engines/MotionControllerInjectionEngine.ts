@@ -90,6 +90,19 @@ export interface MotionInjectionResult {
   codes_explanation: Record<string, string>;
 }
 
+/** Input for inject_thermal_compensate: pre-computed compensation offsets to apply
+ *  at program start as an additive work-offset shift. Caller is expected to have
+ *  obtained `compensation` from a thermal-error model (e.g. MachineGeometricAccuracy
+ *  Engine.thermalErrorModel). Sign convention: positive dx loads X work-offset by +dx,
+ *  shifting subsequent X moves by that amount on the machine. */
+export interface ThermalCompensationInput {
+  controller: ControllerType;
+  gcode: string;
+  compensation: { dx: number; dy: number; dz: number }; // mm
+  wcs_code?: "G54" | "G55" | "G56" | "G57" | "G58" | "G59";
+  insertion_line?: number; // 0-based line index to insert before (default 1 = after program header)
+}
+
 export interface ControllerCodeMap {
   controller: ControllerType;
   hsm_codes: string[];
@@ -446,6 +459,37 @@ function primaryCoolant(ops: OperationSpec[]): CoolantType {
  * Injects controller-specific HSM codes, smoothing, TCP, SSV, and machine dynamics
  * into raw G-code programs.
  */
+// --- Thermal compensation per-controller formatters (U-DEA-november-P01) ---
+// G10 L20 = ADD values to the current work offset on Fanuc 30i+/Haas/Mazak/Okuma
+//   (vs G10 L2 which OVERWRITES). Source: Fanuc Series 30i Operator's Manual,
+//   Sandvik post-processor reference, Haas G10 reference.
+// Siemens uses additive $P_UIFR settable-frame translation; Heidenhain uses
+// the TRANS datum-shift in conversational TNC.
+function fmtComp(n: number): string { return Number.isFinite(n) ? n.toFixed(4) : "0.0000"; }
+function wcsToP(wcs: string): number {
+  const idx = ["G54", "G55", "G56", "G57", "G58", "G59"].indexOf(wcs);
+  return idx >= 0 ? idx + 1 : 1;
+}
+function wcsIdxSiemens(wcs: string): number {
+  const idx = ["G54", "G55", "G56", "G57", "G58", "G59"].indexOf(wcs);
+  return idx >= 0 ? idx + 1 : 1;
+}
+const THERMAL_COMP_FORMAT: Record<ControllerType, (wcs: string, dx: number, dy: number, dz: number) => string[]> = {
+  fanuc:      (wcs, dx, dy, dz) => [`G10 L20 P${wcsToP(wcs)} X${fmtComp(dx)} Y${fmtComp(dy)} Z${fmtComp(dz)} (THERMAL COMP ADD)`],
+  haas:       (wcs, dx, dy, dz) => [`G10 L20 P${wcsToP(wcs)} X${fmtComp(dx)} Y${fmtComp(dy)} Z${fmtComp(dz)} (THERMAL COMP ADD)`],
+  mazak:      (wcs, dx, dy, dz) => [`G10 L20 P${wcsToP(wcs)} X${fmtComp(dx)} Y${fmtComp(dy)} Z${fmtComp(dz)} (THERMAL COMP ADD)`],
+  okuma:      (wcs, dx, dy, dz) => [`G10 L20 P${wcsToP(wcs)} X${fmtComp(dx)} Y${fmtComp(dy)} Z${fmtComp(dz)} (THERMAL COMP ADD)`],
+  siemens:    (wcs, dx, dy, dz) => {
+    const i = wcsIdxSiemens(wcs);
+    return [
+      `$P_UIFR[${i},X,TR]=$P_UIFR[${i},X,TR]+${fmtComp(dx)} ;THERMAL`,
+      `$P_UIFR[${i},Y,TR]=$P_UIFR[${i},Y,TR]+${fmtComp(dy)}`,
+      `$P_UIFR[${i},Z,TR]=$P_UIFR[${i},Z,TR]+${fmtComp(dz)}`,
+    ];
+  },
+  heidenhain: (_w, dx, dy, dz) => [`TRANS X${fmtComp(dx)} Y${fmtComp(dy)} Z${fmtComp(dz)} ;THERMAL COMP`],
+};
+
 export class MotionControllerInjectionEngine {
 
   // --------------------------------------------------------------------------
@@ -1037,6 +1081,61 @@ export class MotionControllerInjectionEngine {
     explanations["BLOCK_DELETE"] = "Lines starting with / are block-delete — skipped when the block-delete switch is ON";
     explanations["WARMUP_ROUTINE"] = "4-stage spindle warm-up: progressively increases RPM to reach thermal equilibrium before cutting";
 
+    return this._buildResult(lines, injections, codesAdded, explanations);
+  }
+
+  // --------------------------------------------------------------------------
+  // Thermal compensation (U-DEA-november-P01, DEA-MS0)
+  // --------------------------------------------------------------------------
+
+  /** Inject a controller-aware thermal-compensation work-offset shift at program start.
+   *  Pre-computed `compensation` (mm) is loaded as an additive work-offset adjust via
+   *  the controller's native mechanism (G10 L20 for Fanuc/Haas/Mazak/Okuma, $P_UIFR for
+   *  Siemens, TRANS for Heidenhain). Zero / non-finite magnitude is a no-op. Unknown
+   *  controllers fall back to Fanuc G10 L20 with a warning in codes_explanation.
+   *  @param input - {controller, gcode, compensation:{dx,dy,dz}, wcs_code?, insertion_line?}
+   *  @returns MotionInjectionResult with thermal-comp lines inserted at `insertion_line` (default 1)
+   */
+  inject_thermal_compensate(input: ThermalCompensationInput): MotionInjectionResult {
+    const { controller, gcode, compensation, wcs_code = "G54", insertion_line = 1 } = input;
+    let lines = gcode.split("\n");
+    const injections: Injection[] = [];
+    const codesAdded: string[] = [];
+    const explanations: Record<string, string> = {};
+
+    // Zero / non-finite compensation magnitude → no-op (structured, not throw).
+    const mag = Math.hypot(compensation?.dx ?? 0, compensation?.dy ?? 0, compensation?.dz ?? 0);
+    if (!Number.isFinite(mag) || mag === 0) {
+      log.info(`[MotionControllerInjectionEngine] thermal comp: zero/non-finite magnitude — no injection`);
+      return this._buildResult(lines, injections, codesAdded, explanations);
+    }
+
+    // Empty / whitespace gcode → return untouched empty result.
+    if (!gcode || gcode.trim().length === 0) {
+      return this._buildResult([], injections, codesAdded, explanations);
+    }
+
+    const isFallback = !(controller in THERMAL_COMP_FORMAT);
+    const formatter = THERMAL_COMP_FORMAT[controller] ?? THERMAL_COMP_FORMAT.fanuc;
+    const thermalLines = formatter(wcs_code, compensation.dx, compensation.dy, compensation.dz);
+
+    const insertAt = Math.min(Math.max(0, Math.floor(insertion_line)), lines.length);
+    lines = [...lines.slice(0, insertAt), ...thermalLines, ...lines.slice(insertAt)];
+
+    for (const code of thermalLines) {
+      injections.push({
+        line_number: insertAt,
+        code_inserted: code,
+        explanation: `Thermal compensation dx=${fmtComp(compensation.dx)} dy=${fmtComp(compensation.dy)} dz=${fmtComp(compensation.dz)} mm (wcs=${wcs_code})`,
+        tier_required: 3,
+      });
+      codesAdded.push(code);
+      explanations[code] = isFallback
+        ? `Thermal comp (fallback to fanuc G10 L20 — controller "${controller}" not in map; verify before running)`
+        : `Thermal compensation for ${controller}: additive work-offset shift via ${controller === "siemens" ? "$P_UIFR" : controller === "heidenhain" ? "TRANS" : "G10 L20"}`;
+    }
+
+    log.info(`[MotionControllerInjectionEngine] thermal comp: ${thermalLines.length} line(s) inserted at line ${insertAt} (wcs=${wcs_code}, mag=${mag.toFixed(4)}mm)`);
     return this._buildResult(lines, injections, codesAdded, explanations);
   }
 

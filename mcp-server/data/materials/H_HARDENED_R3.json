@@ -1,0 +1,279 @@
+{
+  "_provenance": {
+    "iso_group": "H",
+    "milestone": "DB-COVERAGE-GAPFILL-MS0 / U-MAT01",
+    "created": "2026-06-03",
+    "by": "slot:romeo",
+    "schema": "mirrors M_STAINLESS_R3.json / S_SUPERALLOYS_R3.json",
+    "kienzle_taylor_policy": "kc1_1/mc/taylor_C/taylor_n trace to mcp-server/src/physics/constants.ts ONLY. AISI_CUTTING_COEFFICIENTS where present (D2, A2); otherwise CANONICAL_KIENZLE['H']=3200/0.30 and CANONICAL_TAYLOR['H']=120/0.15 default (CBN/ceramic reference per ISO 3685), marked iso_group_default. Records describe the HARDENED condition (machine soft, heat-treat, then hard-turn/grind to finish).",
+    "thermophysical_sources": ["ASM Metals Handbook Vol.4 (Heat Treating)", "ASTM E140 hardness conversion", "Machinery's Handbook 32nd ed."],
+    "parity_test": "src/__tests__/material-r3-parity.test.ts"
+  },
+  "materials": [
+    {
+      "material_id": "MD-D2-HARDENED",
+      "name": "AISI D2 Cold-Work Tool Steel (Hardened HRC 60-62)",
+      "iso_group": "H",
+      "material_type": "tool_steel",
+      "subcategory": "cold_work_high_carbon_high_chromium",
+      "condition": "hardened_HRC60",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol4", "ASTM_E140", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7700, "melting_point": 1420, "specific_heat": 460,
+        "thermal_conductivity": 20.5, "thermal_expansion": 10.4,
+        "elastic_modulus": 210, "poisson_ratio": 0.30, "shear_modulus": 81, "bulk_modulus": 165
+      },
+      "mechanical": {
+        "hardness": { "brinell": 688, "vickers": 746, "rockwell_c": 62, "rockwell_b": null },
+        "tensile_strength": { "typical": 2200, "min": 1900, "max": 2400 },
+        "yield_strength": { "typical": 1900, "min": 1700, "max": 2100 },
+        "elongation": 1, "reduction_of_area": 2,
+        "impact_strength": 20, "fatigue_strength": 750, "fracture_toughness": 18,
+        "work_hardening_exponent": 0.05
+      },
+      "kienzle": {
+        "kc1_1": 3200, "mc": 0.30,
+        "kc1_1_milling": 2880, "mc_milling": 0.29,
+        "kc1_1_drilling": 3520, "mc_drilling": 0.31,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['D2']"
+      },
+      "johnson_cook": {
+        "A": 1700, "B": 600, "n": 0.10, "C": 0.012, "m": 1.1,
+        "T_melt": 1420, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 120, "n": 0.15,
+        "C_carbide": null, "n_carbide": null,
+        "C_ceramic": 120, "n_ceramic": 0.15,
+        "C_cbn": 120, "n_cbn": 0.15,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['D2'] (CBN/ceramic; carbide not recommended above HRC ~52)"
+      },
+      "chip_formation": {
+        "chip_type": "segmented", "chip_breaking": "good",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "low", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 100, "speed_finishing": 150, "feed_roughing": 0.10, "feed_finishing": 0.05, "doc_roughing": 0.5, "doc_finishing": 0.15 },
+        "milling": { "speed_roughing": 80, "speed_finishing": 120, "feed_per_tooth_roughing": 0.05, "feed_per_tooth_finishing": 0.03, "doc_roughing": 0.3, "doc_finishing": 0.10 },
+        "tool_material": { "recommended_grade": "CBN or whisker-reinforced ceramic", "coating_recommendation": "CBN (low-CBN for continuous hard turning); TiAlN carbide only if annealed", "geometry_recommendation": "Negative rake, honed/chamfered edge, maximum rigidity (hard turning)" },
+        "coolant": { "type": "dry", "recommendation": "Dry preferred for CBN hard turning; avoids thermal shock cracking of CBN" }
+      },
+      "machinability": { "aisi_rating": 20, "relative_to_1212": 0.20 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-A2-HARDENED",
+      "name": "AISI A2 Air-Hardening Tool Steel (Hardened HRC 60)",
+      "iso_group": "H",
+      "material_type": "tool_steel",
+      "subcategory": "cold_work_air_hardening",
+      "condition": "hardened_HRC60",
+      "data_quality": "verified",
+      "data_sources": ["ASM_Metals_Handbook_Vol4", "ASTM_E140", "constants.ts:AISI_CUTTING_COEFFICIENTS"],
+      "physical": {
+        "density": 7860, "melting_point": 1425, "specific_heat": 460,
+        "thermal_conductivity": 28.6, "thermal_expansion": 10.7,
+        "elastic_modulus": 203, "poisson_ratio": 0.30, "shear_modulus": 80, "bulk_modulus": 160
+      },
+      "mechanical": {
+        "hardness": { "brinell": 654, "vickers": 698, "rockwell_c": 60, "rockwell_b": null },
+        "tensile_strength": { "typical": 2070, "min": 1800, "max": 2240 },
+        "yield_strength": { "typical": 1790, "min": 1600, "max": 1950 },
+        "elongation": 2, "reduction_of_area": 3,
+        "impact_strength": 25, "fatigue_strength": 700, "fracture_toughness": 22,
+        "work_hardening_exponent": 0.05
+      },
+      "kienzle": {
+        "kc1_1": 3000, "mc": 0.29,
+        "kc1_1_milling": 2700, "mc_milling": 0.28,
+        "kc1_1_drilling": 3300, "mc_drilling": 0.30,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['A2']"
+      },
+      "johnson_cook": {
+        "A": 1600, "B": 580, "n": 0.11, "C": 0.012, "m": 1.1,
+        "T_melt": 1425, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 130, "n": 0.16,
+        "C_carbide": null, "n_carbide": null,
+        "C_ceramic": 130, "n_ceramic": 0.16,
+        "C_cbn": 130, "n_cbn": 0.16,
+        "source": "constants.ts:AISI_CUTTING_COEFFICIENTS['A2'] (CBN/ceramic)"
+      },
+      "chip_formation": {
+        "chip_type": "segmented", "chip_breaking": "good",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "low", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 110, "speed_finishing": 160, "feed_roughing": 0.10, "feed_finishing": 0.05, "doc_roughing": 0.5, "doc_finishing": 0.15 },
+        "milling": { "speed_roughing": 90, "speed_finishing": 130, "feed_per_tooth_roughing": 0.05, "feed_per_tooth_finishing": 0.03, "doc_roughing": 0.3, "doc_finishing": 0.10 },
+        "tool_material": { "recommended_grade": "CBN or ceramic", "coating_recommendation": "CBN for hard turning; more machinable than D2", "geometry_recommendation": "Negative rake, honed edge, rigid setup" },
+        "coolant": { "type": "dry", "recommendation": "Dry for CBN; light MQL acceptable" }
+      },
+      "machinability": { "aisi_rating": 25, "relative_to_1212": 0.25 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-H13-HARDENED",
+      "name": "AISI H13 Hot-Work Tool Steel (Hardened HRC 50)",
+      "iso_group": "H",
+      "material_type": "tool_steel",
+      "subcategory": "hot_work_chromium",
+      "condition": "hardened_HRC50",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol4", "ASTM_E140", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 7800, "melting_point": 1425, "specific_heat": 460,
+        "thermal_conductivity": 24.4, "thermal_expansion": 11.5,
+        "elastic_modulus": 210, "poisson_ratio": 0.30, "shear_modulus": 81, "bulk_modulus": 165
+      },
+      "mechanical": {
+        "hardness": { "brinell": 481, "vickers": 513, "rockwell_c": 50, "rockwell_b": null },
+        "tensile_strength": { "typical": 1590, "min": 1400, "max": 1790 },
+        "yield_strength": { "typical": 1380, "min": 1200, "max": 1520 },
+        "elongation": 8, "reduction_of_area": 25,
+        "impact_strength": 35, "fatigue_strength": 700, "fracture_toughness": 40,
+        "work_hardening_exponent": 0.08
+      },
+      "kienzle": {
+        "kc1_1": 3200, "mc": 0.30,
+        "kc1_1_milling": 2880, "mc_milling": 0.29,
+        "kc1_1_drilling": 3520, "mc_drilling": 0.31,
+        "source": "constants.ts:CANONICAL_KIENZLE['H'] (iso-group default — grade-specific kc pending physics review)"
+      },
+      "johnson_cook": {
+        "A": 1200, "B": 600, "n": 0.20, "C": 0.013, "m": 1.1,
+        "T_melt": 1425, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 120, "n": 0.15,
+        "C_carbide": null, "n_carbide": null,
+        "C_ceramic": 120, "n_ceramic": 0.15,
+        "C_cbn": 120, "n_cbn": 0.15,
+        "source": "constants.ts:CANONICAL_TAYLOR['H'] (iso-group default; carbide usable below ~HRC 48)"
+      },
+      "chip_formation": {
+        "chip_type": "segmented", "chip_breaking": "good",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "low", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 120, "speed_finishing": 170, "feed_roughing": 0.12, "feed_finishing": 0.06, "doc_roughing": 0.6, "doc_finishing": 0.20 },
+        "milling": { "speed_roughing": 100, "speed_finishing": 140, "feed_per_tooth_roughing": 0.06, "feed_per_tooth_finishing": 0.04, "doc_roughing": 0.4, "doc_finishing": 0.15 },
+        "tool_material": { "recommended_grade": "CBN/ceramic above HRC48; TiAlN carbide below", "coating_recommendation": "TiAlN carbide (HRC<48) or CBN (HRC>48)", "geometry_recommendation": "Negative-to-neutral rake, honed edge; die-casting/forging dies" },
+        "coolant": { "type": "dry", "recommendation": "Dry/MQL for CBN; flood for carbide on softer tempers" }
+      },
+      "machinability": { "aisi_rating": 35, "relative_to_1212": 0.35 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-S7-HARDENED",
+      "name": "AISI S7 Shock-Resistant Tool Steel (Hardened HRC 55)",
+      "iso_group": "H",
+      "material_type": "tool_steel",
+      "subcategory": "shock_resisting",
+      "condition": "hardened_HRC55",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol4", "ASTM_E140", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 7830, "melting_point": 1420, "specific_heat": 460,
+        "thermal_conductivity": 24.0, "thermal_expansion": 12.6,
+        "elastic_modulus": 207, "poisson_ratio": 0.30, "shear_modulus": 80, "bulk_modulus": 162
+      },
+      "mechanical": {
+        "hardness": { "brinell": 560, "vickers": 595, "rockwell_c": 55, "rockwell_b": null },
+        "tensile_strength": { "typical": 1900, "min": 1700, "max": 2100 },
+        "yield_strength": { "typical": 1650, "min": 1450, "max": 1820 },
+        "elongation": 5, "reduction_of_area": 15,
+        "impact_strength": 60, "fatigue_strength": 760, "fracture_toughness": 50,
+        "work_hardening_exponent": 0.06
+      },
+      "kienzle": {
+        "kc1_1": 3200, "mc": 0.30,
+        "kc1_1_milling": 2880, "mc_milling": 0.29,
+        "kc1_1_drilling": 3520, "mc_drilling": 0.31,
+        "source": "constants.ts:CANONICAL_KIENZLE['H'] (iso-group default — grade-specific kc pending physics review)"
+      },
+      "johnson_cook": {
+        "A": 1450, "B": 620, "n": 0.14, "C": 0.013, "m": 1.1,
+        "T_melt": 1420, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 120, "n": 0.15,
+        "C_carbide": null, "n_carbide": null,
+        "C_ceramic": 120, "n_ceramic": 0.15,
+        "C_cbn": 120, "n_cbn": 0.15,
+        "source": "constants.ts:CANONICAL_TAYLOR['H'] (iso-group default)"
+      },
+      "chip_formation": {
+        "chip_type": "segmented", "chip_breaking": "fair",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "low", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 110, "speed_finishing": 160, "feed_roughing": 0.10, "feed_finishing": 0.05, "doc_roughing": 0.5, "doc_finishing": 0.15 },
+        "milling": { "speed_roughing": 90, "speed_finishing": 130, "feed_per_tooth_roughing": 0.05, "feed_per_tooth_finishing": 0.03, "doc_roughing": 0.3, "doc_finishing": 0.10 },
+        "tool_material": { "recommended_grade": "CBN/ceramic; carbide for HRC<50", "coating_recommendation": "CBN for hard turning", "geometry_recommendation": "Negative rake, honed edge; high toughness resists chipping" },
+        "coolant": { "type": "dry", "recommendation": "Dry for CBN" }
+      },
+      "machinability": { "aisi_rating": 30, "relative_to_1212": 0.30 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    },
+    {
+      "material_id": "MD-O1-HARDENED",
+      "name": "AISI O1 Oil-Hardening Tool Steel (Hardened HRC 62)",
+      "iso_group": "H",
+      "material_type": "tool_steel",
+      "subcategory": "cold_work_oil_hardening",
+      "condition": "hardened_HRC62",
+      "data_quality": "verified_thermophysical_iso_default_kc",
+      "data_sources": ["ASM_Metals_Handbook_Vol4", "ASTM_E140", "constants.ts:CANONICAL_KIENZLE"],
+      "physical": {
+        "density": 7850, "melting_point": 1420, "specific_heat": 460,
+        "thermal_conductivity": 31.0, "thermal_expansion": 11.4,
+        "elastic_modulus": 207, "poisson_ratio": 0.30, "shear_modulus": 80, "bulk_modulus": 160
+      },
+      "mechanical": {
+        "hardness": { "brinell": 688, "vickers": 746, "rockwell_c": 62, "rockwell_b": null },
+        "tensile_strength": { "typical": 2200, "min": 1950, "max": 2400 },
+        "yield_strength": { "typical": 1900, "min": 1700, "max": 2100 },
+        "elongation": 2, "reduction_of_area": 3,
+        "impact_strength": 22, "fatigue_strength": 750, "fracture_toughness": 20,
+        "work_hardening_exponent": 0.05
+      },
+      "kienzle": {
+        "kc1_1": 3200, "mc": 0.30,
+        "kc1_1_milling": 2880, "mc_milling": 0.29,
+        "kc1_1_drilling": 3520, "mc_drilling": 0.31,
+        "source": "constants.ts:CANONICAL_KIENZLE['H'] (iso-group default — grade-specific kc pending physics review)"
+      },
+      "johnson_cook": {
+        "A": 1700, "B": 600, "n": 0.10, "C": 0.012, "m": 1.1,
+        "T_melt": 1420, "T_ref": 25, "epsilon_dot_ref": 0.001
+      },
+      "taylor": {
+        "C": 120, "n": 0.15,
+        "C_carbide": null, "n_carbide": null,
+        "C_ceramic": 120, "n_ceramic": 0.15,
+        "C_cbn": 120, "n_cbn": 0.15,
+        "source": "constants.ts:CANONICAL_TAYLOR['H'] (iso-group default)"
+      },
+      "chip_formation": {
+        "chip_type": "segmented", "chip_breaking": "good",
+        "built_up_edge_tendency": "low",
+        "work_hardening_severity": "low", "adhesion_tendency": "low"
+      },
+      "cutting_recommendations": {
+        "turning": { "speed_roughing": 100, "speed_finishing": 150, "feed_roughing": 0.10, "feed_finishing": 0.05, "doc_roughing": 0.5, "doc_finishing": 0.15 },
+        "milling": { "speed_roughing": 80, "speed_finishing": 120, "feed_per_tooth_roughing": 0.05, "feed_per_tooth_finishing": 0.03, "doc_roughing": 0.3, "doc_finishing": 0.10 },
+        "tool_material": { "recommended_grade": "CBN/ceramic", "coating_recommendation": "CBN for hardened; carbide only in annealed state", "geometry_recommendation": "Negative rake, honed edge, rigid; machine soft + grind to finish is common" },
+        "coolant": { "type": "dry", "recommendation": "Dry for CBN hard turning" }
+      },
+      "machinability": { "aisi_rating": 25, "relative_to_1212": 0.25 },
+      "_verified": { "session": "DB-COVERAGE-GAPFILL-MS0", "date": "2026-06-03", "method": "handbook_reference", "params": 0 }
+    }
+  ]
+}

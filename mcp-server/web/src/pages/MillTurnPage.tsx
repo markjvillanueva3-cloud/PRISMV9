@@ -19,7 +19,7 @@ interface BarState {
   pieces_left: number;
 }
 
-export default function MillTurnPage(): JSX.Element {
+export default function MillTurnPage() {
   const [channels, setChannels] = useState<ChannelState[]>([
     { id: "$1", program: "O1001", status: "running",     active_tool: "T0101 - OD rough" },
     { id: "$2", program: "O2001", status: "waiting_sync", active_tool: "T0505 - Live mill" },

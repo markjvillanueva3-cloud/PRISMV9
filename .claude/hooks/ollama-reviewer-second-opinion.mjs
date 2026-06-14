@@ -4,7 +4,7 @@
  * ollama-reviewer-second-opinion — PreToolUse hook on Bash for `git commit`.
  *
  * Before every autonomous-mode commit, runs `git diff --staged` and asks
- * Ollama (qwen2.5-coder:7b by default) for a one-shot second-opinion review.
+ * Ollama (qwen2.5-coder:32b by default) for a one-shot second-opinion review.
  * Ollama returns JSON of shape:
  *
  *   { "verdict": "PASS" | "CONCERN" | "FAIL",
@@ -52,7 +52,7 @@ const STATE_RELATIVE = "state/shared/AUTONOMOUS_STATE.json";
 const VERDICTS_RELATIVE = "state/shared/REVIEWER_VERDICTS.json";
 
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_HOOK_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_MODEL = process.env.OLLAMA_HOOK_MODEL ?? "qwen2.5-coder:32b";
 const OLLAMA_TIMEOUT_MS = 12 * 1000;
 const OLLAMA_MAX_TOKENS = 400;
 

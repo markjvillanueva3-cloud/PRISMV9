@@ -1,11 +1,12 @@
 ---
 name: reference_blueprint_ocr_training_ms1_collision
 description: "BLUEPRINT-OCR-TRAINING-MS1 spec + envelope shipped under wrong scope label in commit 847b8ec8b (multi-chat collision absorbed my stages into peer ALPHA's commit). Future audits should treat 847b8ec8b as a dual-scope commit."
-metadata: 
-  node_type: memory
-  type: reference
-  originSessionId: a7ea87ab-b9d8-4c27-8e6d-9b70c60f6a86
+aliases: reference_blueprint_ocr_training_ms1_collision
+type: reference
+source: prism-memory
+synced: 2026-06-09T14:54:09.034Z
 ---
+
 
 **Date:** 2026-05-12 (slot BRAVO, claude-a7ea87ab session, MACRO-DOMAIN/TRAINING workstream after picking up claude-8f2683e8's handoff)
 

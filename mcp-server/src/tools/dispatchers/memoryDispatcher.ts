@@ -21,6 +21,24 @@ import { z } from "zod";
 import { memoryGraphEngine } from "../../engines/MemoryGraphEngine.js";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
+
+
+// Hardware-optimized in-memory cache for expensive memory operations (128k+ context machines)
+const _MEMORY_OP_CACHE = new Map<string, any>();
+const _MEMORY_CACHE_MAX = 500;
+
+function getCachedMemoryOp(key: string): any | undefined {
+  return _MEMORY_OP_CACHE.get(key);
+}
+
+function setCachedMemoryOp(key: string, value: any): void {
+  if (_MEMORY_OP_CACHE.size >= _MEMORY_CACHE_MAX) {
+    const firstKey = _MEMORY_OP_CACHE.keys().next().value;
+    if (firstKey !== undefined) _MEMORY_OP_CACHE.delete(firstKey);
+  }
+  _MEMORY_OP_CACHE.set(key, value);
+}
+
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_MEMORY_SCHEMAS } from "../../schemas/memoryActionSchemas.js";
 
@@ -39,7 +57,7 @@ type GraphNodeRecord = Record<string, any>;
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as ValidatedServer).tool(
     "prism_memory",
-    "Cross-session memory graph + semantic vector recall + agent memory fabric. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, knowledge_distillation_scan, knowledge_distillation_run, context_eval_score, ideablock_dedup, ideablock_rag_retrieve, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now",
+    "Cross-session memory graph + semantic vector recall + agent memory fabric + Obsidian-vault brain recall. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity, consolidate, consolidation_stats, consolidation_patterns, record_session_end, semantic_search, remember, qdrant_vector_search, qdrant_vector_upsert, agent_memory_remember, agent_memory_query, agent_memory_reinforce, agent_memory_forget, agent_memory_stats, emerging_thesis, daily_brief_get, daily_context_get, weekly_synthesis_get, queue_processor_scan, queue_processor_process, project_auto_updater_scan, project_auto_updater_process, knowledge_distillation_scan, knowledge_distillation_run, context_eval_score, ideablock_dedup, ideablock_rag_retrieve, contradiction_check, postmortem_create, performance_report, connections_materialize, content_brief_create, voice_validate, capture_sharpen, embed_text, embed_pairwise_cosine, inbox_prune_now, inbox_promote_now, memory_sync_list_bundles, memory_sync_bundle_metadata, brain_recall, recall_as_of, bulk_semantic_search, prefetch_galaxy_brains, hardware_optimized_recall, fleet_memory_sync",
     {
       action: z.enum([
         "get_health",
@@ -53,6 +71,11 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // TOOL-INVENTORY-MS0/U-TOOLINV-01: qdrant MCP exposure surface
         "qdrant_vector_search",
         "qdrant_vector_upsert",
+        // JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-01 (2026-05-26, slot juliett):
+        // QdrantMemoryVectorBridgeEngine — unified vector search across the
+        // 14 MemoryKind collections in one call. Replaces 14-RTT loops + adds
+        // dedup + score-merge + fail-soft on Qdrant offline.
+        "vector_search_unified",
         "consolidation_patterns",
         // ENGINE-WIRE-MS0/U-WIRE19: AgentMemoryFabricEngine — persistent cross-session memory
         "agent_memory_remember",
@@ -110,6 +133,30 @@ export function registerMemoryDispatcher(server: McpServer): void {
         // WIRE-UNWIRED-MS0/U-WIRE-MEMSYNC: MemorySyncEngine read-only bundle inspection
         "memory_sync_list_bundles",
         "memory_sync_bundle_metadata",
+        // BRAIN-SYNERGY-MS0/U-BRAIN-RECALL (slot:lima, 2026-05-21):
+        // unified BM25 search across the Obsidian memory vault + system-graph +
+        // wiki index. Closes the synergy gap where PRISM AI dispatchers had no
+        // first-class action to consult the file-based "2nd brain" — only the
+        // in-MCP AgentMemoryFabric was MCP-exposed via agent_memory_query.
+        "brain_recall",
+        // LSH-DEDUP-WIRE (slot:bravo): LSHDedupEngine — locality-sensitive-hashing embedding
+        // dedup (pure, in-memory singleton, 384-dim, seeded). Adjacent to the vector/qdrant ops.
+        "lsh_dedup_add",
+        "lsh_dedup_is_duplicate",
+        "lsh_dedup_stats",
+        // EMBEDDING-FILTER-WIRE (slot:bravo): EmbeddingFilterEngine — embedding-scored directive
+        // line filter (cosine vs prompt, graceful Jaccard fallback when the embedder is down).
+        "embedding_filter",
+        // HMEMV03/U-HMEMV03-RECALL-AS-OF (temporal-aware recall): point-in-time
+        // "what did PRISM's memory/wiki BELIEVE at time T". Resolves the as-of
+        // commit (<= T) over the git-tracked corpus and BM25-scores files as-they-
+        // existed-at-that-commit. H: git-tracked mirror only (C: master vault is
+        // outside the repo, so it has no git temporal axis).
+        "recall_as_of, bulk_semantic_search, prefetch_galaxy_brains, hardware_optimized_recall, fleet_memory_sync",
+        "bulk_semantic_search",
+        "prefetch_galaxy_brains",
+        "hardware_optimized_recall",
+        "fleet_memory_sync",
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -407,7 +454,30 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
-          // ENGINE-WIRE-MS0/U-WIRE19: AgentMemoryFabricEngine wiring
+          // JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-01 (2026-05-26, slot juliett):
+          // QdrantMemoryVectorBridgeEngine — unified vector search router.
+          // Fans the query across the 14 MemoryKind collections in a single
+          // call, score-merges + dedups, returns top-K. Fail-soft: backend
+          // offline returns ok:true with empty hits + per_backend status so
+          // the caller can decide whether to fall back to pattern matching.
+          case "vector_search_unified": {
+            const { qdrantMemoryVectorBridgeEngine } = await import(
+              "../../engines/QdrantMemoryVectorBridgeEngine.js"
+            );
+            const r = await qdrantMemoryVectorBridgeEngine.search(
+              params as Parameters<typeof qdrantMemoryVectorBridgeEngine.search>[0],
+            );
+            result = r;
+            break;
+          }
+
+          // ENGINE-WIRE-MS0/U-WIRE19 + DOMAIN-GALAXY-DOCTRINE-MS1/U-GALAXY-MS1-B2
+          // (2026-05-27, slot:alpha): routingMeta is ADVISORY ONLY —
+          // AgentMemoryFabricEngine has no `namespace` opt yet, so callers see the
+          // planned home but persistence is NOT partitioned (persistenceEnforced:
+          // false flags this). Anti-regression: explicit non-default namespace
+          // skips the override. Classifier failure is fail-soft + log.warn.
+          // Spec: state/shared/specs/B2-MEMORY-NAMESPACE-ROUTER-WIRE-SPEC-2026-05-27.md
           case "agent_memory_remember": {
             const { agentMemoryFabricEngine } = await import("../../engines/AgentMemoryFabricEngine.js");
             const memType = typeof params.memory_type === "string" ? params.memory_type : params.memoryType;
@@ -415,6 +485,58 @@ export function registerMemoryDispatcher(server: McpServer): void {
             if (!content) {
               return { content: [{ type: "text" as const, text: JSON.stringify({ error: "Missing required 'content' parameter" }) }] };
             }
+
+            // B2: namespace router (advisory only, fail-soft)
+            let routingMeta: {
+              namespace: string;
+              target: string;
+              confidence: number;
+              reason: string;
+              advisory: true;
+              persistenceEnforced: false;
+            } | undefined;
+            try {
+              const explicitNs = typeof params.namespace === "string" ? params.namespace : undefined;
+              if (!explicitNs || explicitNs === "default") {
+                const slot = typeof params.slot === "string" ? params.slot : undefined;
+                const sessionId = typeof params.session_id === "string"
+                  ? params.session_id
+                  : (typeof params.sessionId === "string" ? params.sessionId : undefined);
+                const mod = await import("../../../../scripts/lib/memory-namespace-classifier.mjs" as string);
+                // U-GALAXY-MS1-B2-UNIVERSAL-REACHABILITY (2026-05-27 follow-up):
+                // explicit `key` param lets callers pass doctrine-key strings
+                // (e.g. "feedback_karpathy_discipline") to reach the classifier's
+                // UNIVERSAL_KEYWORDS path. Without this, memory_type whitelist
+                // (5 enum values) made universal-doctrine classification
+                // structurally unreachable. See reference_b2_universal_unreachable_2026_05_27.md
+                const classifierKey = typeof params.key === "string" && params.key
+                  ? params.key
+                  : (typeof memType === "string" && memType ? memType : "memory");
+                const r = (mod as { classifyNamespace: (i: { key: string; value: string; slot?: string; sessionId?: string }) => { namespace: string; target: string; confidence: number; reason: string } }).classifyNamespace({
+                  key: classifierKey,
+                  value: content,
+                  slot,
+                  sessionId,
+                });
+                routingMeta = {
+                  namespace: r.namespace,
+                  target: r.target,
+                  confidence: r.confidence,
+                  reason: r.reason,
+                  advisory: true,
+                  persistenceEnforced: false,
+                };
+              }
+              // else: caller passed explicit non-default namespace → respect it, skip override
+            } catch (err) {
+              // R12 fail-loud: surface classifier breakage so we don't silently
+              // run advisory-disabled forever. Still fail-SOFT (remember proceeds).
+              log.warn("[B2] memory-namespace-classifier failed; routingMeta advisory disabled for this call", {
+                error: err instanceof Error ? err.message : String(err),
+              });
+              routingMeta = undefined;
+            }
+
             const opts = {
               relatedEntity: params.related_entity ?? params.relatedEntity,
               tags: Array.isArray(params.tags) ? params.tags : undefined,
@@ -448,7 +570,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
               default:
                 return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Unknown memory_type: '${memType}'. Use one of: fact, preference, correction, context, tribal` }) }] };
             }
-            result = { ok: true, id: entry.id, type: entry.type, priority: entry.priority };
+            result = { ok: true, id: entry.id, type: entry.type, priority: entry.priority, routingMeta };
             break;
           }
 
@@ -627,9 +749,44 @@ export function registerMemoryDispatcher(server: McpServer): void {
                 outputDir: generatedRoot,
                 date: dateIso,
               });
-              result = unsupportedParams.length > 0
+
+              // U-GALAXY-MS1-B3-HMEMV06-DISPATCHER-WIRE (2026-05-27, slot:alpha
+              // follow-up): also surface hermes-self-reflect populater output
+              // when present. Populater (scripts/hermes-self-reflect-populater.mjs)
+              // writes to {vaultRoot}/weekly-hermes-reflection-<anchor>.md
+              // using the same Sunday-snapped anchor the engine computes. We
+              // re-derive the anchor here from `now`/dateIso (same snap rule
+              // — most-recent Sunday UTC). Fail-SOFT: any read error → sidecar
+              // is marked exists:false, never blocks the primary result.
+              let hermesReflectAnchor: string;
+              if (dateIso) {
+                hermesReflectAnchor = dateIso;
+              } else {
+                const d = new Date();
+                const dow = d.getUTCDay();
+                if (dow !== 0) d.setUTCDate(d.getUTCDate() - dow);
+                hermesReflectAnchor = d.toISOString().slice(0, 10);
+              }
+              const hermesReflectPath = `${vaultRoot.replace(/[/\\]+$/, "")}/weekly-hermes-reflection-${hermesReflectAnchor}.md`;
+              let hermesReflection: { path: string; exists: boolean; bytes?: number; error?: string };
+              try {
+                const fs = await import("node:fs");
+                const stat = fs.statSync(hermesReflectPath);
+                hermesReflection = { path: hermesReflectPath, exists: true, bytes: stat.size };
+              } catch (err) {
+                hermesReflection = {
+                  path: hermesReflectPath,
+                  exists: false,
+                  error: err instanceof Error && (err as NodeJS.ErrnoException).code === "ENOENT"
+                    ? "not_yet_populated"
+                    : (err instanceof Error ? err.message : String(err)),
+                };
+              }
+
+              const baseResult = unsupportedParams.length > 0
                 ? { ...runResult, unsupported_params: unsupportedParams }
                 : runResult;
+              result = { ...baseResult, hermes_reflection: hermesReflection };
             }
             break;
           }
@@ -1195,9 +1352,163 @@ export function registerMemoryDispatcher(server: McpServer): void {
             result = { metadata };
             break;
           }
+          // BRAIN-SYNERGY-MS0/U-BRAIN-RECALL: unified Obsidian-vault + graph +
+          // wiki BM25 search. Lazy-imports the JS lib (already used by hooks),
+          // so the dispatcher remains lazy-import-only and safe under
+          // disk pressure. Falls back to per-source skip on failure (R12).
+          case "brain_recall": {
+            // Typed shapes for the .mjs JS libs (no .d.ts exists; libs canonical for hook callers)
+            type BrainSearchFn = (q: string, opts: { k: number }) => unknown;
+            type MemLibShape = { runMemoryIndexSearch?: BrainSearchFn };
+            type MasterLibShape = { runMasterIndexSearch?: BrainSearchFn; runTribalSearch?: BrainSearchFn };
+            const query = typeof params.query === "string" ? params.query : "";
+            if (!query) throw new Error("brain_recall requires 'query' (string)");
+            const k = typeof params.k === "number" && params.k > 0 ? Math.min(50, Math.floor(params.k)) : 5;
+            const includeMemory = params.include_memory !== false && params.includeMemory !== false;
+            const includeGraph = params.include_graph !== false && params.includeGraph !== false;
+            const includeWiki = params.include_wiki !== false && params.includeWiki !== false;
+            const masterLib = await import(
+              "../../../../scripts/lib/master-index-search-lib.mjs" as string
+            ).catch(() => null) as MasterLibShape | null;
+            const memLib = await import(
+              "../../../../scripts/lib/memory-index-search-lib.mjs" as string
+            ).catch(() => null) as MemLibShape | null;
+            const sources: Record<string, unknown[] | string> = {};
+            const normalize = (raw: unknown): unknown[] => {
+              if (Array.isArray(raw)) return raw;
+              if (raw && typeof raw === "object" && Array.isArray((raw as { hits?: unknown[] }).hits)) {
+                return (raw as { hits: unknown[] }).hits;
+              }
+              return [];
+            };
+            if (includeMemory && memLib?.runMemoryIndexSearch) {
+              try { sources.memory = normalize(memLib.runMemoryIndexSearch(query, { k })); }
+              catch (e) { sources.memory_error = (e as Error).message; }
+            }
+            if (includeGraph && masterLib?.runMasterIndexSearch) {
+              try { sources.graph = normalize(masterLib.runMasterIndexSearch(query, { k })); }
+              catch (e) { sources.graph_error = (e as Error).message; }
+            }
+            if (includeWiki && masterLib?.runTribalSearch) {
+              try { sources.wiki = normalize(masterLib.runTribalSearch(query, { k })); }
+              catch (e) { sources.wiki_error = (e as Error).message; }
+            }
+            const totalHits =
+              (Array.isArray(sources.memory) ? sources.memory.length : 0) +
+              (Array.isArray(sources.graph) ? sources.graph.length : 0) +
+              (Array.isArray(sources.wiki) ? sources.wiki.length : 0);
+            result = { query, k, sources, total_hits: totalHits };
+            break;
+          }
+
+          // HMEMV03/U-HMEMV03-RECALL-AS-OF: temporal-aware point-in-time recall.
+          // "What did PRISM's memory/wiki BELIEVE at time T". Resolves the as-of
+          // commit (<= T) over the git-tracked corpus and BM25-scores files as-they-
+          // existed-at-that-commit, reusing the live recall scorer. Lazy-imports the
+          // pure JS lib (the same .mjs the hooks use); the lib's gitExec is injected
+          // here as a real execFileSync runner (array argv, never a shell string).
+          // Operates on the H: git-tracked mirror only (the C: master vault is
+          // outside the repo). Fail-soft: any lib throw -> typed error result, break.
+          case "recall_as_of": {
+            type RecallAsOfFn = (q: string, opts: Record<string, unknown>) => unknown;
+            type TemporalLibShape = { recallAsOf?: RecallAsOfFn };
+            const query = typeof params.query === "string" ? params.query : "";
+            if (!query) throw new Error("recall_as_of requires 'query' (string)");
+            const asOf = typeof params.as_of === "string"
+              ? params.as_of
+              : (typeof params.asOf === "string" ? params.asOf : "");
+            if (!asOf) throw new Error("recall_as_of requires 'as_of' (ISO-8601 timestamp with offset, e.g. 2026-06-01T00:00:00Z)");
+            const topK = typeof params.k === "number" && params.k > 0
+              ? Math.min(50, Math.floor(params.k))
+              : (typeof params.top_k === "number" && params.top_k > 0 ? Math.min(50, Math.floor(params.top_k)) : 5);
+            const corpus = params.corpus === "wiki" ? "wiki" : "memories";
+            const maxFiles = typeof params.max_files === "number" && params.max_files > 0
+              ? Math.floor(params.max_files)
+              : undefined;
+            const { execFileSync } = await import("node:child_process");
+            // Injected git runner: array argv (no shell) rooted at the repo, with a
+            // bounded buffer. The lib only ever calls log/ls-tree/show with a fixed
+            // pathspec, so the query/corpus can never reach an argv slot.
+            const gitExec = (args: string[]): string =>
+              execFileSync("git", ["-C", "H:/prism", ...args], {
+                encoding: "utf8",
+                maxBuffer: 64 * 1024 * 1024,
+                windowsHide: true,
+              });
+            const temporalLib = await import(
+              "../../../../scripts/lib/temporal-memory-recall-lib.mjs" as string
+            ).catch(() => null) as TemporalLibShape | null;
+            if (!temporalLib?.recallAsOf) {
+              result = { error: "temporal-recall-lib-unavailable", query, as_of: asOf };
+              break;
+            }
+            try {
+              result = temporalLib.recallAsOf(query, { asOf, gitExec, topK, corpus, maxFiles });
+            } catch (e) {
+              result = { error: (e as Error).message, query, as_of: asOf, corpus };
+            }
+            break;
+          }
+
+          // LSH-DEDUP-WIRE (slot:bravo) — LSHDedupEngine: locality-sensitive-hashing dedup
+          // over embeddings. Was a stop_on_unwired_assets orphan (0 dispatcher refs, 0
+          // consumers — true orphan). Pure in-memory singleton (384-dim default, fixed seed →
+          // reproducible). Embeddings arrive as number[] over JSON → converted to Float32Array.
+          case "lsh_dedup_add": {
+            const { lshDedupEngine } = await import("../../engines/LSHDedupEngine.js");
+            const p = params as { id: string; embedding: number[] };
+            lshDedupEngine.add(p.id, new Float32Array(p.embedding));
+            result = { added: true, id: p.id };
+            break;
+          }
+          case "lsh_dedup_is_duplicate": {
+            const { lshDedupEngine } = await import("../../engines/LSHDedupEngine.js");
+            const p = params as { embedding: number[]; threshold?: number };
+            result = lshDedupEngine.isDuplicate(new Float32Array(p.embedding), p.threshold);
+            break;
+          }
+          case "lsh_dedup_stats": {
+            const { lshDedupEngine } = await import("../../engines/LSHDedupEngine.js");
+            result = lshDedupEngine.getStats();
+            break;
+          }
+
+          // EMBEDDING-FILTER-WIRE (slot:bravo) — EmbeddingFilterEngine: embedding-scored
+          // directive-line filter (the embedding companion to SituationalAwarenessFilter). Was a
+          // stop_on_unwired_assets orphan (0 dispatcher refs / 0 consumers). Constructed per-call
+          // with the same ollamaEmbedderEngine embed_text uses; degrades GRACEFULLY to Jaccard
+          // when the embedder is down (embedderOk:false, fallbackUsed:"jaccard"), so it stays
+          // functional even with Ollama offline. Scores each non-blank directive line by cosine
+          // similarity to `prompt`, keeps top maxLines preserving source order.
+          case "embedding_filter": {
+            const { EmbeddingFilterEngine } = await import("../../engines/EmbeddingFilterEngine.js");
+            const { ollamaEmbedderEngine } = await import("../../engines/OllamaEmbedderEngine.js");
+            const p = params as {
+              directive?: string; prompt?: string;
+              opts?: { maxLines?: number; minScore?: number; alwaysKeepHeaders?: boolean; headerBias?: number };
+            };
+            if (typeof p.directive !== "string" || typeof p.prompt !== "string") {
+              result = { error: "embedding_filter requires string 'directive' and 'prompt'" };
+              break;
+            }
+            // Adapter: OllamaEmbedderEngine returns a discriminated union (EmbeddingResult |
+            // EmbeddingError) whose branches lack the both-fields shape FilterEmbedder requires.
+            // Normalize each outcome to { ok, vector, error } so the union satisfies the contract.
+            const embedderAdapter = {
+              embed: async (text: string) => {
+                const r = await ollamaEmbedderEngine.embed(text);
+                return r.ok
+                  ? { ok: true as const, vector: r.vector, error: null }
+                  : { ok: false as const, vector: [] as number[], error: r.error };
+              },
+            };
+            const engine = new EmbeddingFilterEngine(embedderAdapter);
+            result = await engine.filter(p.directive, p.prompt, p.opts ?? {});
+            break;
+          }
 
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'knowledge_distillation_scan', 'knowledge_distillation_run', 'context_eval_score', 'ideablock_dedup', 'ideablock_rag_retrieve', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'record_session_end', 'semantic_search', 'remember', 'qdrant_vector_search', 'qdrant_vector_upsert', 'agent_memory_remember', 'agent_memory_query', 'agent_memory_reinforce', 'agent_memory_forget', 'agent_memory_stats', 'emerging_thesis', 'daily_brief_get', 'daily_context_get', 'weekly_synthesis_get', 'queue_processor_scan', 'queue_processor_process', 'project_auto_updater_scan', 'project_auto_updater_process', 'knowledge_distillation_scan', 'knowledge_distillation_run', 'context_eval_score', 'ideablock_dedup', 'ideablock_rag_retrieve', 'contradiction_check', 'postmortem_create', 'performance_report', 'connections_materialize', 'content_brief_create', 'voice_validate', 'capture_sharpen', 'embed_text', 'embed_pairwise_cosine', 'inbox_prune_now', 'inbox_promote_now', 'memory_sync_list_bundles', 'memory_sync_bundle_metadata', 'brain_recall', 'recall_as_of'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);

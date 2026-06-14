@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.1.0",
+  "sha8": "f4066790",
+  "title": "1.0-Running the AC in a Server",
+  "source": "resources",
+  "relPath": "OPEN MIND/hyperMILL/31.0/addins project/hmAutoColor/doc/documents/1.0-Running the AC in a Server.pdf",
+  "domain": "cam",
+  "software": "hypermill",
+  "top": "OPEN MIND",
+  "pageCount": 10,
+  "textChars": 2292,
+  "text": "1\nRunning the AC in a Server\nWe can easily run the AC in a server.\nThe script must be adapted to have no user interaction, otherwise the application will fall.\nIt is very important to know that the application is just watching a folder and running a script that was\npreviously defined.\nEvery action like (Save file, log message, errors) must be manage in the script).\nThe application will just run what you asked for.\nAll files can be found on C:\\Program Files\\OPEN MIND\\hyperMILL\\#version#\\addins\\hmAutoColor\nPW server configuration (PWserver.exe)\nThere is one executable file where we can define:\n• Watch folder\n• Project number (script to be executed)\n• Priority\n• File type\nThe watch folder must be a folder accessibly by all clients and server\n\n-- 1 of 10 --\n\n2\nPW Monitor configuration (PWMonitor.exe)\nWe can use the monitor to show some information to the client during the process.\nThe log file must have the extension (.PWlog)\nThe monitor will be started by the client\nThe script will manage what will be populated in the monitor and when it will be populated\n\n-- 2 of 10 --\n\n3\nStarting the application in the server (PWserverStart.exe)\nWe can keep the application running in the server.\nWe must execute the file PWserverStart.exe in the server to have it running\nFollowing the sequence below we can start the application\n1.\n2.\n\n-- 3 of 10 --\n\n4\n3. This window will be started now.\n\n-- 4 of 10 --\n\n5\n4. The application now is running\nIf a client copies some file in the watch folder, the application will be executed.\n\n-- 5 of 10 --\n\n6\nStarting the application from the client (PWserverStart.exe)\nWe can start the server application directly by the client.\nIn this case we can use the function “Start script on server” exactly where we want to start the server.\n\n-- 6 of 10 --\n\n7\nBatch mode\nIn case of some message box appears during the process, the application will be stopped.\nTo avoid this problem, we can use the function “Batch mode”.\nIt will skip all message boxes.\n\n-- 7 of 10 --\n\n8\nDefine server mode\nWe can manage the status of the PW Server Monitor.\nThe status we want to show here can be defined in the function “Define server mode”.\n\n-- 8 of 10 --\n\n9\nYou can use this function in the script all the time you want to change the status\n\n-- 9 of 10 --\n\n10\n\n-- 10 of 10 --\n\n",
+  "sizeBytes": 672015,
+  "extractedAt": "2026-05-26T16:18:00.687Z"
+}

@@ -1,3 +1,8 @@
+// WIRE-EXEMPT: shared helper module consumed by SolidWorksLiveBridgeEngine
+// + EspritLiveBridgeEngine (the live-bridge engines are the user-facing
+// surface — those ARE wired). Tagged 2026-05-26 (slot:victor) per CLAUDE.md
+// §ENGINE WIRING "WIRE-EXEMPT: <reason>" to suppress the audit
+// false-positive (helper module, not an engine).
 /**
  * cadLiveDispatch — shared HTTP + COM execution helpers for Live CAD bridges
  * (CAD-COMPLETE-MS0/U-CADC-PRINT-LIVE-WIRE01)

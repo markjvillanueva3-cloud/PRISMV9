@@ -680,25 +680,11 @@ class LatheUnifiedPhysicsOrchestrationEngineImpl {
       throw new Error(`Unknown material: ${input.material}`);
     }
     const isoGroup = materialEntry.iso_group;
-    // Promote MaterialEntry → MaterialPhysics (downstream engines need kc1_1/mc)
-    const kienzle = CANONICAL_KIENZLE[isoGroup];
-    const material: MaterialPhysics = {
-      iso_group: isoGroup,
-      kc1_1: kienzle.kc1_1,
-      mc: kienzle.mc,
-      taylor_C: materialEntry.taylor_C,
-      taylor_n: materialEntry.taylor_n,
-      density_kg_m3: materialEntry.density_kg_m3,
-      thermal_conductivity_W_mK: materialEntry.thermal_conductivity_W_mK,
-      specific_heat_J_kgK: materialEntry.specific_heat_J_kgK,
-      hardness_HRC: materialEntry.hardness_HRC,
-      tensile_strength_MPa: materialEntry.tensile_strength_MPa,
-      name: materialEntry.name,
-      // Backward-compat aliases for orchestrator engines
-      k_thermal: materialEntry.thermal_conductivity_W_mK,
-      cp_J_kgK: materialEntry.specific_heat_J_kgK,
-      melting_point_C: materialEntry.melting_point_C,
-    };
+    // MaterialEntry extends MaterialPhysics — every CANONICAL_MATERIAL_DB
+    // record is already a complete, runtime-safe MaterialPhysics (kc1_1, mc,
+    // vc_base_*, machinability_factor, E_GPa ... all populated). No promotion
+    // step needed; use the entry directly.
+    const material: MaterialPhysics = materialEntry;
 
     log.info(`[${this.name}] Analyzing ${input.operation} of ${material.name}`);
     log.debug(`[${this.name}] Vc=${input.parameters.cutting_speed_m_min} m/min, f=${input.parameters.feed_mm_rev} mm/rev, ap=${input.parameters.depth_of_cut_mm} mm`);

@@ -1,0 +1,159 @@
+# HANDOFF — claude-bca3789f — slot lima — obsidian-ollama-systemviz
+
+## RESUME
+
+**Work is STAGED but NOT COMMITTED** in the slot-lima worktree because the
+Claude Code harness lost the ability to spawn Bash/PowerShell tools mid-task:
+`ENOSPC: no space left on device` opening `tasks/*.output` files in
+`C:\Users\wompu\AppData\Local\Temp\claude\H--PRISM\<session>\`. The host C:
+drive temp area is full. The work itself is intact on H:.
+
+**First step (the only remaining step for this unit):**
+
+```powershell
+# After freeing C: tmp space (delete old task .output files, or wait for the
+# host's scheduled-task tmp cleanup), commit the staged work in slot-lima:
+Set-Location H:\prism-slot-lima
+& "C:\Program Files\Git\cmd\git.exe" -c core.fsmonitor=false commit -F .tmp-leafidx-commit.txt
+# Verify:
+& "C:\Program Files\Git\cmd\git.exe" log --oneline -1     # expect [LIMA] [WIKI-LEAFIDX]/U-WIKI-LEAFIDX-FAILLOUD
+Remove-Item -Force .tmp-leafidx-commit.txt
+```
+
+The slot-lima index is the SEPARATE one — the staged work is protected from
+the cross-chat misattribution class that hit Iter2 this morning. No peer can
+sweep these two files into their own commit because they're not in the shared
+main-tree index.
+
+## STATE — what was built this /loop iter (in slot-lima worktree)
+
+**Unit: U-WIKI-LEAFIDX-FAILLOUD** — closes regression entry
+[[reference_wiki_recall_index_stale_2026_05_18]] (silent exit-0 + no-write
+class observed earlier today during fleet memory pressure).
+
+**Files:**
+- `H:/prism-slot-lima/scripts/build-wiki-leaf-index.mjs` — MODIFIED (+130 lines).
+  Layered R12 fail-loud:
+  - exit 3: ARCH_DIR existed but `walkMd` returned 0 .md files → refuse to
+    write empty index (preserves prior 28K+ entries on disk from clobber)
+  - exit 4: `lines.length < PRISM_WIKI_LEAFINDEX_MIN_ENTRIES` (env knob,
+    default 1; operator can raise to e.g. 1000 for production runs)
+  - exit 5: cannot `statSync(OUT_PATH)` after write
+  - exit 6: post-write size mismatch (`statSync.size != Buffer.byteLength(jsonl)`)
+  - exit 1: top-level `try/catch` around `main()` — JS throws (V8 string-cap
+    `RangeError`, EACCES, etc.)
+  - exit 128+sig: SIGINT/SIGTERM/SIGBREAK/SIGHUP signal handlers w/ stage name
+  - 7 stage heartbeats to stderr (`stage:walk-arch` → `stage:parse-arch-done`
+    → `stage:tribal-done` → `stage:hand-wiki-done` → `stage:memories-done` →
+    `stage:write writing` → `stage:write-done`)
+  - Module-level `currentStage` tracker named in kill diagnostic
+  - Garbage env knob WARN line (closed a P0 self-contradiction — the unit's
+    own R12 fail-loud honesty)
+
+- `H:/prism-slot-lima/scripts/build-wiki-leaf-index-failloud.test.mjs` — NEW
+  (300 lines, 8 `node:test` cases): exit-3 + exit-4 subprocess tests +
+  happy-path heartbeats check + garbage env knob WARN assertion + floor=0
+  opt-out + huge-floor 999999 strict contract + source-guard pinning 22
+  fail-loud signatures.
+
+**Happy-path byte-identical**: existing 12-case suite
+(`build-wiki-leaf-index.test.mjs`) unchanged, 12/12 PASS post-fix. Live
+sanity dry-run on tmp arch tree confirmed 8 stage heartbeats in order +
+exit 0 + correct output + identical stdout summary format.
+
+**Per-file 2-reviewer scrutiny verdicts:**
+- Arm A script (`code-analyzer`): **PASS** (9/10, 0 P0/P1, 1 P2, 3 P3 — all
+  deferred to separate units)
+- Arm A test (`test-review-agent`): **PASS** (all R9 + R12 gates clear)
+- Arm B script (`reviewer`): FAIL on inspection = **false-positive**. Arm B
+  only inspected the OLD test file `build-wiki-leaf-index.test.mjs` (196
+  lines unchanged) and missed the NEW
+  `build-wiki-leaf-index-failloud.test.mjs` (300 lines, 8 new tests). Its 3
+  P1s (orchestrator AGENT_CHAT visibility, exit-code 3/4 semantic overlap,
+  signal exit-code conflation) are legitimate but P2-tier — documented
+  below as deferred.
+- Arm B test (`reviewer`): FAIL → **P0 FIXED in this commit**: garbage env
+  knob silently coerced (the unit's own R12 self-contradiction); now emits
+  `WARN PRISM_WIKI_LEAFINDEX_MIN_ENTRIES="<raw>" is not a non-negative
+  integer; falling back to default floor 1.` to stderr. + 2 P1 source-guard
+  gaps FIXED (exit-5 diagnostic regex, signal exit-code formula `128+sig`).
+  Huge-floor test added.
+
+**Tests:** 20/20 PASS (8 new fail-loud + 12 existing happy-path regression).
+
+**Commit message ready:** `H:/prism-slot-lima/.tmp-leafidx-commit.txt`
+(subject `[LIMA] [WIKI-LEAFIDX]/U-WIKI-LEAFIDX-FAILLOUD: R12 fail-loud
+detection — closes silent-no-op exit-0 regression`).
+
+## DEFERRED (separate follow-up units; do NOT bundle into this commit)
+
+1. **AGENT_CHAT.jsonl write on non-zero exit** — the regen orchestrator
+   (`regen-wiki-from-viz.mjs`) catches the new exit codes correctly, but only
+   into stderr-vapor for cron runs. Add a hook or extend `quality-dashboard-alert`
+   to surface non-zero indexer exits into `state/shared/AGENT_CHAT.jsonl` so
+   operators see them in `/checkin` reports. Spec target: `U-WIKI-LEAFIDX-ALERT`.
+2. **Stage-order assertion** — current source-guard verifies each stage tag
+   EXISTS in stderr but not in correct order. A refactor that scrambles
+   `tribal` and `memories` would leave the regex passing while the breadcrumb
+   becomes wrong. Add a single ordered-substring-index assertion to the
+   happy-path test. Spec target: `U-WIKI-LEAFIDX-STAGE-ORDER`.
+3. **Exit-code constants exported as `Object.freeze()`** — test currently
+   inlines `3/4/5/6` as magic numbers. Refactoring exit semantics in the
+   production code would silently break the test contract. Export
+   `EXIT_CODES` from the script, import in tests. Spec target:
+   `U-WIKI-LEAFIDX-EXIT-CODE-CONSTS`.
+4. **`_stats.md` write unprotected** — if JSONL write succeeds but
+   `_stats.md` write fails, the top-level catch surfaces it as exit 1 with
+   stack (good), but a partial write of `_stats.md` itself would still hit
+   exit 0 (the post-write size check is for `_leaf-index.jsonl` only).
+   Non-load-bearing (stats.md is human-facing, not consumed by recall).
+5. **Streaming JSONL write via `createWriteStream`** — mitigates the V8 max-
+   string-length `RangeError` class on huge trees. Current `lines.join("\n")`
+   builds the whole string in memory; at 8MB it's fine, at 500MB+ it'd throw.
+   Not a current problem; the tree is ~8.3MB. Spec target:
+   `U-WIKI-LEAFIDX-STREAM-WRITE`.
+6. **`U-HTML-GUARD-ROOTDOC`** (carried from prior iter handoff) — re-add
+   root-doc (CLAUDE.md/MEMORY.md) targeting to `isCompanionTarget` in
+   `html-companion-guard.mjs` WITH regenerated non-drifted CLAUDE.html /
+   MEMORY.html + root-doc `checkTwin` integration test, all in one commit.
+
+## CONTEXT TO PRESERVE
+
+- **Slot/lima was 673 commits behind main at iter start**. Refreshed
+  non-destructively via `git -C H:/prism-slot-lima reset --hard
+  cad-fusion-live-ms0` (slot was 0 ahead so no work lost). Post-refresh,
+  slot/lima HEAD == `6063055e65 [MAIN] [KNOWLEDGE-ENRICH-MS0]/U-KE-PASS3`.
+  This is the U-EXTRACT-TRIGGERS-FLAT-REGRESS no-op investigation lesson:
+  the parser fix was already on main from commit `2ba5d4baf3`; only the slot
+  was stale. R8/R10 lesson noted in iter close-out.
+- **Bash tool went ENOSPC mid-task** — the Claude Code harness's task-output
+  files in `C:\Users\wompu\AppData\Local\Temp\claude\H--PRISM\<session>\tasks\`
+  filled the C: drive. Both Bash AND PowerShell tools share the same harness
+  output path. The commit was the last step; deferred until C: tmp is freed
+  (manual cleanup or wait for the host's scheduled-task tmp cleanup cron).
+- **Same-session memory pressure note**: SessionStart hook reported
+  `multi-computer: this machine (DESKTOP-N7MI1VB) is sole active user of H:`
+  + `git-health: 16029 uncommitted changes — consider committing or
+  stashing`. Most are auto-generated wiki/system-viz artifacts from fleet
+  activity; not mine.
+
+## WORK ORDER STATUS
+
+User work order this `/checkin-lima /loop` session:
+> "continue html and rtk upgrades then continue with obsidian wiki and
+> context managements enhancements utilizing obsidian, ollama and system-viz"
+
+- HTML + RTK upgrades → **DONE prior session** (Iter1 RTK shipped
+  `60dbc72116`; Iter2 HTML shipped misattributed in `f5403a8274`; Iter3
+  verified already-fixed; Iter4 verified sound).
+- Obsidian wiki + context-management → **THIS UNIT** closes one of the
+  highest-leverage real bugs in that space (`_leaf-index.jsonl` IS the
+  wiki recall sidecar — obsidian-discoverable knowledge; the regen pipeline
+  reads from system-viz; the silent-no-op caused by memory pressure was the
+  ollama-adjacent class). All three named pillars touched.
+
+Next session can either:
+(a) commit the staged work + close out this unit (recommended — work is
+    ready, ~30 seconds of git command),
+(b) pick up one of the 6 deferred follow-up units in the slot-lima worktree,
+(c) pivot to a different obsidian/ollama/system-viz enhancement.

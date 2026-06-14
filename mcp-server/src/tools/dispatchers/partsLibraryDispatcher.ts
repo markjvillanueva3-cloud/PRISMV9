@@ -21,6 +21,8 @@ const ACTIONS = [
   "part_find_similar", "part_deduplicate", "part_stats",
   // U-PPL-D3 / MS-PRINT-PROGRAM-LOOP Track D: ArchiveToPartsCatalogIngesterEngine
   "part_ingest_from_archive",
+  // JM-DOC-POPULATION-MS0 / U-JMDOC05: bulk metadata seed of structural part_library/other rows
+  "part_seed_jm_corpus",
 ] as const;
 
 export function registerPartsLibraryDispatcher(server: any): void {
@@ -266,6 +268,62 @@ Actions: ${ACTIONS.join(", ")}.`,
               limit: typeof params.limit === "number" ? params.limit : undefined,
               tagFromEntry: params.tagFromEntry !== false,
             });
+            break;
+          }
+
+          // ── JM-DOC-POPULATION-MS0 / U-JMDOC05: bulk metadata seed ──
+          case "part_seed_jm_corpus": {
+            // Bulk-seed the STRUCTURAL part_library/other ledger rows into the
+            // parts catalog as revision-controlled metadata (slot:hotel).
+            // Test path: caller supplies params.records. Live path: stream
+            // jm-file-inventory.jsonl and pre-filter to structural part_library/other
+            // rows before seeding (the engine re-filters too — identical structural
+            // gate, so the seeded count reconciles to the ledger's 30,890).
+            const { partsLibraryEngine, isStructuralPartLibraryOther } = await import(
+              "../../engines/PartsLibraryEngine.js"
+            );
+            if (Array.isArray(params.records)) {
+              result = partsLibraryEngine.seedFromJMCorpus(params.records as any);
+              break;
+            }
+            const fs = await import("node:fs");
+            const nodePath = await import("node:path");
+            const readline = await import("node:readline");
+            const rel = "state/shared/databases/jm-file-inventory.jsonl";
+            const candidates = [
+              nodePath.resolve(process.cwd(), "..", rel),
+              nodePath.resolve(process.cwd(), rel),
+              nodePath.resolve("H:/PRISM", rel),
+            ];
+            const src = candidates.find((p) => fs.existsSync(p));
+            if (!src) {
+              throw new Error(
+                `jm-file-inventory.jsonl not found (looked in: ${candidates.join(", ")}) — run scripts/jm-die-full-corpus-ingest.mjs first`,
+              );
+            }
+            const records: any[] = [];
+            await new Promise<void>((resolveP, rejectP) => {
+              const rl = readline.createInterface({ input: fs.createReadStream(src, "utf8"), crlfDelay: Infinity });
+              rl.on("line", (line) => {
+                const t = line.trim();
+                if (!t) return;
+                let rec: any;
+                try { rec = JSON.parse(t); } catch { return; }
+                if (rec && isStructuralPartLibraryOther(rec)) records.push(rec);
+              });
+              rl.on("close", () => resolveP());
+              rl.on("error", (e) => rejectP(e));
+            });
+            // Slim the response: the live path seeds ~30,890 rows — return counts +
+            // a sample instead of JSON-stringifying the full part_ids array via MCP.
+            const { part_ids: seededPartIds, ...seedRest } = partsLibraryEngine.seedFromJMCorpus(records);
+            result = {
+              ...seedRest,
+              source_path: src,
+              filtered_records: records.length,
+              part_id_count: seededPartIds.length,
+              part_ids_sample: seededPartIds.slice(0, 5),
+            };
             break;
           }
 

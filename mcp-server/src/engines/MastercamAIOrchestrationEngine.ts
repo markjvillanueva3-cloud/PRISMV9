@@ -236,7 +236,7 @@ export class MastercamAIOrchestrationEngine {
         thought: "Selecting optimal machining strategy based on feature type and material",
         evidence: [
           `Feature: ${request.feature_type}`,
-          `Material ISO: ${materialProfile?.iso_group || request.material_iso || "P"}`,
+          `Material ISO: ${materialProfile?.material.iso_group || request.material_iso || "P"}`,
           `Machine: ${request.machine_type || "3axis"}`
         ],
         confidence: 0.88,
@@ -245,7 +245,7 @@ export class MastercamAIOrchestrationEngine {
 
       const deepResult = mastercamDeepLearningEngine.selectOptimalStrategy({
         feature_type: this.mapFeatureType(request.feature_type),
-        material_group: (materialProfile?.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H",
+        material_group: (materialProfile?.material.iso_group || request.material_iso || "P") as "P" | "M" | "K" | "N" | "S" | "H",
         machine_type: this.mapMachineType(request.machine_type || "3axis"),
         tool_diameter_mm: request.tool_diameter_mm || 12,
         depth_mm: request.axial_depth_mm || 10,
@@ -324,7 +324,7 @@ export class MastercamAIOrchestrationEngine {
     if (request.include_tribal) {
       tribal = this.getTribalKnowledge(
         request.feature_type,
-        request.material_iso || materialProfile?.iso_group || "P",
+        request.material_iso || materialProfile?.material.iso_group || "P",
         request.operation
       );
 

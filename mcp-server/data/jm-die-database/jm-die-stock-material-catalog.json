@@ -1,0 +1,1566 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "DocuStrata: H:/PRISM/Docustrata/Report_from_J.M._Tool__Die_LLC.pdf (QuickBooks Purchases by Vendor Detail, 2014-05-01..2026-05-29)",
+  "generated": "2026-05-29",
+  "shop": "J.M. Tool & Die, LLC",
+  "builtBy": "scripts/compile-jm-tooling-stock.mjs (slot:juliett, database-expansion)",
+  "reconciliation": {
+    "vendorCount": 174,
+    "itemLineTotal": 20731,
+    "note": "vendorCount aligns with hotel's jm-die-vendor-registry.json (174 vendors). itemLineTotal counts DISTINCT item rows (incl. each vendor-block's first row + bare-date continuation rows that the prior /^Bill/ pass dropped) and is therefore HIGHER than hotel's ~20,550 QuickBooks Bill-transaction count — finer granularity, not a discrepancy."
+  },
+  "costCaveat": "costSamplesRaw are RAW observed unit-cost tokens from column-flattened text — UNRELIABLE, never summed, NOT authoritative spend. Per hotel financial-invariant doctrine, authoritative $ must come from QuickBooks.",
+  "kind": "jm-die-stock-material-catalog",
+  "distinctGradeForms": 60,
+  "totalStockLines": 2212,
+  "gradesForms": [
+    {
+      "grade": "H13",
+      "form": "unknown",
+      "occurrences": 400,
+      "vendorCount": 4,
+      "vendors": [
+        "ABILITY WELDING SERVICE, INC.",
+        "ACTION METALS",
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "06/11/2014",
+        "11/05/2015",
+        "05/12/2014",
+        "09/22/2015",
+        "09/23/2015",
+        "10/02/2015",
+        "10/05/2015",
+        "10/06/2015",
+        "10/07/2015",
+        "10/09/2015",
+        "10/12/2015",
+        "10/13/2015"
+      ],
+      "firstDate": "2014-05-12",
+      "lastDate": "2018-02-26",
+      "costSamplesRaw": [
+        "40.00",
+        "1.375",
+        "1.466",
+        "2.125",
+        "4.750"
+      ]
+    },
+    {
+      "grade": "H13",
+      "form": "round",
+      "occurrences": 388,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "05/12/2014",
+        "05/21/2014",
+        "05/27/2014",
+        "06/03/2014",
+        "06/30/2014",
+        "07/24/2014",
+        "08/07/2014",
+        "08/12/2014",
+        "09/02/2014",
+        "09/16/2014",
+        "09/24/2014",
+        "10/20/2014"
+      ],
+      "firstDate": "2014-05-05",
+      "lastDate": "2026-05-11",
+      "costSamplesRaw": [
+        "11.25",
+        "437.00",
+        "11.25",
+        "204.71",
+        "1.71"
+      ]
+    },
+    {
+      "grade": "M2",
+      "form": "unknown",
+      "occurrences": 329,
+      "vendorCount": 7,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "ERASTEEL",
+        "EVER READY PIN",
+        "GRIGGS STEEL",
+        "MCMASTER-CARR SUPPLY",
+        "TS TOOLING SUPPLY"
+      ],
+      "sizeSamples": [
+        "02/08/2017",
+        "05/10/2017",
+        "05/16/2017",
+        "06/07/2017",
+        "07/12/2017",
+        "07/27/2017",
+        "08/10/2017",
+        "08/11/2017",
+        "08/14/2017",
+        "08/15/2017",
+        "08/17/2017",
+        "08/18/2017"
+      ],
+      "firstDate": "2014-05-13",
+      "lastDate": "2026-04-28",
+      "costSamplesRaw": [
+        "1.3755",
+        "0.500",
+        "0.75",
+        "1.125",
+        "1.75"
+      ]
+    },
+    {
+      "grade": "D2",
+      "form": "unknown",
+      "occurrences": 142,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SUNNEN PRODUCTS COMPANY"
+      ],
+      "sizeSamples": [
+        "10/12/2015",
+        "10/21/2015",
+        "10/27/2015",
+        "10/30/2015",
+        "12/08/2015",
+        "12/14/2015",
+        "01/07/2016",
+        "01/25/2016",
+        "02/25/2016",
+        "03/01/2016",
+        "04/22/2016",
+        "05/17/2016"
+      ],
+      "firstDate": "2014-07-17",
+      "lastDate": "2026-01-21",
+      "costSamplesRaw": [
+        "1.625",
+        "0.375",
+        "1.416",
+        "1.375",
+        "0.625"
+      ]
+    },
+    {
+      "grade": "S7",
+      "form": "unknown",
+      "occurrences": 139,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "10/27/2015",
+        "11/12/2015",
+        "12/16/2015",
+        "12/28/2015",
+        "02/10/2016",
+        "02/25/2016",
+        "03/01/2016",
+        "04/07/2016",
+        "04/22/2016",
+        "05/18/2016",
+        "05/23/2016",
+        "06/14/2016"
+      ],
+      "firstDate": "2015-10-27",
+      "lastDate": "2026-01-15",
+      "costSamplesRaw": [
+        "2.375",
+        "2.500",
+        "1.250",
+        "2.125",
+        "2.250"
+      ]
+    },
+    {
+      "grade": "D2",
+      "form": "round",
+      "occurrences": 127,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "05/01/2014",
+        "05/12/2014",
+        "05/21/2014",
+        "05/27/2014",
+        "06/13/2014",
+        "06/30/2014",
+        "07/24/2014",
+        "08/07/2014",
+        "08/12/2014",
+        "10/20/2014",
+        "11/14/2014",
+        "11/21/2014"
+      ],
+      "firstDate": "2014-05-01",
+      "lastDate": "2026-05-21",
+      "costSamplesRaw": [
+        "1.7125",
+        "31.91",
+        "1.48",
+        "1.47",
+        "1.565"
+      ]
+    },
+    {
+      "grade": "S7",
+      "form": "round",
+      "occurrences": 88,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "05/12/2014",
+        "05/27/2014",
+        "06/13/2014",
+        "06/30/2014",
+        "09/05/2014",
+        "02/26/2015",
+        "04/28/2015",
+        "05/13/2015",
+        "06/02/2015",
+        "07/07/2015",
+        "08/03/2015",
+        "08/04/2015"
+      ],
+      "firstDate": "2014-05-12",
+      "lastDate": "2026-04-23",
+      "costSamplesRaw": [
+        "6.64",
+        "1.606",
+        "1.71",
+        "572.12",
+        "11.25"
+      ]
+    },
+    {
+      "grade": "M4",
+      "form": "unknown",
+      "occurrences": 81,
+      "vendorCount": 5,
+      "vendors": [
+        "ALRO STEEL",
+        "ERASTEEL",
+        "GRIGGS STEEL",
+        "RENISHAW INC.",
+        "ZAPP TOOLING ALLOYS"
+      ],
+      "sizeSamples": [
+        "03/01/2017",
+        "05/17/2017",
+        "08/16/2017",
+        "04/07/2015",
+        "07/25/2014",
+        "08/26/2014",
+        "09/30/2014",
+        "10/28/2014",
+        "01/13/2015",
+        "01/16/2015",
+        "02/05/2015",
+        "02/12/2015"
+      ],
+      "firstDate": "2014-05-22",
+      "lastDate": "2022-10-28",
+      "costSamplesRaw": [
+        "2.500",
+        "2.125",
+        "2.75",
+        "2.25",
+        "1.265"
+      ]
+    },
+    {
+      "grade": "A2",
+      "form": "unknown",
+      "occurrences": 53,
+      "vendorCount": 5,
+      "vendors": [
+        "ABILITY WELDING SERVICE, INC.",
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "MCMASTER-CARR SUPPLY",
+        "RADIAC ABRASIVES"
+      ],
+      "sizeSamples": [
+        "05/21/2014",
+        "07/30/2014",
+        "01/25/2016",
+        "01/28/2016",
+        "04/07/2016",
+        "05/10/2016",
+        "05/23/2016",
+        "06/01/2016",
+        "06/23/2016",
+        "07/07/2016",
+        "07/08/2016",
+        "08/02/2016"
+      ],
+      "firstDate": "2014-05-21",
+      "lastDate": "2024-04-03",
+      "costSamplesRaw": [
+        "40.00",
+        "60.00",
+        "3.250",
+        "1.250",
+        "2.500"
+      ]
+    },
+    {
+      "grade": "H13",
+      "form": "flat",
+      "occurrences": 43,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "05/01/2014",
+        "08/12/2014",
+        "09/24/2014",
+        "04/16/2015",
+        "04/23/2015",
+        "06/15/2015",
+        "07/01/2015",
+        "12/11/2015",
+        "07/08/2014",
+        "07/09/2014",
+        "07/11/2014",
+        "08/01/2014"
+      ],
+      "firstDate": "2014-05-01",
+      "lastDate": "2026-03-11",
+      "costSamplesRaw": [
+        "1.89",
+        "12.30",
+        "19.39",
+        "68.50",
+        "72.97"
+      ]
+    },
+    {
+      "grade": "M2",
+      "form": "round",
+      "occurrences": 41,
+      "vendorCount": 4,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "GRIGGS STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "05/21/2014",
+        "04/01/2019",
+        "10/31/2019",
+        "05/15/2014",
+        "06/03/2014",
+        "06/20/2014",
+        "07/11/2014",
+        "07/26/2019",
+        "09/02/2025",
+        "09/12/2025",
+        "11/17/2025",
+        "02/27/2026"
+      ],
+      "firstDate": "2014-05-15",
+      "lastDate": "2026-04-29",
+      "costSamplesRaw": [
+        "1.93",
+        "11.25",
+        "7.30",
+        "6.45",
+        "5.65"
+      ]
+    },
+    {
+      "grade": "4140",
+      "form": "unknown",
+      "occurrences": 35,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "MECH-ART"
+      ],
+      "sizeSamples": [
+        "02/04/2016",
+        "05/03/2016",
+        "05/17/2016",
+        "05/23/2016",
+        "05/24/2016",
+        "06/02/2016",
+        "08/02/2016",
+        "08/12/2016",
+        "08/19/2016",
+        "09/01/2016",
+        "09/14/2016",
+        "10/07/2016"
+      ],
+      "firstDate": "2014-09-11",
+      "lastDate": "2025-02-19",
+      "costSamplesRaw": [
+        "65.01",
+        "2.8905",
+        "7.750",
+        "7.750",
+        "1.4155"
+      ]
+    },
+    {
+      "grade": "O1",
+      "form": "unknown",
+      "occurrences": 27,
+      "vendorCount": 4,
+      "vendors": [
+        "ACTION METALS",
+        "ALRO STEEL",
+        "BOHLER UDDEHOLM",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "11/10/2015",
+        "05/27/2014",
+        "08/18/2014",
+        "09/21/2016",
+        "10/24/2016",
+        "03/02/2016",
+        "01/17/2017",
+        "05/10/2017",
+        "05/15/2017",
+        "06/30/2017",
+        "06/30/2014",
+        "07/08/2014"
+      ],
+      "firstDate": "2014-05-27",
+      "lastDate": "2017-06-30",
+      "costSamplesRaw": [
+        "0.500",
+        "24.88",
+        "0.25",
+        "0.156",
+        "0.25"
+      ]
+    },
+    {
+      "grade": "A2",
+      "form": "flat",
+      "occurrences": 27,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "05/06/2015",
+        "05/13/2015",
+        "05/01/2020",
+        "07/11/2014",
+        "08/01/2014",
+        "09/11/2014",
+        "09/24/2014",
+        "10/13/2014",
+        "12/03/2014",
+        "12/11/2014",
+        "02/04/2015",
+        "08/02/2024"
+      ],
+      "firstDate": "2014-07-11",
+      "lastDate": "2026-05-07",
+      "costSamplesRaw": [
+        "43.3571",
+        "1.5115",
+        "3.70",
+        "2.70",
+        "2.70"
+      ]
+    },
+    {
+      "grade": "M4",
+      "form": "round",
+      "occurrences": 26,
+      "vendorCount": 3,
+      "vendors": [
+        "CINCINNATI TOOL STEEL",
+        "GRIGGS STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "05/05/2014",
+        "08/12/2015",
+        "09/02/2025",
+        "09/12/2025",
+        "12/09/2025",
+        "03/31/2019",
+        "04/09/2019",
+        "11/10/2020",
+        "01/05/2022",
+        "04/26/2024",
+        "11/26/2024",
+        "06/05/2014"
+      ],
+      "firstDate": "2014-05-05",
+      "lastDate": "2026-02-12",
+      "costSamplesRaw": [
+        "20.00",
+        "584.24",
+        "360.50",
+        "280.50",
+        "11.89"
+      ]
+    },
+    {
+      "grade": "52100",
+      "form": "unknown",
+      "occurrences": 23,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "MCMASTER-CARR SUPPLY"
+      ],
+      "sizeSamples": [
+        "11/04/2015",
+        "09/02/2016",
+        "05/10/2017",
+        "05/19/2017",
+        "02/08/2018",
+        "02/19/2018",
+        "12/23/2015",
+        "12/05/2017",
+        "09/12/2025"
+      ],
+      "firstDate": "2015-11-04",
+      "lastDate": "2025-09-12",
+      "costSamplesRaw": [
+        "1.404",
+        "1.125",
+        "1.25",
+        "1.625",
+        "1.875"
+      ]
+    },
+    {
+      "grade": "A2",
+      "form": "round",
+      "occurrences": 21,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "07/24/2014",
+        "08/18/2014",
+        "02/17/2015",
+        "02/19/2015",
+        "05/15/2015",
+        "06/02/2015",
+        "01/07/2026",
+        "07/08/2014",
+        "11/11/2014",
+        "03/04/2015",
+        "03/13/2015",
+        "11/21/2019"
+      ],
+      "firstDate": "2014-07-08",
+      "lastDate": "2026-05-11",
+      "costSamplesRaw": [
+        "1.585",
+        "29.05",
+        "7.24",
+        "28.793",
+        "3.4275"
+      ]
+    },
+    {
+      "grade": "4140",
+      "form": "round",
+      "occurrences": 17,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "08/18/2014",
+        "05/15/2015",
+        "03/04/2015",
+        "04/16/2015",
+        "05/29/2015",
+        "07/24/2015",
+        "06/25/2020",
+        "02/27/2023",
+        "03/14/2023",
+        "03/22/2023",
+        "03/27/2023",
+        "03/29/2023"
+      ],
+      "firstDate": "2014-08-18",
+      "lastDate": "2025-12-05",
+      "costSamplesRaw": [
+        "11.25",
+        "18.41",
+        "2.10",
+        "0.9925",
+        "3.85"
+      ]
+    },
+    {
+      "grade": "S7",
+      "form": "flat",
+      "occurrences": 17,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "09/05/2014",
+        "02/11/2015",
+        "05/08/2015",
+        "09/21/2015",
+        "12/17/2015",
+        "05/13/2014",
+        "10/03/2014",
+        "11/11/2014",
+        "05/29/2015",
+        "06/04/2015",
+        "06/26/2015",
+        "06/29/2015"
+      ],
+      "firstDate": "2014-05-13",
+      "lastDate": "2026-05-11",
+      "costSamplesRaw": [
+        "3.2425",
+        "1.46",
+        "2.250",
+        "2.805",
+        "97.58"
+      ]
+    },
+    {
+      "grade": "DC53",
+      "form": "unknown",
+      "occurrences": 14,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "01/08/2016",
+        "01/25/2016",
+        "06/28/2016",
+        "09/27/2016",
+        "11/18/2016",
+        "01/25/2017",
+        "01/30/2017",
+        "02/02/2017",
+        "04/24/2017",
+        "05/04/2017",
+        "05/05/2017",
+        "11/22/2017"
+      ],
+      "firstDate": "2016-01-08",
+      "lastDate": "2017-11-22",
+      "costSamplesRaw": [
+        "1.500",
+        "1.4035",
+        "1.250",
+        "77.17",
+        "1.25"
+      ]
+    },
+    {
+      "grade": "M42",
+      "form": "unknown",
+      "occurrences": 13,
+      "vendorCount": 1,
+      "vendors": [
+        "GRIGGS STEEL"
+      ],
+      "sizeSamples": [
+        "07/01/2014",
+        "07/25/2014",
+        "08/05/2014",
+        "01/06/2015",
+        "06/16/2015",
+        "08/25/2015",
+        "10/13/2015",
+        "01/26/2016",
+        "04/12/2016",
+        "01/26/2017",
+        "08/22/2017",
+        "11/03/2017"
+      ],
+      "firstDate": "2014-07-01",
+      "lastDate": "2017-11-03",
+      "costSamplesRaw": [
+        "5.79",
+        "5.79",
+        "1.017",
+        "1.515",
+        "8.51"
+      ]
+    },
+    {
+      "grade": "1045",
+      "form": "unknown",
+      "occurrences": 12,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CHICAGO WATER ET, INC."
+      ],
+      "sizeSamples": [
+        "08/15/2017",
+        "08/17/2017",
+        "11/02/2017",
+        "08/02/2022"
+      ],
+      "firstDate": "2017-08-15",
+      "lastDate": "2022-08-02",
+      "costSamplesRaw": [
+        "1.50",
+        "2.625",
+        "2.625",
+        "3.25",
+        "4.25"
+      ]
+    },
+    {
+      "grade": "L6",
+      "form": "unknown",
+      "occurrences": 11,
+      "vendorCount": 2,
+      "vendors": [
+        "CINCINNATI TOOL STEEL",
+        "SUNNEN PRODUCTS COMPANY"
+      ],
+      "sizeSamples": [
+        "12/27/2016",
+        "02/16/2018",
+        "08/14/2019",
+        "06/02/2020",
+        "08/26/2020",
+        "01/08/2021",
+        "04/27/2021",
+        "05/24/2021",
+        "08/10/2021",
+        "05/08/2025"
+      ],
+      "firstDate": "2016-12-27",
+      "lastDate": "2025-05-08",
+      "costSamplesRaw": [
+        "3.875",
+        "3.25",
+        "054.60",
+        "30.40",
+        "61.75"
+      ]
+    },
+    {
+      "grade": "174",
+      "form": "unknown",
+      "occurrences": 10,
+      "vendorCount": 5,
+      "vendors": [
+        "CREATIVE CARBIDE",
+        "INNOVATE TECHNOLOGIES",
+        "ROC FORM CARBIDE MANUFACTURING, INC.",
+        "SUNNEN PRODUCTS COMPANY",
+        "ZENITOOLS, INC."
+      ],
+      "sizeSamples": [
+        "01/17/2017",
+        "02/19/2026",
+        "04/07/2026",
+        "10/29/2014",
+        "10/24/2017",
+        "08/21/2014",
+        "09/04/2014",
+        "09/05/2025",
+        "12/15/2025",
+        "02/12/2026"
+      ],
+      "firstDate": "2014-08-21",
+      "lastDate": "2026-04-07",
+      "costSamplesRaw": [
+        "1.125",
+        "174.00",
+        "174.00",
+        "174.50",
+        "2.520"
+      ]
+    },
+    {
+      "grade": "52100",
+      "form": "round",
+      "occurrences": 9,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "05/15/2014",
+        "09/05/2014",
+        "09/23/2014",
+        "02/16/2015",
+        "04/07/2015",
+        "04/03/2015",
+        "10/30/2025"
+      ],
+      "firstDate": "2014-05-15",
+      "lastDate": "2025-10-30",
+      "costSamplesRaw": [
+        "1.56",
+        "1.39",
+        "1.69",
+        "1.60",
+        "73.12"
+      ]
+    },
+    {
+      "grade": "O1",
+      "form": "round",
+      "occurrences": 9,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "04/10/2015",
+        "04/29/2015",
+        "11/25/2014",
+        "03/19/2018",
+        "11/18/2019",
+        "11/20/2019",
+        "11/06/2020",
+        "01/20/2026"
+      ],
+      "firstDate": "2014-11-25",
+      "lastDate": "2026-01-20",
+      "costSamplesRaw": [
+        "145.2825",
+        "13.85",
+        "2.300",
+        "198.82",
+        "6.25"
+      ]
+    },
+    {
+      "grade": "4140",
+      "form": "flat",
+      "occurrences": 9,
+      "vendorCount": 2,
+      "vendors": [
+        "CINCINNATI TOOL STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "07/11/2014",
+        "11/11/2014",
+        "07/22/2015",
+        "09/21/2018",
+        "11/27/2019",
+        "12/04/2025",
+        "10/22/2024"
+      ],
+      "firstDate": "2014-07-11",
+      "lastDate": "2025-12-04",
+      "costSamplesRaw": [
+        "2.95",
+        "2.65",
+        "60.00",
+        "1.25"
+      ]
+    },
+    {
+      "grade": "12L14",
+      "form": "round",
+      "occurrences": 8,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "10/16/2025",
+        "10/24/2025",
+        "11/11/2020",
+        "09/10/2025",
+        "09/12/2025"
+      ],
+      "firstDate": "2020-11-11",
+      "lastDate": "2025-10-24",
+      "costSamplesRaw": [
+        "110.07",
+        "2.25",
+        "3.95"
+      ]
+    },
+    {
+      "grade": "12L14",
+      "form": "unknown",
+      "occurrences": 8,
+      "vendorCount": 1,
+      "vendors": [
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "01/16/2015",
+        "01/23/2015",
+        "08/20/2015"
+      ],
+      "firstDate": "2015-01-16",
+      "lastDate": "2015-08-20",
+      "costSamplesRaw": [
+        "1.70",
+        "1.85",
+        "1.0123",
+        "1.0123",
+        "1.5808"
+      ]
+    },
+    {
+      "grade": "O1",
+      "form": "flat",
+      "occurrences": 7,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "BOHLER UDDEHOLM",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "05/08/2015",
+        "02/20/2015",
+        "07/11/2014",
+        "05/29/2015",
+        "08/07/2015",
+        "11/27/2019",
+        "03/10/2026"
+      ],
+      "firstDate": "2014-07-11",
+      "lastDate": "2026-03-10",
+      "costSamplesRaw": [
+        "62.42",
+        "4.25",
+        "4.475"
+      ]
+    },
+    {
+      "grade": "D2",
+      "form": "flat",
+      "occurrences": 6,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "08/07/2014",
+        "06/03/2014",
+        "07/11/2014",
+        "04/08/2015",
+        "08/07/2015",
+        "10/13/2025"
+      ],
+      "firstDate": "2014-06-03",
+      "lastDate": "2025-10-13",
+      "costSamplesRaw": [
+        "1.55",
+        "20.00",
+        "3.40",
+        "19.6666"
+      ]
+    },
+    {
+      "grade": "4340",
+      "form": "round",
+      "occurrences": 6,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "02/17/2015"
+      ],
+      "firstDate": "2015-02-17",
+      "lastDate": "2015-02-17",
+      "costSamplesRaw": [
+        "473.62",
+        "31.65",
+        "21.57",
+        "12.71",
+        "38.46"
+      ]
+    },
+    {
+      "grade": "4340",
+      "form": "unknown",
+      "occurrences": 6,
+      "vendorCount": 3,
+      "vendors": [
+        "ALRO STEEL",
+        "PTS-TOOLS",
+        "TA"
+      ],
+      "sizeSamples": [
+        "11/28/2016",
+        "02/22/2023",
+        "02/24/2020",
+        "12/30/2020",
+        "02/10/2021",
+        "06/28/2022"
+      ],
+      "firstDate": "2016-11-28",
+      "lastDate": "2023-02-22",
+      "costSamplesRaw": [
+        "1.250",
+        "17.3094",
+        "15.375",
+        "14.72",
+        "14.72"
+      ]
+    },
+    {
+      "grade": "1018",
+      "form": "flat",
+      "occurrences": 6,
+      "vendorCount": 2,
+      "vendors": [
+        "CINCINNATI TOOL STEEL",
+        "PAR ER STEEL"
+      ],
+      "sizeSamples": [
+        "04/12/2021",
+        "04/14/2021",
+        "11/05/2025",
+        "11/12/2025",
+        "02/24/2016",
+        "10/06/2017"
+      ],
+      "firstDate": "2016-02-24",
+      "lastDate": "2025-11-12",
+      "costSamplesRaw": [
+        "2.903",
+        "140.00",
+        "66.76"
+      ]
+    },
+    {
+      "grade": "1018",
+      "form": "unknown",
+      "occurrences": 5,
+      "vendorCount": 2,
+      "vendors": [
+        "ALRO STEEL",
+        "PAR ER STEEL"
+      ],
+      "sizeSamples": [
+        "05/23/2016",
+        "09/29/2017",
+        "12/12/2017",
+        "10/16/2018"
+      ],
+      "firstDate": "2016-05-23",
+      "lastDate": "2018-10-16",
+      "costSamplesRaw": [
+        "587.34",
+        "0.625",
+        "1.471",
+        "625.56",
+        "25.08"
+      ]
+    },
+    {
+      "grade": "6F",
+      "form": "unknown",
+      "occurrences": 5,
+      "vendorCount": 2,
+      "vendors": [
+        "PTS-TOOLS",
+        "TS TOOLING SUPPLY"
+      ],
+      "sizeSamples": [
+        "10/12/2023",
+        "11/22/2023",
+        "02/03/2026",
+        "04/14/2026"
+      ],
+      "firstDate": "2023-10-12",
+      "lastDate": "2026-04-14",
+      "costSamplesRaw": [
+        "94.258",
+        "91.76",
+        "29.59",
+        "22.15",
+        "51.76"
+      ]
+    },
+    {
+      "grade": "M2",
+      "form": "flat",
+      "occurrences": 4,
+      "vendorCount": 2,
+      "vendors": [
+        "CINCINNATI TOOL STEEL",
+        "GRIGGS STEEL"
+      ],
+      "sizeSamples": [
+        "06/30/2014",
+        "07/09/2014",
+        "04/03/2026",
+        "03/06/2018"
+      ],
+      "firstDate": "2014-06-30",
+      "lastDate": "2026-04-03",
+      "costSamplesRaw": [
+        "20.00",
+        "1.770"
+      ]
+    },
+    {
+      "grade": "M42",
+      "form": "round",
+      "occurrences": 4,
+      "vendorCount": 2,
+      "vendors": [
+        "CINCINNATI TOOL STEEL",
+        "GRIGGS STEEL"
+      ],
+      "sizeSamples": [
+        "09/12/2025",
+        "06/07/2018"
+      ],
+      "firstDate": "2018-06-07",
+      "lastDate": "2025-09-12",
+      "costSamplesRaw": [
+        "18.78",
+        "695.50",
+        "11.48"
+      ]
+    },
+    {
+      "grade": "174",
+      "form": "round",
+      "occurrences": 4,
+      "vendorCount": 3,
+      "vendors": [
+        "GRIGGS STEEL",
+        "INNOVATE TECHNOLOGIES",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "03/20/2026",
+        "05/12/2026",
+        "08/16/2021",
+        "10/13/2023"
+      ],
+      "firstDate": "2021-08-16",
+      "lastDate": "2026-05-12",
+      "costSamplesRaw": [
+        "174.00",
+        "5.35",
+        "2.174"
+      ]
+    },
+    {
+      "grade": "CPM1V",
+      "form": "unknown",
+      "occurrences": 3,
+      "vendorCount": 3,
+      "vendors": [
+        "ACTION METALS",
+        "CINCINNATI TOOL STEEL",
+        "ZAPP TOOLING ALLOYS"
+      ],
+      "sizeSamples": [
+        "12/10/2015",
+        "03/23/2016",
+        "03/31/2016"
+      ],
+      "firstDate": "2015-12-10",
+      "lastDate": "2016-03-31",
+      "costSamplesRaw": [
+        "157.50",
+        "1.500",
+        "118.3750"
+      ]
+    },
+    {
+      "grade": "L6",
+      "form": "round",
+      "occurrences": 3,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "05/05/2015",
+        "05/12/2015",
+        "05/14/2015"
+      ],
+      "firstDate": "2015-05-05",
+      "lastDate": "2015-05-14",
+      "costSamplesRaw": [
+        "10.91"
+      ]
+    },
+    {
+      "grade": "DC53",
+      "form": "round",
+      "occurrences": 2,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "02/02/2015",
+        "07/11/2019"
+      ],
+      "firstDate": "2015-02-02",
+      "lastDate": "2019-07-11",
+      "costSamplesRaw": [
+        "54.00",
+        "2.35"
+      ]
+    },
+    {
+      "grade": "CPM3V",
+      "form": "flat",
+      "occurrences": 2,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "05/14/2015"
+      ],
+      "firstDate": "2015-05-14",
+      "lastDate": "2015-05-14",
+      "costSamplesRaw": [
+        "3.125",
+        "3.125"
+      ]
+    },
+    {
+      "grade": "1045",
+      "form": "plate",
+      "occurrences": 2,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "08/16/2017"
+      ],
+      "firstDate": "2017-08-16",
+      "lastDate": "2017-08-16",
+      "costSamplesRaw": [
+        "0.75",
+        "0.875"
+      ]
+    },
+    {
+      "grade": "CPM9V",
+      "form": "unknown",
+      "occurrences": 2,
+      "vendorCount": 1,
+      "vendors": [
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "01/22/2015",
+        "01/28/2015"
+      ],
+      "firstDate": "2015-01-22",
+      "lastDate": "2015-01-28",
+      "costSamplesRaw": [
+        "2.35"
+      ]
+    },
+    {
+      "grade": "1018",
+      "form": "round",
+      "occurrences": 2,
+      "vendorCount": 1,
+      "vendors": [
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "09/26/2025"
+      ],
+      "firstDate": "2025-09-26",
+      "lastDate": "2025-09-26",
+      "costSamplesRaw": [
+        "51.52",
+        "93.00"
+      ]
+    },
+    {
+      "grade": "M4",
+      "form": "flat",
+      "occurrences": 2,
+      "vendorCount": 2,
+      "vendors": [
+        "GRIGGS STEEL",
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "11/10/2020",
+        "01/22/2021"
+      ],
+      "firstDate": "2020-11-10",
+      "lastDate": "2021-01-22",
+      "costSamplesRaw": [
+        "4.85",
+        "1.250"
+      ]
+    },
+    {
+      "grade": "D6",
+      "form": "unknown",
+      "occurrences": 2,
+      "vendorCount": 2,
+      "vendors": [
+        "SUNNEN PRODUCTS COMPANY",
+        "TS TOOLING SUPPLY"
+      ],
+      "sizeSamples": [
+        "05/21/2026",
+        "02/03/2026"
+      ],
+      "firstDate": "2026-02-03",
+      "lastDate": "2026-05-21",
+      "costSamplesRaw": [
+        "31.48"
+      ]
+    },
+    {
+      "grade": "52100",
+      "form": "flat",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "12/17/2015"
+      ],
+      "firstDate": "2015-12-17",
+      "lastDate": "2015-12-17",
+      "costSamplesRaw": [
+        "2.500"
+      ]
+    },
+    {
+      "grade": "A36",
+      "form": "unknown",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "12/27/2017"
+      ],
+      "firstDate": "2017-12-27",
+      "lastDate": "2017-12-27",
+      "costSamplesRaw": [
+        "2.809"
+      ]
+    },
+    {
+      "grade": "DC53",
+      "form": "flat",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "ALRO STEEL"
+      ],
+      "sizeSamples": [
+        "05/30/2025"
+      ],
+      "firstDate": "2025-05-30",
+      "lastDate": "2025-05-30",
+      "costSamplesRaw": []
+    },
+    {
+      "grade": "A6",
+      "form": "round",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "07/29/2014"
+      ],
+      "firstDate": "2014-07-29",
+      "lastDate": "2014-07-29",
+      "costSamplesRaw": [
+        "2.65"
+      ]
+    },
+    {
+      "grade": "CPM10V",
+      "form": "unknown",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "CINCINNATI TOOL STEEL"
+      ],
+      "sizeSamples": [
+        "05/12/2015"
+      ],
+      "firstDate": "2015-05-12",
+      "lastDate": "2015-05-12",
+      "costSamplesRaw": []
+    },
+    {
+      "grade": "M2",
+      "form": "plate",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "GRIGGS STEEL"
+      ],
+      "sizeSamples": [
+        "06/04/2015"
+      ],
+      "firstDate": "2015-06-04",
+      "lastDate": "2015-06-04",
+      "costSamplesRaw": [
+        "1.062"
+      ]
+    },
+    {
+      "grade": "8620",
+      "form": "round",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "IVERSON"
+      ],
+      "sizeSamples": [
+        "04/06/2021"
+      ],
+      "firstDate": "2021-04-06",
+      "lastDate": "2021-04-06",
+      "costSamplesRaw": [
+        "1950.00"
+      ]
+    },
+    {
+      "grade": "4140",
+      "form": "hex",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "PAR ER STEEL"
+      ],
+      "sizeSamples": [
+        "07/17/2020"
+      ],
+      "firstDate": "2020-07-17",
+      "lastDate": "2020-07-17",
+      "costSamplesRaw": [
+        "99.64"
+      ]
+    },
+    {
+      "grade": "CPM15V",
+      "form": "flat",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "SB SPECIALTY METALS"
+      ],
+      "sizeSamples": [
+        "10/17/2025"
+      ],
+      "firstDate": "2025-10-17",
+      "lastDate": "2025-10-17",
+      "costSamplesRaw": []
+    },
+    {
+      "grade": "CPM10V",
+      "form": "round",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "ZAPP TOOLING ALLOYS"
+      ],
+      "sizeSamples": [
+        "01/15/2019"
+      ],
+      "firstDate": "2019-01-15",
+      "lastDate": "2019-01-15",
+      "costSamplesRaw": [
+        "22.76"
+      ]
+    },
+    {
+      "grade": "CPM9V",
+      "form": "round",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "ZAPP TOOLING ALLOYS"
+      ],
+      "sizeSamples": [
+        "04/19/2021"
+      ],
+      "firstDate": "2021-04-19",
+      "lastDate": "2021-04-19",
+      "costSamplesRaw": [
+        "14.88"
+      ]
+    },
+    {
+      "grade": "CPM3V",
+      "form": "round",
+      "occurrences": 1,
+      "vendorCount": 1,
+      "vendors": [
+        "ZAPP TOOLING ALLOYS"
+      ],
+      "sizeSamples": [
+        "05/06/2025"
+      ],
+      "firstDate": "2025-05-06",
+      "lastDate": "2025-05-06",
+      "costSamplesRaw": []
+    }
+  ]
+}

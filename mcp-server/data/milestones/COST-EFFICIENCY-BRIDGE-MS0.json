@@ -1,0 +1,122 @@
+{
+  "id": "COST-EFFICIENCY-BRIDGE-MS0",
+  "version": "1.0.0",
+  "title": "Cost-Efficiency Bridge — Print-to-Quote Aggregator + 3 Auto-Fire Hooks",
+  "brief": "Single-aggregator engine that bridges every PRISM data flow into a canonical ProgramCostReport — per-part cycle/material/labor/machine/overhead/tooling/quote, per-operation MRR + tool wear, performance bottleneck, business analytics (cost/mm³, revenue/spindle-hour, optimization potential $). 3 PostToolUse hooks auto-fire on program emit / runtime predict / reverse-CAD landings to keep downstream consumers fresh. Closes user directive 2026-05-24 (slot:echo).",
+  "created_at": "2026-05-24T07:00:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "BUSINESS",
+  "track_name": "Print-to-Quote Pipeline",
+  "status": "complete",
+  "completed_at": "2026-05-24T07:30:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "mcp-server/src/engines/CostEfficiencyBridgeEngine.ts — pure aggregator that calls existing engines (GCodeRuntimePredictor + GCodeReverseCAD + GCodeBidirectionalOptimizer + ToolPricing + MaterialPricing + ShopRates) and emits canonical ProgramCostReport. ~410 LOC. 7 named constants (no magic numbers). R12 fail-loud: missing program_id throws, missing material throws, negative labor rate throws. Graceful degrade on missing tool pricing (warning + zero, NOT silent crash). Stale-pricing detection emits warnings for material/machine/tool ages > budget (default 24h)."
+    },
+    {
+      "unit": "P0-U02",
+      "status": "shipped",
+      "note": "mcp-server/src/__tests__/CostEfficiencyBridge.test.ts — 20/20 PASS. Concrete arithmetic: Al-6061 80×80×30 stock yields $2.592 material cost EXACT (192 cm³ × 2.70 g/cm³ × $5/kg). Quote = total / (1 - margin) verified. Conservation: material + tooling + labor + machine + overhead = total. Cross-config variability: Hurco VMX24 vs Haas VF2 produce DIFFERENT cycle times → DIFFERENT costs. R12 fail-loud: 5 failure modes verified (empty program_id, missing material, negative labor rate, missing tool pricing → warning, stale price → warning + confidence drops to 'medium')."
+    },
+    {
+      "unit": "P0-U03",
+      "status": "shipped",
+      "note": "Three T3-advisory hooks: cost-bridge-on-program-emit.mjs (fires on master_post_*/cam:emit_*/lathe_p2p_emit), cost-bridge-on-runtime-predict.mjs (fires on gcode_runtime_predict), cost-bridge-on-reverse-cad.mjs (fires on gcode_reverse_cad). All advisory (no auto-mutation). Knob PRISM_COST_BRIDGE_ADVISORY_DISABLE=1 silences all 3. Each hook surfaces the specific ProgramCostReport fields that should be refreshed downstream."
+    },
+    {
+      "unit": "P0-U04",
+      "status": "shipped",
+      "note": "state/shared/cost-efficiency-bridge-scope.md — full enumeration: 16 upstream entry points × 8 downstream consumers × ProgramCostReport canonical schema × 5-MS build sequence with 13 deferred hooks named. Operator-readable scope before any code shipped."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Bridge engine + tests + 3 auto-fire hooks + scope doc",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "CostEfficiencyBridgeEngine — pure aggregator emitting ProgramCostReport",
+          "effort": 50,
+          "dependencies": ["GCODE-INVERSE-LOOP-MS0"],
+          "exit_conditions": [
+            "Engine consumes existing GCodeRuntimePredictor + GCodeReverseCAD + GCodeBidirectionalOptimizer outputs",
+            "Emits ProgramCostReport with per_part / per_operation / tooling / performance / quote / analytics / refs / warnings / data_freshness",
+            "R12 fail-loud: missing required fields throw, stale prices warn",
+            "No magic numbers in cost math (7 named constants)",
+            "Pure router/aggregator — no new physics, no I/O, no dispatcher imports"
+          ],
+          "description": "The single source of truth for cost data the rest of PRISM reads from. Replaces ad-hoc cost rollups scattered across QuoteEstimator, ActualCost, ABC-cost engines.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "CostEfficiencyBridge tests — 20/20 PASS",
+          "effort": 25,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": [
+            "Concrete arithmetic: $2.592 EXACT for Al-6061 80×80×30 material cost",
+            "Quote = total / (1 - margin) verified",
+            "Cost conservation: sum of components = total",
+            "Cross-machine variability: 2 machines produce different costs",
+            "R12 failures: 5 named failure modes verified",
+            "20+ assertions, no toBeDefined-only stubs"
+          ],
+          "description": "Anti-regression pin on every cost-math invariant the customer sees.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "3 auto-fire advisory hooks (program-emit, runtime-predict, reverse-cad)",
+          "effort": 15,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": [
+            "PostToolUse hook triggers on master_post_* / cam:emit_* / lathe_p2p_emit",
+            "PostToolUse hook triggers on gcode_runtime_predict",
+            "PostToolUse hook triggers on gcode_reverse_cad",
+            "All hooks pure advisory (no auto-mutation per R12)",
+            "Single knob PRISM_COST_BRIDGE_ADVISORY_DISABLE=1 silences all"
+          ],
+          "description": "The 3 highest-leverage upstream entry points that drive most ProgramCostReport refreshes. 13 more hooks deferred to MS1 with the punch list named in the scope doc.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Scope doc — 16 upstream × 8 downstream × schema × build sequence",
+          "effort": 20,
+          "dependencies": [],
+          "exit_conditions": [
+            "state/shared/cost-efficiency-bridge-scope.md committed",
+            "Full enumeration: 16 entry points + 8 consumers + canonical schema",
+            "Build sequence with effort estimates + MS1 deferred-hook punch list"
+          ],
+          "description": "Operator-readable scope before any code — the why + how + what's deferred.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "CostEfficiencyBridgeEngine compiles + 20/20 tests PASS + 3 hooks emit valid JSON + scope doc committed. Operator can read ProgramCostReport from any of 8 downstream consumers (quote/traveler/capacity/ERP/scheduler/cost-analyzer/SPC/dashboard) with one canonical shape. R12 fail-loud throughout — no silent zero-cost reports.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "13 of 16 upstream auto-fire hooks deferred to MS1 — material price tick, machine rate change, tool catalog update, quote accept, SPC log, tool wear log, operator override, CAD import, PDF extract, shop config change, CAM strategy select, CAM tool select, precommit guard. Named in scope §6. Each hook is ~30 LOC, ~2-3hr to ship the batch."
+    },
+    {
+      "id": "R2",
+      "description": "ProgramCostReport persistence (state/shared/cost-efficiency-reports/<program-id>.json — scope §7) NOT YET WIRED. Bridge currently returns the report in-memory; caller must persist. Follow-up unit P0-U05 (deferred) adds the persister."
+    },
+    {
+      "id": "R3",
+      "description": "estimateOpCycleSec() V1 simplification distributes total cutting time evenly across features — real per-op timing requires the finer block-attribution map that lives in GCodeRuntimePredictor's per-block array. MS1 wires that for accurate per-op cost (current numbers are roll-up-accurate but per-op-approximate)."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": ["GCODE-INVERSE-LOOP-MS0"],
+  "updated_at": "2026-05-24T07:35:00Z"
+}

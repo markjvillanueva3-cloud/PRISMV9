@@ -53,12 +53,18 @@ describe("AISystemRouterEngine — classify + route happy paths", () => {
     expect(r.estimatedCost).toBe("high");
   });
 
-  it("routes ML-inference tasks to ollama-codellama at zero cost", () => {
+  it("routes ML-inference tasks to local-mcp at zero cost (runtime router picks the local model)", () => {
+    // BLACKWELL-MODEL-INTEGRATION-MS0 P2: ml_inference no longer names never-installed
+    // Ollama tags; it delegates to the local MCP surface, and the REAL local-model pick
+    // (gpt-oss:120b > gpt-oss:20b > qwen2.5-coder:32b) happens at runtime via /api/tags.
     const r = aiSystemRouterEngine.route("classify these toolpath tokens");
     expect(r.taskClass).toBe("ml_inference");
-    expect(r.primary).toBe("ollama-codellama");
-    expect(r.fallback).toEqual(["ollama-deepseek", "claude-haiku"]);
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-haiku"]);
     expect(r.estimatedCost).toBe("free");
+    // The reason documents the runtime routing chain so the advisory output is honest.
+    expect(r.reason).toContain("gpt-oss:120b");
+    expect(r.reason).toContain("qwen2.5-coder:32b");
   });
 
   it("routes batch-processing tasks to docker-batch-processor", () => {
@@ -100,6 +106,102 @@ describe("AISystemRouterEngine — classify + route happy paths", () => {
     expect(r.primary).toBe("claude-sonnet");
     expect(r.fallback).toEqual(["claude-opus"]);
     expect(r.estimatedCost).toBe("medium");
+  });
+
+  it("routes blueprint_extraction tasks to local-mcp (BLUEPRINT-OCR-TRAINING-MS1)", () => {
+    const r = aiSystemRouterEngine.route("extract the title block from this blueprint");
+    expect(r.taskClass).toBe("blueprint_extraction");
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-sonnet"]);
+    expect(r.estimatedCost).toBe("low");
+    expect(r.reason).toContain("blueprint_rag_extract");
+  });
+
+  it("routes ocr extraction tasks to blueprint_extraction (PDFBlueprintPatternRescueEngine)", () => {
+    const r = aiSystemRouterEngine.route("ocr the GD&T callouts off this drawing");
+    expect(r.taskClass).toBe("blueprint_extraction");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes print-reading tasks to blueprint_extraction (PrintReadingEngine)", () => {
+    const r = aiSystemRouterEngine.route("print reading: extract dim from this part page");
+    expect(r.taskClass).toBe("blueprint_extraction");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes corpus_harvest tasks to local-mcp (BlueprintCorpusHarvestEngine)", () => {
+    const r = aiSystemRouterEngine.route("corpus harvest mit course 2.008 to knowledge base");
+    expect(r.taskClass).toBe("corpus_harvest");
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-haiku"]);
+    expect(r.estimatedCost).toBe("free");
+    expect(r.reason).toContain("BlueprintCorpusHarvestEngine");
+  });
+
+  it("routes vendor pdf harvest tasks to corpus_harvest", () => {
+    const r = aiSystemRouterEngine.route("harvest vendor PDFs into the drafting corpus");
+    expect(r.taskClass).toBe("corpus_harvest");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  // SIERRA U-PSGB-SIERRA (2026-05-29): closes PSN leg 11 — router was domain-blind to system-viz.
+  it("routes system-viz regen tasks to local-mcp at zero cost (master_index_query surface)", () => {
+    const r = aiSystemRouterEngine.route("regenerate the system-viz graph");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+    expect(r.fallback).toEqual(["claude-haiku"]);
+    expect(r.estimatedCost).toBe("free");
+    expect(r.reason).toContain("master_index_query");
+  });
+
+  it("routes master-index rebuild tasks to system_viz (not engine_building — no engine/dispatcher noun)", () => {
+    const r = aiSystemRouterEngine.route("rebuild the master-index");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes ghost-roost tasks to system_viz", () => {
+    const r = aiSystemRouterEngine.route("show the ghost-roost nodes in the graph");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("routes system-graph queries to system_viz BEFORE generic search (viz-specific wins)", () => {
+    const r = aiSystemRouterEngine.route("query the system graph for orphan nodes");
+    expect(r.taskClass).toBe("system_viz");
+    expect(r.primary).toBe("local-mcp");
+  });
+});
+
+describe("AISystemRouterEngine — ordering preservation", () => {
+  it("'build a new blueprint reader engine' still routes to engine_building (build+engine wins before blueprint)", () => {
+    const r = aiSystemRouterEngine.route("build a new blueprint reader engine");
+    expect(r.taskClass).toBe("engine_building");
+    expect(r.primary).toBe("claude-opus");
+  });
+
+  it("'review the ocr engine output' still routes to code_review (review wins before blueprint)", () => {
+    const r = aiSystemRouterEngine.route("review the ocr engine output for accuracy");
+    expect(r.taskClass).toBe("code_review");
+    expect(r.primary).toBe("claude-sonnet");
+  });
+
+  it("'find blueprints with GD&T callouts' still routes to search (find wins before blueprint)", () => {
+    const r = aiSystemRouterEngine.route("find blueprints with GD&T callouts in the index");
+    expect(r.taskClass).toBe("search");
+    expect(r.primary).toBe("local-mcp");
+  });
+
+  it("'review the system-viz generator' still routes to code_review (review wins before system_viz)", () => {
+    const r = aiSystemRouterEngine.route("review the system-viz generator for issues");
+    expect(r.taskClass).toBe("code_review");
+    expect(r.primary).toBe("claude-sonnet");
+  });
+
+  it("getStats() reports 12 task classes after blueprint_extraction + corpus_harvest + system_viz", () => {
+    const stats = aiSystemRouterEngine.getStats();
+    expect(stats.task_classes).toBe(12);
+    expect(stats.backends_known).toBe(8);
   });
 });
 

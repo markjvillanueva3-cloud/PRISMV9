@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>`/pipeline` — Pipeline Meta-Command (U-CK25)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>`/pipeline` — Pipeline Meta-Command (U-CK25)</h1>
+<div class="meta">rendered from H:/prism/knowledge/wiki/os/pipelines/pipeline.md</div>
+<div class="meta">Generated 2026-05-17T22:08:14.929Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1"><code class="prism-inline-code">/pipeline</code> — Pipeline Meta-Command (U-CK25)</li><li class="prism-toc-l2">Subcommands</li><li class="prism-toc-l2">Load-bearing invariants (inherited from U-CK13)</li><li class="prism-toc-l2">Resume semantics</li><li class="prism-toc-l2">Exit codes</li><li class="prism-toc-l2">Discipline pins</li><li class="prism-toc-l2">Use cases</li><li class="prism-toc-l2">Composes-with</li><li class="prism-toc-l2">Related</li><li class="prism-toc-l2">See also</li></ul></nav><hr class="prism-hr">
+<p>title: PRISM pipeline — /pipeline meta-command (list/dry-run/execute/resume) slug: pipeline kind: pipeline status: shipped date: 2026-05-17 milestone: COMMAND-KERNEL-MS0 unit: U-CK25 author: claude-2d30710b (slot hotel, /loop command-kernel) trigger: command composed_of: [pipeline-exec-list, pipeline-exec-dry-run, pipeline-exec-force, pipeline-exec-resume] stages: [parse-subcommand, dispatch-to-executor, surface-result] consumes: [knowledge/wiki/os/pipelines/, state/shared/pipeline-telemetry.jsonl] produces: [stage-plan, execution-result, rollback-records, telemetry-rows] downgrade:   mode: hard-stop   fallback_to: dry-run telemetry:   ledger: state/shared/pipeline-telemetry.jsonl   fields: [fire_ts, chain_id, step_id, latency_ms, outcome, session_id, slot]</p>
+<hr class="prism-hr">
+<h1 class="prism-h1"><code class="prism-inline-code">/pipeline</code> — Pipeline Meta-Command (U-CK25)</h1>
+<p>The operator-facing skin over the U-CK13 pipeline executor (<code class="prism-inline-code">.claude/kernel/pipeline-exec.mjs</code>). Adds 0 logic — every subcommand maps to an existing executor flag, so the operator vocab is <code class="prism-inline-code">list | dry-run | execute | resume</code> instead of CLI-flag muscle-memory. This entry is the committed registry mirror per U-CK05; the operator-facing skill spec is <code class="prism-inline-code">.claude/commands/pipeline.md</code> (gitignored on disk).</p>
+<h2 class="prism-h2">Subcommands</h2>
+<table class="prism-md-table"><thead><tr><th>Subcommand</th><th>Maps to</th><th>Side-effects</th></tr></thead><tbody><tr><td><code class="prism-inline-code">list</code></td><td><code class="prism-inline-code">pipeline-exec.mjs --list</code></td><td>none — read-only enumeration</td></tr>
+<tr><td><code class="prism-inline-code">dry-run &lt;slug&gt;</code> (default)</td><td><code class="prism-inline-code">pipeline-exec.mjs &lt;slug&gt;</code></td><td>none — plan only</td></tr>
+<tr><td><code class="prism-inline-code">execute &lt;slug&gt;</code></td><td><code class="prism-inline-code">pipeline-exec.mjs &lt;slug&gt; --force-execute</code></td><td><strong>invokes handlers</strong> — destructive</td></tr>
+<tr><td><code class="prism-inline-code">resume &lt;slug&gt;</code></td><td>telemetry-walk + plan-from-start</td><td>none (the operator decides re-run scope)</td></tr></tbody></table>
+<h2 class="prism-h2">Load-bearing invariants (inherited from U-CK13)</h2>
+<ol class="prism-md-list"><li><strong>Dry-run is the safety default.</strong> Every chain starts as a plan, never a side-effect. Operator must explicitly type <code class="prism-inline-code">execute</code> (which maps to <code class="prism-inline-code">--force-execute</code>) to invoke handlers.</li><li><strong>Rollback chain fires on stage failure.</strong> A stage that returns <code class="prism-inline-code">{ok:false}</code> or throws walks the prior succeeded stages in REVERSE order through their rollback handlers. The skill surfaces <code class="prism-inline-code">{ok:false, failedAt:idx, results, rollbacks}</code> honestly — no quiet retry.</li><li><strong>Telemetry is non-optional in execute mode.</strong> Every stage appends one JSONL row to <code class="prism-inline-code">state/shared/pipeline-telemetry.jsonl</code> (<code class="prism-inline-code">{ts, slug, stepId, ok, tokens, latencyMs, outcome}</code>). The <code class="prism-inline-code">resume</code> subcommand reads the SAME ledger to find the last successful stage.</li><li><strong>Per-tier token-budget surfaced not enforced.</strong> The plan annotates each stage with the <code class="prism-inline-code">token_budget.tier</code> ceiling (<code class="prism-inline-code">entry-router: 500</code>, <code class="prism-inline-code">coding: 2000</code>, <code class="prism-inline-code">product-autopilot: 5000</code>); enforcement is the caller&#39;s obligation (per U-CK13 design — the executor cannot measure arbitrary handler token cost).</li></ol>
+<h2 class="prism-h2">Resume semantics</h2>
+<p><code class="prism-inline-code">/pipeline resume &lt;slug&gt;</code> is operator-mediated:</p>
+<ol class="prism-md-list"><li>Read the newest <code class="prism-inline-code">slug:&lt;slug&gt;, ok:true</code> row from <code class="prism-inline-code">pipeline-telemetry.jsonl</code>.</li><li>Surface that <code class="prism-inline-code">stepId</code> to the operator with the remaining stages in the plan.</li><li>Operator chooses: re-run from start (default), cherry-pick remaining stages via direct executor invocation, OR abandon. Auto-resume (skip succeeded stages and continue from the failed one) is intentionally deferred to a future <code class="prism-inline-code">U-CK13.1</code> unit — the rollback chain semantics mean a partial-resume needs explicit operator consent.</li></ol>
+<p>This is honest scope (R12): we do not pretend the executor supports auto-resume.</p>
+<h2 class="prism-h2">Exit codes</h2>
+<table class="prism-md-table"><thead><tr><th>Code</th><th>Meaning</th></tr></thead><tbody><tr><td>0</td><td>success (<code class="prism-inline-code">list</code> succeeded, dry-run report emitted, all stages OK in execute)</td></tr>
+<tr><td>1</td><td>any stage <code class="prism-inline-code">{ok:false}</code> after rollback completes</td></tr>
+<tr><td>2</td><td>setup / IO error — slug unknown, schema invalid, ledger unwritable</td></tr></tbody></table>
+<h2 class="prism-h2">Discipline pins</h2>
+<ul class="prism-md-list"><li><strong>R8: read before write.</strong> <code class="prism-inline-code">/pipeline</code> adds 0 logic. Any new pipeline behavior belongs in <code class="prism-inline-code">pipeline-exec.mjs</code>, not this skill.</li><li><strong>R10: checkpoint.</strong> Each subcommand is a checkpoint — the operator sees plan / result / verdict before the next call. No silent multi-step.</li><li><strong>R12: fail loud.</strong> <code class="prism-inline-code">failedAt</code> + <code class="prism-inline-code">stepId</code> are surfaced in the operator output. The downgrade <code class="prism-inline-code">mode: hard-stop</code> in this entry&#39;s frontmatter applies to the SKILL itself — if the executor cannot start (slug unknown), we exit 2, not silent-degrade to <code class="prism-inline-code">dry-run</code>.</li></ul>
+<h2 class="prism-h2">Use cases</h2>
+<ul class="prism-md-list"><li>Operator audit: which pipelines are registered → <code class="prism-inline-code">/pipeline list</code>.</li><li>Pre-merge gate: <code class="prism-inline-code">/pipeline dry-run &lt;changed-slug&gt;</code> against the new registry entry.</li><li>Scheduled fire: cron / hook calls <code class="prism-inline-code">pipeline-exec.mjs &lt;slug&gt; --force-execute</code> directly (the skill&#39;s <code class="prism-inline-code">execute</code> is the operator&#39;s interactive front-door — programmatic callers skip the skill).</li><li>Forensic: <code class="prism-inline-code">/pipeline dry-run &lt;slug&gt; --json</code> returns the annotated plan; diff against expected to catch frontmatter drift.</li></ul>
+<h2 class="prism-h2">Composes-with</h2>
+<table class="prism-md-table"><thead><tr><th>Caller</th><th>When</th></tr></thead><tbody><tr><td><code class="prism-inline-code">/session-cycle</code> (U-CK17)</td><td>calls <code class="prism-inline-code">pipeline-exec.mjs</code> for the checkin → pick → research → build → close-out → handoff chain</td></tr>
+<tr><td><code class="prism-inline-code">/research</code> (U-CK18)</td><td>registered AS a pipeline at <code class="prism-inline-code">knowledge/wiki/os/pipelines/research.md</code> — invoked via <code class="prism-inline-code">/pipeline execute research</code> OR direct skill call</td></tr>
+<tr><td><code class="prism-inline-code">/learn-pipeline</code> (U-CK20)</td><td>same — extract → dedup → tribal → wiki → memory chain</td></tr>
+<tr><td><code class="prism-inline-code">/wire-pipeline</code> (U-CK21)</td><td>same — orphan-inventory → dedup → wire → test → close chain</td></tr>
+<tr><td><code class="prism-inline-code">/forge-supervised</code> (U-CK24)</td><td>same — /forge-triple → /scrutiny-gate → close chain</td></tr></tbody></table>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[loop]] — sister pipeline (autonomous iteration that fires <code class="prism-inline-code">/pipeline execute &lt;slug&gt;</code>)</li><li>[[goal-complete]] — sister pipeline (Stop-hook gate that runs as a pipeline)</li><li>[[knowledge-injection]] — sister pipeline (KIP closed-loop)</li><li>[[research]] — sister pipeline + immediate downstream consumer</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/commands/pipeline.md</code> — operator skill spec (gitignored mirror)</li><li><code class="prism-inline-code">.claude/kernel/pipeline-exec.mjs</code> (U-CK13) — the executor</li><li><code class="prism-inline-code">knowledge/wiki/os/pipelines/_schema.md</code> (U-CK12) — frontmatter schema</li><li><code class="prism-inline-code">scripts/validate-pipeline-registry.mjs</code> — schema validator</li><li><code class="prism-inline-code">state/shared/pipeline-telemetry.jsonl</code> (ACP-MS0A P0-U04) — telemetry ledger</li><li><code class="prism-inline-code">mcp-server/data/milestones/COMMAND-KERNEL-MS0.json</code> U-CK25 — the unit envelope</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T22:08:14.929Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

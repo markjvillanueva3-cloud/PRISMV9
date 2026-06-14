@@ -1,0 +1,161 @@
+{
+  "id": "ECHO-CAM-BRIDGES-MS0",
+  "version": "1.0.0",
+  "title": "Echo-Slot CAM Bridges — Deep Wiring",
+  "brief": "Five BRIDGE-DEEP wiring units that connect already-built PRISM engines across CAD/CAM/operator/post boundaries: CAD AI→CAM AI strategy seed, operator-in-the-loop gates at every autonomous boundary, and SFC speeds/feeds→Fusion 360/hyperMILL/Inventor HSM cycle-param bridges. Each bridge is a pure function in CamBridgeKitEngine; per echo's slot-soul refuse-list, NEVER inlines feed/speed values and NEVER drops CAM-system context on translate (datums, tool numbers, WCS).",
+  "created_at": "2026-05-23T20:30:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "CAM",
+  "track_name": "Cross-CAM Bridge Wiring",
+  "status": "complete",
+  "completed_at": "2026-05-23T20:45:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "cad_cam_handoff bridge — CAD AI geometry → CAM strategy seed with feature→strategy_id mapping, datum preservation, unhandled-cycle-hint R12 surfacing"
+    },
+    {
+      "unit": "P0-U02",
+      "status": "shipped",
+      "note": "operator_gates_emit bridge — 5 stage defaults (cad_geometry/cam_strategy/cam_toolpath/post_processor/gcode_release) with per-stage role + blocking convention"
+    },
+    {
+      "unit": "P0-U03",
+      "status": "shipped",
+      "note": "sfc_fusion_bridge — SFC output → Fusion 360 'Adaptive Clearing' with stepover_pct derived from ae/tool_dia"
+    },
+    {
+      "unit": "P0-U04",
+      "status": "shipped",
+      "note": "sfc_hypermill_bridge — SFC output → hyperMILL 'OptiRough' with 30% plunge-factor convention"
+    },
+    {
+      "unit": "P0-U05",
+      "status": "shipped",
+      "note": "sfc_inventorhsm_bridge — SFC output → Inventor HSM 'Adaptive 2D' with optimal_load_mm = ae_mm engagement control"
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Five BRIDGE-DEEP wiring units",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "U-BRIDGE-CAD-CAM-HANDOFF — CAD AI → CAM AI autonomous handoff",
+          "effort": 30,
+          "dependencies": [],
+          "exit_conditions": [
+            "cadCamHandoff() maps CAD geometry → CamStrategySeed with per-feature strategy_id",
+            "Preserves datums per echo refuse-list (drop = R12)",
+            "Unhandled cycle hints surface in unresolved list (fail-loud)",
+            "Dispatcher action cam_bridge_cad_cam_handoff invokable"
+          ],
+          "description": "Bridges CAD-generation AI output into the CAM-programming AI strategy planner. Maps cad cycle_hint strings to known CAM strategy_ids; falls back to rough_adaptive for unknown hints with explicit unresolved surfacing.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "U-BRIDGE-OPERATOR-GATES — operator-in-the-loop approval gates",
+          "effort": 30,
+          "dependencies": [],
+          "exit_conditions": [
+            "operatorGatesEmit() produces typed OperatorGateRequest per stage",
+            "5 stage defaults (cad/cam_strategy/cam_toolpath/post/gcode_release) with correct role + blocking",
+            "Operator can override required_role at the call site",
+            "Dispatcher action cam_bridge_operator_gates_emit invokable"
+          ],
+          "description": "Unconditional operator review gates wired at every autonomous-output boundary. G-code release defaults to blocking machinist signoff per shop_floor tier.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "U-BRIDGE-SFC-FUSION — SFC speeds/feeds → Fusion 360 bridge",
+          "effort": 25,
+          "dependencies": [],
+          "exit_conditions": [
+            "sfcFusionBridge() emits FusionCycleParams with rpm + feed_mm_min verbatim",
+            "stepover_pct = (ae_mm / tool_diameter_mm) × 100 capped at 100",
+            "Default cycle_strategy = 'Adaptive Clearing'; override supported",
+            "Dispatcher action cam_bridge_sfc_fusion invokable"
+          ],
+          "description": "Bridges SpeedFeedOrchestrator output directly into Fusion 360 adaptive-clearing cycle parameters. Stepover converts from absolute mm to percentage per Fusion's convention.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "U-BRIDGE-SFC-HYPERMILL — SFC speeds/feeds → hyperMILL bridge",
+          "effort": 25,
+          "dependencies": [],
+          "exit_conditions": [
+            "sfcHyperMillBridge() emits HyperMillCycleParams with absolute mm stepover/stepdown",
+            "plunge_feedrate defaults to 30% of milling_feedrate (hyperMILL OptiRough convention)",
+            "Override plunge_factor supported",
+            "Dispatcher action cam_bridge_sfc_hypermill invokable"
+          ],
+          "description": "SFC output drives hyperMILL OptiRough cycle parameters. Plunge feed defaults to 30% of milling feed per hyperMILL convention.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "U-BRIDGE-SFC-INVENTORHSM — SFC speeds/feeds → Inventor HSM bridge",
+          "effort": 25,
+          "dependencies": [],
+          "exit_conditions": [
+            "sfcInventorHsmBridge() emits InventorHsmCycleParams with optimal_load_mm + max_step_down_mm",
+            "optimal_load_mm == ae_mm (HSM engagement control)",
+            "Default cycle_strategy = 'Adaptive 2D'; override supported",
+            "Dispatcher action cam_bridge_sfc_inventorhsm invokable"
+          ],
+          "description": "SFC output drives Inventor HSM Adaptive 2D cycle parameters. Optimal Load (engagement control) maps directly from SFC's radial depth.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptance": "5 bridge functions in CamBridgeKitEngine + 5 dispatcher actions on prism_cam + 35+ tests passing covering happy paths, schema invariants, R12 surfacings, and per-CAM-system convention quirks.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "CAM-system cycle conventions evolve (Fusion 'Adaptive Clearing' vs 'Pocket Clearing' renaming, hyperMILL OptiRough plunge-factor convention) — bridges are surface-level; defer per-version-specific quirks to per-system specialized engines."
+    },
+    {
+      "id": "R2",
+      "description": "operator_gates_emit returns a REQUEST object — the actual gate enforcement (block-until-approved) is the caller's responsibility. This MS produces the typed gate primitive; the gate-handler service is a follow-up."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [
+    "LATHE-P2P-CONSENSUS-MS4"
+  ],
+  "updated_at": "2026-05-23T21:35:46.888Z"
+}

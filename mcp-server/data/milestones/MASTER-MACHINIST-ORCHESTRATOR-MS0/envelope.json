@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "1.0.0",
+  "milestone_id": "MASTER-MACHINIST-ORCHESTRATOR-MS0",
+  "title": "Master-Machinist Orchestrator — pipeline composer over the 3,500-engine substrate",
+  "thesis": "PRISM has the engines; the composer is missing. 16-stage pipeline × 87 adaptive algorithms × 200+ toolpaths × 8 controller dialects × 4 stakeholder roles → single answer per RFQ. First visible product: dry-run quote with stage-by-stage decomposition and ±10% actual variance.",
+  "created": "2026-05-26",
+  "author_slot": "sierra",
+  "author_session": "claude-5c0bd535",
+  "spec_path": "state/shared/specs/MASTER-MACHINIST-ORCHESTRATOR-2026-05-26.md",
+  "status": "proposed",
+  "claimed_status": "not_started",
+  "must_human_verify": true,
+  "roadmap_priority": 0,
+  "scope": "backend-dev + ai-systems",
+  "estimated_elapsed_weeks": "4-6 concurrent",
+  "brainstorming_rounds": 3,
+  "parallel_agents_consulted": 15,
+  "domain_tags": [
+    "orchestrator",
+    "pipeline-composer",
+    "adaptive-ai",
+    "closed-loop-learning",
+    "quote-accuracy",
+    "mill-lathe-wedm",
+    "safety-tiered"
+  ],
+  "compounds_with": [
+    "PSN-SELF-IMPROVING-LOOP-MS0",
+    "NN-GRAPH-MS2",
+    "HERMES-MEMORY-VAULT-MS0",
+    "QUOTING-SYNERGY-MS0",
+    "POST-ULT-MS17"
+  ],
+  "unit_count": 20,
+  "p0_count": 13,
+  "p1_count": 7,
+  "p2_count_deferred_ms1": 9,
+  "acceptance_criteria": [
+    "All 13 P0 units land with per-file scrutiny (2 parallel reviewers each)",
+    "Quote-actual variance on JM Die archive within ±15% on N=50 sample (target ±10%)",
+    "Zero Omega/S(x) safety bypasses",
+    "Outcome bus closes loop on ≥1 retrain cycle (OUTCOME_AUDIT_LOG.jsonl)",
+    "Multi-agent model-write test passes (3 concurrent trains, deterministic final loss)",
+    "MACHINE-RUN dispatcher emits ≥1 MTConnect-sourced outcome"
+  ],
+  "open_questions": [
+    "JobShopSchedulingEngine: ghost (Agent A) or wired (Agent K)? Verify before U2.",
+    "TOOLPATH-CONTEXT: wire all 91 strategy engines or top-5 only in MS0?",
+    "LORA-COLLAPSE: does it break any in-flight cron? Audit before refactor.",
+    "Stage cost-emit contract: engine interface vs Decorator pattern?"
+  ],
+  "anti_regression_findings": [
+    "Agent I overstated EWC gap — verified inline EWC IS wired into CrossProcessNeuralLearningEngine (lines 1090, 1173, 1192, 1219, 1618). True remaining gap is LoRA adapter trainer integration (P1).",
+    "Agent A vs Agent K contradiction on QuotingEngine/JobCostingEngine status — unresolved.",
+    "Future audit agents must verify 'BUILT-but-UNWIRED' claims before promoting to unit."
+  ],
+  "units": [
+    {"id": "U-MMO-PIPELINE-SHELL",            "slot": "sierra",  "tier": "P0", "effort": "M", "type": "new",       "depends_on": [],                                       "blocks": ["U-MMO-QUOTE-DRY-RUN", "U-MMO-FEASIBILITY-GATE", "U-MMO-DARK-STAGE-INSTRUMENTATION", "U-MMO-SETUP-ORCHESTRATION-ENGINE", "U-MMO-MATERIAL-RESOLVE-STAGE", "U-MMO-TOOL-CRIB-STAGE", "U-MMO-TOOLPATH-CONTEXT", "U-MMO-CAD-FANOUT-STREAMING"]},
+    {"id": "U-MMO-QUOTE-DRY-RUN",             "slot": "sierra",  "tier": "P0", "effort": "M", "type": "new",       "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": ["U-MMO-WIN-LOSE-LOOP"]},
+    {"id": "U-MMO-FEASIBILITY-GATE",          "slot": "sierra",  "tier": "P0", "effort": "S", "type": "wire",      "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": []},
+    {"id": "U-MMO-OUTCOME-BUS-CONTROLLER",    "slot": "juliett", "tier": "P0", "effort": "L", "type": "new",       "depends_on": [],                                       "blocks": ["U-MMO-MULTI-AGENT-MODEL-LOCK", "U-MMO-LORA-PIPELINE-COLLAPSE", "U-MMO-DRIFT-REGRESSION-NIGHTLY", "U-MMO-OVERRIDE-RECEIPT-LOOP"]},
+    {"id": "U-MMO-MULTI-AGENT-MODEL-LOCK",    "slot": "juliett", "tier": "P0", "effort": "S", "type": "wire-only", "depends_on": ["U-MMO-OUTCOME-BUS-CONTROLLER"],        "blocks": []},
+    {"id": "U-MMO-DRIFT-REGRESSION-NIGHTLY",  "slot": "golf",    "tier": "P0", "effort": "M", "type": "new",       "depends_on": ["U-MMO-OUTCOME-BUS-CONTROLLER"],        "blocks": []},
+    {"id": "U-MMO-DARK-STAGE-INSTRUMENTATION","slot": "sierra",  "tier": "P0", "effort": "M", "type": "new",       "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": []},
+    {"id": "U-MMO-OVERRIDE-RECEIPT-LOOP",     "slot": "sierra",  "tier": "P0", "effort": "M", "type": "wire+ui",   "depends_on": ["U-MMO-OUTCOME-BUS-CONTROLLER"],        "blocks": []},
+    {"id": "U-MMO-LORA-PIPELINE-COLLAPSE",    "slot": "juliett", "tier": "P0", "effort": "L", "type": "refactor",  "depends_on": [],                                       "blocks": []},
+    {"id": "U-MMO-MACHINE-RUN-DISPATCHER",    "slot": "india",   "tier": "P0", "effort": "L", "type": "new",       "depends_on": [],                                       "blocks": []},
+    {"id": "U-MMO-SETUP-ORCHESTRATION-ENGINE","slot": "sierra",  "tier": "P0", "effort": "M", "type": "new",       "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": ["U-MMO-FIXTURE-DESIGN-REFACTOR"]},
+    {"id": "U-MMO-METHOD-ROUTER",             "slot": "india",   "tier": "P0", "effort": "M", "type": "new",       "depends_on": [],                                       "blocks": []},
+    {"id": "U-MMO-MATERIAL-RESOLVE-STAGE",    "slot": "sierra",  "tier": "P0", "effort": "S", "type": "wire",      "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": []},
+    {"id": "U-MMO-CONFIDENCE-EXPLAIN-TRACE",  "slot": "hotel",   "tier": "P1", "effort": "M", "type": "new",       "depends_on": [],                                       "blocks": []},
+    {"id": "U-MMO-TOOL-CRIB-STAGE",           "slot": "sierra",  "tier": "P1", "effort": "S", "type": "wire",      "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": []},
+    {"id": "U-MMO-TOOLPATH-CONTEXT",          "slot": "sierra",  "tier": "P1", "effort": "L", "type": "refactor",  "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": []},
+    {"id": "U-MMO-WRIGHT-CURVE",              "slot": "hotel",   "tier": "P1", "effort": "M", "type": "new",       "depends_on": [],                                       "blocks": ["U-MMO-WIN-LOSE-LOOP"]},
+    {"id": "U-MMO-WIN-LOSE-LOOP",             "slot": "hotel",   "tier": "P1", "effort": "M", "type": "wire",      "depends_on": ["U-MMO-WRIGHT-CURVE", "U-MMO-QUOTE-DRY-RUN"], "blocks": []},
+    {"id": "U-MMO-FIXTURE-DESIGN-REFACTOR",   "slot": "sierra",  "tier": "P1", "effort": "M", "type": "refactor",  "depends_on": ["U-MMO-SETUP-ORCHESTRATION-ENGINE"],    "blocks": []},
+    {"id": "U-MMO-CAD-FANOUT-STREAMING",      "slot": "sierra",  "tier": "P1", "effort": "M", "type": "new",       "depends_on": ["U-MMO-PIPELINE-SHELL"],                "blocks": []}
+  ],
+  "deferred_to_ms1": [
+    "U-MMO-EWC-LORA-TRAINER-WIRE",
+    "U-MMO-DISPATCHER-CAM-DECOMP",
+    "U-MMO-POST-PIPELINE-DECOMP",
+    "U-MMO-LATHE-RL-WIRE",
+    "U-MMO-MILL-RL-WIRE",
+    "U-MMO-CPK-SURROGATE-GENERALIZE",
+    "U-MMO-HRL-OPTIONS-FRAMEWORK",
+    "U-MMO-CAD-ADVERSARIAL-FILTER",
+    "U-MMO-FANUC-MACRO-EMITTER",
+    "U-MMO-MAZATROL-EMITTER"
+  ]
+}

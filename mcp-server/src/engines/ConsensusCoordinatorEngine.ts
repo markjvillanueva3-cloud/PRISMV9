@@ -101,6 +101,43 @@ export type CoordinatorOutcome =
   | { kind: "budget-exceeded"; reason: string; usedToday: number; budget: number }
   | { kind: "validation-error"; reason: string };
 
+// ── P0-U03: retry + escalation policy ──────────────────────────────────────
+
+/** Request for the retry + escalation policy (runWithEscalation). */
+export interface EscalationRequest {
+  prompt: string;
+  context?: string;
+  /** Consensus mode — "vote" requires voteOptions[]. Default "compare". */
+  mode?: "compare" | "vote";
+  voteOptions?: readonly string[];
+  /** Caller accept gate in [0,1] — agreementScore must meet this. Default 0.70. */
+  agreementThreshold?: number;
+  /** Normal-effort retries before the escalated attempt. Integer [0,5]. Default 1. */
+  maxRetries?: number;
+  /** Per-attempt timeout (ms) forwarded to the consensus engine. */
+  timeoutMs?: number;
+  /** Caller-engine tag forwarded to the consensus audit log (P0-U04). */
+  callerEngine?: string;
+}
+
+/** One consensus attempt's verdict, recorded in the EscalationOutcome audit trail. */
+export interface EscalationAttempt {
+  attempt: number;
+  phase: "initial" | "retry" | "escalated";
+  agreementScore: number;
+  recommendation: ConsensusResult["recommendation"];
+  accepted: boolean;
+}
+
+/** Discriminated outcome of runWithEscalation. */
+export type EscalationOutcome =
+  | { kind: "accepted"; result: ConsensusResult; attempts: EscalationAttempt[]; escalated: boolean }
+  | { kind: "human_review_required"; lastResult: ConsensusResult; attempts: EscalationAttempt[]; reason: string }
+  | { kind: "validation-error"; reason: string };
+
+/** Injectable consensus call — defaults to MultiModelConsensusEngine.ask; tests inject a scripted fn. */
+export type ConsensusAskFn = (input: ConsensusInput) => Promise<ConsensusResult>;
+
 const STATE_DIR = "H:/prism/mcp-server/data/state";
 const CACHE_FILE = path.join(STATE_DIR, "consensus-cache.jsonl");
 const INFLIGHT_FILE = path.join(STATE_DIR, "consensus-inflight.json");
@@ -256,6 +293,105 @@ export class ConsensusCoordinatorEngine {
     }
 
     return { kind: "fresh", result, tokenCostEstimate };
+  }
+
+  /**
+   * runWithEscalation — retry + escalation policy (INFRA-CONSENSUS-WIRE-MS0/P0-U03).
+   *
+   * Wraps the consensus fan-out with a decision-quality policy distinct from
+   * run()'s concurrency policy:
+   *   Phase 1 — initial attempt + up to `maxRetries` normal-effort retries.
+   *   Phase 2 — one escalated attempt with Codex bumped to "xhigh" effort.
+   *   Phase 3 — all attempts below threshold → `human_review_required`.
+   *
+   * "Accepted" = a result with successCount > 0 AND agreementScore >= the
+   * caller's `agreementThreshold` (default 0.70). The first accepted attempt
+   * short-circuits and returns immediately.
+   *
+   * The consensus call is injected via `deps.askFn` so the policy branches
+   * (retry / escalate / human-review) are deterministically testable without
+   * a live multi-model fan-out. Production callers omit it — it defaults to
+   * MultiModelConsensusEngine.ask.
+   *
+   * @param req  Escalation request — prompt + caller threshold + retry budget.
+   * @param deps Optional injected consensus fn (tests). Defaults to the real engine.
+   * @returns An EscalationOutcome discriminated union — never throws on a
+   *          consensus failure (a failed attempt counts as below-threshold).
+   */
+  async runWithEscalation(
+    req: EscalationRequest,
+    deps: { askFn?: ConsensusAskFn } = {},
+  ): Promise<EscalationOutcome> {
+    if (!req || typeof req !== "object") {
+      return { kind: "validation-error", reason: "EscalationRequest required" };
+    }
+    if (typeof req.prompt !== "string" || req.prompt.length === 0) {
+      return { kind: "validation-error", reason: "prompt required" };
+    }
+    const threshold = req.agreementThreshold ?? 0.70;
+    if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1) {
+      return { kind: "validation-error", reason: "agreementThreshold must be a finite number in [0,1]" };
+    }
+    const maxRetries = req.maxRetries ?? 1;
+    if (!Number.isInteger(maxRetries) || maxRetries < 0 || maxRetries > 5) {
+      return { kind: "validation-error", reason: "maxRetries must be an integer in [0,5]" };
+    }
+    if (req.mode === "vote" && (!Array.isArray(req.voteOptions) || req.voteOptions.length === 0)) {
+      return { kind: "validation-error", reason: "vote mode requires non-empty voteOptions[]" };
+    }
+    const askFn: ConsensusAskFn = deps.askFn ?? ((input) => multiModelConsensusEngine.ask(input));
+
+    const baseInput: ConsensusInput = {
+      prompt: req.prompt,
+      context: req.context,
+      mode: req.mode,
+      voteOptions: req.voteOptions,
+      timeoutMs: req.timeoutMs,
+      callerEngine: req.callerEngine,
+    };
+    const isAccepted = (r: ConsensusResult): boolean =>
+      r.successCount > 0 && Number.isFinite(r.agreementScore) && r.agreementScore >= threshold;
+
+    const attempts: EscalationAttempt[] = [];
+
+    // Phase 1 — initial attempt + normal-effort retries.
+    const normalTries = 1 + maxRetries;
+    for (let i = 0; i < normalTries; i++) {
+      const result = await askFn({ ...baseInput });
+      const accepted = isAccepted(result);
+      attempts.push({
+        attempt: attempts.length + 1,
+        phase: i === 0 ? "initial" : "retry",
+        agreementScore: result.agreementScore,
+        recommendation: result.recommendation,
+        accepted,
+      });
+      if (accepted) {
+        return { kind: "accepted", result, attempts, escalated: false };
+      }
+    }
+
+    // Phase 2 — escalated attempt: bump Codex to xhigh effort.
+    const escalatedResult = await askFn({ ...baseInput, codexEffort: "xhigh" });
+    const escalatedAccepted = isAccepted(escalatedResult);
+    attempts.push({
+      attempt: attempts.length + 1,
+      phase: "escalated",
+      agreementScore: escalatedResult.agreementScore,
+      recommendation: escalatedResult.recommendation,
+      accepted: escalatedAccepted,
+    });
+    if (escalatedAccepted) {
+      return { kind: "accepted", result: escalatedResult, attempts, escalated: true };
+    }
+
+    // Phase 3 — every attempt fell below threshold.
+    return {
+      kind: "human_review_required",
+      lastResult: escalatedResult,
+      attempts,
+      reason: `consensus did not reach agreementThreshold ${threshold} after ${attempts.length} attempts (${normalTries} normal + 1 escalated xhigh)`,
+    };
   }
 
   /** Manual cache lookup — used by hooks that want to display "consensus pending" while a peer's call is still running. */

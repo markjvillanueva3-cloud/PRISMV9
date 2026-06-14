@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: production-readiness benchmark engine (LATHE-PROD-READY-MS0 U-LPR04). Invoked from CI perf scripts and regression gates, not user-facing dispatcher actions — benchmark instrumentation, not runtime feature.
 /**
  * MTConnectRoundTripLatencyBenchEngine — LATHE-PROD-READY-MS0 U-LPR04
  *
@@ -52,8 +53,8 @@ export const BenchmarkResultSchema = z.object({
     concurrent: z.boolean(),
   }),
   stats: LatencyStatsSchema,
-  per_machine_stats: z.record(LatencyStatsSchema),
-  per_endpoint_stats: z.record(LatencyStatsSchema),
+  per_machine_stats: z.record(z.string(), LatencyStatsSchema),
+  per_endpoint_stats: z.record(z.string(), LatencyStatsSchema),
   slo_checks: z.object({
     p95_under_200ms: z.boolean(),
     p99_under_350ms: z.boolean(),

@@ -1,0 +1,83 @@
+{
+  "fine_tune_stats": {
+    "total_weights": 0,
+    "total_observations": 0,
+    "avg_confidence": 0
+  },
+  "unified_agi_analyze": {
+    "success": true,
+    "data": {
+      "quality_score": 60,
+      "dimensions": {
+        "safety": 50,
+        "efficiency": 70,
+        "accuracy": 75,
+        "maintainability": 50,
+        "controller_optimization": 50,
+        "physics_compliance": 60,
+        "tribal_adherence": 50,
+        "best_practices": 75
+      },
+      "detected_controller": "hurco_winmax_v11",
+      "detected_operations": [
+        "general_milling"
+      ],
+      "line_stats": {
+        "total": 6,
+        "rapid_moves": 0,
+        "feed_moves": 0,
+        "tool_changes": 0,
+        "comments": 0
+      },
+      "estimated_cycle_time_sec": 0,
+      "bottlenecks": [
+        {
+          "location": "safety dimension",
+          "reason": "Score 50/100 below optimal threshold",
+          "improvement_potential": 50
+        },
+        {
+          "location": "maintainability dimension",
+          "reason": "Score 50/100 below optimal threshold",
+          "improvement_potential": 50
+        },
+        {
+          "location": "controller_optimization dimension",
+          "reason": "Score 50/100 below optimal threshold",
+          "improvement_potential": 50
+        }
+      ],
+      "applicable_tribal_tips": [
+        {
+          "tip_id": "mat-003",
+          "tip_text": "Aluminum (N group) - 3x normal chipload OK with polished inserts",
+          "category": "speeds_feeds",
+          "source": "PRISM Tribal",
+          "relevance_score": 30
+        }
+      ],
+      "warnings": [
+        "Safety score below threshold - review safe start/end blocks",
+        "Controller features underutilized for hurco_winmax_v11"
+      ]
+    }
+  },
+  "get_controller_profile": {
+    "success": true,
+    "profile": {
+      "id": "generic",
+      "name": "Generic Fanuc-compatible",
+      "families": [
+        "Generic"
+      ],
+      "features": {
+        "coolant": {
+          "flood": {
+            "on": "M8",
+            "off": "M9"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,3 +1,8 @@
+// WIRE-EXEMPT: abstract base — subclassed by every ICADCodeGenerator
+// (CADQueryGen / OpenSCADGen / etc.). Not user-facing — no MCP dispatch
+// surface needed. Tagged 2026-05-26 (slot:victor) per CLAUDE.md
+// §ENGINE WIRING "WIRE-EXEMPT: <reason>" convention to suppress the
+// unwired-engine audit false-positive.
 /**
  * UnifiedCADCodeGeneratorBase — U-CADC00 (PHASE-0B)
  *

@@ -162,6 +162,17 @@ export function saveCheckpoint(model, options = {}) {
       hiddenDim: model.config.hiddenDim,
       embedDim: model.config.embedDim,
       seed: Number.isFinite(model.config.seed) ? model.config.seed : null,
+      // U-AISYN-GNN-HETERO-CKPT-PROVENANCE (slot:alpha 2026-06-11): persist the H2GCN feature-widening
+      // provenance so graphsage-predictor reproduces the SAME expansion at inference by READING it
+      // (robust to normalize="sum") instead of inferring hops from inputDim + assuming "mean". Additive
+      // + optional -- absent on legacy checkpoints (predictor falls back to inference).
+      ...(model.config.heterophily && typeof model.config.heterophily === "object"
+        ? { heterophily: {
+            hops: model.config.heterophily.hops,
+            normalize: model.config.heterophily.normalize === "sum" ? "sum" : "mean",
+            egoDim: model.config.heterophily.egoDim,
+          } }
+        : {}),
     },
     layers,
     calibrator: sanitizeBundled(options.calibrator, "calibrator"),
@@ -236,6 +247,18 @@ export function loadCheckpoint(input) {
       // Mirror saveCheckpoint's sentinel exactly (null, not 0) so a seedless
       // model round-trips to a byte-identical config. seed is inference-irrelevant.
       seed: Number.isFinite(c.seed) ? c.seed : null,
+      // U-AISYN-GNN-HETERO-CKPT-PROVENANCE (slot:alpha 2026-06-11): carry the H2GCN feature-widening
+      // provenance back through the load so graphsage-predictor READS hops/normalize (line 191) instead
+      // of inferring -- WITHOUT this mirror, saveCheckpoint persists heterophily into the JSON but
+      // loadCheckpoint silently drops it, making the predictor's persisted-preference a dead no-op.
+      // Additive + optional: absent on legacy checkpoints (omitted -> predictor falls back to inference).
+      ...(c.heterophily && typeof c.heterophily === "object"
+        ? { heterophily: {
+            hops: c.heterophily.hops,
+            normalize: c.heterophily.normalize === "sum" ? "sum" : "mean",
+            egoDim: c.heterophily.egoDim,
+          } }
+        : {}),
     },
     k: 2,
     layers,

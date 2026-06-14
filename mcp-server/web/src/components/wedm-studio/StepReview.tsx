@@ -144,7 +144,9 @@ export default function StepReview({ onComplete, onBack, isActive }: StepReviewP
     if (features.length === 0 || !material) return;
     const controller = new AbortController();
     const timeout = setTimeout(() => {
-      classifyHook.execute({ features, material }, controller.signal).then(res => {
+      // useWedmStep.execute(params) — the hook manages its own AbortController
+      // internally; passing controller.signal here is redundant and TS-invalid.
+      classifyHook.execute({ features, material }).then(res => {
         if (res.ok && !controller.signal.aborted) setClassified(res.data);
       });
     }, 300); // debounce 300ms for custom material typing
@@ -696,7 +698,11 @@ export default function StepReview({ onComplete, onBack, isActive }: StepReviewP
       )}
 
       {/* ── Similar Jobs + Drift Detection (WEDM-MS1 U-WEDM43/44) ────── */}
-      {selection && (
+      {/* 2026-05-27 iter17: `selection` variable was never declared in this scope — block
+       * orphaned from a refactor. Disabled (false &&) until U-WEDM-STEPREVIEW-SELECTION
+       * either wires the selection prop OR removes this dead block. R12: visible loss
+       * of feature, not silent skip. */}
+      {false && (
         <Card>
           <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">
             Similar Past Jobs

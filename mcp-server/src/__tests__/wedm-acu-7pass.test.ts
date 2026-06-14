@@ -48,15 +48,22 @@ describe("WEDM ACU 7-Pass Families (Mastercam FA-S)", () => {
       expect(family).toBeDefined();
     });
 
-    it("should have correct E-codes for each pass", () => {
+    it("should have correct CUT-pass E-codes E5601-E5607 (952 is the lead-in approach, NOT pass 1 — per raw FA-S .tech record 1)", () => {
+      // CORRECTED 2026-06-02: the raw Mitsubishi (FA-S).tech XML shows the 0.50" 7-pass config as
+      // epac "952, 5601..5607" with 7 offsets/registers for the 7 CUT passes. 952 is <approach>,
+      // so the 7 cut passes are E5601..E5607 — the prior expectation (E952 pass1, dropping E5607)
+      // emitted the approach as a cut pass and lost the finest skim.
       family = JM_DIE_ECODE_FAMILIES.find(f => f.id === "E952_acu_7pass_thin")!;
-      expect(getECodeForPass(family, 1)).toBe("E952");
-      expect(getECodeForPass(family, 2)).toBe("E5601");
-      expect(getECodeForPass(family, 3)).toBe("E5602");
-      expect(getECodeForPass(family, 4)).toBe("E5603");
-      expect(getECodeForPass(family, 5)).toBe("E5604");
-      expect(getECodeForPass(family, 6)).toBe("E5605");
-      expect(getECodeForPass(family, 7)).toBe("E5606");
+      expect(getECodeForPass(family, 1)).toBe("E5601");
+      expect(getECodeForPass(family, 2)).toBe("E5602");
+      expect(getECodeForPass(family, 3)).toBe("E5603");
+      expect(getECodeForPass(family, 4)).toBe("E5604");
+      expect(getECodeForPass(family, 5)).toBe("E5605");
+      expect(getECodeForPass(family, 6)).toBe("E5606");
+      expect(getECodeForPass(family, 7)).toBe("E5607");
+      // offset/E-code alignment: rough cut E5601 carries the largest offset (0.00935"), finest E5607 the smallest (0.00520")
+      expect(getShopOffsetForPass(family, 1)).toBeCloseTo(0.00935 * 25.4, 3);
+      expect(getShopOffsetForPass(family, 7)).toBeCloseTo(0.00520 * 25.4, 3);
     });
 
     it("should have increasing feed rates across skim passes", () => {

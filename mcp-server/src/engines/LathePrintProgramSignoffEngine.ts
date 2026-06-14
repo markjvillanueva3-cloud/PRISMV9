@@ -694,6 +694,163 @@ class LathePrintProgramSignoffEngine {
   exportMarkdown(pkg: SignoffPackage): string {
     return pkg.markdown_report;
   }
+
+  // ==========================================================================
+  // SAFETY GATE (Ω/S(x)) — LATHE-P2P-CONSENSUS-MS4/P1-U03
+  // ==========================================================================
+
+  /**
+   * Hard-fail safety gate per envelope shop-floor tier:
+   *   Ω(x) ≥ 0.95   (omega — system viability index)
+   *   S(x) ≥ 0.98   (five-sigma safety score)
+   *
+   * Inputs come straight from the EmittedProgram dossier:
+   *   - dossier.safety_checks[] (pass / fail / warning per check)
+   *   - dossier.max_cutting_force_n, max_rpm_used, max_feed_used
+   *   - dossier.physics_summary
+   *
+   * Computation (deterministic, no external solver):
+   *
+   *   total      = safety_checks.length
+   *   passes     = #(status === "pass")
+   *   warnings   = #(status === "warning")
+   *   fails      = #(status === "fail")
+   *
+   *   Ω(x)  = (passes + 0.5 × warnings) / total
+   *           (warnings count as half-credit per shop-floor tier convention)
+   *
+   *   S(x)  = 1 − (fails + 0.5 × warnings) / total
+   *           (mirror of Ω with stricter weighting on outright fails)
+   *
+   * Both scores in [0,1]. Empty safety_checks → both = 1 (vacuous truth — no
+   * known risks). A single hard "fail" in any critical check pulls S(x) below
+   * 0.98 immediately for any program with < 50 checks.
+   *
+   * @param emitted EmittedProgram from LathePrintProgramEmitterEngine
+   * @param opts {enforce} when true, throw on rejection so the caller cannot
+   *             accidentally proceed with a failing program (envelope rule:
+   *             "do NOT emit G-code to caller" on gate failure)
+   * @returns gate result with scores + blockers list
+   * @throws SafetyGateRejection when opts.enforce && !approved
+   */
+  enforceSafetyGate(
+    emitted: EmittedProgram,
+    opts: { enforce?: boolean; omegaFloor?: number; sxFloor?: number } = {},
+  ): SafetyGateResult {
+    const omegaFloor = opts.omegaFloor ?? 0.95;
+    const sxFloor = opts.sxFloor ?? 0.98;
+    const checks = emitted.dossier.safety_checks ?? [];
+    const total = checks.length;
+    let passes = 0;
+    let warnings = 0;
+    let fails = 0;
+    const blockers: SafetyGateBlocker[] = [];
+
+    for (const c of checks) {
+      if (c.status === "pass") passes++;
+      else if (c.status === "warning") warnings++;
+      else if (c.status === "fail") {
+        fails++;
+        blockers.push({
+          check: c.check,
+          status: "fail",
+          detail: c.detail,
+        });
+      }
+    }
+
+    const omega = total === 0 ? 1 : (passes + 0.5 * warnings) / total;
+    const sx = total === 0 ? 1 : 1 - (fails + 0.5 * warnings) / total;
+
+    const omegaOk = omega >= omegaFloor;
+    const sxOk = sx >= sxFloor;
+    const approved = omegaOk && sxOk && fails === 0;
+
+    if (!omegaOk) {
+      blockers.push({
+        check: "OMEGA_THRESHOLD",
+        status: "fail",
+        detail: `Ω(x)=${omega.toFixed(4)} below shop-floor floor ${omegaFloor.toFixed(2)}`,
+      });
+    }
+    if (!sxOk) {
+      blockers.push({
+        check: "SX_THRESHOLD",
+        status: "fail",
+        detail: `S(x)=${sx.toFixed(4)} below five-sigma floor ${sxFloor.toFixed(2)}`,
+      });
+    }
+
+    const result: SafetyGateResult = {
+      schemaVersion: "1.0.0",
+      approved,
+      omega,
+      sx,
+      omegaFloor,
+      sxFloor,
+      total_checks: total,
+      pass_count: passes,
+      warning_count: warnings,
+      fail_count: fails,
+      blockers,
+      program_id: emitted.program_id,
+      timestamp: new Date().toISOString(),
+    };
+
+    if (opts.enforce && !approved) {
+      const err = new SafetyGateRejection(
+        `Lathe P2P safety gate REJECTED program ${emitted.program_id}: ` +
+          `Ω=${omega.toFixed(4)} (floor ${omegaFloor}), S(x)=${sx.toFixed(4)} (floor ${sxFloor}), ` +
+          `fails=${fails}, warnings=${warnings}. Blockers: ${blockers.map(b => b.check).join(", ")}`,
+        result,
+      );
+      throw err;
+    }
+
+    return result;
+  }
+}
+
+// ============================================================================
+// SAFETY GATE TYPES (LATHE-P2P-CONSENSUS-MS4/P1-U03)
+// ============================================================================
+
+export interface SafetyGateBlocker {
+  check: string;
+  status: "fail";
+  detail: string;
+}
+
+export interface SafetyGateResult {
+  schemaVersion: "1.0.0";
+  approved: boolean;
+  omega: number;
+  sx: number;
+  omegaFloor: number;
+  sxFloor: number;
+  total_checks: number;
+  pass_count: number;
+  warning_count: number;
+  fail_count: number;
+  blockers: SafetyGateBlocker[];
+  program_id: string;
+  timestamp: string;
+}
+
+/**
+ * Thrown by `enforceSafetyGate` when `opts.enforce=true` and the gate rejects.
+ * Envelope rule: "Failure → return rejection with specific blockers, do NOT
+ * emit G-code to caller". Catching this is the caller's only path to recover
+ * (e.g., regenerate toolpath with lower force, swap to lighter strategy).
+ */
+export class SafetyGateRejection extends Error {
+  readonly code = "LATHE_P2P_SAFETY_GATE_REJECTED" as const;
+  readonly result: SafetyGateResult;
+  constructor(message: string, result: SafetyGateResult) {
+    super(message);
+    this.name = "SafetyGateRejection";
+    this.result = result;
+  }
 }
 
 export const lathePrintProgramSignoffEngine = new LathePrintProgramSignoffEngine();

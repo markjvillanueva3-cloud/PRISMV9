@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.1.0",
+  "sha8": "fd78372d",
+  "title": "2.0-Tool report customization",
+  "source": "resources",
+  "relPath": "OPEN MIND/hyperMILL/31.0/addins project/hmAutoColor/doc/documents/2.0-Tool report customization.pdf",
+  "domain": "cam",
+  "software": "hypermill",
+  "top": "OPEN MIND",
+  "pageCount": 10,
+  "textChars": 2179,
+  "text": "1\nModifying the tool report template\nWe have a very nice solution in hyperMILL to generate tool reports.\nThis application is Automation Center based.\nThat means, the AC is running behind.\nIn this documentation we are going to explain how to customize a new template.\n\n-- 1 of 10 --\n\n2\nPath definitions\n• The Addins path in the settings we will call in this document <ADDINS>\n• The Automation Center path in the settings we will call in this document <AUTOMATION>\n\n-- 2 of 10 --\n\n3\n• The new name of the report we will call <REPORT_NAME>\n• The language of the report we will call <LANGUAGE>\n\n-- 3 of 10 --\n\n4\nCopy folder\nCopy the folder OM_REPORT_2\nWe can find this folder on:\n• <ADDINS>\\hmAutoColor\\SYSTEM_PROCESS\\Reports\\ToolReports\nPast folder\nPast the folder OM_REPORT_2 on:\n• <AUTOMATION>\\REPORTS\\toolReports\\report_templates\\\nMaybe the folder report_templates does not exist in your computer.\nIf this is your case, just create a new folder named as report_templates.\n\n-- 4 of 10 --\n\n5\nRename the template folder\nRename the template folder as your <REPORT_NAME>\nAfter that, a new folder will appear to be selected in the Tool report configuration\n\n-- 5 of 10 --\n\n6\nRename files\n• The file Template_OM_REPORT_2.xlsx must be renamed to\nTemplate_<REPORT_NAME>.<LANGUAGE>.xlsx\n• The file ToolReport_OM_REPORT_2.xlsx must be renamed to\nToolReport _<REPORT_NAME>.xlsx\n• The file OM_REPORT_2_JL.jpg must be renamed to\n<REPORT_NAME>_JL.jpg\n\n-- 6 of 10 --\n\n7\nModifying the template\n• Open the file (Template_<REPORT_NAME>.<LANGUAGE>.xlsx)\n• Customize the template as do you wish\n\n-- 7 of 10 --\n\n8\nModifying the Header definition\n• Open the file (ToolReport _<REPORT_NAME>.xlsx)\n• Go to Header tab\n• Only existing parameters from column “B” can be used\n• Rows must not be changed\n• Cell address can be specified in columns “C”\n\n-- 8 of 10 --\n\n9\nModifying the tool definition\n• Open the file (ToolReport _<REPORT_NAME>.xlsx)\n• Go to Tool Part Definition tab\n• Only existing parameters from column “B” can be used\n• Rows must not be changed\n• Cell address can be specified in columns “C”\n\n-- 9 of 10 --\n\n10\nFinal step\n• Start the report configuration and run the report\n\n-- 10 of 10 --\n\n",
+  "sizeBytes": 691895,
+  "extractedAt": "2026-05-26T16:18:00.826Z"
+}

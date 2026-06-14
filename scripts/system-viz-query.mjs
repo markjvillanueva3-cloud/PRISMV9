@@ -12,6 +12,7 @@
  *   node scripts/system-viz-query.mjs coverage-by-domain       # wired-ratio per domain
  *   node scripts/system-viz-query.mjs worktrees                # git worktree fleet grouped by verdict
  *   node scripts/system-viz-query.mjs find <query>             # case-insensitive node search
+ *   node scripts/system-viz-query.mjs node-card <id> [<id>..]  # token-cheap read-by-id (no 644MB load)
  *   node scripts/system-viz-query.mjs headline                 # one-line summary
  *
  * Add --json for machine-readable output (default is human-readable).
@@ -20,7 +21,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadGraph, findInGraph } from "./lib/system-viz-graph.mjs";
+import { loadGraph, findInGraph, loadFindCache, sidecarStatus } from "./lib/system-viz-graph.mjs";
+import { readCards } from "./lib/node-card-read.mjs";
+import { backlinksFor } from "./lib/vault-backlink-read.mjs";
+import { summarizeCanvas, canvasNodesForDoc } from "./lib/canvas-read-lib.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -31,8 +35,214 @@ const params = args.slice(1).filter(a => a !== "--json");
 const wantJson = args.includes("--json");
 
 if (!cmd) {
-  console.error("usage: system-viz-query <roadmap-candidates|build-order|blast-radius|dispatcher-summary|coverage-by-domain|worktrees|find|headline> [params] [--json]");
+  console.error("usage: system-viz-query <roadmap-candidates|build-order|blast-radius|dispatcher-summary|coverage-by-domain|worktrees|find|node-card|doc-nodes|canvas|canvas-doc|headline|cache-status> [params] [--json]");
   process.exit(2);
+}
+
+// FIND SHORT-CIRCUIT — viz-first-redirect.mjs fires ~1060×/day calling this
+// subcommand from fresh node subprocesses. The full loadGraph() parse costs
+// ~2s post-cable-swap on the 370 MB system-graph.json; loadFindCache() reads
+// a ~2 MB projected sidecar that's ~170× smaller. Short-circuiting BEFORE
+// the (eager) loadGraph below keeps every other cmd's behavior unchanged
+// while removing the cold parse from the hottest hook path.
+if (cmd === "find") {
+  // --brain-only: return only hits backed by >=1 wiki/memory doc (noteCount>0),
+  // so a token-conscious caller routes straight to DOCUMENTED nodes (context-
+  // retention). noteCount is the structural brain-coverage count projected into
+  // the find-cache (sierra-substrate, NOT alpha's doc content). HUMAN output
+  // carries a trailing ` [docs:N]` marker per hit when noteCount>0 (appended only
+  // when >0, so undocumented hits stay byte-identical to the pre-marker format).
+  // ASCII (not an emoji) so it survives grep / PowerShell codepage / the c-to-h
+  // mirror, and is collision-safe (no real node label ends in `[docs:N]`). It is
+  // a documented format contract: viz-first-redirect.parseFindOutput strips +
+  // captures it into hit.noteCount; audit-viz-first-inject passes the line
+  // through verbatim (no per-line parse). --json exposes the raw count.
+  const brainOnly = args.includes("--brain-only");
+  const q = params.filter((p) => p !== "--brain-only").join(" ");
+  if (!q.trim()) { console.error("find needs <query>"); process.exit(2); }
+  let g;
+  try { g = loadFindCache(); }
+  catch (e) { console.error(e.message); process.exit(3); }
+  let hits = findInGraph(g, q, { limit: brainOnly ? 60 : 30 });
+  if (brainOnly) hits = hits.filter((h) => (h.noteCount || 0) > 0).slice(0, 30);
+  if (wantJson) {
+    console.log(JSON.stringify(hits, null, 2));
+  } else {
+    console.log(`Found ${hits.length} node(s) matching "${q.toLowerCase()}"${brainOnly ? " (brain-backed only)" : ""}:`);
+    for (const h of hits) {
+      const note = (h.noteCount || 0) > 0 ? ` [docs:${h.noteCount}]` : "";
+      console.log(`  ${h.layer}/${h.subgroup ?? '_'}  ${h.id.padEnd(28)} ${(h.label ?? '').split('\n')[0]}${note}`);
+    }
+  }
+  process.exit(0);
+}
+
+// CACHE-STATUS SHORT-CIRCUIT — report find-cache + graph-index freshness vs the
+// live graph WITHOUT loading the graph (stat-only fd-head-reads via sidecarStatus).
+// Lets hooks / scripts gate on sidecar freshness (exit 0 = both fresh; 1 = any
+// stale/missing) — e.g. trigger regen-find-cache.mjs when stale. Placed before
+// the eager loadGraph below so `cache-status` itself never pays a parse.
+if (cmd === "cache-status") {
+  const s = sidecarStatus();
+  if (wantJson) {
+    console.log(JSON.stringify(s, null, 2));
+  } else {
+    const fmt = (x) => (x.exists ? (x.fresh ? "FRESH" : "STALE — " + x.reason) : "MISSING");
+    console.log("system-viz sidecar freshness (vs live graph):");
+    console.log("  graph:       " + (s.graph.exists ? `${(s.graph.size / 1e6).toFixed(0)}MB · mtimeMs=${Math.round(s.graph.mtimeMs)}` : "MISSING"));
+    console.log("  find-cache:  " + fmt(s.findCache));
+    console.log("  graph-index: " + fmt(s.index));
+  }
+  // exit 0 iff graph present AND both sidecars fresh — a clean gate for callers.
+  process.exit(s.graph.exists && s.findCache.fresh && s.index.fresh ? 0 : 1);
+}
+
+// NODE-CARD SHORT-CIRCUIT — token-cheap read-by-id (CHEAP-NODE-ACCESS-MS0, sierra).
+// MUST run BEFORE the eager loadGraph() below, exactly like `find`/`cache-status`:
+// a card read that loaded the 644MB graph would defeat its own purpose. Sources
+// the freshest compact sidecar (system-graph-index -> find-cache) via
+// scripts/lib/node-card-read.mjs and returns ~300 tokens/node vs ~186K for a
+// full-graph Read. Accepts one or many ids: `node-card <id> [<id>...]`.
+if (cmd === "node" || cmd === "card" || cmd === "node-card") {
+  const ids = params;
+  if (ids.length === 0) {
+    console.error("node-card <nodeId> [<nodeId>...]  — token-cheap read-by-id (no 644MB graph load). Find ids via: system-viz-query find <query>");
+    process.exit(2);
+  }
+  let rows;
+  try {
+    rows = readCards(ids);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(3);
+  }
+  if (wantJson) {
+    console.log(JSON.stringify(ids.length === 1 ? rows[0] : rows, null, 2));
+    process.exit(0);
+  }
+  const src = rows.find((r) => r && r.source)?.source ?? "—";
+  const lines = [`source: ${src}`, ""];
+  for (const r of rows) {
+    if (!r || r.notFound) {
+      lines.push(`✗ ${r?.id ?? "?"} — not in index (try: system-viz-query find <query>)`);
+      continue;
+    }
+    if (r.error) {
+      lines.push(`✗ ${r.id} — ${r.error}`);
+      continue;
+    }
+    const c = r.card;
+    const docs = c.docTotals ? `${c.docTotals.wiki}w/${c.docTotals.memory}m` : `${c.noteCount}`;
+    lines.push(`${c.id}  [${c.layer ?? "?"} · ${c.kind ?? "?"}${c.status ? " · " + c.status : ""}]  docs:${docs}${r.stale ? `  ⚠STALE(${r.staleReason})` : ""}`);
+    if (c.label) lines.push(`  ${c.label.split("\n")[0]}`);
+    if (c.info) lines.push(`  info: ${c.info}`);
+    if (c.wikiPath) lines.push(`  src:  ${c.wikiPath}`);
+    if (Array.isArray(c.wikiEntries) && c.wikiEntries.length) {
+      // hidden = (true total, capped at DOC_CAP in the card) minus what we SHOW (3),
+      // so 4-8-entry nodes still get an honest "+N more" (not just >DOC_CAP nodes).
+      const totalWiki = c.docTotals?.wiki ?? c.wikiEntries.length;
+      const shown = c.wikiEntries.slice(0, 3);
+      const more = totalWiki > shown.length ? `\n        … +${totalWiki - shown.length} more` : "";
+      lines.push(`  wiki: ${shown.join("\n        ")}${more}`);
+    }
+    if (Array.isArray(c.memoryEntries) && c.memoryEntries.length) {
+      const totalMem = c.docTotals?.memory ?? c.memoryEntries.length;
+      const shownM = c.memoryEntries.slice(0, 3);
+      const moreM = totalMem > shownM.length ? ` (+${totalMem - shownM.length} more)` : "";
+      lines.push(`  mem:  ${shownM.join(", ")}${moreM}`);
+    }
+    lines.push("");
+  }
+  console.log(lines.join("\n").trimEnd());
+  process.exit(0);
+}
+
+// DOC-NODES SHORT-CIRCUIT (CHEAP-NODE-ACCESS-MS0 reverse edge) — the inverse of
+// `node-card`: given a wiki/memory DOC, list the live graph node(s) it documents
+// (then `node-card <id>` for their real state). Reads the inverted index
+// vault-backlinks.json via scripts/lib/vault-backlink-read.mjs — never the 644MB
+// graph. MUST run BEFORE the eager loadGraph() below, like find/node-card.
+// Accepts a wiki path, relativized path, or memory slug:
+//   doc-nodes architecture/cheap-node-access-ms0
+//   doc-nodes knowledge/wiki/lessons/foo.md
+//   doc-nodes feedback_psn_definition
+if (cmd === "doc-nodes" || cmd === "vault-backlinks" || cmd === "doc") {
+  const query = params[0];
+  if (!query) {
+    console.error("doc-nodes <wikiPathOrMemorySlug>  — list graph node(s) a vault doc documents (no 644MB graph load). Reverse of node-card.");
+    process.exit(2);
+  }
+  const r = backlinksFor(query);
+  if (wantJson) {
+    console.log(JSON.stringify(r, null, 2));
+    process.exit(0);
+  }
+  if (r.unavailable) {
+    console.error(`✗ ${r.error}`);
+    process.exit(3);
+  }
+  if (!r.found) {
+    const sug = r.suggestions && r.suggestions.length
+      ? `\n  did you mean:\n    ${r.suggestions.join("\n    ")}`
+      : "";
+    console.log(`✗ ${r.key || query} — no graph node documents this doc${sug}`);
+    process.exit(0);
+  }
+  const more = r.truncated ? `  (showing ${r.nodeIds.length} of ${r.total}, capped)` : "";
+  const staleTag = r.stale ? `  ⚠STALE (${r.staleReason})` : "";
+  const lines = [`${r.key} → ${r.total} node(s)${more}${staleTag}`, ""];
+  for (const id of r.nodeIds) lines.push(`  ${id}`);
+  lines.push("", `next: system-viz-query node-card ${r.nodeIds[0]}`);
+  console.log(lines.join("\n"));
+  process.exit(0);
+}
+
+// CANVAS SHORT-CIRCUIT (CHEAP-NODE-ACCESS-MS0, the .canvas gap) — read the Obsidian
+// system-map SUMMARY cheaply via scripts/lib/canvas-read-lib.mjs (146KB JSON, never
+// the 644MB graph). `canvas` = structural summary (counts + layer headers + per-layer
+// file samples); `canvas-doc <vaultPath>` = which canvas node(s) reference a doc, the
+// canvas→file→graph join (chain to `doc-nodes` then `node-card` for the live node).
+// MUST run BEFORE the eager loadGraph() below, like find/node-card/doc-nodes.
+if (cmd === "canvas" || cmd === "canvas-doc") {
+  if (cmd === "canvas-doc") {
+    const query = params[0];
+    if (!query) {
+      console.error("canvas-doc <wikiPathOrMemorySlug>  — which system-map canvas node(s) reference a vault doc (no 644MB load). Chain: canvas-doc → doc-nodes → node-card.");
+      process.exit(2);
+    }
+    const r = canvasNodesForDoc(query);
+    if (wantJson) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+    if (r.unavailable) { console.error(`✗ ${r.error}`); process.exit(3); }
+    if (!r.found) {
+      const sug = r.suggestions && r.suggestions.length ? `\n  on the map (basename match):\n    ${r.suggestions.join("\n    ")}` : "";
+      console.log(`✗ ${r.key || query} — not on the system-map canvas${sug}`);
+      process.exit(0);
+    }
+    const staleTag = r.stale ? `  ⚠STALE (${r.staleReason})` : "";
+    const lines = [`${r.key} → ${r.total} canvas node(s)${staleTag}`, ""];
+    for (const n of r.nodes) lines.push(`  ${n.id}  [${n.layer}]  ${n.file}`);
+    lines.push("", `next: system-viz-query doc-nodes ${r.key}   # → live graph node(s)`);
+    console.log(lines.join("\n"));
+    process.exit(0);
+  }
+  // `canvas` — structural summary
+  const s = summarizeCanvas();
+  if (wantJson) { console.log(JSON.stringify(s, null, 2)); process.exit(0); }
+  if (!s.available) { console.error(`✗ ${s.error}`); process.exit(3); }
+  const staleTag = s.stale ? `  ⚠STALE (${s.staleReason})` : "";
+  const c = s.counts;
+  const lines = [
+    `PRISM system-map canvas: ${c.nodes} nodes (${c.file} file · ${c.text} text · ${c.other} other) · ${c.edges} edges${staleTag}`,
+    "",
+  ];
+  for (const l of s.layers) {
+    const hdr = l.header ? ` — ${l.header}` : "";
+    const samp = l.samples.length ? `  e.g. ${l.samples.join(", ")}` : "";
+    lines.push(`  ${l.layer}: ${l.fileCount} file(s)${hdr}${samp}`);
+  }
+  lines.push("", "next: system-viz-query canvas-doc <vaultPath>   # which node maps a doc → doc-nodes → node-card");
+  console.log(lines.join("\n"));
+  process.exit(0);
 }
 
 let G;
@@ -93,17 +303,29 @@ else if (cmd === "blast-radius") {
   if (!id) { console.error("blast-radius needs <nodeId>"); process.exit(2); }
   const node = G.nodes.find(n => n.id === id);
   if (!node) { console.error(`node not found: ${id}`); process.exit(4); }
-  const downstream = new Map(); // id -> depth
-  const upstream = new Map();
+  // Build forward (from→[to]) + reverse (to→[from]) adjacency ONCE (O(E)) so the
+  // BFS does O(1) neighbor lookups per frontier node instead of an O(E)
+  // G.edges.filter() per node — the old form was O(E × frontier × depth),
+  // pathological on the ~1M-edge merged graph. Self-loops + malformed edges are
+  // skipped (behavior-preserving: self-loops were already no-ops via `visited`,
+  // malformed edges matched nothing in the old filter). Same visited-set BFS.
+  const fwd = new Map();
+  const rev = new Map();
+  for (const e of G.edges) {
+    if (!e || typeof e.from !== "string" || typeof e.to !== "string" || e.from === e.to) continue;
+    let a = fwd.get(e.from); if (!a) { a = []; fwd.set(e.from, a); } a.push(e.to);
+    let b = rev.get(e.to);   if (!b) { b = []; rev.set(e.to, b); } b.push(e.from);
+  }
   function walk(start, dir, maxDepth = 4) {
+    const adj = dir === "down" ? fwd : rev;
     const visited = new Map([[start, 0]]);
     let frontier = [start];
     for (let depth = 1; depth <= maxDepth; depth++) {
       const next = [];
       for (const f of frontier) {
-        const edges = G.edges.filter(e => dir === "down" ? e.from === f : e.to === f);
-        for (const e of edges) {
-          const target = dir === "down" ? e.to : e.from;
+        const neighbors = adj.get(f);
+        if (!neighbors) continue;
+        for (const target of neighbors) {
           if (!visited.has(target)) { visited.set(target, depth); next.push(target); }
         }
       }
@@ -161,13 +383,17 @@ ${lines.join("\n")}`;
   out(human, { wired, unwired, total, ratio: wired / total, domains: l5.map(n => ({ label: n.label.split('\n')[0], count: n.count, subgroup: n.subgroup })) });
 }
 
+// UNREACHABLE — the cmd === "find" short-circuit near the top of this file
+// (right after wantJson) calls process.exit(0) before this dispatch chain ever
+// runs. Kept as a one-line equivalence reference / fallback if the short-circuit
+// is ever removed; safe to delete after the find-cache pipeline is fully proven.
 else if (cmd === "find") {
   const q = params.join(" ");
   if (!q.trim()) { console.error("find needs <query>"); process.exit(2); }
   const hits = findInGraph(G, q, { limit: 30 });
   const human =
 `Found ${hits.length} node(s) matching "${q.toLowerCase()}":
-${hits.map(h => `  ${h.layer}/${h.subgroup ?? '_'}  ${h.id.padEnd(28)} ${h.label.split('\n')[0]}`).join("\n")}`;
+${hits.map(h => `  ${h.layer}/${h.subgroup ?? '_'}  ${h.id.padEnd(28)} ${(h.label ?? '').split('\n')[0]}${(h.noteCount || 0) > 0 ? ` [docs:${h.noteCount}]` : ""}`).join("\n")}`;
   out(human, hits);
 }
 

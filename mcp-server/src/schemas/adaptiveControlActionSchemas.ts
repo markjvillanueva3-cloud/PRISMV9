@@ -386,6 +386,81 @@ const variability_import = z.object({
 const variability_outliers = z.object({}).passthrough();
 
 // ============================================================================
+// RealTimeAdaptiveControllerEngine — FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-POST
+// Real-time adaptive control orchestrator (feed/speed/depth/coolant + safety).
+// Process-lifetime stateful singleton — update() mutates sensor/output history.
+// ============================================================================
+
+const _rtacTemperature = z.object({
+  // update() reads temperature.spindle + temperature.coolant directly; a
+  // non-finite value flows into warning/alarm comparisons and operator messages.
+  spindle: z.number().finite().describe("Spindle temperature °C"),
+  coolant: z.number().finite().describe("Coolant temperature °C"),
+  ambient: z.number().finite().optional().describe("Ambient temperature °C"),
+}).passthrough();
+
+const _rtacPower = z.object({
+  spindle: z.number().finite().optional().describe("Spindle power kW"),
+  total: z.number().finite().optional().describe("Total power kW"),
+}).passthrough();
+
+const rtac_update = z.object({
+  // timestamp drives dt = (timestamp - lastUpdateTime)/1000; a NaN/Infinity
+  // value poisons the PID integral for the lifetime of the singleton.
+  timestamp: z.number().finite().describe("ms since run start"),
+  spindleLoad: z.number().finite().describe("Spindle load %"),
+  vibration: z.number().finite().describe("Vibration g RMS"),
+  temperature: _rtacTemperature.describe("spindle/coolant/ambient temperatures"),
+  feedOverride: z.number().finite().optional().describe("Current feed override %"),
+  spindleSpeed: z.number().finite().optional().describe("Spindle speed RPM"),
+  feedRate: z.number().finite().optional().describe("Feed rate mm/min"),
+  xPosition: z.number().finite().optional().describe("X position mm"),
+  yPosition: z.number().finite().optional().describe("Y position mm"),
+  zPosition: z.number().finite().optional().describe("Z position mm"),
+  power: _rtacPower.optional().describe("spindle/total power kW"),
+  coolantFlow: z.number().finite().optional().describe("Coolant flow L/min"),
+  coolantPressure: z.number().finite().optional().describe("Coolant pressure bar"),
+}).passthrough();
+
+const _rtacTuningShape = z.object({
+  feedKp: z.number().finite().optional().describe("Feed PID proportional gain"),
+  feedKi: z.number().finite().optional().describe("Feed PID integral gain"),
+  feedKd: z.number().finite().optional().describe("Feed PID derivative gain"),
+  minFeedOverride: z.number().finite().optional().describe("Min feed override %"),
+  maxFeedOverride: z.number().finite().optional().describe("Max feed override %"),
+  minSpeedOverride: z.number().finite().optional().describe("Min speed override %"),
+  maxSpeedOverride: z.number().finite().optional().describe("Max speed override %"),
+  maxFeedRateOfChange: z.number().finite().optional().describe("Max feed change %/s"),
+  maxSpeedRateOfChange: z.number().finite().optional().describe("Max speed change %/s"),
+  spindleLoadTarget: z.number().finite().optional().describe("Target spindle load %"),
+  spindleLoadMax: z.number().finite().optional().describe("Max spindle load %"),
+  vibrationWarning: z.number().finite().optional().describe("Vibration warning g"),
+  vibrationAlarm: z.number().finite().optional().describe("Vibration alarm g"),
+  temperatureWarning: z.number().finite().optional().describe("Temperature warning °C"),
+  temperatureAlarm: z.number().finite().optional().describe("Temperature alarm °C"),
+  learningRate: z.number().finite().optional().describe("Learning rate 0-1"),
+  adaptationAggression: z.number().finite().optional().describe("Adaptation aggression 0-1"),
+}).passthrough();
+
+const rtac_tune = z.object({
+  tuning: _rtacTuningShape.describe("Partial ControlTuning to merge into current tuning"),
+}).passthrough();
+
+const rtac_targets = z.object({
+  chipLoad: z.number().finite().positive().optional().describe("Target chip load mm/tooth"),
+  mrr: z.number().finite().positive().optional().describe("Target MRR mm³/min"),
+  power: z.number().finite().positive().optional().describe("Target spindle power kW"),
+}).passthrough();
+
+const rtac_gcode = z.object({
+  baseProgram: z.array(z.string()).describe("Base G-code program lines to wrap with adaptive control"),
+}).passthrough();
+
+const rtac_state = z.object({}).passthrough();
+const rtac_metrics = z.object({}).passthrough();
+const rtac_reset = z.object({}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -423,4 +498,12 @@ export const ADAPTIVE_CONTROL_ACTION_SCHEMAS: ActionSchemaMap = {
   variability_export,
   variability_import,
   variability_outliers,
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-POST: RealTimeAdaptiveControllerEngine
+  rtac_update,
+  rtac_state,
+  rtac_tune,
+  rtac_targets,
+  rtac_metrics,
+  rtac_gcode,
+  rtac_reset,
 };

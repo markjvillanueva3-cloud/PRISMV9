@@ -35,11 +35,30 @@
 
 import * as fs from "fs";
 import * as path from "path";
+// Side-channel: silent close-out drift (envelope-complete + MILESTONE_PROGRESS-zero).
+// Different class from the candidate scan below; appended as separate JSON key.
+// Built /loop iter-4 by alpha (claude-69c63409). Spec: state/shared/specs/SILENT-CLOSE-OUT-DEBT-AUDIT-2026-05-17.md
+import { findSilentCloseOutDrift, buildShippedByMsId, renderMarkdown as renderSilentDriftMd } from "./lib/silent-close-out-drift.mjs";
+// Side-channel: partial-milestone drift (in_progress milestone + pending unit + engine on disk).
+// THIRD drift class — fills the gap between silent-close-out-drift (envelope-complete) and the
+// candidate-resolver (needs declared path strings). Discovered 2026-05-23 by charlie /loop iter3
+// closing WEDM-NEXT-MS0/U-WN06+U-WN08 (commit bd6931867b). Lib + tests committed via peer
+// commit 8b801cd815 (concurrent-staging collision, attribution noted in handoff).
+import { findPartialMilestoneDrift, renderMarkdown as renderPartialDriftMd } from "./lib/partial-milestone-drift.mjs";
+// Atomic write: concurrent peers regenerating CLOSE-OUT-CANDIDATES.json
+// without locking would interleave-corrupt the file (observed 2026-05-23 by
+// slot:mike — JSON parse error at line 51 from `{ { {` opening-brace storm).
+// atomicWriteJson uses a per-PID temp + rename pair so two writers never
+// share a tmp suffix; the loser's rename loses but its own file content is
+// intact, never interleaved into the winner's. (Same fix the roadmap-index
+// writers got in U-ROADMAP-INDEX-WRITER-CONSOLIDATE, 2026-05-19.)
+import { atomicWriteJson, atomicWriteText } from "./lib/atomic-json.mjs";
 
 const REPO = "H:/prism";
 const MILESTONES_DIR = path.join(REPO, "mcp-server/data/milestones");
 const OUT_JSON = path.join(REPO, "state/shared/CLOSE-OUT-CANDIDATES.json");
 const OUT_MD = path.join(REPO, "state/shared/CLOSE-OUT-CANDIDATES.md");
+const MILESTONE_PROGRESS_JSON = path.join(REPO, "state/shared/MILESTONE_PROGRESS.json");
 
 const PENDING_STATUSES = new Set([
   "pending", "in_progress", "in-progress", "deferred", "blocked", "planned",
@@ -317,13 +336,28 @@ function toRepoRelative(p) {
   return norm;
 }
 
+/**
+ * Flatten envelope units across both shapes:
+ *   - Flat shape: `env.units: [...]`
+ *   - Nested shape: `env.phases: [{ units: [...] }, ...]`
+ * Modern PRISM envelopes use nested. Pre-2026 envelopes used flat.
+ * Without this, ~85% of envelopes (those using nested shape) silently produced
+ * 0 candidates from the existing scan. Fix /loop iter-5 by alpha (claude-69c63409).
+ */
+function flattenEnvelopeUnits(env) {
+  const flat = Array.isArray(env.units) ? env.units : [];
+  if (flat.length > 0) return flat;
+  const phases = Array.isArray(env.phases) ? env.phases : [];
+  return phases.flatMap((p) => (p && Array.isArray(p.units) ? p.units : []));
+}
+
 function auditMilestone(filePath, opts) {
   const loaded = loadEnvelope(filePath);
   if (!loaded.ok) return { file: toRepoRelative(filePath), error: loaded.error, candidates: [], parseError: true };
   const env = loaded.envelope;
   const msId = env.id || path.basename(filePath, ".json");
   if (opts.milestone && msId !== opts.milestone) return null;
-  const units = Array.isArray(env.units) ? env.units : [];
+  const units = flattenEnvelopeUnits(env);
   const candidates = [];
   for (const unit of units) {
     const status = String(unit.status || "pending").toLowerCase();
@@ -425,31 +459,118 @@ function renderMd(results, opts, generatedAt) {
   return lines.join("\n");
 }
 
+function loadEnvelopesForDriftScan() {
+  // Load every envelope (full object, not just summary) for the silent-drift pass.
+  // Tolerates parse errors per file — failed envelopes don't poison the others.
+  const envelopes = [];
+  for (const f of fs.readdirSync(MILESTONES_DIR)) {
+    if (!f.endsWith(".json")) continue;
+    try {
+      const raw = fs.readFileSync(path.join(MILESTONES_DIR, f), "utf8");
+      envelopes.push(JSON.parse(raw));
+    } catch {
+      // Skip — fatal parse errors already counted in main `results` array.
+    }
+  }
+  return envelopes;
+}
+
+function runSilentDriftScan() {
+  // Read MILESTONE_PROGRESS once; tolerate missing/corrupt file (return empty map → drift = unitsComplete).
+  let msProgressJson = null;
+  try {
+    msProgressJson = JSON.parse(fs.readFileSync(MILESTONE_PROGRESS_JSON, "utf8"));
+  } catch {
+    msProgressJson = { milestones: [] };
+  }
+  const shipped = buildShippedByMsId(msProgressJson);
+  const envelopes = loadEnvelopesForDriftScan();
+  return findSilentCloseOutDrift({ envelopes, shippedByMsId: shipped });
+}
+
+// Third drift class: in_progress milestone + pending unit + on-disk engine matching unit.title.
+// Disk probe via fs.statSync (caller-injected per lib's pure-core contract).
+function runPartialMilestoneDriftScan() {
+  const envelopes = loadEnvelopesForDriftScan();
+  const ENGINES_DIR = path.join(REPO, "mcp-server/src/engines");
+  const engineProbe = (engName) => {
+    try {
+      const st = fs.statSync(path.join(ENGINES_DIR, engName + ".ts"));
+      return { exists: true, sizeBytes: st.size };
+    } catch {
+      return { exists: false, sizeBytes: 0 };
+    }
+  };
+  return findPartialMilestoneDrift({ envelopes, engineProbe });
+}
+
 function main() {
   const opts = parseArgs(process.argv);
   const generatedAt = opts.frozenTime || new Date().toISOString();
   const files = listMilestoneFiles();
   const results = files.map((f) => auditMilestone(f, opts)).filter(Boolean);
+  // Side-channel: silent close-out drift class (separate from `results` candidates).
+  let silentDrift;
+  try {
+    silentDrift = runSilentDriftScan();
+  } catch (err) {
+    silentDrift = { cases: [], summary: { error: String(err && err.message || err) } };
+  }
+  // Side-channel: partial-milestone-drift class (third class — open envelope + pending unit + engine on disk).
+  let partialDrift;
+  try {
+    partialDrift = runPartialMilestoneDriftScan();
+  } catch (err) {
+    partialDrift = { candidates: [], scanned: { milestones: 0, units: 0, engineMatches: 0 }, error: String(err && err.message || err) };
+  }
   const baseOutput = {
-    schemaVersion: "1.0.0",
+    schemaVersion: "1.2.0",
     generatedAt,
     advisoryOnly: true,
     mustHumanVerify: true,
     caveat: ADVISORY_CAVEAT,
     opts,
     results,
+    silent_close_out_debt: silentDrift,
+    partial_milestone_drift: partialDrift,
   };
   if (opts.json) {
     process.stdout.write(JSON.stringify(baseOutput, null, 2));
     return;
   }
-  const md = renderMd(results, opts, generatedAt);
+  const baseMd = renderMd(results, opts, generatedAt);
+  // Append silent-drift section. Distinct heading so operator sees both classes clearly.
+  const driftSection = [
+    "",
+    "---",
+    "",
+    `## Silent Close-Out Debt (${silentDrift.summary?.cases_found || 0} milestones · ${silentDrift.summary?.total_hidden_shipped_units || 0} hidden-shipped units)`,
+    "",
+    "> **Different drift class:** envelope.status=`complete` + envelope.units[].status=`complete` for all units, BUT `MILESTONE_PROGRESS.shipped=0` (or below envelope's completed count). Likely cause: pre-2026-05-12 ship commits used non-tagged subjects, so `build-milestone-progress.mjs` can't match them.",
+    "",
+    "> Same advisory rule applies — file presence ≠ spec correctness. Spot-verify before reconciling `MILESTONE_PROGRESS`. Reconciliation path: `node scripts/build-milestone-progress.mjs` (re-derive from git) or operator-flip via `node scripts/close-out-milestone.mjs --milestone <ID>`.",
+    "",
+    renderSilentDriftMd(silentDrift.cases || [], 20),
+    "",
+    "---",
+    "",
+    `## Partial-Milestone Drift (${partialDrift.candidates?.length || 0} candidates · ${partialDrift.scanned?.milestones || 0} open milestones scanned)`,
+    "",
+    "> **Third drift class:** `envelope.status=in_progress` + `unit.status=pending` + `unit.title` names an `XxxEngine` + `src/engines/<XxxEngine>.ts` exists (≥1024B). Neither the candidate-resolver (needs declared path strings) nor silent-close-out-drift (needs envelope-complete) catches this. Discovered 2026-05-23 closing WEDM-NEXT-MS0/U-WN06+U-WN08.",
+    "",
+    "> Same advisory rule applies — engine-on-disk ≠ engine-satisfies-spec (false positives: AI-TRAINING-FIRST units where engine exists but training isn't done). Verify each candidate against `deliverables` + `acceptance` + `exit_criteria` before flipping.",
+    "",
+    renderPartialDriftMd(partialDrift.candidates || []),
+  ].join("\n");
+  const md = baseMd + driftSection;
   fs.mkdirSync(path.dirname(OUT_JSON), { recursive: true });
-  fs.writeFileSync(OUT_JSON, JSON.stringify(baseOutput, null, 2));
-  fs.writeFileSync(OUT_MD, md);
+  atomicWriteJson(OUT_JSON, baseOutput);
+  atomicWriteText(OUT_MD, md);
   const withCandidates = results.filter((r) => r.candidates && r.candidates.length > 0);
   const total = withCandidates.reduce((s, r) => s + r.candidates.length, 0);
   process.stdout.write(`[close-out-audit] scanned ${results.length} milestones · ${withCandidates.length} have candidates · ${total} total candidate units\n`);
+  process.stdout.write(`[close-out-audit] silent close-out debt: ${silentDrift.summary?.cases_found || 0} milestones / ${silentDrift.summary?.total_hidden_shipped_units || 0} hidden-shipped units\n`);
+  process.stdout.write(`[close-out-audit] partial-milestone drift: ${partialDrift.candidates?.length || 0} candidates (${partialDrift.scanned?.milestones || 0} open milestones, ${partialDrift.scanned?.engineMatches || 0} engine-name matches)\n`);
   process.stdout.write(`[close-out-audit] wrote ${OUT_JSON}\n`);
   process.stdout.write(`[close-out-audit] wrote ${OUT_MD}\n`);
 }

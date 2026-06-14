@@ -16,7 +16,11 @@
 import { log } from "../utils/Logger.js";
 import { fusionDeepLearningEngine } from "./FusionDeepLearningEngine.js";
 import { fusionMaterialBridgeEngine } from "./FusionMaterialBridgeEngine.js";
-import { fusionMaterialPhysicsBridge } from "./FusionMaterialPhysicsBridge.js";
+// Milling-physics is computed via the shared MastercamMaterialPhysicsBridge —
+// it is the canonical Kienzle/Taylor milling-physics bridge and produces the
+// MillingPhysicsOutput shape consumed below. FusionMaterialPhysicsBridge
+// exposes only force/flow-stress primitives, not a full milling-physics pass.
+import { mastercamMaterialPhysicsBridge } from "./MastercamMaterialPhysicsBridge.js";
 import { fusionStrategyKnowledgeEngine } from "./FusionStrategyKnowledgeEngine.js";
 
 // ============================================================================
@@ -335,7 +339,7 @@ export class FusionAIOrchestrationEngine {
         source: "FusionMaterialPhysicsBridge"
       });
 
-      const physicsResult = fusionMaterialPhysicsBridge.calculateMillingPhysics({
+      const physicsResult = mastercamMaterialPhysicsBridge.calculateMillingPhysics({
         material_id: request.material_id,
         tool_diameter_mm: request.tool_diameter_mm,
         tool_flutes: request.tool_flutes || 4,

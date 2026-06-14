@@ -1,0 +1,1770 @@
+{
+  "ultimotion_on": {
+    "engine_output": {
+      "gcode": [
+        "O2001 (PRISM GENERATED)",
+        "(MACHINE: HURCO VMX24 - WINMAX V11)",
+        "(GENERATED: 2026-05-31T21:38:38.718Z)",
+        "",
+        "(SAFE START)",
+        "G21 (METRIC)",
+        "G90 G17 G40 G49 G80 (ABSOLUTE, XY PLANE, CANCEL COMP, CANCEL CANNED)",
+        "G54 (WORK OFFSET)",
+        "",
+        "(OPERATION 1: ADAPTIVE)",
+        "G91 G28 Z0 (Z RETRACT)",
+        "T1 M06 (10MM CARBIDE EM)",
+        "G05.3 P35 (T1 ADAPTIVE ROUGH SMOOTHING)",
+        "G43 H1 (TOOL LENGTH COMP)",
+        "S8000 M03 (SPINDLE CW 8000 RPM)",
+        "M08 (FLOOD COOLANT)",
+        "G00 Z50 (RAPID TO SAFE Z)",
+        "G00 X0.000 Y0.000 Z5.000",
+        "G01 X50.000 Y0.000 Z-2.000 F1200",
+        "G01 X50.000 Y50.000 Z-2.000 F1200",
+        "G00 Z50 (RETRACT)",
+        "",
+        "(OPERATION 2: CONTOUR)",
+        "G91 G28 Z0 (Z RETRACT)",
+        "T2 M06 (6MM FINISH EM)",
+        "G05.3 P10 (T2 FINISH SMOOTHING)",
+        "G43 H2 (TOOL LENGTH COMP)",
+        "S10000 M03 (SPINDLE CW 10000 RPM)",
+        "M88 (THROUGH-SPINDLE COOLANT)",
+        "G00 Z50 (RAPID TO SAFE Z)",
+        "G00 X0.000 Y0.000 Z5.000",
+        "G01 X25.000 Y0.000 Z-1.000 F800",
+        "G00 Z50 (RETRACT)",
+        "",
+        "(END OF PROGRAM)",
+        "M05 (SPINDLE STOP)",
+        "M09 (COOLANT OFF)",
+        "G91 G28 Z0 (Z HOME)",
+        "G28 X0 Y0 (XY HOME)",
+        "M30 (PROGRAM END)",
+        "%"
+      ],
+      "program_number": 2001,
+      "total_lines": 41,
+      "estimated_cycle_min": 0.4,
+      "tools_used": [
+        1,
+        2
+      ],
+      "warnings": [
+        "Op 1 line 10: Taylor tool life 8.8 min vs target 10 min (C=600, n=0.4)"
+      ],
+      "block_annotations": [
+        {
+          "block_id": "N100",
+          "op_id": "op_1_adaptive",
+          "iso_group": "N",
+          "tool_material": "carbide",
+          "emitted": {
+            "vc_mpm": 251.32741228718345,
+            "fpt_mm": 0.0375,
+            "ap_mm": 2,
+            "ae_mm": 4,
+            "S_rpm": 8000,
+            "F_mmpm": 1200
+          },
+          "physics_basis": "kienzle",
+          "confidence": 0.85,
+          "safety_margin": 0.9,
+          "source_constants": [
+            "CANONICAL_KIENZLE.N",
+            "CANONICAL_TAYLOR.N"
+          ]
+        },
+        {
+          "block_id": "N110",
+          "op_id": "op_2_contour",
+          "iso_group": "N",
+          "tool_material": "carbide",
+          "emitted": {
+            "vc_mpm": 188.4955592153876,
+            "fpt_mm": 0.02666666666666667,
+            "ap_mm": 1,
+            "ae_mm": 0.3,
+            "S_rpm": 10000,
+            "F_mmpm": 800
+          },
+          "physics_basis": "kienzle",
+          "confidence": 0.85,
+          "safety_margin": 0.9,
+          "source_constants": [
+            "CANONICAL_KIENZLE.N",
+            "CANONICAL_TAYLOR.N"
+          ]
+        }
+      ],
+      "prove_out_mode": false,
+      "physics_checks": [
+        {
+          "line": 10,
+          "check": "Cutting speed 251 m/min vs max 500 m/min for ISO N",
+          "passed": true,
+          "value": 251.32741228718345,
+          "limit": 500
+        },
+        {
+          "line": 10,
+          "check": "Chip load 0.037 mm/tooth (range 0.02-0.25)",
+          "passed": true,
+          "value": 0.0375,
+          "limit": 0.25
+        },
+        {
+          "line": 10,
+          "check": "Cutting force 108 N vs machine limit 2000 N (kc1_1=700, mc=0.22)",
+          "passed": true,
+          "value": 108.11163230187822,
+          "limit": 2000
+        },
+        {
+          "line": 10,
+          "check": "Spindle 8000 RPM vs max 10000 RPM",
+          "passed": true,
+          "value": 8000,
+          "limit": 10000
+        },
+        {
+          "line": 10,
+          "check": "Taylor tool life 8.8 min vs target 10 min (C=600, n=0.4)",
+          "passed": false,
+          "value": 8.805995855885044,
+          "limit": 10
+        },
+        {
+          "line": 23,
+          "check": "Cutting speed 188 m/min vs max 500 m/min for ISO N",
+          "passed": true,
+          "value": 188.4955592153876,
+          "limit": 500
+        },
+        {
+          "line": 23,
+          "check": "Chip load 0.027 mm/tooth (range 0.02-0.25)",
+          "passed": true,
+          "value": 0.02666666666666667,
+          "limit": 0.25
+        },
+        {
+          "line": 23,
+          "check": "Cutting force 41 N vs machine limit 2000 N (kc1_1=700, mc=0.22)",
+          "passed": true,
+          "value": 41.43369370021021,
+          "limit": 2000
+        },
+        {
+          "line": 23,
+          "check": "Spindle 10000 RPM vs max 10000 RPM",
+          "passed": true,
+          "value": 10000,
+          "limit": 10000
+        },
+        {
+          "line": 23,
+          "check": "Taylor tool life 18.1 min vs target 10 min (C=600, n=0.4)",
+          "passed": true,
+          "value": 18.076956721343848,
+          "limit": 10
+        }
+      ],
+      "tribal_tips_applied": [
+        "JM Die standard safe start applied",
+        "UltiMotion G05.3 P<n> emitted per-tool-change (P35 adaptive / P10 finish)",
+        "[tool_change] Hurco ATC prefers Z retract before XY move — always issue G28 G91 Z0 before tool change",
+        "[spindle] WinMax V11 ramps spindle smoothly — no dwell needed after M03, but use G04 P1.0 for heavy cuts",
+        "[coolant] TSC (through-spindle coolant) not available on JM Die's VMX24 — use flood coolant M08",
+        "[aluminum] For 6061-T6 on the Hurco: 500+ SFM, 0.004\" chipload, climb mill only — chip evacuation is key",
+        "[adaptive] Hurco supports high-speed contouring (G05.1 Q1) — enable for adaptive/HSM toolpaths",
+        "[safe_start] JM Die standard safe start: G90 G17 G40 G49 G80 G54 — always at program start",
+        "[work_offset] Use G54 for most jobs, G55-G59 for multi-part setups — Hurco supports G54.1 P1-P99 extended",
+        "[tool_change] Hurco ATC prefers Z retract before XY move — always issue G28 G91 Z0 before tool change",
+        "[spindle] WinMax V11 ramps spindle smoothly — no dwell needed after M03, but use G04 P1.0 for heavy cuts",
+        "[coolant] TSC (through-spindle coolant) not available on JM Die's VMX24 — use flood coolant M08",
+        "[aluminum] For 6061-T6 on the Hurco: 500+ SFM, 0.004\" chipload, climb mill only — chip evacuation is key",
+        "[adaptive] Hurco supports high-speed contouring (G05.1 Q1) — enable for adaptive/HSM toolpaths",
+        "[safe_start] JM Die standard safe start: G90 G17 G40 G49 G80 G54 — always at program start",
+        "[work_offset] Use G54 for most jobs, G55-G59 for multi-part setups — Hurco supports G54.1 P1-P99 extended"
+      ],
+      "setup_sheet": {
+        "machine": "Hurco VMX24",
+        "controller": "WinMax V11",
+        "units": "metric",
+        "tools": [
+          {
+            "number": 1,
+            "diameter_mm": 10,
+            "flutes": 4,
+            "description": "10MM CARBIDE EM"
+          },
+          {
+            "number": 2,
+            "diameter_mm": 6,
+            "flutes": 3,
+            "description": "6MM FINISH EM"
+          }
+        ],
+        "operations": [
+          {
+            "sequence": 1,
+            "type": "adaptive",
+            "tool_number": 1,
+            "spindle_rpm": 8000,
+            "feed_mm_min": 1200
+          },
+          {
+            "sequence": 2,
+            "type": "contour",
+            "tool_number": 2,
+            "spindle_rpm": 10000,
+            "feed_mm_min": 800
+          }
+        ]
+      }
+    },
+    "sidecar": {
+      "meta": {
+        "schema_version": "1.2.0",
+        "sha256": "475191892f8111ad7a894e6d7cdea721a9787a3f63cac6b84c63a8f43e1945a3",
+        "generated_at": "2026-05-31T21:38:38.732Z",
+        "source_engine_versions": {
+          "HurcoV11MillMasterPostEngine": "1.1.0"
+        },
+        "constants_source": "src/physics/constants.ts"
+      },
+      "kienzle": {
+        "P": {
+          "kc1_1": 1800,
+          "mc": 0.25
+        },
+        "M": {
+          "kc1_1": 2100,
+          "mc": 0.25
+        },
+        "K": {
+          "kc1_1": 1100,
+          "mc": 0.28
+        },
+        "N": {
+          "kc1_1": 700,
+          "mc": 0.22
+        },
+        "S": {
+          "kc1_1": 2800,
+          "mc": 0.27
+        },
+        "H": {
+          "kc1_1": 3200,
+          "mc": 0.3
+        }
+      },
+      "taylor": {
+        "P": {
+          "C": 350,
+          "n": 0.25
+        },
+        "M": {
+          "C": 200,
+          "n": 0.2
+        },
+        "K": {
+          "C": 250,
+          "n": 0.25
+        },
+        "N": {
+          "C": 600,
+          "n": 0.4
+        },
+        "S": {
+          "C": 150,
+          "n": 0.18
+        },
+        "H": {
+          "C": 120,
+          "n": 0.15
+        }
+      },
+      "extended_taylor": {
+        "P": {
+          "a": 0.3,
+          "b": 0.2
+        },
+        "M": {
+          "a": 0.35,
+          "b": 0.22
+        },
+        "K": {
+          "a": 0.28,
+          "b": 0.18
+        },
+        "N": {
+          "a": 0.2,
+          "b": 0.15
+        },
+        "S": {
+          "a": 0.4,
+          "b": 0.25
+        },
+        "H": {
+          "a": 0.45,
+          "b": 0.28
+        }
+      },
+      "tool_modulus_MPa": {
+        "carbide": 600000,
+        "cermet": 450000,
+        "ceramic": 380000,
+        "cbn": 680000,
+        "pcd": 800000,
+        "hss": 210000,
+        "diamond": 1050000
+      },
+      "white_layer_thresholds": {
+        "hardened_steel": {
+          "threshold_C": 700,
+          "source": "Klocke - austenitization onset"
+        },
+        "steel": {
+          "threshold_C": 850,
+          "source": "Klocke"
+        },
+        "stainless": {
+          "threshold_C": 650,
+          "source": "Klocke"
+        },
+        "titanium": {
+          "threshold_C": 750,
+          "source": "Boothroyd 1963; Ti alpha/beta transition"
+        },
+        "nickel_alloy": {
+          "threshold_C": 800,
+          "source": "Klocke - gamma' precipitation"
+        },
+        "inconel": {
+          "threshold_C": 800,
+          "source": "Klocke"
+        }
+      },
+      "edm_physics": {
+        "spark_erosion": {
+          "C_d": 2.1,
+          "current_exp_d": 0.43,
+          "ton_exp_d": 0.44,
+          "C_p": 0.54,
+          "current_exp_p": 0.38,
+          "ton_exp_p": 0.38,
+          "C_mrr": 0.0085,
+          "mrr_current_exp": 1.2,
+          "mrr_ton_exp": 0.65,
+          "mrr_duty_exp": 0.8,
+          "typical_arc_voltage_V": 25,
+          "removal_efficiency": {
+            "steel": 0.65,
+            "stainless": 0.6,
+            "titanium": 0.55,
+            "inconel": 0.5,
+            "tungsten_carbide": 0.35,
+            "aluminum": 0.75,
+            "copper": 0.7
+          },
+          "source": "DiBitonto et al. ASME J. Eng. Ind. 111(2) 1989; Sato et al. JSME Int. J. 33(4) 1990"
+        },
+        "kunieda": {
+          "eta_steel": 0.3,
+          "eta_aluminum": 0.45,
+          "eta_titanium": 0.2,
+          "eta_inconel": 0.18,
+          "eta_carbide": 0.12,
+          "source": "Kunieda et al. CIRP Annals 54(2) 2005, Fig. 8 + Table 2"
+        },
+        "gap_voltage": {
+          "open_circuit_V": {
+            "standard": 80,
+            "high_speed": 100,
+            "precision": 70
+          },
+          "arc_voltage_V": 25,
+          "stable_gap_V": {
+            "min": 35,
+            "max": 55
+          },
+          "servo_target_V": 45,
+          "gap_per_volt_um": 0.4,
+          "min_gap_um": 10,
+          "max_gap_um": 80,
+          "source": "Mitsubishi MV-R series manual; Sodick LN2W manual"
+        },
+        "debris_short_circuit": {
+          "coefficient_k": 0.00012,
+          "nominal_gap_mm": 0.025,
+          "thresholds": {
+            "safe": 0.001,
+            "warning": 0.003,
+            "critical": 0.008
+          },
+          "ppm_thresholds": {
+            "safe": 50,
+            "warning": 200,
+            "critical": 500
+          },
+          "source": "Klocke 'Fertigungsverfahren Band 3' §5.2.3; Cetin et al. 2003"
+        },
+        "wire_safety": {
+          "max_current_density_brass": 500,
+          "max_current_density_coated": 600,
+          "max_current_density_moly": 300,
+          "max_current_density_tungsten": 250,
+          "max_tension_0_20mm": 12,
+          "max_tension_0_25mm": 18,
+          "max_tension_0_30mm": 24,
+          "warning_threshold": 0.85,
+          "max_duty_rough": 0.55,
+          "max_duty_skim": 0.7,
+          "source": "Bedra wire catalog; Thermocompact technical guide; Mitsubishi MV/MX series operator manual"
+        },
+        "toenshoff": {
+          "gamma": {
+            "steel": 0.3,
+            "tool_steel": 0.28,
+            "hardened_steel": 0.25,
+            "stainless": 0.27,
+            "aluminum": 0.4,
+            "copper": 0.38,
+            "titanium": 0.22,
+            "inconel": 0.2,
+            "carbide": 0.18
+          },
+          "source": "Toenshoff & Hillmann-Apmann CIRP Annals 51(1) 2002"
+        },
+        "wire_corner": {
+          "lag_coefficient": 0.15,
+          "inside_overcut_factor": 1.08,
+          "outside_undercut_factor": 0.95,
+          "source": "Ho & Newman 2003; Mitsubishi corner control white paper"
+        },
+        "corner_lag": {
+          "response_time_ms": {
+            "low": 25,
+            "medium": 18,
+            "high": 12,
+            "brass": 2.5,
+            "brass_cuzn37": 2.5,
+            "brass_cuzn40": 2.4,
+            "coated": 2.3,
+            "coated_brass": 2.3,
+            "zinc_coated": 2.3,
+            "molybdenum": 1.5,
+            "moly": 1.5,
+            "tungsten": 1.2
+          },
+          "max_acceptable_lag_mm": 0.008,
+          "source": "Sodick corner control algorithm; Mitsubishi E-tables; Dekeyser & Snoeys 1989"
+        },
+        "kerf_overcut": {
+          "base_coefficient": 2.5,
+          "current_exponent": 0.35,
+          "ton_exponent": 0.3,
+          "min_overcut_um": 8,
+          "source": "Klocke §5.3; Rajurkar & Wang 1991"
+        },
+        "thin_wire_derate": {
+          "reference_diameter_mm": 0.25,
+          "current_exponent": 1.8,
+          "ton_exponent": 1.5,
+          "speed_factor": {
+            "0.10": 0.35,
+            "0.15": 0.55,
+            "0.20": 0.75,
+            "0.25": 1,
+            "0.30": 1.15
+          },
+          "source": "GF Machining Solutions thin wire guide"
+        },
+        "wire_joule_heating": {
+          "resistivity": {
+            "brass_cuzn37": 0.067,
+            "brass_cuzn40": 0.065,
+            "coated_brass": 0.07,
+            "molybdenum": 0.053,
+            "tungsten": 0.055
+          },
+          "specific_heat": {
+            "brass_cuzn37": 377,
+            "brass_cuzn40": 380,
+            "coated_brass": 385,
+            "molybdenum": 251,
+            "tungsten": 134
+          },
+          "density": {
+            "brass_cuzn37": 8400,
+            "brass_cuzn40": 8450,
+            "coated_brass": 8500,
+            "molybdenum": 10200,
+            "tungsten": 19300
+          },
+          "max_temp_rise_K": 150,
+          "source": "Wire manufacturer datasheets; CES EduPack"
+        },
+        "skim_ra_cascade": {
+          "rho": {
+            "rough_to_semi": 0.5,
+            "semi_to_finish": 0.4,
+            "finish_to_precision": 0.35,
+            "steel": 0.55,
+            "stainless": 0.58,
+            "titanium": 0.6,
+            "tungsten_carbide": 0.7,
+            "carbide": 0.7,
+            "aluminum": 0.45,
+            "inconel": 0.62,
+            "copper": 0.5,
+            "pcd": 0.65
+          },
+          "min_ra_um": {
+            "steel": 0.15,
+            "stainless": 0.18,
+            "titanium": 0.25,
+            "tungsten_carbide": 0.1,
+            "carbide": 0.1,
+            "aluminum": 0.2,
+            "inconel": 0.22,
+            "copper": 0.2
+          },
+          "source": "Klocke Table 5.8; Mitsubishi finish data"
+        },
+        "klocke": {
+          "ra_models": {
+            "steel": {
+              "A": 0.52,
+              "a": 0.38,
+              "b": 0.45,
+              "min_ra_um": 0.15,
+              "k_ra": 0.52,
+              "alpha": 0.38,
+              "beta": 0.45,
+              "source": "Klocke"
+            },
+            "stainless": {
+              "A": 0.58,
+              "a": 0.4,
+              "b": 0.48,
+              "min_ra_um": 0.18,
+              "k_ra": 0.58,
+              "alpha": 0.4,
+              "beta": 0.48,
+              "source": "Klocke"
+            },
+            "tool_steel": {
+              "A": 0.48,
+              "a": 0.36,
+              "b": 0.42,
+              "min_ra_um": 0.12,
+              "k_ra": 0.48,
+              "alpha": 0.36,
+              "beta": 0.42,
+              "source": "Klocke"
+            },
+            "titanium": {
+              "A": 0.65,
+              "a": 0.42,
+              "b": 0.5,
+              "min_ra_um": 0.25,
+              "k_ra": 0.65,
+              "alpha": 0.42,
+              "beta": 0.5,
+              "source": "Klocke"
+            },
+            "inconel": {
+              "A": 0.62,
+              "a": 0.41,
+              "b": 0.48,
+              "min_ra_um": 0.22,
+              "k_ra": 0.62,
+              "alpha": 0.41,
+              "beta": 0.48,
+              "source": "Klocke"
+            },
+            "tungsten_carbide": {
+              "A": 0.35,
+              "a": 0.3,
+              "b": 0.38,
+              "min_ra_um": 0.08,
+              "k_ra": 0.35,
+              "alpha": 0.3,
+              "beta": 0.38,
+              "source": "Klocke"
+            },
+            "carbide": {
+              "A": 0.35,
+              "a": 0.3,
+              "b": 0.38,
+              "min_ra_um": 0.08,
+              "k_ra": 0.35,
+              "alpha": 0.3,
+              "beta": 0.38,
+              "source": "alias for tungsten_carbide"
+            },
+            "aluminum": {
+              "A": 0.7,
+              "a": 0.45,
+              "b": 0.52,
+              "min_ra_um": 0.2,
+              "k_ra": 0.7,
+              "alpha": 0.45,
+              "beta": 0.52,
+              "source": "Klocke"
+            },
+            "copper": {
+              "A": 0.75,
+              "a": 0.48,
+              "b": 0.55,
+              "min_ra_um": 0.22,
+              "k_ra": 0.75,
+              "alpha": 0.48,
+              "beta": 0.55,
+              "source": "Klocke"
+            }
+          },
+          "source": "Klocke 'Fertigungsverfahren Band 3' Table 5.7"
+        },
+        "wire_power_density": {
+          "arc_length_factor": 0.8,
+          "max_power_density": {
+            "brass": 4500,
+            "brass_cuzn37": 4500,
+            "brass_cuzn40": 4600,
+            "coated": 5500,
+            "coated_brass": 5500,
+            "zinc_coated": 5500,
+            "moly": 7500,
+            "molybdenum": 7500,
+            "tungsten": 8000
+          },
+          "max_safe_current_A": {
+            "brass_cuzn37": 5,
+            "brass_cuzn40": 5,
+            "coated_brass": 6,
+            "zinc_coated": 6,
+            "molybdenum": 8,
+            "tungsten": 10
+          },
+          "source": "Bedra application notes; GF power density guidelines"
+        },
+        "servo_voltage": {
+          "open_circuit_V": {
+            "standard": 100,
+            "high_speed": 120,
+            "fine_finish": 60,
+            "precision": 60
+          },
+          "arc_resistance_ohm": {
+            "typical": 2.5,
+            "low": 1.5,
+            "high": 4
+          },
+          "stable_range": {
+            "min": 35,
+            "max": 55
+          },
+          "source": "Sodick servo control manual; Mitsubishi SV500S"
+        },
+        "coated_wire_limits": {
+          "max_current_density": {
+            "uncoated_brass": 500,
+            "brass": 500,
+            "brass_cuzn37": 500,
+            "brass_cuzn40": 500,
+            "zinc_coated": 550,
+            "brass_core_zinc": 580,
+            "coated_brass": 580,
+            "diffusion_annealed": 600,
+            "gamma_phase": 650,
+            "gamma": 650,
+            "molybdenum": 800,
+            "tungsten": 900
+          },
+          "max_duty_cycle": {
+            "uncoated_brass": 0.3,
+            "brass": 0.3,
+            "brass_cuzn37": 0.3,
+            "brass_cuzn40": 0.3,
+            "zinc_coated": 0.35,
+            "brass_core_zinc": 0.38,
+            "coated_brass": 0.38,
+            "diffusion_annealed": 0.42,
+            "gamma_phase": 0.45,
+            "gamma": 0.45,
+            "molybdenum": 0.35,
+            "tungsten": 0.35
+          },
+          "source": "Thermocompact coated wire specifications"
+        },
+        "flush_deflection": {
+          "bar_to_N_per_mm2": 0.1,
+          "typical_pressure_bar": {
+            "min": 0.5,
+            "max": 8
+          },
+          "deflection_coefficient": 0.012,
+          "source": "Makino flushing guide; Sodick UH650L manual"
+        }
+      },
+      "canonical_turning_speeds": {
+        "P": {
+          "rough": 220,
+          "finish": 320
+        },
+        "M": {
+          "rough": 150,
+          "finish": 220
+        },
+        "K": {
+          "rough": 180,
+          "finish": 280
+        },
+        "N": {
+          "rough": 400,
+          "finish": 600
+        },
+        "S": {
+          "rough": 35,
+          "finish": 70
+        },
+        "H": {
+          "rough": 80,
+          "finish": 130
+        }
+      },
+      "canonical_turning_feeds": {
+        "P": {
+          "rough": 0.3,
+          "finish": 0.12
+        },
+        "M": {
+          "rough": 0.25,
+          "finish": 0.1
+        },
+        "K": {
+          "rough": 0.35,
+          "finish": 0.15
+        },
+        "N": {
+          "rough": 0.3,
+          "finish": 0.12
+        },
+        "S": {
+          "rough": 0.18,
+          "finish": 0.08
+        },
+        "H": {
+          "rough": 0.15,
+          "finish": 0.06
+        }
+      },
+      "canonical_milling_speeds": {
+        "P": {
+          "rough": 200,
+          "finish": 280
+        },
+        "M": {
+          "rough": 130,
+          "finish": 200
+        },
+        "K": {
+          "rough": 160,
+          "finish": 240
+        },
+        "N": {
+          "rough": 500,
+          "finish": 800
+        },
+        "S": {
+          "rough": 40,
+          "finish": 70
+        },
+        "H": {
+          "rough": 60,
+          "finish": 100
+        }
+      },
+      "canonical_milling_feeds": {
+        "P": {
+          "rough": 0.15,
+          "finish": 0.08
+        },
+        "M": {
+          "rough": 0.12,
+          "finish": 0.06
+        },
+        "K": {
+          "rough": 0.18,
+          "finish": 0.1
+        },
+        "N": {
+          "rough": 0.2,
+          "finish": 0.1
+        },
+        "S": {
+          "rough": 0.08,
+          "finish": 0.04
+        },
+        "H": {
+          "rough": 0.06,
+          "finish": 0.03
+        }
+      },
+      "block_annotations": [
+        {
+          "block_id": "N100",
+          "op_id": "op_1_adaptive",
+          "iso_group": "N",
+          "tool_material": "carbide",
+          "emitted": {
+            "vc_mpm": 251.32741228718345,
+            "fpt_mm": 0.0375,
+            "ap_mm": 2,
+            "ae_mm": 4,
+            "S_rpm": 8000,
+            "F_mmpm": 1200
+          },
+          "physics_basis": "kienzle",
+          "confidence": 0.85,
+          "safety_margin": 0.9,
+          "source_constants": [
+            "CANONICAL_KIENZLE.N",
+            "CANONICAL_TAYLOR.N"
+          ]
+        },
+        {
+          "block_id": "N110",
+          "op_id": "op_2_contour",
+          "iso_group": "N",
+          "tool_material": "carbide",
+          "emitted": {
+            "vc_mpm": 188.4955592153876,
+            "fpt_mm": 0.02666666666666667,
+            "ap_mm": 1,
+            "ae_mm": 0.3,
+            "S_rpm": 10000,
+            "F_mmpm": 800
+          },
+          "physics_basis": "kienzle",
+          "confidence": 0.85,
+          "safety_margin": 0.9,
+          "source_constants": [
+            "CANONICAL_KIENZLE.N",
+            "CANONICAL_TAYLOR.N"
+          ]
+        }
+      ]
+    }
+  },
+  "ultimotion_off": {
+    "engine_output": {
+      "gcode": [
+        "O2002 (PRISM GENERATED)",
+        "(MACHINE: HURCO VMX24 - WINMAX V11)",
+        "(GENERATED: 2026-05-31T21:38:38.754Z)",
+        "",
+        "(SAFE START)",
+        "G21 (METRIC)",
+        "G90 G17 G40 G49 G80 (ABSOLUTE, XY PLANE, CANCEL COMP, CANCEL CANNED)",
+        "G54 (WORK OFFSET)",
+        "",
+        "(OPERATION 1: ADAPTIVE)",
+        "G91 G28 Z0 (Z RETRACT)",
+        "T1 M06 (10MM CARBIDE EM)",
+        "G43 H1 (TOOL LENGTH COMP)",
+        "S8000 M03 (SPINDLE CW 8000 RPM)",
+        "M08 (FLOOD COOLANT)",
+        "G00 Z50 (RAPID TO SAFE Z)",
+        "G00 X0.000 Y0.000 Z5.000",
+        "G01 X50.000 Y0.000 Z-2.000 F1200",
+        "G01 X50.000 Y50.000 Z-2.000 F1200",
+        "G00 Z50 (RETRACT)",
+        "",
+        "(END OF PROGRAM)",
+        "M05 (SPINDLE STOP)",
+        "M09 (COOLANT OFF)",
+        "G91 G28 Z0 (Z HOME)",
+        "G28 X0 Y0 (XY HOME)",
+        "M30 (PROGRAM END)",
+        "%"
+      ],
+      "program_number": 2002,
+      "total_lines": 28,
+      "estimated_cycle_min": 0.2,
+      "tools_used": [
+        1
+      ],
+      "warnings": [
+        "Op 1 line 10: Taylor tool life 8.8 min vs target 10 min (C=600, n=0.4)"
+      ],
+      "block_annotations": [
+        {
+          "block_id": "N100",
+          "op_id": "op_1_adaptive",
+          "iso_group": "N",
+          "tool_material": "carbide",
+          "emitted": {
+            "vc_mpm": 251.32741228718345,
+            "fpt_mm": 0.0375,
+            "ap_mm": 2,
+            "ae_mm": 4,
+            "S_rpm": 8000,
+            "F_mmpm": 1200
+          },
+          "physics_basis": "kienzle",
+          "confidence": 0.85,
+          "safety_margin": 0.9,
+          "source_constants": [
+            "CANONICAL_KIENZLE.N",
+            "CANONICAL_TAYLOR.N"
+          ]
+        }
+      ],
+      "prove_out_mode": false,
+      "physics_checks": [
+        {
+          "line": 10,
+          "check": "Cutting speed 251 m/min vs max 500 m/min for ISO N",
+          "passed": true,
+          "value": 251.32741228718345,
+          "limit": 500
+        },
+        {
+          "line": 10,
+          "check": "Chip load 0.037 mm/tooth (range 0.02-0.25)",
+          "passed": true,
+          "value": 0.0375,
+          "limit": 0.25
+        },
+        {
+          "line": 10,
+          "check": "Cutting force 108 N vs machine limit 2000 N (kc1_1=700, mc=0.22)",
+          "passed": true,
+          "value": 108.11163230187822,
+          "limit": 2000
+        },
+        {
+          "line": 10,
+          "check": "Spindle 8000 RPM vs max 10000 RPM",
+          "passed": true,
+          "value": 8000,
+          "limit": 10000
+        },
+        {
+          "line": 10,
+          "check": "Taylor tool life 8.8 min vs target 10 min (C=600, n=0.4)",
+          "passed": false,
+          "value": 8.805995855885044,
+          "limit": 10
+        }
+      ],
+      "tribal_tips_applied": [
+        "JM Die standard safe start applied",
+        "[tool_change] Hurco ATC prefers Z retract before XY move — always issue G28 G91 Z0 before tool change",
+        "[spindle] WinMax V11 ramps spindle smoothly — no dwell needed after M03, but use G04 P1.0 for heavy cuts",
+        "[coolant] TSC (through-spindle coolant) not available on JM Die's VMX24 — use flood coolant M08",
+        "[aluminum] For 6061-T6 on the Hurco: 500+ SFM, 0.004\" chipload, climb mill only — chip evacuation is key",
+        "[adaptive] Hurco supports high-speed contouring (G05.1 Q1) — enable for adaptive/HSM toolpaths",
+        "[safe_start] JM Die standard safe start: G90 G17 G40 G49 G80 G54 — always at program start",
+        "[work_offset] Use G54 for most jobs, G55-G59 for multi-part setups — Hurco supports G54.1 P1-P99 extended"
+      ],
+      "setup_sheet": {
+        "machine": "Hurco VMX24",
+        "controller": "WinMax V11",
+        "units": "metric",
+        "tools": [
+          {
+            "number": 1,
+            "diameter_mm": 10,
+            "flutes": 4,
+            "description": "10MM CARBIDE EM"
+          }
+        ],
+        "operations": [
+          {
+            "sequence": 1,
+            "type": "adaptive",
+            "tool_number": 1,
+            "spindle_rpm": 8000,
+            "feed_mm_min": 1200
+          }
+        ]
+      }
+    },
+    "sidecar": {
+      "meta": {
+        "schema_version": "1.2.0",
+        "sha256": "3c2e1252e606b48e0c3f6f43f377859873baef7bf81d5644b457ab4932f55cd8",
+        "generated_at": "2026-05-31T21:38:38.755Z",
+        "source_engine_versions": {
+          "HurcoV11MillMasterPostEngine": "1.1.0"
+        },
+        "constants_source": "src/physics/constants.ts"
+      },
+      "kienzle": {
+        "P": {
+          "kc1_1": 1800,
+          "mc": 0.25
+        },
+        "M": {
+          "kc1_1": 2100,
+          "mc": 0.25
+        },
+        "K": {
+          "kc1_1": 1100,
+          "mc": 0.28
+        },
+        "N": {
+          "kc1_1": 700,
+          "mc": 0.22
+        },
+        "S": {
+          "kc1_1": 2800,
+          "mc": 0.27
+        },
+        "H": {
+          "kc1_1": 3200,
+          "mc": 0.3
+        }
+      },
+      "taylor": {
+        "P": {
+          "C": 350,
+          "n": 0.25
+        },
+        "M": {
+          "C": 200,
+          "n": 0.2
+        },
+        "K": {
+          "C": 250,
+          "n": 0.25
+        },
+        "N": {
+          "C": 600,
+          "n": 0.4
+        },
+        "S": {
+          "C": 150,
+          "n": 0.18
+        },
+        "H": {
+          "C": 120,
+          "n": 0.15
+        }
+      },
+      "extended_taylor": {
+        "P": {
+          "a": 0.3,
+          "b": 0.2
+        },
+        "M": {
+          "a": 0.35,
+          "b": 0.22
+        },
+        "K": {
+          "a": 0.28,
+          "b": 0.18
+        },
+        "N": {
+          "a": 0.2,
+          "b": 0.15
+        },
+        "S": {
+          "a": 0.4,
+          "b": 0.25
+        },
+        "H": {
+          "a": 0.45,
+          "b": 0.28
+        }
+      },
+      "tool_modulus_MPa": {
+        "carbide": 600000,
+        "cermet": 450000,
+        "ceramic": 380000,
+        "cbn": 680000,
+        "pcd": 800000,
+        "hss": 210000,
+        "diamond": 1050000
+      },
+      "white_layer_thresholds": {
+        "hardened_steel": {
+          "threshold_C": 700,
+          "source": "Klocke - austenitization onset"
+        },
+        "steel": {
+          "threshold_C": 850,
+          "source": "Klocke"
+        },
+        "stainless": {
+          "threshold_C": 650,
+          "source": "Klocke"
+        },
+        "titanium": {
+          "threshold_C": 750,
+          "source": "Boothroyd 1963; Ti alpha/beta transition"
+        },
+        "nickel_alloy": {
+          "threshold_C": 800,
+          "source": "Klocke - gamma' precipitation"
+        },
+        "inconel": {
+          "threshold_C": 800,
+          "source": "Klocke"
+        }
+      },
+      "edm_physics": {
+        "spark_erosion": {
+          "C_d": 2.1,
+          "current_exp_d": 0.43,
+          "ton_exp_d": 0.44,
+          "C_p": 0.54,
+          "current_exp_p": 0.38,
+          "ton_exp_p": 0.38,
+          "C_mrr": 0.0085,
+          "mrr_current_exp": 1.2,
+          "mrr_ton_exp": 0.65,
+          "mrr_duty_exp": 0.8,
+          "typical_arc_voltage_V": 25,
+          "removal_efficiency": {
+            "steel": 0.65,
+            "stainless": 0.6,
+            "titanium": 0.55,
+            "inconel": 0.5,
+            "tungsten_carbide": 0.35,
+            "aluminum": 0.75,
+            "copper": 0.7
+          },
+          "source": "DiBitonto et al. ASME J. Eng. Ind. 111(2) 1989; Sato et al. JSME Int. J. 33(4) 1990"
+        },
+        "kunieda": {
+          "eta_steel": 0.3,
+          "eta_aluminum": 0.45,
+          "eta_titanium": 0.2,
+          "eta_inconel": 0.18,
+          "eta_carbide": 0.12,
+          "source": "Kunieda et al. CIRP Annals 54(2) 2005, Fig. 8 + Table 2"
+        },
+        "gap_voltage": {
+          "open_circuit_V": {
+            "standard": 80,
+            "high_speed": 100,
+            "precision": 70
+          },
+          "arc_voltage_V": 25,
+          "stable_gap_V": {
+            "min": 35,
+            "max": 55
+          },
+          "servo_target_V": 45,
+          "gap_per_volt_um": 0.4,
+          "min_gap_um": 10,
+          "max_gap_um": 80,
+          "source": "Mitsubishi MV-R series manual; Sodick LN2W manual"
+        },
+        "debris_short_circuit": {
+          "coefficient_k": 0.00012,
+          "nominal_gap_mm": 0.025,
+          "thresholds": {
+            "safe": 0.001,
+            "warning": 0.003,
+            "critical": 0.008
+          },
+          "ppm_thresholds": {
+            "safe": 50,
+            "warning": 200,
+            "critical": 500
+          },
+          "source": "Klocke 'Fertigungsverfahren Band 3' §5.2.3; Cetin et al. 2003"
+        },
+        "wire_safety": {
+          "max_current_density_brass": 500,
+          "max_current_density_coated": 600,
+          "max_current_density_moly": 300,
+          "max_current_density_tungsten": 250,
+          "max_tension_0_20mm": 12,
+          "max_tension_0_25mm": 18,
+          "max_tension_0_30mm": 24,
+          "warning_threshold": 0.85,
+          "max_duty_rough": 0.55,
+          "max_duty_skim": 0.7,
+          "source": "Bedra wire catalog; Thermocompact technical guide; Mitsubishi MV/MX series operator manual"
+        },
+        "toenshoff": {
+          "gamma": {
+            "steel": 0.3,
+            "tool_steel": 0.28,
+            "hardened_steel": 0.25,
+            "stainless": 0.27,
+            "aluminum": 0.4,
+            "copper": 0.38,
+            "titanium": 0.22,
+            "inconel": 0.2,
+            "carbide": 0.18
+          },
+          "source": "Toenshoff & Hillmann-Apmann CIRP Annals 51(1) 2002"
+        },
+        "wire_corner": {
+          "lag_coefficient": 0.15,
+          "inside_overcut_factor": 1.08,
+          "outside_undercut_factor": 0.95,
+          "source": "Ho & Newman 2003; Mitsubishi corner control white paper"
+        },
+        "corner_lag": {
+          "response_time_ms": {
+            "low": 25,
+            "medium": 18,
+            "high": 12,
+            "brass": 2.5,
+            "brass_cuzn37": 2.5,
+            "brass_cuzn40": 2.4,
+            "coated": 2.3,
+            "coated_brass": 2.3,
+            "zinc_coated": 2.3,
+            "molybdenum": 1.5,
+            "moly": 1.5,
+            "tungsten": 1.2
+          },
+          "max_acceptable_lag_mm": 0.008,
+          "source": "Sodick corner control algorithm; Mitsubishi E-tables; Dekeyser & Snoeys 1989"
+        },
+        "kerf_overcut": {
+          "base_coefficient": 2.5,
+          "current_exponent": 0.35,
+          "ton_exponent": 0.3,
+          "min_overcut_um": 8,
+          "source": "Klocke §5.3; Rajurkar & Wang 1991"
+        },
+        "thin_wire_derate": {
+          "reference_diameter_mm": 0.25,
+          "current_exponent": 1.8,
+          "ton_exponent": 1.5,
+          "speed_factor": {
+            "0.10": 0.35,
+            "0.15": 0.55,
+            "0.20": 0.75,
+            "0.25": 1,
+            "0.30": 1.15
+          },
+          "source": "GF Machining Solutions thin wire guide"
+        },
+        "wire_joule_heating": {
+          "resistivity": {
+            "brass_cuzn37": 0.067,
+            "brass_cuzn40": 0.065,
+            "coated_brass": 0.07,
+            "molybdenum": 0.053,
+            "tungsten": 0.055
+          },
+          "specific_heat": {
+            "brass_cuzn37": 377,
+            "brass_cuzn40": 380,
+            "coated_brass": 385,
+            "molybdenum": 251,
+            "tungsten": 134
+          },
+          "density": {
+            "brass_cuzn37": 8400,
+            "brass_cuzn40": 8450,
+            "coated_brass": 8500,
+            "molybdenum": 10200,
+            "tungsten": 19300
+          },
+          "max_temp_rise_K": 150,
+          "source": "Wire manufacturer datasheets; CES EduPack"
+        },
+        "skim_ra_cascade": {
+          "rho": {
+            "rough_to_semi": 0.5,
+            "semi_to_finish": 0.4,
+            "finish_to_precision": 0.35,
+            "steel": 0.55,
+            "stainless": 0.58,
+            "titanium": 0.6,
+            "tungsten_carbide": 0.7,
+            "carbide": 0.7,
+            "aluminum": 0.45,
+            "inconel": 0.62,
+            "copper": 0.5,
+            "pcd": 0.65
+          },
+          "min_ra_um": {
+            "steel": 0.15,
+            "stainless": 0.18,
+            "titanium": 0.25,
+            "tungsten_carbide": 0.1,
+            "carbide": 0.1,
+            "aluminum": 0.2,
+            "inconel": 0.22,
+            "copper": 0.2
+          },
+          "source": "Klocke Table 5.8; Mitsubishi finish data"
+        },
+        "klocke": {
+          "ra_models": {
+            "steel": {
+              "A": 0.52,
+              "a": 0.38,
+              "b": 0.45,
+              "min_ra_um": 0.15,
+              "k_ra": 0.52,
+              "alpha": 0.38,
+              "beta": 0.45,
+              "source": "Klocke"
+            },
+            "stainless": {
+              "A": 0.58,
+              "a": 0.4,
+              "b": 0.48,
+              "min_ra_um": 0.18,
+              "k_ra": 0.58,
+              "alpha": 0.4,
+              "beta": 0.48,
+              "source": "Klocke"
+            },
+            "tool_steel": {
+              "A": 0.48,
+              "a": 0.36,
+              "b": 0.42,
+              "min_ra_um": 0.12,
+              "k_ra": 0.48,
+              "alpha": 0.36,
+              "beta": 0.42,
+              "source": "Klocke"
+            },
+            "titanium": {
+              "A": 0.65,
+              "a": 0.42,
+              "b": 0.5,
+              "min_ra_um": 0.25,
+              "k_ra": 0.65,
+              "alpha": 0.42,
+              "beta": 0.5,
+              "source": "Klocke"
+            },
+            "inconel": {
+              "A": 0.62,
+              "a": 0.41,
+              "b": 0.48,
+              "min_ra_um": 0.22,
+              "k_ra": 0.62,
+              "alpha": 0.41,
+              "beta": 0.48,
+              "source": "Klocke"
+            },
+            "tungsten_carbide": {
+              "A": 0.35,
+              "a": 0.3,
+              "b": 0.38,
+              "min_ra_um": 0.08,
+              "k_ra": 0.35,
+              "alpha": 0.3,
+              "beta": 0.38,
+              "source": "Klocke"
+            },
+            "carbide": {
+              "A": 0.35,
+              "a": 0.3,
+              "b": 0.38,
+              "min_ra_um": 0.08,
+              "k_ra": 0.35,
+              "alpha": 0.3,
+              "beta": 0.38,
+              "source": "alias for tungsten_carbide"
+            },
+            "aluminum": {
+              "A": 0.7,
+              "a": 0.45,
+              "b": 0.52,
+              "min_ra_um": 0.2,
+              "k_ra": 0.7,
+              "alpha": 0.45,
+              "beta": 0.52,
+              "source": "Klocke"
+            },
+            "copper": {
+              "A": 0.75,
+              "a": 0.48,
+              "b": 0.55,
+              "min_ra_um": 0.22,
+              "k_ra": 0.75,
+              "alpha": 0.48,
+              "beta": 0.55,
+              "source": "Klocke"
+            }
+          },
+          "source": "Klocke 'Fertigungsverfahren Band 3' Table 5.7"
+        },
+        "wire_power_density": {
+          "arc_length_factor": 0.8,
+          "max_power_density": {
+            "brass": 4500,
+            "brass_cuzn37": 4500,
+            "brass_cuzn40": 4600,
+            "coated": 5500,
+            "coated_brass": 5500,
+            "zinc_coated": 5500,
+            "moly": 7500,
+            "molybdenum": 7500,
+            "tungsten": 8000
+          },
+          "max_safe_current_A": {
+            "brass_cuzn37": 5,
+            "brass_cuzn40": 5,
+            "coated_brass": 6,
+            "zinc_coated": 6,
+            "molybdenum": 8,
+            "tungsten": 10
+          },
+          "source": "Bedra application notes; GF power density guidelines"
+        },
+        "servo_voltage": {
+          "open_circuit_V": {
+            "standard": 100,
+            "high_speed": 120,
+            "fine_finish": 60,
+            "precision": 60
+          },
+          "arc_resistance_ohm": {
+            "typical": 2.5,
+            "low": 1.5,
+            "high": 4
+          },
+          "stable_range": {
+            "min": 35,
+            "max": 55
+          },
+          "source": "Sodick servo control manual; Mitsubishi SV500S"
+        },
+        "coated_wire_limits": {
+          "max_current_density": {
+            "uncoated_brass": 500,
+            "brass": 500,
+            "brass_cuzn37": 500,
+            "brass_cuzn40": 500,
+            "zinc_coated": 550,
+            "brass_core_zinc": 580,
+            "coated_brass": 580,
+            "diffusion_annealed": 600,
+            "gamma_phase": 650,
+            "gamma": 650,
+            "molybdenum": 800,
+            "tungsten": 900
+          },
+          "max_duty_cycle": {
+            "uncoated_brass": 0.3,
+            "brass": 0.3,
+            "brass_cuzn37": 0.3,
+            "brass_cuzn40": 0.3,
+            "zinc_coated": 0.35,
+            "brass_core_zinc": 0.38,
+            "coated_brass": 0.38,
+            "diffusion_annealed": 0.42,
+            "gamma_phase": 0.45,
+            "gamma": 0.45,
+            "molybdenum": 0.35,
+            "tungsten": 0.35
+          },
+          "source": "Thermocompact coated wire specifications"
+        },
+        "flush_deflection": {
+          "bar_to_N_per_mm2": 0.1,
+          "typical_pressure_bar": {
+            "min": 0.5,
+            "max": 8
+          },
+          "deflection_coefficient": 0.012,
+          "source": "Makino flushing guide; Sodick UH650L manual"
+        }
+      },
+      "canonical_turning_speeds": {
+        "P": {
+          "rough": 220,
+          "finish": 320
+        },
+        "M": {
+          "rough": 150,
+          "finish": 220
+        },
+        "K": {
+          "rough": 180,
+          "finish": 280
+        },
+        "N": {
+          "rough": 400,
+          "finish": 600
+        },
+        "S": {
+          "rough": 35,
+          "finish": 70
+        },
+        "H": {
+          "rough": 80,
+          "finish": 130
+        }
+      },
+      "canonical_turning_feeds": {
+        "P": {
+          "rough": 0.3,
+          "finish": 0.12
+        },
+        "M": {
+          "rough": 0.25,
+          "finish": 0.1
+        },
+        "K": {
+          "rough": 0.35,
+          "finish": 0.15
+        },
+        "N": {
+          "rough": 0.3,
+          "finish": 0.12
+        },
+        "S": {
+          "rough": 0.18,
+          "finish": 0.08
+        },
+        "H": {
+          "rough": 0.15,
+          "finish": 0.06
+        }
+      },
+      "canonical_milling_speeds": {
+        "P": {
+          "rough": 200,
+          "finish": 280
+        },
+        "M": {
+          "rough": 130,
+          "finish": 200
+        },
+        "K": {
+          "rough": 160,
+          "finish": 240
+        },
+        "N": {
+          "rough": 500,
+          "finish": 800
+        },
+        "S": {
+          "rough": 40,
+          "finish": 70
+        },
+        "H": {
+          "rough": 60,
+          "finish": 100
+        }
+      },
+      "canonical_milling_feeds": {
+        "P": {
+          "rough": 0.15,
+          "finish": 0.08
+        },
+        "M": {
+          "rough": 0.12,
+          "finish": 0.06
+        },
+        "K": {
+          "rough": 0.18,
+          "finish": 0.1
+        },
+        "N": {
+          "rough": 0.2,
+          "finish": 0.1
+        },
+        "S": {
+          "rough": 0.08,
+          "finish": 0.04
+        },
+        "H": {
+          "rough": 0.06,
+          "finish": 0.03
+        }
+      },
+      "block_annotations": [
+        {
+          "block_id": "N100",
+          "op_id": "op_1_adaptive",
+          "iso_group": "N",
+          "tool_material": "carbide",
+          "emitted": {
+            "vc_mpm": 251.32741228718345,
+            "fpt_mm": 0.0375,
+            "ap_mm": 2,
+            "ae_mm": 4,
+            "S_rpm": 8000,
+            "F_mmpm": 1200
+          },
+          "physics_basis": "kienzle",
+          "confidence": 0.85,
+          "safety_margin": 0.9,
+          "source_constants": [
+            "CANONICAL_KIENZLE.N",
+            "CANONICAL_TAYLOR.N"
+          ]
+        }
+      ]
+    }
+  },
+  "ext_wo_inch_tsc": {
+    "success": false,
+    "error": "Invalid params for 'master_post_hurco_v11': config.work_offset: Too small: expected number to be >=54",
+    "action": "master_post_hurco_v11",
+    "dispatcher": "prism_cam"
+  },
+  "ctrl_profile": {
+    "success": true,
+    "profile": {
+      "id": "hurco",
+      "name": "Hurco WinMAX",
+      "families": [
+        "WinMAX (BNC)",
+        "WinMAX (ISNC)"
+      ],
+      "features": {
+        "hsm": {
+          "code": "G187",
+          "modes": {
+            "rough": "P1",
+            "finish": "P3"
+          }
+        },
+        "fiveAxis": {
+          "tcp": "G143"
+        },
+        "coolant": {
+          "flood": {
+            "on": "M8",
+            "off": "M9"
+          }
+        }
+      },
+      "rtcp_mode": "G143",
+      "hsm_code": "G187 P3"
+    }
+  },
+  "agi_generate": {
+    "success": true,
+    "data": {
+      "gcode": "O1000\nG21\n(HSM SMOOTHING ENABLED)\nG187 P3\nG0 X0 Y0\nG1 X10 F500\nM9\nM30",
+      "line_count": 7,
+      "estimated_time_sec": 1,
+      "quality_score": 70,
+      "segments_processed": 0,
+      "enhancements": [
+        "hsm_injected",
+        "coolant_off_added",
+        "physics_validated"
+      ],
+      "warnings": [
+        "Missing safe start block - recommend adding G28 G91 Z0"
+      ],
+      "controller_profile": {
+        "id": "hurco",
+        "name": "Hurco WinMAX",
+        "families": [
+          "WinMAX (BNC)",
+          "WinMAX (ISNC)"
+        ],
+        "features": {
+          "hsm": {
+            "code": "G187",
+            "modes": {
+              "rough": "P1",
+              "finish": "P3"
+            }
+          },
+          "fiveAxis": {
+            "tcp": "G143"
+          },
+          "coolant": {
+            "flood": {
+              "on": "M8",
+              "off": "M9"
+            }
+          }
+        },
+        "rtcp_mode": "G143",
+        "hsm_code": "G187 P3"
+      },
+      "provenance": {
+        "timestamp": "2026-05-31T21:38:39.267Z",
+        "session_id": "pp-agi-1780263519262-dhi5ur1uv",
+        "engines_invoked": [
+          {
+            "engine_name": "MasterPostProcessorUnifiedAGIEngine",
+            "engine_category": "orchestration",
+            "invocation_time_ms": 0,
+            "confidence": 1,
+            "contribution": "Entry point"
+          },
+          {
+            "engine_name": "AdvancedPostProcessorEngine",
+            "engine_category": "advanced",
+            "invocation_time_ms": 15,
+            "confidence": 0.92,
+            "contribution": "HSM injection"
+          },
+          {
+            "engine_name": "PostProcessorUnifiedPhysicsOrchestrationEngine",
+            "engine_category": "physics",
+            "invocation_time_ms": 10,
+            "confidence": 0.95,
+            "contribution": "Physics validation"
+          }
+        ],
+        "physics_models_used": [
+          "Kienzle",
+          "Taylor"
+        ],
+        "total_confidence": 0.94
+      },
+      "suggestions": [
+        {
+          "priority": "critical",
+          "category": "safety",
+          "description": "Add safe start block at program beginning",
+          "impact_estimate": "Prevents crashes from unknown machine state",
+          "suggested_action": "Add G28 G91 Z0 or equivalent at program start"
+        }
+      ],
+      "processing_time_ms": 1
+    }
+  },
+  "agi_kinematics": {
+    "success": true,
+    "data": {
+      "valid": false,
+      "machine_id": "jmdie_hurco_v11",
+      "topology": "unknown",
+      "way_type": "unknown",
+      "build_tier": "unknown",
+      "travel_check": {
+        "x_ok": false,
+        "y_ok": false,
+        "z_ok": false,
+        "rotary_ok": false
+      },
+      "collision_check": {
+        "safe": false,
+        "danger_zones": [
+          "Machine profile not found"
+        ]
+      },
+      "accuracy_check": {
+        "sufficient": false,
+        "machine_accuracy_mm": 0
+      },
+      "warnings": [
+        "Machine profile not found"
+      ]
+    }
+  }
+}

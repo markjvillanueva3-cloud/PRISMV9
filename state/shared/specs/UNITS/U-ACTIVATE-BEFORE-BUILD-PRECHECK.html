@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="272658a157c0177f6a79d31732ccd0ac409d64ac21108943688c79d39cec02bc">
+<title>JULIETT-12CHAT-ALLOCATION-MS0</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT-12CHAT-ALLOCATION-MS0</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.193Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-activate-before-build-precheck">U-ACTIVATE-BEFORE-BUILD-PRECHECK</a></li>
+<li class="toc-l2"><a href="#goal">Goal</a></li>
+<li class="toc-l2"><a href="#activate-do-not-build">Activate (do-not-build)</a></li>
+<li class="toc-l2"><a href="#build-net-new">Build (net-new)</a></li>
+<li class="toc-l2"><a href="#files-touched">Files-touched</a></li>
+<li class="toc-l2"><a href="#pre-flight">Pre-flight</a></li>
+<li class="toc-l2"><a href="#test-plan">Test plan</a></li>
+<li class="toc-l2"><a href="#wiring">Wiring</a></li>
+<li class="toc-l2"><a href="#test-shipped-criteria">Test-shipped-criteria</a></li>
+<li class="toc-l2"><a href="#rollback">Rollback</a></li>
+<li class="toc-l2"><a href="#references">References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<details class="frontmatter" open><summary>Document metadata</summary><div class="table-wrap"><table>
+<tbody>
+<tr><th scope="row">unit_id</th><td>U-ACTIVATE-BEFORE-BUILD-PRECHECK</td></tr>
+<tr><th scope="row">milestone</th><td>JULIETT-12CHAT-ALLOCATION-MS0</td></tr>
+<tr><th scope="row">owner_slot</th><td>alpha</td></tr>
+<tr><th scope="row">wave</th><td>W1</td></tr>
+<tr><th scope="row">cost</th><td>S</td></tr>
+<tr><th scope="row">status</th><td>pending</td></tr>
+<tr><th scope="row">peer_claims_check_at</th><td>2026-05-17T00:00:00Z</td></tr>
+<tr><th scope="row">tool_plan_ref</th><td>pending-rgs-build</td></tr>
+<tr><th scope="row">depends_on</th><td>[]</td></tr>
+<tr><th scope="row">unblocks</th><td>[12-chat-parallel-W2-W4-without-duplicate-builds]</td></tr>
+<tr><th scope="row">roi_score</th><td>8.0</td></tr>
+<tr><th scope="row">generated_at</th><td>2026-05-17</td></tr>
+<tr><th scope="row">generator_version</th><td>hand-written-v1</td></tr>
+</tbody>
+</table></div></details>
+<h1 id="u-activate-before-build-precheck"><a class="anchor" href="#u-activate-before-build-precheck" aria-label="Permalink to U-ACTIVATE-BEFORE-BUILD-PRECHECK">#</a>U-ACTIVATE-BEFORE-BUILD-PRECHECK</h1>
+<h2 id="goal"><a class="anchor" href="#goal" aria-label="Permalink to Goal">#</a>Goal</h2>
+<p>Add a Tier-0 PreToolUse:Write advisory hook that surfaces top-5 system-viz + master-index + ENGINE_DIGEST hits BEFORE chats create new engines/hooks/skills. <strong>Doctrine driver:</strong> 4 collision incidents in 24h prove chats still build before searching ([[feedback_dont_wire_for_wiring_sake_2026_05_16]]). This is NOT a hard block — <code>duplication-hard-block.mjs</code> already covers exact-name match. This is the &quot;what&#39;s similar / what should I activate first&quot; advisory layer.</p>
+<p><strong>Acceptance:</strong> when a chat attempts <code>Write</code> of <code>src/engines/*Engine.ts</code> or <code>.claude/hooks/*.mjs</code> or <code>.claude/commands/*.md</code>, the chat sees a <code>## 🔍 Activate-before-build precheck</code> block with top-5 similar existing assets BEFORE the write proceeds.</p>
+<h2 id="activate-do-not-build"><a class="anchor" href="#activate-do-not-build" aria-label="Permalink to Activate (do-not-build)">#</a>Activate (do-not-build)</h2>
+<ul>
+<li><code>H:/prism/.claude/hooks/duplication-hard-block.mjs</code> — Tier-0 PreToolUse:Write hard-block pattern (clone)</li>
+<li><code>H:/prism/.claude/hooks/master-index-precheck-inject.mjs</code> — UserPromptSubmit injector; reuse for the search call (but at PreToolUse layer instead)</li>
+<li><code>H:/prism/scripts/lib/master-index-search-lib.mjs</code> — BM25 search lib (depends on S5 F1 fix: 200MB→512MB graph cap)</li>
+<li><code>H:/prism/.claude/hooks/dedup-auto-invoke.mjs</code> — silent dedup pattern</li>
+<li><code>H:/prism/.claude/hooks/inventory-check-guard.mjs</code> + <code>master-index-search-gate.mjs</code> + <code>build-create-detector.mjs</code> — all sibling pre-build gates; this is the 8th in the family (S3 proposes consolidating ALL 8 into composite later)</li>
+</ul>
+<h2 id="build-net-new"><a class="anchor" href="#build-net-new" aria-label="Permalink to Build (net-new)">#</a>Build (net-new)</h2>
+<p>ONE new hook: <code>H:/prism/.claude/hooks/activate-before-build-precheck.mjs</code></p>
+<ul>
+<li>PreToolUse:Write/MultiEdit matcher</li>
+<li>Path filter: matches <code>src/engines/.*Engine\.ts$</code>, <code>.claude/hooks/.*\.mjs$</code>, <code>.claude/commands/.*\.md$</code></li>
+<li>Calls <code>master-index-search-lib.runMasterIndexSearch(&lt;filename-as-query&gt;, K=5)</code></li>
+<li>Emits <code>## 🔍 Activate-before-build precheck</code> block in <code>additionalContext</code></li>
+<li>Knob: <code>PRISM_ACTIVATE_PRECHECK_DISABLE=1</code></li>
+<li>Timeout: 2000ms (PreToolUse latency budget tight)</li>
+<li>Silent-fail: empty hits → <code>{continue:true, suppressOutput:true}</code> (don&#39;t spam if no matches)</li>
+</ul>
+<h2 id="files-touched"><a class="anchor" href="#files-touched" aria-label="Permalink to Files-touched">#</a>Files-touched</h2>
+<ul>
+<li><code>H:/prism/.claude/hooks/activate-before-build-precheck.mjs</code> (Write, new)</li>
+<li><code>H:/prism/.claude/hooks/activate-before-build-precheck.test.mjs</code> (Write, new)</li>
+<li><code>C:/Users/wompu/.claude/settings.json</code> (Edit, add PreToolUse:Write matcher AT INDEX 0 — runs before duplication-hard-block)</li>
+<li><code>H:/.claude/settings.json</code> (cp manually)</li>
+</ul>
+<h2 id="pre-flight"><a class="anchor" href="#pre-flight" aria-label="Permalink to Pre-flight">#</a>Pre-flight</h2>
+<ol>
+<li>Claim: <code>node H:/prism/.claude/helpers/slot-task-claim.mjs claim --slot alpha --chatId &lt;id&gt; --unitId JULIETT-12CHAT-ALLOCATION-MS0::U-ACTIVATE-BEFORE-BUILD-PRECHECK</code></li>
+<li><strong>DEPENDS-ON:</strong> S5 F1 silent-degrade fix (raise PRISM_GRAPH_MAX_BYTES to 512MB) MUST land first — otherwise the search-lib silently returns empty hits on the 331MB graph</li>
+<li><code>Read .claude/hooks/duplication-hard-block.mjs</code> (verify pattern still current)</li>
+<li><code>prism_dev:master_index_query { q: &quot;activate before build precheck&quot; }</code> (confirm nothing already-built — strong signal of dedup risk for this very unit)</li>
+</ol>
+<h2 id="test-plan"><a class="anchor" href="#test-plan" aria-label="Permalink to Test plan">#</a>Test plan</h2>
+<ul>
+<li>New engine path → emits 5 hits if similar existing assets</li>
+<li>Test file path (<code>*.test.ts</code>) → does NOT emit (filters to source paths only)</li>
+<li>Empty graph (search-lib returns [], silent fallback) → <code>{continue:true,suppressOutput:true}</code> exit</li>
+<li>Knob disabled → no output</li>
+<li>Timeout simulation (search-lib mock takes &gt;2000ms) → silent timeout, never blocks</li>
+<li>Real-data: simulate <code>Write src/engines/DuplicationGuardEngine.ts</code> (exists) → emits ≥1 hit for itself + similar Guard engines</li>
+</ul>
+<h2 id="wiring"><a class="anchor" href="#wiring" aria-label="Permalink to Wiring">#</a>Wiring</h2>
+<ul>
+<li>Append to <code>C:/Users/wompu/.claude/settings.json</code> PreToolUse[0]: <code>`</code>json { &quot;matcher&quot;: &quot;Write|MultiEdit&quot;, &quot;hooks&quot;: [{ &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;node H:/prism/.claude/hooks/activate-before-build-precheck.mjs&quot;, &quot;timeout&quot;: 2000 }] } <code>`</code> AT THE TOP (runs before duplication-hard-block so advisory surfaces before block)</li>
+<li>Mirror to H:/.claude/settings.json</li>
+</ul>
+<h2 id="test-shipped-criteria"><a class="anchor" href="#test-shipped-criteria" aria-label="Permalink to Test-shipped-criteria">#</a>Test-shipped-criteria</h2>
+<ul>
+<li><code>node --test H:/prism/.claude/hooks/activate-before-build-precheck.test.mjs</code> all pass</li>
+<li>Smoke: simulate Write of an engine name with existing analog → block emitted with 5 hits</li>
+<li>No regression in <code>duplication-hard-block.mjs</code> (still fires post-precheck, still hard-blocks on exact match)</li>
+<li><code>grep activate-before-build-precheck C:/Users/wompu/.claude/settings.json</code> returns ≥1 in PreToolUse</li>
+<li><code>grep activate-before-build-precheck H:/.claude/settings.json</code> returns ≥1</li>
+</ul>
+<h2 id="rollback"><a class="anchor" href="#rollback" aria-label="Permalink to Rollback">#</a>Rollback</h2>
+<ul>
+<li>Knob <code>PRISM_ACTIVATE_PRECHECK_DISABLE=1</code> (immediate)</li>
+<li>Remove settings.json arm + <code>git revert</code> hook .mjs</li>
+<li>Hook auto-archives per [[feedback_never_delete_only_disable]] — never delete the .mjs file</li>
+</ul>
+<h2 id="references"><a class="anchor" href="#references" aria-label="Permalink to References">#</a>References</h2>
+<ul>
+<li>[[feedback_dont_wire_for_wiring_sake_2026_05_16]] — charlie&#39;s doctrine driving this</li>
+<li>[[reference_master_index_surface]] — master_index_query API</li>
+<li>[[reference_awareness_stack]] — sibling injectors</li>
+<li>S3 SYNERGY (iter-3): this hook is the 8th in the family eligible for composite consolidation later (U-PREBUILD-GATE-COMPOSITE)</li>
+<li>V1 allocation §2 W1 row + §3 alpha assignment</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="U-ACTIVATE-BEFORE-BUILD-PRECHECK.md">U-ACTIVATE-BEFORE-BUILD-PRECHECK.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

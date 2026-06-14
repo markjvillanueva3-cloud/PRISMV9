@@ -78,6 +78,10 @@ const ACTIONS = [
   "release_file",
   "presence",
   "prune",
+  // HERMES-MASTER-ORCHESTRATOR: targeted orchestrator→slot brief WRITE side.
+  // The READ/deliver side is the slot-brief-inject.mjs UserPromptSubmit hook.
+  "slot_brief_write",
+  "slot_brief_list",
   // Context Priority — intelligent injection prioritization (U-CTXPRI01)
   "priority_classify_task",
   "priority_plan_injections",
@@ -145,6 +149,18 @@ const ACTIONS = [
   // Pure-compute prompt compression for sub-agent token reduction.
   "prompt_compress",
   "prompt_is_worth_compressing",
+  // TOKEN-AWARENESS-MS0 / U-TA06 — TokenAwarenessEngine MCP facade.
+  // Reads the per-slot sidecar written by .claude/hooks/token-awareness-sidecar.mjs
+  // and exposes zone / shouldCompact / action / history queries.
+  "token_awareness_state",
+  "token_awareness_zone",
+  "token_awareness_should_compact",
+  "token_awareness_recommend",
+  "token_awareness_history",
+  // ── DEA-MS0/U-DEA-november-04 — OllamaContextFloor wire (PRISM brief on every local-LLM call) ──
+  "ollama_context_wrap",
+  "ollama_context_status",
+  "ollama_context_refresh",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -1155,6 +1171,29 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             return ok({ pruned: true, ...stats });
           }
 
+          // ─────────────────────────────────────────────────────────────────
+          // HERMES-MASTER-ORCHESTRATOR — targeted orchestrator→slot brief channel
+          // WRITE side (READ/deliver side = slot-brief-inject.mjs UserPromptSubmit hook).
+          // The TARGETED counterpart to chat_post (broadcast): the Hermes ZULU master
+          // (via this MCP surface) or any chat issues a work order to ONE slot.
+          // ─────────────────────────────────────────────────────────────────
+          case "slot_brief_write": {
+            const { slotBriefEngine } = await import("../../engines/SlotBriefEngine.js");
+            const result = slotBriefEngine.writeBrief({
+              slot: params.slot,
+              body: params.body,
+              from: params.from,
+            });
+            return ok(result);
+          }
+
+          case "slot_brief_list": {
+            const { slotBriefEngine } = await import("../../engines/SlotBriefEngine.js");
+            const pending = slotBriefEngine.listPending();
+            const delivered = slotBriefEngine.listDelivered({ slot: params.slot, limit: params.limit });
+            return ok({ pending, pendingCount: pending.length, delivered, deliveredCount: delivered.length });
+          }
+
           // ── HOOK-SYNERGY-MS0/U-HOOK-COORD-SQLITE (H8) ──────────
           // SQLite WAL backend for work claims. Parallel surface to claim_file /
           // release_file — same semantics, lower contention under multi-chat
@@ -1683,6 +1722,82 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
             } catch (err) {
               return dispatcherError(err, action, "prism_context");
             }
+          }
+
+          // ================================================================
+          // TOKEN-AWARENESS-MS0 / U-TA06 — TokenAwarenessEngine facade.
+          // ================================================================
+          case "token_awareness_state": {
+            const { tokenAwarenessEngine } = await import("../../engines/TokenAwarenessEngine.js");
+            try {
+              const state = tokenAwarenessEngine.getState({
+                slot: params.slot as string | undefined,
+                sessionId: params.sessionId as string | undefined,
+              });
+              return ok({ success: true, data: state });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "token_awareness_zone": {
+            const { tokenAwarenessEngine } = await import("../../engines/TokenAwarenessEngine.js");
+            try {
+              const summary = tokenAwarenessEngine.getZone({
+                slot: params.slot as string | undefined,
+                sessionId: params.sessionId as string | undefined,
+              });
+              return ok({ success: true, data: summary });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "token_awareness_should_compact": {
+            const { tokenAwarenessEngine } = await import("../../engines/TokenAwarenessEngine.js");
+            try {
+              const decision = tokenAwarenessEngine.shouldCompact({
+                slot: params.slot as string | undefined,
+                sessionId: params.sessionId as string | undefined,
+              });
+              return ok({ success: true, data: decision });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "token_awareness_recommend": {
+            const { tokenAwarenessEngine } = await import("../../engines/TokenAwarenessEngine.js");
+            try {
+              const rec = tokenAwarenessEngine.recommendAction({
+                slot: params.slot as string | undefined,
+                sessionId: params.sessionId as string | undefined,
+              });
+              return ok({ success: true, data: rec });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+          case "token_awareness_history": {
+            const { tokenAwarenessEngine } = await import("../../engines/TokenAwarenessEngine.js");
+            try {
+              const history = tokenAwarenessEngine.getHistory();
+              return ok({ success: true, data: { slots: history, count: history.length } });
+            } catch (err) {
+              return dispatcherError(err, action, "prism_context");
+            }
+          }
+
+          // ── DEA-MS0/U-DEA-november-04 — OllamaContextFloorEngine ──
+          case "ollama_context_wrap": {
+            const { ollamaContextFloorEngine } = await import("../../engines/OllamaContextFloorEngine.js");
+            const wrapped = ollamaContextFloorEngine.wrap(params as any);
+            return ok({ success: true, ...wrapped });
+          }
+          case "ollama_context_status": {
+            const { ollamaContextFloorEngine } = await import("../../engines/OllamaContextFloorEngine.js");
+            return ok({ success: true, status: ollamaContextFloorEngine.status() });
+          }
+          case "ollama_context_refresh": {
+            const { ollamaContextFloorEngine } = await import("../../engines/OllamaContextFloorEngine.js");
+            return ok({ success: true, result: ollamaContextFloorEngine.refresh() });
           }
 
           default:

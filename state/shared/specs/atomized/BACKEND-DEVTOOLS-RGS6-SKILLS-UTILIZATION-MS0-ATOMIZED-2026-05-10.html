@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="SpecHTMLCompanionEngine">
-<meta name="prism-source-hash" content="7a2c4dae69bd71c0c7e14a2b47b0c02be9f686b9d70b1cc67e81d4f6df19a6f9">
+<meta name="prism-source-hash" content="f515ded6968bfec12b013610ebc7e114b7d586c4a20645cc964230742e661900">
 <title>SKILLS-UTILIZATION-MS0</title>
 <style>
 :root, [data-theme="light"] {
@@ -86,7 +86,7 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <header class="doc-head">
 <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
 <h1 class="page-title" id="top">SKILLS-UTILIZATION-MS0</h1>
-<p class="provenance">Generated 2026-05-12T12:43:27.564Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+<p class="provenance">Generated 2026-05-18T17:34:21.430Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
 </header>
 <nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
 <li class="toc-l1"><a href="#skills-utilization-ms0-atomized">SKILLS-UTILIZATION-MS0 — atomized</a></li>
@@ -120,7 +120,7 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <tr><th scope="row">hard_rule</th><td>Nothing from the H: drive may be shared/published/distributed publicly (set 2026-05-11, &quot;for now&quot;). U-SKU08 is therefore internal-only; the &quot;share publicly&quot; step from @eng_khairallah1&#39;s Phase-4 is deferred behind explicit per-artifact clearance. See feedback_no_public_h_drive.md.</td></tr>
 <tr><th scope="row">loop_registrations</th><td>2 (weekly skill-refinement digest U-SKU04; monthly marketplace scan U-SKU07)</td></tr>
 <tr><th scope="row">date</th><td>2026-05-10</td></tr>
-<tr><th scope="row">dedup_note</th><td>ALL units extend existing PRISM assets (forge-skills, skill-modernize, wiki-lint, harness-security-audit, src/registries/*); NONE create a parallel skill-management surface. Dedup discipline per unit — U-SKU06&#39;s step-1 is the literal <code>duplicationGuardEngine.checkBeforeCreating()</code> call (schema asset); the other 7 units&#39; step-1 are grep/Read-based dedup checks against the named existing assets (PreToolUse-hook matchers + <code>forge-skills</code> body for U-SKU01; <code>prism_dev</code> action enum + <code>/skill-test</code> + <code>forge-tests</code> for U-SKU02; <code>scripts/skill-lint.mjs</code> + <code>/skill-modernize</code> + <code>/wiki-lint</code> for U-SKU03; cron registry + <code>/weekly-synthesis</code> for U-SKU04; <code>scripts/skill-library-audit.mjs</code> + <code>/commands-audit</code> + <code>forge-skills</code> audit-mode for U-SKU05; <code>ReputableSourceMonitorEngine</code> source list for U-SKU07 — its step-2 then uses <code>duplicationGuardEngine.checkBeforeCreating()</code> to dedup marketplace <em>candidates</em>, a distinct use; existing <code>.claude-plugin/plugin.json</code> + plugin-export script for U-SKU08).</td></tr>
+<tr><th scope="row">dedup_note</th><td>ALL units extend existing PRISM assets (forge-skills, skill-modernize, wiki-lint, harness-security-audit, src/registries/*). Each unit&#39;s step-1 is <code>duplicationGuardEngine.checkBeforeCreating()</code>. NONE create a parallel skill-management surface.</td></tr>
 </tbody>
 </table></div></details>
 <h1 id="skills-utilization-ms0-atomized"><a class="anchor" href="#skills-utilization-ms0-atomized" aria-label="Permalink to SKILLS-UTILIZATION-MS0 — atomized">#</a>SKILLS-UTILIZATION-MS0 — atomized</h1>
@@ -183,7 +183,7 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <li>leverage_score: 13</li>
 <li>why: @eng_khairallah1 Phase-2 — &quot;Before you build, answer three questions: (1) what does this skill do? Be brutally specific. (2) When should it activate? List ≥5 trigger phrases. (3) What does perfect output look like? Show an actual example.&quot; PRISM&#39;s <code>/forge-skills</code> autopilot creates skills but doesn&#39;t enforce this gate, so we accumulate vague ones. This hook BLOCKS any Write to <code>**/SKILL.md</code> or <code>.claude/commands/*.md</code> unless the body satisfies all three.</li>
 <li>depends_on: [U-SKU06]</li>
-<li>blocks: [U-SKU05]</li>
+<li>blocks: []</li>
 <li>parallel_with: [U-SKU02, U-SKU03, U-SKU07]</li>
 <li>viz_node_id: <code>core.hooks.skill-3q-gate</code> (TBD-create)</li>
 <li>closes_synergy_edge: skills × hooks</li>
@@ -274,7 +274,7 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <li>leverage_score: 12</li>
 <li>why: @eng_khairallah1 Phase-2 — &quot;Vague language like &#39;format nicely&#39; or &#39;handle appropriately&#39; is banned. Every instruction must be specific and testable. Keep the entire file under 500 lines.&quot; This is the cheapest, most-automatable quality lever — a static linter catches the bulk of bad skills without an LLM call. Extends the existing <code>/wiki-lint</code> and <code>/skill-modernize</code> pattern.</li>
 <li>depends_on: [U-SKU06]</li>
-<li>blocks: [U-SKU05]</li>
+<li>blocks: []</li>
 <li>parallel_with: [U-SKU01, U-SKU02, U-SKU07]</li>
 <li>viz_node_id: <code>core.script.skill-lint</code> (sibling of wiki-lint)</li>
 <li>closes_synergy_edge: skills × lint × token-economy</li>
@@ -487,7 +487,7 @@ footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12
 <ul>
 <li>domain filter: manufacturing / cad / cam / dev-tools / all</li>
 <li>production-grade count: 0 (empty bundle warning) / 10 / 50+</li>
-<li>target: local dist/ (the ONLY in-scope target) / public GitHub repo (DEFERRED — hard rule <code>feedback_no_public_h_drive.md</code>; out of scope) / agentskills.io submission (DEFERRED — hard rule; out of scope)</li>
+<li>target: local dist/ / public GitHub repo / agentskills.io submission</li>
 <li>skill complexity: single-file / with-siblings / with-scenarios</li>
 </ul>
 <p>failure_modes:</p>

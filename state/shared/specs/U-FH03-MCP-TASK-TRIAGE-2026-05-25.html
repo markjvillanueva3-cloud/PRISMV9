@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="6de842521aae5b96e567e8223e6b27da273884fc0a2ed678c600d285bfa88bec">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>U-FH03 — PRISM MCP Server scheduled-task LastTaskResult triage (2026-05-25)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>U-FH03 — PRISM MCP Server scheduled-task LastTaskResult triage (2026-05-25)</h1>
+<div class="meta">rendered from H:/prism/state/shared/specs/U-FH03-MCP-TASK-TRIAGE-2026-05-25.md</div>
+<div class="meta">Generated 2026-05-25T22:01:12.686Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">U-FH03 — PRISM MCP Server scheduled-task LastTaskResult triage (2026-05-25)</li><li class="prism-toc-l2">TL;DR</li><li class="prism-toc-l2">Wrapper config audit (<code class="prism-inline-code">Export-ScheduledTask</code>)</li><li class="prism-toc-l2">Decoding the historical <code class="prism-inline-code">2147946720</code></li><li class="prism-toc-l2">Why this matters going forward</li><li class="prism-toc-l2">Operator-action note</li><li class="prism-toc-l2">Resolution</li></ul></nav><h1 class="prism-h1">U-FH03 — PRISM MCP Server scheduled-task LastTaskResult triage (2026-05-25)</h1>
+<blockquote class="prism-quote">Unit: U-FH03 (FLEET-HEALTH-FIX, cost=S). Triggered by stale <code class="prism-inline-code">LastTaskResult=2147946720</code> observed pre-iter-1 in MCP-CAPACITY-MS0 §5. Closed in /loop iter5, slot:golf, claude-9e91d800.</blockquote>
+<h2 class="prism-h2">TL;DR</h2>
+<p>The scheduled-task error code <code class="prism-inline-code">2147946720</code> (= <code class="prism-inline-code">0x80070420</code> = <code class="prism-inline-code">ERROR_SERVICE_NOT_ACTIVE</code>) was a <strong>transient side-effect of two prior events</strong>, not a wrapper bug:</p>
+<ol class="prism-md-list"><li>The U-FH01 heartbeat-keepalive <code class="prism-inline-code">timeout: 8</code> (8ms typo) bug that broke chat-slot heartbeat fleet-wide, causing PC sleep / restart cascades during the 2026-05-25 02:00 CST crash.</li><li>The iter-1 PRISM MCP Server restart cycle (<code class="prism-inline-code">schtasks /End</code> followed by <code class="prism-inline-code">/Run</code>) which momentarily put the task in <code class="prism-inline-code">SERVICE_NOT_ACTIVE</code> state.</li></ol>
+<p>After iter-1, current state is <strong>HEALTHY</strong>:</p>
+<table class="prism-md-table"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody><tr><td>Task state</td><td>Running</td></tr>
+<tr><td>LastTaskResult (hex)</td><td><code class="prism-inline-code">0x00041301</code></td></tr>
+<tr><td>LastTaskResult (decoded)</td><td><code class="prism-inline-code">SCHED_S_TASK_RUNNING</code> (success class)</td></tr>
+<tr><td>LastRunTime</td><td>2026-05-25 16:35:35</td></tr>
+<tr><td>NumberOfMissedRuns</td><td>0</td></tr>
+<tr><td>/health probe</td><td>HTTP 200</td></tr>
+<tr><td>/mcp tools/list</td><td>90 tools, HTTP 200</td></tr></tbody></table>
+<p>No wrapper-config fix needed. Unit closes as <strong>resolved-by-context</strong> + diagnosis captured for future reference.</p>
+<h2 class="prism-h2">Wrapper config audit (<code class="prism-inline-code">Export-ScheduledTask</code>)</h2>
+<p>The task wrapper is clean and behaves as the supervisor expects:</p>
+<table class="prism-md-table"><thead><tr><th>Element</th><th>Value</th><th>Verdict</th></tr></thead><tbody><tr><td>Action</td><td><code class="prism-inline-code">&quot;H:\PRISM\scripts\mcp-server-supervisor.mjs&quot;</code></td><td>✓ Correct supervisor entrypoint</td></tr>
+<tr><td>AllowHardTerminate</td><td><code class="prism-inline-code">true</code></td><td>✓ Required for U-WATCHDOG-MEM-PROBE preemptive restart</td></tr>
+<tr><td>StartWhenAvailable</td><td><code class="prism-inline-code">true</code></td><td>✓ Catches missed runs after PC sleep</td></tr>
+<tr><td>ExecutionTimeLimit</td><td><code class="prism-inline-code">PT0S</code> (no limit)</td><td>✓ MCP server runs forever</td></tr>
+<tr><td>Hidden</td><td><code class="prism-inline-code">false</code></td><td>✓ Visible in Task Scheduler UI</td></tr>
+<tr><td>RestartOnFailure</td><td>empty</td><td>(minor) Could specify interval/count, but supervisor handles restart internally — not load-bearing</td></tr></tbody></table>
+<p>The supervisor itself injects <code class="prism-inline-code">NODE_OPTIONS=--max-old-space-size=8192</code> (U-SUPERVISOR-HEAP-BUMP 2026-05-23) and the watchdog handles preemptive restart at RSS &gt; 3GB (U-WATCHDOG-MEM-PROBE 2026-05-23).</p>
+<h2 class="prism-h2">Decoding the historical <code class="prism-inline-code">2147946720</code></h2>
+<p><code class="prism-inline-code">0x80070420</code> decomposes as a standard <code class="prism-inline-code">HRESULT</code>:</p>
+<ul class="prism-md-list"><li>Severity: <code class="prism-inline-code">0x8</code> (Error)</li><li>Facility: <code class="prism-inline-code">0x007</code> (<code class="prism-inline-code">FACILITY_WIN32</code>)</li><li>Code: <code class="prism-inline-code">0x420</code> (<code class="prism-inline-code">ERROR_SERVICE_NOT_ACTIVE</code>)</li></ul>
+<p><code class="prism-inline-code">ERROR_SERVICE_NOT_ACTIVE</code> is the system&#39;s response when scheduled-task control APIs query a task that exited cleanly between checks. In Task Scheduler semantics, this is the result code the framework records when:</p>
+<ul class="prism-md-list"><li>A task was running, then was explicitly stopped (<code class="prism-inline-code">schtasks /End</code>)</li><li>A task crashed/exited and the framework hadn&#39;t seen the new instance yet</li><li>A task was queried in the brief window between <code class="prism-inline-code">/Run</code> invocation and process startup</li></ul>
+<p><strong>None of these are fatal.</strong> They&#39;re event-recording artifacts. The CRITICAL signal is <code class="prism-inline-code">NumberOfMissedRuns &gt; 0</code> (we see 0) or RSS approaching the U-WATCHDOG-MEM-PROBE 3GB ceiling (well under today).</p>
+<h2 class="prism-h2">Why this matters going forward</h2>
+<p>The pre-flight rationale in MCP-CAPACITY-MS0 §5 was: <em>&quot;If U-FH03 surfaces a §2 cascade pattern, that VALIDATES the §3 approach. If U-FH03 is a config typo (likely), it&#39;s a 1-line fix.&quot;</em></p>
+<p>The answer is <strong>neither</strong> — it&#39;s a transient artifact recorded across two unrelated events. The wrapper is clean, current state is healthy, the §2 cascade pattern is not running today. The remaining drift pathology (the user-reported &quot;disconnect after a few minutes mid turn&quot;) is correctly attributed to per-request <code class="prism-inline-code">server.connect()</code> leakage in <code class="prism-inline-code">mcp-server/src/index.ts:973-983</code> per <a href="./MCP-DISCONNECT-ROOT-CAUSE-2026-05-25.md" class="prism-link"><code class="prism-inline-code">MCP-DISCONNECT-ROOT-CAUSE-2026-05-25.md</code></a>. U-MCP-FACTORY-REFACTOR (golf queue) is the structural fix.</p>
+<h2 class="prism-h2">Operator-action note</h2>
+<p>Going forward, set up periodic LastTaskResult monitoring via the existing fleet-task-health-watch.mjs Stop hook (already wired, watches all <code class="prism-inline-code">PRISM *</code> scheduled tasks). It only treats HRESULT failure codes (severity <code class="prism-inline-code">0x8</code>) as failing AND filters benign codes like <code class="prism-inline-code">0x00041301</code> and <code class="prism-inline-code">0x80070420</code> per the <code class="prism-inline-code">fleet-task-health-watch.mjs</code> hardening from 2026-05-17 ([[reference_fleet_task_health_ms0_2026_05_17]]). Today&#39;s healthy state will be the steady-state baseline.</p>
+<h2 class="prism-h2">Resolution</h2>
+<p>Unit closes as <strong>resolved-by-context</strong>. No wrapper change. Diagnostic doc captured. fleet-task-health-watch.mjs continues monitoring with its existing benign-code filter; no new alarm needed for <code class="prism-inline-code">0x80070420</code> since that filter already exists.</p>
+<p>— Triaged 2026-05-25 by claude-9e91d800 (slot:golf, /loop iter5).</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

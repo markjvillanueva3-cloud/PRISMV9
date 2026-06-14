@@ -80,7 +80,7 @@ async function resolveWindowId(sessionId) {
   }
 }
 
-function claimSlotForWindow(chatId, windowId, preferSlot) {
+function claimSlotForWindow(chatId, windowId, preferSlot, forceReclaim = false) {
   // Use a subprocess for the claim — chat-slots.mjs takes a write-lock and we
   // don't want to hold it in the hook process longer than necessary.
   // SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): preferSlot threaded through so
@@ -89,19 +89,130 @@ function claimSlotForWindow(chatId, windowId, preferSlot) {
   // free, otherwise falls through to default walk (the mismatch warning then
   // fires below). This avoids race-evicting a fresh peer who legitimately
   // claimed the slot first; the operator can /checkin-<slot> to force-take.
+  //
+  // SLOT-RECLAIM (2026-05-19): forceReclaim=true threads `--force
+  // --confirmRecent` so a post-/compact|/clear chat takes its PS-window-pinned
+  // slot back DETERMINISTICALLY. The ps-window-pin is keyed on the PowerShell
+  // ancestor PID (one per terminal window), so a peer holding this window's
+  // slot is provably in a different window and has drifted — force-take is the
+  // correction, not a race. Gated by shouldForceReclaim() at the call site;
+  // doForce additionally requires a non-empty preferSlot so a bare `--force`
+  // (which would default-walk and evict an arbitrary slot) can never escape.
+  const doForce = forceReclaim === true
+    && typeof preferSlot === "string" && preferSlot.length > 0;
   const args = [
     CHAT_SLOTS_HELPER, "claim",
     "--chatId", chatId,
-    "--terminalWindowId", windowId,
-    "--activity", "session-start-auto-pin",
+    "--activity", doForce ? "session-start-force-reclaim" : "session-start-auto-pin",
     "--startupAuto", "true",
   ];
+  // SLOT-RECLAIM-FALLBACK: only pass --terminalWindowId when one was
+  // resolved. An empty value is mis-parsed by chat-slots parseFlags as
+  // boolean `true`; omit it so the claim falls through cleanly to the
+  // preferSlot path (the post-/compact window-id-unresolved fallback below
+  // relies on this).
+  if (typeof windowId === "string" && windowId.length > 0) {
+    args.push("--terminalWindowId", windowId);
+  }
   if (typeof preferSlot === "string" && preferSlot.length > 0) {
     args.push("--preferSlot", preferSlot);
+  }
+  if (doForce) {
+    args.push("--force", "true", "--confirmRecent", "true");
   }
   const r = spawnSync(NODE_BIN, args, { encoding: "utf-8", timeout: CLAIM_TIMEOUT_MS, windowsHide: true });
   if (r.status !== 0 || !r.stdout) return null;
   try { return JSON.parse(r.stdout); } catch { return null; }
+}
+
+/**
+ * SLOT-RECLAIM (2026-05-19) — pure decision: is this SessionStart eligible to
+ * force-reclaim its terminal's prior slot?
+ *
+ * TRUE only when ALL of:
+ *   - the event is a post-/compact or post-/clear resume (`source`);
+ *   - a prior slot was resolved for this terminal (`priorSlot` — sourced from
+ *     the ps-window-pin, the per-chat handoff, OR the slot-identity cache);
+ *   - the operator has not disabled it (PRISM_TERMINAL_PIN_NO_FORCE_RECLAIM).
+ *
+ * This is the FIRST of two gates. It answers only "is a force-reclaim in
+ * scope?" — it does NOT decide whether the target slot is SAFE to take. That
+ * second question (never evict a live operator-bound peer) is
+ * peerBlocksForceReclaim(); main() ANDs the two.
+ *
+ * On a `startup`/`resume` event a window may legitimately be racing for a
+ * fresh slot, so an advisory claim is correct there — force is withheld. The
+ * decision is isolated as a pure function so it can be unit-tested without
+ * spawning the chat-slots subprocess.
+ *
+ * @param {string} source — SessionStart trigger (startup|resume|compact|clear)
+ * @param {string|null|undefined} priorSlot — this terminal's prior slot, or null
+ * @param {Record<string,string|undefined>} [env] — defaults to process.env
+ * @returns {boolean}
+ */
+export function shouldForceReclaim(source, priorSlot, env = process.env) {
+  if (env.PRISM_TERMINAL_PIN_NO_FORCE_RECLAIM === "1") return false;
+  const s = (source || "").toString().toLowerCase();
+  if (s !== "compact" && s !== "clear") return false;
+  return typeof priorSlot === "string" && priorSlot.length > 0;
+}
+
+// Activities chat-slots records for a slot bound by an automated SessionStart
+// hook — NOT an operator /checkin or /startup. A peer holding a slot under one
+// of these auto-pin activities drifted in; it is safe to force-reclaim from.
+// Keep in sync with the --activity values claimSlotForWindow passes.
+const AUTO_PIN_ACTIVITIES = new Set([
+  "session-start-auto-pin",
+  "session-start-auto-resolve",
+  "session-start-force-reclaim",
+]);
+
+// Mirrors chat-slots.mjs CRASH_TTL_MS — a slot with no heartbeat for longer
+// than this is crashed, and freely reclaimable.
+const CRASH_TTL_MS = 10 * 60 * 1000;
+
+/**
+ * SLOT-RECLAIM (2026-05-19) — pure SAFETY gate: does the peer currently
+ * holding `slot` BLOCK a force-reclaim?
+ *
+ * The prior-slot signal (ps-window-pin / handoff / slot-identity cache) can go
+ * stale — a PowerShell PID gets reused by a new window, or an operator
+ * `/checkin-<other>` moved this chat to a different slot without rewriting the
+ * signal. A blind force-take would then evict a healthy, legitimately
+ * operator-bound peer. This gate forbids that: force-reclaim is permitted ONLY
+ * when the target slot is
+ *   - free, or
+ *   - already held by this chat, or
+ *   - held by a CRASHED peer (no heartbeat past CRASH_TTL_MS), or
+ *   - held by an AUTO-PINNED peer (drifted in via a SessionStart hook).
+ * A live/stale, operator-bound peer (activity `checkin`/`startup`/…) BLOCKS.
+ *
+ * Fail-SAFE: any parse error or unknown state → TRUE (block the force-take).
+ * When in doubt, never force-evict.
+ *
+ * @param {string} slot — the slot a force-reclaim would target
+ * @param {string} chatId — this chat's stable id
+ * @param {object|null} slotsState — parsed chat-slots.json, or null
+ * @param {number} [nowMs] — defaults to Date.now()
+ * @returns {boolean} TRUE = force-reclaim must downgrade to an advisory claim
+ */
+export function peerBlocksForceReclaim(slot, chatId, slotsState, nowMs = Date.now()) {
+  try {
+    const s = slotsState && slotsState.slots ? slotsState.slots[slot] : null;
+    if (s == null) return false;                // slot free → nothing to evict
+    // A present-but-malformed slot entry is genuine corruption — block the
+    // force-take (fail-safe: never force-evict when the holder is unknowable).
+    if (typeof s !== "object" || typeof s.chatId !== "string" || !s.chatId) {
+      return true;
+    }
+    if (s.chatId === chatId) return false;      // already mine → no eviction
+    const hb = Date.parse(s.lastHeartbeat);
+    if (Number.isFinite(hb) && (nowMs - hb) > CRASH_TTL_MS) return false; // crashed
+    if (AUTO_PIN_ACTIVITIES.has(s.activity)) return false; // auto-pinned drift
+    return true;                                // live, operator-bound → BLOCK
+  } catch {
+    return true;                                // fail-safe — never force on doubt
+  }
 }
 
 // AUTOCOMPACT-AUTONOMOUS-MS0/U-AAM01: scan handoffs/ for the most recent
@@ -114,9 +225,15 @@ function claimSlotForWindow(chatId, windowId, preferSlot) {
 // Source-of-truth for valid slot names — anything not in here is rejected
 // (defends against topic strings that *coincidentally* start with a word
 // resembling a NATO call sign).
+// Canonical 26-slot fleet — the full NATO phonetic alphabet (alpha..zulu).
+// MUST stay byte-equal to chat-slots.mjs SLOT_NAMES. Realigned 13→26 on
+// 2026-05-19 (the stale 13-slot copy made extractSlotFromTopicOrFilename
+// reject every november..zulu topic/filename prefix).
 const VALID_SLOTS = new Set([
   "alpha","bravo","charlie","delta","echo","foxtrot","golf",
-  "hotel","india","juliett","kilo","lima","mike",
+  "hotel","india","juliett","kilo","lima","mike","november",
+  "oscar","papa","quebec","romeo","sierra","tango","uniform",
+  "victor","whiskey","xray","yankee","zulu",
 ]);
 
 function extractSlotFromTopicOrFilename(s) {
@@ -184,20 +301,134 @@ async function main() {
   const chatId = stableIdFromSession(stdin.session_id);
   if (!chatId) { emit(SILENCE); return; }
 
-  const windowId = await resolveWindowId();
-  if (!windowId) { emit(SILENCE); return; }
+  // U-SDF20: pass session_id so the resolver's tier-0 cache + never-downgrade
+  // rule activate (was undefined → fresh tier resolve every call → tier-drift
+  // defeated cross-chat terminal-pin inheritance).
+  const windowId = await resolveWindowId(stdin.session_id);
+  if (!windowId) {
+    // SLOT-RECLAIM-FALLBACK (bravo post-/compact no-op fix): a null windowId
+    // (WT_SESSION absent + ancestor-walk flake -- a known Win11 class) must
+    // NOT abandon the slot. The force-reclaim path keys on the PRIOR SLOT
+    // (which carries the full ps-pin -> handoff -> sticky-cache fallback
+    // chain via readPriorSlotFromHandoff), NOT windowId, so we can still
+    // DETERMINISTICALLY re-bind by name on a compact/clear event. Only the
+    // advisory auto-pin (which needs a window to match) is lost. Without
+    // this, a post-/compact chat whose window-id failed to resolve silently
+    // stayed slotless (operator-reported: bravo). Double-gated by
+    // shouldForceReclaim (compact/clear only) + peerBlocksForceReclaim
+    // (never evicts a healthy operator-bound peer).
+    const fbSource = (stdin.source || stdin.trigger || "").toString().toLowerCase();
+    const fbPriorSlot = readPriorSlotFromHandoff(chatId).slot || null;
+    if (shouldForceReclaim(fbSource, fbPriorSlot)) {
+      let force = true;
+      try {
+        const slotsState = JSON.parse(fs.readFileSync((process.env.PRISM_ROOT || "H:/prism") + "/state/shared/chat-slots.json", "utf-8"));
+        if (peerBlocksForceReclaim(fbPriorSlot, chatId, slotsState)) force = false;
+      } catch { force = false; } // fail-safe: can't read state -> never force-evict
+      if (force) {
+        const r = claimSlotForWindow(chatId, "", fbPriorSlot, true);
+        if (r && r.ok) {
+          emit(process.env.PRISM_TERMINAL_PIN_VERBOSE === "1"
+            ? { continue: true, hookSpecificOutput: { hookEventName: "SessionStart",
+                additionalContext: `Slot ${r.slot} reclaimed by sticky-cache fallback (window-id unresolved)` } }
+            : SILENCE);
+          return;
+        }
+      }
+    }
+    emit(SILENCE); return;
+  }
 
-  // SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): read prior slot from handoff
-  // BEFORE claiming so we can pass --preferSlot. Without this the auto-pin
-  // falls through to default walk and takes whatever slot is next-free —
-  // observed pathology: claude-339c8ff7 was bravo, two chats compacted at
-  // once, peer won bravo, this chat silently auto-pinned to delta. The
-  // handoff topic prefix carries the durable slot identity (more reliable
-  // than chat-slots.json which can have transient gaps).
-  const priorSlot = readPriorSlotFromHandoff(chatId).slot || null;
+  // U-SDF21 (2026-05-17): PS-window-pin is the most authoritative source —
+  // anchored on the PowerShell ancestor PID (stable for the window's life),
+  // survives /compact, /clear, crashes, chat-respawn. Wins over handoff-derived
+  // priorSlot. Fail-soft: helper missing/broken → fall back to handoff path.
+  let psPinMod = null;
+  try {
+    psPinMod = await import("../helpers/ps-window-pin.mjs");
+  } catch { psPinMod = null; }
+  let psPinSlot = null;
+  if (psPinMod) {
+    try {
+      const pin = psPinMod.readPinForCurrentWindow({ sessionId: stdin.session_id });
+      if (pin && pin.slot) psPinSlot = pin.slot;
+    } catch { /* fail-soft */ }
+  }
 
-  const result = claimSlotForWindow(chatId, windowId, priorSlot);
+  // SLOT-DRIFT-FIX-MS0/U-SDF05 (2026-05-17): handoff fallback when no PS-pin.
+  // The handoff topic prefix carries the durable slot identity.
+  const priorSlot = psPinSlot || readPriorSlotFromHandoff(chatId).slot || null;
+
+  // SLOT-RECLAIM (2026-05-19): on a post-/compact or post-/clear SessionStart,
+  // FORCE-reclaim this terminal's prior slot instead of an advisory claim. The
+  // advisory path silently lands this chat in a different slot (and only
+  // warns) when a peer drifted into the slot during the /compact release
+  // window — leaving the operator to /checkin-<slot> by hand. Force-reclaim
+  // re-binds the correct slot deterministically.
+  //
+  // Keyed on `priorSlot` — ps-window-pin FIRST, then the per-chat handoff,
+  // then the slot-identity cache (see priorSlot above). The ps-window-pin is
+  // the ideal window-keyed signal but is frequently empty (findPsAncestorPid
+  // resolves nothing on many hosts), so the handoff/cache fallback is what
+  // actually carries the identity in practice.
+  //
+  // TWO gates: shouldForceReclaim (event + a known prior slot) AND NOT
+  // peerBlocksForceReclaim (the target slot is not held by a live
+  // operator-bound peer). The safety gate is what makes keying on the
+  // advisory handoff signal safe — a stale prior-slot can never evict a
+  // healthy /checkin peer. Knob: PRISM_TERMINAL_PIN_NO_FORCE_RECLAIM=1.
+  const source = (stdin.source || stdin.trigger || "").toString().toLowerCase();
+  let forceReclaim = shouldForceReclaim(source, priorSlot);
+  if (forceReclaim) {
+    try {
+      const slotsFile = "H:/prism/state/shared/chat-slots.json";
+      const slotsState = fs.existsSync(slotsFile)
+        ? JSON.parse(fs.readFileSync(slotsFile, "utf-8"))
+        : null;
+      if (peerBlocksForceReclaim(priorSlot, chatId, slotsState)) {
+        forceReclaim = false;  // target slot held by a healthy peer → advisory
+      }
+    } catch { forceReclaim = false; }  // fail-safe — never force on a read error
+  }
+
+  const result = claimSlotForWindow(chatId, windowId, priorSlot, forceReclaim);
   if (!result?.ok) { emit(SILENCE); return; }
+
+  // U-SDF21: refresh the PS-pin so its writtenAt clock resets — keeps the
+  // 7-day age-prune from evicting actively-used windows.
+  if (psPinMod && result.slot) {
+    try {
+      psPinMod.tryWritePinForCurrentWindow({
+        slot: result.slot, chatId, sessionId: stdin.session_id,
+      });
+    } catch { /* fail-soft */ }
+  }
+
+  // SLOT-RECLAIM (2026-05-19): when force-reclaim evicted a peer that had
+  // drifted into this terminal's slot during the /compact|/clear window,
+  // surface it loud — a peer chat just lost its slot binding and both the
+  // operator and this chat should know the slot was forcibly re-bound here.
+  // chat-slots tags a genuine eviction with previousOwner.reason ===
+  // "force-takeover" (a same-window /compact inheritance carries no
+  // previousOwner), so this fires ONLY on a real cross-window reclaim — the
+  // common no-eviction case stays silent.
+  if (forceReclaim && result.previousOwner &&
+      result.previousOwner.reason === "force-takeover") {
+    emit({
+      continue: true,
+      hookSpecificOutput: {
+        hookEventName: "SessionStart",
+        additionalContext: [
+          `## 🔒 Slot \`${result.slot}\` force-reclaimed for this PowerShell terminal`,
+          ``,
+          `This window owns slot \`${result.slot}\` (ps-window-pin binding). Peer \`${result.previousOwner.chatId}\` had drifted into it during the /${source} window — force-takeover evicted that peer and re-bound \`${result.slot}\` to this chat.`,
+          ``,
+          `The evicted peer will re-pin its own terminal's slot on its next SessionStart. No action needed here — the slot is correct.`,
+        ].join("\n"),
+      },
+    });
+    return;
+  }
 
   // F10 — pipeline replay: when terminal-pin inherits a slot AND the prior
   // chat had `pipelineStep` set (mid-loop), surface an auto-resume hint with
@@ -342,4 +573,18 @@ async function main() {
   emit(SILENCE);
 }
 
-main().catch(() => emit(SILENCE));
+// Run main() only when this file is invoked as a script — not when a test
+// imports it for the exported shouldForceReclaim(). FAIL-OPEN: if the
+// argv/import.meta probe throws, default to running. A SessionStart hook must
+// never be silently dead; the only cost of a false-positive run is one
+// fail-soft {continue:true} emission. A test file's basename is *.test.mjs,
+// which never equals this hook's basename, so __isMain resolves false there.
+const __isMain = (() => {
+  try {
+    const argv1 = (process.argv[1] || "").replace(/\\/g, "/");
+    const argv1Base = argv1.split("/").pop() || "";
+    return argv1Base.length > 0
+      && import.meta.url.replace(/\\/g, "/").endsWith(argv1Base);
+  } catch { return true; }
+})();
+if (__isMain) main().catch(() => emit(SILENCE));

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>swcomposerreleasenotesdeu</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>swcomposerreleasenotesdeu</h1>
+<dl>
+<dt>Domain</dt><dd>cad</dd>
+<dt>Software</dt><dd>solidworks</dd>
+<dt>Path</dt><dd><code>SOLIDWORKS/SOLIDWORKS Corp/SOLIDWORKS Composer Player/Doc/swcomposerreleasenotesdeu.pdf</code></dd>
+<dt>Pages</dt><dd>18</dd>
+<dt>Text chars</dt><dd>25690</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>SOLIDWORKS Composer
+Versionshinweise – 2015
+6/1/2014
+3DS.COM
+ © Dassault Systèmes 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 1 of 18 --
+
+2
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Inhaltsverzeichnis
+Patente, Marken und Urheberrechte ............................................................................................. 4
+Neue Funktionen ........................................................................................................................... 5
+1. 	Browserbasiertes Benutzerhilfsportal zu Composer .............................................................. 5
+2. 	Zoomfaktoreigenschaften des Viewports ............................................................................... 6
+3. 	Eigenschaften der verdeckten Linien für Hilfskonturen .......................................................... 7
+4. 	Verhaltensänderungen für einige Eigenschaften ................................................................... 9
+5. 	Wiedergabemodus als (Standard-)Dokumenteigenschaft ................................................... 10
+6. 	Suche nach Akteuren über ihren Typ oder NetGUID ........................................................... 11
+7. 	Verbesserte Passwortverwaltung ........................................................................................ 11
+8. 	Hilfskonturen und Bezeichnungen: Verbesserung der Pfeilendpunkte ................................ 12
+9. 	SOLIDWORKS Composer Sync: Protokolldatei im HTML-Format ..................................... 12
+10. SOLIDWORKS Composer Player: Dauerhafte Speicherung der Benutzeranpassung ........ 13
+11. Interoperabilität .................................................................................................................... 13
+Systemanforderungen ................................................................................................................. 14
+1. 	Installationsvoraussetzungen ............................................................................................... 14
+2. 	Systemanforderungen für SOLIDWORKS Composer, SOLIDWORKS Composer Sync
+und SOLIDWORKS Composer Enterprise Sync .................................................................. 14
+2.1. Unterstützte Betriebssysteme für SOLIDWORKS Composer, SOLIDWORKS Composer
+Sync und SOLIDWORKS Composer Enterprise Sync ......................................................... 14
+2.2. Hardwareanforderungen für SOLIDWORKS Composer, SOLIDWORKS Composer Sync
+und SOLIDWORKS Composer Enterprise Sync .................................................................. 15
+3. 	Systemanforderungen für SOLIDWORKS Composer Player und SOLIDWORKS Composer
+Player Pro ............................................................................................................................ 16
+3.1. Unterstützte Betriebssysteme für SOLIDWORKS Composer Player und SOLIDWORKS
+Composer Player Pro ........................................................................................................... 16
+3.2. Hardwareanforderungen für SOLIDWORKS Composer Player und SOLIDWORKS
+Composer Player Pro ........................................................................................................... 16
+4. 	Weitere Anforderungen ........................................................................................................ 17
+4.1. Anforderungen für Benutzerhilfe .......................................................................................... 17
+4.2. Voraussetzungen für den Dateiimport ................................................................................. 18
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 2 of 18 --
+
+3
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+4.3. Softwarevoraussetzungen für das 3DVIA SolidWorks Plug-In............................................. 18
+4.4. Softwarevoraussetzungen für die Wiedergabe der Composer Experience in
+3DVIA Studio ....................................................................................................................... 18
+
+-- 3 of 18 --
+
+4
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Patente, Marken und Urheberrechte
+3DVIA ist eine Marke oder eingetragene Marke von Dassault Systèmes oder ihren
+Tochterunternehmen in den Vereinigten Staaten und/oder anderen Ländern.
+SOLIDWORKS® Composer, © 2007-2014 Dassault Systèmes. Alle Rechte vorbehalten.
+Andere Marken- oder Produktnamen sind Marken oder eingetragene Marken ihrer jeweiligen
+Inhaber.
+SOLIDWORKS Composer ist durch die US-Patente 7.250.947 und 7.873.237 geschützt; weitere
+Patente ausstehend.
+Die in diesem Dokument enthaltenen Informationen und die beschriebene Software können
+ohne Vorankündigung geändert werden und stellen keine Verpflichtungen seitens Dassault
+Systèmes oder ihren Tochterunternehmen dar.
+Keine Materialien dürfen ohne die ausdrückliche Zustimmung von Dassault Systèmes oder
+ihren Tochterunternehmen in irgendeiner Form oder auf irgendeine Weise, sei es elektronisch
+oder mechanisch, für jedwede Zwecke vervielfältigt oder übertragen werden.
+Die in diesem Dokument beschriebene Software wird durch eine Lizenz bereitgestellt und darf
+nur in Übereinstimmung mit den allgemeinen Nutzungsbedingungen dieser Lizenz verwendet
+oder kopiert werden. Keine der in diesem Dokument oder seinen Inhalten gemachten oder
+implizierten Aussagen darf als Modifizierung oder Erweiterung jeglicher im Rahmen der
+Softwarelizenzvereinbarung festgelegten Gewährleistungen interpretiert werden.
+KOMMERZIELLE COMPUTERSOFTWARE - EIGENTUMSRECHTE
+Eingeschränkte Rechte der US-Regierung. Die Verwendung, Vervielfältigung oder Offenlegung
+durch die Regierung unterliegt den Einschränkungen gemäß FAR 52.227-19 (Commercial
+Computer Software – Restricted Rights), DFARS 227.7202 (Commercial Computer Software
+and Commercial Computer Software Documentation) und der Lizenzvereinbarung.
+Auftragnehmer/Hersteller:
+Dassault Systèmes
+10, rue Marcel Dassault
+78140 Vélizy-Villacoublay
+Frankreich
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 4 of 18 --
+
+5
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Neue Funktionen
+1. Browserbasiertes Benutzerhilfsportal zu Composer
+Das brandneue browserbasierte Portal ist die zentrale Anlaufstelle für Benutzer, die Hilfe bei
+Composer Produkten benötigen:
+Installation, Konfiguration und Lizensierungsanleitung
+Composer Benutzerhandbuch
+Sync/Enterprise Sync Benutzerhandbuch
+Player/Player Pro Benutzerhandbuch
+Die Handbücher wurden einer umfassenden Umgestaltung unterzogen. So wurden z. B. die
+schrittweisen Anleitungen von den Referenzinformationen getrennt.
+Hinweis: Weitere Informationen zu den Systemanforderungen für die Benutzerhilfe finden Sie
+im entsprechenden Abschnitt in diesem Dokument.
+3DS.
+COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 5 of 18 --
+
+6
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+2. Zoomfaktoreigenschaften des Viewports
+Sie können nun den Zoomfaktor des Viewports in den Viewport-Eigenschaften festlegen.
+Camera Height (Kamerahöhe) im
+orthogonalen Ansichtsmodus:
+Camera FOV (Kameraerfassungsbereich)
+im perspektivischen Ansichtsmodus:
+Eigenschaft 	Beschreibung
+Kamerahöhe 	(Verfügbar im orthogonalen Ansichtsmodus.) Bestimmt die Höhe
+der Kamera je nach Modell, und trägt so zur Bestimmung des
+Zoomfaktors des Viewports bei. Durch die Erhöhung des Werts
+wird das Modell kleiner.
+Kameraerfassungsbereich 	(Verfügbar im perspektivischen Ansichtsmodus.) Bestimmt den
+Winkelbereich der Modellansicht und trägt so zur Bestimmung
+des Zoomfaktors des Viewports bei. Durch die Erhöhung des
+Werts wird das Modell kleiner. Sie können einen Wert eingeben
+oder den Schieberegler verwenden.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 6 of 18 --
+
+7
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+3. Eigenschaften der verdeckten Linien für Hilfskonturen
+Sie können nun die verdeckte Linie für die Hilfskonturen definieren.
+Eigenschaft 	Beschreibung
+Back Border &gt;
+Show (Verdeckte
+Linie &gt; Anzeigen)
+(Verfügbar, wenn Stay on top (Oben bleiben) deaktiviert und Hidden
+Style (Verdeckter Stil) ausgewählt ist.) Zeigt die verdeckte Linie an.
+Back Border &gt;
+Width (Verdeckte
+Linie &gt; Breite)
+Legt die Breite der verdeckten Linie in Millimetern fest.
+Back Border &gt;
+Opacity (Verdeckte
+Linie &gt; Deckkraft)
+Legt die Deckkraft der verdeckten Linie (zwischen 0 und 255) fest.
+Back Border &gt;
+Color (Verdeckte
+Linie &gt; Farbe)
+Legt die Farbe der verdeckten Linie fest.
+Back Border &gt;
+Type (Verdeckte
+Linie &gt; Typ)
+Legt den Typ der verdeckten Linie fest.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 7 of 18 --
+
+8
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Beispiel:
+Eigenschaft Back Border &gt; Show
+(Verdeckte Linie &gt; Anzeigen)
+deaktiviert:
+Eigenschaft Back Border &gt; Show
+(Verdeckte Linie &gt; Anzeigen)
+ausgewählt und Back Border &gt; Color
+(Verdeckte Linie &gt; Farbe) auf rot
+eingestellt:
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 8 of 18 --
+
+9
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+4. Verhaltensänderungen für einige Eigenschaften
+Einige Eigenschaften, die zuvor die Mehrfachauswahl von Akteuren nicht unterstützt haben,
+werden jetzt im Eigenschaftenfeld angezeigt und können bearbeitet werden, wenn mehrere
+Akteure ausgewählt sind. Diese Eigenschaften sind:
+Für eine Baugruppe (Stamm): Farbe
+Für Akteure: Bereich und Volumen
+Für Viewport: Hintergrundverlauf, dynamischer Hintergrundverlauf,
+Veröffentlichungsseite, Veröffentlichung keine Clientfarbe
+Darüber hinaus sind diese Eigenschaften nun über den Stile-Workshop verfügbar und können
+durch das Stile-Profil (genauso wie andere Eigenschaften) verwaltet werden.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 9 of 18 --
+
+10
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+5. Wiedergabemodus als (Standard-)Dokumenteigenschaft
+Bisher konnten Sie den Wiedergabemodus nur über die Registerkarte Render (Wiedergabe) in
+der Ribbon-Ansicht einstellen. Nun können Sie den Wiedergabemodus als
+Dokumenteigenschaft oder als Standarddokumenteigenschaft des Viewports festlegen. Dies
+geschieht über die Seite Viewport im Dialogfenster Document Properties
+(Dokumenteigenschaften) oder Default Document Properties
+(Standarddokumenteigenschaften).
+Wichtig:
+Diese Einstellung ist standardmäßig ausgeblendet. Falls Sie diese einblenden möchten,
+müssten Sie eine Umgebungsvariable, DS_3DVC_OVERRIDE_RENDER_MODE, erstellen
+und deren Wert auf 1 setzen.
+Diese Einstellung ist in SOLIDWORKS Sync/Enterprise Sync nicht verfügbar/zutreffend.
+Aus diesem Grund verfügen Composer-Dokumente, die über Sync erstellt wurden, nicht
+über diese Einstellung. Sobald ein Dokument in Composer geöffnet wurde, wird der
+Wiedergabemodus, der in den (Standard-)Dokumenteigenschaften festgelegt wurde,
+beim Speichern der Datei angewendet.
+Der Wiedergabemodus, der in den Standarddokumenteigenschaften festgelegt wurde,
+wird nicht bei Dokumenten verwendet, die in älteren Versionen von Composer
+gespeichert wurden (diese Dokumente behalten ihren ursprünglichen
+Wiedergabemodus).
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 10 of 18 --
+
+11
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+6. Suche nach Akteuren über ihren Typ oder NetGUID
+Im Suchfeld können Sie nun nach Akteuren suchen. Dies kann erfolgen über:
+ihren Typ (Bemaßung, Bezeichnungen, Geometrie und so weiter): Verwenden Sie die
+Eigenschaft Class name (Klassenname) mit String-Operatoren.
+ihren netGUID (oder GUID): Verwenden Sie die Eigenschaft Net GUID mit String-
+Operatoren sowie regulärem Ausdruck.
+Weitere Informationen zu Filter und Filtern von Operatoren finden Sie auch unter Arbeiten in
+Workshops &gt; Workshop für Filter im Composer Benutzerhandbuch.
+7. Verbesserte Passwortverwaltung
+Das Feld Confirm password (Passwort bestätigen) wurde zur Verbesserung der Sicherheit
+hinzugefügt, wenn ein Dokument mit einem Passwort geschützt wird. Dieses Feld ist über die
+Seite Security (Sicherheit) im Dialogfenster Document Properties
+(Dokumenteigenschaften) oder Default Document Properties
+(Standarddokumenteigenschaften) verfügbar.
+
+-- 11 of 18 --
+
+12
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+8. Hilfskonturen und Bezeichnungen: Verbesserung der
+Pfeilendpunkte
+Die Pfeilendpunkte bei Hilfskonturen und Bezeichnungen werden nun genau angezeigt: Die
+Anbringungslinien ragen nun nicht mehr über die Pfeilspitze hinaus, auch wenn die
+Anbringungslinie breiter ist.
+Zuvor 	Jetzt
+Die breite Anbringungslinie ragt über die
+Pfeilspitze hinaus.
+Die breite Anbringungslinie ragt nicht
+mehr über die Pfeilspitze hinaus.
+9. SOLIDWORKS Composer Sync: Protokolldatei im
+HTML-Format
+Die SOLIDWORKS Composer Sync-Protokolldatei, die zuvor nur im XML-Format verfügbar war,
+ist jetzt auch als HTML-Datei erhältlich. Dadurch wird sichergestellt, dass die Protokolldatei im
+Internet Explorer 9 oder neueren Versionen geöffnet werden kann.
+Die Protokolldatei wird standardmäßig als HTML-Datei angezeigt. Sie können diese Einstellung
+auf der Protokollierungsseite ändern.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 12 of 18 --
+
+13
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Wichtig: Wenn Sie ein Upgrade von einer früheren Composer-Version durchführen,
+müssen Sie vor dem Ausführen dieser neuen Version alle vorherigen Protokolldateien
+aus Ihrem SOLIDWORKS Composer-Benutzerordner (normalerweise
+user_name\Documents\SOLIDWORKSComposer\User) löschen. Dieser Ordner ist in den
+Anwendungseinstellungen auf der Seite Anwendungspfade festgelegt.
+Sie können die zu löschenden Protokolldateien ganz einfach anhand ihrer Namen erkennen:
+Es handelt sich um die Typen application_name.xml und application_name.data.
+Sie können unter Umständen ebenfalls die Dateien seePub.xml und seePub.data löschen,
+falls diese im Benutzerordner liegen.
+10. SOLIDWORKS Composer Player: Dauerhafte
+Speicherung der Benutzeranpassung
+Es wurden neue Registrierungs-GUI-Einstellungen hinzugefügt, um die Anpassung zu
+speichern, die während einer Composer Player-Sitzung vorgenommen wurde. Diese sind hier
+zu finden: HKEY_CURRENT_USER\Software\Dassault
+Systemes\SOLIDWORKSComposer\Players\GuiSettings.
+Loop.Play: Speichert den aktuellen Status des Befehls Loop Play Mode (Schleifen-
+Abspielmodus).
+Players.Visibility.&lt;ToolbarName&gt;Toolbar: Blendet die Symbolleiste
+&lt;ToolbarName&gt; ein oder aus.
+Players.Visibility.&lt;ToolbarName&gt;Toolbar.FullScreen: Passt den
+Vollbildmodus an und speichert seinen Status.
+Hinweise:
+Die Position der Symbolleisten selbst wird nicht gespeichert.
+Die Einstellungen werden nicht von ActiveX gespeichert oder verwendet, da dieses
+Programm sie bereits durch seine Eigenschaften bearbeitet.
+11. Interoperabilität
+Folgende Formate können nun importiert werden:
+ACIS R23
+Pro/E Creo 2.0
+SolidWorks 2014
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 13 of 18 --
+
+14
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Systemanforderungen
+1. Installationsvoraussetzungen
+Beachten Sie vor der Installation von SOLIDWORKS Composer-Produkten bitte Folgendes:
+Sie sollten das neueste Windows-Servicepack (http://www.microsoft.com) für Ihr
+Betriebssystem installieren.
+Gleichfalls sollten Sie den neuesten verfügbaren Treiber für Ihre Grafikkarte installieren.
+2. Systemanforderungen für SOLIDWORKS Composer,
+SOLIDWORKS Composer Sync und SOLIDWORKS
+Composer Enterprise Sync
+2.1. 	Unterstützte Betriebssysteme für SOLIDWORKS Composer,
+SOLIDWORKS Composer Sync und SOLIDWORKS Composer
+Enterprise Sync
+SOLIDWORKS Composer, SOLIDWORKS Composer Sync and SOLIDWORKS Composer
+Enterprise Sync können nur auf folgenden 64-Bit-Betriebssystemen installiert werden:
+Microsoft Windows 8.1 64 Bit
+Microsoft Windows 8 64 Bit
+Microsoft Windows 7 64 Bit
+Microsoft Windows Server 2012 R2 64 Bit
+Microsoft Windows Server 2012 64 Bit
+Microsoft Windows Server 2008 R2 64 Bit
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 14 of 18 --
+
+15
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+2.2. 	Hardwareanforderungen für SOLIDWORKS Composer,
+SOLIDWORKS Composer Sync und SOLIDWORKS Composer
+Enterprise Sync
+In der nachfolgenden Tabelle werden die empfohlenen und minimalen Hardwareanforderungen
+für SOLIDWORKS Composer, SOLIDWORKS Composer Sync und SOLIDWORKS Composer
+Enterprise Sync aufgeführt:
+Hardware 	Empfohlene Hardware 	Hardware-Mindestanforderungen
+Laufwerk 	Mindestens 3 GB verfügbarer Speicherplatz zum
+Speichern von Programmdateien (einschließlich
+aller Importe), Programmdaten,
+Anwendungsumgebung und PAM-Seiten.
+Mindestens 3 GB verfügbarer Speicherplatz
+zum Speichern von Programmdateien
+(einschließlich aller Importe), Programmdaten,
+Anwendungsumgebung und PAM-Seiten.
+Netzwerkadapter 	Für Lizenzierungszwecke ist ein aktiver Ethernet-
+Adapter erforderlich.
+Für Lizenzierungszwecke ist ein aktiver
+Ethernet-Adapter erforderlich.
+Prozessor 	Intel® Core™ 2 Duo (oder ähnlich) 	Intel Pentium ® 4 (oder ähnlich)
+Speicher (RAM) 	2 GB 	512 MB
+Tastatur 	Um die von Ihnen gewünschte Sprache zu
+unterstützen, ist u. U. eine dafür geeignete
+Tastatur erforderlich.
+Um die von Ihnen gewünschte Sprache zu
+unterstützen, ist u. U. eine dafür geeignete
+Tastatur erforderlich.
+Anzeige 	Für Windows ® -Workstations wird eine Auflösung
+von 1280 x 1024 empfohlen. Grafikmodus mit
+16-Bit-Farbe oder höher ist erforderlich.
+Empfohlen wird 32-Bit-Farbe.
+Für Windows-Workstations wird eine Auflösung
+von 1280 x 1024 empfohlen. Grafikmodus mit
+16-Bit-Farbe oder höher ist erforderlich.
+Empfohlen wird 32-Bit-Farbe.
+Grafikkarte 	Um optimale Leistung zu ermöglichen, ist eine
+Grafikkarte mit 3D OpenGL-Beschleunigung
+erforderlich. AMD (AMD FirePro™) und NVIDIA
+(NVIDIA Quadro
+® FX) sind sehr zu empfehlen.
+Für einige erweiterte Rendering-Effekte ist
+OpenGL 3.2 oder höher erforderlich.
+Um eine gute Leistung zu erreichen, ist eine
+Grafikkarte mit 3D OpenGL-Beschleunigung zu
+empfehlen. AMD und NVIDIA sind zu
+empfehlen. Bildwiederholfrequenz und
+Interaktivität werden sehr beeinträchtigt, wenn
+keine Beschleunigung verfügbar ist.
+Zeigegerät 	Eine Dreitastenmaus ermöglicht die beste
+Bedienbarkeit.
+Eine Dreitastenmaus ermöglicht die beste
+Bedienbarkeit.
+Optionale
+Komponenten und
+Funktionen
+SpacePilot™, SpaceNavigator™,
+SpaceExplorer™, SpaceBall™ und
+SpaceMouse™ von 3Dconnexion
+® können
+zusätzlich zur Dreitastenmaus verwendet werden,
+um bei der grafischen Handhabung (Zoomen,
+Schwenken, Drehen usw.) zu helfen. Die dazu
+erforderlichen Treiber werden jeweils gleich mit
+dem Gerät geliefert.
+SpacePilot, SpaceNavigator, SpaceExplorer,
+SpaceBall und SpaceMouse von 3Dconnexion
+können zusätzlich zur Dreitastenmaus
+verwendet werden, um bei der grafischen
+Handhabung (Zoomen, Schwenken, Drehen
+usw.) zu helfen. Die dazu erforderlichen Treiber
+werden jeweils gleich mit dem Gerät geliefert.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 15 of 18 --
+
+16
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+3. Systemanforderungen für SOLIDWORKS Composer Player
+und SOLIDWORKS Composer Player Pro
+3.1. 	Unterstützte Betriebssysteme für SOLIDWORKS Composer
+Player und SOLIDWORKS Composer Player Pro
+Hinweis: Bei 64-Bit-Installationen werden SOLIDWORKS Composer Player ActiveX und
+SOLIDWORKS Composer Player sowohl als 32-Bit- als auch als 64-Bit-Versionen installiert.
+Das Adobe Reader Plug-In wird als 32-Bit-Version installiert.
+64 Bit (x64 Edition) SOLIDWORKS Composer Player und SOLIDWORKS Composer Player
+Pro unterstützen die folgenden Betriebssysteme:
+Microsoft Windows 8.1 64 Bit
+Microsoft Windows 8 64 Bit
+Microsoft Windows 7 64 Bit
+Microsoft Windows Server 2012 R2 64 Bit
+Microsoft Windows Server 2012 64 Bit
+Microsoft Windows Server 2008 R2 64 Bit
+3.2. 	Hardwareanforderungen für SOLIDWORKS Composer Player
+und SOLIDWORKS Composer Player Pro
+In der nachfolgenden Tabelle werden die empfohlenen und minimalen Hardwareanforderungen
+für SOLIDWORKS Composer Player und SOLIDWORKS Composer Player Pro aufgeführt:
+Hardware 	Empfohlene Hardware 	Hardware-Mindestanforderungen
+Laufwerk 	Mindestens 50 MB verfügbarer Speicherplatz zum
+Speichern von Programmdateien (.exe, .ocx,
+Adobe Reader ® -Plug-In usw.), Programmdaten,
+Anwendungsumgebung und PAM-Seiten.
+Mindestens 50 MB verfügbarer Speicherplatz
+zum Speichern von Programmdateien (.exe,
+.ocx, Adobe Reader ® -Plug-In usw.),
+Programmdaten, Anwendungsumgebung und
+PAM-Seiten.
+Netzwerkadapter 	Für Lizenzierungszwecke ist ein aktiver Ethernet-
+Adapter erforderlich (nur bei Player Pro).
+Für Lizenzierungszwecke ist ein aktiver
+Ethernet-Adapter erforderlich (nur bei Player
+Pro).
+Prozessor 	Intel Core 2 Duo (oder ähnlich) 	Intel Pentium 4 (oder ähnlich)
+Speicher (RAM) 	2 GB 	512 MB
+Tastatur 	Um die von Ihnen gewünschte Sprache zu
+unterstützen, ist u. U. eine dafür geeignete
+Tastatur erforderlich.
+Um die von Ihnen gewünschte Sprache zu
+unterstützen, ist u. U. eine dafür geeignete
+Tastatur erforderlich.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 16 of 18 --
+
+17
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+Anzeige 	Für Windows-Workstations wird eine Auflösung
+von 1280 x 1024 empfohlen. Grafikmodus mit
+16-Bit-Farbe oder höher ist erforderlich.
+Empfohlen wird 32-Bit-Farbe.
+Für Windows-Workstations wird eine Auflösung
+von 1280 x 1024 empfohlen. Grafikmodus mit
+16-Bit-Farbe oder höher ist erforderlich.
+Empfohlen wird 32-Bit-Farbe.
+Grafikkarte 	Um optimale Leistung zu ermöglichen, ist eine
+Grafikkarte mit 3D OpenGL-Beschleunigung
+erforderlich. AMD (AMD FirePro) und NVIDIA
+(NVIDIA Quadro FX) sind sehr zu empfehlen.
+Für einige erweiterte Rendering-Effekte ist
+OpenGL 3.2 oder höher erforderlich.
+Um eine gute Leistung zu erreichen, ist eine
+Grafikkarte mit 3D OpenGL-Beschleunigung zu
+empfehlen. AMD und NVIDIA sind zu
+empfehlen. Bildwiederholfrequenz und
+Interaktivität werden sehr beeinträchtigt, wenn
+keine Beschleunigung verfügbar ist.
+Zeigegerät 	Eine Dreitastenmaus ermöglicht die beste
+Bedienbarkeit.
+Eine Dreitastenmaus ermöglicht die beste
+Bedienbarkeit.
+Optionale
+Komponenten und
+Funktionen
+SpacePilot, SpaceNavigator, SpaceExplorer,
+SpaceBall und SpaceMouse von 3Dconnexion
+können zusätzlich zur Dreitastenmaus verwendet
+werden, um bei der grafischen Handhabung
+(Zoomen, Schwenken, Drehen usw.) zu helfen.
+Die dazu erforderlichen Treiber werden jeweils
+gleich mit dem Gerät geliefert.
+SpacePilot, SpaceNavigator, SpaceExplorer,
+SpaceBall und SpaceMouse von 3Dconnexion
+können zusätzlich zur Dreitastenmaus
+verwendet werden, um bei der grafischen
+Handhabung (Zoomen, Schwenken, Drehen
+usw.) zu helfen. Die dazu erforderlichen Treiber
+werden jeweils gleich mit dem Gerät geliefert.
+4. Weitere Anforderungen
+4.1. 	Anforderungen für Benutzerhilfe
+Das browserbasierte Benutzerhilfsportal sowie die Suchmaschine haben folgende
+Anforderungen:
+Eine der Folgenden:
+o 	Auf Microsoft Windows 7 64 Bit: 32-Bit-Versionen von sowohl Microsoft Internet
+Explorer 9 oder 10 als auch Oracle Java Plug-in Version 7 (aktiviert)
+o 	Auf Microsoft Windows 8 64 Bit: 32-Bit-Versionen von sowohl Microsoft Internet
+Explorer 10 als auch Oracle Java-Plug-in Version 7 (aktiviert)
+o 	Auf allen unterstützten Betriebssystemen: 32-Bit-Versionen von sowohl
+Firefox ESR 17 als auch Oracle Java-Plug-in Version 7 (aktiviert)
+64 Bit Oracle Java-Laufzeitumgebung (JRE) 7
+Hinweis: Stellen Sie sicher, dass nur eine Version von JRE installiert ist.
+
+-- 17 of 18 --
+
+18
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref. SOLIDWORKS Composer – Versionshinweise – 2015|
+4.2. 	Voraussetzungen für den Dateiimport
+Je nach den Dateiformaten, die in SOLIDWORKS Composer, SOLIDWORKS Composer Sync
+oder SOLIDWORKS Composer Enterprise Sync importiert werden sollen, sind eventuell
+unterschiedliche Anforderungen zu berücksichtigen. Wenn Sie beispielsweise SolidWorks®
+Dateien importieren, müssen Sie den Mindestanforderungen der betreffenden SolidWorks
+Version entsprechen (siehe http://www.solidworks.com/sw/support/SystemRequirements.html).
+4.3. 	Softwarevoraussetzungen für das 3DVIA SolidWorks Plug-In
+Es gelten folgende Softwarevoraussetzungen für das 3DVIA SolidWorks Plug-In:
+SolidWorks 64 Bit ist für das 3DVIA SolidWorks Plug-In 64 Bit erforderlich.
+4.4. 	Softwarevoraussetzungen für die Wiedergabe der Composer
+Experience in 3DVIA Studio
+3DVIA Studio 2.14.398 (V6R2013 FD01) oder höher ist für die Wiedergabe einer
+SOLIDWORKS Composer Experience, die in 3DVIA Studio veröffentlicht wurde, erforderlich.
+Hinweis: Weitere Informationen zu 3DVIA Studio finden Sie unter http://www.3dvia.com/studio/.
+3DS.COM
+ © Dassault Systèmes | 06/2014 Ref.: SOLIDWORKS Composer – Versionshinweise – 2015|
+
+-- 18 of 18 --
+
+</pre>
+</body></html>

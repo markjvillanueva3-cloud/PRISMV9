@@ -40,6 +40,7 @@
 // Exit codes: 0 ok, 2 input failure (node not found / graph unreadable).
 
 import { readFileSync, existsSync } from "node:fs";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -301,9 +302,8 @@ export function loadGraph(graphPath) {
     e.code = "GRAPH_NOT_FOUND";
     throw e;
   }
-  const raw = readFileSync(graphPath, "utf8");
   let parsed;
-  try { parsed = JSON.parse(raw); }
+  try { parsed = readGraphStreaming(graphPath); }  // off-heap: JSON.parse(readFileSync utf8) throws at >512MiB (U-VIZ-READER-CAPSAFE 2026-06-10)
   catch (err) {
     const e = new Error(`system-graph not parseable: ${err.message}`);
     e.code = "GRAPH_PARSE";

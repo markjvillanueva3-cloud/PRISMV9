@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>RenishawProbe-GS</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>RenishawProbe-GS</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/documentation/RenishawProbe-GS.pdf</code></dd>
+<dt>Pages</dt><dd>34</dd>
+<dt>Text chars</dt><dd>27999</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Getting Started
+with
+Renishaw
+Productivity+™
+June 2014
+
+-- 1 of 34 --
+
+Mastercam® X8 Getting Started with Renishaw Productivity +™
+Date: June 2014
+Copyright © 2014 CNC Software, Inc.— All rights reserved.
+Software: Mastercam X8
+TERMS OF USE 	Use of this document is subject to the Mastercam End User License Agreement. A
+copy of the Mastercam End User License Agreement is included with the
+Mastercam product package of which this document is part. The Mastercam End
+User License Agreement can also be found at:
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+Be sure you
+have the latest
+information!
+Information might have been changed or added since this document was
+published. The latest version of this document is installed with Mastercam or can
+be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)—installed
+with each release—includes the latest information about Mastercam features and
+enhancements.
+
+-- 2 of 34 --
+
+i
+Contents
+Introduction ........................................................................................................ 1
+ Installation Requirements ............................................................................ 1
+ Minimum Mastercam Requirements.......................................................... 1
+ Usage Pre-requisites .................................................................................... 1
+ Support........................................................................................................... 1
+ When to Use Productivity+ ........................................................................ 1
+ Post Processing Requirements and Installs............................................... 2
+Productivity+ in Mastercam ..................................................................... 3
+ About Renishaw Productivity+ .................................................................. 3
+ Features and Benefits................................................................................... 3
+ Using Productivity+ in Mastercam............................................................ 4
+Probe Operations ............................................................................................ 4
+Posts ............................................................................................................... 6
+ Generating Probe Operations....................................................................... 8
+Setting Up Your Probing Module and Stylus.................................................. 8
+Tool Setting................................................................................................... 10
+Measuring..................................................................................................... 12
+Machine Updates ......................................................................................... 13
+Remachining ................................................................................................. 16
+Reporting ...................................................................................................... 19
+Productivity+ and Mastercam Posts.................................................. 23
+ Included files ............................................................................................... 23
+ Posting Probe Operations........................................................................... 24
+
+-- 3 of 34 --
+
+ii MASTERCAM VERSIONNUMBER
+Conclusion......................................................................................................... 26
+ Mastercam Resources ............................................................................... 27
+ Mastercam Documentation....................................................................... 27
+Contact Us.................................................................................................... 28
+
+-- 4 of 34 --
+
+Introduction
+This introduction to Mastercam’s probing application is designed to get you started
+using Renishaw’s Productivity+™ in Mastercam to combine probing with machining. It
+introduces you to some sample operations, as well as addressing requirements and
+discussing how probe operations and posts work in Mastercam.
+Installation Requirements
+To take advantage of Productivity+ in Mastercam, you must have a Renishaw probe
+installed on your machine tool. Productivity+ software generates the necessary NC
+code.
+Please see the
+Mastercam X8 Installation Guide for general system requirements.
+Minimum Mastercam Requirements
+To run Mastercam with Renishaw Productivity+, you must have at least Mastercam
+Mill Level 1. For more information on Mastercam product levels, please see Mastercam
+Help or visit www.mastercam.com/solutions.
+Usage Pre-requisites
+In addition to experience working in Mastercam, it is helpful to have a working knowl-
+edge of the Renishaw Productivity+ suite.
+When you use Productivity+ you need to alter the MP post and then post that output
+with a Renishaw post. CNC Software, Inc. provides a HAAS post and supporting files
+with the install. Please contact your local Mastercam Reseller about post customization
+for other machine tools.
+Use Renishaw Productivity+ with Mill machine definitions.
+Support
+Productivity+ is a product of the Renishaw company. CNC Software, Inc. and approved
+Mastercam Resellers only support the integration and usage of Renishaw Produc-
+tivity+ within Mastercam.
+When to Use Productivity+
+Use Renishaw Productivity+ in Mastercam to take simple measurements and align-
+ments. This will allow you to set up and validate your parts at the machine tool. This
+can lead to better process control and reporting of the performance of your machine
+
+-- 5 of 34 --
+
+2 MASTERCAM X8/ Introduction
+tool. Productivity+ can be used with 3- and 4-axis mills (vertical and horizontal) and
+multiaxis (3+2) machines.
+You can use Productivity+ to perform such automated functions as:
+ 	Part setup
+ 	Tool height settings
+ 	Tool breakage checking
+ 	Inspection/reporting of basic geometric features (points, lines, planes, circles,
+web, and pocket sizes)
+ 	Measuring machined areas and dynamically setting offsets to remachine
+NOTES:
+ Productivity+ supports only Renishaw probes.
+ Productivity+ will not probe complex free flowing surfaces.
+ The current version does not support continuous 4- or 5-axis
+motion.
+Post Processing Requirements and Installs
+To use Renishaw Productivity+, a Renishaw machine file (.RenMF) must be installed on
+your workstation and in the proper location. Additionally, your Mastercam post (.PST)
+must be configured to support Productivity+.
+When you post a part with a properly configured Mastercam post, it interacts with the
+.RenMF file to create both probing and metal-cutting code. If your Mastercam post
+processor has not been properly configured, probing operations will not be incorpo-
+rated in the NC output.
+Please see “Productivity+ and Mastercam Posts” on page 23 for more information.
+
+-- 6 of 34 --
+
+Productivity+ in Mastercam
+About Renishaw Productivity+
+Renishaw Productivity+ allows you to use Mastercam to program and simulate a
+Renishaw probe for your machine tool. It performs simple measurements and align-
+ments, and allows the set up and validation of your parts at the machine tool. This can
+lead to better process control and reporting of the performance of your machine tool.
+Productivity+ can be used with 3- and 4-axis mills (vertical and horizontal) and multi-
+axis (3+2) machines.
+Features and Benefits
+The following lists the key benefits of using the automated features of Productivity+ in
+Mastercam:
+Tool height setting
+Productivity+ can measure your tool height and automatically update your tool
+parameters.
+Tool breakage checking
+Productivity+ allows you to program your tool setter for tool breakage detection. If
+breakage is detected, an error is automatically output to the control.
+Part setup
+Probing operations can calculate the position of part components and features and
+automatically update your machine offsets.
+Inspection/reporting of basic geometric features
+Productivity+ can provide automatic inspection and reporting of basic/prismatic
+geometric features (i.e., points, lines, planes, circles, web and pocket sizes), which can
+be easily set up as an operation.
+NOTE: At this time, Productivity+ in Mastercam cannot be used on
+types of features with free-flowing surfaces such as ports.
+
+-- 7 of 34 --
+
+4 MASTERCAM X8/ Productivity+ in Mastercam
+Re-machining
+Productivity+ in Mastercam provides automated probing of your part during the
+machining process. This can update your tooling parameters on features that might be
+undersized, set the offsets (i.e. diameter and wear offsets), and remachine the feature.
+This functionality also detects features that are oversized (out of spec) and cannot be
+remachined, which can be set to end the process, eliminating wasted machine time.
+Using Productivity+ in Mastercam
+CNC Software, Inc. has incorporated Renishaw’s Productivity+ interface into
+Mastercam X8, allowing you to integrate process control into your CNC programs. To
+generate a probe cycle, you create and edit a probe operation, just like you would any
+other toolpath operation in Mastercam. Then—like any other toolpath—Mastercam
+outputs the probe operation to your machine. However, unlike other Mastercam tool-
+path operations, probe output requires a two-stage posting process.
+Probe Operations
+The probe operation is stored in
+Mastercam’s Toolpaths Manager. Edit the
+operation, as needed, to make adjustments.
+The operation is a snapshot of your model at
+the time the operation was created. Updating
+your part model will not mark a probe opera-
+tion dirty.
+To create a probe operation, select Probe
+from the Toolpaths menu.
+Probe operation parameters are set in the Probing Dialog box. Your selections
+generate the following:
+ 	Probe calibration
+ 	Tool settings
+
+-- 8 of 34 --
+
+USING PRODUCTIVITY+ IN MASTERCAM 5
+ 	Inspection cycles for measuring different aspects of your part
+ 	Machine update cycles to adjust to the taken measurements
+ 	Reports
+ 	Logic statements to vary the response based on measurements
+ 	Label statements to use as reference points within the probe operation tree
+See Mastercam Help for more information on the functions and options available in
+this dialog box.
+Use Renishaw’s embedded Help for more detailed information on the parameters you
+set for each function. Hover over a setting, or click it to display Help information at the
+bottom of the dialog box. If the Help topic contains more information than will fit in
+that section, you can either use the vertical scrolling bar, or resize the Probing Dialog
+window.
+
+-- 9 of 34 --
+
+6 MASTERCAM X8/ Productivity+ in Mastercam
+TIP: A warning symbol or a red X to the left of a setting indicates a
+missing or erroneous value/parameter. Hover over the setting for more
+information.
+Posts
+Probing operations require an additional processing step before they are posted to
+your machine. This additional processing incorporates instructions from the selected
+Renishaw machine file (.RenMF) and is initiated from the Probing Post Tool dialog box
+which displays after you accept the settings in Mastercam’s standard Post Processing
+dialog box. (See Mastercam Help for more information on Post Processing dialog box.)
+
+-- 10 of 34 --
+
+USING PRODUCTIVITY+ IN MASTERCAM 7
+In order to successfully create probing
+output, you must have a post processor with
+probing enabled and a .RenMF customized
+for your specific machine. Select the .RenMF
+after you have initiated the post from the
+Probing Post Tool dialog box, or when you
+configure your probe operation from the
+Probe Configuration dialog box.
+For more information on post files and posting probe operations in Mastercam, see
+page 23.
+
+-- 11 of 34 --
+
+8 MASTERCAM X8/ Productivity+ in Mastercam
+Generating Probe Operations
+Productivity+ is used for tool and part setup, in-process gauging, and post process
+inspection. It uses a measuring probe—via a Mastercam probe operation—on a
+machine tool to determine fixture offsets, orientation, and critical dimensions.
+This guide uses the sample part, PROBING EXAMPLE 1_MM.MCX-8, located in
+..\shared mcamx8\mcx\probe, to demonstrate some of the available probe opera-
+tions.
+NOTE: Regenerate all operations upon opening the sample part.
+Setting Up Your Probing Module and Stylus
+Before you can create a probing operation, your probe and stylus information needs
+to be identified to the Renishaw software within Mastercam. The Select probe dialog
+box opens the first time you create a probe operation.
+The buttons on the right-side of the dialog box perform the following:
+ 	Edit - Opens the Edit Probe dialog box, where you can edit the properties of
+the current probing module and stylus.
+
+-- 12 of 34 --
+
+GENERATING PROBE OPERATIONS 9
+ 	Create - Opens the Edit Probe dialog box, where you can create a new
+probing module and stylus.
+ 	Delete - Deletes the selected probing module from the database (completing
+this action requires confirmation).
+ 	Import - Imports a probing database (.RenPD) from another source.
+ 	Advanced - Expands the Select probe dialog box to display properties of the
+current probing module and stylus.
+Configure your probe and stylus by editing the following parameters.
+1 	Change the default Probe name to
+more easily identify your machine/
+probe installation.
+2 	Set the Tool change ID to the tool
+slot that your machine uses for the
+probe.
+3 	Click the Probe module drop-down
+to choose the probing module
+installed on your machine.
+4 	Click the Stylus drop-down to
+choose the stylus attached to your
+probe module.
+5 	Click OK to save your probe
+information to the database
+(.RenPD).
+The Probing Dialog opens after you
+have configured your probe and stylus
+information.
+
+-- 13 of 34 --
+
+10 MASTERCAM X8/ Productivity+ in Mastercam
+CAUTION: Calibrate your probe with your controller as well as with
+your Productivity+ software before attempting to use it in production.
+Create a calibration cycle from within Mastercam by selecting the Probe
+Calibration button in the Probing Dialog toolbar.
+Tool Setting
+Prior to machining, use Productivity+ to establish tool offsets. Use the probe’s
+breakage detection during processing to determine aberrations in tool diameter and
+length.
+Measuring Tool Length and Diameter
+In one probe operation, you can establish tool offsets for all tools in the tool maga-
+zine. The procedure below describes the basic steps that are required to create a tool
+setting cycle. Specific settings are determined by your machine control and tool setter.
+1 	Create a probe operation by
+selecting Probe from the Toolpaths
+menu.
+The Probing Dialog box opens.
+2 	Select your tool setter type (contact
+or non-contact) from the Tool
+Setting menu.
+
+-- 14 of 34 --
+
+GENERATING PROBE OPERATIONS 11
+3 	From the fly-out menu, choose a tool length/diameter for your control, or
+select the generic option.
+4 	Enter the necessary tool information.
+(Tool change ID and tool offset
+index number)
+TIP: Enter 0 to match the tool offset
+index to the tool change ID for any
+value greater than 9.
+5 	Select the type of measurement to perform from the options in the
+Measurement Type drop-down menu.
+6 	Set the remaining parameters as necessary.
+7 	Click OK.
+Breakage Detection
+Probe operations can monitor tool integrity during the cutting process. The procedure
+below describes the basic steps that are required to create a tool inspection cycle.
+Specific settings are determined by your machine control and tool setter.
+1 	Create a probe operation.
+2 	Choose the Broken Tool Detection
+option from the Tool Setting menu.
+3 	From the fly-out menu, select a tool
+setter for your control, or select the
+generic option.
+
+-- 15 of 34 --
+
+12 MASTERCAM X8/ Productivity+ in Mastercam
+4 	Enter the necessary tool information.
+(Tool change ID and tool offset
+index number)
+5 	Set the remaining parameters, as necessary.
+6 	Click OK.
+Measuring
+Probing operations use measurements
+obtained from selected or constructed enti-
+ties to execute process control tasks. Select a
+probe method from the options on the
+Probing Dialog toolbar and enter data, as
+necessary, to create an inspection cycle.
+You can probe the following features:
+ 	Points, Lines, Circles/Arcs, and
+Planes
+ 	2D Corners and 3D Corners
+
+-- 16 of 34 --
+
+GENERATING PROBE OPERATIONS 13
+ 	Webs or Pockets
+Machine Updates
+Operation 1 in the sample part shows an example of using a probe operation to estab-
+lish the part position and then updating the machine settings based on the measure-
+ments.
+As with other Mastercam toolpaths, you can
+click in the Toolpaths Manager to view the
+operation’s settings. Open the Operation 1
+parameters to see how each inspection cycle
+is used to update the machine.
+Cycle1/Update2 – Establish Top of Part
+Cycle1 probes a point at the part top.
+
+-- 17 of 34 --
+
+14 MASTERCAM X8/ Productivity+ in Mastercam
+Update2 redefines the selected WCS by changing the Z coordinate to equal the
+measured point in Cycle1.
+TIP: You can make the following machine updates with Productivity+ by
+selecting an option from the Update Type drop-down list:
+ WCS Update 	 Tool Lengths
+ Tool Diameters 	 Machine Variable
+ Rotation Update
+
+-- 18 of 34 --
+
+GENERATING PROBE OPERATIONS 15
+Cycle2a/Update6 – Establish Part Center
+Cycle2a probes a series of points on all four
+sides of the part. This computes the location
+and dimensions of the Pocket feature.
+TIP: Feature characteristics obtained from a probe can be reported to
+the user, used in calculations, or used in logic statements.
+Update6 redefines the selected WCS by changing the X and Y coordinates to equal
+those measured in Cycle2a, establishing the part center.
+
+-- 19 of 34 --
+
+16 MASTERCAM X8/ Productivity+ in Mastercam
+NOTE: The options listed for WCS to Update are populated by the
+planes that are created in Mastercam’s Plane Manager. Work offset
+numbers assigned in the Plane Manager will automatically be used when
+the plane is changed in the probing operation. See Mastercam Help for
+more information about the Plane Manager.
+Remachining
+Operation 7 in the sample part shows an example of creating a probe operation to
+check the feature for out-of-tolerance measurements. If the probing cycle picks up
+out-of-tolerance measurements, you can program Productivity+ to modify the tool
+offsets (length, diameter, or wear) and remachine the feature. In cases where rema-
+chining cannot repair the feature (i.e., oversized holes), you can also program Produc-
+tivity+ to stop the machine.
+Open the Operation 7 parameters to see
+how Productivity+ uses logic statements to
+remachine features.
+The Inspection Cycle
+Cycle4 probes the selected circle, checking
+its center point and diameter.
+The Measure Circle function probes points within the hole to establish its inner diam-
+eter (ID).
+
+-- 20 of 34 --
+
+GENERATING PROBE OPERATIONS 17
+The Logic Statement
+Build logic statements by creating conditions
+and actions from the options in the Probing
+Dialog toolbar:
+ 	If...Then
+ 	Else If
+ 	Else
+To enter or edit a condition statement—the
+If or Else If portions of the logic branch—
+open the Condition Builder dialog box. From
+the Probing Dialog click the condition field,
+and then click the Browse button on the
+right side of the field.
+
+-- 21 of 34 --
+
+18 MASTERCAM X8/ Productivity+ in Mastercam
+The Condition Builder dialog box
+In the Condition Builder dialog box, a Controlling Condition defines the relationship
+between any two of the following:
+ 	measured entities (defined in any probing cycle)
+ 	constructed entities (defined in any probing cycle)
+ 	nominal values
+Condition options (Condition 1 and Condition 2) can refer to any feature you have
+defined in any probing cycle or to a nominal value that you enter.
+TIP: In the Condition Builder, you can right-click on a feature to quickly
+select an entity attribute or the nominal value of a entity.
+In Operation 7, the If statement checks the
+probed diameter of Circle1 to a nominal
+value of 19.5 mm.
+Add the actions you would like performed to the Then or Else portions of the logic
+branch. Action statements would typically be a machine update, g-code block, or
+GoTo statement.
+Labels and GoTo Statements
+A Label creates a reference point in a
+probing cycle or operation. A GoTo state-
+ment programs the machine to jump forward
+
+-- 22 of 34 --
+
+GENERATING PROBE OPERATIONS 19
+or back to that reference point to skip opera-
+tions or repeat them. All GoTo statements
+must reference a label.
+Operation 7 lists two different courses of action based on whether the measured
+diameter is less than 19.5 mm or not:
+ 	If the diameter of Circle1 is less than
+19.5 mm, the Then statement
+programs a machine update that
+modifies the tool diameter offset
+and then returns the process to a
+label (Label2) established in
+Operation 5, so that the part can be
+remachined with the Contour
+toolpath (Operation 6).
+ 	Else (if the diameter is not less than
+19.5 mm), the process should
+proceed to Label 4, which is located
+in Operation 8.
+TIP: Open the parameters for Operations 5 and 8 to view Label2 and
+Label4.
+Reporting
+With any probe cycle, you have the option to output measured data into a report to a
+file or RS232 port. Operation 3 in the sample part uses a probe operation to inspect
+part features after machining and generate a report.
+NOTE: The report format is generated by your control’s library macros
+and depends on your machine control.
+
+-- 23 of 34 --
+
+20 MASTERCAM X8/ Productivity+ in Mastercam
+Open the Operation 3 parameters to see
+how Productivity+ generates reports.
+Cycle3 – Inspect
+Cycle3 inspects three selected points to
+establish a plane.
+Cycle6 – Report
+Cycle6 generates a report that lists the
+outcome of Cycle3.
+Follow these steps to create a report.
+1 	Select the Reporting button to
+create a reporting cycle.
+
+-- 24 of 34 --
+
+GENERATING PROBE OPERATIONS 21
+2 	Drag measured or constructed
+entities to be referenced on to the
+report statement.
+The sample part generates a report fairly early in the cutting process. However, you
+can generate reports at any time: before, during, or after machining.
+
+-- 25 of 34 --
+
+22 MASTERCAM X8/ Productivity+ in Mastercam
+
+-- 26 of 34 --
+
+Productivity+ and Mastercam Posts
+When you post a part with a properly configured Mastercam post, it interacts with the
+.RenMF file to create both probing and machining code. If your Mastercam post
+processor has not been properly configured, probing operations will not be incorpo-
+rated in the NC output.
+CNC Software, Inc. provides a HAAS post and supporting files with the install. Please
+contact your local Mastercam Reseller about post customization for other machine
+tools.
+Included files
+By default, Mastercam X8 includes the following files to support probe operations on a
+generic Haas 4-axis Mill machine:
+ 	Renishaw Sample Files. Sample Mastercam part files to test the
+Productivity+ features and output.
+..\shared mcamx8\mcx\probe
+ 	Renishaw Posts (.RenMF).
+Also known as Renishaw machine files. Includes
+one file for each of the supported controls for both inch and metric use.
+..\shared mcamx8\common\PROBEDATA
+ 	Mastercam MD-CD. Machine definitions for inch and metric use; a control
+definition; and a .PST file properly configured for probing.
+..\shared mcamx8\CNC_MACHINES
+..\shared mcamx8\Mill\Posts
+The machine and control definition files are generic and do not contain any
+settings that are necessary for Productivity+ support; they simply link to the
+proper Mastercam post processors. You can use any valid Mill machine or
+control definition so long as you configure it to point to a properly configured
+post.
+IMPORTANT: The Productivity+ feature has only been tested with Mill
+posts.
+
+-- 27 of 34 --
+
+24 MASTERCAM X8/ Productivity+ and Mastercam Posts
+Posting Probe Operations
+1 	Create a part using one of the Productivity+ enabled machine definitions
+(.MMD-8), or load one of the sample parts.
+TIP: If your part was NOT created with a Productivity+ enabled machine
+definition, replace its current machine definition with one that points to a
+properly configured post.
+2 	Select the desired operations and
+click the Post button.
+The Post processing dialog box
+displays.
+3 	Click OK.
+
+-- 28 of 34 --
+
+POSTING PROBE OPERATIONS 25
+The posting process begins and the Probing Post Tool dialog box displays.
+4 	Click the Browse button next to the
+Renishaw Machine File path.
+5 	Select the desired Renishaw machine file.
+TIP: Click the Strip NC button to remove all probing calls from the
+posted NC code.
+
+-- 29 of 34 --
+
+26 MASTERCAM X8/ Productivity+ and Mastercam Posts
+IMPORTANT: Remember that the Renishaw machine file must be
+customized for your specific machine before you can run the posted
+code. Refer to your Renishaw product documentation.
+6 	Click the Process button.
+When processing completes, the Log Output tab displays the processing
+results.
+7 	Click the Done button.
+Mastercam completes the posting process.
+The following picture shows how some sample posted code looks in Mastercam’s
+Code Editor.
+Conclusion
+Productivity+ in Mastercam X8 provides a powerful and consistent interface for fast
+and reliable probing operations. This guide is merely an introduction to its capabilities.
+Use the following resources to improve your experience with this and other
+Mastercam products.
+
+-- 30 of 34 --
+
+MASTERCAM RESOURCES 27
+Mastercam Resources
+Enhance your Mastercam experience by using the following resources:
+	
+Mastercam Help—Access Mastercam Help by selecting Help, Contents from
+Mastercam’s menu bar or by pressing [Alt+H] on your keyboard.Also, most
+dialog boxes and ribbon bars feature a Help button that opens Mastercam
+Help directly to related information.
+	
+Mastercam Reseller—Your local Mastercam Reseller can help with most
+questions about Mastercam.
+	
+Technical Support—CNC Software’s Technical Support department (860-875-
+5006 or support@mastercam.com) is open Monday through Friday from 8:00
+a.m. to 5:30 p.m. USA Eastern Standard Time.
+	
+Mastercam University—CNC Software sponsors Mastercam University, an
+affordable online learning platform that gives you 24/7 access to Mastercam
+training materials. Take advantage of more than 180 videos to master your
+skills at your own pace and help prepare yourself for Mastercam Certification.
+For more information on Mastercam University, please contact your
+Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+training@mastercam.com.
+	
+Online communities— You can find a wealth of information, including many
+videos, at www.mastercam.com.
+For tech tips and the latest Mastercam news, you can join us on Facebook
+(www.facebook.com/mastercam), follow us on Twitter
+(www.twitter.com/mastercam), and subscribe to our blog,
+Mastercam Xtras
+(http://blog.mastercam.com). Visit our YouTube channel to see Mastercam in
+action (www.youtube.com/user/MastercamCadCam)!
+Registered users can search for information or ask questions on the
+Mastercam Web forum, forum.mastercam.com, or use the knowledge base at
+kb.mastercam.com. To register, select Help, Link on Mastercam.com from
+the Mastercam menu and follow the instructions.
+Mastercam Documentation
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+	
+What’s New in Mastercam X8
+	
+Mastercam X8 Installation Guide
+
+-- 31 of 34 --
+
+28 MASTERCAM X8/ Productivity+ and Mastercam Posts
+	
+Mastercam X8 Administrator Guide
+	
+Mastercam X8 Transition Guide
+	
+Mastercam X8 Quick Reference Card
+	
+Mastercam X8 Post Debugger User’s Guide
+	
+Getting Started with Renishaw Productivity+™
+	
+Mastercam X8 ReadMe
+Contact Us
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+
+-- 32 of 34 --
+
+
+
+-- 33 of 34 --
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+Attention! Updates may be available.
+Go to Mastercam.com/Support for the latest downloads.
+
+-- 34 of 34 --
+
+</pre>
+</body></html>

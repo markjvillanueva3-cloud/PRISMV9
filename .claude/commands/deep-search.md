@@ -1,8 +1,17 @@
 ---
 description: Search-first then deep-reason fallback. Runs master_index_query first; if top hits all score below the confidence floor, escalates to model deep-reasoning with the master-index hits pre-loaded as context. Cuts token waste on shallow lookups while keeping neural-grade answers for ambiguous queries.
 allowed-tools: mcp__prism_safe__prism_session, mcp__prism_safe__prism_intelligence, Read, Grep, Glob
+composes_with:
+  - "/awareness-snapshot"
+  - "/build-state"
+  - "/master-index"
+  - "/system-viz"
+  - "/utilization-dashboard"
+consumes:
+  - "prism_intelligence:ai_milling_deep_reason"
+  - "prism_session:master_index_node_status"
+  - "prism_session:master_index_query"
 ---
-
 # /deep-search — Search first · reason second · neural last
 
 The deliberate two-stage pattern the user asked for: *"set it up so we can utilize the obsidian brain and /system-viz as a master index for quick searching to hopefully save on search tool calls"* + *"utilize our deep learning and deep reasoning and neural network effectively."*

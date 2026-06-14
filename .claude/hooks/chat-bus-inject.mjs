@@ -29,6 +29,7 @@ import * as path from "node:path";
 import { spawnSync } from "node:child_process";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { stripLoneSurrogates } from "../../scripts/lib/safe-truncate.mjs";
 
 function readStdinSafe() {
   try {
@@ -294,7 +295,7 @@ async function main() {
       continue: true,
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: brief,
+        additionalContext: stripLoneSurrogates(brief),
       },
     })
   );

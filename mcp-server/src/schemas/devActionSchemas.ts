@@ -52,9 +52,278 @@ const _scContextState = z.object({
   sessionAgeMinutes: z.number().nonnegative().optional().describe("Session age in minutes"),
 }).passthrough();
 
+// U-WIRE-ENTROPY: EntropyTrackerEngine asset/domain distribution sub-schemas (slot:papa 2026-06-13)
+const _entropyAssetDist = z.object({
+  engines: z.number().nonnegative(), actions: z.number().nonnegative(),
+  formulas: z.number().nonnegative(), hooks: z.number().nonnegative(),
+  skills: z.number().nonnegative(), scripts: z.number().nonnegative(),
+  dispatchers: z.number().nonnegative(), total: z.number().nonnegative().optional(),
+}).passthrough();
+const _entropyDomainDist = z.object({
+  force: z.number().nonnegative(), thermal: z.number().nonnegative(),
+  surface: z.number().nonnegative(), tool_life: z.number().nonnegative(),
+  stability: z.number().nonnegative(), safety: z.number().nonnegative(),
+  quality: z.number().nonnegative(), business: z.number().nonnegative(),
+  cad_cam: z.number().nonnegative(), infrastructure: z.number().nonnegative(),
+  total: z.number().nonnegative().optional(),
+}).passthrough();
+
+// U-WIRE-FORMAL: FormalVerificationEngine (Z3) input sub-schemas (slot:papa 2026-06-13)
+const _formalBoundedIntVar = z.object({
+  name: z.string().min(1),
+  min: z.number().int(),
+  max: z.number().int(),
+});
+const _formalLinearConstraint = z.object({
+  terms: z.record(z.string(), z.number()),
+  op: z.enum(["<=", ">=", "="]),
+  rhs: z.number(),
+});
+
 export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
+  // U-WIRE-DR: DisasterRecoveryEngine read actions (slot:papa 2026-06-11)
+  dr_plan: z.object({}).optional(),
+  dr_stats: z.object({}).optional(),
+  dr_scenarios: z.object({
+    tier: z.enum(["tier-0", "tier-1", "tier-2"]).optional(),
+    category: z.enum(["hardware_failure", "network_outage", "data_corruption", "region_failure", "ransomware", "human_error", "supply_chain"]).optional(),
+  }).optional(),
+  // U-WIRE-BACKUP: BackupRestoreDrillEngine read actions (slot:papa 2026-06-11)
+  backup_plan: z.object({}).optional(),
+  backup_stats: z.object({}).optional(),
+  backup_drill_compliance: z.object({}).optional(),
+  backup_assets: z.object({
+    tier: z.enum(["tier-0", "tier-1", "tier-2"]).optional(),
+    category: z.enum(["training_data", "model_weights", "database", "config_store", "audit_logs", "object_storage", "secrets_vault"]).optional(),
+  }).optional(),
+  // U-WIRE-CHAOS: ChaosDrillSchedulerEngine read actions (slot:papa 2026-06-11)
+  chaos_stats: z.object({}).optional(),
+  chaos_scenarios: z.object({
+    category: z.enum(["latency_injection", "process_restart", "attestation_tamper", "tenant_isolation", "dr_failover", "rate_limit_overflow", "kms_rotation", "audit_gap", "capacity_saturation", "clock_skew"]).optional(),
+    cadence: z.enum(["weekly", "monthly", "quarterly", "ad_hoc"]).optional(),
+    severity: z.enum(["low", "medium", "high", "critical"]).optional(),
+  }).optional(),
+  chaos_executions: z.object({
+    scenario_id: z.string().optional(),
+    status: z.enum(["planned", "running", "passed", "failed", "aborted", "rolled_back", "skipped"]).optional(),
+    environment: z.enum(["staging", "canary", "production"]).optional(),
+  }).optional(),
+  chaos_coverage: z.object({
+    windowDays: z.number().int().positive().max(3650).optional(),
+  }).optional(),
+  // U-WIRE-LOKI: LokiLogSinkEngine read actions (slot:papa 2026-06-13)
+  loki_stats: z.object({}).optional(),
+  loki_config: z.object({}).optional(),
+  loki_retention: z.object({}).optional(),
+  loki_query: z.object({
+    labels: z.record(z.string(), z.string()).optional(),
+    levelMin: z.enum(["debug", "info", "warn", "error", "fatal"]).optional(),
+    traceId: z.string().optional(),
+    tenantId: z.string().optional(),
+    startTime: z.number().nonnegative().optional(),
+    endTime: z.number().nonnegative().optional(),
+    limit: z.number().int().positive().max(10000).optional(),
+    pattern: z.string().optional(),
+  }).optional(),
+  // U-WIRE-TENANT-ONBOARD: TenantOnboardingRunbookEngine read actions (slot:papa 2026-06-13)
+  tenant_onboarding_stats: z.object({}).optional(),
+  tenant_onboarding_runbook: z.object({}).optional(),
+  tenant_onboarding_report: z.object({}).optional(),
+  tenant_onboarding_tenants: z.object({
+    tier: z.enum(["enterprise", "mid-market", "smb"]).optional(),
+    status: z.enum(["pending", "in_progress", "active", "suspended"]).optional(),
+    region: z.string().optional(),
+  }).optional(),
+  // U-WIRE-ENTROPY: EntropyTrackerEngine compute actions (slot:papa 2026-06-13)
+  entropy_report: z.object({ assetDist: _entropyAssetDist, domainDist: _entropyDomainDist }),
+  entropy_measure_asset: z.object({ assetDist: _entropyAssetDist }),
+  entropy_recommend: z.object({ assetDist: _entropyAssetDist }),
+  // U-WIRE-FORMAL: FormalVerificationEngine (Z3 SAT/SMT) actions (slot:papa 2026-06-13)
+  formal_prove: z.object({
+    variables: z.array(_formalBoundedIntVar).min(1),
+    assumptions: z.array(_formalLinearConstraint),
+    goal: _formalLinearConstraint,
+    timeoutMs: z.number().int().positive().optional(),
+  }),
+  formal_satisfy: z.object({
+    variables: z.array(_formalBoundedIntVar).min(1),
+    constraints: z.array(_formalLinearConstraint),
+    timeoutMs: z.number().int().positive().optional(),
+  }),
+  formal_ready: z.object({}).optional(),
   session_boot: z.object({}).optional(),
+  // U-WIRE-SHOP-OUTCOME-INGEST: JSONL outcome-ledger ingest → outcome DB generation.
+  // normalizeParams is an alias map for manufacturing params only (NOT a generic
+  // snake→camel) so path params arrive snake_case as the caller sent them.
+  shop_outcome_ingest: z.object({
+    input_path: z.string().min(1).describe("Path to a JSONL outcome ledger (one OutcomeLedgerRecord per line)"),
+    sink_path: z.string().optional().describe("Optional output DB path — appends one LoopIngestResult per processed row"),
+  }),
+  // U-WIRE-GCODE-MATERIAL-PARSE: extract workpiece material + ISO group from a G-code program header.
+  gcode_material_parse: z.object({
+    program: z.string().min(1).describe("The G-code program text to scan for a material callout"),
+    header_window_lines: z.number().int().positive().optional().describe("Override the header window (non-blank lines scanned)"),
+    scan_full_program: z.boolean().optional().describe("Scan the full program, not just the header (lower precision, higher recall)"),
+  }),
+  // U-WIRE-DEPENDENCY-CYCLE-ANALYZE: Tarjan SCC + Kahn topo-sort cycle detection over a supplied graph.
+  dependency_cycle_analyze: z.object({
+    nodes: z.array(z.object({
+      id: z.string().min(1).describe("Unique node id"),
+      type: z.enum(["engine", "hook", "dispatcher", "file", "action", "skill"]).describe("Node kind"),
+      path: z.string().optional().describe("Optional source path"),
+    })).min(1).describe("Dependency graph nodes (at least one)"),
+    edges: z.array(z.object({
+      from: z.string().min(1).describe("Source node id"),
+      to: z.string().min(1).describe("Target node id"),
+      type: z.enum(["imports", "calls", "triggers", "writes", "reads"]).optional().describe("Edge relation (default imports)"),
+    })).optional().describe("Directed edges; endpoints not in `nodes` are added automatically so cycles are never missed"),
+    critical: z.array(z.string()).optional().describe("Node ids to mark critical — cycles involving them surface in criticalPaths"),
+  }),
+  // U-WIRE-PSN-HEALTH-CHECK: classify the 11 PSN-leg health from caller-assembled signal inputs.
+  psn_health_check: z.object({
+    inputs: z.record(z.string(), z.unknown()).optional().describe("Per-leg signal inputs (LegInputs shape: obsidian/prismOs/wiki/memories/tribal/systemViz/engines/algorithms/formulas/nnGnn/prismAi); missing legs render 'unknown'. The engine validates the per-leg shapes."),
+  }),
+  // U-WIRE-MSA-ANALYZE: Gage R&R via crossed ANOVA (AIAG MSA 4th ed).
+  msa_analyze: z.object({
+    measurements: z.array(z.array(z.array(z.number()))).min(1).describe("3D array measurements[part][appraiser][trial], rectangular; needs >=2 parts and >=2 trials"),
+    tolerance: z.number().positive().optional().describe("USL-LSL for the %Tolerance column"),
+    processVariation: z.number().positive().optional().describe("Historical 6-sigma; overrides computed total variation"),
+  }),
+  // U-WIRE-SIM-STALL: simulation-pipeline stall watchdog (stage budgets: gcode_parse 5s / kinematics 10s / collision_check 30s / physics_validate 20s / finalize 5s).
+  sim_stall_start_tracking: z.object({
+    job_id: z.string().min(1).describe("Unique simulation job id"),
+    stage: z.enum(["gcode_parse", "kinematics", "collision_check", "physics_validate", "finalize"]).describe("Current pipeline stage"),
+    now_ms: z.number().describe("Epoch ms 'now' (injected so the watchdog is deterministic)"),
+    context: z.record(z.string(), z.unknown()).optional().describe("Optional job context attached to stall events"),
+  }),
+  sim_stall_mark_progress: z.object({
+    job_id: z.string().min(1),
+    now_ms: z.number().describe("Epoch ms of the progress heartbeat (resets the stall timer)"),
+  }),
+  sim_stall_scan: z.object({
+    now_ms: z.number().describe("Epoch ms 'now' to evaluate stalls against stage budgets"),
+    job_id: z.string().optional().describe("If set, scan only this job (scanOne); else scan all tracked jobs"),
+  }),
+  sim_stall_stats: z.object({ now_ms: z.number().describe("Epoch ms 'now' for the currently_stalled count") }),
+  sim_stall_complete: z.object({ job_id: z.string().min(1).describe("Job to stop tracking (completed/cancelled)") }),
   build: z.object({ fast: z.boolean().optional() }).optional(),
+
+  // ── PSN-INCORPORATION-MS0/U-AUTOMATE-WIRE (charlie /goal-7 iter4) — 5 actions ──
+  // MCP surface for PSNIncorporationOrchestratorEngine (commit 58a480d778). Closes
+  // the wiring gap flagged by stop_on_unwired_assets after the engine shipped.
+  // Doctrine: feedback_psn_definition leg #11, CLAUDE.md §ENGINE WIRING.
+  psn_incorp_list_eligible: z.object({}).optional()
+    .describe("List all eligible DL/ML/reasoning units from PSN-INCORPORATION-MS0 envelope"),
+  psn_incorp_plan_coverage: z.object({}).optional()
+    .describe("Report how many eligible units have implementation plans on disk"),
+  psn_incorp_pick_for_slot: z.object({
+    slot: z.string().min(1).regex(/^[a-z]+$/i, "slot must be NATO phonetic name only")
+      .describe("Slot soul name (alpha, bravo, charlie, ..., zulu) for domain-regex filtering"),
+  }).describe("Filter eligible units to a slot's domain regex (charlie=wire, etc.)"),
+  psn_incorp_get_unit: z.object({
+    unitId: z.string().min(1).regex(/^[A-Za-z0-9_:.\-]+$/, "unitId must be roadmap-id charset")
+      .describe("Unit ID (e.g. U-PSN-R3-VER-02)"),
+  }).describe("Get full envelope record for a single PSN-INCORP unit"),
+  psn_incorp_read_plan: z.object({
+    unitId: z.string().min(1).regex(/^[A-Za-z0-9_:.\-]+$/, "unitId must be roadmap-id charset")
+      .describe("Unit ID whose implementation plan to read"),
+  }).describe("Read the on-disk implementation plan for a unit, if generated"),
+
+  // ── PSN-AUTONOMY-R4 / U-AUTONOMY-LOOP-WIRE (charlie /goal-9 iter4) — Primitives 2-5 surface ──
+  // Wires PSNAutonomyLoopEngine to MCP per CLAUDE.md §ENGINE WIRING. Engine bundles
+  // outcome-reward (P2) + trainer manifest (P3) + Wilcoxon shadow-compare (P4) + EWC++ (P5).
+  psn_autonomy_score_event: z.object({
+    event: z.object({
+      type: z.enum(["unit_shipped", "scrutiny_outcome", "scoped_commit"]),
+      ts: z.string().min(1),
+      slot: z.string().optional().nullable(),
+      passed: z.boolean().optional(),
+    }).passthrough(),
+  }).describe("P2: score a single signal event into a unified 0..1 reward"),
+  psn_autonomy_trainer_manifest: z.object({
+    events: z.array(z.object({}).passthrough()),
+  }).describe("P3: build a trainer manifest with per-slot mean reward + recommended targets"),
+  psn_autonomy_shadow_compare: z.object({
+    pairs: z.array(z.object({ old: z.number(), new: z.number() }).strict())
+      .describe("Paired (old_adapter_score, new_adapter_score) tuples from N-hour shadow run"),
+  }).describe("P4: Wilcoxon signed-rank test for safe adapter promotion (≥10 pairs required)"),
+  psn_autonomy_ewc_regularize: z.object({
+    current: z.array(z.number()).describe("Current weights θ_i"),
+    reference: z.array(z.number()).describe("Frozen reference weights θ*_i"),
+    fisher: z.array(z.number()).describe("Fisher information F_i per parameter"),
+  }).describe("P5: compute EWC regularization term L_reg = Σ (F_i/2)(θ_i − θ*_i)²"),
+
+  // ── SVI-ENHANCE-MS0 / U-SVI-E01 + U-SVI-E07 (charlie /goal-12 iter1) — 9-component live Ψ + 5-axis MOAT product ──
+  svi_enhanced_compute: z.object({
+    signals: z.object({}).passthrough().describe("SVISourceSignals — see SVIEnhancedCalculatorEngine.ts for full shape"),
+    moat_weights: z.object({
+      coverage: z.number(),
+      depth: z.number(),
+      cross_coupling: z.number(),
+      quality: z.number(),
+      compounding_rate: z.number(),
+    }).optional().describe("Override default MOAT axis weights (must sum to 1.0)"),
+  }).describe("Compute 9-component Ψ_new + 5-axis MOAT geometric-mean product from live source signals"),
+  svi_moat_score: z.object({
+    axes: z.array(z.number()).describe("5 axis values in [0,1]"),
+    weights: z.array(z.number()).describe("Axis weights (must sum to 1.0)"),
+  }).describe("Pure geometric-mean primitive — exposed for direct callers"),
+  svi_kolmogorov_bound: z.object({
+    artifactsBits: z.number().describe("Total information content of PRISM artifacts in bits (Shannon entropy estimate)"),
+    validationDensity: z.number().describe("Fraction validated 0..1 — scrutiny passes / artifact"),
+    nonDerivableFraction: z.number().describe("Fraction NOT acquirable from public sources 0..1"),
+    productivityBitsPerDevYear: z.number().optional().describe("Competitor productivity assumption (default 1e6)"),
+  }).describe("Lower-bound estimate on competitor re-derivation time (Kolmogorov-complexity moat bound)"),
+
+  // ── U-SVI-E08 + U-SVI-E09 (charlie /goal-12 iter4) — live K-bound + MI weight learner ──
+  svi_kolmogorov_live: z.object({
+    stats: z.object({}).passthrough().describe("Per-subsystem artifact counts + avg-bytes + scrutiny_pass_rate"),
+  }).describe("Live Kolmogorov bound from real PRISM artifact stats (per-subsystem breakdown)"),
+  svi_mi_weight_learner: z.object({
+    componentTimeseries: z.record(z.array(z.number())).describe("Per-component time series of Ψ_k values"),
+  }).describe("Auto-tune Ψ component weights from mutual-information centrality (Pearson proxy)"),
+
+  // ── PROGRAM-PROOF-MS0 / U-PP01 (charlie /goal-12 iter5) — JM Die machine envelope catalog ──
+  jm_die_envelope_catalog: z.object({}).optional().describe("Returns all 15+ JM Die machine envelopes with travel limits + accuracy tier"),
+  jm_die_envelope_lookup: z.object({
+    machineId: z.string().describe("e.g. LTH-01, VMC-01, WEDM-01"),
+  }).describe("Look up one machine envelope by ID"),
+  jm_die_envelope_query: z.object({
+    machine_class: z.enum(["lathe", "mill", "sinker_edm", "wire_edm", "grinder"]).optional(),
+    controller_family: z.string().optional(),
+    min_accuracy_um: z.number().optional(),
+  }).describe("Filter the catalog by class, controller, or accuracy bound"),
+  jm_die_envelope_point_inside: z.object({
+    machineId: z.string(),
+    point: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+  }).describe("Axis-aligned point-in-envelope check (foundation for U-PP05 pre-emit gate)"),
+
+  // ── PROGRAM-PROOF-MS0 / U-PP02 + U-PP03 (charlie /goal-12 iter6) ──
+  program_proof_interval_predicate: z.object({
+    op: z.enum(["pointInBox", "segmentDistance", "combine"]),
+    args: z.object({}).passthrough(),
+  }).describe("Interval-arithmetic safe predicate (Moore 1966) — definitely-safe | definitely-collision | inconclusive"),
+  program_proof_certify: z.object({
+    machineId: z.string().describe("Target machine (e.g. VMC-01, LTH-01, WEDM-01)"),
+    points: z.array(z.object({
+      x: z.number(), y: z.number(), z: z.number(),
+      uncertainty_um: z.number().optional(),
+    })).describe("Program point sequence (XYZ in mm)"),
+  }).describe("Produce a signed ProofCertificate for the program — verdict + witnesses + margins (U-PP03 orchestrator)"),
+
+  // ── U-SVI-E10 (charlie /goal-12 iter5) — Monte Carlo competitor simulation ──
+  svi_competitor_simulation: z.object({
+    prismSviMoat: z.number().describe("Current PRISM SVI_MOAT (the bar to defend)"),
+    profile: z.object({
+      coverage_mean: z.number(), coverage_var: z.number(),
+      depth_mean: z.number(), depth_var: z.number(),
+      cross_coupling_mean: z.number(), cross_coupling_var: z.number(),
+      quality_mean: z.number(), quality_var: z.number(),
+    }).describe("Synthetic competitor distribution (time-locked axes forced to 0)"),
+    nSamples: z.number().optional().describe("Monte Carlo sample count (default 10000)"),
+    seed: z.number().optional().describe("PRNG seed (default 42, deterministic)"),
+  }).describe("Monte Carlo competitor sim — P(competitor SVI_MOAT ≥ PRISM SVI_MOAT). Target: ≤0.000"),
+
   code_template: z.object({ template: z.string() }).optional(),
   code_search: z.object({ pattern: z.string(), maxResults: z.number().optional() }).optional(),
   file_read: z.object({ path: z.string() }).optional(),
@@ -747,6 +1016,35 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     text: z.string().describe("Text to truncate at a word boundary"),
     max_len: z.number().int().positive().max(10000).optional().describe("Max length (default 100)"),
   }).passthrough().describe("Truncate text at the nearest word boundary"),
+
+  // ── WIRE-UNWIRED: OutputTruncatorEngine ─────────────────────────────────────
+  // Smart token-savings truncator distinct from compact_truncate (which is a
+  // single word-boundary cut). Preserves head + tail line counts, respects JSON
+  // shape, and exposes a savings estimator + auto-detect (json / file-list / generic).
+  output_truncate: z.object({
+    text: z.string().describe("Text to truncate"),
+    opts: z.object({
+      maxChars: z.number().int().positive().max(1_000_000).optional().describe("Char cap (default 4000)"),
+      preserveHead: z.number().int().nonnegative().max(10_000).optional().describe("Head lines to keep (default 10)"),
+      preserveTail: z.number().int().nonnegative().max(10_000).optional().describe("Tail lines to keep (default 5)"),
+      addMarker: z.boolean().optional().describe("Add '[truncated]' / '... N lines omitted ...' marker (default true)"),
+    }).passthrough().optional().describe("TruncateOptions partial"),
+  }).passthrough().describe("Smart head+tail truncation with structural marker"),
+
+  output_truncate_json: z.object({
+    data: z.unknown().describe("Any JSON-serializable value (array/object/primitive)"),
+    max_chars: z.number().int().positive().max(1_000_000).optional().describe("Char cap (default 4000)"),
+  }).passthrough().describe("Truncate JSON while preserving array/object structure"),
+
+  output_truncate_savings: z.object({
+    original: z.string().describe("Original text to estimate savings against"),
+    max_chars: z.number().int().positive().max(1_000_000).optional().describe("Char cap (default 4000)"),
+  }).passthrough().describe("Estimate {original, truncated, saved, percent} token savings"),
+
+  output_truncate_auto: z.object({
+    content: z.string().describe("Content of any shape — engine auto-detects JSON / file-list / generic"),
+    max_chars: z.number().int().positive().max(1_000_000).optional().describe("Char cap (default 4000)"),
+  }).passthrough().describe("Auto-detect content type and truncate appropriately"),
 
   // ── OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL ────────────────────────
   // PromptTemplateEngine — 7 builtin parameterized templates (engine_create,
@@ -3467,6 +3765,51 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     materialName: z.string().min(1).max(128),
   }).strict().describe("Material property lookup. Returns null if unknown."),
 
+  // ── WIRE-UNWIRED-MS0 / U-WIRE-WPL: WEDMPulseLimitEngine ──
+  // 7 read-only WEDM pulse-validation actions.
+  // DEFER: configure(config) — class=safety-critical-config-mutation.
+  // Caller could weaken max_duty_cycle, min_toff_us, etc. — those caps
+  // exist to prevent wire breakage. Surface only with auth + audit.
+  wpl_calculate_duty_cycle: z.object({
+    ton_us: z.number().positive().max(10_000),
+    toff_us: z.number().positive().max(10_000),
+  }).strict().describe("Duty cycle = ton / (ton + toff). Engine throws on ≤0."),
+
+  wpl_calculate_frequency: z.object({
+    ton_us: z.number().positive().max(10_000),
+    toff_us: z.number().positive().max(10_000),
+  }).strict().describe("Pulse frequency Hz = 1 / (ton + toff)."),
+
+  wpl_calculate_pulse_energy: z.object({
+    peak_current_A: z.number().nonnegative().max(10_000),
+    ton_us: z.number().nonnegative().max(10_000),
+    gap_voltage_V: z.number().nonnegative().max(1000).optional()
+      .describe("Gap voltage V (default 70)"),
+  }).strict().describe("Pulse energy mJ = I × V × ton."),
+
+  wpl_get_max_ton: z.object({
+    operation_type: z.enum(["roughing", "finishing", "skim"]).optional()
+      .describe("Operation type (default roughing → 50µs)"),
+  }).strict().describe("Max ton for operation. Looks up engine config."),
+
+  wpl_validate: z.object({
+    ton_us: z.number().positive().max(10_000),
+    toff_us: z.number().positive().max(10_000),
+    peak_current_A: z.number().nonnegative().max(10_000),
+    wire_diameter_mm: z.number().positive().max(10),
+    wire_material: z.string().min(1).max(64).optional(),
+    workpiece_thickness_mm: z.number().positive().max(10_000).optional(),
+    operation_type: z.enum(["roughing", "finishing", "skim"]).optional(),
+  }).describe("Full pulse-parameter safety validation."),
+
+  wpl_calculate_safe_pulse: z.object({
+    target_mrr: z.enum(["high", "medium", "low"]),
+    wire_diameter_mm: z.number().positive().max(10),
+    operation_type: z.enum(["roughing", "finishing", "skim"]).optional(),
+  }).strict().describe("Recipe lookup — safe pulse for MRR/wire/operation."),
+
+  wpl_get_config: z.object({}).strict().describe("Current pulse-limit config snapshot."),
+
   // ── WIRE-UNWIRED-MS0 / U-WIRE-CRYS: CrystallizationEngine ──
   // Pure-compute industrial crystallization (Mullin / Mersmann / Randolph-Larson
   // MSMPR). Single calculate() — no state mutation.
@@ -3819,4 +4162,138 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     target_service_level: z.number().min(0).max(1).optional()
       .describe("Target service level in [0,1] (default 0.95)"),
   }).describe("Monte Carlo capacity simulation (stochastic; pure compute, no I/O)."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-WASTE-DETECTOR ──────────────────────────────────
+  // WasteDetectorEngine — real-time tool-call waste pattern detector. Sibling of
+  // token_detect_waste (TokenEconomyTrackerEngine macro accounting) but distinct:
+  // 8 WasteType values fire on micro per-call patterns (Read/Grep/Edit/output-size).
+  // Op-discriminator pattern: single ACTIONS entry, inner switch over 7 methods
+  // (record / check_read / check_search / check_output_size / report / oneliner /
+  // reset). 'type' is z.enum (NOT z.string) per schemas.md — the engine field is
+  // a literal union of 8 values, so the enum makes the Parameters<> cast at the
+  // case site runtime-sound (lesson from U-WIRE-SESSION-EVENT-LOG 3d6aba4525).
+  waste_detector: z.object({
+    op: z.enum(["record", "check_read", "check_search", "check_output_size", "report", "oneliner", "reset"])
+      .describe("WasteDetectorEngine method discriminator"),
+    // ── record op fields ──
+    type: z.enum(["unused-read", "empty-search", "reverted-edit", "duplicate-fetch", "oversized-output", "abandoned-chain", "wrong-tool", "stale-recheck"]).optional()
+      .describe("WasteType — 8-value literal union (record op only). Matches WasteDetectorEngine.WasteType."),
+    tool: z.string().min(1).optional()
+      .describe("Tool name e.g. 'Read'|'Grep'|'Bash' (record + check_output_size ops)"),
+    detail: z.string().optional()
+      .describe("Free-form detail string (record op only; defaults to '' if omitted)"),
+    tokens_wasted: z.number().nonnegative().optional()
+      .describe("Estimated wasted tokens (record op only)"),
+    // ── check_read op fields ──
+    file: z.string().min(1).optional()
+      .describe("File path (check_read op only)"),
+    // ── check_read / check_output_size shared field ──
+    tokens_returned: z.number().nonnegative().optional()
+      .describe("Tokens returned by the tool (check_read + check_output_size ops)"),
+    // ── check_search op fields ──
+    pattern: z.string().min(1).optional()
+      .describe("Search pattern (check_search op only)"),
+    match_count: z.number().int().nonnegative().optional()
+      .describe("Number of matches the search returned (check_search op only)"),
+    tokens_used: z.number().nonnegative().optional()
+      .describe("Tokens consumed by the search (check_search op only)"),
+    // ── check_output_size op field (tool + tokens_returned shared above) ──
+    expected_max: z.number().nonnegative().optional()
+      .describe("Expected-max tokens for the tool (check_output_size op only; default 500)"),
+  }).describe("WasteDetectorEngine — real-time tool-call waste pattern detector. Op selects method; op-specific required fields are checked by the dispatcher with fail-loud ok({error}) on missing params. Stateful singleton (wasteDetectorEngine) accumulates events across MCP server lifetime."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-THROTTLE ──────────────────────────────
+  // ToolCallThrottleEngine — active rate-limiter / throttle decision surface.
+  // Op-discriminator over 5 methods (check / set_rule / stats / oneliner / reset).
+  // 'op' is z.enum (NOT z.string) — same lesson as U-WIRE-WASTE-DETECTOR /
+  // U-WIRE-SESSION-EVENT-LOG (3d6aba4525): enum makes the inner switch's
+  // Parameters<> cast runtime-sound. Distinct from tool_call_record /
+  // tool_call_analyze / tool_call_reset (ToolCallTracker — passive observability
+  // surface); this engine is the ACTIVE throttle decision/rate-limit gate.
+  tool_call_throttle: z.object({
+    op: z.enum(["check", "set_rule", "stats", "oneliner", "reset"])
+      .describe("ToolCallThrottleEngine method discriminator"),
+    // ── check + set_rule shared field ──
+    tool: z.string().min(1).optional()
+      .describe("Tool name e.g. 'Read'|'Grep'|'Edit'|'Bash' (check + set_rule ops only)"),
+    // ── set_rule op fields ──
+    max_per_minute: z.number().int().positive().optional()
+      .describe("Maximum allowed calls per 60s window (set_rule op only)"),
+    burst_limit: z.number().int().nonnegative().optional()
+      .describe("Maximum allowed calls in any 10s burst window (set_rule op only; default 3)"),
+    cooldown_ms: z.number().nonnegative().optional()
+      .describe("Cooldown duration in ms after a rate-limit trip (set_rule op only; default 5000)"),
+  }).describe("ToolCallThrottleEngine — active rate-limit + burst-limit + cooldown gate. Stateful singleton (toolCallThrottleEngine) preserves call-log + cooldown timers across MCP lifetime. Per-op required fields validated by the dispatcher with fail-loud ok({error}) on missing params."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-DEDUP ─────────────────────────────────
+  // ToolCallDeduplicatorEngine — exact + near-duplicate tool-call detector.
+  // Op-discriminator over 4 methods (check / record / stats / reset). 'op' is
+  // z.enum (NOT z.string) — same lesson as siblings. 'params' is z.record over
+  // arbitrary fields (the engine hashes a sorted-key JSON of the params object
+  // for exact-match + 0.9-Levenshtein-similar near-match). Singleton preserves
+  // the 120s rolling-window log across MCP lifetime.
+  tool_call_dedup: z.object({
+    op: z.enum(["check", "record", "stats", "reset"])
+      .describe("ToolCallDeduplicatorEngine method discriminator"),
+    // ── check + record shared fields ──
+    tool: z.string().min(1).optional()
+      .describe("Tool name e.g. 'Read'|'Grep'|'Bash' (check + record ops only)"),
+    params: z.record(z.string(), z.unknown()).optional()
+      .describe("Tool-call params object — hashed for exact-match + similarity-compared for near-match (check + record ops only)"),
+  }).describe("ToolCallDeduplicatorEngine — detects exact + near-duplicate tool calls in a 120s rolling window. Hooks call check() BEFORE execution to short-circuit duplicate work, then record() AFTER. Singleton (toolCallDeduplicatorEngine) preserves the call log across MCP server lifetime."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-HISTOGRAM ─────────────────────────────
+  // ToolCallHistogramEngine — per-tool token-COST distribution visualizer.
+  // Op-discriminator over 6 methods (record / report / format / oneliner /
+  // window / reset). 'op' is z.enum (NOT z.string) — same lesson as the sibling
+  // tool_call_throttle / tool_call_dedup / tool_call_batch_optimize units: enum
+  // keeps the dispatcher's inner switch exhaustive + the error path honest.
+  // Distinct from tool_call_throttle (active rate-limiter), tool_call_dedup
+  // (duplicate detector), tool_call_batch_optimize (parallelization planner):
+  // this is the PASSIVE token-cost distribution surface — which tool ate the
+  // most session tokens, as a percent-of-total ASCII histogram.
+  tool_call_histogram: z.object({
+    op: z.enum(["record", "report", "format", "oneliner", "window", "reset"])
+      .describe("ToolCallHistogramEngine method discriminator"),
+    // ── record op fields ──
+    tool: z.string().min(1).optional()
+      .describe("Tool name e.g. 'Read'|'Grep'|'Edit'|'Bash' (record op only)"),
+    tokens: z.number().nonnegative().optional()
+      .describe("Estimated token cost of the recorded call (record op only)"),
+    // ── format op field ──
+    max_tools: z.number().int().positive().optional()
+      .describe("Max tools to show in the text histogram (format op only; default 10)"),
+    // ── window op field ──
+    minutes: z.number().positive().optional()
+      .describe("Look-back window in minutes — returns the ToolCallRecord[] inside it (window op only)"),
+  }).describe("ToolCallHistogramEngine — per-tool token-cost distribution + percent-of-session ASCII histogram. Stateful singleton (toolCallHistogramEngine) preserves the call-cost log across MCP server lifetime. Per-op required fields validated by the dispatcher with fail-loud ok({error}) on missing params."),
+
+  // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-PIPELINE ──────────────────────────────
+  // ToolCallPipelineEngine — declarative reusable tool-call pipelines. Op-
+  // discriminator over 7 methods (register/get/list/dry_run/stats/oneliner/reset).
+  // 'op' is z.enum (NOT z.string) per schemas.md. register accepts a declarative
+  // PipelineDefinition: steps carry {name,tool,params} — the engine's optional
+  // condition/transform CLOSURE fields are intentionally NOT in the schema (they
+  // cannot cross a JSON dispatcher boundary; a registered no-closure pipeline is
+  // still valid + dry-runnable). recordExecution is NOT surfaced for the same
+  // reason (its PipelineResult arg carries Map<> fields).
+  tool_call_pipeline: z.object({
+    op: z.enum(["register", "get", "list", "dry_run", "stats", "oneliner", "reset"])
+      .describe("ToolCallPipelineEngine method discriminator"),
+    // ── get + dry_run shared field ──
+    name: z.string().min(1).optional()
+      .describe("Pipeline name (get + dry_run ops; also the definition name for register)"),
+    // ── register op field ──
+    steps: z.array(z.object({
+      name: z.string().min(1).describe("Step name"),
+      tool: z.string().min(1).describe("Tool the step invokes e.g. 'Read'|'Grep'|'Edit'"),
+      params: z.record(z.string(), z.unknown()).describe("Static params for the step's tool call"),
+    })).optional()
+      .describe("Declarative pipeline steps (register op only). Closure fields condition/transform are not accepted over the dispatcher boundary."),
+    description: z.string().optional()
+      .describe("Optional human description of the pipeline (register op only)"),
+    // ── dry_run op field ──
+    params: z.record(z.string(), z.unknown()).optional()
+      .describe("Optional override params passed to the dry-run planner (dry_run op only)"),
+  }).describe("ToolCallPipelineEngine — declarative reusable tool-call pipelines (built-in: read-edit-verify, search-then-read, glob-then-grep). Stateful singleton (toolCallPipelineEngine) preserves registered pipelines + execution log across MCP server lifetime. Per-op required fields validated by the dispatcher with fail-loud ok({error})."),
 };

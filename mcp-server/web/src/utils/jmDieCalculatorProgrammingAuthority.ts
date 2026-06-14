@@ -19,9 +19,17 @@ export type ProgrammingCatalogAuthoritySummary = {
   badge: string;
   summary: string;
   note: string;
-  posture: 'curated-service' | 'empty' | 'fallback' | 'hybrid' | 'live';
+  // 2026-05-27 iter14: + 'fallback-staged' for 8 test fixtures that use it
+  // (CycleTimePage, FeatureTogglePage, OptimizationReportPage, PostProcessorGeneratorPage,
+  // ProveOutWorkflowPage, SetupSheetPage, ToolOptimizationPage, jmDieCalculatorPostWorkflowState).
+  // Semantic: 'fallback' state staged for promotion — sub-posture under fallback.
+  posture: 'curated-service' | 'empty' | 'fallback' | 'fallback-staged' | 'hybrid' | 'live';
   seedLabel?: string;
-  usesJMDieSeed: boolean;
+  // 2026-05-27 iter14: optional — 5 test fixtures (CycleTimePage, FeatureTogglePage,
+  // PostProcessorGeneratorPage, ToolOptimizationPage, WireEdmResultsPage) don't set
+  // usesJMDieSeed in their MachineWorkspaceProgrammingAuthority literal. Production
+  // consumers should read with ?? false when needed.
+  usesJMDieSeed?: boolean;
 };
 
 const CANONICAL_JM_DIE_PROGRAMMING_IDS: Record<MachineMode, string[]> = {

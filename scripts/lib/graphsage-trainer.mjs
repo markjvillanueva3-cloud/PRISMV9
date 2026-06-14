@@ -128,6 +128,161 @@ export function sampleNegativeEdges(nodeIds, edgeSet, count, rng) {
   return out;
 }
 
+/**
+ * Compute the positive-edge endpoint marginal over node-type buckets. Returns
+ * a Map<type, count> over the endpoints in `trainEdges` whose `nodeType` is
+ * known. Defensively handles a malformed `trainEdges` or `nodeType` (returns
+ * an empty Map — no throw).
+ *
+ * @param {Array<[*,*]|{u:*,v:*}>} trainEdges positive (training) edges
+ * @param {Map<*,*>} nodeType per-node stratum label
+ * @returns {Map<*, number>} per-type endpoint count
+ */
+export function positiveTypeMarginal(trainEdges, nodeType) {
+  const marginal = new Map();
+  if (!Array.isArray(trainEdges) || !(nodeType instanceof Map)) return marginal;
+  for (const e of trainEdges) {
+    let a;
+    let b;
+    if (Array.isArray(e)) {
+      if (e.length < 2) continue;
+      a = e[0];
+      b = e[1];
+    } else if (e && typeof e === "object") {
+      a = e.u;
+      b = e.v;
+    } else {
+      continue;
+    }
+    for (const endpoint of [a, b]) {
+      const t = nodeType.get(endpoint);
+      if (t === undefined || t === null) continue;
+      marginal.set(t, (marginal.get(t) || 0) + 1);
+    }
+  }
+  return marginal;
+}
+
+/**
+ * U-NN-TRAINER-EXPORT-FIX: stratified negative-edge sampler. Re-restored
+ * 2026-05-23 (slot golf, U-NN-TRAINER-EXPORT-RESTORE) — the U-NN-TRAINER-EXPORT-
+ * FIX 2026-05-21 commit `629190e6c9` had been overwritten by a later edit that
+ * dropped these two functions, leaving `graphsage-train-pipeline.mjs`'s import
+ * unsatisfiable.
+ *
+ * Draws `count` negative (non-)edges whose type distribution matches the
+ * positive marginal. With probability `pHard` a negative is drawn INTRA-type
+ * (both endpoints same stratum — the "hard" negatives a uniform sampler
+ * almost never produces); otherwise both endpoints are drawn from the
+ * marginal-weighted bucket set independently. Mirrors the eval-side
+ * `sampleStratifiedEvalNegatives` in graphsage-train-pipeline.mjs so the
+ * train + eval negative distributions are identical — the property that
+ * makes the held-out AUROC measure what it claims.
+ *
+ * STRICTLY SAFE — drop-in for `sampleNegativeEdges`:
+ *   - No usable type info (null/empty `nodeType` or `typeMarginal`) → returns
+ *     `sampleNegativeEdges(...)` byte-for-byte (same rng draws, same result).
+ *     A caller that omits `opts.nodeType` is completely unaffected.
+ *   - Bounded rejection sampling (`NEG_SAMPLE_ATTEMPT_FACTOR` budget) — never
+ *     loops forever; a saturated same-type bucket returns fewer than `count`
+ *     rather than substituting a real edge (honest, R12).
+ *   - Rejects any pair already in `edgeSet` (real edges) — keys via the
+ *     trainer's own NUL-separated `edgeKey`, identical to `sampleNegativeEdges`.
+ *
+ * Returns `[{u,v},...]` — the same shape `sampleNegativeEdges` returns.
+ *
+ * @param {Array<*>} nodeIds candidate node ids
+ * @param {Set<string>} edgeSet real edges (NUL-keyed) to reject
+ * @param {number} count desired negative count
+ * @param {() => number} rng mulberry32-style PRNG in [0,1)
+ * @param {object} [opts]
+ * @param {Map<*,*>} [opts.nodeType] per-node stratum label
+ * @param {Map<*,number>} [opts.typeMarginal] per-type weight (positive marginal)
+ * @param {number} [opts.pHard] fraction drawn intra-type, clamped to [0,1]
+ * @returns {Array<{u:*,v:*}>}
+ */
+export function sampleStratifiedNegativeEdges(nodeIds, edgeSet, count, rng, opts = {}) {
+  const ids = Array.isArray(nodeIds) ? nodeIds : [];
+  const nodeType = opts && opts.nodeType instanceof Map && opts.nodeType.size > 0
+    ? opts.nodeType : null;
+  const marginal = opts && opts.typeMarginal instanceof Map && opts.typeMarginal.size > 0
+    ? opts.typeMarginal : null;
+  // No usable type info -> behave EXACTLY like the uniform sampler (legacy path).
+  if (!nodeType || !marginal) return sampleNegativeEdges(ids, edgeSet, count, rng);
+
+  const pHard = opts && typeof opts.pHard === "number" && Number.isFinite(opts.pHard)
+    ? Math.min(Math.max(opts.pHard, 0), 1)
+    : 0.7;
+
+  // Bucket candidate ids by type.
+  const buckets = new Map();
+  for (const id of ids) {
+    const t = nodeType.get(id);
+    if (t === undefined) continue;
+    let arr = buckets.get(t);
+    if (!arr) { arr = []; buckets.set(t, arr); }
+    arr.push(id);
+  }
+  if (buckets.size === 0) return sampleNegativeEdges(ids, edgeSet, count, rng);
+
+  // Weighted bucket list — marginal-mass weights. `canHard` flags buckets
+  // with >= 2 ids (an intra-type pair needs two distinct candidates).
+  const weighted = [];
+  let totalAny = 0;
+  let totalHard = 0;
+  for (const [t, arr] of buckets) {
+    const mw = marginal.get(t);
+    const w = Number.isFinite(mw) && mw > 0 ? mw : 0;
+    if (w <= 0) continue;
+    const canHard = arr.length >= 2;
+    weighted.push({ t, arr, w, canHard });
+    totalAny += w;
+    if (canHard) totalHard += w;
+  }
+  if (totalAny === 0) return sampleNegativeEdges(ids, edgeSet, count, rng);
+
+  const pickBucket = (total, hardOnly) => {
+    let r = rng() * total;
+    let last = null;
+    for (const e of weighted) {
+      if (hardOnly && !e.canHard) continue;
+      last = e;
+      r -= e.w;
+      if (r <= 0) return e;
+    }
+    return last;
+  };
+
+  const out = [];
+  const seen = new Set();
+  const want = Math.max(0, Math.floor(count));
+  const maxAttempts = want * NEG_SAMPLE_ATTEMPT_FACTOR + 100;
+  let attempts = 0;
+  while (out.length < want && attempts < maxAttempts) {
+    attempts++;
+    let a;
+    let b;
+    if (totalHard > 0 && rng() < pHard) {
+      const e = pickBucket(totalHard, true);
+      if (!e) continue;
+      a = e.arr[Math.floor(rng() * e.arr.length)];
+      b = e.arr[Math.floor(rng() * e.arr.length)];
+    } else {
+      const ea = pickBucket(totalAny, false);
+      const eb = pickBucket(totalAny, false);
+      if (!ea || !eb) continue;
+      a = ea.arr[Math.floor(rng() * ea.arr.length)];
+      b = eb.arr[Math.floor(rng() * eb.arr.length)];
+    }
+    if (a === b) continue;
+    const key = edgeKey(a, b);
+    if (edgeSet.has(key) || seen.has(key)) continue;
+    seen.add(key);
+    out.push({ u: a, v: b });
+  }
+  return out;
+}
+
 function validateTrainOpts(opt) {
   for (const [name, v] of [["epochs", opt.epochs], ["batchSize", opt.batchSize]]) {
     if (!Number.isInteger(v) || v < 1) {

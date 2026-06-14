@@ -24,7 +24,7 @@ async function getEngine(name: string, file: string, exportName: string): Promis
   return engineCache[name];
 }
 
-const ACTION_MAP: Record<string, [string, string, string]> = {
+export const ACTION_MAP: Record<string, [string, string, string]> = {
   heat_exchanger_calculate: ["HeatExchangerEngine", "heatExchangerEngine", "calculate"],
   heat_exchanger_plate_calculate: ["HeatExchangerPlateEngine", "heatExchangerPlateEngine", "calculate"],
   pump_select: ["PumpSelectionEngine", "pumpSelectionEngine", "calculate"],
@@ -73,6 +73,11 @@ const ACTION_MAP: Record<string, [string, string, string]> = {
   thermocouple_calculate: ["ThermocoupleEngine", "thermocoupleEngine", "calculate"],
   ultrasonic_flowmeter_calculate: ["UltrasonicFlowMeterEngine", "ultrasonicFlowMeterEngine", "calculate"],
   vane_pump_calculate: ["VanePumpEngine", "vanePumpEngine", "calculate"],
+  fluidized_bed_calculate: ["FluidizedBedEngine", "fluidizedBedEngine", "calculate"],
+  vacuum_pump_calculate: ["VacuumPumpEngine", "vacuumPumpEngine", "calculate"],
+  peristaltic_pump_calculate: ["PeristalticPumpEngine", "peristalticPumpEngine", "calculate"],
+  progressive_cavity_pump_calculate: ["ProgressiveCavityPumpEngine", "progressiveCavityPumpEngine", "calculate"],
+  axial_piston_pump_calculate: ["AxialPistonPumpEngine", "axialPistonPumpEngine", "calculate"],
 };
 
 const ACTIONS = Object.keys(ACTION_MAP);
@@ -80,11 +85,11 @@ const ACTIONS = Object.keys(ACTION_MAP);
 export function registerFluidThermalDispatcher(server: any): void {
   server.tool(
     "prism_fluid_thermal",
-    `Fluid, thermal & material science: heat exchangers (shell-tube/plate), pumps (centrifugal/diaphragm/vane/selection), piping (sizing/stress/pressure drop), hydraulic cylinders/motors/presses, pneumatic cylinders, valves (design/sizing), compressors (reciprocating/screw/scroll/air), fans, nozzles, cooling towers, condensers, evaporators, flowmeters (Venturi/orifice/Coriolis/ultrasonic), air ducts, diffusers, ejectors, impellers, spray dryers, tank design, water hammer, furnace heating, thermal expansion/fatigue, temperature sensors (RTD/thermocouple), corrosion rate, creep life, fracture toughness. 48 actions.
+    `Fluid, thermal & material science: heat exchangers (shell-tube/plate), pumps (centrifugal/diaphragm/vane/selection), piping (sizing/stress/pressure drop), hydraulic cylinders/motors/presses, pneumatic cylinders, valves (design/sizing), compressors (reciprocating/screw/scroll/air), fans, nozzles, cooling towers, condensers, evaporators, flowmeters (Venturi/orifice/Coriolis/ultrasonic), air ducts, diffusers, ejectors, impellers, spray dryers, tank design, water hammer, furnace heating, thermal expansion/fatigue, temperature sensors (RTD/thermocouple), corrosion rate, creep life, fracture toughness, fluidized beds, vacuum/peristaltic/progressive-cavity/axial-piston pumps. 53 actions.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.string(), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
-      log.info(`[prism_fluid_thermal] Action: ${action} (48 actions wired)`);
+      log.info(`[prism_fluid_thermal] Action: ${action} (53 actions wired)`);
       let result: any;
       try {
         let params = rawParams;

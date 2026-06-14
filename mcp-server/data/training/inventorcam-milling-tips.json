@@ -1,0 +1,4438 @@
+{
+  "schemaVersion": "1.0.0",
+  "unit_id": "U-CTE04",
+  "source_doc": "doc-inventorcam2024-2-5d-milling-training-course",
+  "generated_at": "2026-05-20T06:15:31.622Z",
+  "totals": {
+    "tips": 269
+  },
+  "tips": [
+    {
+      "title": "Define Machine Coordinate System",
+      "body": "Select a model face, vertex, or edge to define the Machine Coordinate System origin and axes orientation.",
+      "category": "workholding",
+      "tags": [
+        "3-axis",
+        "machine setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.16",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Tool Start Level",
+      "body": "The Tool start level defines the Z-level at which the tool starts working. Ensure it is not over the limit switch of the machine.",
+      "category": "speeds_feeds",
+      "tags": [
+        "toolpath",
+        "gcode"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.18",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Stock Model Offsets",
+      "body": "For the X+, X-, Y+ and Y- offsets, use values of 2. For the Z+ offset, set to 0.25. For the Z- offset, set to 5.",
+      "category": "workholding",
+      "tags": [
+        "stock model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define target model",
+      "body": "Click on the solid body to choose the target. The solid body is highlighted, and the Solid 1 icon appears in the Selection section.",
+      "category": "other",
+      "tags": [
+        "target_model"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Save CAM-Part data",
+      "body": "Confirm the Milling Part Data dialog box by clicking OK.",
+      "category": "other",
+      "tags": [
+        "save"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.21",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Close CAM-Part",
+      "body": "Right-click the CAM-Part header in the InventorCAM Manager tree and choose Close from the menu.",
+      "category": "other",
+      "tags": [
+        "close"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.22",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Profile Milling",
+      "body": "A Geometry for Profile, Pocket, Contour 3D, Slot and T-Slot operations consists of a number of chains.",
+      "category": "operation_types",
+      "tags": [
+        "profile_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Profile Milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Pocket Milling",
+      "body": "A Geometry for Face Milling operations can be defined by selecting solid models, faces or chains of model elements.",
+      "category": "operation_types",
+      "tags": [
+        "pocket_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Pocket Milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Drilling",
+      "body": "A Geometry for Drilling and Thread Milling operations consists of one or more points (drilling centers).",
+      "category": "operation_types",
+      "tags": [
+        "drilling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Drilling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Thread Milling",
+      "body": "A Geometry for Thread Milling operations consists of one or more points (drilling centers).",
+      "category": "operation_types",
+      "tags": [
+        "thread_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Thread Milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Contour 3D",
+      "body": "A Geometry for Contour 3D operations consists of a number of chains.",
+      "category": "operation_types",
+      "tags": [
+        "contour_3d"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Contour 3D"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Face Milling",
+      "body": "A Geometry for Face Milling operations can be defined by selecting solid models, faces or chains of model elements.",
+      "category": "operation_types",
+      "tags": [
+        "face_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Face Milling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Slot",
+      "body": "A Geometry for Slot operations consists of one or more profiles.",
+      "category": "operation_types",
+      "tags": [
+        "slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Slot"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for T-Slot",
+      "body": "A Geometry for T-Slot operations consists of one or more profiles.",
+      "category": "operation_types",
+      "tags": [
+        "t_slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "T-Slot"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Engraving",
+      "body": "A Geometry for Engraving operations consists of a number of chains.",
+      "category": "operation_types",
+      "tags": [
+        "engraving"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Engraving"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Pocket Recognition",
+      "body": "Pocket Recognition automatically recognizes pocket features and creates the necessary machining.",
+      "category": "operation_types",
+      "tags": [
+        "pocket_recognition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Pocket Recognition"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Drill Recognition",
+      "body": "Drill Recognition automatically recognizes drill features and creates the necessary machining.",
+      "category": "operation_types",
+      "tags": [
+        "drill_recognition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Drill Recognition"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Edge Deburring Recognition",
+      "body": "Edge Deburring Recognition automatically recognizes chamfer features and creates the necessary machining.",
+      "category": "operation_types",
+      "tags": [
+        "edge_deburring_recognition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Edge Deburring Recognition"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for ToolBox Cycles",
+      "body": "ToolBox Cycles enables choosing a machining scenario from pre-defined operations.",
+      "category": "operation_types",
+      "tags": [
+        "toolbox_cycles"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "ToolBox Cycles"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Multi-depth Drilling",
+      "body": "Multi-depth Drilling enables manual control of drilling operations at every depth.",
+      "category": "operation_types",
+      "tags": [
+        "multi_depth_drilling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Multi-depth Drilling"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining geometry for Translated Surface",
+      "body": "Translated Surface enables generating a surface by moving a section along a profile geometry.",
+      "category": "operation_types",
+      "tags": [
+        "translated_surface"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Translated Surface"
+      ],
+      "page_ref": "p.24",
+      "_chunk": 3,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling geometry",
+      "body": "Face Milling Geometry can be defined based on the actual Updated Stock boundary or by selecting faces, profiles, or using a model.",
+      "category": "toolpath",
+      "tags": [
+        "face_milling",
+        "geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set default geometry boundary",
+      "body": "You can set the Geometry to Stock based boundary or Part based boundary as default in the InventorCAM settings.",
+      "category": "toolpath",
+      "tags": [
+        "default_settings"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling geometry using Model option",
+      "body": "This option generates a rectangle located at the XY-plane and surrounding the Target model.",
+      "category": "toolpath",
+      "tags": [
+        "model_option"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling geometry using Faces option",
+      "body": "This option enables you to define the Face Milling geometry by face selection.",
+      "category": "toolpath",
+      "tags": [
+        "faces_option"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling geometry using Profile option",
+      "body": "This option enables you to define the Face Milling geometry by a profile.",
+      "category": "toolpath",
+      "tags": [
+        "profile_option"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.30",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select a tool for Face Milling operation",
+      "body": "Switch to the Tool page of the Face Milling Operation dialog box and select a suitable tool, such as a face mill.",
+      "category": "tool_selection",
+      "tags": [
+        "face_mill"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define tool parameters for Face Milling operation",
+      "body": "Edit the Diameter, Shoulder diameter, and Arbor diameter to match the selected tool.",
+      "category": "tool_selection",
+      "tags": [
+        "diameter",
+        "shoulder_diameter",
+        "arbor_diameter"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.31",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face depth for Face Milling operation",
+      "body": "Switch to the Levels page and define the Operation Lower level directly on the solid model.",
+      "category": "toolpath",
+      "tags": [
+        "face_depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.32",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define technological parameters for Face Milling operation",
+      "body": "Switch to the Technology page and choose the One Pass option.",
+      "category": "toolpath",
+      "tags": [
+        "one_pass"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.33",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Modify tool path parameters for One Pass option",
+      "body": "In the Tool path modifications section, define the angle between the tool path and the geometry.",
+      "category": "toolpath",
+      "tags": [
+        "angle",
+        "shift"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.33",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Save and calculate tool path for Face Milling operation",
+      "body": "Click the Save button to save the operation data and calculate the tool path.",
+      "category": "post_processor",
+      "tags": [
+        "save",
+        "calculate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate Face Milling operation",
+      "body": "Click the Simulate button to start a simulation of the machining process.",
+      "category": "post_processor",
+      "tags": [
+        "simulate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Geometry for Profile operation",
+      "body": "Click the Define button in the Geometry page of the Profile Operation dialog box to select solid model entities for the Geometry definition.",
+      "category": "toolpath",
+      "tags": [
+        "profile_geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use Smart Face option for geometry selection",
+      "body": "When the Smart Face check box is selected, it allows you to pick a geometry directly from the face that automatically recognizes all open edges.",
+      "category": "toolpath",
+      "tags": [
+        "smart_face"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2d_milling"
+      ],
+      "page_ref": "p.35",
+      "_chunk": 4,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use Tangent Propagation for open chains",
+      "body": "Select entities tangent to the current one or highlight connected entities if no tangent is found.",
+      "category": "toolpath",
+      "tags": [
+        "tangent",
+        "open chain"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Z Deviation for Constant Z Propagation",
+      "body": "Enter positive and negative Z-deviations in the Delta Z Tolerance edit boxes to identify entities on the same Z-level.",
+      "category": "toolpath",
+      "tags": [
+        "constant z",
+        "z tolerance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Close gaps with Curve + Close Corners",
+      "body": "Extend entities virtually up to their intersection to close gaps between successive chain entities.",
+      "category": "toolpath",
+      "tags": [
+        "curve",
+        "close corners"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Loop by Edge",
+      "body": "Pick an edge shared by two model faces to select a loop, and choose one of the loops to define a closed geometry chain.",
+      "category": "toolpath",
+      "tags": [
+        "loop",
+        "edge"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Tool for Profile Milling",
+      "body": "Select an End mill of Ø16 from the Part Tool Table and set parameters like Diameter, Spin rate, Feed XY, and Feed Z.",
+      "category": "tool_selection",
+      "tags": [
+        "end mill",
+        "profile milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.40",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Milling Levels for Profile Operation",
+      "body": "Define Upper level, Profile depth, and Delta depth using the Pick Upper level and Pick Lower level dialogs.",
+      "category": "milling_levels",
+      "tags": [
+        "milling levels",
+        "profile operation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.41",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Modify Tool Position for Profile Operation",
+      "body": "Check the Tool side option in the Modify section to set the tool position relative to the geometry (Right, Left, Center).",
+      "category": "tool_selection",
+      "tags": [
+        "tool position",
+        "profile operation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D milling"
+      ],
+      "page_ref": "p.41",
+      "_chunk": 5,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Step down parameter for Profile roughing",
+      "body": "Step down = 5 mm; last cut at Z-level defined by Profile depth.",
+      "category": "speeds_feeds",
+      "tags": [
+        "Profile roughing",
+        "step down"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Wall and Floor offsets for Profile roughing",
+      "body": "Wall offset = 0.5 mm; Floor offset = 0.5 mm.",
+      "category": "speeds_feeds",
+      "tags": [
+        "Profile roughing",
+        "offsets"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "roughing"
+      ],
+      "page_ref": "p.43",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Lead in and Lead out strategy",
+      "body": "Choose 'Arc' for both lead in and lead out; Tangent extension = 5 mm, Radius = 2 mm.",
+      "category": "toolpath",
+      "tags": [
+        "lead in",
+        "lead out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.44",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for Pocket operation",
+      "body": "Use closed chains defined by solid model edges.",
+      "category": "toolpath",
+      "tags": [
+        "Pocket operation",
+        "geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.45",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select tool for Pocket operation",
+      "body": "End mill, Diameter = 8 mm.",
+      "category": "tool_selection",
+      "tags": [
+        "Pocket operation",
+        "tool selection"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.45",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Milling levels for Pocket operation",
+      "body": "Upper level = 0; Pocket depth = 8 mm; Step down = 4 mm.",
+      "category": "speeds_feeds",
+      "tags": [
+        "Pocket operation",
+        "milling levels"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.45",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Offsets for Pocket operation",
+      "body": "Wall offset = 0.2 mm; Floor offset = 0.2 mm.",
+      "category": "speeds_feeds",
+      "tags": [
+        "Pocket operation",
+        "offsets"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Contour strategy for Pocket operation",
+      "body": "Contour option; Start from 'Inside'; Corner = 'Fillet'; Min. corner radius = default.",
+      "category": "toolpath",
+      "tags": [
+        "Pocket operation",
+        "contouring"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.47",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Ramping strategy for Pocket operation",
+      "body": "Choose 'None' for ramping strategy.",
+      "category": "toolpath",
+      "tags": [
+        "Pocket operation",
+        "ramping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.49",
+      "_chunk": 6,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define tool entry method",
+      "body": "Choose from Vertical, Angle, Helical, or Linear ramping methods.",
+      "category": "toolpath",
+      "tags": [
+        "ramping",
+        "entry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set tool step down parameters",
+      "body": "Enter the Tool step down parameter, Angle, and Radius for helical ramping.",
+      "category": "toolpath",
+      "tags": [
+        "ramping",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use center cutting for tools with capabilities",
+      "body": "Select the Center cutting check box if your tool has this feature.",
+      "category": "toolpath",
+      "tags": [
+        "center cutting",
+        "capabilities"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.50",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define lead in and lead out strategies",
+      "body": "Choose from None, Normal, Arc, or Tangent for pocket machining.",
+      "category": "toolpath",
+      "tags": [
+        "lead in",
+        "lead out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set lead in parameters",
+      "body": "For Arc lead in, set Tangent extension to 3 and Radius to 2.",
+      "category": "toolpath",
+      "tags": [
+        "lead in",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Confirm lead out parameters",
+      "body": "Under Lead out, select the Same as Lead in check box.",
+      "category": "toolpath",
+      "tags": [
+        "lead out",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.52",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Calculate tool path for pocket operation",
+      "body": "Click to save data and calculate the tool path.",
+      "category": "toolpath",
+      "tags": [
+        "calculate",
+        "tool path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.53",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate pocket operation",
+      "body": "Simulate the operation in SolidVerify and Host CAD simulation modes.",
+      "category": "toolpath",
+      "tags": [
+        "simulate",
+        "operation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.53",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add drilling operation to pocketing",
+      "body": "Right-click the last Profile operation and choose Drilling from the Add Milling Operation submenu.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "operation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.54",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select drill geometry options",
+      "body": "Choose from Pick position, 3 Points on circumference, Multi-positions, or All circle/arc centers.",
+      "category": "toolpath",
+      "tags": [
+        "drill geometry",
+        "options"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.54",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drilling tool parameters",
+      "body": "Set Spin rate to 1200 and Feed Z to 200 for the Spot drill.",
+      "category": "toolpath",
+      "tags": [
+        "drill tool",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.56",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set center drilling depth",
+      "body": "Choose Depth type as Diameter value and set the value to 5 for a 5 mm tool diameter.",
+      "category": "toolpath",
+      "tags": [
+        "drill depth",
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.56",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Calculate centering depth for drilling",
+      "body": "Use the formula Centering_depth = Diameter_value / (2 * tan(α/2)) to calculate the centering depth.",
+      "category": "toolpath",
+      "tags": [
+        "drill depth",
+        "formula"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.56",
+      "_chunk": 7,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate operations using SolidVerify",
+      "body": "Use SolidVerify simulation mode to simulate operations before executing them.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drilling operation parameters",
+      "body": "Set Spin rate to 3000 and Feed Z to 360 for the drilling operation.",
+      "category": "speeds_feeds",
+      "tags": [
+        "drilling",
+        "spin_rate",
+        "feed_z"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.34",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drilling depth for through drilling",
+      "body": "Set Delta value to -5 and choose Full diameter option for through drilling.",
+      "category": "depth_of_cut",
+      "tags": [
+        "through_drilling",
+        "delta_value"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.36",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use pecking cycle for chip breaking",
+      "body": "Select Peck option in the Drill cycle type to use pecking for chip breaking.",
+      "category": "toolpath",
+      "tags": [
+        "peck_cycle",
+        "chip_breaking"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.37",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define step down for pecking",
+      "body": "Set Step down to 1.5 for defining the depth of each pecking movement.",
+      "category": "depth_of_cut",
+      "tags": [
+        "step_down",
+        "pecking"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.38",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define stock model for machining",
+      "body": "Use the Box method to define the stock model with allowances in Z direction.",
+      "category": "stock_model",
+      "tags": [
+        "stock_model",
+        "box_method"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.62",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define coordinate system for machining",
+      "body": "Pick three points on the solid model to define the Coordinate System.",
+      "category": "workholding",
+      "tags": [
+        "coordinate_system",
+        "three_points"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.63",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define target model for machining",
+      "body": "Select a solid body as the target model in the Target dialog box.",
+      "category": "target_model",
+      "tags": [
+        "target_model",
+        "solid_body"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.64",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add Face Milling operation",
+      "body": "Right-click Operations header and choose Face from the Add Milling Operation submenu.",
+      "category": "toolpath",
+      "tags": [
+        "Face_Milling",
+        "operation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.66",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling tool parameters",
+      "body": "Set Shoulder length to 27.5 and Cutting length to 10 for the Face mill.",
+      "category": "tool_selection",
+      "tags": [
+        "Face_Milling",
+        "tool_parameters"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.67",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling depth",
+      "body": "Select the model face to define the Face depth for machining.",
+      "category": "depth_of_cut",
+      "tags": [
+        "Face_Milling",
+        "face_depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.68",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use Hatch machining technology",
+      "body": "Select Hatch option in the Technology section for linear pattern machining.",
+      "category": "toolpath",
+      "tags": [
+        "Hatch",
+        "machining_technology"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.68",
+      "_chunk": 8,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set hatch angle automatically",
+      "body": "Choose 'Automatic optimal angle' to let InventorCAM calculate the best hatching angle.",
+      "category": "speeds_feeds",
+      "tags": [
+        "hatch",
+        "angle"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.69",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define extension along tool path",
+      "body": "Set extension along the tool path using either percentage of tool diameter or a specific value.",
+      "category": "speeds_feeds",
+      "tags": [
+        "extension",
+        "tool_path"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.69",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use fillet for smoother transitions",
+      "body": "Select 'Fillet' in the Corner section to create smooth transitions between path directions.",
+      "category": "toolpath",
+      "tags": [
+        "corner",
+        "fillet"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.69",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define lead-in and lead-out",
+      "body": "Use the Tangent option in the Lead-in section for a smooth approach to the material.",
+      "category": "toolpath",
+      "tags": [
+        "lead_in",
+        "lead_out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.71",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set finish offset for final machining",
+      "body": "Select the Finish check box and set the Floor offset to 0.2 in the Offsets section for finishing.",
+      "category": "toolpath",
+      "tags": [
+        "offset",
+        "finish"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.74",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define profile depth for machining",
+      "body": "Click on the model face to define the Profile depth in the Levels section.",
+      "category": "feature",
+      "tags": [
+        "profile_depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.74",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set step down values for roughing and finishing",
+      "body": "For roughing, set Step down to 3.5; for finishing, set Step down to 7.",
+      "category": "speeds_feeds",
+      "tags": [
+        "step_down"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.74",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use clear offset for additional machining",
+      "body": "Select the Clear offset check box and set Offset to 5, Step over to 2.5 for additional machining.",
+      "category": "speeds_feeds",
+      "tags": [
+        "clear_offset"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling"
+      ],
+      "page_ref": "p.74",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define lead-in and lead-out for profile operations",
+      "body": "In the Lead in section, choose 'Arc' with a Radius value of 12; in the Lead out section, select 'Same as Lead in'.",
+      "category": "toolpath",
+      "tags": [
+        "lead_in",
+        "lead_out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "Profile_Milling"
+      ],
+      "page_ref": "p.76",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate operations for verification",
+      "body": "Click the Simulate button to verify distances and dimensions during simulation.",
+      "category": "troubleshooting",
+      "tags": [
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "2.5D_Milling",
+        "Profile_Milling"
+      ],
+      "page_ref": "p.75",
+      "_chunk": 9,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate operations before saving",
+      "body": "Click 'Simulate' to verify toolpaths and avoid errors.",
+      "category": "simulation",
+      "tags": [
+        "simulation",
+        "validation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for multiple features",
+      "body": "Select all model edges to complete the chain in the Geometry Edit dialog box.",
+      "category": "geometry",
+      "tags": [
+        "geometry",
+        "chain"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.78",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use a specific tool for operations",
+      "body": "Define an End mill of Ø8 with CAT40 adaptor and BT40 ER32×60 tool holder.",
+      "category": "tool_selection",
+      "tags": [
+        "tool",
+        "end_mill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set machining levels for operations",
+      "body": "Define upper and lower levels in the Milling levels section.",
+      "category": "milling_levels",
+      "tags": [
+        "levels",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define technological parameters for operations",
+      "body": "Set step down, wall offset, and finish parameters in the Technological parameters section.",
+      "category": "technological_parameters",
+      "tags": [
+        "parameters",
+        "technology"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.36",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define lead-in and lead-out strategies",
+      "body": "Set arc radius for lead-in and lead-out in the Lead in and Lead out section.",
+      "category": "lead_in_lead_out",
+      "tags": [
+        "lead_in",
+        "lead_out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Save and calculate toolpaths",
+      "body": "Click 'Calculate' to save the operation data and generate toolpaths.",
+      "category": "save_calculate",
+      "tags": [
+        "save",
+        "calculate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.38",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new coordinate system for operations",
+      "body": "Create a new Coordinate System in the CoordSys Manager dialog box.",
+      "category": "coordinate_systems",
+      "tags": [
+        "coord_sys",
+        "new"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.40",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Rotate and reposition the model for new operations",
+      "body": "Rotate the model and define a new Coordinate System using a planar face.",
+      "category": "model_rotation",
+      "tags": [
+        "rotation",
+        "reposition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.41",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for face milling operations",
+      "body": "Select the Machine Coordinate System #2 and define geometry using the Constant Z Propagation option.",
+      "category": "geometry",
+      "tags": [
+        "face_milling",
+        "constant_z"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.48",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define technological parameters for face milling operations",
+      "body": "Set hatch angle, overlap, and roughing offset in the Technology section.",
+      "category": "technological_parameters",
+      "tags": [
+        "face_milling",
+        "technology"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.49",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define ramping strategy for pocket operations",
+      "body": "Choose the Helical option in the Ramping section of the Pocket Operation dialog box.",
+      "category": "ramping_strategy",
+      "tags": [
+        "ramping",
+        "helical"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.54",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define lead-out for pocket operations",
+      "body": "Set arc radius for lead-out in the Lead out section of the Pocket Operation dialog box.",
+      "category": "lead_out",
+      "tags": [
+        "lead_out",
+        "arc"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.56",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Save and calculate pocket operation data",
+      "body": "Click 'Calculate' to save the Pocket operation data and generate toolpaths.",
+      "category": "save_calculate",
+      "tags": [
+        "save",
+        "calculate"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.57",
+      "_chunk": 10,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Tool for Operation",
+      "body": "Choose the Ø16 End mill for operations.",
+      "category": "tool_selection",
+      "tags": [
+        "End mill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing",
+        "contouring"
+      ],
+      "page_ref": "p.88",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Milling Levels",
+      "body": "Start machining at the Z-level of top faces and end on bottom face of pocket.",
+      "category": "milling_levels",
+      "tags": [
+        "Upper level",
+        "Lower level"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.88",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Step Down for Contour Operation",
+      "body": "Set Step down to 2 in the Technology section.",
+      "category": "technological_parameters",
+      "tags": [
+        "Step down"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Configure Offsets for Contour Operation",
+      "body": "Set Wall offset, Island offset, and Floor offset to 0.2.",
+      "category": "technological_parameters",
+      "tags": [
+        "Wall offset",
+        "Island offset",
+        "Floor offset"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Helical Ramping Strategy",
+      "body": "Choose the Helical option in the Ramping section with a Radius of 3.",
+      "category": "ramping_strategy",
+      "tags": [
+        "Helical"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Arc Lead Out",
+      "body": "Choose the Arc option in the Lead out section with a Radius value of 2.",
+      "category": "lead_out",
+      "tags": [
+        "Arc",
+        "Radius"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add New Pocket Operation Template",
+      "body": "Use the last created Pocket operation as a template for new operations.",
+      "category": "operation_template",
+      "tags": [
+        "Template",
+        "Pocket operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Rest Material Parameters",
+      "body": "Choose the Rest option to remove material from areas not machined with previous tool.",
+      "category": "rest_material",
+      "tags": [
+        "Rest",
+        "Material"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Previous Tool Diameter",
+      "body": "Define the diameter of the end mill used in previous operation and set Extension/Overlap to 1.",
+      "category": "rest_material",
+      "tags": [
+        "Previous tool diameter",
+        "Extension/Overlap"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate Rest Material Operation",
+      "body": "Play simulation in SolidVerify mode to check machining completeness.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add Profile Operation for Finishing",
+      "body": "Use the Profile operation for finish machining of pocket walls.",
+      "category": "profile_operation",
+      "tags": [
+        "Profile",
+        "Finishing"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Equal Step Down for Profile Operation",
+      "body": "Select the Equal step down check box and set Max step down value to 3.",
+      "category": "technological_parameters",
+      "tags": [
+        "Equal step down",
+        "Max step down"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Configure Helical Milling for Profile Operation",
+      "body": "Set the Depth type to Helical for spiral movements around geometry.",
+      "category": "technological_parameters",
+      "tags": [
+        "Helical",
+        "Depth type"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Normal Lead In and Out for Profile Operation",
+      "body": "Choose the Normal option with a Normal length value of 5.",
+      "category": "lead_in_out",
+      "tags": [
+        "Normal",
+        "Lead in"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate Profile Operation",
+      "body": "Play simulation in SolidVerify mode to check machining completeness.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add Profile Operation for Island Machining",
+      "body": "Use the Profile operation to machine walls of islands.",
+      "category": "profile_operation",
+      "tags": [
+        "Profile",
+        "Island machining"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Constant Z Propagation for Island Geometry",
+      "body": "Choose the Constant Z Propagation option to complete the chain automatically.",
+      "category": "geometry_definition",
+      "tags": [
+        "Constant Z Propagation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling Operation for Top Faces",
+      "body": "Use the Face Milling operation to machine top faces of pads.",
+      "category": "face_milling_operation",
+      "tags": [
+        "Face Milling",
+        "Top faces"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set One Pass Strategy for Face Milling",
+      "body": "Choose the One Pass strategy in the Technology page.",
+      "category": "technological_parameters",
+      "tags": [
+        "One Pass",
+        "Strategy"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add Pocket Operation for Floor Machining",
+      "body": "Define a new Pocket operation to finish machining the pocket floor.",
+      "category": "pocket_operation",
+      "tags": [
+        "Pocket",
+        "Floor machining"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Wall and Island Offsets for Floor Machining",
+      "body": "Set Wall offset and Island offset to 0.1.",
+      "category": "technological_parameters",
+      "tags": [
+        "Wall offset",
+        "Island offset"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate Floor Machining Operation",
+      "body": "Play simulation in SolidVerify mode to check machining completeness.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.89",
+      "_chunk": 11,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate operations in SolidVerify mode",
+      "body": "Play simulations to verify toolpaths and ensure accuracy before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.99",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for milling operations",
+      "body": "Choose the correct machine coordinate system and define geometry accurately to ensure proper toolpath generation.",
+      "category": "geometry",
+      "tags": [
+        "Machine Coordinate System",
+        "geometry"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling",
+        "profile_machining",
+        "pocketing"
+      ],
+      "page_ref": "p.99",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select appropriate tools for operations",
+      "body": "Choose tools based on the material and operation requirements, such as end mills, spot drills, and taps.",
+      "category": "tool_selection",
+      "tags": [
+        "tools",
+        "material"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "tapping"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drilling parameters",
+      "body": "Set drilling depths, stepdown values, and cycle types to ensure proper hole formation.",
+      "category": "technological_parameters",
+      "tags": [
+        "drilling",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.100",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate drilling operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of drilling operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "drilling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.103",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define pocketing parameters",
+      "body": "Set pocket depths, stepdown values, and cycle types to ensure proper material removal.",
+      "category": "technological_parameters",
+      "tags": [
+        "pocketing",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.104",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate pocketing operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of pocketing operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "pocketing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.104",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define face milling parameters",
+      "body": "Set depths, stepdown values, and cycle types to ensure proper material removal.",
+      "category": "technological_parameters",
+      "tags": [
+        "face_milling",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.104",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate face milling operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of face milling operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "face_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.104",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define profile machining parameters",
+      "body": "Set depths, stepdown values, and cycle types to ensure proper material removal.",
+      "category": "technological_parameters",
+      "tags": [
+        "profile_machining",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.104",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate profile machining operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of profile machining operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "profile_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.104",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define rest material machining parameters",
+      "body": "Set depths, stepdown values, and cycle types to efficiently remove bulk material.",
+      "category": "technological_parameters",
+      "tags": [
+        "rest_material_machining",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "rest_material_machining"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate rest material machining operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of rest material machining operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "rest_material_machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "rest_material_machining"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define counterboring parameters",
+      "body": "Set depths, stepdown values, and cycle types to ensure proper hole preparation.",
+      "category": "technological_parameters",
+      "tags": [
+        "counterboring",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate counterboring operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of counterboring operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "counterboring"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define bottom face milling parameters",
+      "body": "Set depths, stepdown values, and cycle types to ensure proper material removal.",
+      "category": "technological_parameters",
+      "tags": [
+        "bottom_face_milling",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate bottom face milling operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of bottom face milling operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "bottom_face_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drilling and tapping parameters",
+      "body": "Set depths, stepdown values, and cycle types to ensure proper hole preparation.",
+      "category": "technological_parameters",
+      "tags": [
+        "drilling",
+        "tapping",
+        "parameters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "tapping"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate drilling and tapping operations in SolidVerify mode",
+      "body": "Play simulations to verify the accuracy and safety of drilling and tapping operations before executing on the machine.",
+      "category": "simulation",
+      "tags": [
+        "SolidVerify",
+        "drilling",
+        "tapping"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "tapping"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define new coordinate system for bottom face milling",
+      "body": "Create a new coordinate system with the Z-axis oriented normally to the bottom face for accurate machining.",
+      "category": "workholding",
+      "tags": [
+        "coordinate_system",
+        "bottom_face"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.109",
+      "_chunk": 12,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define CAM-Part and operations for machining",
+      "body": "Create a CAM-Part, select CNC-controller (gMilling_3x), define Machine Coordinate System, Stock, and Target models.",
+      "category": "machine_setup",
+      "tags": [
+        "CAM-Part",
+        "Machine Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.112",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use appropriate Machine Coordinate System for positioning",
+      "body": "Select the correct Machine Coordinate System for drilling operations based on the provided illustration.",
+      "category": "toolpath",
+      "tags": [
+        "Drilling",
+        "Machine Coordinate System"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.112",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Close chain with a line connecting start and end points",
+      "body": "When confirming an open chain definition, use the Close Chain dialog box to close the chain with a line connecting the start and end points.",
+      "category": "toolpath",
+      "tags": [
+        "Open pocket machining",
+        "Close Chain"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "open pocketing"
+      ],
+      "page_ref": "p.113",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Wall and Floor offsets for open pocket machining",
+      "body": "In the Offsets section, set the Wall offset and Floor offset to 0.2 for open pocket machining.",
+      "category": "toolpath",
+      "tags": [
+        "Open pocket machining",
+        "Offsets"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "open pocketing"
+      ],
+      "page_ref": "p.114",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use Profile strategy for open pocket machining",
+      "body": "Select the Use profile strategy check box to perform open pocket machining in a Profile manner.",
+      "category": "toolpath",
+      "tags": [
+        "Open pocket machining",
+        "Profile"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "open pocketing"
+      ],
+      "page_ref": "p.114",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Approach from outside for open pocket machining",
+      "body": "Select the Approach from outside check box to enable the tool to approach from outside of the material in open pocket areas.",
+      "category": "toolpath",
+      "tags": [
+        "Open pocket machining",
+        "Approach"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "open pocketing"
+      ],
+      "page_ref": "p.114",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry chain for Contour 3D operation",
+      "body": "Define the geometry chain on the upper edge of the hole as shown in the illustration.",
+      "category": "toolpath",
+      "tags": [
+        "Contour 3D",
+        "Geometry Chain"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.120",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add new tool for Contour 3D operation",
+      "body": "Add a new Ø10 End mill tool for the Contour 3D operation.",
+      "category": "tool_selection",
+      "tags": [
+        "Contour 3D",
+        "Tool"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.120",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set technological parameters for Contour 3D operation",
+      "body": "In the Offsets section, set the Wall offset value to 0.2 and select the Rough check box with a Step down of 2 for rough machining.",
+      "category": "toolpath",
+      "tags": [
+        "Contour 3D",
+        "Technological Parameters"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.120",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Lead in and Lead out for Contour 3D operation",
+      "body": "For Lead in, choose the Arc option with a default Radius value of 2, and for Lead out, select the Same as Lead in check box.",
+      "category": "toolpath",
+      "tags": [
+        "Contour 3D",
+        "Lead in/Lead out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.120",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate the operation in SolidVerify mode",
+      "body": "Perform the simulation of the operation in SolidVerify mode to ensure accuracy.",
+      "category": "troubleshooting",
+      "tags": [
+        "Simulation",
+        "SolidVerify"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.120",
+      "_chunk": 13,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set tool side for Contour Milling",
+      "body": "Set Tool side to Right in the Technology page.",
+      "category": "tool_selection",
+      "tags": [
+        "Contour Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.123",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for Contour Milling",
+      "body": "Define the geometry chain on the upper edge of the face as shown.",
+      "category": "toolpath",
+      "tags": [
+        "Contour Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.123",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set step down for Contour Milling",
+      "body": "Set Step down to 0 in the Technology page.",
+      "category": "technological_parameters",
+      "tags": [
+        "Contour Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.123",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Chamfer option for Contour Milling",
+      "body": "Select the Chamfer check box and switch to the Chamfer tab.",
+      "category": "toolpath",
+      "tags": [
+        "Contour Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.123",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set cutting diameter for Chamfer",
+      "body": "Set Cutting diameter value to 2.",
+      "category": "technological_parameters",
+      "tags": [
+        "Chamfer"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.123",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for Profile machining",
+      "body": "Define the geometry as shown.",
+      "category": "toolpath",
+      "tags": [
+        "Profile Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.124",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set step down for Profile machining",
+      "body": "Set Step down value to 0.1 in the Technology page.",
+      "category": "technological_parameters",
+      "tags": [
+        "Profile Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.124",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Enable Wall draft angle for Profile machining",
+      "body": "Check the Wall draft angle option and set External wall angle to 8.",
+      "category": "technological_parameters",
+      "tags": [
+        "Profile Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.124",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for T-slot machining",
+      "body": "Define two geometry chains as shown.",
+      "category": "toolpath",
+      "tags": [
+        "T-slot Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "t_slot_machining"
+      ],
+      "page_ref": "p.126",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set cutting length for Slot Mill",
+      "body": "Edit the tool parameters and set Cutting length to 3.",
+      "category": "tool_selection",
+      "tags": [
+        "Slot Mill"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "t_slot_machining"
+      ],
+      "page_ref": "p.126",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for Drilling operations",
+      "body": "Define several Drilling operations to perform the machining of countersink holes.",
+      "category": "toolpath",
+      "tags": [
+        "Drilling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.128",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set cutting depth overlap for finishing",
+      "body": "Set Cutting depth overlap value for finishing to 2.",
+      "category": "technological_parameters",
+      "tags": [
+        "Finishing"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "finishing"
+      ],
+      "page_ref": "p.128",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define geometry for Thread Milling operation",
+      "body": "Define the geometry by clicking on the internal surface of the part.",
+      "category": "toolpath",
+      "tags": [
+        "Thread Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "thread_milling"
+      ],
+      "page_ref": "p.130",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select Thread Mill tool for operation",
+      "body": "Choose the Thread Mill tool for the operation.",
+      "category": "tool_selection",
+      "tags": [
+        "Thread Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "thread_milling"
+      ],
+      "page_ref": "p.130",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Edit dimensions for shaped tool",
+      "body": "Edit the cone and cylinder dimensions as specified.",
+      "category": "tool_selection",
+      "tags": [
+        "Shaped Tool"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "thread_milling"
+      ],
+      "page_ref": "p.131",
+      "_chunk": 14,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set default Internal type in Thread Data area",
+      "body": "Choose Internal type and set Major thread diameter to 64.",
+      "category": "tool_selection",
+      "tags": [
+        "thread_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "threading"
+      ],
+      "page_ref": "p.133",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Lead in for Thread Milling",
+      "body": "Under Link page, select Start from the center and set other parameters.",
+      "category": "toolpath",
+      "tags": [
+        "thread_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "threading"
+      ],
+      "page_ref": "p.134",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate Thread Milling operation",
+      "body": "Perform simulation in Host CAD mode and SolidVerify mode.",
+      "category": "troubleshooting",
+      "tags": [
+        "simulation",
+        "thread_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "threading"
+      ],
+      "page_ref": "p.134-135",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add Thread Milling operation for external surface",
+      "body": "Define geometry and select a new Thread mill with specific parameters.",
+      "category": "tool_selection",
+      "tags": [
+        "thread_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "threading"
+      ],
+      "page_ref": "p.136",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define technological parameters for Engraving",
+      "body": "Switch to Technology page, choose Left in Tool side list, and select Contour from list.",
+      "category": "tool_selection",
+      "tags": [
+        "engraving"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "engraving"
+      ],
+      "page_ref": "p.141",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Geometry for Engraving",
+      "body": "Select faces, apply Loops filter, and add internal chains to geometry.",
+      "category": "toolpath",
+      "tags": [
+        "engraving"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "engraving"
+      ],
+      "page_ref": "p.139-140",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Tool for Engraving",
+      "body": "Select an Engraving tool with specific parameters like Tip diameter, Taper angle, Feed XY, Feed Z, and Spin rate.",
+      "category": "tool_selection",
+      "tags": [
+        "engraving"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "engraving"
+      ],
+      "page_ref": "p.140",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate Engraving operation",
+      "body": "Perform simulation in SolidVerify mode.",
+      "category": "troubleshooting",
+      "tags": [
+        "simulation",
+        "engraving"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "engraving"
+      ],
+      "page_ref": "p.142-143",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Milling levels for Engraving",
+      "body": "Set Engraving depth and define Upper level on part surface.",
+      "category": "toolpath",
+      "tags": [
+        "engraving"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "engraving"
+      ],
+      "page_ref": "p.143",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define technological parameters for Indexial 4-Axis Milling",
+      "body": "Switch to Technology page, choose Left in Tool side list, and select Contour from list.",
+      "category": "tool_selection",
+      "tags": [
+        "4-axis_milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "4axis"
+      ],
+      "page_ref": "p.145",
+      "_chunk": 15,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Additional Positions",
+      "body": "Use the Add button in CoordSys Manager to define additional positions around the Machine Coordinate System.",
+      "category": "machine_setup",
+      "tags": [
+        "4-axis",
+        "indexial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.151",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Stock Model",
+      "body": "Switch to the Stock iPart member and define the stock model by picking solid bodies.",
+      "category": "stock_definition",
+      "tags": [
+        "4-axis",
+        "indexial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.152",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Fixture",
+      "body": "Add the clamping device model to the CAM-Part assembly and define it as an Associative Fixture.",
+      "category": "fixture_setup",
+      "tags": [
+        "4-axis",
+        "indexial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.154",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Pocket Operation for Rough Machining",
+      "body": "Choose Coordinate System Position #1 and define the geometry with a Helical Ramping strategy.",
+      "category": "operations",
+      "tags": [
+        "4-axis",
+        "indexial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.156",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Profile Operation for Finish Machining",
+      "body": "Choose Coordinate System Position #1 and define the geometry with an Arc strategy.",
+      "category": "operations",
+      "tags": [
+        "4-axis",
+        "indexial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.157",
+      "_chunk": 16,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Pocket operation for rough machining",
+      "body": "Use Coordinate System Position #3 and perform rough machining of highlighted faces.",
+      "category": "toolpath",
+      "tags": [
+        "Pocket Milling",
+        "Rough Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.159",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Profile operation for finish machining",
+      "body": "Use Coordinate System Position #3 and perform finish machining of highlighted faces.",
+      "category": "toolpath",
+      "tags": [
+        "Profile Milling",
+        "Finish Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.159",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Pocket operation for rough and finish machining",
+      "body": "Use Coordinate System Position #4 to perform rough and finish machining of two connector openings.",
+      "category": "toolpath",
+      "tags": [
+        "Pocket Milling",
+        "Rough Machining",
+        "Finish Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.159",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Drilling operation for center drilling",
+      "body": "Use Coordinate System Position #1 to perform center drilling of M3 holes with a Ø6 spot drill.",
+      "category": "toolpath",
+      "tags": [
+        "Drilling",
+        "Center Drilling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.160",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Drilling operation for drilling and threading",
+      "body": "Use Coordinate System Position #2 to perform drilling and threading of M6 holes with a Ø6 spot drill.",
+      "category": "toolpath",
+      "tags": [
+        "Drilling",
+        "Threading"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.160",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Chamfer operation for chamfer machining",
+      "body": "Use Coordinate System Position #1 to perform 0.5 mm chamfer machining with a Ø6 chamfer mill tool.",
+      "category": "toolpath",
+      "tags": [
+        "Chamfering"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.161",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Face Milling operation for face milling",
+      "body": "Use Machine Coordinate System #1 (Position #1) to machine the shown face with the Hatch strategy.",
+      "category": "toolpath",
+      "tags": [
+        "Face Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.164",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Drilling operation for center drilling, drilling, and threading",
+      "body": "Use Machine Coordinate System #2 to perform center drilling, drilling, and threading of M6 holes.",
+      "category": "toolpath",
+      "tags": [
+        "Drilling",
+        "Center Drilling",
+        "Threading"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.164",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Face Milling operation to remove the clamping tail",
+      "body": "Use Machine Coordinate System #2 and perform face milling with the Hatch strategy to remove the clamping tail.",
+      "category": "toolpath",
+      "tags": [
+        "Face Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.167",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Pocket operation for back side machining",
+      "body": "Use Machine Coordinate System #2 to perform rough and finish machining of pocket faces on the back side.",
+      "category": "toolpath",
+      "tags": [
+        "Pocket Milling",
+        "Rough Machining",
+        "Finish Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.167",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Machine Coordinate System for mounting part",
+      "body": "Define Machine Coordinate System #1 in the center of the revolution face and rotate it to align X-axis with the revolution axis.",
+      "category": "machine_setup",
+      "tags": [
+        "Machine Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.163",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Machine Coordinate System for back faces machining",
+      "body": "Define an additional Machine Coordinate System #2 to machine the back faces of the mounting part.",
+      "category": "machine_setup",
+      "tags": [
+        "Machine Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.164",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Face Milling operation for mounting part",
+      "body": "Use Machine Coordinate System #1 to perform face milling with the Hatch strategy.",
+      "category": "toolpath",
+      "tags": [
+        "Face Milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.164",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Drilling operation for mounting part",
+      "body": "Use Machine Coordinate System #2 to perform center drilling, drilling, and threading of M6 holes.",
+      "category": "toolpath",
+      "tags": [
+        "Drilling",
+        "Center Drilling",
+        "Threading"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.164",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Circular Pattern of operations",
+      "body": "Use the Operation Transformations dialog box to define a circular pattern of operations around the revolution axis.",
+      "category": "toolpath",
+      "tags": [
+        "Circular Pattern"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.165",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate transformed operations",
+      "body": "Play the simulation of transformed operations in SolidVerify mode to check for gouges.",
+      "category": "simulation",
+      "tags": [
+        "Simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.166",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a Machine Coordinate System for 5-Axis Milling",
+      "body": "For each clamping, define the Machine Coordinate System in the center of the revolution face.",
+      "category": "machine_setup",
+      "tags": [
+        "Machine Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.170",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define related positions for Machine Coordinate Systems",
+      "body": "For each position, define a number of related positions around the Machine CoordSys, considering machine limitations.",
+      "category": "machine_setup",
+      "tags": [
+        "Machine Coordinate System"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.170",
+      "_chunk": 17,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define CAM-Part and operations for clamp machining",
+      "body": "Create a CAM-Part, define CNC-controller (TTC_Hermle_C20_full), Machine Coordinate System, Stock, and Target models.",
+      "category": "strategy",
+      "tags": [
+        "CAM-Part",
+        "5-axis milling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling",
+        "pocketing",
+        "profile_machining",
+        "drilling"
+      ],
+      "page_ref": "p.172",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Machine Coordinate Systems for indexial 5-axis machining",
+      "body": "Create Machine Coordinate System #1 with positions 1-5 and Machine Coordinate System #2 with position 1.",
+      "category": "machine_setup",
+      "tags": [
+        "5-axis",
+        "indexial"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.173",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Stock and Target models for machining operations",
+      "body": "Use the Stock configuration for the CAM-Part assembly as the Stock model, and the Machining configuration as the Target model.",
+      "category": "machine_setup",
+      "tags": [
+        "Stock",
+        "Target"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.174",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Face Milling operations for clamp faces",
+      "body": "Create Face Milling operations with the Hatch strategy on the top, back, and front inclined faces using Machine Coordinate System #1.",
+      "category": "operation_types",
+      "tags": [
+        "Face Milling",
+        "Hatch"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.174",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Profile operation for openings",
+      "body": "Create a Profile operation to machine two openings on the front inclined face using Machine Coordinate System #1.",
+      "category": "operation_types",
+      "tags": [
+        "Profile"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.174",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Slot machining operations for slot faces",
+      "body": "Create multiple Slot machining operations to machine the slot faces on the top inclined face using Machine Coordinate System #1.",
+      "category": "operation_types",
+      "tags": [
+        "Slot Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.174",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Hole machining operations for counterbore holes",
+      "body": "Create multiple Hole machining operations to machine inclined counterbore holes on the top inclined face using Machine Coordinate System #1.",
+      "category": "operation_types",
+      "tags": [
+        "Hole Machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.175",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Bottom face machining operation",
+      "body": "Create a Face Milling operation with the Hatch strategy to machine the bottom inclined face using Machine Coordinate System #2.",
+      "category": "operation_types",
+      "tags": [
+        "Face Milling",
+        "Hatch"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "face_milling"
+      ],
+      "page_ref": "p.175",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define ToolBox Cycles for various machining strategies",
+      "body": "Use the Toolbox dialog box to define different machining strategies such as Spiral Open Slot, Spiral Closed Slot Wide, Additional Zigzag Slot, etc.",
+      "category": "operation_types",
+      "tags": [
+        "ToolBox Cycles"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining",
+        "drilling"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Spiral Open Slot",
+      "body": "Set Wall offset to 0.5, % of tool diameter to 80, and select the Wall finish option.",
+      "category": "operation_types",
+      "tags": [
+        "Spiral Open Slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Wide Spiral Open Slot",
+      "body": "Set Wall offset to 1 and select the Wall finish option.",
+      "category": "operation_types",
+      "tags": [
+        "Wide Spiral Open Slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Wide Spiral Closed Slot",
+      "body": "Set Wall offset to 1 and select the Wall finish option.",
+      "category": "operation_types",
+      "tags": [
+        "Wide Spiral Closed Slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Additional Zigzag Slot",
+      "body": "Select the closed chain and set the Wall finish option.",
+      "category": "operation_types",
+      "tags": [
+        "Additional Zigzag Slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Simple Slot",
+      "body": "Set Wall offset to 0 and select the Wall finish option.",
+      "category": "operation_types",
+      "tags": [
+        "Simple Slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Open slot machined by rolling",
+      "body": "Set Step down to 10, Approach distance to 1.25, % of tool diameter to 60.",
+      "category": "operation_types",
+      "tags": [
+        "Roll into open slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define parameters for Closed Slot",
+      "body": "Set the tool diameter equal to the slot width.",
+      "category": "operation_types",
+      "tags": [
+        "Closed Slot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "profile_machining"
+      ],
+      "page_ref": "p.178",
+      "_chunk": 18,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation",
+      "body": "Under Technology, select the Spine Slot strategy.",
+      "category": "toolpath",
+      "tags": [
+        "spine_slot",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.186",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Step down for Spine Slot machining",
+      "body": "Set the Step down to 10.",
+      "category": "speeds_feeds",
+      "tags": [
+        "spine_slot",
+        "step_down"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.186",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Temporary Bridges",
+      "body": "Under Technology, select the Temporary Bridges strategy.",
+      "category": "toolpath",
+      "tags": [
+        "temporary_bridges",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.186",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Shoulder length for Temporary Bridges",
+      "body": "Set the Shoulder length to 60.",
+      "category": "speeds_feeds",
+      "tags": [
+        "temporary_bridges",
+        "shoulder_length"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Simple Corner machining",
+      "body": "Under Technology, select the Simple Corner strategy.",
+      "category": "toolpath",
+      "tags": [
+        "simple_corner",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Broaching",
+      "body": "Under Technology, select the Broaching strategy.",
+      "category": "toolpath",
+      "tags": [
+        "broaching",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Width and Depth for Broaching tool",
+      "body": "Set the Width and Depth to 6.",
+      "category": "tool_selection",
+      "tags": [
+        "broaching",
+        "width_depth"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Closed slot machined by rolling",
+      "body": "Under Technology, select the Roll into closed slot strategy.",
+      "category": "toolpath",
+      "tags": [
+        "closed_slot",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Approach distance for Closed slot machined by rolling",
+      "body": "Set the Approach distance value to 1.25.",
+      "category": "speeds_feeds",
+      "tags": [
+        "closed_slot",
+        "approach_distance"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Simple Multi Bosses machining",
+      "body": "Under Technology, select the Simple Multi Bosses strategy.",
+      "category": "toolpath",
+      "tags": [
+        "simple_multi_bosses",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for One Side Open Slot machining",
+      "body": "Under Technology, select the One Side Open Slot strategy.",
+      "category": "toolpath",
+      "tags": [
+        "one_side_open_slot",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Ruled Surface machining",
+      "body": "Under Technology, select the Ruled strategy.",
+      "category": "toolpath",
+      "tags": [
+        "ruled_surface",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for O-ring machining",
+      "body": "Under Technology, select the O-Ring strategy.",
+      "category": "toolpath",
+      "tags": [
+        "o_ring",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Surface flattening on cylinder",
+      "body": "Under Technology, select the Flattened surface on cylinder strategy.",
+      "category": "toolpath",
+      "tags": [
+        "surface_flattening",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Rib cutting",
+      "body": "Under Technology, select the Rib cut strategy.",
+      "category": "toolpath",
+      "tags": [
+        "rib_cutting",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Surface flattening on corner",
+      "body": "Under Technology, select the Flattened surface on corner strategy.",
+      "category": "toolpath",
+      "tags": [
+        "surface_flattening",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Simple Boss Machining",
+      "body": "Under Technology, select the Simple Boss strategy.",
+      "category": "toolpath",
+      "tags": [
+        "simple_boss",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Spiral pocket machining",
+      "body": "Under Technology, select the Spiral pocket strategy.",
+      "category": "toolpath",
+      "tags": [
+        "spiral_pocket",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Wood cutting",
+      "body": "Under Technology, select the Wood cutting strategy.",
+      "category": "toolpath",
+      "tags": [
+        "wood_cutting",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Cylinder top cutting",
+      "body": "Under Technology, select the Angled cylinder strategy.",
+      "category": "toolpath",
+      "tags": [
+        "cylinder_top_cutting",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Thin Wall Machining",
+      "body": "Under Technology, select the Thin Wall Machining strategy.",
+      "category": "toolpath",
+      "tags": [
+        "thin_wall_machining",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate the operations",
+      "body": "Right-click the Operations header and choose Simulate.",
+      "category": "troubleshooting",
+      "tags": [
+        "simulation",
+        "debugging"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.187",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Pocket Recognition",
+      "body": "Under Technology, select the Pocket Recognition strategy.",
+      "category": "toolpath",
+      "tags": [
+        "pocket_recognition",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.188",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Chamfer Recognition",
+      "body": "Under Technology, select the Chamfer Recognition strategy.",
+      "category": "toolpath",
+      "tags": [
+        "chamfer_recognition",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.188",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define a new ToolBox Cycles operation for Drill Recognition",
+      "body": "Under Technology, select the Drill Recognition strategy.",
+      "category": "toolpath",
+      "tags": [
+        "drill_recognition",
+        "machining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.188",
+      "_chunk": 19,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define tool parameters",
+      "body": "Set Total length: 130, Outside holder length: 120, Shoulder length: 110, Cutting length: 100 for an End mill of Ø16.",
+      "category": "tool_selection",
+      "tags": [
+        "End mill",
+        "tool parameters"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.198",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define machining levels",
+      "body": "Set Upper level by clicking on the upper model face and select Equal step down with Max step down value: 5.",
+      "category": "machining_levels",
+      "tags": [
+        "Pocket operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.198",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define technological parameters for pocket machining",
+      "body": "Switch to the Technology page and use default parameters for pocket machining.",
+      "category": "technological_parameters",
+      "tags": [
+        "Pocket operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.198",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define ramping strategy for pocket machining",
+      "body": "Choose Helical ramping strategy with Radius: 5 in the Link page.",
+      "category": "ramping_strategy",
+      "tags": [
+        "Pocket operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.198",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Simulate the pocket machining operation",
+      "body": "Simulate the operation in SolidVerify mode to confirm setup.",
+      "category": "simulation",
+      "tags": [
+        "Pocket operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.198",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define external contour machining tool",
+      "body": "Use an End mill of Ø20 for external contour machining.",
+      "category": "tool_selection",
+      "tags": [
+        "Profile operation",
+        "End mill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.200",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define pocket roughing tool",
+      "body": "Use the same End mill of Ø20 for pocket roughing.",
+      "category": "tool_selection",
+      "tags": [
+        "Pocket operation",
+        "End mill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.200",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define pocket rest material machining tool",
+      "body": "Use an End mill of Ø10 for pocket rest material machining.",
+      "category": "tool_selection",
+      "tags": [
+        "Pocket operation",
+        "End mill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "pocketing"
+      ],
+      "page_ref": "p.200",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drill recognition tool",
+      "body": "Add a Spot drill tool of Ø16 with Total length: 70, Outside holder length: 60, Shoulder length: 50.",
+      "category": "tool_selection",
+      "tags": [
+        "Drill operation",
+        "Spot drill"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.204",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define drilling levels for each group",
+      "body": "Edit Milling Levels parameters (Upper Level, Drill Depth, Delta Depth) for each drill instance in the Holes Tree section.",
+      "category": "levels",
+      "tags": [
+        "Drill operation"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.204",
+      "_chunk": 20,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Upper Level value",
+      "body": "Enter or pick a value for the Upper Level parameter, which can be applied to a single hole, group of holes, or all holes.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "hole recognition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.205",
+      "_chunk": 21,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define Depth Type for drilling",
+      "body": "Choose from options like Cutter Tip, Full Diameter, Auto Chamfer/Spot drill, or Diameter Value to define how the drill reaches the specified depth.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "depth control"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.206",
+      "_chunk": 21,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set Chamfer depth value",
+      "body": "Enter a value of 0.2 for the Chamfer depth when using the Auto Chamfer option to ensure proper chamfering.",
+      "category": "toolpath",
+      "tags": [
+        "chamfering",
+        "drilling"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.206",
+      "_chunk": 21,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Sort drill positions using Advanced Sorting",
+      "body": "Select the Linear tab in the Advanced Sorting dialog box and set the Tolerance value to 5 for linear sorting of drill positions.",
+      "category": "toolpath",
+      "tags": [
+        "sorting",
+        "drilling"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.207",
+      "_chunk": 21,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Add new Drill Recognition operation for Ø6.8 holes",
+      "body": "Create a new Drill Recognition operation to identify and drill Ø6.8 holes on the model.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "hole recognition"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.210",
+      "_chunk": 21,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set pecking parameters for drilling",
+      "body": "Under Drill cycle, choose the Peck type and set the Step down value to 2 in the Drill Options dialog box.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "pecking"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.210",
+      "_chunk": 21,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set drill cycle type",
+      "body": "Choose Peck cycle type in Drill cycle settings.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "peck"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.211",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set step down value",
+      "body": "Set Step down value to 2 in Drill cycle settings.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "step_down"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.211",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define hole diameter filter",
+      "body": "Set the Hole Diameter filter range to 4.2 mm in HR Drill Geometry Selection dialog box.",
+      "category": "feature",
+      "tags": [
+        "drilling",
+        "hole_diameter"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.211",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Use Advanced drill sorting",
+      "body": "Choose the Advanced drill sorting option to determine start positions for drills.",
+      "category": "toolpath",
+      "tags": [
+        "drilling",
+        "sorting"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling"
+      ],
+      "page_ref": "p.213",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set reamer depth",
+      "body": "Pick the model face to define the Drill depth value for reaming operations.",
+      "category": "toolpath",
+      "tags": [
+        "reaming",
+        "depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "reaming"
+      ],
+      "page_ref": "p.214",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define chamfer recognition filters",
+      "body": "Set the Min. Diameter value to 20 in Circular Pocket diameter filter section for chamfer recognition.",
+      "category": "feature",
+      "tags": [
+        "chamfering",
+        "filters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "chamfering"
+      ],
+      "page_ref": "p.217",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Select chamfer geometry mode",
+      "body": "Under Selection mode, use the default Solid Body option for defining chamfer geometry.",
+      "category": "feature",
+      "tags": [
+        "chamfering",
+        "geometry"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "chamfering"
+      ],
+      "page_ref": "p.217",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set chamfer depth",
+      "body": "Define the Chamfer depth by setting the value to 0.5.",
+      "category": "toolpath",
+      "tags": [
+        "chamfering",
+        "depth"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "chamfering"
+      ],
+      "page_ref": "p.218",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set cutting diameter",
+      "body": "Switch to the Technology page and set the Cutting diameter value to 2 for chamfering.",
+      "category": "toolpath",
+      "tags": [
+        "chamfering",
+        "cutting_diameter"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "chamfering"
+      ],
+      "page_ref": "p.218",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Set safety offset",
+      "body": "Set the Safety offset value to 2 for open chain geometries.",
+      "category": "safety",
+      "tags": [
+        "safety",
+        "offset"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "reaming"
+      ],
+      "page_ref": "p.219",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    },
+    {
+      "title": "Define link in and out",
+      "body": "Select the Normal option from Lead in list and set the Normal length to 3 for lead-in. Select the Same as Lead in check box in the Lead out section.",
+      "category": "toolpath",
+      "tags": [
+        "link_in_out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "drilling",
+        "reaming"
+      ],
+      "page_ref": "p.219",
+      "_chunk": 22,
+      "_source_doc": "doc-inventorcam2024-2-5d-milling-training-course"
+    }
+  ]
+}

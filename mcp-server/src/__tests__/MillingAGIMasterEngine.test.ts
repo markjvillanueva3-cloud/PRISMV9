@@ -10,11 +10,22 @@ import {
   millingAGIMasterEngine,
   MillingAGIMasterEngine,
   MillAGIRequest,
+  MillAGIResponse,
   MillReasoningMode,
   ISOGroup,
   type TribalConsultFn,
+  type MillConsensusFn,
+  type MillConsensusQuery,
+  type MillConsensusVerdict,
+  type PublishOutcomeFn,
+  type MillDecisionValue,
 } from "../engines/MillingAGIMasterEngine.js";
 import type { TribalTip } from "../engines/MillTribalKnowledgeEngine.js";
+import {
+  DomainAGIResultSchema,
+  type DomainAGIIntent,
+} from "../schemas/domainAGIContract.js";
+import { OutcomeEventSchema, type OutcomeEvent } from "../schemas/outcomeEventSchema.js";
 
 describe("MillingAGIMasterEngine", () => {
   describe("chain_of_thought reasoning", () => {
@@ -522,6 +533,321 @@ describe("MillingAGIMasterEngine", () => {
         (s) => s.thought.includes("kc1.1") && s.thought.includes("1800"),
       );
       expect(ruleStep).toBeDefined();
+    });
+  });
+});
+
+// ============================================================================
+// INFRA-AGI-ROUTER-MS2/P0-U02 — orchestrate(DomainAGIIntent) contract
+// ============================================================================
+
+describe("MillingAGIMasterEngine.orchestrate — DomainAGIIntent contract (P0-U02)", () => {
+  /** Build a valid mill DomainAGIIntent with sensible defaults. */
+  function mkIntent(
+    action: DomainAGIIntent["action"],
+    overrides: Partial<DomainAGIIntent> = {},
+  ): DomainAGIIntent {
+    return {
+      schemaVersion: "1.0.0",
+      domain: "mill",
+      action,
+      features: [
+        { id: "F-001", kind: "pocket", dimensions: { length_mm: 80, width_mm: 40, depth_mm: 20 } },
+      ],
+      material: "6061-aluminum",
+      constraints: {},
+      consensusRequired: false,
+      ...overrides,
+    };
+  }
+
+  /** Deterministic consensus fake — records every call; never hits the network. */
+  function mkFakeConsensus(opts: { override?: boolean; withAuditId?: boolean } = {}) {
+    const calls: MillConsensusQuery[] = [];
+    const fn: MillConsensusFn = async (q) => {
+      calls.push(q);
+      const verdict: MillConsensusVerdict = {
+        answer: opts.override ? `consensus-${q.decisionKind}-choice` : q.options[0],
+        confidence: 0.91,
+        voters: ["claude", "codex", "ollama"],
+      };
+      if (opts.withAuditId) verdict.auditId = `consensus-decisions.jsonl#${q.decisionKind}-row`;
+      return verdict;
+    };
+    return { fn, calls };
+  }
+
+  /** Outcome-event spy for the feedback-bus seam. */
+  function mkPublishSpy() {
+    const events: OutcomeEvent[] = [];
+    const fn: PublishOutcomeFn = (e) => {
+      events.push(e);
+    };
+    return { fn, events };
+  }
+
+  describe("3 mill intent types return a valid DomainAGIResult", () => {
+    for (const action of ["roughing", "finishing", "drilling"] as const) {
+      it(`${action}: schema-valid result with tool/strategy/feed decisions`, async () => {
+        const { fn: publish } = mkPublishSpy();
+        const result = await millingAGIMasterEngine.orchestrate(mkIntent(action), {
+          publishOutcome: publish,
+        });
+        // Validates decisions[], outcomes[] (each OutcomeEventSchema), confidence in [0,1].
+        expect(() => DomainAGIResultSchema.parse(result)).not.toThrow();
+        expect(result.success).toBe(true);
+        expect(result.decisions.map((d) => d.kind).sort()).toEqual(["feed", "strategy", "tool"]);
+        expect(result.confidence).toBeGreaterThan(0);
+        expect(result.confidence).toBeLessThanOrEqual(1);
+      });
+    }
+  });
+
+  describe("consensus gating", () => {
+    it("consensusRequired=false: never calls the consensus seam", async () => {
+      const { fn: consensus, calls } = mkFakeConsensus();
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { consensusRequired: false }),
+        { consensusDecide: consensus, publishOutcome: publish },
+      );
+      expect(calls).toHaveLength(0);
+      expect(result.decisions).toHaveLength(3);
+      expect(result.decisions.every((d) => d.source === "MillingAGIMasterEngine.reason")).toBe(true);
+    });
+
+    it("consensusRequired=true: routes tool, strategy AND feed picks through consensus", async () => {
+      const { fn: consensus, calls } = mkFakeConsensus();
+      const { fn: publish } = mkPublishSpy();
+      await millingAGIMasterEngine.orchestrate(mkIntent("finishing", { consensusRequired: true }), {
+        consensusDecide: consensus,
+        publishOutcome: publish,
+      });
+      // Exact order — tool, then strategy, then feed (deterministic pick order).
+      expect(calls.map((c) => c.decisionKind)).toEqual(["tool", "strategy", "feed"]);
+    });
+
+    it("consensusRequired=true: every decision is sourced from consensus_decide", async () => {
+      const { fn: consensus } = mkFakeConsensus();
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("drilling", { consensusRequired: true }),
+        { consensusDecide: consensus, publishOutcome: publish },
+      );
+      expect(result.decisions).toHaveLength(3);
+      expect(result.decisions.every((d) => d.source.startsWith("consensus_decide:"))).toBe(true);
+      // Pipeline confidence is the joint product of the 3 per-decision
+      // confidences (the consensus fake fixes each at 0.91).
+      expect(result.confidence).toBeCloseTo(0.91 ** 3, 5);
+    });
+
+    it("consensus override: replaces the engine pick and flags consensusOverride", async () => {
+      const { fn: consensus } = mkFakeConsensus({ override: true });
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { consensusRequired: true }),
+        { consensusDecide: consensus, publishOutcome: publish },
+      );
+      expect(result.decisions).toHaveLength(3);
+      for (const d of result.decisions) {
+        const value = d.value as MillDecisionValue;
+        expect(value.consensusOverride).toBe(true);
+        expect(value.selected).toBe(`consensus-${d.kind}-choice`);
+        expect(value.selected).not.toBe(value.enginePick);
+      }
+      expect(result.warnings.some((w) => w.includes("Consensus overrode"))).toBe(true);
+    });
+
+    it("consensus audit id: surfaced on the decision only when the seam provides one", async () => {
+      const { fn: publish } = mkPublishSpy();
+      const withId = mkFakeConsensus({ withAuditId: true });
+      const r1 = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { consensusRequired: true }),
+        { consensusDecide: withId.fn, publishOutcome: publish },
+      );
+      expect(r1.decisions.map((d) => d.consensus_audit_id)).toEqual([
+        "consensus-decisions.jsonl#tool-row",
+        "consensus-decisions.jsonl#strategy-row",
+        "consensus-decisions.jsonl#feed-row",
+      ]);
+
+      const noId = mkFakeConsensus({ withAuditId: false });
+      const r2 = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { consensusRequired: true }),
+        { consensusDecide: noId.fn, publishOutcome: publish },
+      );
+      // No fabricated pointer — honest absence (Karpathy R12).
+      expect(r2.decisions).toHaveLength(3);
+      expect(r2.decisions.every((d) => d.consensus_audit_id === undefined)).toBe(true);
+    });
+
+    it("consensus seam throws: degrades soft to the engine pick (no hard failure)", async () => {
+      const consensus: MillConsensusFn = async () => {
+        throw new Error("all voices offline");
+      };
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { consensusRequired: true }),
+        { consensusDecide: consensus, publishOutcome: publish },
+      );
+      expect(result.success).toBe(true);
+      expect(result.decisions).toHaveLength(3);
+      expect(result.decisions.every((d) => d.source === "MillingAGIMasterEngine.reason")).toBe(true);
+      expect(result.warnings.some((w) => w.includes("Consensus call failed"))).toBe(true);
+    });
+
+    it("consensusRequired=true with no injected fake: test-env guard fires, degrades soft", async () => {
+      // No consensusDecide opt -> defaultConsensusDecide runs -> test-env guard
+      // throws (VITEST is set) -> per-pick catch degrades to the engine pick.
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { consensusRequired: true }),
+        { publishOutcome: publish },
+      );
+      expect(result.success).toBe(true);
+      expect(result.warnings.some((w) => w.includes("injected consensusDecide fake"))).toBe(true);
+    });
+  });
+
+  describe("outcome events feed the MS1 feedback bus", () => {
+    it("emits one cross_process_decision event per decision via the publish seam", async () => {
+      const { fn: publish, events } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(mkIntent("roughing"), {
+        publishOutcome: publish,
+      });
+      expect(events).toHaveLength(3);
+      expect(result.outcomes).toHaveLength(3);
+      expect(events.every((e) => e.kind === "cross_process_decision")).toBe(true);
+      expect(events.every((e) => e.domain === "mill")).toBe(true);
+      // Every emitted event is itself schema-valid.
+      for (const e of events) expect(() => OutcomeEventSchema.parse(e)).not.toThrow();
+    });
+
+    it("outcome events share one non-empty job_id but carry distinct lineage_ids", async () => {
+      const { fn: publish, events } = mkPublishSpy();
+      await millingAGIMasterEngine.orchestrate(mkIntent("finishing"), { publishOutcome: publish });
+      expect(events).toHaveLength(3);
+      // Every job_id is a real non-empty string (a Set of all-undefined would
+      // also have size 1 — assert the value, not just the cardinality).
+      for (const e of events) {
+        expect(typeof e.context.job_id).toBe("string");
+        expect((e.context.job_id ?? "").length).toBeGreaterThan(0);
+        expect(e.lineage_id.length).toBeGreaterThan(0);
+      }
+      const jobIds = new Set(events.map((e) => e.context.job_id));
+      const lineageIds = new Set(events.map((e) => e.lineage_id));
+      expect(jobIds.size).toBe(1);
+      expect(lineageIds.size).toBe(3);
+    });
+  });
+
+  describe("validation + error paths", () => {
+    it("rejects an action that does not belong to the mill domain", async () => {
+      // "turning" is a lathe action — invalid for domain mill.
+      const bad = { ...mkIntent("roughing"), action: "turning" } as unknown as DomainAGIIntent;
+      const result = await millingAGIMasterEngine.orchestrate(bad);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("INVALID_INTENT");
+      expect(() => DomainAGIResultSchema.parse(result)).not.toThrow();
+    });
+
+    it("rejects a valid non-mill intent routed to the mill engine", async () => {
+      // lathe + turning is a VALID intent — it just belongs to a different
+      // domain, so orchestrate must reject with WRONG_DOMAIN (router misroute).
+      const wrong = {
+        ...mkIntent("roughing"),
+        domain: "lathe",
+        action: "turning",
+      } as unknown as DomainAGIIntent;
+      const result = await millingAGIMasterEngine.orchestrate(wrong);
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("WRONG_DOMAIN");
+    });
+  });
+
+  describe("intent to request mapping", () => {
+    it("infers ISO group from a known steel material without an uncertainty warning", async () => {
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { material: "4140-steel" }),
+        { publishOutcome: publish },
+      );
+      expect(result.warnings.some((w) => w.includes("ISO machining group inferred"))).toBe(false);
+    });
+
+    it("warns when the ISO group cannot be inferred from the material name", async () => {
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(
+        mkIntent("roughing", { material: "G-10 fiberglass laminate" }),
+        { publishOutcome: publish },
+      );
+      expect(result.warnings.some((w) => w.includes("ISO machining group inferred"))).toBe(true);
+    });
+
+    it("produces the uniform MillDecisionValue shape for every decision", async () => {
+      const { fn: publish } = mkPublishSpy();
+      const result = await millingAGIMasterEngine.orchestrate(mkIntent("drilling"), {
+        publishOutcome: publish,
+      });
+      expect(result.decisions).toHaveLength(3);
+      for (const d of result.decisions) {
+        const value = d.value as MillDecisionValue;
+        expect(typeof value.selected).toBe("string");
+        expect(value.selected.length).toBeGreaterThan(0);
+        expect(value.selected).toBe(value.enginePick); // non-consensus run
+        expect(value.consensusOverride).toBe(false);
+        expect(typeof value.detail).toBe("object");
+        expect(value.detail).not.toBeNull();
+      }
+    });
+  });
+
+  describe("reasoning failure paths (failResult)", () => {
+    it("returns REASONING_FAILED when the reasoning pipeline throws", async () => {
+      // Subclass overrides reason() to throw — exercises the orchestrate()
+      // catch that would otherwise be a defensive guard with no coverage.
+      class ThrowingMill extends MillingAGIMasterEngine {
+        async reason(): Promise<MillAGIResponse> {
+          throw new Error("simulated reasoning crash");
+        }
+      }
+      const result = await new ThrowingMill().orchestrate(mkIntent("roughing"));
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("REASONING_FAILED");
+      expect(result.error?.stage).toBe("reasoning");
+      expect(() => DomainAGIResultSchema.parse(result)).not.toThrow();
+    });
+
+    it("returns REASONING_INCOMPLETE when reason() yields no tool/strategy", async () => {
+      class IncompleteMill extends MillingAGIMasterEngine {
+        async reason(req: MillAGIRequest): Promise<MillAGIResponse> {
+          const r = await super.reason(req);
+          return { ...r, tool_recommendation: undefined, strategy_recommendation: undefined };
+        }
+      }
+      const result = await new IncompleteMill().orchestrate(mkIntent("roughing"));
+      expect(result.success).toBe(false);
+      expect(result.error?.code).toBe("REASONING_INCOMPLETE");
+    });
+
+    it("publish seam throwing does not fail orchestration — degrades soft with a warning", async () => {
+      const result = await millingAGIMasterEngine.orchestrate(mkIntent("roughing"), {
+        publishOutcome: () => {
+          throw new Error("feedback bus offline");
+        },
+      });
+      expect(result.success).toBe(true);
+      expect(result.decisions).toHaveLength(3);
+      expect(result.warnings.some((w) => w.includes("could not be published"))).toBe(true);
+    });
+  });
+
+  describe("legacy API preservation", () => {
+    it("leaves the legacy reason() entry point intact", async () => {
+      const r = await millingAGIMasterEngine.reason({ intent: "Rough a pocket", iso_group: "N" });
+      expect(r.success).toBe(true);
+      expect(r.tool_recommendation?.type).toBe("end_mill");
+      expect(r.strategy_recommendation?.strategy).toBe("adaptive_clearing");
     });
   });
 });

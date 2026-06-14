@@ -38,7 +38,7 @@ export interface NREItem {
   description: string;
   estimated_hours?: number;
   estimated_cost?: number;
-  amortize_over_qty?: number; // if set, folds NRE into per-part price
+  amortize_over_qty?: number; // amortization denominator; defaults to the quote quantity when unset. ALL NRE folds into per-part price (total_nre is reported but NOT separately billed), so an unset value still amortizes over qty rather than dropping the cost.
 }
 
 export interface QuoteEstimateInput {
@@ -59,6 +59,20 @@ export interface QuoteEstimateInput {
   features?: FeatureSpec[];
   num_setups?: number;
   machine_type?: string;        // "cnc_mill_3axis" | "cnc_mill_5axis" | "cnc_lathe" etc.
+  // Per-shop rate overrides (U-QP-RATE-WIRE). When supplied (e.g. InstantQuoteEngine
+  // reading ShopConfigurationEngine for the active shop), these replace the inline
+  // planning-default rates so the quote reflects THIS shop's actual $/hr -- killing
+  // the silent divergence between the quote kernel and the real rate source. Absent
+  // -> the documented planning defaults below are used (unchanged behavior).
+  machine_rate_hr?: number;
+  setup_rate_hr?: number;
+  programming_rate_hr?: number;
+  // Units-correct per-part material cost from a REAL source (U-QP-DOCUSTRATA-MATERIAL).
+  // When supplied (e.g. InstantQuoteEngine: stock_volume_in3 x the JM AP-ledger
+  // $/in3 consumable basis), it replaces the density x $/kg x scrap ESTIMATE. The
+  // $/in3 basis is density-free + already block-form (scrap inherent in stock vs
+  // part), so it is NOT additionally scrap-loaded.
+  material_cost_per_part_override?: number;
   tightest_tolerance_mm?: number;
   tightest_surface_finish_ra?: number;
 
@@ -97,6 +111,11 @@ export interface QuoteEstimateInput {
   repeat_order?: boolean;
   customer_tier?: "A" | "B" | "C" | "new";
   target_margin_pct?: number;
+  /** Minimum acceptable gross-margin %. A quote whose margin falls below this
+   *  (after discount stacking) is FLAGGED (warning + pricing.below_margin_floor),
+   *  never silently emitted and never auto-clamped/rejected. Canonical source:
+   *  caller supplies from ShopConfigurationEngine; omitted → DEFAULT_MARGIN_FLOOR_PCT. */
+  margin_floor_pct?: number;
 
   // Historical reference
   similar_part_id?: string;    // for lookup from quote history
@@ -160,6 +179,10 @@ export interface QuoteEstimateResult {
     unit_price: number;
     total_price: number;
     margin_pct: number;
+    /** True when margin_pct fell below the (config-sourced) margin floor — review before sending. */
+    below_margin_floor: boolean;
+    /** The margin floor % this quote was checked against. */
+    margin_floor_pct: number;
     adjustments: {
       rush_premium_pct: number | null;
       volume_discount_pct: number | null;
@@ -208,6 +231,16 @@ export interface QuoteEstimateResult {
 }
 
 // ─── Constants ───────────────────────────────────────────────
+
+/** Default minimum gross-margin % floor used when the caller supplies none.
+ *  20% matches the prior (now-deprecated) QuotingEngine.PRICING.minMargin and sits
+ *  BELOW every customer-tier target margin (A 30 / B 35 / C 40 / new 38), so it only
+ *  trips on heavily discount-stacked quotes. Authoritative floor is caller-supplied
+ *  via QuoteEstimateInput.margin_floor_pct (sourced from ShopConfigurationEngine); this
+ *  const is the labeled fallback default, NOT a scattered inline margin literal. The
+ *  holistic "all quoting margins → ShopConfigurationEngine" refactor is tracked
+ *  separately (reference_quoting_margin_floor_gate_gap_2026_06_09). */
+const DEFAULT_MARGIN_FLOOR_PCT = 20;
 
 const MATERIAL_DENSITY_KG_M3: Record<string, number> = {
   aluminum_6061: 2710, aluminum_7075: 2810, aluminum_2024: 2780,
@@ -381,6 +414,23 @@ class QuoteEstimatorEngine {
     const actualMargin = totalPrice > 0
       ? round2(((totalPrice - totalCost) / totalPrice) * 100) : 0;
 
+    // ── 12b. Margin-floor gate (R12 fail-loud) ──
+    // Surface a sub-floor quote; do NOT silently emit it, and do NOT auto-clamp or
+    // reject (a quoting tool warns, the operator decides). Floor is caller-supplied
+    // (canonical, from ShopConfigurationEngine) or the labeled default.
+    // Floor resolution mirrors the overhead_pct precedent (read from ShopConfigurationEngine):
+    // explicit caller override -> active shop profile -> labeled default.
+    let shopMarginFloor: number | undefined;
+    try { shopMarginFloor = require("./ShopConfigurationEngine.js").shopConfigurationEngine.getActiveProfile().margin_floor_pct; } catch { /* fall back to default */ }
+    const marginFloorPct = input.margin_floor_pct ?? shopMarginFloor ?? DEFAULT_MARGIN_FLOOR_PCT;
+    const belowMarginFloor = actualMargin < marginFloorPct;
+    if (belowMarginFloor) {
+      dfmWarnings.push(
+        `Margin ${actualMargin.toFixed(1)}% is below the ${marginFloorPct}% floor — ` +
+        `discount stacking has eroded margin; review before sending this quote.`,
+      );
+    }
+
     // ── 13. Lead Time ──
     const leadTime = this.calcLeadTime(input, secOpsCost);
 
@@ -437,6 +487,8 @@ class QuoteEstimatorEngine {
         unit_price: pricePerPart,
         total_price: totalPrice,
         margin_pct: actualMargin,
+        below_margin_floor: belowMarginFloor,
+        margin_floor_pct: marginFloorPct,
         adjustments: {
           rush_premium_pct: rushPremium != null ? round2(rushPremium * 100) : null,
           volume_discount_pct: volumeDiscount > 0 ? round2(volumeDiscount * 100) : null,
@@ -506,7 +558,23 @@ class QuoteEstimatorEngine {
       return { raw_cost: 0, scrap_pct: 0, cert_cost: 0, total: 0 };
     }
 
-    const mat = input.material.toLowerCase();
+    // Units-correct real-cost override (U-QP-DOCUSTRATA-MATERIAL): a per-part
+    // material $ derived from the JM AP-ledger $/in3 consumable basis x stock
+    // volume. Already block-form (scrap inherent), density-free -> use as-is,
+    // bypassing the density x $/kg x scrap planning estimate below.
+    const matLower = input.material.toLowerCase();
+    if (input.material_cost_per_part_override !== undefined && input.material_cost_per_part_override > 0) {
+      const rawCost = round2(input.material_cost_per_part_override * input.quantity);
+      let certCostOv = 0;
+      if (input.certifications?.length) {
+        certCostOv = 25 * input.quantity;
+        if (input.certifications.includes("NADCAP")) certCostOv += 50;
+      }
+      confidence.push("material: real JM AP-ledger $/in3 basis (units-correct, density-free)");
+      return { raw_cost: rawCost, scrap_pct: 0, cert_cost: round2(certCostOv), total: round2(rawCost + certCostOv) };
+    }
+
+    const mat = matLower;
     const density = MATERIAL_DENSITY_KG_M3[mat] ?? 7850;
     const priceKg = MATERIAL_PRICE_PER_KG[mat];
 
@@ -547,7 +615,8 @@ class QuoteEstimatorEngine {
     confidence: string[],
   ): QuoteEstimateResult["costs"]["machining"] {
     const machType = input.machine_type ?? "cnc_mill_3axis";
-    const rate = MACHINE_RATE_HR[machType] ?? 85;
+    // Per-shop injected rate (ShopConfigurationEngine) > inline planning default.
+    const rate = input.machine_rate_hr ?? MACHINE_RATE_HR[machType] ?? 85;
     const qty = input.quantity;
     const machinability = MACHINABILITY_FACTOR[input.material.toLowerCase()] ?? 1.0;
 
@@ -646,7 +715,7 @@ class QuoteEstimatorEngine {
 
     const baseMinPerSetup = 25;
     const setupMin = round2(numSetups * baseMinPerSetup * fixture.multiplier);
-    const setupRate = 55;
+    const setupRate = input.setup_rate_hr ?? 55; // per-shop injected > planning default
 
     return {
       num_setups: numSetups,
@@ -692,7 +761,7 @@ class QuoteEstimatorEngine {
     };
     let hours = baseHours[input.complexity] ?? 2;
     if (input.machine_type?.includes("5axis")) hours *= 1.6;
-    const rate = 75;
+    const rate = input.programming_rate_hr ?? 75; // per-shop injected > planning default
     // Repeat orders: programming already done
     if (input.repeat_order) hours *= 0.1; // 10% for prove-out only
     return { hours: round2(hours), rate_hr: rate, total: round2(hours * rate) };
@@ -895,7 +964,7 @@ class QuoteEstimatorEngine {
     const machinability = MACHINABILITY_FACTOR[mat] ?? 1.0;
     const baseTimes: Record<string, number> = { simple: 5, medium: 15, complex: 35, very_complex: 75 };
     const cycleMin = (baseTimes[input.complexity] ?? 15) * machinability;
-    const machRate = MACHINE_RATE_HR[input.machine_type ?? "cnc_mill_3axis"] ?? 85;
+    const machRate = input.machine_rate_hr ?? MACHINE_RATE_HR[input.machine_type ?? "cnc_mill_3axis"] ?? 85;
     const machCost = (cycleMin / 60) * machRate;
 
     // Simplified material + setup + overhead
@@ -1011,6 +1080,176 @@ class QuoteEstimatorEngine {
       },
     };
   }
+
+  /**
+   * U-QP-CALIBRATION-WIRE — calibrated quote estimate.
+   *
+   * Wraps estimate() with a post-processing step that applies the currently-
+   * active calibration factor from QuotingActiveFactorLoaderEngine. This is
+   * the runtime end of the U-QT10 → U-COV-QUOTING → U-QAF-RUNTIME loop:
+   * every quote emitted via this method gets the systematic over-prediction
+   * corrected automatically.
+   *
+   * Backward compat:
+   *   - Sync `.estimate(input)` is unchanged — callers who want raw FMV stay
+   *     on it (e.g., training-loop record generation must NOT calibrate or
+   *     it would deflate the bias signal that drives the calibration cycle).
+   *   - `opts.skipCalibration: true` forces raw FMV from the async path too.
+   *
+   * Fallback:
+   *   - When no active factors loaded → returns base estimate with
+   *     `calibration.applied = false` + reason. Pricing unchanged.
+   *
+   * @milestone DEEP-REASONING-BRIDGE-MS0/U-QP-CALIBRATION-WIRE
+   * @author slot:charlie /goal-20 iter2, 2026-05-25
+   */
+  async estimateCalibrated(
+    input: QuoteEstimateInput,
+    opts: { skipCalibration?: boolean; customer?: string; maxFactorAgeHours?: number } = {},
+  ): Promise<QuoteEstimateResult & { calibration: CalibrationResult }> {
+    const base = this.estimate(input);
+    if (opts.skipCalibration) {
+      return {
+        ...base,
+        calibration: {
+          applied: false,
+          factor_used: 1,
+          factor_source: "balanced-pass-through",
+          reason: "skipCalibration-flag",
+        },
+      };
+    }
+
+    const { quotingActiveFactorLoaderEngine } = await import("./QuotingActiveFactorLoaderEngine.js");
+    const customerKey = opts.customer ?? this.deriveCustomerKey(input);
+    const applied = await quotingActiveFactorLoaderEngine.applyToQuote(
+      base.pricing.unit_price,
+      customerKey,
+    );
+
+    if (applied.fallback_used || !applied.ok) {
+      return {
+        ...base,
+        calibration: {
+          applied: false,
+          factor_used: applied.factor_used,
+          factor_source: applied.factor_source,
+          reason: applied.fallback_reason ?? "no-active-factors",
+          metadata: applied.factor_metadata,
+        },
+      };
+    }
+
+    // U-QP-CALIBRATION-FRESHNESS-PREFLIGHT (charlie 2026-06-09): the loader flags a factor
+    // older than its 24h staleness threshold as isStale; estimateCalibrated must ACT on it.
+    // A stale over-prediction correction applied silently to a live customer quote mis-prices
+    // once JM's real costs shift -- the quote-time analog of soul-refuse #4 (no freshness
+    // preflight). Soft path: apply but WARN. Hard path (opt-in maxFactorAgeHours): refuse +
+    // emit raw FMV, since an uncalibrated FMV is safer to send than a known-too-stale factor.
+    const factorMeta = applied.factor_metadata;
+    const factorAgeMinutes: number | undefined =
+      typeof factorMeta?.ageMinutes === "number" && Number.isFinite(factorMeta.ageMinutes)
+        ? factorMeta.ageMinutes
+        : undefined;
+    const factorIsStale = factorMeta?.isStale === true;
+    const maxAgeMinutes =
+      typeof opts.maxFactorAgeHours === "number" && opts.maxFactorAgeHours > 0
+        ? opts.maxFactorAgeHours * 60
+        : null;
+    if (maxAgeMinutes !== null && factorAgeMinutes !== undefined && factorAgeMinutes > maxAgeMinutes) {
+      const ageH = Math.round(factorAgeMinutes / 60);
+      return {
+        ...base,
+        dfm_warnings: [
+          ...base.dfm_warnings,
+          `Calibration factor is ${ageH}h old (max ${opts.maxFactorAgeHours}h) -- quote emitted ` +
+            `UNCALIBRATED (raw FMV). Re-derive calibration before relying on this quote.`,
+        ],
+        calibration: {
+          applied: false,
+          factor_used: 1,
+          factor_source: "balanced-pass-through",
+          reason: `factor-too-stale-${ageH}h`,
+          is_stale: true,
+          factor_age_minutes: factorAgeMinutes,
+          metadata: factorMeta,
+        },
+      };
+    }
+
+    // Re-derive total + margin against the calibrated per-part price.
+    const newUnitPrice = applied.corrected_usd;
+    const newTotalPrice = round2(newUnitPrice * input.quantity);
+    const newMargin = newTotalPrice > 0
+      ? round2(((newTotalPrice - base.costs.total_cost) / newTotalPrice) * 100)
+      : 0;
+
+    // Re-evaluate the margin-floor gate against the CALIBRATED margin (not base's),
+    // so a calibration that erodes margin across the floor is still flagged (R12/R15 —
+    // the gate must cover every quote-emitting path, not only the uncalibrated one).
+    const calBelowFloor = newMargin < base.pricing.margin_floor_pct;
+    const calWarnings = (calBelowFloor && !base.pricing.below_margin_floor)
+      ? [...base.dfm_warnings,
+         `Margin ${newMargin.toFixed(1)}% is below the ${base.pricing.margin_floor_pct}% floor ` +
+         `after calibration — review before sending this quote.`]
+      : base.dfm_warnings;
+
+    return {
+      ...base,
+      dfm_warnings: factorIsStale
+        ? [
+            ...calWarnings,
+            `Calibration factor is ${factorAgeMinutes !== undefined ? Math.round(factorAgeMinutes / 60) + "h" : "24h+"} old -- ` +
+              `re-derive before relying on this quote (the calibration distribution may have drifted).`,
+          ]
+        : calWarnings,
+      pricing: {
+        ...base.pricing,
+        unit_price: newUnitPrice,
+        total_price: newTotalPrice,
+        margin_pct: newMargin,
+        below_margin_floor: calBelowFloor,
+      },
+      calibration: {
+        applied: true,
+        factor_used: applied.factor_used,
+        factor_source: applied.factor_source,
+        pre_calibration_unit_price: base.pricing.unit_price,
+        pre_calibration_total_price: base.pricing.total_price,
+        pre_calibration_margin_pct: base.pricing.margin_pct,
+        is_stale: factorIsStale,
+        factor_age_minutes: factorAgeMinutes,
+        metadata: applied.factor_metadata,
+      },
+    };
+  }
+
+  /** Derive a customer key from QuoteEstimateInput for per-customer factor lookup. */
+  private deriveCustomerKey(input: QuoteEstimateInput): string | undefined {
+    // The QuoteEstimateInput shape doesn't currently carry an explicit customer
+    // string (only customer_tier). When calibration grows per-customer factors
+    // — which require ≥3 records per customer (DEFAULT_MIN_RECORDS) — the
+    // caller will need to pass customer explicitly via opts.customer. Until
+    // then we map the tier to a stable key so global fallback applies.
+    if (input.customer_tier) return undefined; // explicit-only: don't smuggle tier into customer namespace
+    return undefined;
+  }
+}
+
+/** U-QP-CALIBRATION-WIRE — calibration metadata block attached to a calibrated quote. */
+export interface CalibrationResult {
+  applied: boolean;
+  factor_used: number;
+  factor_source: "per-customer" | "global" | "balanced-pass-through";
+  reason?: string;
+  pre_calibration_unit_price?: number;
+  pre_calibration_total_price?: number;
+  pre_calibration_margin_pct?: number;
+  /** U-QP-CALIBRATION-FRESHNESS-PREFLIGHT: true when the applied (or refused) factor exceeded the loader 24h staleness threshold or the opt-in maxFactorAgeHours cutoff. */
+  is_stale?: boolean;
+  /** Age of the applied (or refused) calibration factor in minutes, when derivable from generated_at. */
+  factor_age_minutes?: number;
+  metadata?: unknown;
 }
 
 function round2(v: number): number {

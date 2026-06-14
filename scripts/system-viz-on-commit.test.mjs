@@ -5,10 +5,12 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
-import { foldDebtVerdict } from "./system-viz-on-commit.mjs";
+import { foldDebtVerdict, rebuildMasterIndexSidecar } from "./system-viz-on-commit.mjs";
+import { runMasterIndexSearch } from "./lib/master-index-search-lib.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(__dirname, "system-viz-on-commit.mjs");
+const BUILD_INDEX = path.join(__dirname, "build-graph-index.mjs");
 // Windows: dynamic import() needs a file:// URL, not a raw `H:\...` path.
 const SCRIPT_URL = pathToFileURL(SCRIPT).href;
 
@@ -192,4 +194,136 @@ test("--fold-debt-status honors PRISM_FOLD_DEBT_MAX_HRS (48h window keeps 9h ski
     });
     assert.equal(r.status, 0, `48h window must keep a 9h skip clean; got ${r.status}`);
   } finally { fs.rmSync(tmp, { force: true }); }
+});
+
+// ---------------------------------------------------------------------------
+// U-GO-B3 — the on-commit chain rebuilds the master-index sidecar.
+// system-graph.json exceeds master-index-search-lib's 200 MB loadGraph cap,
+// so master-index search depends ENTIRELY on the system-graph-index.json
+// sidecar; a regen that advances the graph without rebuilding the sidecar
+// degrades the whole fleet's search. These tests pin (a) the on-commit wiring
+// and (b) the build→sidecar→search contract it depends on.
+// ---------------------------------------------------------------------------
+
+test("U-GO-B3: rebuildMasterIndexSidecar invokes build-graph-index with a raised heap", () => {
+  const calls = [];
+  const fakeRun = (label, cmd, args) => { calls.push({ label, cmd, args }); return true; };
+  const ok = rebuildMasterIndexSidecar("/path/to/node", fakeRun);
+  assert.equal(ok, true, "a successful build must surface as true");
+  assert.equal(calls.length, 1, "the sidecar build must be invoked exactly once");
+  assert.equal(calls[0].cmd, "/path/to/node", "must spawn the injected node binary");
+  assert.ok(
+    calls[0].args.includes("scripts/build-graph-index.mjs"),
+    "must invoke the sidecar builder script",
+  );
+  assert.ok(
+    calls[0].args.some((a) => /^--max-old-space-size=\d+$/.test(a)),
+    "must pass a raised V8 heap — parsing the 400 MB+ graph OOMs under the default",
+  );
+});
+
+test("U-GO-B3: rebuildMasterIndexSidecar propagates a build failure (non-fatal bool, no throw)", () => {
+  const ok = rebuildMasterIndexSidecar("/node", () => false);
+  assert.equal(ok, false, "a failed sidecar build must surface as false so the sentinel records it");
+});
+
+test("U-GO-B3 E2E: build-graph-index produces a sidecar master-index search consumes", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-b3-pos-"));
+  try {
+    const graphPath = path.join(dir, "system-graph.json");
+    const sidecarPath = path.join(dir, "system-graph-index.json");
+    fs.writeFileSync(graphPath, JSON.stringify({ nodes: [
+      { id: "prism-b3-zorptastic-alpha", label: "B3 Fixture Alpha", info: "unique zorptastic qublveck alpha marker" },
+      { id: "prism-b3-zorptastic-beta",  label: "B3 Fixture Beta",  info: "unique zorptastic qublveck beta marker" },
+    ] }));
+    const r = spawnSync(process.execPath, [BUILD_INDEX, "--graph", graphPath, "--out", sidecarPath], {
+      encoding: "utf8",
+      env: { ...process.env, PRISM_BUILD_GRAPH_INDEX_NO_REEXEC: "1" },
+    });
+    assert.equal(r.status, 0, `build-graph-index failed: ${r.stderr}`);
+    assert.ok(fs.existsSync(sidecarPath), "sidecar must be written next to the graph");
+
+    // Freshness contract: loadGraph rejects a sidecar whose sourceMtimeMs is
+    // older than the graph — a fresh build must stamp it >= the graph mtime.
+    const sc = JSON.parse(fs.readFileSync(sidecarPath, "utf8"));
+    assert.equal(sc.nodeCount, 2, "both fixture nodes must be indexed");
+    assert.ok(
+      sc.sourceMtimeMs >= fs.statSync(graphPath).mtimeMs,
+      "fresh sidecar must stamp sourceMtimeMs >= graph mtime or loadGraph rejects it",
+    );
+
+    // Real wiring: tryLoadSidecar runs before the legacy parse, so a hit here
+    // proves search runs THROUGH the freshly-built sidecar.
+    const res = runMasterIndexSearch("zorptastic qublveck", { graphPath });
+    const ids = res.hits.map((h) => h.id);
+    assert.ok(ids.includes("prism-b3-zorptastic-alpha"), `expected fixture hit; got ${JSON.stringify(ids)}`);
+    assert.ok(ids.includes("prism-b3-zorptastic-beta"), `expected fixture hit; got ${JSON.stringify(ids)}`);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("U-GO-B3 E2E: a graph advancing past its sidecar makes loadGraph fail-loud (the degradation on-commit prevents)", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "prism-b3-stale-"));
+  try {
+    const graphPath = path.join(dir, "system-graph.json");
+    const sidecarPath = path.join(dir, "system-graph-index.json");
+    fs.writeFileSync(graphPath, JSON.stringify({ nodes: [
+      { id: "prism-b3-stale-node", label: "Stale Fixture", info: "zorptastic qublveck stale marker" },
+    ] }));
+    let r = spawnSync(process.execPath, [BUILD_INDEX, "--graph", graphPath, "--out", sidecarPath], {
+      encoding: "utf8",
+      env: { ...process.env, PRISM_BUILD_GRAPH_INDEX_NO_REEXEC: "1" },
+    });
+    assert.equal(r.status, 0, r.stderr);
+
+    // Simulate a regen that advances the graph but does NOT rebuild the
+    // sidecar — exactly the on-commit bug U-GO-B3 fixes (graph fresh, sidecar
+    // observed 2 days stale). Push the graph mtime 1 h into the future.
+    const future = new Date(Date.now() + 3600_000);
+    fs.utimesSync(graphPath, future, future);
+
+    // A fresh subprocess loads the now-mismatched graph: loadGraph's staleness
+    // gate must reject the stale sidecar and warn to stderr (R12 fail-loud).
+    const libUrl = pathToFileURL(path.join(__dirname, "lib", "master-index-search-lib.mjs")).href;
+    r = runNode(
+      `import(${JSON.stringify(libUrl)}).then((m) => { m.runMasterIndexSearch("zorptastic qublveck", { graphPath: ${JSON.stringify(graphPath)} }); })`,
+      {},
+    );
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(
+      r.stderr,
+      /sidecar present but stale/,
+      "loadGraph must fail-loud when the graph advanced past its sidecar — the exact degradation on-commit's rebuild prevents",
+    );
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// U-GO-B4 — fail-loud: the chain stamps a structured failure marker so a
+// graceful failure is observable despite the post-commit hook discarding
+// stderr (>/dev/null). The marker schema is what the U-GO-B5 staleness inject
+// consumes, so it is pinned here.
+// ---------------------------------------------------------------------------
+
+test("U-GO-B4: writeRegenFailure stamps a structured failure marker (ok:false + stage/exit/stderr)", () => {
+  const tmp = path.join(os.tmpdir(), `prism-regen-fail-${Date.now()}.json`);
+  try {
+    const r = runNode(
+      `import(${JSON.stringify(SCRIPT_URL)}).then((m) => { m.writeRegenFailure({ stage: "merge augmentations", exitCode: 134, signal: null, stderrTail: "heap OOM" }); })`,
+      { PRISM_REGEN_FAILURE_PATH: tmp },
+    );
+    assert.equal(r.status, 0, r.stderr);
+    const marker = JSON.parse(fs.readFileSync(tmp, "utf8"));
+    assert.equal(marker.ok, false, "a failure marker must record ok:false to distinguish it from the success sentinel");
+    assert.equal(marker.stage, "merge augmentations", "must record which stage failed");
+    assert.equal(marker.exitCode, 134, "must record the child exit code");
+    assert.equal(marker.stderrTail, "heap OOM", "must carry the stderr tail for diagnosis");
+    assert.ok(typeof marker.ts === "string" && marker.ts.length > 0, "must carry an ISO timestamp");
+    assert.ok(typeof marker.host === "string" && marker.host.length > 0, "must carry the host");
+  } finally {
+    fs.rmSync(tmp, { force: true });
+  }
 });

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="e7046dfda40938eaabd0fd6d2b1cdbd2d311ff84523661101c555745f6f34dff">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLEET-REAPER-MS3 — Chat-Capacity Upgrades</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>FLEET-REAPER-MS3 — Chat-Capacity Upgrades</h1>
+<div class="meta">rendered from state/shared/specs/FLEET-REAPER-MS3-CHAT-CAPACITY-DESIGN.md</div>
+<div class="meta">Generated 2026-05-20T01:49:19.153Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">FLEET-REAPER-MS3 — Chat-Capacity Upgrades (Units A–D)</li><li class="prism-toc-l2">Problem statement</li><li class="prism-toc-l2">Unit catalogue</li><li class="prism-toc-l3">U-FR-MS3-A — Live-chat priority boost on prompt</li><li class="prism-toc-l3">U-FR-MS3-B — Tier-1.5 background-app throttling before reap</li><li class="prism-toc-l3">U-FR-MS3-C — Per-chat-tree proactive compact advisory</li><li class="prism-toc-l3">U-FR-MS3-D — Reaper-self background-IO during sweep</li><li class="prism-toc-l2">Cross-unit invariants</li><li class="prism-toc-l2">Build order recommendation</li><li class="prism-toc-l2">Test infrastructure</li><li class="prism-toc-l2">Doctrine references</li><li class="prism-toc-l2">Knob summary (one place)</li><li class="prism-toc-l2">How to execute this milestone</li></ul></nav><h1 class="prism-h1">FLEET-REAPER-MS3 — Chat-Capacity Upgrades (Units A–D)</h1>
+<p><strong>Date</strong>: 2026-05-19 <strong>Author</strong>: claude-9dc5dad7 (slot charlie) <strong>Status</strong>: Spec — buildable <strong>Track</strong>: INFRA-FLEET-HYGIENE <strong>Predecessors</strong>: FLEET-REAPER-MS0/MS1/MS2 (shipped) <strong>Successors</strong>: none yet <strong>Reference doctrine</strong>: <a href="../../../knowledge/wiki/architecture/fleet-reaper.md" class="prism-link"><code class="prism-inline-code">knowledge/wiki/architecture/fleet-reaper.md</code></a>, [[reference_fleet_reaper_ms1]], [[reference_fleet_memory_monitor_2026_05_16]], [[reference_fleet_reaper_ms2_2026_05_18]]</p>
+<h2 class="prism-h2">Problem statement</h2>
+<p>The fleet-reaper today kills <em>orphans of crashed chats</em> and applies <em>soft relief on stale-slot processes</em>. It does nothing for the case where the user has <strong>13 live, non-orphaned chats</strong> all fighting for the same CPU / RAM / disk — which is the actual everyday failure mode on this host (96% commit pressure with zero orphans). The reaper has nothing to reap, yet every chat is slow.</p>
+<p><strong>Goal</strong>: keep live chats operating as close to full capacity as possible by (a) elevating the <em>active</em> chat&#39;s CPU share, (b) recovering RAM/CPU from non-Claude apps under pressure before any kill, (c) telling the <em>largest</em> chat to self-compact proactively, and (d) keeping the reaper&#39;s own sweep cost off Claude&#39;s critical path.</p>
+<p>All four units are <strong>strictly additive</strong> over MS2. Each has a kill switch (<code class="prism-inline-code">PRISM_FLEET_REAPER_*_DISABLE=1</code>) and degrades cleanly to current behavior when off.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Unit catalogue</h2>
+<h3 class="prism-h3">U-FR-MS3-A — Live-chat priority boost on prompt</h3>
+<p><strong>File targets</strong> (4 new + 1 settings.json edit):</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/hooks/active-chat-priority-boost.mjs</code> — UserPromptSubmit hook</li><li><code class="prism-inline-code">.claude/helpers/claude-tree-priority.mjs</code> — pure helper: walk PID tree, set PriorityClass</li><li><code class="prism-inline-code">.claude/hooks/active-chat-priority-decay.mjs</code> — Stop hook: revert chats whose boost expired</li><li><code class="prism-inline-code">scripts/__tests__/claude-tree-priority.test.mjs</code> — node:test suite (≥15 cases)</li><li><code class="prism-inline-code">.claude/settings.json</code> — wire both hooks (auto-mirror to H: via c-to-h-mirror)</li></ul>
+<p><strong>What it does</strong>:</p>
+<ol class="prism-md-list"><li>On every <code class="prism-inline-code">UserPromptSubmit</code>, find this chat&#39;s <code class="prism-inline-code">claude.exe</code> ancestor via <code class="prism-inline-code">process.ppid</code> walk → reach the stable <code class="prism-inline-code">claude.exe</code> per FLEET-REAPER-MS0 ancestry logic</li><li>Walk its descendant tree (claude.exe + every node.exe child) and set <code class="prism-inline-code">PriorityClass=AboveNormal</code> via <code class="prism-inline-code">wmic process where ProcessId=&lt;pid&gt; CALL setpriority 32768</code></li><li>Stamp <code class="prism-inline-code">state/shared/.active-chat-boost/&lt;chatId&gt;.json</code> with <code class="prism-inline-code">{boostedAt, expiresAt, pids[]}</code> (5-min TTL, knob <code class="prism-inline-code">PRISM_FR_BOOST_TTL_SEC</code>)</li><li>Stop hook scans the stamp dir on every Stop; for each entry past <code class="prism-inline-code">expiresAt</code>, revert PIDs to <code class="prism-inline-code">Normal</code></li></ol>
+<p><strong>Why this matters</strong>: 13 live chats × <code class="prism-inline-code">Normal</code> priority means the Windows scheduler round-robins them with equal weight against Chrome/Discord/Steam/etc. Bumping ONLY the chat you typed in to <code class="prism-inline-code">AboveNormal</code> for 5 min gives that chat a measurable interactive responsiveness lift without starving the others (they&#39;re idle when you&#39;re not typing in them).</p>
+<p><strong>Anti-regression rules</strong>:</p>
+<ul class="prism-md-list"><li>NEVER set above <code class="prism-inline-code">AboveNormal</code> (above that affects system stability)</li><li>NEVER set on a non-Claude descendant — walk MUST verify ancestor is <code class="prism-inline-code">claude.exe</code></li><li>TTL is hard-capped at 30 min (knob clamp)</li><li>If <code class="prism-inline-code">claude.exe</code> PID can&#39;t be resolved (resolver miss, ETW unavailable), no-op silently</li><li>Failure to set priority on any PID logs but doesn&#39;t abort</li></ul>
+<p><strong>Acceptance</strong>:</p>
+<ul class="prism-md-list"><li>Hook returns within 200 ms on a 13-chat fleet (measure via <code class="prism-inline-code">--bench</code>)</li><li>≥15 unit tests: ancestor walk, TTL expiry, double-boost dedup, missing PID, non-Claude rejection, multi-chat isolation, hard-cap TTL, env-disable, race on simultaneous Stop+Submit, malformed stamp, missing stamp dir, Windows-only guard, dry-run mode, audit log append, idempotent revert</li><li>E2E: spawn a fake claude.exe + node child, fire prompt event, assert priority on both; fire Stop with expired stamp, assert reverted</li></ul>
+<p><strong>Knobs</strong>: <code class="prism-inline-code">PRISM_FR_BOOST_DISABLE=1</code> · <code class="prism-inline-code">PRISM_FR_BOOST_TTL_SEC=N</code> (default 300, clamp 60..1800) · <code class="prism-inline-code">PRISM_FR_BOOST_PRIORITY=AboveNormal</code> (allow only AboveNormal|Normal — High explicitly forbidden)</p>
+<p><strong>LOC estimate</strong>: ~120 total (~60 helper + ~30 boost hook + ~20 decay hook + tests separate)</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">U-FR-MS3-B — Tier-1.5 background-app throttling before reap</h3>
+<p><strong>File targets</strong> (1 edit + 1 new test):</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">scripts/fleet-reaper-sweep.mjs</code> — new <code class="prism-inline-code">applyBackgroundAppThrottle()</code> between soft-relief (Tier-1) and <code class="prism-inline-code">serviceRestartAction</code> (Tier-2)</li><li><code class="prism-inline-code">scripts/__tests__/fleet-reaper-bg-throttle.test.mjs</code> — node:test (≥18 cases)</li></ul>
+<p><strong>What it does</strong>:</p>
+<ol class="prism-md-list"><li>When <code class="prism-inline-code">usedPct ≥ memPressurePct</code> (90% — the warn band), but BEFORE any kill candidate decision:</li><li>Enumerate non-Claude trees (exclude <code class="prism-inline-code">claude.exe</code> + descendants of any <code class="prism-inline-code">claude.exe</code>)</li><li>Sort by RSS descending; pick top 3 (or all over 500 MB, whichever fewer)</li><li>For each: drop to <code class="prism-inline-code">BelowNormal</code> priority, trim working set (same call pattern as MS1 soft-relief)</li><li>Stamp <code class="prism-inline-code">state/shared/.fleet-reaper-bg-throttle.json</code> recording which PIDs we touched</li><li>When pressure drops back below <code class="prism-inline-code">memPressurePct - 5</code> (hysteresis): walk the stamp, revert each PID to <code class="prism-inline-code">Normal</code>, clear stamp</li></ol>
+<p><strong>Excluded process names</strong> (never touch):</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">claude.exe</code>, <code class="prism-inline-code">node.exe</code>, <code class="prism-inline-code">git.exe</code>, <code class="prism-inline-code">bash.exe</code>, <code class="prism-inline-code">pwsh.exe</code>, <code class="prism-inline-code">powershell.exe</code>, <code class="prism-inline-code">python.exe</code></li><li><code class="prism-inline-code">csrss.exe</code>, <code class="prism-inline-code">winlogon.exe</code>, <code class="prism-inline-code">services.exe</code>, <code class="prism-inline-code">lsass.exe</code>, <code class="prism-inline-code">svchost.exe</code>, <code class="prism-inline-code">dwm.exe</code>, <code class="prism-inline-code">explorer.exe</code>, <code class="prism-inline-code">wininit.exe</code>, <code class="prism-inline-code">system</code>, <code class="prism-inline-code">idle</code></li><li>Anything under <code class="prism-inline-code">C:\Windows\System32\</code> (defensive)</li><li>Anything currently set to <code class="prism-inline-code">Realtime</code> priority (audio/RT-critical)</li></ul>
+<p><strong>Why this matters</strong>: under memory squeeze, today the reaper either has nothing to do (no orphans) or kills (irreversible). Throttling Chrome/Discord/Steam to <code class="prism-inline-code">BelowNormal</code> for the duration of the squeeze is <strong>reversible, advisory-shaped, and immediately effective</strong> — those apps don&#39;t notice (UI-thread starvation on idle apps is invisible) and Claude gets the cycles.</p>
+<p><strong>Anti-regression rules</strong>:</p>
+<ul class="prism-md-list"><li>The exclusion list is exhaustive — any non-listed system process gets throttled (preferred over false-positive exclusion)</li><li>Hysteresis is asymmetric (drop at 90, restore at 85) — prevents flap</li><li>Stamp file size capped at 1 MB; if exceeded, restore all + reset</li><li><code class="prism-inline-code">PRISM_FR_BG_THROTTLE_DISABLE=1</code> reverts to no-op</li><li>Never apply to a PID more than once without restoring first</li></ul>
+<p><strong>Acceptance</strong>:</p>
+<ul class="prism-md-list"><li>≥18 unit tests: exclusion list completeness, RSS sort correctness, top-N cap, hysteresis up/down, claude-descendant rejection, system-process rejection, stamp file rotation, restore-on-disable, idempotent throttle, multi-sweep stability, Win32 priority-class mapping, fail-soft on <code class="prism-inline-code">wmic</code> failure, dry-run mode, age floor (don&#39;t throttle a 5-second-old process), already-throttled detection, restore-orphan-PIDs (process died mid-throttle), pressure-drop-restores-all path, knob clamping</li><li>Real-data E2E: spawn 3 fake &quot;heavy&quot; processes, simulate pressure, assert throttled; simulate pressure drop, assert restored</li></ul>
+<p><strong>Knobs</strong>: <code class="prism-inline-code">PRISM_FR_BG_THROTTLE_DISABLE=1</code> · <code class="prism-inline-code">PRISM_FR_BG_THROTTLE_TOP_N=N</code> (default 3, clamp 1..10) · <code class="prism-inline-code">PRISM_FR_BG_THROTTLE_MIN_RSS_MB=N</code> (default 500) · <code class="prism-inline-code">PRISM_FR_BG_THROTTLE_RESTORE_PCT=N</code> (default <code class="prism-inline-code">mem_pressure - 5</code>, computed)</p>
+<p><strong>LOC estimate</strong>: ~180 (~120 in sweep + ~60 helper if extracted)</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">U-FR-MS3-C — Per-chat-tree proactive compact advisory</h3>
+<p><strong>File targets</strong> (1 edit + 1 new test):</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">scripts/fleet-memory-monitor.mjs</code> — new <code class="prism-inline-code">evaluateChatTreeAdvisories()</code> after existing <code class="prism-inline-code">attributeProcesses</code> step</li><li><code class="prism-inline-code">scripts/__tests__/fleet-memory-monitor-chat-advisory.test.mjs</code> — node:test (≥12 cases)</li></ul>
+<p><strong>What it does</strong>:</p>
+<ol class="prism-md-list"><li>After fleet-memory-monitor has attributed processes to claude.exe trees (already done)</li><li>For each tree where <code class="prism-inline-code">RSS_MB &gt; PER_CHAT_THRESHOLD</code> (default 2048):</li><li>Resolve the tree&#39;s chat slot via <code class="prism-inline-code">chat-slots.json</code> reverse-lookup (matches MS1 fleet-memory-monitor&#39;s existing slot-label overlay logic)</li><li>Post a one-line advisory to <code class="prism-inline-code">state/shared/AGENT_CHAT.jsonl</code>:</li></ol>
+<p>``<code class="prism-inline-code">json    {&quot;ts&quot;:&quot;...&quot;,&quot;from&quot;:&quot;fleet-memory-monitor&quot;,&quot;to&quot;:&quot;&lt;slot&gt;&quot;,&quot;kind&quot;:&quot;advisory&quot;,&quot;subject&quot;:&quot;per-chat memory threshold&quot;,&quot;body&quot;:&quot;This chat&#39;s claude.exe tree is at &lt;RSS_GB&gt; GB (threshold 2 GB). Consider /compact to reclaim RAM before fleet-wide critical.&quot;}    </code>``</p>
+<ol class="prism-md-list"><li>Throttle: at most one advisory per <code class="prism-inline-code">(slot, condition)</code> per <code class="prism-inline-code">PRISM_FM_CHAT_ADVISORY_COOLDOWN_SEC</code> (default 1800 = 30 min)</li><li>Track in <code class="prism-inline-code">state/shared/.fleet-memory-chat-advisories.jsonl</code> for cooldown enforcement</li></ol>
+<p><strong>Difference from existing <code class="prism-inline-code">critical-memory-compact-nudge.mjs</code></strong>: that hook only fires when fleet-memory-monitor has <em>already</em> declared system-wide critical. This unit fires per-chat <em>before</em> system-wide critical, naming WHICH chat. The two are complementary, not redundant.</p>
+<p><strong>Anti-regression rules</strong>:</p>
+<ul class="prism-md-list"><li>Never advise the slot whose chat is currently running the prompt (resolved via UserPromptSubmit context if available — gated, not load-bearing)</li><li>Tree-with-no-slot-label gets advised as <code class="prism-inline-code">tree-&lt;PID&gt;</code> (mirrors MS1 graceful degradation)</li><li>Cooldown stamps are JSONL, append-only, capped at 1 MB → archive-and-rotate</li><li>A chat that JUST received an advisory and then drops below threshold gets the cooldown cleared on next sweep (so re-bloating fires again)</li></ul>
+<p><strong>Acceptance</strong>:</p>
+<ul class="prism-md-list"><li>≥12 unit tests: threshold computation, cooldown enforcement, cooldown clear on threshold drop, multi-tree iteration, slot-label resolution, tree-with-no-slot fallback, advisory JSONL append, rotation at 1 MB, knob disable, advisory body format (deterministic), per-(slot,condition) dedup, env-clamp</li><li>Real-data E2E: feed a synthetic tree map with one tree over threshold; assert advisory appended; advance cooldown; assert second advisory NOT appended; drop tree under threshold; advance back over; assert third advisory appended</li></ul>
+<p><strong>Knobs</strong>: <code class="prism-inline-code">PRISM_FM_CHAT_ADVISORY_DISABLE=1</code> · <code class="prism-inline-code">PRISM_FM_CHAT_THRESHOLD_MB=N</code> (default 2048, clamp 256..16384) · <code class="prism-inline-code">PRISM_FM_CHAT_ADVISORY_COOLDOWN_SEC=N</code> (default 1800, clamp 60..86400)</p>
+<p><strong>LOC estimate</strong>: ~80 (~50 evaluator + ~30 cooldown helper)</p>
+<hr class="prism-hr">
+<h3 class="prism-h3">U-FR-MS3-D — Reaper-self background-IO during sweep</h3>
+<p><strong>File targets</strong> (1 edit + 1 new test):</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">scripts/fleet-reaper-sweep.mjs</code> — wrap the enum PowerShell subprocess spawn in <code class="prism-inline-code">process-slot-map.mjs</code> AND the runSweep entry with <code class="prism-inline-code">PROCESS_MODE_BACKGROUND_BEGIN</code></li><li><code class="prism-inline-code">scripts/__tests__/fleet-reaper-self-bg-io.test.mjs</code> — node:test (≥10 cases)</li></ul>
+<p><strong>What it does</strong>:</p>
+<ol class="prism-md-list"><li>At <code class="prism-inline-code">runSweep</code> entry: spawn a child Node call to <code class="prism-inline-code">wmic process where ProcessId=&lt;own pid&gt; CALL setpriority</code> setting <code class="prism-inline-code">PROCESS_MODE_BACKGROUND_BEGIN</code> (0x100000). This drops the reaper process AND its file-I/O priority to <code class="prism-inline-code">LowMemoryAndIO</code> for the duration of the sweep.</li><li>At <code class="prism-inline-code">runSweep</code> exit (try/finally): revert via <code class="prism-inline-code">PROCESS_MODE_BACKGROUND_END</code> (0x200000)</li><li>Additionally: any <code class="prism-inline-code">child_process.spawnSync(&#39;powershell&#39;, ...)</code> calls (the enum forks) use <code class="prism-inline-code">priority: &#39;belownormal&#39;</code> and <code class="prism-inline-code">stdio: [&#39;ignore&#39;,&#39;pipe&#39;,&#39;pipe&#39;]</code> (already done in MS2 enum cache, verify still present)</li><li>If <code class="prism-inline-code">wmic</code> fails or this isn&#39;t Windows, fail-soft no-op (Linux/macOS use <code class="prism-inline-code">ioprio_set</code> syscall — out of scope for v1)</li></ol>
+<p><strong>Why this matters</strong>: a 30-second sweep currently competes equally with claude.exe for the disk-queue. On the user&#39;s memory-pressured host (<code class="prism-inline-code">H:</code> drive carrying both PRISM AND user data), this is observable as a brief stall every 5 min. Background-IO drops the reaper to ~0 disk-queue impact for the same throughput (slightly slower wall-clock for the reaper, invisible to Claude).</p>
+<p><strong>Anti-regression rules</strong>:</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">PROCESS_MODE_BACKGROUND_END</code> MUST always fire (try/finally), even on sweep throw</li><li>A sweep that exits via <code class="prism-inline-code">process.exit()</code> (Tier-1 ballast release exit) still triggers the END via <code class="prism-inline-code">process.on(&#39;beforeExit&#39;)</code></li><li>The wrapper is a no-op on non-Windows (Mac/Linux dev contributors run tests but never run the reaper for real)</li><li>A failed BEGIN doesn&#39;t abort the sweep — log + continue</li></ul>
+<p><strong>Acceptance</strong>:</p>
+<ul class="prism-md-list"><li>≥10 unit tests: BEGIN/END wmic command composition, try/finally invariant, exit hook coverage, Win32-only guard, no-op on <code class="prism-inline-code">wmic</code> missing, idempotent BEGIN, idempotent END, dry-run mode skips entirely, knob disable, env-platform skip-on-non-Win</li><li>Real-process oracle: run an actual sweep with <code class="prism-inline-code">--bench</code>, assert the process&#39;s <code class="prism-inline-code">IO Priority</code> reads as <code class="prism-inline-code">Low</code> mid-sweep (via <code class="prism-inline-code">Get-WmiObject Win32_Process | Select IOPriority</code>)</li></ul>
+<p><strong>Knobs</strong>: <code class="prism-inline-code">PRISM_FR_SELF_BG_IO_DISABLE=1</code> (default off — feature on)</p>
+<p><strong>LOC estimate</strong>: ~30 (mostly the wrapper + tests)</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Cross-unit invariants</h2>
+<ol class="prism-md-list"><li><strong>Reversibility-first</strong> — every priority change has a paired revert path; every stamp file is consulted before any state mutation</li><li><strong>Kill-switch parity</strong> — every unit honors <code class="prism-inline-code">PRISM_FR_DISABLE=1</code> (the existing master kill switch) as well as its own per-unit knob</li><li><strong>No-Claude-kill</strong> — none of these units ever kills a Claude process (A boosts, B excludes, C advises, D self-throttles)</li><li><strong>Read-only outside Windows</strong> — all PowerShell / wmic calls fail-soft on non-Windows; the reaper is single-platform</li><li><strong>Audit logs</strong> — A and B append to <code class="prism-inline-code">state/shared/.fleet-reaper-actions.jsonl</code> (existing MS1 file); C appends to its own dedicated cooldown ledger; D is silent (no state change)</li></ol>
+<h2 class="prism-h2">Build order recommendation</h2>
+<p>Smallest first (build confidence + earliest payoff):</p>
+<ol class="prism-md-list"><li><strong>D</strong> (~30 LOC, ~10 tests) — pure improvement, no cross-unit dependency, easy 3-of-3 pass</li><li><strong>C</strong> (~80 LOC, ~12 tests) — standalone, touches only fleet-memory-monitor, independent of reaper</li><li><strong>A</strong> (~120 LOC, ~15 tests) — net-new hooks, settings.json wire, no reaper changes</li><li><strong>B</strong> (~180 LOC, ~18 tests) — biggest impact + biggest blast radius (touches sweep core); land last after the small wins build the test harness</li></ol>
+<h2 class="prism-h2">Test infrastructure</h2>
+<p>All new tests use <code class="prism-inline-code">node:test</code> (NOT vitest) — matches MS2 pattern, avoids the vitest harness pre-existing issues documented in MS1.</p>
+<p>Each test file MUST include:</p>
+<ul class="prism-md-list"><li>A real-process E2E oracle (per &quot;pure-core + injected readers MUST ship one real-data E2E&quot; lesson from MS1 / U-INTEG-FIX-P0)</li><li>A regression-guard test pinning the legacy (knob-disabled) path to byte-identical pre-MS3 behavior</li></ul>
+<h2 class="prism-h2">Doctrine references</h2>
+<ul class="prism-md-list"><li>Reversibility → [[feedback_never_delete_only_disable]]</li><li>Multi-file per-file scrutiny → <code class="prism-inline-code">CLAUDE.md §PER-FILE SCRUTINY GATE</code> (2 reviewers per file, before next)</li><li>3-of-3 Stop gate → <code class="prism-inline-code">CLAUDE.md §SCRUTINY GATE</code></li><li>Honest fail-soft → R12 (CLAUDE.md §CLAUDE.md RULES 5–12)</li><li>&quot;Hermetic fakes don&#39;t prove production wiring&quot; → MS1 / U-INTEG-FIX-P0 lesson</li><li>Slot-bound execution → <code class="prism-inline-code">/checkin-charlie /loop FLEET-REAPER-MS3</code> (slot reserved by claude-9dc5dad7)</li></ul>
+<h2 class="prism-h2">Knob summary (one place)</h2>
+<table class="prism-md-table"><thead><tr><th>Knob</th><th>Default</th><th>Range</th><th>Purpose</th></tr></thead><tbody><tr><td><code class="prism-inline-code">PRISM_FR_BOOST_DISABLE</code></td><td>unset</td><td>0/1</td><td>Unit A kill switch</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FR_BOOST_TTL_SEC</code></td><td>300</td><td>60..1800</td><td>Unit A boost expiry</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FR_BOOST_PRIORITY</code></td><td>AboveNormal</td><td>AboveNormal\</td><td>Normal</td><td>Unit A target priority</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FR_BG_THROTTLE_DISABLE</code></td><td>unset</td><td>0/1</td><td>Unit B kill switch</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FR_BG_THROTTLE_TOP_N</code></td><td>3</td><td>1..10</td><td>Unit B candidates per sweep</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FR_BG_THROTTLE_MIN_RSS_MB</code></td><td>500</td><td>64..32768</td><td>Unit B floor</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FM_CHAT_ADVISORY_DISABLE</code></td><td>unset</td><td>0/1</td><td>Unit C kill switch</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FM_CHAT_THRESHOLD_MB</code></td><td>2048</td><td>256..16384</td><td>Unit C per-chat threshold</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FM_CHAT_ADVISORY_COOLDOWN_SEC</code></td><td>1800</td><td>60..86400</td><td>Unit C advisory throttle</td></tr>
+<tr><td><code class="prism-inline-code">PRISM_FR_SELF_BG_IO_DISABLE</code></td><td>unset</td><td>0/1</td><td>Unit D kill switch</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">How to execute this milestone</h2>
+<p>A fresh slot-pinned session picks it up via:</p>
+<pre class="prism-codeblock"><code>/checkin-charlie /loop work FLEET-REAPER-MS3 units D, C, A, B in that order per the spec at state/shared/specs/FLEET-REAPER-MS3-CHAT-CAPACITY-DESIGN.md</code></pre>
+<p>The autonomous loop will: pick each unit → build → per-file 2-reviewer scrutiny → commit <code class="prism-inline-code">[FLEET-REAPER-MS3]/U-FR-MS3-&lt;X&gt;: &lt;title&gt;</code> → next unit → 3-of-3 Stop gate at end.</p>
+<p>Expected total: 4 commits, ~410 LOC of code + ~600 LOC of tests, ~55 test cases added, ~6 reviewer agent spawns per unit × 4 units = ~24 agent spawns, 3 final 3-of-3 reviewers. Realistic single-session execution if context is fresh; otherwise split D+C in session 1, A+B in session 2.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

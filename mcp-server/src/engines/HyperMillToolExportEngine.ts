@@ -44,6 +44,9 @@
  */
 
 import { toolCatalogEngine } from "./ToolCatalogEngine.js";
+import { holderSelectionEngine } from "./HolderSelectionEngine.js";
+import { ultimateSpeedFeedEngine } from "./UltimateSpeedFeedEngine.js";
+import type { ISOGroup, Operation, CutType } from "./UltimateSpeedFeedEngine.js";
 
 // ─── Geometry class constants ─────────────────────────────────────────────────
 // From HYPERMILL_GEOMETRY_CLASSES in hypermill-tool-schema-notes.ts
@@ -226,6 +229,8 @@ export type HMExportOptions = {
   start_slot?: number;
   /** Unit system: 1=Metric (default), 2=Inch */
   mm_system_id?: number;
+  /** Catalog-fallback tool count cap (default: 100000 = full catalog; set lower for a subset) */
+  max_tools?: number;
 };
 
 export interface HMToolRow {
@@ -257,6 +262,10 @@ export interface HMNCToolRow {
   tool_length: number;
   usable_length: number;
   preset_diameter: number;
+  /** Per-tool spindle-speed ceiling (rpm), 0 = non-rotating / not applicable. */
+  max_spindle_speed: number;
+  /** Per-tool feedrate ceiling (mm/min) at max_spindle_speed, 0 = not applicable. */
+  max_feedrate: number;
 }
 
 export interface HMDepotRow {
@@ -577,9 +586,13 @@ function fmt(n: number, dec = 4): string {
 // ─── Cutting data computation ─────────────────────────────────────────────────
 
 function coatingMult(coating: string): number {
-  const key = Object.keys(COATING_MULT).find(k =>
-    coating.toLowerCase().includes(k),
-  ) ?? "uncoated";
+  const c = (coating ?? "").toLowerCase();
+  // LONGEST key first: "altin" must not be shadowed by the shorter "tin" substring it contains
+  // (a real mismatch surfaced when this helper went live in U-HMT-CUTTING-DATA -- AlTiN was being
+  // scored 1.10 (tin) instead of 1.30 (altin) because Object.keys order tested "tin" first).
+  const key = Object.keys(COATING_MULT)
+    .sort((a, b) => b.length - a.length)
+    .find(k => c.includes(k)) ?? "uncoated";
   return COATING_MULT[key] ?? 1.0;
 }
 
@@ -591,6 +604,92 @@ function materialMult(mat: string): number {
   if (m.includes("cermet")) return 1.10;
   if (m.includes("hss")) return 0.40;
   return 1.00; // carbide baseline
+}
+
+// --- Per-tool cutting-data ceiling (CATALOG-APP-WIRING-MS0/U-HMT-CUTTING-DATA, slot:romeo) ---
+//
+// NCTools.max_spindle_speed / max_feedrate are the per-ASSEMBLED-TOOL ceilings the hyperMILL
+// programmer scales per workpiece via the Materials.milling_factor_vc/fz columns (relative to
+// the P-steel baseline). Before this wire those ceilings defaulted to 0.0, so every Materials
+// factor scaled 0 -> 0 and the whole per-material preset system was inert. We derive the ceiling
+// from the tool's FASTEST legitimate application (ISO N, non-ferrous -- what actually sets a
+// spindle ceiling) at the tool's own diameter, then derate for substrate (materialMult) and
+// coating (coatingMult) -- the two helpers that were defined-but-dead before this unit.
+//
+// The base Vc/fz come from UltimateSpeedFeedEngine.lookupCuttingData (carbide-calibrated). We do
+// NOT pass tool_material to it: the substrate factor is applied via materialMult so the cbn/pcd/
+// ceramic UPLIFT (which lookupCuttingData does not model) is captured, while materialMult's hss
+// derate (0.40) matches lookupCuttingData's own hss derate (0.40) -- no double counting either way.
+//
+// Turning tools + probes + additive heads do not spin -> no spindle ceiling (left 0.0). All paths
+// are fail-soft: a null lookup, non-finite diameter, or non-finite Vc returns a zeroed ceiling
+// rather than emitting a NaN/Infinity into the .hmt (which would make the DB unimportable).
+
+const NON_ROTATING_CLASSES: ReadonlySet<HMGeometryClass> = new Set<HMGeometryClass>([
+  "GeneralTurningTool", "RadialRecessingTool", "AxialRecessingTool",
+  "ThreadingTool", "PartingTool", "RollTurnTool", "TouchProbe", "AdditiveDevice",
+]);
+
+const DRILLING_CLASSES: ReadonlySet<HMGeometryClass> = new Set<HMGeometryClass>([
+  "Drilltool", "GunDrill", "Reamer", "BoringBar", "BackboringTool",
+]);
+
+interface ToolCuttingCeiling {
+  /** Max spindle speed (rpm) for the assembled tool, 0 = not applicable / non-rotating. */
+  maxSpindleSpeed: number;
+  /** Max feedrate (mm/min) at that ceiling, 0 = not applicable. */
+  maxFeedrate: number;
+}
+
+/**
+ * Per-tool cutting-data ceiling for the hyperMILL NCTools row. Pure + fail-soft.
+ *
+ * @param hmClass    hyperMILL geometry class (rotating vs turning/probe is read from this)
+ * @param diameterMm cutting diameter (mm) -- drives rpm = Vc*1000/(pi*D)
+ * @param substrate  tool substrate string (carbide/hss/cbn/pcd/...) -> materialMult derate
+ * @param coating    coating string (TiAlN/AlCrN/...) -> coatingMult uplift
+ * @param flutes     flute/tooth count -> feed_per_rev = fz*flutes (drilling: fz is feed/rev)
+ * @returns {maxSpindleSpeed (rpm), maxFeedrate (mm/min)} -- both 0 when not applicable
+ */
+function computeToolCuttingCeiling(
+  hmClass: HMGeometryClass,
+  diameterMm: number,
+  substrate: string,
+  coating: string,
+  flutes: number,
+): ToolCuttingCeiling {
+  const ZERO: ToolCuttingCeiling = { maxSpindleSpeed: 0, maxFeedrate: 0 };
+  // Turning tools, probes and additive heads do not spin -> no spindle ceiling.
+  if (NON_ROTATING_CLASSES.has(hmClass)) return ZERO;
+  const d = diameterMm;
+  if (!Number.isFinite(d) || d <= 0) return ZERO;
+
+  const op: Operation = DRILLING_CLASSES.has(hmClass) ? "drilling" : "milling";
+  // Carbide-baseline Vc/fz at the fastest legit application (ISO N). Substrate handled below.
+  const cd = ultimateSpeedFeedEngine.lookupCuttingData({
+    iso_group: "N" as ISOGroup,
+    operation: op,
+    cut_type: "roughing" as CutType,
+    tool_diameter_mm: d,
+  });
+  if (!cd) return ZERO;
+
+  const vc = cd.vc * materialMult(substrate ?? "") * coatingMult(coating ?? ""); // m/min
+  if (!Number.isFinite(vc) || vc <= 0) return ZERO;
+
+  // rpm = Vc*1000 / (pi*D)   (Vc m/min, D mm -> rpm)
+  const rpm = (vc * 1000) / (Math.PI * d);
+  if (!Number.isFinite(rpm) || rpm <= 0) return ZERO;
+
+  // feed_per_rev: milling fz is per-tooth -> *flutes; drilling fz is already feed-per-rev (*1).
+  const fl = Number.isFinite(flutes) && flutes > 0 ? flutes : (op === "drilling" ? 1 : 2);
+  const feedPerRev = op === "drilling" ? cd.fz : cd.fz * fl; // mm/rev
+  const feedrate = rpm * feedPerRev; // mm/min
+
+  return {
+    maxSpindleSpeed: Math.round(rpm),
+    maxFeedrate: Number.isFinite(feedrate) && feedrate > 0 ? Math.round(feedrate) : 0,
+  };
 }
 
 // ─── Fallback tool generation ─────────────────────────────────────────────────
@@ -666,23 +765,63 @@ function convertTool(prismTool: any, toolId: number, mmSys: number): HMToolRow {
 
 // ─── NCTool row builder ───────────────────────────────────────────────────────
 
-function buildNCTool(toolRow: HMToolRow, ncId: number): HMNCToolRow {
+function buildNCTool(toolRow: HMToolRow, ncId: number, prismTool?: any): HMNCToolRow {
   const d = toolRow.dbl_param1;
   const oal = toolRow.total_length;
-  // Infer gauge length from diameter (see hyperMILL holder standard practice)
-  const gageLen = d >= 32 ? 100 : d >= 16 ? 80 : d >= 6 ? 60 : 50;
-  const toolLen = Math.max(oal - gageLen, 10);
+  // Diameter-based fallback gauge (hyperMILL holder standard practice). Tool-scaled, so it stays
+  // BELOW the tool OAL -- it is what drives the tool stickout length below.
+  const fallbackGage = d >= 32 ? 100 : d >= 16 ? 80 : d >= 6 ? 60 : 50;
+
+  // tool_length = tool stickout from the holder gauge point -- a TOOL-geometry quantity. It is
+  // derived from the tool's OWN overall length and the tool-scaled fallback gauge ONLY. It must
+  // NEVER be derived by subtracting a real holder's (much larger) gauge from the tool OAL: a real
+  // CAT40 holder gauge (80-200mm) exceeds a short tool's OAL, so `oal - holderGauge` goes negative
+  // and silently clamps to the 10mm floor for the common case (U-HOLDER-WIRE-HYPERMILL, slot:romeo).
+  const toolLen = Math.max(oal - fallbackGage, 10);
   const usable = toolRow.dbl_param3 > 0 ? toolRow.dbl_param3 : toolLen * 0.5;
+
+  // Attach a REAL cataloged holder by spindle taper + shank-bore fit -- the same selection the
+  // Fusion + Mastercam exporters use (CATALOG-APP-WIRING-MS0/U-HOLDER-WIRE-HYPERMILL, slot:romeo).
+  // hyperMILL's NCTools row has no holder_vendor column, so the brand + designation rides in
+  // nc_name. The real holder's gauge (spindle-face-to-holder projection) plus the tool stickout
+  // gives a true spindle-face-to-tip gage_length. No catalog match -> the diameter-based fallback
+  // gauge is retained (never a silent wrong-holder grab), and tool_length is unaffected either way.
+  let gageLen = fallbackGage;
+  let ncName = toolRow.name;
+  const phys = prismTool?.physical ?? {};
+  const shankD = phys.shank_diameter_mm ?? d;
+  const taper = (prismTool?.spindle_taper as string) || "CAT40";
+  const realHolder = holderSelectionEngine.select({
+    taper,
+    shankDiameterMm: shankD,
+    typePreference: shankD <= 12 ? "shrink_fit" : "hydraulic",
+  });
+  if (realHolder) {
+    if (realHolder.gaugeMm != null) gageLen = realHolder.gaugeMm + toolLen;
+    ncName = `${ncName} [${realHolder.brand} ${realHolder.designation}]`;
+  }
+
+  // Per-tool cutting-data ceiling (NCTools.max_spindle_speed/max_feedrate). Substrate + coating
+  // ride on the source prismTool; flute/tooth count is int_param1 on the geometry row.
+  const ceiling = computeToolCuttingCeiling(
+    toolRow.geometry_class,
+    d,
+    (prismTool?.material ?? prismTool?.substrate ?? "carbide") as string,
+    (prismTool?.coating ?? "") as string,
+    toolRow.int_param1,
+  );
 
   return {
     nctool_id: ncId,
     tool_id: toolRow.tool_id,
     nc_number_val: ncId,
-    nc_name: toolRow.name.substring(0, 127),
+    nc_name: ncName.substring(0, 127),
     gage_length: Math.round(gageLen * 1000) / 1000,
     tool_length: Math.round(toolLen * 1000) / 1000,
     usable_length: Math.round(usable * 1000) / 1000,
     preset_diameter: Math.round(d * 1000) / 1000,
+    max_spindle_speed: ceiling.maxSpindleSpeed,
+    max_feedrate: ceiling.maxFeedrate,
   };
 }
 
@@ -703,10 +842,10 @@ function toolInsert(r: HMToolRow): string {
 function ncToolInsert(r: HMNCToolRow): string {
   return (
     `INSERT INTO NCTools (id, tool_id, nc_number_val, nc_number_str, nc_name, ` +
-    `gage_length, tool_length, usable_length, preset_diameter) VALUES (` +
+    `gage_length, tool_length, usable_length, preset_diameter, max_spindle_speed, max_feedrate) VALUES (` +
     `${r.nctool_id}, ${r.tool_id}, ${r.nc_number_val}, ${sq(String(r.nc_number_val))}, ` +
     `${sq(r.nc_name)}, ${fmt(r.gage_length)}, ${fmt(r.tool_length)}, ` +
-    `${fmt(r.usable_length)}, ${fmt(r.preset_diameter)});`
+    `${fmt(r.usable_length)}, ${fmt(r.preset_diameter)}, ${fmt(r.max_spindle_speed)}, ${fmt(r.max_feedrate)});`
   );
 }
 
@@ -868,7 +1007,9 @@ export class HyperMillToolExportEngineClass {
     if (!prismTools || prismTools.length === 0) {
       try {
         if (toolCatalogEngine?.search) {
-          prismTools = toolCatalogEngine.search({ max_results: 5000 }) || [];
+          // Full catalog (~74K) by default so an empty-tools call exports the whole DB,
+          // not a silent 5000 slice (CATALOG-APP-WIRING-MS0/U-CAM-TOOL-FULL-CATALOG, slot:romeo).
+          prismTools = toolCatalogEngine.search({ max_results: options.max_tools ?? 100_000 }) || [];
         }
       } catch { /* ignore */ }
       if (!prismTools || prismTools.length === 0) {
@@ -888,7 +1029,7 @@ export class HyperMillToolExportEngineClass {
       classesUsed.add(row.geometry_class);
 
       if (incNCT) {
-        const ncRow = buildNCTool(row, toolId);
+        const ncRow = buildNCTool(row, toolId, pt);
         ncToolRows.push(ncRow);
 
         if (incDepot) {
@@ -1016,6 +1157,8 @@ export class HyperMillToolExportEngineClass {
           tool_length: "Tool stickout from holder gauge point, mm",
           usable_length: "Effective cutting depth available, mm",
           preset_diameter: "Diameter at tip for compensation, mm",
+          max_spindle_speed: "Per-tool spindle-speed ceiling (rpm), 0 = non-rotating/n.a.",
+          max_feedrate: "Per-tool feedrate ceiling (mm/min) at max_spindle_speed, 0 = n.a.",
         },
         DepotItems: {
           id: "Auto-increment primary key",
@@ -1109,7 +1252,8 @@ export class HyperMillToolExportEngineClass {
         "Materials factors are relative to P-steel (VC_BASE[P]=150 m/min) baseline",
         "Import the .hmt file via hyperMILL Tool Database > File > Import SQLite",
         "3D collision geometry (polyline/polyeder) is not exported — set in TOOL Builder",
-        "Cutting data (Technologies table) not included — assign via hyperMILL technology templates",
+        "Per-tool cutting-data ceiling IS exported: NCTools.max_spindle_speed (rpm) + max_feedrate (mm/min), derived from UltimateSpeedFeedEngine Vc/fz at ISO-N derated by substrate + coating; scale per workpiece via the Materials.milling_factor_vc/fz factors",
+        "Per-operation Technologies-table cutting data is still assigned via hyperMILL technology templates (v1.53 Technologies DDL not yet reconned)",
       ],
     };
   }
@@ -1123,7 +1267,7 @@ export class HyperMillToolExportEngineClass {
         type: filter?.tool_type,
         manufacturer: filter?.manufacturer,
         diameter_range: filter?.diameter_range_mm,
-        max_results: filter?.max_tools ?? 5000,
+        max_results: filter?.max_tools ?? 100_000,
       }) || [];
     } catch {
       return [];

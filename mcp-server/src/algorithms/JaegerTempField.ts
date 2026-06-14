@@ -312,6 +312,40 @@ export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTe
     return Math.max(0, T);
   }
 
+  /**
+   * Loewen-Shaw moving-heat-source scaling — behaviour-preserving compat method
+   * for SF-PSN-WIRE-MS0/U-SFPSN-03. Reproduces UltimateSpeedFeedEngine's inline
+   * `cuttingTemperature()` (line 1382 pre-shim) bit-equivalently so the SF engine
+   * can register JaegerTempField as a composed algorithm module without
+   * disturbing any existing test fixture.
+   *
+   * Formula: T = T_ambient + 1000 × K · (V_c/60)^0.4 · max(0.01,f_z)^0.2 · √Kc1.1 / max(1, k·ρcp/1e6)^0.3
+   * with K=0.4, T_ambient=20°C. The simplified scaling form of Loewen & Shaw
+   * (1954) "On the Analysis of Cutting Tool Temperatures" — distinct from the
+   * richer band-source numerical integration in calculate() which is the path
+   * U-SFPSN-2D-style future units would adopt for re-baselined fidelity.
+   *
+   * Reference: Loewen, E.G. & Shaw, M.C. (1954); Shaw, "Metal Cutting Principles" (2005)
+   *
+   * @param Vc_mpm Cutting speed [m/min]
+   * @param fz_mm Feed per tooth / feed per rev [mm]
+   * @param material_k Thermal conductivity [W/(m·K)]
+   * @param material_rho_cp Volumetric heat capacity [kJ/(m³·K) × 1000 → J/(m³·K)]
+   * @param kc1_1 Kienzle specific cutting force at h=1mm [N/mm²]
+   * @returns Cutting-zone temperature [°C]
+   */
+  static cuttingTemperatureCompat(
+    Vc_mpm: number, fz_mm: number,
+    material_k: number, material_rho_cp: number, kc1_1: number,
+  ): number {
+    const T_ambient = 20;
+    const K_coeff = 0.4;
+    const Vc_ms = Vc_mpm / 60;
+    const T_rise = K_coeff * Math.pow(Vc_ms, 0.4) * Math.pow(Math.max(0.01, fz_mm), 0.2)
+      * Math.pow(kc1_1, 0.5) / Math.pow(Math.max(1, material_k * material_rho_cp / 1e6), 0.3);
+    return T_ambient + T_rise * 1000;
+  }
+
   /** Gets metadata.
    * @returns algorithm meta
    */

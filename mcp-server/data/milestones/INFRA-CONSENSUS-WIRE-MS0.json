@@ -7,9 +7,10 @@
   "created_by": "claude-opus-4-7",
   "track": "INFRA",
   "track_name": "Multi-Model Coordination Infrastructure",
-  "status": "in_progress",
-  "completed_units": 1,
+  "status": "complete",
+  "completed_units": 5,
   "total_units": 5,
+  "completed_date": "2026-05-19",
   "shipped": [
     {
       "unit": "P0-U01",
@@ -19,6 +20,42 @@
       "shipped_by": "alpha/claude-dccbe876",
       "closed_out_by": "bravo/claude-88901d4c",
       "closeout_notes": "Refined commit after voice-uniqueness .refine() fix; earlier collision-bearing attempt 847b8ec8b (absorbed bravo-a7ea87ab's BLUEPRINT-OCR-TRAINING-MS1 scoping files per chat-bus 19:36:34). Codex+Claude-reviewer-B PASS per alpha handoff (sessionId not recoverable from ledger); Claude-reviewer-A skipped because alpha's session was for alpha's diff, not bravo's session diff which scrutinizes at /handoff."
+    },
+    {
+      "unit": "P0-U02",
+      "commit": "1c0a37e910",
+      "commits": [
+        "1c0a37e910",
+        "038f626ec8"
+      ],
+      "title": "Implement consensus orchestration in MultiModelConsensusEngine.vote()",
+      "shipped_at": "2026-05-18T19:15:46Z",
+      "shipped_by": "delta/claude-d716d0",
+      "closed_out_by": "delta/claude-41794360",
+      "closeout_notes": "Backfilled close-out — silent close-out drift (envelope claimed completed_units:1 while two commits had shipped). delta's 1c0a37e910 adopted orphaned vote() + fixed 11 fossil-rot reds (env-leak x8 + ctx.text->ctx.prompt latent x3); charlie's 038f626ec8 recovered+completed Ollama model-resolve (pickBestOllamaModel/resolveOllamaModels were spec-tested but never implemented per stranded session — see memory reference_u_p0_u02_recovery_2026_05_18). Both commits required for the full unit. Scrutiny: per-commit gates passed at their ship time."
+    },
+    {
+      "unit": "P0-U04",
+      "title": "Provenance audit log + persistence to consensus-decisions.jsonl",
+      "shipped_at": "2026-05-19T16:00:00Z",
+      "shipped_by": "delta/claude-41794360",
+      "commit": "86337a35ce",
+      "closeout_notes": "New ConsensusAuditLogEngine (append + read + rotation@100MB, R12 fire-and-forget, kill switch PRISM_CONSENSUS_AUDIT_DISABLE=1). Wired into MultiModelConsensusEngine.ask() after finalResult; new callerEngine input field. New consensus_audit_query action in aiReasoningDispatcher + aiReasoningActionSchemas. 37-case engine test + 11-case dispatcher round-trip test (real fs, real engine — no SUT mock); 48/48 pass; tsc 0 errors. Acceptance criterion #4 (100 sequential appends parse round-trip) verified."
+    },
+    {
+      "unit": "P0-U03",
+      "commit": "ac907e31c4",
+      "title": "Wire ConsensusCoordinatorEngine for retry + escalation policy",
+      "shipped_at": "2026-05-19T17:20:00Z",
+      "shipped_by": "delta/claude-41794360",
+      "closeout_notes": "Scope reconciliation: ConsensusCoordinatorEngine already existed (INTEL-OLLAMA-OBSIDIAN-MS0) but did CONCURRENCY coordination (cache/budget/inflight) — NOT the retry/escalation the P0-U03 envelope describes. Added runWithEscalation() as a sibling method to run() (second policy axis, same coordinator the envelope names): phase 1 initial + maxRetries normal-effort retries, phase 2 one escalated attempt with Codex bumped to xhigh, phase 3 human_review_required. Injectable askFn for deterministic branch testing. New consensus_escalate action in aiReasoningDispatcher + aiReasoningActionSchemas. 14 escalation cases appended to ConsensusCoordinator.test.ts + 7-case AIDispatcherConsensusEscalate.test.ts dispatcher round-trip; 49/49 pass; tsc 0 errors. NOTE: TaskClassifierEngine.shouldEscalate() was NOT used — the escalation trigger (agreementScore < threshold) is deterministic and self-contained per R5 (deterministic logic = code, not a model/dependency)."
+    },
+    {
+      "unit": "P0-U05",
+      "title": "End-to-end test: 3 decision types route through consensus_decide",
+      "shipped_at": "2026-05-19T17:40:00Z",
+      "shipped_by": "delta/claude-41794360",
+      "closeout_notes": "ConsensusDecideE2E.test.ts — 6 cases. Criterion 1 (machine_select 3-axis vs 5-axis → 4-of-4), criterion 2 (post-processor Hurco V11 vs Okuma OSP → majority), criterion 3 (speed/feed high vs low → agreement >= 0.75), criterion 4 (audit log captures 3 entries with full provenance, + callerEngine filter). R12 honesty: the envelope's 'real network calls' cannot run hermetically — a live 4-way fan-out needs Codex/Ollama/Claude reachable AND the real MultiModelConsensusEngine import chain (which pulls PRISMContextInjectorEngine, documented absent from the test tree). ask() is vi-mocked; the SUT is the END-TO-END ROUTING. The audit-log seam is verified DIRECTLY against the real ConsensusAuditLogEngine (a mocked ask() cannot exercise the ask()->append wiring — that wiring is covered by P0-U04). 6/6 pass; tsc 0 errors. Live-network E2E remains a separate manual/CI-gated concern."
     }
   ],
   "linked_roadmap": "state/shared/PRISM-COMPREHENSIVE-ROADMAP-2026-05-04.md",
@@ -44,13 +81,27 @@
             "Typecheck clean: npx tsc --noEmit"
           ],
           "description": "Add the new action surface so callers (other dispatchers, hooks, CLI) can request a consensus decision. Schema must enforce ≥2 voices, threshold in [0,1], options length ≥2. Lazy-import MultiModelConsensusEngine. Reuse existing dispatcher patterns from prism_ai.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U02",
           "title": "Implement consensus orchestration in MultiModelConsensusEngine.vote()",
           "effort": 120,
-          "dependencies": ["P0-U01"],
+          "dependencies": [
+            "P0-U01"
+          ],
+          "status": "complete",
+          "completed_date": "2026-05-18",
+          "commit": "1c0a37e910",
+          "commits": [
+            "1c0a37e910",
+            "038f626ec8"
+          ],
           "exit_conditions": [
             "MultiModelConsensusEngine.vote(question, options, voices) parallel-fanouts to Codex+Gemini+Ollama+optional Grok",
             "Each voice's response normalized via comparator (numeric extraction or canonical-token match)",
@@ -59,13 +110,23 @@
             "Tests: 3-voice unanimous; 2-of-3 majority; voices_disagreement = no-consensus; 1 voice errors → continue; all voices error → return failure not throw"
           ],
           "description": "Engine orchestrates parallel calls via existing CodexClientEngine, GeminiClientEngine (REST or CLI based on auth), OllamaClientEngine. Use Promise.allSettled for graceful failures. Comparator pattern: numeric (regex first signed digit), token (first canonical word), or custom (caller-provided). All inputs validated.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U03",
           "title": "Wire ConsensusCoordinatorEngine for retry + escalation policy",
           "effort": 75,
-          "dependencies": ["P0-U02"],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "status": "complete",
+          "completed_date": "2026-05-19",
+          "shipped_by": "delta/claude-41794360",
           "exit_conditions": [
             "ConsensusCoordinatorEngine.run() handles retry on ambiguous result (1-of-3 or split)",
             "Escalates to higher-effort voices (Codex xhigh) when threshold not met after 1 retry",
@@ -73,13 +134,23 @@
             "Tests: ambiguous → retry; ambiguous twice → escalate; escalate fails → human_review"
           ],
           "description": "Coordinator wraps the engine with policy logic. Use TaskClassifierEngine.shouldEscalate() to decide when to bump model effort. Track retry count in result audit.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U04",
           "title": "Provenance audit log + persistence to consensus-decisions.jsonl",
           "effort": 60,
-          "dependencies": ["P0-U02"],
+          "dependencies": [
+            "P0-U02"
+          ],
+          "status": "complete",
+          "completed_date": "2026-05-19",
+          "shipped_by": "delta/claude-41794360",
           "exit_conditions": [
             "Every consensus call appends one JSONL line to mcp-server/data/state/consensus-decisions.jsonl",
             "Audit fields: ts, callerEngine, question, voices, perVoiceAnswers, finalDecision, agreement, latencyMsTotal, tokensTotal",
@@ -87,13 +158,24 @@
             "Tests: 100 sequential calls produce 100 valid JSONL lines, parse round-trip clean"
           ],
           "description": "Atomic-write append. Reuse atomicWrite util. Add a dispatcher action 'consensus_audit_query' to read recent decisions for debugging.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         },
         {
           "id": "P0-U05",
           "title": "End-to-end test: 3 decision types route through consensus_decide",
           "effort": 90,
-          "dependencies": ["P0-U03", "P0-U04"],
+          "dependencies": [
+            "P0-U03",
+            "P0-U04"
+          ],
+          "status": "complete",
+          "completed_date": "2026-05-19",
+          "shipped_by": "delta/claude-41794360",
           "exit_conditions": [
             "Test 1: machine_select decision (mill 3-axis vs 5-axis) → consensus_decide returns 4-of-4 expected answer",
             "Test 2: post-processor pick (Hurco V11 vs Okuma OSP) → consensus_decide returns ≥3-of-4 expected answer",
@@ -102,17 +184,36 @@
             "Wall time per call ≤ 60s (Codex bound)"
           ],
           "description": "Real network calls (not mocks) to validate end-to-end. If Codex hangs >60s, fall back to 3-voice (skip Codex) and assert majority. Document latency p50/p99 for each voice in test output.",
-          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
         }
       ]
     }
   ],
   "acceptance": "prism_ai:consensus_decide action live; 3 decision types pass with documented agreement+latency; consensus-decisions.jsonl audit log present and parseable; smoke test reproducible.",
   "risks": [
-    {"id": "R1", "description": "Codex CLI cold-start can exceed 60s; mitigation = parallel fanout, 60s timeout, 3-voice fallback"},
-    {"id": "R2", "description": "Gemini Pro requires Code Assist account activation (gated 403); mitigation = stay on 2.5-flash for free-tier until user activates"},
-    {"id": "R3", "description": "Ollama 14b OOMs on Windows fragmentation; mitigation = qwen2.5-coder:7b is sufficient for voting"}
+    {
+      "id": "R1",
+      "description": "Codex CLI cold-start can exceed 60s; mitigation = parallel fanout, 60s timeout, 3-voice fallback"
+    },
+    {
+      "id": "R2",
+      "description": "Gemini Pro requires Code Assist account activation (gated 403); mitigation = stay on 2.5-flash for free-tier until user activates"
+    },
+    {
+      "id": "R3",
+      "description": "Ollama 14b OOMs on Windows fragmentation; mitigation = qwen2.5-coder:7b is sufficient for voting"
+    }
   ],
-  "blocks": ["INFRA-NEURAL-LEDGER-MS1", "MILL-P2P-CONSENSUS-MS3", "LATHE-P2P-CONSENSUS-MS4"],
-  "blocked_by": []
+  "blocks": [
+    "INFRA-NEURAL-LEDGER-MS1",
+    "MILL-P2P-CONSENSUS-MS3",
+    "LATHE-P2P-CONSENSUS-MS4"
+  ],
+  "blocked_by": [],
+  "updated_at": "2026-05-19T17:43:14.219Z"
 }

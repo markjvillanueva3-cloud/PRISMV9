@@ -18,9 +18,13 @@
  *   1. APPEND-ONLY.  Never mutate a past event.
  *   2. PER-DOMAIN SHARD.  mill.jsonl vs lathe.jsonl — cross-domain scans
  *      are O(active_domains), not O(total_events).
- *   3. ATOMIC WRITE.  tmp-file + fsync + rename (NTFS + ext4 atomic).
- *      Distributed-systems scrutiny flagged non-atomic JSON writes as
- *      corruption source #1 under 6-chat concurrency — this is the fix.
+ *   3. ATOMIC APPEND.  Common path (<64 KB line): `O_APPEND` single-write
+ *      via appendFileSync — kernel-atomic at line granularity across fleet
+ *      processes, no fsync (page-cache durability is acceptable for an
+ *      append-only telemetry log, and the prior whole-file rewrite was the
+ *      O(file²) + rename-races-readers source of the 2026-06-08 EPERM/orphan
+ *      incident). Fallback (>64 KB line, unreachable via record()'s size cap):
+ *      tmp + fsync + rename, with guaranteed tmp cleanup so it can't orphan.
  *   4. LINEAGE_ID THREADING.  Every event carries a lineage_id tying it
  *      to the original recommendation / decision / request so downstream
  *      calibration knows which model caused which outcome.
@@ -74,6 +78,9 @@ const V11_ONLY_CONTEXT_KEYS = [
 ] as const;
 const MAX_LINE_BYTES = 64 * 1024;          // 64 KB per event line cap
 const RETRY_QUEUE_MAX = 256;                // bounded in-memory fallback
+// Transient Windows sharing-violation (EPERM/EBUSY) on an O_APPEND write
+// clears in microseconds; 4 attempts with 2/4/8 ms backoff is generous.
+const ATOMIC_APPEND_MAX_ATTEMPTS = 4;
 
 export interface RecordOutcomeInput {
   domain: OutcomeDomainT;
@@ -163,8 +170,30 @@ export class OutcomeCaptureBusEngine {
   /**
    * Append an outcome event to the per-domain shard. Returns a result object
    * instead of throwing — the bus must never break the emitting engine.
+   *
+   * Disable knob (JM-DIE-LATHE-UPGRADE-MS0/U-OUTCOME-CAPTURE-DISABLE-KNOB,
+   * 2026-05-24): set `PRISM_OUTCOME_CAPTURE_DISABLE=1` to short-circuit
+   * every recordOutcome call to a no-op success. Use for high-throughput
+   * batch jobs (e.g. 900K+ lathe-program upgrades) where peer-chat contention
+   * on the per-domain .jsonl shard's rename-into-place atomic-append pattern
+   * is the bottleneck. Honors the "never block, never throw" bus contract —
+   * disabling silently drops the event, never errors. Re-enable per-session
+   * by unsetting the env var; not a code change.
    */
   record(input: RecordOutcomeInput): RecordOutcomeResult {
+    if (process.env.PRISM_OUTCOME_CAPTURE_DISABLE === "1") {
+      // No-op success: bus contract permits silent skip when disabled.
+      const event_id = input.event_id ?? randomUUID();
+      const lineage_id = input.lineage_id ?? event_id;
+      return {
+        ok: true,
+        event_id,
+        lineage_id,
+        path: "",
+        bytes: 0,
+        warning: "PRISM_OUTCOME_CAPTURE_DISABLE=1 — event skipped (knob)",
+      };
+    }
     const event_id = input.event_id ?? randomUUID();
     const lineage_id = input.lineage_id ?? event_id;
 
@@ -363,34 +392,109 @@ export class OutcomeCaptureBusEngine {
   }
 
   /**
-   * Atomic append: write to a sibling tmp file, fsync, then append-concat
-   * via a rename-into-place so a crash mid-write never truncates the shard.
-   * On NTFS + ext4 `rename` is atomic by POSIX / MSDN contract.
+   * Atomic append to the per-domain JSONL shard.
    *
-   * We use a copy-then-append pattern rather than plain `fs.appendFileSync`
-   * because Distributed-Systems scrutiny flagged plain appendFile as
-   * non-atomic under concurrent writers ≥ PIPE_BUF on Windows.
+   * PRIMARY PATH — `fs.appendFileSync` with `O_APPEND`. A single outcome
+   * event line is < {@link MAX_LINE_BYTES} (64 KB), which is at or below the
+   * per-write atomicity boundary the OS guarantees for an O_APPEND handle
+   * (POSIX PIPE_BUF / NTFS FILE_APPEND_DATA single-write semantics). At that
+   * size concurrent writers interleave at line boundaries, never producing a
+   * torn line — so the prior read-whole-file → write-tmp → rename pattern was
+   * both unnecessary AND O(file²): it re-read+re-wrote the entire 90 MB shard
+   * on every single-line append, and its `renameSync` raced concurrent fleet
+   * READERS (a held handle surfaces on Windows as a transient EPERM/EBUSY
+   * `ERROR_SHARING_VIOLATION`), dropping the capture AND orphaning the tmp.
+   * That orphan leak accumulated ~12 K dead `.{shard}.*.tmp` files.
+   *
+   * Transient sharing violations are retried with a short bounded backoff
+   * (the contention window for an append is microseconds, vs. the multi-second
+   * window the old whole-file rewrite held). A genuinely persistent failure
+   * (EACCES, ENOSPC, read-only mount) returns `ok:false` so the caller can
+   * enqueue to the in-memory retry queue — fail-loud, never silent-drop.
+   *
+   * FALLBACK PATH — only for a pathological > 64 KB line (should never happen
+   * given the {@link MAX_LINE_BYTES} cap upstream): the tmp+rename copy path,
+   * now with retry AND guaranteed orphan cleanup of its own tmp on failure.
    */
   private atomicAppend(
     filePath: string,
     line: string,
   ): { ok: boolean; warning?: string } {
+    const dir = path.dirname(filePath);
     try {
-      const dir = path.dirname(filePath);
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      // Read current contents (if any) then write current+new to tmp and
-      // rename. Keeps the whole shard atomic — if concurrent writers both
-      // do this, last-writer-wins but neither produces a torn line.
-      let existing = "";
-      if (fs.existsSync(filePath)) {
-        existing = fs.readFileSync(filePath, "utf8");
-      }
-      const tmp = path.join(
-        dir,
-        `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`,
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      process.stderr.write(
+        `[OutcomeCaptureBus] mkdir failed for ${dir}: ${message}\n`,
       );
+      return { ok: false, warning: message };
+    }
+
+    const lineBytes = Buffer.byteLength(line, "utf8");
+    const oversize = lineBytes > MAX_LINE_BYTES;
+
+    let lastMessage = "";
+    for (let attempt = 0; attempt < ATOMIC_APPEND_MAX_ATTEMPTS; attempt++) {
+      try {
+        if (oversize) {
+          this.fallbackTmpRenameAppend(filePath, dir, line);
+        } else {
+          // O_APPEND single-write — atomic at line granularity for < 64 KB.
+          fs.appendFileSync(filePath, line, { encoding: "utf8" });
+        }
+        return { ok: true };
+      } catch (err) {
+        const code =
+          err && typeof err === "object" && "code" in err
+            ? String((err as { code?: unknown }).code)
+            : "";
+        lastMessage = err instanceof Error ? err.message : String(err);
+        // Only EPERM/EBUSY (Windows sharing-violation) and EAGAIN are
+        // transient and worth retrying. Anything else fails immediately.
+        if (
+          code !== "EPERM" &&
+          code !== "EBUSY" &&
+          code !== "EAGAIN" &&
+          code !== "EMFILE"
+        ) {
+          break;
+        }
+        // Bounded busy-wait backoff: 2, 4, 8 ms. Append contention clears
+        // in microseconds; this is generous headroom without a real timer
+        // (avoids async in a sync write path).
+        const until = Date.now() + (1 << (attempt + 1));
+        while (Date.now() < until) {
+          /* spin */
+        }
+      }
+    }
+
+    process.stderr.write(
+      `[OutcomeCaptureBus] atomic-append failed for ${filePath} after ${ATOMIC_APPEND_MAX_ATTEMPTS} attempts: ${lastMessage}\n`,
+    );
+    return { ok: false, warning: lastMessage };
+  }
+
+  /**
+   * Oversize-line fallback (> 64 KB): copy-then-append via tmp + rename.
+   * Cleans up its own tmp on rename failure so it can never orphan.
+   */
+  private fallbackTmpRenameAppend(
+    filePath: string,
+    dir: string,
+    line: string,
+  ): void {
+    const existing = fs.existsSync(filePath)
+      ? fs.readFileSync(filePath, "utf8")
+      : "";
+    const tmp = path.join(
+      dir,
+      `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2, 8)}.tmp`,
+    );
+    try {
       const fd = fs.openSync(tmp, "w");
       try {
         fs.writeSync(fd, existing);
@@ -400,13 +504,14 @@ export class OutcomeCaptureBusEngine {
         fs.closeSync(fd);
       }
       fs.renameSync(tmp, filePath);
-      return { ok: true };
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      process.stderr.write(
-        `[OutcomeCaptureBus] atomic-append failed for ${filePath}: ${message}\n`,
-      );
-      return { ok: false, warning: message };
+      // Guarantee no orphan: best-effort unlink the tmp before rethrowing.
+      try {
+        if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
+      } catch {
+        /* unlink is best-effort; the janitor sweeps any residue */
+      }
+      throw err;
     }
   }
 

@@ -764,6 +764,18 @@ export interface QuoteEstimate {
   cycle_time_min: number;
   confidence: number;
   price_breaks?: { quantity: number; unit_price: number; savings_pct: number }[];
+  /**
+   * Margin-floor safety gate, surfaced verbatim from QuoteEstimatorEngine via
+   * quote_estimate (round-trip proven in QuoteEstimatorEngine.marginFloor.test.ts).
+   * Optional because legacy/quick estimate paths may omit it.
+   */
+  pricing?: {
+    margin_pct?: number;
+    /** True when post-discount margin fell below the config-sourced floor -- review before sending. */
+    below_margin_floor?: boolean;
+    /** The margin floor % this quote was checked against. */
+    margin_floor_pct?: number;
+  };
 }
 
 export interface InstantQuoteQuantityBreak {

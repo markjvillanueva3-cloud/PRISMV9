@@ -41,18 +41,24 @@ const QUEUE_PATH = process.env.PRISM_CONSENSUS_QUEUE ?? "H:/prism/state/shared/c
 const TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MIN_FILE_LEN = 1;
 
-// Critical-file classifiers — match against tool_input.file_path.
+// Critical-file classifiers -- match against tool_input.file_path.
+// Keyword-anywhere patterns use `.*` on BOTH sides (NOT `.+`): the dominant engine
+// naming is `<Keyword>Engine.ts` (e.g. SafetyEngine.ts, ThermalEngine.ts) where the
+// keyword is at the START -- `.+Keyword` would require a leading char and MISS those,
+// a safety false-negative (the most obvious safety files would skip consensus scrutiny).
+// A keyword-substring false-positive (e.g. "Enforce" matching "force") is harmless here
+// -- it only adds extra scrutiny -- so the patterns favor recall over precision.
 const CRITICAL_FILE_PATTERNS = [
   /\/physics\/constants\.ts$/i,
   /\/tools\/dispatchers\/.+\.ts$/i,
-  /\/engines\/.+Safety.+\.ts$/i,
-  /\/engines\/.+Validator.+\.ts$/i,
-  /\/engines\/Tolerance.+\.ts$/i,
-  /\/engines\/Kienzle.+\.ts$/i,
-  /\/engines\/Taylor.+\.ts$/i,
-  /\/engines\/.+Force.+\.ts$/i,
-  /\/engines\/.+Thermal.+\.ts$/i,
-  /\/engines\/.+Deflection.+\.ts$/i,
+  /\/engines\/.*Safety.*\.ts$/i,
+  /\/engines\/.*Validator.*\.ts$/i,
+  /\/engines\/Tolerance.*\.ts$/i,
+  /\/engines\/Kienzle.*\.ts$/i,
+  /\/engines\/Taylor.*\.ts$/i,
+  /\/engines\/.*Force.*\.ts$/i,
+  /\/engines\/.*Thermal.*\.ts$/i,
+  /\/engines\/.*Deflection.*\.ts$/i,
   /\/state\/shared\/omega-thresholds\.json$/i,
 ];
 
@@ -205,4 +211,12 @@ async function main() {
   return writeAllow(reason);
 }
 
-main().catch(() => writeAllow(""));
+export { isCriticalFile, composePrompt, hashPrompt, tryRecall, enqueueBackground, main };
+
+// Run only as a direct hook invocation, never on import (keeps the test harness clean
+// and stops a test import from blocking on fd 0 / running a live main). Mirrors the
+// isDirect guard in consensus-queue-drain.mjs.
+const isDirect = (process.argv[1] || "").replace(/\\/g, "/").endsWith("auto-consensus-critical-edit.mjs");
+if (isDirect) {
+  main().catch(() => writeAllow(""));
+}

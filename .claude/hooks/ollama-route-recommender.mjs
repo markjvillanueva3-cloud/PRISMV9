@@ -162,7 +162,7 @@ Return format: dispatcher:action_name (nothing else)`;
 
   try {
     const body = JSON.stringify({
-      model: 'qwen2.5-coder:7b',
+      model: 'qwen2.5-coder:32b',
       prompt: ollamaPrompt,
       stream: false,
       options: { num_predict: 30 }

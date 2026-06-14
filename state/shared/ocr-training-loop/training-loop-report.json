@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "1.0.0",
+  "models": [
+    "qwen3-vl:8b-instruct",
+    "qwen2.5vl:7b"
+  ],
+  "n_models": 2,
+  "calibrate": {
+    "count_attempted": 4,
+    "cases": [
+      {
+        "seed": 9000,
+        "difficulty": "easy",
+        "n_models": 2,
+        "dims": 6,
+        "correct": 5
+      },
+      {
+        "seed": 9001,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 10,
+        "correct": 6
+      },
+      {
+        "seed": 9003,
+        "difficulty": "hard",
+        "n_models": 2,
+        "dims": 8,
+        "correct": 6
+      }
+    ],
+    "samples": 24,
+    "calibration": {
+      "byF": [
+        {
+          "f": 0.5,
+          "n": 14,
+          "correct": 8,
+          "raw": 0.5714,
+          "isotonic": 0.5714
+        },
+        {
+          "f": 1,
+          "n": 10,
+          "correct": 9,
+          "raw": 0.9,
+          "isotonic": 0.9
+        }
+      ],
+      "totalN": 24,
+      "minF": 0.5,
+      "maxF": 1,
+      "calibrated": true,
+      "reliable": false,
+      "minReliableSamples": 50
+    }
+  },
+  "weak_label": {
+    "real_prints": 1,
+    "scored": 1,
+    "aggregate": {
+      "parts": 1,
+      "total_labels": 8,
+      "trainable_labels": 8,
+      "trainable_yield": 1,
+      "tier_totals": {
+        "gold": 8,
+        "silver": 0,
+        "bronze": 0,
+        "reject": 0,
+        "uncalibrated": 0
+      },
+      "active_learning_queue": 1,
+      "calibration": {
+        "calibrated": true,
+        "reliable": false,
+        "totalN": 24,
+        "byF": [
+          {
+            "f": 0.5,
+            "n": 14,
+            "correct": 8,
+            "raw": 0.5714,
+            "isotonic": 0.5714
+          },
+          {
+            "f": 1,
+            "n": 10,
+            "correct": 9,
+            "raw": 0.9,
+            "isotonic": 0.9
+          }
+        ]
+      }
+    }
+  },
+  "outputs": {
+    "trainset": "H:\\PRISM\\state\\shared\\ocr-training-loop\\trainset.jsonl",
+    "active_learning_queue": "H:\\PRISM\\state\\shared\\ocr-training-loop\\active-learning-queue.jsonl"
+  },
+  "mustHumanVerify": true,
+  "note": "Pseudo-labels are ensemble-distilled. Gold/silver are calibration-tiered (validated on synthetic perfect-GT); operator must confirm the active-learning queue before LoRA fine-tune (india)."
+}

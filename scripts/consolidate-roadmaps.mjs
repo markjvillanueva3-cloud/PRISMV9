@@ -62,7 +62,10 @@ export const DEEP_INTEGRATION_BRIDGES = [
 
 // ─── io helpers ──────────────────────────────────────────────────────────
 
-function readJson(p) { return JSON.parse(fs.readFileSync(p, "utf8")); }
+function readJson(p) {
+  try { return JSON.parse(fs.readFileSync(p, "utf8")); }
+  catch (e) { throw new Error(`failed to parse ${p}: ${e.message}`); }
+}
 function readJsonSafe(p) { try { return readJson(p); } catch { return null; } }
 
 export function loadEnvelopes(dir) {

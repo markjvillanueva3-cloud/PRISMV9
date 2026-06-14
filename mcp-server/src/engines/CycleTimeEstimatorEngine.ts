@@ -23,7 +23,7 @@
 // ============================================================================
 
 /** Supported CNC controller families. */
-export type ControllerType = "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma";
+export type ControllerType = "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma" | "hurco";
 
 /** Full kinematic description of a CNC machine's motion system. */
 export interface MachineKinematics {
@@ -255,6 +255,52 @@ const MACHINE_PROFILES: Record<string, { controller: ControllerType; kinematics:
       pallet_change_time: 8.0,
     },
   },
+  // ---- JM Die fleet (U-QP-CYCLETIME-JM-PROFILES, charlie 2026-06-12) ----
+  // rapid_rate / max_acceleration / tool_change_time / block_processing_time are
+  // VERIFIED from GCodeRuntimePredictorEngine.MACHINE_LIBRARY (the JM-fleet
+  // kinematics descriptors; block_processing_time = 1000/blocks_per_sec). max_jerk
+  // (~20x accel) / servo_settling / look_ahead / spindle_accel are DERIVED from the
+  // same-class CONTROLLER_DEFAULTS conventions (R12: no fabricated machine specs).
+  // Roku-Roku (VMC-05, Fanuc 31i) is DEFERRED -- no verified source kinematics.
+  hurco_vm30i: {
+    controller: "hurco",
+    kinematics: {
+      rapid_rate_xy: 35000, rapid_rate_z: 35000, // verified max_rapid_mm_min
+      max_acceleration: 3500,                      // verified
+      max_jerk: 70000,                             // derived ~20x accel (WinMAX UltiMotion)
+      servo_settling_time: 12,                     // derived (advanced controller)
+      look_ahead_blocks: 100,                      // derived (UltiMotion aggressive look-ahead)
+      block_processing_time: 0.067,                // verified 1000/15000 blocks_per_sec
+      tool_change_time: 5,                         // verified tool_change_sec
+      spindle_accel_time: 2.0,                     // derived (high-end VMC)
+    },
+  },
+  hurco_vmx24: {
+    controller: "hurco",
+    kinematics: {
+      rapid_rate_xy: 33000, rapid_rate_z: 33000, // verified
+      max_acceleration: 3000,                      // verified
+      max_jerk: 60000,                             // derived ~20x accel
+      servo_settling_time: 12,                     // derived
+      look_ahead_blocks: 100,                      // derived (UltiMotion)
+      block_processing_time: 0.067,                // verified 1000/15000
+      tool_change_time: 6,                         // verified
+      spindle_accel_time: 2.2,                     // derived
+    },
+  },
+  okuma_m460v: {
+    controller: "okuma",
+    kinematics: {
+      rapid_rate_xy: 50000, rapid_rate_z: 50000, // verified (M460V-5AX)
+      max_acceleration: 5000,                      // verified
+      max_jerk: 100000,                            // derived ~20x accel
+      servo_settling_time: 10,                     // derived (OSP-P300 advanced)
+      look_ahead_blocks: 100,                      // derived
+      block_processing_time: 0.1,                  // verified 1000/10000
+      tool_change_time: 4,                         // verified
+      spindle_accel_time: 1.8,                     // derived
+    },
+  },
 };
 
 /** Default kinematics for controller families when no specific machine is given. */
@@ -288,6 +334,13 @@ const CONTROLLER_DEFAULTS: Record<ControllerType, MachineKinematics> = {
     rapid_rate_xy: 32000, rapid_rate_z: 32000, max_acceleration: 4500,
     max_jerk: 90000, servo_settling_time: 12, look_ahead_blocks: 80,
     block_processing_time: 0.5, tool_change_time: 3.0, spindle_accel_time: 1.5,
+  },
+  // Hurco WinMAX/UltiMotion family default (U-QP-CYCLETIME-JM-PROFILES) -- JM's
+  // primary mill controller; values mirror the hurco_vm30i machine profile.
+  hurco: {
+    rapid_rate_xy: 33000, rapid_rate_z: 33000, max_acceleration: 3200,
+    max_jerk: 64000, servo_settling_time: 12, look_ahead_blocks: 100,
+    block_processing_time: 0.1, tool_change_time: 5.5, spindle_accel_time: 2.1,
   },
 };
 
@@ -505,6 +558,69 @@ function extractWord(line: string, letter: string): number | undefined {
 /**
  * Parse a full G-code program into a sequence of moves with computed distances.
  */
+/**
+ * Emit the synthetic move sequence for one execution of a mill drilling/boring/
+ * tapping canned cycle (G73 + G81-G89) at a hole position (U-QP-CANNED-CYCLES).
+ * Models: (1) rapid XY to the hole, (2) rapid Z down to the R clearance plane,
+ * (3) FEED Z from R to final depth (with peck-retract overhead for G73/G83),
+ * (4) optional dwell (G82/G88/G89), (5) retract to R (G99) or the initial level
+ * (G98); tap (G84) and bore-feed-out (G85/G89) retract at FEED, others at rapid.
+ * Reuses the engine's existing per-move S-curve timing -- a canned cycle
+ * previously fell through as a single mis-typed motion (missing the plunge,
+ * peck travel, dwell, and every modal repeat point). All distances/feeds mm +
+ * mm/min. The drill depth |R - Z| is a DIFFERENCE, so it is correct under both
+ * G90 (absolute) and G91 (incremental) -- only the rapid positioning Z-travel
+ * for an exotic per-hole-varying-depth G91 pattern is approximate.
+ * Returns the final tool position so the caller can advance modal state.
+ */
+function emitCannedDrill(
+  moves: ParsedMove[], lineNum: number, raw: string,
+  fromX: number, fromY: number, fromZ: number,
+  holeX: number, holeY: number,
+  type: string, zDepth: number, rPlane: number, q: number, p: number, feed: number,
+  retractToInitial: boolean, initialZ: number,
+): { x: number; y: number; z: number } {
+  // 1. Rapid XY to the hole at the current Z (x/y set, z omitted -> XY rapid rate).
+  const dxy = Math.sqrt((holeX - fromX) ** 2 + (holeY - fromY) ** 2);
+  if (dxy > 0) {
+    moves.push({ line_number: lineNum, raw, type: "rapid", x: holeX, y: holeY, distance_mm: dxy, angle_change_deg: 0 });
+  }
+  // 2. Rapid Z down to the R clearance plane (z only -> Z rapid rate).
+  const dToR = Math.abs(rPlane - fromZ);
+  if (dToR > 0) {
+    moves.push({ line_number: lineNum, raw, type: "rapid", z: rPlane, distance_mm: dToR, angle_change_deg: 0 });
+  }
+  // 3. FEED drill from R to final depth. Peck cycles (G83 std, G73 high-speed)
+  //    add retract overhead (each peck retracts partway and re-feeds).
+  const drillDepth = Math.abs(rPlane - zDepth);
+  let drillPath = drillDepth;
+  if (type === "G83" || type === "G73") {
+    const peckQ = q > 0 ? q : drillDepth;
+    const peckCount = Math.max(1, Math.ceil(drillDepth / Math.max(peckQ, 1e-6)));
+    drillPath = drillDepth + peckCount * peckQ * 0.5; // each peck retracts ~half Q and re-feeds
+  }
+  if (drillPath > 0) {
+    moves.push({ line_number: lineNum, raw, type: "linear", z: zDepth, f: feed, distance_mm: drillPath, angle_change_deg: 0 });
+  }
+  // 4. Dwell at depth (G82 spot, G88 bore-dwell, G89 bore-dwell-feed-out). The P
+  //    value is interpreted by the timing pass using the same P>=100ms->seconds
+  //    heuristic as G04 (engine-wide; a controller-aware dwell unit is a separate
+  //    follow-up). For a true dwell (P >= 0.1s) this is correct on Fanuc-style ms P.
+  if ((type === "G82" || type === "G88" || type === "G89") && p > 0) {
+    moves.push({ line_number: lineNum, raw, type: "dwell", p, distance_mm: 0, angle_change_deg: 0 });
+  }
+  // 5. Retract: rapid to R (G99) or initial level (G98). Tap (G84) and bore-feed-out
+  //    (G85/G89) retract at FEED for thread-lead / surface finish; others rapid out.
+  const retractZ = retractToInitial ? initialZ : rPlane;
+  const dRetract = Math.abs(retractZ - zDepth);
+  if (dRetract > 0) {
+    const feedRetract = type === "G84" || type === "G85" || type === "G89";
+    const retractType: ParsedMove["type"] = feedRetract ? "linear" : "rapid";
+    moves.push({ line_number: lineNum, raw, type: retractType, z: retractZ, f: feed, distance_mm: dRetract, angle_change_deg: 0 });
+  }
+  return { x: holeX, y: holeY, z: retractZ };
+}
+
 function parseGCode(gcode: string): ParsedMove[] {
   const lines = gcode.split(/\r?\n/);
   const moves: ParsedMove[] = [];
@@ -515,6 +631,13 @@ function parseGCode(gcode: string): ParsedMove[] {
   let motionMode: "rapid" | "linear" | "cw_arc" | "ccw_arc" = "rapid";
   let prevDx = 0, prevDy = 0, prevDz = 0;
   let isAbsolute = true;
+
+  // Canned-cycle modal state (G73 + G81-G89). U-QP-CANNED-CYCLES.
+  let cannedActive = false;
+  let cannedType = "";
+  let cannedZ = 0, cannedR = 0, cannedQ = 0, cannedP = 0, cannedF = 0;
+  let retractToInitial = true; // G98 = retract to initial level, G99 = to R plane
+  let cannedInitialZ = 0;      // Z level captured when the cycle was established
 
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i].trim();
@@ -545,6 +668,70 @@ function parseGCode(gcode: string): ParsedMove[] {
     if (/G0*1\b/i.test(code)) motionMode = "linear";
     if (/G0*2\b/i.test(code)) motionMode = "cw_arc";
     if (/G0*3\b/i.test(code)) motionMode = "ccw_arc";
+
+    // ---- Canned cycles (G73 + G81-G89). U-QP-CANNED-CYCLES ----------------
+    // Retract mode: G98 = retract to initial level, G99 = retract to R plane.
+    if (/G98\b/i.test(code)) retractToInitial = true;
+    if (/G99\b/i.test(code)) retractToInitial = false;
+
+    // G80 cancels any active canned cycle.
+    if (/G80\b/i.test(code)) {
+      cannedActive = false;
+      cannedType = "";
+      moves.push({ line_number: i + 1, raw, type: "other", distance_mm: 0, angle_change_deg: 0 });
+      continue;
+    }
+
+    // Establish (or refresh) a MILL drilling/boring/tapping canned cycle:
+    // G73 high-speed peck, G81 drill, G82 spot-dwell, G83 peck, G84 tap,
+    // G85 bore feed-out, G86/G87/G88 bore, G89 bore-dwell. Scoped to G73 + G81-G89.
+    // G74/G76 are intentionally NOT matched -- on a LATHE they mean left-hand-tap /
+    // peck-groove / threading (different semantics); lathe cycle timing is a
+    // separate dialect concern. G73 IS unambiguous mill high-speed peck, so it is
+    // included (modeled like G83 peck).
+    const cannedMatch = code.match(/\bG(73|8[1-9])\b/i);
+    if (cannedMatch) {
+      if (!cannedActive) cannedInitialZ = curZ; // capture the initial level once per cycle
+      cannedActive = true;
+      cannedType = "G" + cannedMatch[1];
+    }
+
+    // An explicit motion word (G00-G03) on a non-establishing line cancels the
+    // cycle (Fanuc/most controllers); fall through to normal motion handling.
+    if (cannedActive && !cannedMatch && /G0*[0-3]\b/i.test(code)) {
+      cannedActive = false;
+      cannedType = "";
+    }
+
+    if (cannedActive) {
+      // Refresh cycle params if present on this line (modal cycles can change Z/R/Q).
+      const zc = extractWord(code, "Z");
+      const rc = extractWord(code, "R");
+      const qc = extractWord(code, "Q");
+      const pc = extractWord(code, "P");
+      const fc = extractWord(code, "F");
+      if (zc !== undefined) cannedZ = isAbsolute ? zc : curZ + zc;
+      if (rc !== undefined) cannedR = isAbsolute ? rc : curZ + rc;
+      if (qc !== undefined) cannedQ = Math.abs(qc);
+      if (pc !== undefined) cannedP = pc;
+      if (fc !== undefined) { cannedF = fc; curF = fc; }
+
+      const px = extractWord(code, "X");
+      const py = extractWord(code, "Y");
+      // The establishing line OR any subsequent line with X/Y drills a hole.
+      if (cannedMatch || px !== undefined || py !== undefined) {
+        let holeX = curX, holeY = curY;
+        if (px !== undefined) holeX = isAbsolute ? px : curX + px;
+        if (py !== undefined) holeY = isAbsolute ? py : curY + py;
+        const end = emitCannedDrill(
+          moves, i + 1, raw, curX, curY, curZ, holeX, holeY,
+          cannedType, cannedZ, cannedR, cannedQ, cannedP, cannedF, retractToInitial, cannedInitialZ,
+        );
+        curX = end.x; curY = end.y; curZ = end.z;
+        prevDx = 0; prevDy = 0; prevDz = 0; // no spurious corner after a cycle
+        continue;
+      }
+    }
 
     // Dwell
     if (/G0*4\b/i.test(code)) {

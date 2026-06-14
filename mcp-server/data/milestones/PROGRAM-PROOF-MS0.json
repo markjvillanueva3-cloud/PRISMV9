@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PROGRAM-PROOF-MS0",
+  "title": "Mathematical Program Proof — collision-cert + envelope ingestion + auto-fix (JM Die fleet baseline)",
+  "status": "in_progress",
+  "owner": "slot:charlie",
+  "phase": "P0-CRITICAL",
+  "created_at": "2026-05-24T06:00:00Z",
+  "spec_ref": "state/shared/specs/PROGRAM-PROOF-MS0-2026-05-24.md",
+  "summary": "Mathematical machine certificate: prove via interval arithmetic + continuous swept-volume + signed-distance-field that a toolpath's tool-tip / spindle-nose envelope is strictly inside the machine's reachable + collision-free envelope at ALL parametric times. Sub-second proofs, no Vericut required. Auto-fix transforms when proof fails. Pre-emit gate guarantees user never receives an unsafe program. Baseline fleet: JM Die's 21 machines (jm-die-profile.ts JM_DIE_MACHINE_COUNT=21).",
+  "doctrine": [
+    "feedback_always_build",
+    "feedback_parallel_scrutiny_per_file",
+    "Karpathy R5 — model only for judgment calls; deterministic safety predicates live in code, not LLM",
+    "CLAUDE.md §SAFETY — never inline constants; tier shop_floor Ω≥0.95 S(x)≥0.98"
+  ],
+  "leverages_existing_engines": [
+    "ContinuousCollisionDetectionEngine",
+    "WorkEnvelopeEngine",
+    "WorkEnvelopeValidatorEngine",
+    "MachineEnvelopeGuardEngine",
+    "WEDMWirePathCollisionEngine",
+    "WEDMSafetyEnvelopeEngine",
+    "MillKinematicsCollisionEngine",
+    "MachineKinematicStateEngine",
+    "MultiAxisKinematicEngine",
+    "InverseKinematicsSolverEngine",
+    "SweptVolumeEngine",
+    "CollisionDetectionEngine",
+    "CollisionPreventionEngine",
+    "CollisionHazardDetectorEngine",
+    "PPSafetyEnvelopeVectorEngine",
+    "VariabilityEnvelopeEngine",
+    "ShopConfigurationEngine"
+  ],
+  "units": [
+    {
+      "id": "U-PP01-FLEET-ENVELOPE-CATALOG",
+      "title": "JMDieMachineEnvelopeCatalogEngine — ingest all 21 JM Die machines into a unified envelope catalog at native µm precision",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Per-machine: travel limits (X/Y/Z + A/B/C if 5-axis), spindle nose B-rep, table B-rep, fixture-exclusion zones (tombstone, vise, magnet), door interference, tool-holder reach cone",
+        "Source-of-truth: ShopConfigurationEngine (21 machines) + manufacturer specs + per-machine fixture catalog",
+        "Reported accuracy tier per machine: 'manufacturer-spec' (~25-50µm) | 'interferometer-cal' (sub-µm, none today) — caller knows the margin",
+        "Output: queryable catalog keyed by machine_id; signed-distance-field generator on demand"
+      ],
+      "acceptance": [
+        "All 21 JM Die machines have an envelope record",
+        "Per-machine record includes B-rep + accuracy tier + last-verified date",
+        "MCP-callable via prism_calc:jm_die_envelope_lookup",
+        "12+ unit tests (1 per machine class minimum), 3 adversarial (over-travel, fixture-collision, door-interference)"
+      ]
+    },
+    {
+      "id": "U-PP02-INTERVAL-ARITHMETIC",
+      "title": "IntervalArithmeticPredicateEngine — wrap collision/distance predicates so FP rounding can't produce false-negatives",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Implement interval-arithmetic ops [add, sub, mul, div, sqrt] per Moore 1966 + outward-rounding directed-rounding semantics",
+        "Wrap distance predicates: point-in-polytope, segment-segment, swept-volume-intersect",
+        "Output bounded: 'definitely-safe' | 'definitely-collision' | 'inconclusive' (split-and-recurse)"
+      ],
+      "acceptance": [
+        "Provably no false-negative on point-in-cube under FP rounding (test with eps-distance edges)",
+        "≥10 unit tests including NaN, ±Inf, denormal, overflow",
+        "Round-trip E2E: wraps ContinuousCollisionDetectionEngine without behavior change on safe inputs, catches near-edge cases discrete FP misses"
+      ]
+    },
+    {
+      "id": "U-PP03-CERT-ORCHESTRATOR",
+      "title": "ProgramProofCertificateEngine — orchestrator that produces signed 'this program is safe' verdict",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Input: program (G-code or pre-post toolpath) + machine_id + fixture_id + workpiece_geometry",
+        "Pipeline: envelope-lookup → IK trajectory → continuous swept-volume → interval-arithmetic distance predicates → cross-engine consensus",
+        "Output: ProofCertificate { verdict: 'safe' | 'unsafe' | 'inconclusive', witnesses: [...failed checks], marginsByCheck: { name → µm safety margin }, signedAt, machineId, programHash, accuracyTier }",
+        "Performance budget: <1s for 5K-block program, <5s for 50K-block"
+      ],
+      "acceptance": [
+        "End-to-end on real JM Die program: input program → certificate in <5s",
+        "≥15 unit tests including: safe program (verdict safe + positive margins), travel-limit violation (verdict unsafe + axis name in witness), fixture collision (unsafe + intersection point), inconclusive boundary (auto-recurses via interval-arithmetic)",
+        "MCP-callable via prism_safety:program_proof_certify",
+        "Cert format is schema-versioned + signed (sha256 of program + envelope + engine versions)"
+      ]
+    },
+    {
+      "id": "U-PP04-AUTO-FIX-PLANNER",
+      "title": "ProgramAutoFixPlannerEngine — when cert fails, pick cheapest valid transform; re-certify until safe or unfixable",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Transforms ranked by cost: (1) Z-lift to safe-height, (2) retract-then-rapid-then-plunge, (3) SLERP re-orient (5-axis), (4) feed-rate clamp, (5) setup-split (most expensive)",
+        "Greedy planner: pick cheapest transform that addresses the specific witness; re-run cert; iterate until verdict=safe OR no transform applies → report 'unfixable, requires human'",
+        "Fixed-point detection: stop after 8 iterations to bound runtime"
+      ],
+      "acceptance": [
+        "Z-collision → Z-lift fix → re-certified safe (round-trip E2E test)",
+        "Travel-limit overshoot → feed-clamp fix → safe",
+        "Tank-wall collision in WEDM → setup-split or unfixable verdict (depends on geometry)",
+        "≥12 unit tests covering each transform + composition + unfixable + fixed-point",
+        "MCP-callable via prism_safety:program_proof_autofix"
+      ]
+    },
+    {
+      "id": "U-PP05-PRE-EMIT-GATE",
+      "title": "Pre-emit gate — wire the certificate into G-code emitter pipelines so no program is emitted without verdict:safe",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Hook into: LathePrintProgramEmitterEngine, all PostProcessorPipeline finalize steps, WEDM program emit",
+        "Gate behavior: cert.verdict=safe → emit; verdict=unsafe → auto-fix attempt → re-cert → emit; unfixable → reject + report",
+        "Bypass: PRISM_PROGRAM_PROOF_BYPASS=1 (logged to state/shared/program-proof-bypasses.jsonl, never silent)",
+        "User-facing: every emitted program carries a `// PRISM-PROOF: <cert-sha>` comment header"
+      ],
+      "acceptance": [
+        "Lathe emit path gated end-to-end (round-trip test: unsafe program → blocked, auto-fix retried, safe emit)",
+        "WEDM emit gated end-to-end",
+        "Bypass works AND is logged with caller + reason",
+        "User-receivable program ALWAYS carries the cert header"
+      ]
+    },
+    {
+      "id": "U-PP06-WEDM-PILOT",
+      "title": "WEDM end-to-end pilot (charlie-domain proof-of-concept) — run on 3 real JM Die wire programs, demonstrate auto-fix",
+      "status": "pending",
+      "priority": "p1",
+      "scope": [
+        "Pick 3 real wire programs from JM DIE/CNC WIRE/ archive (taper cut, fine-finish multi-pass, thick stack)",
+        "Run U-PP03 cert; record verdict, witnesses, margins",
+        "If unsafe: run U-PP04 auto-fix; record transforms applied",
+        "Final report: state/shared/program-proof/WEDM-PILOT-RESULTS.md with per-program verdict + auto-fix trace"
+      ],
+      "acceptance": [
+        "3 real programs run through the gate",
+        "Per-program report includes upper-head clearance margin (µm), U-V offset cone, tank-wall margin, wire-break risk score",
+        "≥1 program demonstrates a real auto-fix transform (Z-lift or feed-clamp), not just pass-through"
+      ]
+    }
+  ],
+  "p2_topology_layer": {
+    "rationale": "Strictly additive over P0 — P0 ships first with metric/geometric proofs; P2 adds topological proofs that catch the rare class of bugs that metric checks miss (knots, anti-podal singularities, bottleneck routing, sheaf-cohomology cross-engine consensus). Each P2 unit is independent — no inter-dependency.",
+    "units": [
+      {
+        "id": "U-PP07-TOPOLOGICAL-ENVELOPE-ANALYZER",
+        "title": "TopologicalEnvelopeAnalyzerEngine — persistent homology + Morse theory on machine-envelope SDF",
+        "status": "pending",
+        "priority": "p2",
+        "scope": [
+          "Compute persistent homology (H_0 connected components, H_1 loops) of each JM Die machine envelope SDF",
+          "Morse decomposition: catalog critical points (saddle points = bottleneck-pose-pairs where safety margin is locally minimal)",
+          "Output: per-machine bottleneck-point map, queryable by toolpath",
+          "Pure-JS Vietoris-Rips up to dim-1 (sufficient subset, <5KB, no GUDHI dependency)"
+        ],
+        "acceptance": [
+          "Returns ≥3 bottleneck points for each of 3 spanning machines (Hurco mill, Okuma lathe, GFAgie WEDM)",
+          "U-PP04 auto-fix planner consumes the bottleneck map and demonstrates ≥20% shorter path-length on test program vs greedy Z-lift",
+          "≥10 unit tests including: empty SDF (degenerate), single-point SDF, multi-component SDF (verify H_0 count), toroidal envelope (verify H_1 nontrivial)"
+        ]
+      },
+      {
+        "id": "U-PP08-CONFIG-SPACE-REEB",
+        "title": "ConfigSpaceReebGraphEngine — Reeb-graph decomposition of 5-axis C-space, detects anti-podal singularities",
+        "status": "pending",
+        "priority": "p2",
+        "scope": [
+          "Build Reeb graph of the 5-axis C-space (XYZ × ABC torus) parametrized by toolpath progress",
+          "Detect anti-podal singularities (wrist flips, ABC rollover at ±180°) as Reeb-graph branch points",
+          "Provide SLERP detour that is provably topologically valid (doesn't cross the singular set)",
+          "Replaces U-PP04's heuristic SLERP fix with a Reeb-graph-aware planner"
+        ],
+        "acceptance": [
+          "Detects all 3 anti-podal singularities in a known-bad 5-axis test program (DMG 5-axis mill, A-axis flip near pole)",
+          "Re-planned path is collision-free AND continuous (no orientation discontinuity)",
+          "Round-trip with U-PP03 cert: original program verdict=unsafe (singularity-cross), re-planned verdict=safe",
+          "≥10 unit tests including: no-singularity-case (passthrough), single-singularity (detour), double-singularity (multi-segment detour)"
+        ]
+      },
+      {
+        "id": "U-PP09-WEDM-WIRE-KNOT-INVARIANT",
+        "title": "WEDMWireKnotInvariantEngine — Alexander polynomial of wire path, catches link-with-workpiece class",
+        "status": "pending",
+        "priority": "p2",
+        "scope": [
+          "Charlie-domain (wire EDM specialist)",
+          "Compute Alexander polynomial of the wire-path curve (closed by upper-head → start, lower-head → start virtual closure)",
+          "Detect non-trivial knot invariant ⇒ wire effectively links with workpiece hole/cavity ⇒ unphysical wire-break required",
+          "Catches the stacked-die-program class missed by purely metric geometric checks (~5-10% of real-world WEDM bugs per charlie tribal corpus)"
+        ],
+        "acceptance": [
+          "Detects link-with-workpiece on synthetic test: wire path that threads a through-hole vs one that doesn't",
+          "Alexander polynomial = 1 (trivial knot) for safe wire paths; non-trivial polynomial for linked paths",
+          "Integration test: feeds verdict into U-PP03 cert as witness 'wire-knot-invariant-violation' with the polynomial as evidence",
+          "≥10 unit tests including: unknot (trivial), trefoil (3_1 knot — should detect), figure-eight, Hopf-link (2-component link)",
+          "Respects charlie refuse_list — does NOT inline spark-erosion / pulse-energy constants"
+        ]
+      },
+      {
+        "id": "U-PP10-SHEAF-COHOMOLOGY-MERGE",
+        "title": "SheafCohomologyMergeEngine — rigorous cross-engine cert verdict consensus via sheaf cohomology",
+        "status": "pending",
+        "priority": "p2",
+        "scope": [
+          "Model the 17 collision/envelope/kinematic engine outputs as sections of a sheaf on the toolpath-segment graph",
+          "Compute the first cohomology class H^1 — non-zero ⇒ local engine verdicts are LOCALLY consistent but GLOBALLY contradictory (obstruction to global section)",
+          "Replaces U-PP03's 'all engines must vote safe' (too strict) with 'sheaf section exists' (provably-coherent merge)",
+          "Reduces U-PP03 false-positive rate (engines disagreeing on edge geometry but each locally correct)"
+        ],
+        "acceptance": [
+          "Catches synthetic-contradiction case: 3 engines disagree pairwise but each pair is consistent (Mayer-Vietoris obstruction)",
+          "On a corpus of 50 known-safe JM Die programs, U-PP03 with sheaf merge drops false-positive rate by ≥30% vs intersection vote",
+          "≥10 unit tests including: trivial sheaf (all engines agree → H^1=0 → safe), contradiction-pair (H^1≠0 → conflict report), 3-way contradiction",
+          "Pure-JS implementation (cohomology over finite simplicial complex is ~200 LOC linear algebra)"
+        ]
+      }
+    ]
+  },
+  "psn_synergy": {
+    "leg_engines": "U-PP03 cert orchestrator IS the unified PSN-leg-7 entry for program safety",
+    "leg_algorithms": "U-PP02 interval arithmetic adds the safe-predicate primitive (Moore 1966)",
+    "leg_formulas": "Reuses Minkowski sum, GJK distance, BVH, swept-volume from existing formula registry",
+    "leg_nn_gnn": "U-PP04 auto-fix planner is a candidate for RL fine-tune via the new PSN autonomy loop (cheap-transform-first policy learned from reward = (1 if cert.verdict==safe else 0) * (1 / transform_cost))",
+    "leg_prism_ai": "U-PP03 cert verdict feeds the new PSN trainer-manifest as a high-signal reward (verdict:safe = +0.50, verdict:unsafe with auto-fix:successful = +0.30, verdict:unfixable = -0.50)"
+  },
+  "deferred_aspirations": [
+    "Per-machine laser-interferometer characterization (Renishaw ballbar + XL-80) to lift accuracy_tier from 'manufacturer-spec' (~25-50µm) to 'interferometer-cal' (sub-µm). Requires capital purchase + per-machine calibration day. NOT in scope for MS0."
+  ]
+}

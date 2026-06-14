@@ -868,6 +868,12 @@
 - **EWMAEngine**: Exponentially Weighted Moving Average control chart
 - **ExceptionLearningEngine**: Turn Exceptions into Knowledge
 - **ExecutionVerificationEngine**: Script Execution & Geometry Verification
+- **ExecutiveSummaryEngine**: C-suite weekly rollup — PII-free aggregates across HR/QA/finance/vendor/customer with 5-domain red-flag detection (top of hotel hierarchy, iter31)
+- **InspectionReportEngine**: QC inspection reports (FAI/in-process/final/incoming) with characteristic-level pass/fail, 4-step severity ladder, auto-NCR flag, ISO 9001 §8.6 CofC issuance (iter33)
+- **ShippingReceivingLogEngine**: inbound/outbound logistics ledger + 3-way match (PO↔receipt↔invoice) with 6 discrepancy classes (short-ship/over-ship/damaged/price-mismatch/missing-po/uom-mismatch); ISO 9001 §8.4 receiving-verification (iter34)
+- **PurchaseOrderLifecycleEngine**: PO state machine (draft→submitted→acknowledged→partially_received→received→invoiced→paid→closed) with explicit allowed-transitions table, line-item qty tally, change-order trail, segregation-of-duties enforcement on submit (iter35)
+- **EmployeeTimeClockEngine**: punch FSM (clocked_out→clocked_in→on_break) + daily/weekly minute aggregation + FLSA OT threshold detection + forgotten-clock-out cap + missed-break flag + SoD-enforced retroactive edits (iter36)
+- **OSHA300LogEngine**: federal OSHA 1904 injury & illness log (Form 300/300A) — explicit recordable-criteria checklist + 8h/24h reporting-window detection + PII guard on description + annual summary aggregation (iter38)
 - **ExpandingMandrelEngine**: ExpandingMandrelEngine
 - **ExponentialSmoothingEngine**: Exponential smoothing forecasting
 - **ExportEngine**: L2-P3-MS1 Infrastructure Layer

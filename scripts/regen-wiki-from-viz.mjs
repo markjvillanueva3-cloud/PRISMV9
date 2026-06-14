@@ -46,7 +46,7 @@ function computeFingerprint() {
     parts.push(`g:${st.size}:${Math.round(st.mtimeMs)}`);
     // Cheap content signal: read just the first 4KB which contains the meta header
     // (generatedAt, headline counts) without parsing the 95MB body.
-    const head = readFileSync(GRAPH_PATH, "utf8").slice(0, 4096);
+    const head = readFileSync(GRAPH_PATH).toString("utf8", 0, 4096);  // off-heap head: readFileSync(p,"utf8") builds the FULL >512MiB string before .slice -> throws (U-VIZ-READER-CAPSAFE 2026-06-10)
     parts.push(`h:${createHash("sha1").update(head).digest("hex").slice(0, 16)}`);
   } catch { parts.push("g:missing"); }
   // Generator-list hash so a code change to the orchestrator forces a rebuild.
@@ -68,6 +68,11 @@ const GENERATORS = [
   "generate-layer-wiki.mjs",
   "generate-domain-wiki.mjs",
   "generate-dispatcher-wiki.mjs",
+  // OLLAMA-SYNERGY #1 (sierra): flag-gated ($0-Claude qwen2.5-coder:32b) "what/why" narrative
+  // enrichment of the 3 field-dump entry types above. No-op unless PRISM_VIZ_WIKI_NARRATIVE=1,
+  // so the every-commit hot path is unchanged by default. Runs before crosslinks/leaf-index
+  // so the narrative is recall-searchable. Idempotent + fail-soft.
+  "generate-viz-wiki-narrative.mjs",
   "generate-engine-wiki.mjs",
   "generate-action-wiki.mjs",
   "generate-registry-wiki.mjs",
@@ -92,6 +97,10 @@ const GENERATORS = [
   // leaf-index built after crosslinks so it captures the latest content;
   // feeds wiki-precheck-inject.mjs so the ~14K leaf entries are recall-searchable
   "build-wiki-leaf-index.mjs",
+  // refresh index.md's stale metadata (last_verified + entry count) IN PLACE.
+  // Runs after the leaf-index so the catalog is current; surgical (entry bodies
+  // untouched) — see regen-wiki-index-meta.mjs for why a full re-emit is unsafe.
+  "regen-wiki-index-meta.mjs",
   // embeddings built from the fresh leaf-index — int8 vectors for the recall
   // hook's semantic fallback. No-ops gracefully if Ollama is unreachable.
   "build-wiki-embeddings.mjs",

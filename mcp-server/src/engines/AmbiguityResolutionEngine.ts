@@ -25,6 +25,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { generalToleranceLinear } from "./ToleranceEngine.js";
 import type {
   TurningFeature,
   TurningFeatureType,
@@ -128,22 +129,12 @@ export interface AmbiguityResolutionResult {
   user_summary: string;
 }
 
-// ============================================================================
-// ISO 2768-1 GENERAL TOLERANCES — All 4 classes
-// Reference: ISO 2768-1:1989, Table 1
-// [upper_bound_mm]: { f, m, c, v } in mm
-// ============================================================================
-
-const ISO_2768_LINEAR: Array<{ up_to: number; f: number; m: number; c: number; v: number }> = [
-  { up_to: 0.5,   f: 0.05, m: 0.05, c: 0.10, v: 0.10 },
-  { up_to: 3,     f: 0.05, m: 0.10, c: 0.20, v: 0.50 },
-  { up_to: 6,     f: 0.05, m: 0.10, c: 0.30, v: 0.50 },
-  { up_to: 30,    f: 0.10, m: 0.20, c: 0.50, v: 1.00 },
-  { up_to: 120,   f: 0.15, m: 0.30, c: 0.80, v: 1.50 },
-  { up_to: 400,   f: 0.20, m: 0.50, c: 1.20, v: 2.50 },
-  { up_to: 1000,  f: 0.30, m: 0.80, c: 2.00, v: 4.00 },
-  { up_to: 2000,  f: 0.50, m: 1.20, c: 3.00, v: 6.00 },
-];
+// ISO 2768-1 general linear tolerances are now sourced from the canonical
+// ToleranceEngine (`generalToleranceLinear`) — see `lookupISO2768Linear` below.
+// The former private ISO_2768_LINEAR table here was a drifting duplicate that
+// also carried 2 non-standard cells (a fabricated sub-0.5mm band and a v-class
+// value for the 0.5–3mm band the standard leaves blank). De-duplicated in
+// JULIETT-DB-COVERAGE-MS0 so there is a single source of truth.
 
 /** Default surface finish by feature type (μm Ra) — conservative shop defaults */
 const DEFAULT_RA_BY_FEATURE: Partial<Record<TurningFeatureType, number>> = {
@@ -516,13 +507,21 @@ export class AmbiguityResolutionEngine {
 
   // ── Private Helpers ──────────────────────────────────────────────
 
-  /** Look up ISO 2768-1 linear tolerance for a given nominal and class */
+  /**
+   * Look up ISO 2768-1 linear general tolerance (±mm) for a nominal + class.
+   * Delegates to the canonical ToleranceEngine source (single source of truth).
+   * This intake helper must ALWAYS return a usable number (never throw), so it
+   * clamps the nominal into the tabulated 0.5–4000 mm range and falls back to
+   * the coarsest tabulated class ("c") when the requested class is blank in the
+   * standard for that band (v for ≤3 mm, f for >2000 mm).
+   */
   private lookupISO2768Linear(nominal: number, tolClass: "f" | "m" | "c" | "v"): number {
-    const abs = Math.abs(nominal);
-    for (const band of ISO_2768_LINEAR) {
-      if (abs <= band.up_to) return band[tolClass];
+    const clamped = Math.min(Math.max(Math.abs(nominal), 0.5), 4000);
+    try {
+      return generalToleranceLinear(clamped, tolClass).plusMinus_mm;
+    } catch {
+      return generalToleranceLinear(clamped, "c").plusMinus_mm;
     }
-    return ISO_2768_LINEAR[ISO_2768_LINEAR.length - 1][tolClass]; // >2000mm
   }
 }
 

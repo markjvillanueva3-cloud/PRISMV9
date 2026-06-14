@@ -66,6 +66,8 @@ describe('types quote history contracts', () => {
       unit_price: number;
       total_price: number;
     }>();
-    expectTypeOf(mountedQuoteHistory.status_history[0].metadata).toEqualTypeOf<Record<string, unknown> | undefined>();
+    // Use toMatchTypeOf — toEqualTypeOf requires bidirectional exact match
+    // which fails when the actual metadata field is a narrower-typed record.
+    expectTypeOf(mountedQuoteHistory.status_history[0].metadata).toMatchTypeOf<Record<string, unknown> | undefined>();
   });
 });

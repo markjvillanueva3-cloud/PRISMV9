@@ -1,0 +1,2114 @@
+[
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC36",
+  "title": "U-CADC36 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep (boundary representation) topology traversal — faces/edges/vertices graph",
+    "feature-tree DAG construction for parametric CAD history",
+    "deterministic geometry tolerance comparison (epsilon-banded float equality)"
+   ],
+   "buildNote": "Glob mcp-server/src/engines/ for an existing CAD-generation engine before creating new — many CADC units are dedup-wins (engine ported, gap = missing tests)."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC37",
+  "title": "U-CADC37 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "sketch-constraint solver (geometric constraint graph / DOF analysis)",
+    "feature recognition over B-rep face adjacency",
+    "parametric expression evaluation with dependency ordering"
+   ],
+   "buildNote": "Verify the CAD engine wires to prism_cad dispatcher in the same commit — orphan engines fail stop_on_unwired_assets."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC38",
+  "title": "U-CADC38 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid-modeling boolean ops (union/subtract/intersect on B-rep)",
+    "geometric kernel coordinate-frame transforms (4x4 homogeneous matrices)",
+    "deterministic mesh tessellation of curved surfaces"
+   ],
+   "buildNote": "Tests must assert real geometry values (volumes, areas, vertex counts) — toBeDefined() stubs are hook-rejected."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC39",
+  "title": "U-CADC39 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve/surface evaluation (knot vectors, control points, basis functions)",
+    "B-rep edge-loop ordering and orientation",
+    "tolerance-stack epsilon propagation"
+   ],
+   "buildNote": "Run /dedup against engine keywords before building — CAD-COMPLETE units frequently duplicate already-extracted CAD engines."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC40",
+  "title": "U-CADC40 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG construction for parametric history",
+    "sketch-plane projection (3D → 2D parametric coordinates)",
+    "deterministic float comparison with named epsilon constants"
+   ],
+   "buildNote": "Check digest staleness — a 'digest=0, absent' tag is often a false positive; Glob engines/ to confirm."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC43",
+  "title": "U-CADC43 — CAD-COMPLETE-MS0 unit 7",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary traversal (BFS over face-edge-vertex graph)",
+    "geometric constraint solving (2D sketch DOF)",
+    "STEP/IGES geometry feature extraction"
+   ],
+   "buildNote": "If the unit ports a v8.89 monolith module, re-read the actual code at HEAD — handoff RESUMEs are hypotheses, not ground truth."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC44",
+  "title": "U-CADC44 — CAD-COMPLETE-MS0 unit 8",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "parametric feature dependency graph (topological sort for regeneration order)",
+    "solid boolean ops on B-rep",
+    "deterministic tessellation for visualization"
+   ],
+   "buildNote": "Wire CAD generation engine to ALL natural consumers (prism_cad + vendor-specialized) in one commit per engine-wiring doctrine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC45",
+  "title": "U-CADC45 — CAD-COMPLETE-MS0 unit 9",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS surface evaluation and trimming",
+    "B-rep face-loop orientation consistency",
+    "epsilon-banded geometry equality"
+   ],
+   "buildNote": "Real-value tests: assert exact volume/area/feature-count, never just non-undefined."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC51",
+  "title": "U-CADC51 — CAD-COMPLETE-MS0 unit 10",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency graph",
+    "sketch-constraint DOF analysis",
+    "deterministic CAD-model hash for regression comparison"
+   ],
+   "buildNote": "/dedup before building — CADC units commonly re-extract an already-ported CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC52",
+  "title": "U-CADC52 — CAD-COMPLETE-MS0 unit 11",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation (Euler-Poincaré formula V-E+F=2-2G)",
+    "parametric expression dependency ordering",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Confirm engine→dispatcher wiring; stop_on_unwired_assets HARD BLOCKS on zero-dispatcher orphans."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC46",
+  "title": "U-CADC46 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary representation traversal",
+    "sketch-to-solid extrude/revolve geometric transforms",
+    "deterministic float equality with named epsilon"
+   ],
+   "buildNote": "Glob mcp-server/src/engines/ for the CAD engine before creating new — likely a dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC47",
+  "title": "U-CADC47 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG with topological regeneration order",
+    "NURBS curve evaluation",
+    "B-rep face-edge-vertex graph BFS"
+   ],
+   "buildNote": "Tests encode WHY the geometry matters — assert algebraic invariants, not hardcoded ids."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC48",
+  "title": "U-CADC48 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "geometric constraint solver",
+    "tolerance-stack epsilon propagation"
+   ],
+   "buildNote": "Wire to prism_cad dispatcher in the same commit as the engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC49",
+  "title": "U-CADC49 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "parametric feature dependency graph",
+    "deterministic mesh tessellation",
+    "B-rep topology validation"
+   ],
+   "buildNote": "/dedup before any new engine — CADC placeholder units routinely duplicate existing assets."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC50",
+  "title": "U-CADC50 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS surface trimming",
+    "feature recognition over B-rep adjacency",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Run affected CAD tests after engine modifications."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC53",
+  "title": "U-CADC53 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary traversal (BFS over topology graph)",
+    "sketch-constraint DOF analysis",
+    "deterministic CAD-model hashing"
+   ],
+   "buildNote": "Verify the unit isn't already built+unwired before treating it as a from-scratch build."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC54",
+  "title": "U-CADC54 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid-modeling boolean ops",
+    "homogeneous coordinate transforms",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "Glob engines/ first — placeholder CADC units commonly hit dedup-win path."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC55",
+  "title": "U-CADC55 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG topological sort",
+    "NURBS curve evaluation",
+    "B-rep face-loop orientation"
+   ],
+   "buildNote": "Real-value tests on volume/area/feature-count; no stub assertions."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC56",
+  "title": "U-CADC56 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "parametric expression dependency resolution",
+    "geometric constraint solving",
+    "deterministic tessellation"
+   ],
+   "buildNote": "Wire to prism_cad + any vendor-specialized dispatcher per engine-wiring doctrine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC57",
+  "title": "U-CADC57 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation (Euler-Poincaré)",
+    "sketch-plane 3D→2D projection",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "/dedup keyword check before creating any CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC58",
+  "title": "U-CADC58 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency graph",
+    "NURBS surface evaluation",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Confirm engine wiring in-commit; orphans fail the Stop gate."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC59",
+  "title": "U-CADC59 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "feature-tree DAG regeneration ordering",
+    "deterministic float equality"
+   ],
+   "buildNote": "Re-read code at HEAD if porting; spec/handoff claims may be stale."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC60",
+  "title": "U-CADC60 — CAD-COMPLETE-MS0 unit 7",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary traversal",
+    "geometric constraint DOF analysis",
+    "deterministic mesh tessellation"
+   ],
+   "buildNote": "Glob engines/ before building — likely a dedup-win (engine ported, gap = tests)."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC61",
+  "title": "U-CADC61 — CAD-COMPLETE-MS0 unit 8",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve/surface evaluation",
+    "parametric feature dependency graph",
+    "epsilon-banded geometry equality"
+   ],
+   "buildNote": "Tests assert exact geometry values, not non-undefined."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC62",
+  "title": "U-CADC62 — CAD-COMPLETE-MS0 unit 9",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep face adjacency",
+    "homogeneous coordinate transforms",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Wire engine to prism_cad in the same commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC63",
+  "title": "U-CADC63 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation",
+    "sketch-constraint solver",
+    "deterministic CAD-model hashing for regression"
+   ],
+   "buildNote": "/dedup before any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC64",
+  "title": "U-CADC64 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "feature-tree DAG topological sort",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Confirm engine isn't already built+unwired before from-scratch work."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC65",
+  "title": "U-CADC65 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS surface trimming and evaluation",
+    "B-rep boundary BFS traversal",
+    "deterministic float equality"
+   ],
+   "buildNote": "Real-value tests on geometric invariants; stubs are hook-rejected."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC66",
+  "title": "U-CADC66 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency",
+    "parametric expression dependency ordering",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Glob engines/ — placeholder CADC units routinely re-extract existing engines."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC67",
+  "title": "U-CADC67 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology graph traversal",
+    "geometric constraint DOF analysis",
+    "deterministic tessellation"
+   ],
+   "buildNote": "Wire to prism_cad dispatcher; verify with stop-auto-wire."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC68",
+  "title": "U-CADC68 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "NURBS curve evaluation",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "/dedup before building; check digest staleness false-positives."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC69",
+  "title": "U-CADC69 — CAD-COMPLETE-MS0 unit 7",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG regeneration order",
+    "B-rep face-edge-vertex graph",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Tests encode why geometry matters — algebraic invariants over hardcoded values."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC70",
+  "title": "U-CADC70 — CAD-COMPLETE-MS0 unit 8",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary representation traversal",
+    "sketch-plane projection",
+    "deterministic CAD-model hash"
+   ],
+   "buildNote": "Re-read code at HEAD if a spec claims partial work — handoffs are hypotheses."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC71",
+  "title": "U-CADC71 — CAD-COMPLETE-MS0 unit 9",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS surface evaluation",
+    "parametric feature dependency graph",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Glob engines/ before creating new — likely dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC72",
+  "title": "U-CADC72 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation (Euler-Poincaré)",
+    "feature recognition over face adjacency",
+    "deterministic float equality"
+   ],
+   "buildNote": "Wire engine to prism_cad in the same commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC73",
+  "title": "U-CADC73 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "geometric constraint solver",
+    "deterministic tessellation"
+   ],
+   "buildNote": "/dedup before any new CAD engine; placeholder units routinely duplicate."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC74",
+  "title": "U-CADC74 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG topological sort",
+    "B-rep boundary BFS",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Real-value tests; toBeDefined() stubs hook-rejected."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC75",
+  "title": "U-CADC75 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve/surface trimming",
+    "parametric expression dependency resolution",
+    "epsilon-banded equality"
+   ],
+   "buildNote": "Confirm engine isn't already built+unwired."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC76",
+  "title": "U-CADC76 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep face adjacency graph",
+    "homogeneous coordinate transforms",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Glob engines/ — many CADC units are dedup-wins."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC77",
+  "title": "U-CADC77 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency",
+    "geometric constraint DOF analysis",
+    "deterministic CAD-model hashing"
+   ],
+   "buildNote": "Wire to prism_cad dispatcher; verify with stop-auto-wire."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC78",
+  "title": "U-CADC78 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology traversal",
+    "NURBS surface evaluation",
+    "deterministic float equality"
+   ],
+   "buildNote": "/dedup before building any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC79",
+  "title": "U-CADC79 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "feature-tree DAG regeneration order",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Real-value tests on volume/area/feature-count."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC80",
+  "title": "U-CADC80 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary BFS traversal",
+    "sketch-constraint solver",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "Glob engines/ before creating — likely dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC81",
+  "title": "U-CADC81 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve evaluation",
+    "parametric feature dependency graph",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Wire engine to prism_cad in-commit; orphans fail Stop gate."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC82",
+  "title": "U-CADC82 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation (Euler-Poincaré)",
+    "feature recognition over face adjacency",
+    "deterministic tessellation"
+   ],
+   "buildNote": "/dedup before any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC83",
+  "title": "U-CADC83 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "geometric constraint DOF analysis",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Re-read code at HEAD if porting a monolith module."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC84",
+  "title": "U-CADC84 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG topological sort",
+    "B-rep boundary traversal",
+    "deterministic float equality"
+   ],
+   "buildNote": "Real-value tests; stub assertions hook-rejected."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC85",
+  "title": "U-CADC85 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS surface trimming",
+    "parametric expression dependency resolution",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Glob engines/ before building — likely dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC86",
+  "title": "U-CADC86 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep face adjacency graph",
+    "homogeneous coordinate transforms",
+    "deterministic CAD-model hashing"
+   ],
+   "buildNote": "Wire to prism_cad dispatcher in the same commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC87",
+  "title": "U-CADC87 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency",
+    "geometric constraint solver",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "/dedup before any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC88",
+  "title": "U-CADC88 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation",
+    "NURBS curve evaluation",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Confirm engine isn't already built+unwired before from-scratch work."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC89",
+  "title": "U-CADC89 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "feature-tree DAG regeneration order",
+    "deterministic tessellation"
+   ],
+   "buildNote": "Real-value tests on geometric invariants."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC90",
+  "title": "U-CADC90 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary BFS traversal",
+    "sketch-constraint DOF analysis",
+    "epsilon-banded equality"
+   ],
+   "buildNote": "Glob engines/ before building — placeholder units routinely duplicate."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC91",
+  "title": "U-CADC91 — CAD-COMPLETE-MS0 unit 7",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS surface evaluation",
+    "parametric feature dependency graph",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Wire engine to prism_cad in-commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC92",
+  "title": "U-CADC92 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology traversal",
+    "feature recognition over face adjacency",
+    "deterministic float equality"
+   ],
+   "buildNote": "/dedup before any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC93",
+  "title": "U-CADC93 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "geometric constraint solver",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Re-read code at HEAD; spec claims may be stale."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC94",
+  "title": "U-CADC94 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG topological sort",
+    "B-rep boundary traversal",
+    "deterministic CAD-model hashing"
+   ],
+   "buildNote": "Real-value tests; stubs hook-rejected."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC95",
+  "title": "U-CADC95 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve/surface trimming",
+    "parametric expression dependency resolution",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "Glob engines/ before creating — likely dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC96",
+  "title": "U-CADC96 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep face adjacency graph",
+    "homogeneous coordinate transforms",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Wire engine to prism_cad dispatcher in-commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC97",
+  "title": "U-CADC97 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency",
+    "geometric constraint DOF analysis",
+    "deterministic tessellation"
+   ],
+   "buildNote": "/dedup before any new CAD engine; check digest false-positives."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC98",
+  "title": "U-CADC98 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation (Euler-Poincaré)",
+    "NURBS surface evaluation",
+    "deterministic float equality"
+   ],
+   "buildNote": "Confirm engine isn't already built+unwired."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC99",
+  "title": "U-CADC99 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "feature-tree DAG regeneration order",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Real-value tests on volume/area/feature-count."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC100",
+  "title": "U-CADC100 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep boundary BFS traversal",
+    "sketch-constraint solver",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "Glob engines/ before building — likely dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC101",
+  "title": "U-CADC101 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve evaluation",
+    "parametric feature dependency graph",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Wire engine to prism_cad in the same commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC102",
+  "title": "U-CADC102 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology traversal",
+    "feature recognition over face adjacency",
+    "deterministic float equality"
+   ],
+   "buildNote": "/dedup before any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC103",
+  "title": "U-CADC103 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "geometric constraint solver",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Re-read code at HEAD if porting a monolith module."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC104",
+  "title": "U-CADC104 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG topological sort",
+    "B-rep boundary traversal",
+    "deterministic CAD-model hashing"
+   ],
+   "buildNote": "Real-value tests; stubs hook-rejected."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC105",
+  "title": "U-CADC105 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "NURBS curve/surface trimming",
+    "parametric expression dependency resolution",
+    "epsilon-banded float equality"
+   ],
+   "buildNote": "Glob engines/ before creating — likely dedup-win."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC106",
+  "title": "U-CADC106 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep face adjacency graph",
+    "homogeneous coordinate transforms",
+    "tolerance-stack propagation"
+   ],
+   "buildNote": "Wire engine to prism_cad dispatcher in-commit."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC107",
+  "title": "U-CADC107 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "feature recognition over B-rep adjacency",
+    "geometric constraint DOF analysis",
+    "deterministic tessellation"
+   ],
+   "buildNote": "/dedup before any new CAD engine."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC108",
+  "title": "U-CADC108 — CAD-COMPLETE-MS0 unit 7",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation (Euler-Poincaré)",
+    "NURBS surface evaluation",
+    "deterministic float equality"
+   ],
+   "buildNote": "Confirm engine isn't already built+unwired before from-scratch work."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO01",
+  "title": "U-CCCO01 — CAD-COMPLETE-MS0 unit 1",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "B-rep boundary traversal",
+    "deterministic CAD-model hashing for regression",
+    "feature-tree DAG construction"
+   ],
+   "buildNote": "U-CCCO units are CAD-complete close-out work — verify deliverables exist on disk and reconcile envelope status, not from-scratch build."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO02",
+  "title": "U-CCCO02 — CAD-COMPLETE-MS0 unit 2",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "B-rep topology validation",
+    "feature recognition over face adjacency",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Close-out audit: file presence != spec correctness — human-verify before flipping status."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO03",
+  "title": "U-CCCO03 — CAD-COMPLETE-MS0 unit 3",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "solid boolean ops on B-rep",
+    "feature-tree DAG topological sort",
+    "deterministic float equality"
+   ],
+   "buildNote": "Reconcile MILESTONE_PROGRESS + roadmap-index when closing CAD-COMPLETE units."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO04",
+  "title": "U-CCCO04 — CAD-COMPLETE-MS0 unit 4",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "NURBS surface evaluation",
+    "B-rep boundary BFS traversal",
+    "geometric tolerance comparison"
+   ],
+   "buildNote": "Verify CAD engine wiring before marking unit complete."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO05",
+  "title": "U-CCCO05 — CAD-COMPLETE-MS0 unit 5",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "feature-tree DAG construction",
+    "parametric feature dependency graph",
+    "deterministic CAD-model hashing"
+   ],
+   "buildNote": "Update all four doc surfaces (CLAUDE.md / MEMORY.md / wiki / Obsidian) on close-out."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CCCO06",
+  "title": "U-CCCO06 — CAD-COMPLETE-MS0 unit 6",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "B-rep topology traversal",
+    "geometric constraint solving",
+    "deterministic float equality"
+   ],
+   "buildNote": "Close-out audit advisory only — never auto-flip envelope status."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-LP01",
+  "title": "CADExecutionOutcomeBusEngine — pub/sub bus for CAD execution results (success/error/timing/collision/regeneration)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/domain-outcome.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/domain-orchestration.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "publish/subscribe event bus (topic-keyed observer pattern)",
+    "event-driven architecture with typed event payloads (success/error/timing/collision)",
+    "backpressure-safe in-process message queue"
+   ],
+   "buildNote": "Bus must fail-loud on dropped/un-consumed events — silent event loss breaks the closed-loop NN training signal downstream."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-LP02",
+  "title": "CADPerAdapterFeedbackCollectorEngine — collects per-adapter metrics and routes to corresponding NN head",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/domain-outcome.md",
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/u-bridge-wire-mastercam-2026-05-18.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "per-key metric aggregation (group-by adapter, running counters)",
+    "routing table (adapter id -> NN-head dispatch)",
+    "online streaming statistics (mean/variance accumulation)"
+   ],
+   "buildNote": "Route metrics to the CORRECT per-CAD NN head — a mis-routed feedback signal trains the wrong policy; assert routing with real adapter ids in tests."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-LP03",
+  "title": "CADHeadReplayBufferEngine — prioritized replay buffer for closed-loop NN training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-outcome.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "prioritized experience replay (sum-tree / proportional sampling by TD-error priority)",
+    "ring buffer with bounded capacity and eviction",
+    "importance-sampling weight correction"
+   ],
+   "buildNote": "Priority sampling must be reproducible — seed the RNG; test that high-priority transitions are sampled more often with real priority values."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-LP04",
+  "title": "MasterBrainBackpropPropagatorEngine — back-propagates CAD execution outcome to both master policy and per-CAD NN heads",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-outcome.md",
+    "knowledge/wiki/architecture/domain-orchestration.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "backpropagation (reverse-mode automatic differentiation / chain rule)",
+    "gradient routing across a two-level policy hierarchy (master + per-CAD heads)",
+    "gradient clipping and divergence guards"
+   ],
+   "buildNote": "Propagate the SAME outcome gradient to both master policy and the per-CAD head — verify both receive updates; assert with real loss-delta values, divergence guard on NaN/Inf."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-AI03",
+  "title": "CADCapabilityNegotiatorEngine — resolves intent vs adapter capability; falls back or fails-fast per policy",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-intelligence.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "capability set intersection (intent requirements vs adapter feature set)",
+    "policy-driven fallback decision tree (fallback vs fail-fast)",
+    "feature negotiation / capability matrix lookup"
+   ],
+   "buildNote": "Fail-fast path must surface the exact unmet capability (R12) — never silently degrade an unsupported intent; test both fallback and fail-fast policies with real capability gaps."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-NN01",
+  "title": "CADFoundationEncoderEngine — shared BRep + sketch tokenizer for all per-CAD NN heads",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/domain-geometry.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "B-rep + sketch tokenization (geometry -> discrete token sequence)",
+    "shared embedding / foundation encoder (frozen backbone feeding multiple heads)",
+    "byte-pair / vocabulary construction for geometry primitives"
+   ],
+   "buildNote": "Encoder output schema is a hard contract for all 5 NN heads — version it; a token-vocab change forces every head to retrain. Schema-read before extending."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-NN02",
+  "title": "MastercamIntentNN — Mastercam-specific policy head (NetHook3 op sequencing + toolpath-strategy prediction)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/domain-mastercam.md",
+    "knowledge/wiki/architecture/u-bridge-wire-mastercam-2026-05-18.md",
+    "knowledge/wiki/architecture/domain-toolpath.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "sequence-to-sequence policy head (operation-order prediction)",
+    "softmax classification over toolpath-strategy classes",
+    "NetHook3 op-sequencing model integration"
+   ],
+   "buildNote": "Consume the U-CADC-NN01 foundation encoder output — do not re-tokenize; assert op-sequence predictions against real Mastercam program data."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-NN03",
+  "title": "HyperCADSIntentNN — hyperCAD-S FT-aware head (Feature Technology recognition + macro selection)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/domain-hyper.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "Feature Technology (FT) recognition over B-rep adjacency graph",
+    "macro-selection classification head",
+    "multi-label classification for feature sets"
+   ],
+   "buildNote": "hyperCAD-S FT recognition is the input signal — verify against real hyperCAD-S Python-API feature data, not synthetic geometry."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-NN04",
+  "title": "Fusion360DiffusionHead — diffusion-based sketch+feature generator targeting adsk.fusion",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/domain-fusion.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "denoising diffusion probabilistic model (forward noising + reverse denoising)",
+    "conditional generation (sketch+feature conditioned on intent)",
+    "iterative sampling schedule (DDPM/DDIM step loop)"
+   ],
+   "buildNote": "Targets adsk.fusion API — generated sketch/feature output must validate against the Fusion 360 object model; test the denoising loop converges with a real seed."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-NN05",
+  "title": "InventorGNNHead — graph neural network over assembly/mate graph targeting Inventor COM/iLogic",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-inventor.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "graph neural network message passing over assembly/mate graph",
+    "node + edge feature encoding for parts and mates",
+    "GraphSAGE-style neighborhood aggregation"
+   ],
+   "buildNote": "The assembly/mate graph is the input — reuse the nn-graph-ms0 GraphSAGE patterns; assert message-passing on a real Inventor assembly with known mate topology."
+  }
+ },
+ {
+  "id": "CAD-COMPLETE-MS0::U-CADC-NN06",
+  "title": "SolidWorksTransformerHead + FreeCADPolicyRLHead — transformer for SW ISldWorks op sequences; PPO-style RL policy for FreeCAD Python",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-ml.md",
+    "knowledge/wiki/architecture/domain-solid.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/domain-strategy.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "transformer self-attention for op-sequence modeling (SolidWorks ISldWorks)",
+    "PPO (proximal policy optimization) clipped-surrogate RL objective",
+    "advantage estimation (GAE) for the FreeCAD Python policy"
+   ],
+   "buildNote": "Two distinct heads in one unit — keep the SW transformer and FreeCAD PPO policy as separate classes; test the PPO clip ratio and the transformer op-sequence against real data independently."
+  }
+ }
+]

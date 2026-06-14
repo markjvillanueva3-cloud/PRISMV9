@@ -59,6 +59,53 @@ Three breaks today: (a) the index is 9% coverage so step 3 is starved; (b) tips 
 - `U-TRIBAL-CUSTOMER-BACKFILL` — map filename prefixes to JM Die customer list (118 customers, 478 directories per the round-2 audit)
 - `U-OBSIDIAN-VAULT-DECIDE` — either set the env or strip the mirror script and document `knowledge/memories/` as the only 2nd brain
 - `U-VIZ-TRIBAL-OVERLAY` — extend `system-viz-query.mjs` with a `tribal-density` mode that joins the embed-index against the graph
+
+---
+
+## THE INJECTION SYSTEM — meta-awareness layer (added 2026-05-17, lima)
+
+The three surfaces above (tribal, memories, system-viz) are *data*. They reach a chat through an **injection layer** — 39 SessionStart + 25 UserPromptSubmit + 1 SubagentStart hooks that auto-surface relevant slices into context. The operator's 2026-05-17 ask: chats should be *aware of the awareness system* and consume it deliberately, not let injections wash past. That passive-wash is the exact "writer-without-reader" failure the 2026-05-17 token-savings audit named — applied to the injection layer itself.
+
+**The consumption rule (the "as intended" part):** an injection is not decoration. When a surface injects, it has done a search/lookup *for you* — acting on it instead of re-deriving is the entire point. Re-Grepping after `master-index-precheck-inject` already gave you the hits is pure waste.
+
+### SessionStart injectors — fire ONCE per session, set the frame
+| Injection | Surfaces | Consume by |
+|---|---|---|
+| `claude-brief-inject` | `CLAUDE-BRIEF.md` — what PRISM is, product vision, gaps | Trust it for architecture; do NOT re-derive PRISM structure from compacted memory |
+| `awareness-snapshot-inject` | `AWARENESS-SNAPSHOT.md` — built/orphan/drift counts | Read before deciding "does X exist / need building" |
+| `build-state-inject` | `BUILD_STATE` — built / needs-wiring / pending / frontend | Check before creating an engine |
+| `inventory-check-guard` | live engine/dispatcher/action counts | Use these numbers; never hardcode counts |
+| `session-start-auto-resume` | this chat's handoff `## RESUME` after /compact | Anchor to it — it is your prior exit-state |
+| `roadmap-resume`, `gsd-inject`, `coordination-startup-banner` | roadmap slice · session lifecycle · peer fleet state | Orient before picking work |
+
+### UserPromptSubmit injectors — fire EVERY prompt, the live layer
+| Injection | Surfaces | Consume by |
+|---|---|---|
+| `master-index-precheck-inject` | top-5 system-graph hits for your prompt | **USE these instead of Grep/Glob/Agent.** This is the search-first path. |
+| `wiki-precheck-inject` | top-3 wiki entries on keyword match | **READ the entry before re-deriving.** `/wiki-query <name>` for full text. |
+| `audit-viz-first-inject` | auto-runs `system-viz-query find` before you Grep, on audit intent | **TRUST the result** — don't re-Grep what it already found |
+| `skill-auto-trigger` | top-K skill suggestions for the prompt | Invoke the skill if it matches; suggestions, not auto-runs |
+| `ollama-pipeline-injector` / `ollama-task-offloader` / `ollama-auto-router` | Ollama routes for mechanical text work | Route summarize/explain/classify off Claude per the suggestion |
+| `chat-bus-inject` | peers online + files claimed by other chats | **RESPECT claims — never edit/commit a peer-claimed file.** Compact mode default (`PRISM_CHAT_BUS_COMPACT=1`, 2026-05-17). |
+| `close-out-audit-suggest` / `loop-iteration-inject` / `pick-prefresh-inject` / `goal-prereq-inject` | close-out debt · loop state · pickup freshness · /goal preflight | Act on the specific reminder each carries |
+
+### Edit/Write-time + SubagentStart
+| Injection | Surfaces | Consume by |
+|---|---|---|
+| `memory-relevance-inject` (PreToolUse:Edit/Write) | memos matching the file you're about to edit | Scan for a memo that **contradicts** what you're about to do; that's the high-value catch. (Hook has no telemetry — value unmeasured; `PRISM_MEMORY_RELEVANCE=0` to disable.) |
+| `subagent-start-context` (SubagentStart) | per-task master-index + tribal presearch for the spawned subagent | The subagent gets its own search bundle — brief it on the *task*, it self-orients |
+
+### Knobs (every injector is tunable)
+`PRISM_MASTER_INDEX_INJECT=0` · `PRISM_AWARENESS_INJECT=0` · `PRISM_CHAT_BUS_COMPACT=1` · `PRISM_MEMORY_RELEVANCE=0` · `PRISM_SKILL_AUTO_TRIGGER_DISABLE=1` · `PRISM_OLLAMA_PIPELINE_INJECT=0` · `PRISM_AUDIT_VIZ_FIRST_DISABLE=1`. The full hook list is in `C:/Users/wompu/.claude/settings.json` `hooks.{SessionStart,UserPromptSubmit}`.
+
+### Anti-patterns specific to the injection layer
+- **Grepping after `master-index-precheck-inject` already answered.** The injection IS the search; re-running it is the writer-without-reader waste.
+- **Letting `chat-bus-inject` claims wash past, then editing a peer-claimed file.** The claim list is load-bearing; read it.
+- **Ignoring `wiki-precheck-inject` and re-deriving a documented concept.** If the wiki entry exists, read it first.
+- **Treating SessionStart digests as noise.** `CLAUDE-BRIEF` / `AWARENESS-SNAPSHOT` / `BUILD_STATE` are the frame — re-deriving PRISM's state from conversation memory after /compact is how stale assumptions creep in.
+- **Adding a new injection hook to "fix" a gap.** The token-savings audit found ~500 hooks never fire. The injection layer is over-supplied, not under-supplied — tune or consume existing injectors before wiring another.
+
+Cross-refs: [[reference_dev_pipeline_toolbox_2026_05_17]] (the broader toolbox reader-index) · [[reference_audit_token_savings_2026_05_17]] (the writer-without-reader finding) · [[feedback_user_build_requests_log]] (the build-intent capture log) · wiki `dev-pipeline-toolbox-2026-05-17`.
 - `U-WIKI-MORNING-CRON` — wire the daily index sweep so the loop closes without manual intervention
 
 Reference these as `[BACKLOG-RGS-FUTURE-IDEAS#7..#12]` in next rgs6 pass.

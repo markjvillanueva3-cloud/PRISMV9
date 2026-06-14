@@ -1,0 +1,23 @@
+---
+session: claude-be5e37e8
+topic: alpha-work
+slot: mike
+written_at: 2026-05-19T01:22:34.035Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-be5e37e8
+status: active
+---
+
+# HANDOFF: claude-be5e37e8
+Updated: 2026-05-19T01:22:34.035Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-be5e37e8
+
+## STATE
+Post-compact session shipped 2 alpha units: U-VIZ-F11-CROSS-LOCK (4022e99606 — shared system-graph.json PID cross-lock, 3 writers, 7 files, 10-agent per-file scrutiny, all P0/P1/P2 closed) + U-CLEAR-AUTO-RESUME (c004ad1cb8 — SessionStart clear matcher arm wired+verified live; harness-config unit, deliverable outside repo). NOTE: commit 5b16e56c68 incidentally re-tracked mcp-server/.claude/settings.json via over-broad git-add glob (benign, valid JSON, was historically tracked) — corrected by honest follow-up c004ad1cb8. system-graph.json healthy 372MB. loop-state b7530614 iter 2/30 running.
+
+## RESUME
+Continue /loop (loop-state session b7530614, iter 2/30 running). NEXT UNIT: build JULIETT-12CHAT-ALLOCATION-MS0::U-ACTIVATE-BEFORE-BUILD-PRECHECK (alpha queue, spec state/shared/specs/UNITS/U-ACTIVATE-BEFORE-BUILD-PRECHECK.md). It IS buildable now — its spec Pre-flight #2 (S5 F1 graph-cap) is STALE: master-index-search-lib.mjs:144 already has the 2026-05-18 JULIETT F1 fallback to architecture-graph.json (28MB) so search is degraded-not-blind, NOT silent-empty. Build: new .claude/hooks/activate-before-build-precheck.mjs (PreToolUse:Write|MultiEdit advisory, path-filters engines/hooks/skills, calls master-index-search-lib runMasterIndexSearch K=5, emits precheck block, knob PRISM_ACTIVATE_PRECHECK_DISABLE, 2000ms, silent-fail) + .test.mjs + settings.json PreToolUse[0] arm (Edit C: -> c-to-h-mirror syncs H:). Per-file scrutiny gate applies (2+ files). OPTIONAL follow-up: raise PRISM_GRAPH_MAX_BYTES default 200->512MB (master-index-search-lib.mjs lines 149+344) so search hits the full 372MB graph not the 28MB fallback. Then tick loop, pick next from alpha 83-unit queue.
+
+## CONTEXT
+

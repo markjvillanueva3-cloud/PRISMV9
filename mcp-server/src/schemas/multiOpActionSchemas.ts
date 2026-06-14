@@ -142,4 +142,13 @@ export const MULTI_OP_ACTION_SCHEMAS: ActionSchemaMap = {
   workflow_suggest,
   workflow_gap_analysis,
   workflow_list_templates,
+  // WIRE-MULTIOP-DIRECT-MS0/U-VICTOR-MULTIOP-DIRECT (slot:victor, 2026-05-26)
+  swiss_part_transfer_sequence: z.object({}).passthrough()
+    .describe("SwissPartTransferSequenceEngine.generate — generate Swiss-type part-transfer sequence (main↔sub spindle handoff, pickup timing, part-catcher cycle). Returns PartTransferResult."),
+  action_sequence_extract: z.object({
+    tip: z.unknown().optional().describe("Single tip (ActionExtractionTip shape)"),
+    tips: z.array(z.unknown()).optional().describe("Batch of tips (overrides `tip`)"),
+    options: z.unknown().optional().describe("Optional extractor options"),
+  }).passthrough()
+    .describe("ActionSequenceExtractorEngine.extractFromTip or .extractBatch — extract an action sequence (verb + UI target + hotkey + dependencies) from a tribal-tip body. Used by /video-learn + /pdf-learn ingestion pipelines."),
 };

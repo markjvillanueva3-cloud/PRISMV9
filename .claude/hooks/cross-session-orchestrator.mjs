@@ -216,4 +216,12 @@ async function main() {
   else await handlePre(engine, toolName, filePath);
 }
 
-main().catch(() => ok());
+export { parseTtl, extractFilePath, sanitizePath, formatBlockReason, getBroadcaster, main };
+
+// Run only as a direct hook invocation, never on import. main() runs both --pre/--post,
+// reads fd 0, and dynamic-imports the dist engine -- importing this module for a test must
+// not trigger that. Mirrors the isDirect guard in stop-consensus-drain.mjs.
+const isDirect = (process.argv[1] || "").replace(/\\/g, "/").endsWith("cross-session-orchestrator.mjs");
+if (isDirect) {
+  main().catch(() => ok());
+}

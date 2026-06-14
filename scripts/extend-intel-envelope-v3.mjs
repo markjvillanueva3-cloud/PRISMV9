@@ -458,17 +458,24 @@ env.total_effort_hours_estimate = Math.round(totalEffort / 60);
 env.version = "3.0.0";
 env.scrutiny_score = 0.94;
 env.scrutiny_v3_changes = "Closed gaps from 3 exhaustive scrutiny agents (skills/scripts/hooks coverage). Added P11-U06/U07/U08 (ollama policy + 14 critical hooks + 16 stop-gate consolidation). Added P18 catalog ingestion framework. Added P19 cron drift monitoring. Added P20 multi-model Ollama (nomic-embed + llama3.2-vision + deepseek-r1 + optional llama3.3). Added P21 vision PDF pipeline. Added P22 pre-Claude review pattern (DeepSeek-R1 drafts → Claude refines). Added P23 model telemetry + adaptive routing.";
+// MODEL STACK REALIGNED 2026-06-04 (U-BW-TS-ENGINES-RETIRE-2, slot:alpha): the 96GB
+// Blackwell `ollama rm`'d the small coders (qwen2.5-coder:3b/7b/14b) + deepseek-r1:14b.
+// This generator wrote those into the envelope's required_pulls/existing/tier_routing —
+// a re-run would have re-declared (and a consumer could re-pull) deleted models. Reasoning
+// now routes to qwen2.5-coder:32b + (install-gated) gpt-oss:120b / gemma4:31b. Vision
+// (llama3.2-vision:11b) is NOT retired and stays. The scrutiny_v3_changes changelog string
+// above is left verbatim — it is a historical record of what v3 planned, not a live route.
 env.multi_model_stack = {
-  required_pulls: ["nomic-embed-text", "llama3.2-vision:11b", "deepseek-r1:14b"],
-  optional_pulls: ["llama3.3:70b"],
-  existing: ["qwen2.5-coder:7b", "qwen2.5-coder:14b", "qwen2.5-coder:32b"],
+  required_pulls: ["nomic-embed-text", "llama3.2-vision:11b"],
+  optional_pulls: ["gpt-oss:120b", "gemma4:31b", "llama3.3:70b"],
+  existing: ["qwen2.5-coder:32b"],
   total_disk_min_gb: 16,
   total_disk_max_gb: 56,
   tier_routing: {
     "0_embed": "nomic-embed-text",
-    "1_simple": "qwen2.5-coder:7b",
-    "2_medium": "qwen2.5-coder:14b",
-    "3_complex_reasoning": "deepseek-r1:14b (primary) | qwen2.5-coder:32b (fallback) | llama3.3:70b (if pulled)",
+    "1_simple": "qwen2.5-coder:32b",
+    "2_medium": "qwen2.5-coder:32b",
+    "3_complex_reasoning": "gpt-oss:120b (primary, if pulled) | qwen2.5-coder:32b (installed fallback) | gemma4:31b (reasoning, if pulled)",
     "4_vision": "llama3.2-vision:11b",
     "5_claude_only": "Reserved for safety-critical, novel architecture, final synthesis",
   },

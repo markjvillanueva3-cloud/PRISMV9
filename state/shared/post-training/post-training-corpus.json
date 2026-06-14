@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Multi-machine post-training registry. Each entry = one post 'version' to perfect via the closed loop (generate -> dialect-lint -> structural-conformance -> score -> deviation punch-list -> correct). Drives the 'perfect both Hurco posts, then generalize to Haas + Okuma, target LB3000 + Multus' program. slot:echo. Action names verified against camDispatcher.ts 2026-05-31; UNVERIFIED ones are flagged (need a live :3100 probe). Lathe posts (LB3000/Multus) route cut-physics + safety review to whiskey per echo's escalation path.",
+  "updated": "2026-05-31",
+  "posts": [
+    {
+      "id": "hurco-v11-standalone",
+      "label": "Hurco WinMax V11 — standalone master post (VERSION 1)",
+      "action": "master_post_hurco_v11",
+      "dialect": "hurco",
+      "kind": "mill",
+      "machine": { "name": "Hurco VMX42SRTi", "spindle_type": "CAT40", "max_rpm": 12000, "power_kw": 18 },
+      "status": "validated-clean",
+      "notes": "52/52 generated + dialect-lint clean in the 2026-05-31 master-post validation. The known-good baseline; training confirms no regression as we generalize.",
+      "actionVerified": true
+    },
+    {
+      "id": "hurco-v11-agi",
+      "label": "Hurco WinMax V11 — AGI/unified master post (VERSION 2)",
+      "action": "master_post_unified_agi_generate",
+      "dialect": "hurco",
+      "kind": "mill",
+      "machine": { "name": "Hurco VMX42SRTi", "spindle_type": "CAT40", "max_rpm": 12000, "power_kw": 18 },
+      "status": "has-defects",
+      "notes": "VALIDATION P1-b: emits Haas G187 P3 for Hurco (mapControllerToMaster hurco->haas) — would parse-error on WinMax V11. P1-c: kinematics can't resolve jmdie_hurco_v11. These are PEER-OWNED (HurcoV11*/AGI 16 in-flight handoffs) — training SCORES + reports the defect (G187 must be G05.3); the fix is the owning chat's.",
+      "actionVerified": true
+    },
+    {
+      "id": "haas-vf2",
+      "label": "Haas VF-2 / NGC — mill post (generalization target)",
+      "action": "master_post_by_machine",
+      "actionParams": { "machine_model": "HAAS_VF2", "machine_name": "haas_vf2", "controller": "haas" },
+      "dialect": "haas",
+      "kind": "mill",
+      "machine": { "name": "Haas VF-2", "spindle_type": "CAT40", "max_rpm": 8100, "power_kw": 22.4 },
+      "status": "to-train",
+      "notes": "FULL-POST GAP CLOSED 2026-06-01 (POST-TRAIN-MS0/U-PT-HAAS-ENGINE, slot:echo): HaasNGCMillMasterPostEngine built (ground-truth-mirrored from JM DIE/CNC MILL HAAS/ALL STAR/ALL STAR.NC) + wired into master_post_by_machine (HAAS/VF-/VF2 branch). Haas dialect: () comments, N-numbered step-2, G20/G21 units-first (inch-scale 25.4x-safe), G54-G59, M8/M9 per-tool, G187 OFF-by-default (opt-in via use_g187 — older JM baseline has none, CORRECT-for-Haas unlike Hurco). Proven via scripts/haas-post-proof.ts: 3/3 corpus jobs 0 dialect-ERR + structural-100% (same bar as the other 3 posts) + 27/27 unit tests + 2-of-2 per-file scrutiny PASS. Move-list interpretation (G0/G1/G2/G3) mirrors Hurco/Okuma siblings; canned-cycle G81/G83 emission is a documented follow. Cheap .cps Haas remains proven 15/15.",
+      "actionVerified": true
+    },
+    {
+      "id": "okuma-genos-osp",
+      "label": "Okuma OSP — mill post (generalization target)",
+      "action": "master_post_okuma_osp",
+      "dialect": "okuma",
+      "kind": "mill",
+      "machine": { "name": "Okuma M460V-5AX", "controller": "OSP-P300MA-H", "max_rpm": 15000 },
+      "status": "to-train",
+      "notes": "JM VMC-02. Okuma OSP dialect: [] bracket comments (NOT Fanuc ()), VC/SC calls, IGF. The dialect-lint comment-style-okuma rule already checks this.",
+      "actionVerified": true
+    },
+    {
+      "id": "okuma-b250-lathe",
+      "label": "Okuma LB250II-M lathe — canonical turning master post (known-good lathe baseline)",
+      "action": "master_post_okuma_b250",
+      "dialect": "okuma",
+      "kind": "lathe",
+      "machine": { "name": "Okuma LB250II-M", "controller": "OSP-P300L", "spindle": "main" },
+      "status": "to-train",
+      "notes": "The canonical lathe post analogous to hurco-v11-standalone for mill — the known-good baseline that validates the latheJobs turning-op set + jobsFor routing end-to-end. Schema: camActionSchemas.ts L158-198. Turning safety (G96 CSS→G50 cap, parting L/D, chuck) routes to WHISKEY.",
+      "actionVerified": true,
+      "routeSafetyTo": "whiskey"
+    },
+    {
+      "id": "hurco-winmax-lathe",
+      "label": "Hurco WinMax LATHE — turning post (LIVE local controller — operator confirmed on-site)",
+      "action": "lathe_master_post_route",
+      "actionParams": { "controller": "hurco", "machine_class": "lathe" },
+      "dialect": "hurco",
+      "kind": "lathe",
+      "machine": { "name": "Hurco TM/TMX-class", "controller": "WinMax Lathe", "spindle": "main" },
+      "status": "to-train",
+      "notes": "OPERATOR: WinMax Lathe is on-site — train the lathe post vision-free with the SAME PrismWinMaxUI driver + course harness + FSM map built for the mill (driver attaches by process name; copy mill setup → lathe variant per operator). Best lathe LIVE-TEST target (real local controller, not remote LB3000/Multus). POST is echo; turning cut-physics/safety (G96 CSS→G50 cap, parting, boring-bar L/D) route to WHISKEY. Verify the turning post action live — likely lathe_master_post_route, NOT master_post_hurco_v11 (that's mill). winmax-lathe-bridge dir to be created by copy-modify of winmax-bridge/.",
+      "actionVerified": false,
+      "routeSafetyTo": "whiskey",
+      "driverPlan": "copy mcp-server/data/posts/prism-base/winmax-bridge/ → winmax-lathe-bridge/; PrismWinMaxUI --process 'WinMax' attaches to the lathe controller too; re-probe the lathe Tool-Setup screen + FSM map (turning fields differ: nose radius, orientation, X/Z offsets vs mill DIAMETER/length)."
+    },
+    {
+      "id": "okuma-lb3000-lathe",
+      "label": "Okuma LB3000 — turning post (LIVE-TEST TARGET, lathe)",
+      "action": "master_post_okuma_osp",
+      "actionParams": { "machine_class": "lathe", "model": "LB3000" },
+      "dialect": "okuma",
+      "kind": "lathe",
+      "machine": { "name": "Okuma LB3000 EX II", "controller": "OSP-P300LA", "spindle": "main+sub" },
+      "status": "to-train",
+      "notes": "Turning center. POST is echo's lane; cut-physics + safety (G96 CSS -> G50 max-RPM cap, parting, boring-bar L/D, sub-spindle handoff) route to WHISKEY (lathe). Verify the turning post action live — may be lathe_master_post_route, not master_post_okuma_osp. JM Die lathe fleet is 100% Okuma OSP.",
+      "actionVerified": false,
+      "routeSafetyTo": "whiskey"
+    },
+    {
+      "id": "okuma-multus-millturn",
+      "label": "Okuma Multus — mill-turn post (LIVE-TEST TARGET, multitasking)",
+      "action": "master_post_okuma_osp",
+      "actionParams": { "machine_class": "millturn", "model": "Multus" },
+      "dialect": "okuma",
+      "kind": "millturn",
+      "machine": { "name": "Okuma Multus B-series", "controller": "OSP-P300", "axes": "X/Y/Z/B/C + sub" },
+      "status": "to-train",
+      "notes": "Multitasking mill-turn: needs BOTH turning (G96/G50) AND milling (live-tool, C-axis, B-axis tilt) post logic + sync between spindles. Most complex target. POST echo; turning safety -> whiskey, milling 5-axis singularity -> foxtrot. Verify post action live.",
+      "actionVerified": false,
+      "routeSafetyTo": "whiskey+foxtrot"
+    }
+  ],
+  "jobsSchemaNote": "Operations match the master_post_hurco_v11 zod schema (camActionSchemas.ts L113-139): operation_type, tool_number, tool_diameter_mm, tool_flutes, material_iso (P/M/K/N/S/H), spindle_rpm, feed_mm_min, axial_depth_mm, coordinates[{x,y,z,type}]. material_iso=P (steel, kc1.1=1800) — JM Die's most common group. Dims are mm (engine is mm-native); config.units=metric keeps each job internally consistent. These mill jobs serve the mill posts (hurco standalone/agi, haas-vf2, okuma-genos-osp); lathe/mill-turn posts (lb3000/multus/winmax-lathe) need their own turning-op job set (od_rough/tool_orientation/insert_radius_mm) — added in the fleet-coverage phase.",
+  "jobs": [
+    {
+      "id": "face-1op",
+      "label": "Single face pass (steel)",
+      "config": { "units": "metric", "work_offset": 54, "program_number": 1001 },
+      "operations": [
+        { "operation_type": "face", "tool_number": 1, "tool_diameter_mm": 50.8, "tool_flutes": 5, "material_iso": "P", "spindle_rpm": 877, "feed_mm_min": 200, "axial_depth_mm": 0.5, "coolant": "flood",
+          "coordinates": [{ "x": 0, "y": 0, "z": 5, "type": "rapid" }, { "x": 0, "y": 0, "z": -0.5, "type": "linear" }, { "x": 150, "y": 0, "z": -0.5, "type": "linear" }] }
+      ]
+    },
+    {
+      "id": "pocket-2op",
+      "label": "Face + pocket rough (steel)",
+      "config": { "units": "metric", "work_offset": 54, "program_number": 1002 },
+      "operations": [
+        { "operation_type": "face", "tool_number": 1, "tool_diameter_mm": 50.8, "tool_flutes": 5, "material_iso": "P", "spindle_rpm": 877, "feed_mm_min": 200, "axial_depth_mm": 0.5, "coolant": "flood",
+          "coordinates": [{ "x": 0, "y": 0, "z": 5, "type": "rapid" }, { "x": 0, "y": 0, "z": -0.5, "type": "linear" }, { "x": 150, "y": 0, "z": -0.5, "type": "linear" }] },
+        { "operation_type": "pocket", "tool_number": 2, "tool_diameter_mm": 12.7, "tool_flutes": 4, "material_iso": "P", "spindle_rpm": 3509, "feed_mm_min": 600, "axial_depth_mm": 3.0, "radial_depth_mm": 6.0, "coolant": "flood",
+          "coordinates": [{ "x": 10, "y": 10, "z": 5, "type": "rapid" }, { "x": 10, "y": 10, "z": -3, "type": "linear" }, { "x": 60, "y": 10, "z": -3, "type": "linear" }, { "x": 60, "y": 40, "z": -3, "type": "linear" }, { "x": 10, "y": 40, "z": -3, "type": "linear" }, { "x": 10, "y": 10, "z": -3, "type": "linear" }] }
+      ]
+    },
+    {
+      "id": "drill-cycle",
+      "label": "Drill (canned-cycle dialect check, steel)",
+      "config": { "units": "metric", "work_offset": 54, "program_number": 1003 },
+      "operations": [
+        { "operation_type": "drill", "tool_number": 1, "tool_diameter_mm": 6.35, "tool_flutes": 2, "material_iso": "P", "spindle_rpm": 1500, "feed_mm_min": 120, "axial_depth_mm": 10.0, "coolant": "flood",
+          "coordinates": [{ "x": 20, "y": 20, "z": 5, "type": "rapid" }, { "x": 20, "y": 20, "z": -10, "type": "linear" }, { "x": 40, "y": 20, "z": -10, "type": "linear" }] }
+      ]
+    }
+  ],
+  "latheJobsSchemaNote": "Turning ops match the master_post_okuma_b250 zod schema (camActionSchemas.ts L159-198): operation_type (od_rough/od_finish/face/thread/groove/part_off/...), tool_number, tool_orientation (1-9), insert_radius_mm, material_iso, feed_mm_rev (mm/REV — turning), depth_of_cut_mm, start_x/start_z/end_x/end_z (X=diameter). G96 CSS via css_m_min + css_max_rpm (G50 clamp). Served to lathe + millturn posts (okuma-b250/lb3000/multus/winmax-lathe). CUT VALUES ARE SCHEMA-VALID TEST PLACEHOLDERS — production feeds/speeds come from SFC; lathe cut-physics + safety (G96→G50 cap, parting L/D, chuck) route to WHISKEY for review, not used as authoritative here.",
+  "latheJobs": [
+    {
+      "id": "lathe-od-face-turn",
+      "label": "Face + OD rough + OD finish (steel, G96 CSS)",
+      "config": { "units": "metric", "work_offset": 54, "program_number": 2001, "use_css": true, "css_max_rpm": 3500, "chuck_pressure": "high" },
+      "operations": [
+        { "operation_type": "face", "tool_number": 1, "tool_orientation": 3, "insert_radius_mm": 0.8, "material_iso": "P", "css_m_min": 200, "css_max_rpm": 3500, "feed_mm_rev": 0.15, "depth_of_cut_mm": 0.5, "start_x": 52, "start_z": 0.5, "end_x": -1, "end_z": 0.5, "coolant": "flood" },
+        { "operation_type": "od_rough", "tool_number": 1, "tool_orientation": 3, "insert_radius_mm": 0.8, "material_iso": "P", "css_m_min": 220, "css_max_rpm": 3500, "feed_mm_rev": 0.25, "depth_of_cut_mm": 2.0, "start_x": 50, "start_z": 0, "end_x": 40, "end_z": -60, "coolant": "flood" },
+        { "operation_type": "od_finish", "tool_number": 2, "tool_orientation": 3, "insert_radius_mm": 0.4, "material_iso": "P", "css_m_min": 280, "css_max_rpm": 3500, "feed_mm_rev": 0.1, "depth_of_cut_mm": 0.3, "start_x": 40, "start_z": 0, "end_x": 40, "end_z": -60, "coolant": "flood" }
+      ]
+    },
+    {
+      "id": "lathe-thread-od",
+      "label": "OD rough + OD thread M40x1.5 (G76 cycle)",
+      "config": { "units": "metric", "work_offset": 54, "program_number": 2002, "use_css": true, "css_max_rpm": 3000 },
+      "operations": [
+        { "operation_type": "od_rough", "tool_number": 1, "tool_orientation": 3, "insert_radius_mm": 0.8, "material_iso": "P", "css_m_min": 200, "css_max_rpm": 3000, "feed_mm_rev": 0.25, "depth_of_cut_mm": 2.0, "start_x": 42, "start_z": 0, "end_x": 40, "end_z": -30, "coolant": "flood" },
+        { "operation_type": "thread", "tool_number": 4, "tool_orientation": 3, "insert_radius_mm": 0.2, "material_iso": "P", "spindle_rpm": 800, "feed_mm_rev": 1.5, "depth_of_cut_mm": 0.1, "start_x": 40, "start_z": 0, "end_x": 40, "end_z": -25, "thread_pitch_mm": 1.5, "thread_depth_mm": 0.92, "thread_passes": 6, "coolant": "flood" }
+      ]
+    },
+    {
+      "id": "lathe-groove-partoff",
+      "label": "Groove + part-off (cutoff, G50 clamp)",
+      "config": { "units": "metric", "work_offset": 54, "program_number": 2003, "use_css": true, "css_max_rpm": 2500 },
+      "operations": [
+        { "operation_type": "groove", "tool_number": 5, "tool_orientation": 3, "insert_radius_mm": 0.2, "material_iso": "P", "css_m_min": 120, "css_max_rpm": 2500, "feed_mm_rev": 0.08, "depth_of_cut_mm": 3.0, "start_x": 40, "start_z": -50, "end_x": 30, "end_z": -50, "groove_width_mm": 3.0, "coolant": "flood" },
+        { "operation_type": "part_off", "tool_number": 5, "tool_orientation": 3, "insert_radius_mm": 0.2, "material_iso": "P", "css_m_min": 100, "css_max_rpm": 2000, "feed_mm_rev": 0.06, "depth_of_cut_mm": 3.0, "start_x": 42, "start_z": -55, "end_x": -1, "end_z": -55, "coolant": "flood" }
+      ]
+    }
+  ],
+  "scoring": {
+    "structuralWeight": 1.0,
+    "lintErrorIsFail": true,
+    "lintWarnPenalty": 0.0,
+    "perfectThreshold": 1.0,
+    "note": "A post is 'perfect' when every corpus job scores structural 100% AND 0 dialect-lint ERRORs across all jobs. WARNs are advisory (feed-no-feedmode etc) — tracked, not failing, unless lintWarnPenalty raised."
+  }
+}

@@ -43,6 +43,7 @@ function makeInput(partial: Partial<AppendExperienceInput> = {}): AppendExperien
     metadata: partial.metadata,
     timestamp: partial.timestamp,
     experience_id: partial.experience_id,
+    group_advantage: partial.group_advantage,
   };
 }
 
@@ -99,6 +100,22 @@ describe("PolicyExperienceLedgerEngine — U-LEARN-09", () => {
       ],
     }));
     expect(res.reward_total).toBeCloseTo(-3.14, 5);
+  });
+
+  it("append: persists optional group_advantage (GRPO) through query readback", () => {
+    // ULTRACODE-SYNERGY-MS0 Order 3 — the field must round-trip, not be silently dropped.
+    const res = ledger.append(makeInput({ lineage_id: "GRPO-1", group_advantage: 1.2345 }));
+    expect(res.ok).toBe(true);
+    const { tuples } = ledger.query({ lineage_id: "GRPO-1", limit: 10 });
+    expect(tuples.length).toBe(1);
+    expect((tuples[0] as { group_advantage?: number }).group_advantage).toBe(1.2345);
+  });
+
+  it("append: pre-GRPO tuple (no group_advantage) stays clean — field absent, not null", () => {
+    const res = ledger.append(makeInput({ lineage_id: "NO-GRPO" }));
+    expect(res.ok).toBe(true);
+    const { tuples } = ledger.query({ lineage_id: "NO-GRPO", limit: 10 });
+    expect("group_advantage" in (tuples[0] as object)).toBe(false);
   });
 
   it("append: preserves terminal flag", () => {

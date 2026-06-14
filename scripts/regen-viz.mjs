@@ -30,6 +30,11 @@ import {
   readGraphNodeCount,
   readAugmentationByteTotal,
 } from "./lib/regen-viz-merge-guard.mjs";
+import {
+  acquireGraphWriteLock,
+  installGraphWriteLockReleaseOnExit,
+  EXIT_GRAPH_WRITE_LOCK_SKIP,
+} from "./lib/system-graph-write-lock.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -92,9 +97,54 @@ const FAST = [
   "generate-layer-bridges.mjs",
   "generate-stagnant-features.mjs",
   "generate-misc-tasks-features.mjs",
+  "generate-college-course-features.mjs",
+  "generate-resource-pdf-features.mjs",
+  "generate-pdf-course-bridge-features.mjs",
+  "generate-cadcam-training-corpus-features.mjs",
+  "generate-extracted-pdf-tips-features.mjs",
+  "generate-post-pdf-corpus-features.mjs",  // POST-PDF-NODE-MS0/U-POST-PDF-CORPUS-NODE (slot:echo 2026-05-26) — Post-Processor Training Guide + Postability UPK as 16 nodes + 26 bridge edges to PRISM post engines
+  "generate-jm-die-tribal-wiki-features.mjs",  // POST-PDF-NODE-MS0/U-JM-TRIBAL-WIKI-CORPUS (slot:echo iter8 2026-05-26) — 80-PDF JM Die TRIBAL+WIKI consolidated corpus (1.1GB) → 88 nodes + 167 bridge edges across 7 domains (mill/lathe/cam/cad/wire/post/reference)
+  "generate-cited-tips-viz-features.mjs",  // POST-PDF-NODE-MS0/U-CITED-TIPS-VIZ (slot:echo iter17 2026-05-26) — 6 per-controller cited-tip TS files emitted from iter9-13 curriculum pipeline → 13 nodes + 11 bridge edges to MasterPostProcessor + per-controller post engines
+  "generate-pdf-coverage-features.mjs",
+  "generate-soul-health-features.mjs",
+  "generate-token-savings-pivot-features.mjs",
+  "generate-forge-audit-token-context-features.mjs",
+  "generate-link-audit-features.mjs",
+  "generate-wiki-tribal-features.mjs",
+  "generate-tribal-density-features.mjs",
+  "generate-substrate-meta-roost-features.mjs",
+  "generate-galaxy-federation-roost-features.mjs",  // GALAXY-CONTEXT-FEDERATION-MS0/U-GCF-VIZ-ROOST (slot:alpha 2026-06-01) — ghost.galaxy_federation + 5 child roosts (cards/digest/knows-map/dedup/savings); merge loadOptional's galaxy-federation-roost-augmentation.json.
+  "generate-ai-memo-xref-features.mjs",
   "consolidate-roadmaps.mjs",
   "generate-bridge-synergy-features.mjs",
+  "generate-bridge-priority-features.mjs",  // COMBO-EFFICIENCY-MS0/P1-U03 viz wire (slot:alpha 2026-05-25)
+  "generate-slot-binding-features.mjs",  // SLOT-BRIDGE-MS0/U-SBB06 viz wire (slot:alpha 2026-05-26) — slot-binding health
   "generate-priority-queue-features.mjs",
+  "generate-dream-artifacts-features.mjs",  // DREAM-RECEIPT-MS0/U-DR09 (slot:bravo 2026-05-26) — ghost.dream_artifacts roost for Hermes Dreaming v0.1.0 receipt-bundle artifacts
+  "generate-hermes-features.mjs",  // HERMES-APP-INCORPORATION-MS0/U-HERMES-VIZ-ROOST (slot:bravo 2026-06-05) — ghost.hermes_app roost: Nous Hermes desktop app (skills/cron/outputs) + native-MCP bridges edge to tr.mcp.
+  "generate-testing-infra-features.mjs",  // TESTING-INFRA-MS0/U-AXIS1-VIZ-CLOSURE (slot:tango 2026-05-26) — ghost.testing_infra roost + 4 axis-engine pass-rate dashboards
+  // NOTE: "generate-slot-queue-features.mjs" removed 2026-06-10 (U-VIZ-SLOTQUEUE-ORPHAN, sierra): the file never existed (never git-tracked) -> MODULE_NOT_FOUND exit-1 every regen since golf's U-FD06 2026-05-25 added the FAST[] entry + a merge loadOptional("slot-queue-augmentation.json") consumer but never committed the generator. Re-add ONLY together with the actual generator (must emit slot-queue-augmentation.json) per the FAST[]+splice both-or-neither rule. The merge loadOptional stays (harmless null until then).
+  "generate-chat-slot-nodes-features.mjs",  // ZULU-CHAT-SLOT-NODES-MS0 (slot:bravo 2026-05-25): 26 NATO chat-slot nodes + PSN synergy edges
+  "generate-database-surfaces-roost.mjs",
+  "generate-episode-store-features.mjs",
+  "generate-hybrid-retrieval-features.mjs",
+  "generate-cag-router-features.mjs",  // TOKEN-SAVINGS-PIVOT/U-CAG-DASHBOARD (sierra 2026-05-27) — ghost.cag_router roost surfacing CAG-route producer/consumer/helper + live sidecar tier distribution.
+  "generate-quoting-pipeline-features.mjs",  // U-VIZ-FAST-REGISTER (sierra 2026-05-29) — was orphaned from FAST[]; verified clean run (exit 0, 24 nodes) + merge loadOptional's quoting-pipeline-augmentation.json. First of the 9-generator FAST[] gap (U-VIZ-FAST-REGISTER-9); other 8 use non-literal outputs → per-generator verification pending.
+  "run-hotel-domain-features.mjs",  // U-VIZ-FAST-REGISTER-9 (sierra 2026-05-29) — the RUNNER (generate-* is a pure lib, no main). Fixed producer/consumer path mismatch: runner wrote to staging/ but merge loadOptional reads VIZ_DIR root; now writes root. Verified standalone (381 nodes, 3 roosts) + merge splice line ~1529 consumes hotelDomain.newNodes.
+  "generate-milling-tribal-tip-bridge-features.mjs",  // U-VIZ-FAST-REGISTER-9 (sierra 2026-05-30) — measured 12 nodes/24 edges, writes VIZ_DIR root, newNodes/newEdges + proper shape; merge loadOptional's milling-tribal-tip-bridge-augmentation.json.
+  "generate-svi-component-features.mjs",  // U-VIZ-FAST-REGISTER-9 (sierra 2026-05-30) — measured 15 nodes/14 edges; output→VIZ_DIR root this commit; merge loadOptional's svi-component-features.json (nodes/edges, kind-normalized). Fail-softs to no-write if PSI_PATH absent.
+  "generate-vendor-catalog-features.mjs",  // U-VIZ-FAST-REGISTER-9 (sierra 2026-05-30) — measured 45 nodes/44 edges; output→VIZ_DIR root this commit; merge loadOptional's vendor-catalog-features.json (nodes/edges, kind-normalized).
+  "generate-launch-readiness-features.mjs",
+  "generate-extracted-modules-features.mjs",
+  "generate-extracted-modules-detail-features.mjs",  // slot:papa 2026-05-26 — per-file detail layer (top-200 WIRE + 208 DB + 111 DUP + 134 PARTIAL with bridge edges to matched engines)
+  "generate-gnn-embed-bridge-features.mjs",
+  "generate-post-gap-features.mjs",
+  "generate-rag-upgrade-features.mjs",
+  "generate-feature-gap-features.mjs",
+  "generate-domain-pipeline-features.mjs",
+  "generate-slot-synergy-features.mjs",
+  "generate-docker-mcp-features.mjs",
+  "generate-echo-viz-layers-features.mjs",
   "generate-engine-graph.mjs",
   "generate-hook-bridges.mjs",
   "generate-frontend-pages.mjs",
@@ -112,6 +162,10 @@ const FAST = [
   "generate-hooks-atomic.mjs",
   "generate-tests-atomic.mjs",
   "generate-scripts-atomic.mjs",
+  "generate-scripts-lib-atomic.mjs",
+  "generate-milestone-envelope-atomic.mjs",
+  "generate-slot-touch-augmentation.mjs",
+  "validate-ghost-wires.mjs",
   "generate-memories-atomic.mjs",
   "generate-registry-entries.mjs",
   "generate-action-engine-edges.mjs",
@@ -124,6 +178,7 @@ const FAST = [
   "generate-jm-die-customers.mjs",
   "generate-schema-engine-edges.mjs",
   "generate-engine-physics-edges.mjs",
+  "generate-cross-substrate-edges.mjs",  // U-XSUB-FAST-REGISTER (sierra 2026-06-03): pairs with merge-augmentations xsub splice — FAST[]+splice both-or-neither; runs after galaxy-constituents(95)+chat-slot-nodes so its inputs are fresh
   "generate-frontend-deep.mjs",
   "generate-wiki-cross-refs.mjs",
   "generate-extracted-data-atomic.mjs",
@@ -131,6 +186,8 @@ const FAST = [
   "generate-git-tree.mjs",
   "generate-vault-graph.mjs",
   "generate-untracked-files-atomic.mjs",
+  "generate-octopus-consensus-features.mjs",  // PSN-OCTOPUS-FLEET-SYNERGY-MS0/U-FLEET-CONSUME-VIZ (slot:bravo 2026-06-01) — per-galaxy octopus consensus from the U-FLEET-CONSUME feeds → ghost.octopus_consensus roost; merge loadOptional's octopus-consensus-augmentation.json (self-contained cluster, internal-only edges). Empty until a live dispatch publishes.
+  "generate-predicted-edges-features.mjs",  // BLACKWELL-AI-MS0/U-GNN-EDGE-PREDICT-VIZ (slot:india 2026-06-09) — top predicted MISSING knowledge edges (GraphSAGE link-prediction over node-embeddings-768d) → ghost.predicted_edges roost; merge loadOptional's predicted-missing-edges-augmentation.json (self-contained cluster, internal-only contains edges). Runs after generate-cross-substrate-edges (181) so its existing-edges input is fresh. Empty (no root) when no high-confidence predictions.
 ];
 const HEAVY = [
   "generate-fs-deep-inventory.mjs",
@@ -145,7 +202,14 @@ const scripts = wantFull ? [...FAST, ...HEAVY] : FAST;
 // is >90 MB and V8's JSON.stringify recursion blows the default ~1 MB Windows
 // thread stack ("StackOverflowException", exit -1073741571) when serializing it.
 // Applied to every child so generators that round-trip the graph survive too.
-const NODE_ARGS = ["--max-old-space-size=16384", "--stack-size=8192"];
+// Heap ceiling for every spawned stage. Bumped 16384→24576 (16→24GB) 2026-05-29 (slot:sierra,
+// U-VIZ-MERGE-HEAP-HEADROOM): the merge stage intermittently OOM'd (exit 134 "Reached heap
+// limit") at 16GB on the grown 576MB / ~244K-node graph — see .last-regen-failure.json
+// 2026-05-29T01:47. The merge needs ~12GB resident minimum; 16GB headroom became too thin as
+// the graph grew. Host has 136GB total / 71GB free, so 24GB is safe headroom. Stages run
+// sequentially (one spawnSync at a time), so peak is one 24GB process. If 24GB still
+// intermittently OOMs as the graph grows further, bump to 32768 (host supports it).
+const NODE_ARGS = ["--max-old-space-size=24576", "--stack-size=8192"];
 
 console.log(`[regen-viz] running ${scripts.length} generator(s)${wantFull ? " (FULL)" : " (fast)"}…`);
 const t0 = Date.now();
@@ -174,6 +238,35 @@ const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
 const GRAPH_PATH = path.join(VIZ_DIR, "system-graph.json");
 const preMergeNodeCount = readGraphNodeCount(GRAPH_PATH);
 const augTotalBytes = readAugmentationByteTotal(VIZ_DIR);
+
+// U-VIZ-F11-CROSS-LOCK: acquire the shared system-graph.json write lock
+// BEFORE the merge → post-merge subprocess chain. F1 (dd735c1871) gave
+// generate-system-viz.mjs its own OUT_FILE; F11 closes the remaining racer
+// pair — regen-viz held NO lock, so system-viz-add-node.mjs flushQueue
+// could atomic-write the graph mid-chain and a later regen stage would
+// silently overwrite the appended nodes (lost update). One parent-held
+// lock covers every spawned child stage; add-node now DEFERS while it is
+// held (its TIER-1b check). The only other writer of THIS pid file is a
+// second regen-viz — so a held lock means a concurrent regen is running:
+// skip loud (exit 3, distinct from 0=ok / 1=fail) rather than race it.
+// Auto-release is installed via process.once('exit') because regen-viz
+// hard-exits from mid-chain fail-loud branches (merge-guard abort line,
+// drift-gate) where a try/finally would never run.
+const __f11Lock = acquireGraphWriteLock();
+if (!__f11Lock.acquired) {
+  console.error(
+    `[regen-viz] ✗ another system-graph.json writer holds the cross-lock ` +
+    `(pid ${__f11Lock.heldBy}) — a concurrent regen-viz is running. ` +
+    `Skipping this run to avoid a lost-update clobber of the merged graph. ` +
+    `Retry after it completes (lock: ${__f11Lock.path}).`,
+  );
+  // EXIT 4 (not 3): a benign concurrent-skip must be distinguishable from
+  // the merge-guard's EXIT_MERGE_NO_OP=3 suspected-corruption signal —
+  // they demand opposite operator responses. (3-of-3 P0 fix.)
+  process.exit(EXIT_GRAPH_WRITE_LOCK_SKIP);
+}
+installGraphWriteLockReleaseOnExit();
+console.log(`[regen-viz] system-graph.json write-lock acquired (pid ${process.pid})`);
 
 console.log(`[regen-viz] merging…  (pre-merge: ${preMergeNodeCount} nodes · augmentations: ${(augTotalBytes / 1e6).toFixed(1)} MB)`);
 const m = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "merge-augmentations.mjs")], {
@@ -280,6 +373,87 @@ if (wantFull) {
   if (ob.status !== 0) { console.error(`[regen-viz] ✗ obsidian-bridge failed (non-fatal)`); }
 }
 
+// Master-index sidecar — pre-built inverted index for master-index search.
+// The merged system-graph.json is ~372 MB; loadGraph parsing it INLINE in the
+// per-prompt master-index hook is fatal (the hook has a 2-5 s budget).
+// build-graph-index.mjs builds the compact ~105 MB system-graph-index.json
+// sidecar; loadGraph's fast-path then reconstructs the full 243K-node index
+// from it in ~1.5 s (measured). This stage adds ~70 s (measured) to EVERY
+// regen — post-commit + hourly cron — accepted: a fresh sidecar every regen
+// is what keeps the per-prompt hook off the slow path. MUST run after the
+// last graph writer (obsidian-bridge on --full, seed-ghost on the fast path)
+// so the sidecar indexes the FINAL graph, and inside regen-viz's held
+// graph-write lock so the read is consistent. Spawned with NODE_ARGS (16 GB
+// heap), so build-graph-index's self-re-exec is a no-op. Non-fatal — a
+// stale/absent sidecar only degrades master-index search to the legacy
+// fallback; the graph itself is unaffected, so (like the obsidian-bridge /
+// wiki-debt derived-artifact stages) it does NOT increment `failed`.
+console.log(`[regen-viz] build master-index sidecar (system-graph-index.json)…`);
+const si = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "build-graph-index.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (si.status !== 0) {
+  console.error(`[regen-viz] ✗ build-graph-index failed (non-fatal — master-index search falls back to legacy)`);
+}
+
+// Vault-backlink reverse index — inverts the node-cards.jsonl emitted by the
+// build-graph-index stage above into vault-backlinks.json (vault doc → graph
+// node-ids, the reverse of node-card). MUST run AFTER build-graph-index (the
+// forward-edge writer) and inside the held graph-write lock so it streams a
+// consistent post-merge node-cards.jsonl. THE DEFECT THIS CLOSES: the reverse
+// index was built ONLY by manual invocation, so node-cards.jsonl regenerated
+// every regen while vault-backlinks.json went stale (the reader's staleness
+// gate then fired ⚠STALE fleet-wide until a hand-rebuild). Path agreement is
+// automatic — build-vault-backlink-index defaults CARDS_PATH to the same
+// node-cards.jsonl this dir holds. It only READS node-cards.jsonl + WRITES
+// vault-backlinks.json (never system-graph.json), so it is NOT a second
+// concurrent graph writer (one-writer-per-path satisfied). Non-fatal — a
+// stale/absent reverse index only degrades the doc→node lookup; the graph is
+// unaffected, so (like the sidecar stages) it does NOT increment `failed`.
+console.log(`[regen-viz] build vault-backlink reverse index (vault-backlinks.json)…`);
+const vb = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "build-vault-backlink-index.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (vb.status !== 0) {
+  console.error(`[regen-viz] ✗ build-vault-backlink-index failed (non-fatal — reverse vault→node lookup degrades / stays stale)`);
+}
+
+// Node-adjacency sidecar — capped top-K in/out neighbors per node for the
+// blast-radius side-panel (/api/node-neighbors in _server.cjs). Like the
+// master-index sidecar above, it indexes the FINAL merged graph, so it MUST
+// run here — after the last writer, inside the held graph-write lock — or it
+// goes stale after every regen (the defect this stage closes: build-viz-adjacency
+// was previously only run by hand). Non-fatal — a stale/absent node-adjacency.json
+// only degrades the blast-radius panel to "no neighbors"; the graph is
+// unaffected, so it does NOT increment `failed`. NODE_ARGS supplies the heap.
+console.log(`[regen-viz] build node-adjacency sidecar (node-adjacency.json)…`);
+const na = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "build-viz-adjacency.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (na.status !== 0) {
+  console.error(`[regen-viz] ✗ build-viz-adjacency failed (non-fatal — blast-radius panel shows no neighbors)`);
+}
+
+// Find-cache sidecar — slim 6-field per-node projection for findInGraph(), the
+// substrate behind viz-first-redirect.mjs + the four pre-*-graph-inject hooks
+// (~1060 `find` calls/day from fresh node subprocesses). Like the two sidecars
+// above it indexes the FINAL merged graph, so it MUST run here — after the last
+// writer, inside the held graph-write lock. THE DEFECT THIS CLOSES: find-cache
+// was built ONLY lazily, by the first `find` that cache-missed after a regen,
+// paying the full graph cold-parse INSIDE the hook's ~1500ms budget → timeout →
+// the node-context inject silently failed fleet-wide. Building it eagerly here
+// means no hook subprocess ever pays the cold parse. Reuses the SAME
+// writeSidecarAtomic primitive as the lazy path (byte-identical sidecar). Non-
+// fatal — a stale/absent find-cache only makes the next `find` self-heal via the
+// slow path; the graph is unaffected, so it does NOT increment `failed`.
+console.log(`[regen-viz] build find-cache sidecar (find-cache.json)…`);
+const fc = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "regen-find-cache.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (fc.status !== 0) {
+  console.error(`[regen-viz] ✗ regen-find-cache failed (non-fatal — next \`find\` self-heals via cold parse)`);
+}
+
 // Executive briefing — regenerate the boss-audit landing doc from the fresh
 // graph + BUILD_STATE + SVI + revenue/milestone artifacts. Served at /briefing.
 console.log(`[regen-viz] regenerate executive briefing…`);
@@ -299,6 +473,17 @@ const wd = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts",
   stdio: "inherit", cwd: ROOT,
 });
 if (wd.status !== 0) { console.error(`[regen-viz] ✗ wiki-debt worklist failed (non-fatal)`); }
+
+// Dead-edge integrity sweep (sierra U-VIZ-DEAD-PIXEL-WIRE 2026-05-30) — surface
+// referenced-but-missing edge targets so the ~15K-dead-edge signal is TRACKED per
+// regen instead of invisible. Root cause is id-scheme mismatch in a few producers
+// (`dispatcher.prism_X` should be `disp.*`; `engine.<Pascal>` should be `eng.<domain>`).
+// Advisory / non-fatal — writes state/shared/system-viz-dead-pixels-<date>.{md,json}.
+console.log(`[regen-viz] dead-edge integrity sweep…`);
+const dp = spawnSync(process.execPath, [...NODE_ARGS, path.join(ROOT, "scripts", "system-viz-dead-pixel-sweep.mjs")], {
+  stdio: "inherit", cwd: ROOT,
+});
+if (dp.status !== 0) { console.error(`[regen-viz] ✗ dead-pixel sweep failed (non-fatal)`); }
 
 // W4 / U-DRIFT-HARD-FAIL: post-build integrity gate. Regenerate the drift
 // report against the just-built graph and HARD-FAIL on truncated/root-missing

@@ -19,8 +19,16 @@
  *            Bryan's thermal error principles,
  *            DMG MORI warmup recommendations
  *
- * Actions: machine_warmup_calc
+ * Actions: machine_warmup_calc, machine_warmup_with_laser_interferometer
  */
+
+import {
+  laserInterferometerCompensationEngine,
+  type WavelengthCompInput,
+  type WavelengthCompOutput,
+  type CompTableInput,
+  type CompTableOutput,
+} from "./LaserInterferometerCompensationEngine.js";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -56,6 +64,73 @@ export interface MachineWarmupResult {
   energy_cost: AtomicValue;
   skip_ok: AtomicValue;
   warnings: string[];
+}
+
+/**
+ * U-DEA-november-P04: Optional laser-interferometer overlay input for
+ * `calculateWithLaserInterferometer`. Supplies the environmental + measured
+ * inputs needed to query LaserInterferometerCompensationEngine on top of the
+ * standard warmup recommendation.
+ *
+ * Both sub-blocks are OPT-IN:
+ *   `wavelength` → consults `compensateWavelength` (Edlen / Birch-Downs)
+ *   `comp_table` → consults `generateCompensationTable` (ISO 230-2)
+ *
+ * When `target_accuracy_um` is supplied, the bridge compares the laser-derived
+ * environmental drift + repeatability against that target and flips
+ * `laser_overlay.accuracy_marginal` to TRUE when the warmup tolerance is
+ * threatened (informational — never silently extends warmup time itself).
+ */
+export interface LaserOverlayInput {
+  /** Optional wavelength-compensation inputs (Edlen / Birch-Downs). */
+  wavelength?: WavelengthCompInput;
+  /** Optional compensation-table inputs (measured points per axis). */
+  comp_table?: CompTableInput;
+  /** Optional deadpath length override (mm) for environmental drift scaling. */
+  deadpath_length_mm?: number;
+  /** Optional caller-supplied accuracy target (µm) for marginal-warmup gating. */
+  target_accuracy_um?: number;
+}
+
+/**
+ * U-DEA-november-P04: Laser-overlay result block attached to a warmup result.
+ * Both sub-results are nullable so partial overlays are permitted; `warnings`
+ * carries any per-method failure messages (never silently swallowed per
+ * engines.md convention).
+ */
+export interface LaserOverlayResult {
+  wavelength_compensation: WavelengthCompOutput | null;
+  comp_table: CompTableOutput | null;
+  /**
+   * Predicted environmental drift over the supplied (or default 100 mm)
+   * deadpath length, derived from the wavelength refractive-index correction.
+   * Null when no wavelength block supplied.
+   */
+  environmental_drift_um: number | null;
+  /**
+   * TRUE when the measured repeatability OR environmental drift exceeds
+   * the caller-supplied `target_accuracy_um`. Null when neither was
+   * measured. Informational — does NOT auto-extend warmup time.
+   */
+  accuracy_marginal: boolean | null;
+  /** Per-method error messages — non-empty when any sub-call failed. */
+  warnings: string[];
+}
+
+/**
+ * U-DEA-november-P04: MachineWarmupResult augmented with the optional
+ * laser-interferometer overlay. Backwards-compatible — when callers don't
+ * supply `overlay`, the existing `calculate()` shape is preserved
+ * (`laser_overlay: null`, `laser_overlay_source: 'no_data'`).
+ */
+export interface MachineWarmupResultWithLaser extends MachineWarmupResult {
+  laser_overlay: LaserOverlayResult | null;
+  /**
+   * Provenance of the laser overlay:
+   *  - `'consulted'` — at least one sub-block was supplied and LIC was queried
+   *  - `'no_data'`   — no overlay supplied
+   */
+  laser_overlay_source: "consulted" | "no_data";
 }
 
 // ── Reference Data ────────────────────────────────────────────────
@@ -221,6 +296,95 @@ export class MachineWarmupEngine {
         skipOk ? "OK_TO_SKIP" : "WARMUP_NEEDED", 0,
         `Idle ${idleHrs}h, accuracy ${reqAcc}mm`),
       warnings,
+    };
+  }
+
+  /**
+   * U-DEA-november-P04: Warmup calculation augmented with optional
+   * laser-interferometer overlay (Edlen wavelength compensation + ISO 230-2
+   * compensation table). Activates the dormant
+   * LaserInterferometerCompensationEngine at warmup-recommendation time so
+   * the caller can see whether environmental drift + measured repeatability
+   * threaten the standard warmup envelope.
+   *
+   * Gate: when `overlay` is absent OR both sub-blocks are absent,
+   * `laser_overlay` is `null` and `laser_overlay_source` becomes `'no_data'`.
+   *
+   * Per-method failures are captured in `laser_overlay.warnings[]` —
+   * never silently swallowed (engines.md convention).
+   *
+   * @param input   Standard MachineWarmupInput passed straight to `calculate()`
+   * @param overlay Optional laser inputs (wavelength compensation +/- comp table)
+   * @returns       Warmup result augmented with optional laser overlay
+   */
+  calculateWithLaserInterferometer(
+    input: MachineWarmupInput,
+    overlay?: LaserOverlayInput,
+  ): MachineWarmupResultWithLaser {
+    const base = this.calculate(input);
+
+    if (!overlay || (!overlay.wavelength && !overlay.comp_table)) {
+      return { ...base, laser_overlay: null, laser_overlay_source: "no_data" };
+    }
+
+    const warnings: string[] = [];
+    let wavelength_compensation: WavelengthCompOutput | null = null;
+    let comp_table: CompTableOutput | null = null;
+    let environmental_drift_um: number | null = null;
+
+    if (overlay.wavelength) {
+      try {
+        const wl = laserInterferometerCompensationEngine.compensateWavelength(overlay.wavelength);
+        wavelength_compensation = wl.value;
+        // Scale deadpath error linearly to the caller-supplied deadpath if provided
+        // (engine's internal reference is 100mm; ratio gives expected drift for actual length).
+        if (
+          overlay.deadpath_length_mm !== undefined &&
+          Number.isFinite(overlay.deadpath_length_mm) &&
+          overlay.deadpath_length_mm > 0
+        ) {
+          environmental_drift_um = wl.value.deadpath_error_um * (overlay.deadpath_length_mm / 100);
+        } else {
+          environmental_drift_um = wl.value.deadpath_error_um;
+        }
+      } catch (e: unknown) {
+        warnings.push(`compensateWavelength failed: ${(e as Error)?.message ?? String(e)}`);
+      }
+    }
+
+    if (overlay.comp_table) {
+      try {
+        const ct = laserInterferometerCompensationEngine.generateCompensationTable(overlay.comp_table);
+        comp_table = ct.value;
+      } catch (e: unknown) {
+        warnings.push(`generateCompensationTable failed: ${(e as Error)?.message ?? String(e)}`);
+      }
+    }
+
+    // Marginal-warmup gate: flag when measured repeatability OR derived
+    // environmental drift exceeds the caller-supplied target accuracy.
+    // Informational only — does not auto-extend warmup time.
+    let accuracy_marginal: boolean | null = null;
+    if (
+      overlay.target_accuracy_um !== undefined &&
+      Number.isFinite(overlay.target_accuracy_um) &&
+      overlay.target_accuracy_um > 0
+    ) {
+      const repExceeds = comp_table !== null && comp_table.repeatability_um > overlay.target_accuracy_um;
+      const driftExceeds = environmental_drift_um !== null && environmental_drift_um > overlay.target_accuracy_um;
+      accuracy_marginal = repExceeds || driftExceeds;
+    }
+
+    return {
+      ...base,
+      laser_overlay: {
+        wavelength_compensation,
+        comp_table,
+        environmental_drift_um,
+        accuracy_marginal,
+        warnings,
+      },
+      laser_overlay_source: "consulted",
     };
   }
 }

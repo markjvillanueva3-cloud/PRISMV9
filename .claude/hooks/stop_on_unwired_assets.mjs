@@ -40,9 +40,9 @@
  * session on infrastructure failure.
  */
 
-import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = "H:/prism";
 const ENGINES_DIR = "mcp-server/src/engines";
@@ -71,20 +71,8 @@ async function readStdin() {
 }
 
 // ----------------------------------------------------------------
-// Git helpers (shell out sparingly, fail-open)
+// Changed-file discovery (transcript-scoped -- no git shell-out)
 // ----------------------------------------------------------------
-function git(args) {
-  try {
-    return execSync(`git -C ${REPO_ROOT} ${args}`, {
-      encoding: "utf8",
-      stdio: ["ignore", "pipe", "ignore"],
-      timeout: 8000,
-    });
-  } catch {
-    return "";
-  }
-}
-
 function listChangedFiles(hookInput) {
   // Scope: ONLY files THIS chat edited via Write/Edit/MultiEdit tools.
   //
@@ -282,44 +270,104 @@ function checkEngineTested(engineRelPath) {
   return { tested: true, reason: `${totalCases} cases in ${path.basename(candidates[0])}`, cases: totalCases };
 }
 
-function checkDispatcherActionHandlers(dispatcherRelPath) {
-  // For each action name in the file's ACTIONS enum, ensure a
-  // corresponding handler exists in the file. Supports two patterns:
-  //   1. switch/case: `case "action_name":`
-  //   2. lookup table: `action_name:` as key in ACTION_HANDLERS object
-  const full = path.join(REPO_ROOT, dispatcherRelPath);
-  if (!fs.existsSync(full)) return { missing: [] };
-  const body = fs.readFileSync(full, "utf8");
+/**
+ * Pure detector (no disk access -- exported for unit testing).
+ *
+ * Given a dispatcher file's text, returns the list of action names declared in
+ * its `*ACTIONS*` enums that have NO handler. An action is "handled" by ANY of:
+ *
+ *   1. switch/case            -- `case "action_name":`
+ *   2. lookup-table key       -- `action_name: handleFn` / `: async` / `: (`
+ *   3. plain object key       -- `action_name: <value>`
+ *   4. array-membership route -- the action is a member of a `FOO_ACTIONS` array
+ *      that the file uses as a dispatch guard: `FOO_ACTIONS.includes(action)`
+ *      (or the cast form `(FOO_ACTIONS as readonly string[]).includes(action)`).
+ *      This is the DYNAMIC-DISPATCH pattern: the dispatcher forwards the whole
+ *      action string to a sub-engine that owns the per-action switch. The action
+ *      is genuinely routed -- it does NOT fall through to default/Unknown -- so it
+ *      is handled.
+ *
+ * Pattern 4 was previously unrecognized, so EVERY `.includes()`-routing
+ * dispatcher produced false positives (e.g. machineLiveDispatcher's 21
+ * dynamically-routed MACHINE_ACTIONS reported as UNHANDLED). This is the third
+ * valid-handler pattern, sibling to the table-driven map detection added earlier
+ * (reference_audit_unwired_engines_table_driven_action_map_detection). It does
+ * NOT soften the gate: a genuine orphan (in the enum, no case / no handler-key /
+ * no `.includes` guard) is still reported. See regression 2026-06-11 +
+ * reference_stop_unwired_assets_false_positive_2026_05_23.
+ */
+export function findUnhandledActions(rawBody) {
+  // Strip comments first: a commented-out `.includes(` / `case` / handler-key
+  // must NEVER count as a real handler (a commented dispatch guard must not
+  // clear a genuine orphan). Block comments, then line comments.
+  //
+  // The line-comment strip requires `//` at line-start or after whitespace, so a
+  // URL scheme (`http://`, `mqtt://` -- `//` preceded by `:`) is NOT mistaken
+  // for a comment. Without this guard, a `case` sharing a line with a URL string
+  // could be eaten -> a real handler hidden -> a genuine orphan FALSELY cleared
+  // (the dangerous direction; caught in per-file scrutiny 2026-06-11). The
+  // capture `$1` preserves the leading whitespace/line-start.
+  const body = rawBody
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/(^|\s)\/\/[^\n]*/g, "$1");
 
-  // Extract all ACTIONS-style enums (robust to multiple in a file)
-  const enumBlocks = [];
-  const re = /(?:const\s+\w*ACTIONS\w*\s*=\s*\[([\s\S]*?)\]\s*as\s+const)/g;
+  // Capture each `const NAME_ACTIONS = [ ... ] as const` WITH its NAME.
+  const arrays = []; // { name, members: string[] }
+  const enumRe = /const\s+(\w*ACTIONS\w*)\s*=\s*\[([\s\S]*?)\]\s*as\s+const/g;
   let m;
-  while ((m = re.exec(body)) !== null) enumBlocks.push(m[1]);
-  if (enumBlocks.length === 0) return { missing: [] };
-
-  const actionNames = new Set();
-  for (const block of enumBlocks) {
-    const actionRe = /"([a-z][a-z0-9_]*)"/g;
+  while ((m = enumRe.exec(body)) !== null) {
+    const arrName = m[1];
+    const members = [];
+    const memberRe = /"([a-z][a-z0-9_]*)"/g;
     let a;
-    while ((a = actionRe.exec(block)) !== null) actionNames.add(a[1]);
+    while ((a = memberRe.exec(m[2])) !== null) members.push(a[1]);
+    arrays.push({ name: arrName, members });
   }
-  if (actionNames.size === 0) return { missing: [] };
+  if (arrays.length === 0) return [];
+
+  // An array NAME is a "dispatch guard" iff the file calls `NAME.includes(`,
+  // allowing the `(NAME as readonly string[]).includes(` cast form. The members
+  // of a guard array are routed via array-membership dispatch -> handled.
+  const routed = new Set();
+  for (const { name: arrName, members } of arrays) {
+    const guardRe = new RegExp(
+      `\\b${arrName}\\b\\s*(?:as\\s+readonly\\s+string\\[\\]\\s*\\))?\\s*\\.includes\\s*\\(`,
+    );
+    if (guardRe.test(body)) {
+      for (const member of members) routed.add(member);
+    }
+  }
+
+  // Union of all declared action names across every enum.
+  const actionNames = new Set();
+  for (const { members } of arrays) for (const member of members) actionNames.add(member);
+  if (actionNames.size === 0) return [];
 
   const missing = [];
   for (const name of actionNames) {
+    if (routed.has(name)) continue; // Pattern 4: array-membership dispatch
     // Pattern 1: switch/case handler
     const caseRe = new RegExp(`case\\s+["'\`]${name}["'\`]\\s*:`);
-    // Pattern 2: ACTION_HANDLERS lookup table key (e.g., `action_name: handleFunc,`)
-    // Matches: action_name: handleXxx OR action_name: async ... OR action_name: (params) =>
+    // Pattern 2: ACTION_HANDLERS lookup table key (action_name: handleXxx / async / ( )
     const handlerRe = new RegExp(`\\b${name}\\s*:\\s*(handle[A-Z]|async\\s|\\()`);
-    // Pattern 3: Plain object key assignment (e.g., `action_name: handleActionName`)
+    // Pattern 3: plain object key assignment (action_name: <value>)
     const objKeyRe = new RegExp(`["'\`]?${name}["'\`]?\\s*:\\s*["'\`a-zA-Z_]`);
     if (!caseRe.test(body) && !handlerRe.test(body) && !objKeyRe.test(body)) {
       missing.push(name);
     }
   }
-  return { missing };
+  return missing;
+}
+
+function checkDispatcherActionHandlers(dispatcherRelPath) {
+  // For each action name in the file's ACTIONS enum, ensure a handler exists.
+  // Supports switch/case, lookup-table, plain-object-key, AND array-membership
+  // dispatch (FOO_ACTIONS.includes(action) -> forwarded to a sub-engine). Full
+  // contract + rationale in findUnhandledActions().
+  const full = path.join(REPO_ROOT, dispatcherRelPath);
+  if (!fs.existsSync(full)) return { missing: [] };
+  const body = fs.readFileSync(full, "utf8");
+  return { missing: findUnhandledActions(body) };
 }
 
 function checkNewHookRegistered(hookRelPath) {
@@ -455,13 +503,26 @@ async function main() {
   console.log(JSON.stringify({ decision: "block", reason }));
 }
 
-main().catch((e) => {
-  // Fail-open on infrastructure errors — we must never break a
-  // legitimate stop on our own bugs.
-  console.log(
-    JSON.stringify({
-      decision: "approve",
-      reason: `stop_on_unwired_assets error (fail-open): ${e.message}`,
-    }),
-  );
-});
+// Run main() only when invoked directly as the hook (not when imported by a
+// test for the exported `findUnhandledActions`). Fail-safe: if the guard itself
+// errs, default to RUNNING so the gate is never silently disabled.
+function isDirectInvocation() {
+  try {
+    return Boolean(process.argv[1]) && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  } catch {
+    return true;
+  }
+}
+
+if (isDirectInvocation()) {
+  main().catch((e) => {
+    // Fail-open on infrastructure errors -- we must never break a
+    // legitimate stop on our own bugs.
+    console.log(
+      JSON.stringify({
+        decision: "approve",
+        reason: `stop_on_unwired_assets error (fail-open): ${e.message}`,
+      }),
+    );
+  });
+}

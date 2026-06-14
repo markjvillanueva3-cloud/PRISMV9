@@ -1,0 +1,36 @@
+# Netlify deploy config — PRISM Academy PWA
+# Companion to vercel.json. Pick one host; the other is a backup.
+
+[build]
+  base    = "mcp-server/web"
+  publish = "../dist/web"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA fallback — every non-asset path renders index.html so client-side routing works.
+[[redirects]]
+  from = "/*"
+  to   = "/index.html"
+  status = 200
+
+# Service worker — must never be cached (so updates roll out)
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+# Manifest
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=300"
+
+# Hashed assets — aggressive caching (filename hash busts cache on rebuild)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

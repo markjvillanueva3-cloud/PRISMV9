@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "1.0.0",
+  "controller": "WinMax Mill 10.4.0.32407 DC (VMX42SRTi, UltiMotion)",
+  "description": "WinMax UI as a finite state machine: screens=states, softkeys/keys=transitions, fields=per-state data. Built by scripts/winmax-ui-map.mjs to give the autonomous post-test harness deterministic, vision-free navigation (whereami + BFS path). Headers are GRAPHICAL (0 UIA Text nodes), so screens are fingerprinted by their probe signature (Edit field-id set minus StatusBar.* + List/ListItem presence); field-less menu screens are disambiguated by their softkey labels (vision, recorded once). slot:echo.",
+  "updated": "2026-06-01-draw-verify (U-WINMAX-BUTTON-SIGNATURE: recorded DRAW_VERIFY screen + live-captured Button signature)",
+  "note": "SEED from the 2026-05-30 live discovery session (commit bd5cb8ca01). Extend with `node scripts/winmax-ui-map.mjs record-screen` + `record-transition`. Softkey ids 301..308 are Buttons that COLLIDE with data-field Edit ids on the same screen (see Program.cs Edit-preferred Locate).",
+  "screens": {
+    "ISNC_EDITOR": {
+      "name": "ISNC Program Editor",
+      "header": "(G-code text editor; loaded program shows here)",
+      "softkeys": { "F1": "EDIT FUNCTIONS", "F2": "JUMP & SEARCH FUNCTIONS", "F3": "TAGGED BLOCKS", "F4": "START/END MARKERS", "F5": "NUMBERING FUNCTIONS", "F7": "EDITOR SETTINGS", "F8": "EXIT EDITOR" },
+      "signature": { "edits": [], "hasList": false, "hasListItems": false },
+      "backOut": "{F8}",
+      "notes": "A docked Find/Search bar sits at the bottom. The loaded program buffer can be clobbered by a stray ^a+type — disk file is the source of truth."
+    },
+    "TAGGED_BLOCKS": {
+      "name": "Tagged Blocks (editor sub-screen)",
+      "header": "(reached from ISNC_EDITOR F3)",
+      "softkeys": { "F1": "TAG BLOCK", "F3": "JUMP TO PREVIOUS TAGGED BLOCK", "F4": "JUMP TO NEXT TAGGED BLOCK", "F5": "TAGGED BLOCK LIST", "F8": "EXIT" },
+      "signature": { "edits": [], "hasList": false, "hasListItems": false },
+      "backOut": "{F8}",
+      "notes": "Editor sub-menu. F8 EXIT returns to ISNC_EDITOR."
+    },
+    "INPUT_MENU": {
+      "name": "Input / Program top menu",
+      "header": "(top-level conversational menu; Hurco splash visible)",
+      "softkeys": { "F1": "PART SETUP", "F2": "TOOL REVIEW", "F3": "PART PROGRAMMING", "F4": "PROGRAM PARAMETERS", "F5": "IMPORT / EXPORT FUNCTIONS", "F6": "COPY AND CHANGE BLOCKS", "F7": "ERASE FUNCTIONS", "F8": "PROGRAM MANAGER" },
+      "signature": { "edits": [], "hasList": false, "hasListItems": false },
+      "backOut": null,
+      "notes": "Status line reads 'Select a softkey.' Reached from ISNC_EDITOR via F8 EXIT EDITOR."
+    },
+    "PART_SETUP": {
+      "name": "Part Setup",
+      "header": "(part zero / work offsets / fixturing hub)",
+      "softkeys": { "F1": "WORK OFFSETS", "F2": "TOOL SETUP", "F3": "PART PROGRAMMING", "F4": "PROGRAM PARAMETERS", "F5": "PART PROBING", "F6": "STORE MACHINE POSITION", "F7": "MORE", "F8": "EXIT" },
+      "signature": { "edits": [], "hasList": false, "hasListItems": false },
+      "backOut": "{F8}",
+      "notes": "F1 WORK OFFSETS = set G54 part-zero. F2 TOOL SETUP = per-program tool form."
+    },
+    "TOOL_SETUP_FORM": {
+      "name": "Tool Setup (per-program tool form)",
+      "header": "TOOL SETUP",
+      "softkeys": {},
+      "signature": { "edits": ["301", "303", "310", "322", "347", "354", "360", "361", "362", "367", "372", "373", "374", "375", "379", "380"], "hasList": false, "hasListItems": false },
+      "fieldMap": { "301": "TOOL NUMBER", "303": "DIAMETER", "310": "TOOL CAL LENGTH", "322": "SPEED", "347": "TOUCH-OFF DEVICE", "329": "CUTTING TIME", "332": "DIAMETER WEAR" },
+      "blocker": "TOOL TYPE + COOLANT are non-UIA icon-font dropdowns (not text-addressable; selectable as List/ListItem when expanded but item names are private-use glyphs). NOT a verify blocker though — undefined tools render as unknown/dia-0 and do NOT block Draw (User Guide p99). Drive by UIA SelectionItem on the expanded List, or click-xy on the arrow.",
+      "backOut": null,
+      "notes": "Per-program tool reference form (TOOL NUMBER/TYPE/DIAMETER/SPEED/COOLANT/CAL LENGTH). TOOL TYPE + COOLANT are non-UIA dropdowns. Entering a diameter + ENTER jumps to TOOL_DATABASE (transition trigger to re-confirm)."
+    },
+    "TOOL_DATABASE": {
+      "name": "Tool and Material Database",
+      "header": "TOOL AND MATERIAL DATABASE",
+      "softkeys": { "F1": "ADD TOOL", "F2": "EDIT TOOL", "F3": "DELETE TOOL", "F8": "EXIT" },
+      "signature": { "edits": [], "hasList": true, "hasListItems": true },
+      "tabs": ["TOOLS", "MATERIALS"],
+      "columns": ["TYPE", "DIAMETER", "LENGTH OF CUT", "FLUTES", "DESCRIPTION"],
+      "backOut": "{F8}",
+      "notes": "THE place tools are DEFINED (clears 'TOOL n NOT DEFINED'). F1 ADD TOOL -> ADD_TOOL_FORM. List/ListItem signature distinguishes it from menu screens."
+    },
+    "ADD_TOOL_FORM": {
+      "name": "Tool Type Setup (add-tool form)",
+      "header": "TOOL TYPE SETUP",
+      "softkeys": { "F1": "GEOMETRY", "F2": "FEED & SPEED", "F3": "NC SFQ", "F4": "SUPPLIER", "F5": "NOTES", "F8": "EXIT" },
+      "signature": { "edits": [], "hasList": false, "hasListItems": false },
+      "backOut": "{F8}",
+      "solved": "TOOL TYPE dropdown (non-UIA) is driven by click-xy: click the arrow (~598,179 winRel) to open, click the item row to select. PROVEN. GEOMETRY fields then appear (CUTTING DIAMETER=303, OUTER DIA CAL=311, LENGTH OF CUT CAL=314, TOOL LENGTH CAL=315, ANGLE=318, CUTTING EDGES=324, RADIUS=325).",
+      "fieldCommitRule": "Commit geometry fields with {TAB}, NOT {ENTER} — {ENTER} = save+exit and fires before the value commits (typed dia 2.0 saved as 0.0000). type-into appends {ENTER} so it is WRONG here; use click-xy + sendkeys ^a + value{TAB}.",
+      "toolTypeList": ["UNKNOWN", "DRILL", "TAP", "BORING HEAD", "END MILL", "FACE MILL", "BALL END MILL", "BACK SPOTFACE MILL", "PROBE", "GUN DRILL", "CENTER DRILL", "CHAMFER MILL", "BULL NOSE MILL", "REAM"],
+      "notes": "Softkeys ARE the tabs (F1 GEOMETRY .. F5 NOTES). EDIT/DELETE TOOL are greyed until a list row is click-xy-selected."
+    },
+    "TOOL_OFFSETS": {
+      "name": "Tool Offsets table",
+      "header": "TOOL OFFSETS (grid)",
+      "softkeys": {},
+      "signature": { "edits": ["300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","424","426","432","433","434","439","444","445","446","447","451","452"], "hasList": true, "hasListItems": true },
+      "backOut": null,
+      "reachedBy": "TOOL_SETUP_FORM {F4} (the per-program tool form's F4 = TOOL OFFSETS softkey). Vision-free discovered 2026-05-31 via Edit-id signature diff.",
+      "notes": "Dense contiguous Edit grid (300-347 = ~48 table cells) — the H/D length+diameter+wear offset registers consumed by the NC's G43 H1..H4. Per-cell semantic map (which cell = H1 length vs D diameter vs wear) is a sub-gap: needs a value-read calibration pass (set a known offset, read which id changed). High-confidence TOOL OFFSETS but headers are graphical so unverified by text."
+    },
+    "DRAW_VERIFY": {
+      "name": "Graphics / Draw / Verify (program simulation view)",
+      "header": "(graphical sim viewport; 0 UIA Text/Edit nodes — field-less)",
+      "softkeys": {},
+      "signature": { "edits": [], "hasList": false, "hasListItems": false, "buttons": ["AccelDecreaseButton","AccelIncreaseButton","AllViewsToggleButtonMedium","AllViewsToggleButtonSmall","ArrowControlCenter","DbSearchButton","DrawButton","FitToViewButton","IsometricToggleButtonMedium","IsometricToggleButtonSmall","JumpToBlockButton","MeasureButton","NextToolChangeButton","NormalDrawButton","PauseButton","ResetAllButton","SettingsButton","SingleStepButton","SmoothButton","SnapshotButton","StopClearButton","ToggleZoneButton","TransparentStock","XYToggleButton","XZToggleButton","YZToggleButton"] },
+      "buttonsSource": "LIVE-CAPTURED 2026-06-01 (Max5UI pid87672, WinMax Mill 10.4; --op probe, 153 nodes). The Draw/Verify console controls are plain UIA Buttons with stable automationIds — NOT a vision touch-point (corrects the prior 'Draw needs vision' assumption, see WINMAX-LIVE-TEST-LOG.md).",
+      "backOut": null,
+      "entryUnobserved": true,
+      "notes": "Field-less (empty Edit-signature) so it collides with the menu screens under the Edit-only signature — resolved by the ADDITIVE distinctive-Button tiebreak (U-WINMAX-BUTTON-SIGNATURE): matchScreen falls back to disambiguateByButtons, which Jaccard-overlaps this stored set against the live Button automationIds. DrawButton/SingleStepButton/NextToolChangeButton/PauseButton are directly UIA-clickable → read-only verify-program courses + the Draw trigger become unattended clicks (no vision). ENTRY transition (which softkey/menu opens it) is NOT yet observed — the live session closed before it was captured; record-transition when next live."
+    }
+  },
+  "transitions": [
+    { "from": "TOOL_SETUP_FORM", "key": "{F4}", "to": "TOOL_OFFSETS", "label": "TOOL OFFSETS", "observed": true },
+    { "from": "ISNC_EDITOR", "key": "{F8}", "to": "INPUT_MENU", "label": "EXIT EDITOR", "observed": true },
+    { "from": "ISNC_EDITOR", "key": "{F3}", "to": "TAGGED_BLOCKS", "label": "TAGGED BLOCKS", "observed": true },
+    { "from": "TAGGED_BLOCKS", "key": "{F8}", "to": "ISNC_EDITOR", "label": "EXIT", "observed": true },
+    { "from": "INPUT_MENU", "key": "{F1}", "to": "PART_SETUP", "label": "PART SETUP", "observed": true },
+    { "from": "PART_SETUP", "key": "{F2}", "to": "TOOL_SETUP_FORM", "label": "TOOL SETUP", "observed": true },
+    { "from": "PART_SETUP", "key": "{F8}", "to": "INPUT_MENU", "label": "EXIT", "observed": true },
+    { "from": "TOOL_SETUP_FORM", "key": "DIAMETER+{ENTER}", "to": "TOOL_DATABASE", "label": "enter diameter for undefined tool", "observed": true, "uncertain": true },
+    { "from": "TOOL_DATABASE", "key": "{F1}", "to": "ADD_TOOL_FORM", "label": "ADD TOOL", "observed": true },
+    { "from": "ADD_TOOL_FORM", "key": "{F8}", "to": "TOOL_DATABASE", "label": "EXIT", "observed": true }
+  ],
+  "gaps": [
+    "DRAW_VERIFY (Graphics/sim) screen + its live Button signature ARE now recorded (2026-06-01); the ENTRY transition (which softkey/menu opens it) is still unobserved — capture via record-transition when next live.",
+    "PROGRAM_MANAGER (INPUT_MENU F8) — file open/load — not yet mapped.",
+    "WORK_OFFSETS (PART_SETUP F1) — G54 entry form — not yet mapped.",
+    "How to open a .nc into ISNC_EDITOR (toolbar folder / PROGRAM_MANAGER) — not yet mapped.",
+    "FEED & SPEED / NC SFQ / SUPPLIER / NOTES tabs of ADD_TOOL_FORM — not yet mapped."
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAtMs": 1780582274204,
+  "host": "DESKTOP-N7MI1VB",
+  "mode": "synthetic",
+  "image": "synthetic(seed=7100,easy)",
+  "models": [
+    "qwen2.5vl:7b"
+  ],
+  "model_source": "--models",
+  "wall_ms": 41309,
+  "models_ok": 1,
+  "models_failed": 0,
+  "per_model_runs": [
+    {
+      "model": "qwen2.5vl:7b",
+      "ok": true,
+      "ms": 41309,
+      "dim_count": 5,
+      "error": null
+    }
+  ],
+  "fused_summary": {
+    "n_models": 1,
+    "models": [
+      "qwen2.5vl:7b"
+    ],
+    "per_model_dim_count": {
+      "qwen2.5vl:7b": 5
+    },
+    "quorum": 2,
+    "n_clusters": 5,
+    "n_corroborated": 0,
+    "n_partial": 0,
+    "n_singleton": 5,
+    "n_hallucination_candidates": 0,
+    "n_ambiguous_pairs": 1,
+    "corroboration_histogram": {
+      "1": 5
+    },
+    "mean_corroboration": 1,
+    "mean_agreement_confidence_corroborated": null,
+    "consensus_dim_count": 0
+  },
+  "fused_dimensions": [
+    {
+      "type": "linear",
+      "value_mm": 3.2766,
+      "value_spread_mm": 0,
+      "corroboration": 1,
+      "n_models": 1,
+      "agreement_confidence": 0.95,
+      "confidence_gain": 0,
+      "status": "singleton",
+      "low_corroboration": true,
+      "hallucination_candidate": false,
+      "models": [
+        "qwen2.5vl:7b"
+      ],
+      "member_values_mm": [
+        3.2765999999999997
+      ],
+      "raw_texts": [
+        ".129 x 45°"
+      ]
+    },
+    {
+      "type": "diameter",
+      "value_mm": 4.3434,
+      "value_spread_mm": 0,
+      "corroboration": 1,
+      "n_models": 1,
+      "agreement_confidence": 0.95,
+      "confidence_gain": 0,
+      "status": "singleton",
+      "low_corroboration": true,
+      "hallucination_candidate": false,
+      "models": [
+        "qwen2.5vl:7b"
+      ],
+      "member_values_mm": [
+        4.3434
+      ],
+      "raw_texts": [
+        "Ø.171"
+      ]
+    },
+    {
+      "type": "radius",
+      "value_mm": 12.1666,
+      "value_spread_mm": 0,
+      "corroboration": 1,
+      "n_models": 1,
+      "agreement_confidence": 0.95,
+      "confidence_gain": 0,
+      "status": "singleton",
+      "low_corroboration": true,
+      "hallucination_candidate": false,
+      "models": [
+        "qwen2.5vl:7b"
+      ],
+      "member_values_mm": [
+        12.166599999999999
+      ],
+      "raw_texts": [
+        "R.479"
+      ]
+    },
+    {
+      "type": "linear",
+      "value_mm": 73.66,
+      "value_spread_mm": 0,
+      "corroboration": 1,
+      "n_models": 1,
+      "agreement_confidence": 0.95,
+      "confidence_gain": 0,
+      "status": "singleton",
+      "low_corroboration": true,
+      "hallucination_candidate": false,
+      "models": [
+        "qwen2.5vl:7b"
+      ],
+      "member_values_mm": [
+        73.66
+      ],
+      "raw_texts": [
+        "2.9"
+      ]
+    },
+    {
+      "type": "linear",
+      "value_mm": 91.1352,
+      "value_spread_mm": 0,
+      "corroboration": 1,
+      "n_models": 1,
+      "agreement_confidence": 0.95,
+      "confidence_gain": 0,
+      "status": "singleton",
+      "low_corroboration": true,
+      "hallucination_candidate": false,
+      "models": [
+        "qwen2.5vl:7b"
+      ],
+      "member_values_mm": [
+        91.1352
+      ],
+      "raw_texts": [
+        "3.588"
+      ]
+    }
+  ],
+  "ambiguous_pairs": [
+    {
+      "type": "linear",
+      "value_a_mm": 73.66,
+      "value_b_mm": 91.1352,
+      "rel_diff": 0.1918,
+      "models_a": [
+        "qwen2.5vl:7b"
+      ],
+      "models_b": [
+        "qwen2.5vl:7b"
+      ],
+      "note": "same-type values within conflict band: model value-disagreement OR two distinct similar features — operator must disambiguate; never auto-merged."
+    }
+  ],
+  "scoring": {
+    "truth_dims": 6,
+    "singles": [
+      {
+        "model": "qwen2.5vl:7b",
+        "f1": 0.8,
+        "recall": 0.8,
+        "precision": 0.8,
+        "mae_mm": 0
+      }
+    ],
+    "consensus": {
+      "f1": 0.8,
+      "recall": 0.8,
+      "precision": 0.8,
+      "mae_mm": 0
+    },
+    "best_single_f1": 0.8,
+    "ensemble_lift_f1": 0
+  }
+}

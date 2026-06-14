@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "1.0.0",
+  "controller": "WinMax Lathe (Hurco TM/TMX-class, DS Desktop sim) — on-site live-test target",
+  "description": "WinMax LATHE 'courses' = named, ordered, VISION-FREE turning step-sequences, the lathe sibling of winmax-courses.json (mill). Same runner (scripts/winmax-course-run.mjs --courses <this>) + same PrismWinMaxUI UIA driver (attaches by process name, so it drives the lathe controller too — no driver copy needed, only this courses doc + a lathe FSM map). Turning differs from milling at the Tool Setup + Part Setup forms: a lathe tool carries NOSE RADIUS + ISO ORIENTATION (1-9) + X/Z geometry offsets (NOT mill diameter + cal-length), and turning safety is G96 CSS clamped by a G50 max-RPM. EVERY concrete field id + screen signature below is UNRESOLVED until a live WinMax-Lathe UIA probe captures it (the mill ids 301/303/310 will NOT match — the lathe Tool Geometry form is a different screen). This is the honest scaffold: course INTENT + lathe DOMAIN FACTS are encoded; the runner FAILS LOUD on any UNRESOLVED step in live mode (never fakes a pass). slot:echo. Turning cut-physics + safety (G96->G50 cap, parting L/D, chuck) route to WHISKEY; feed/speed to OSCAR.",
+  "updated": "2026-06-01",
+  "siblingOf": "winmax-courses.json (mill) — copy-modify lineage per operator directive 'copy the mill winmax setup and modify it for the lathe version'.",
+  "facts": {
+    "unitsVerifyPerPart": "JM convention is INCH (G20) but VERIFY per part from the source (NC G20/G21, CAM setup unit). A 25.4x mislabel is the #1 catastrophic error — every X/Z below is treated as the program's declared unit, NOT assumed.",
+    "turningToolGeometry": "A WinMax lathe Tool Setup entry carries: TOOL NUMBER, NOSE RADIUS (insert tip radius), ISO TOOL ORIENTATION (1-9, the tip quadrant for G41/G42 nose-radius comp), X GEOMETRY OFFSET (diameter), Z GEOMETRY OFFSET (face). This REPLACES the mill DIAMETER + CAL-LENGTH pair — the field ids are a DIFFERENT screen and must be probed live.",
+    "cssClampSafety": "Turning uses G96 constant-surface-speed; it MUST be clamped by a G50 max-RPM or a small-diameter feature commands a chuck-overspeed. The verify course confirms a G50 clamp is present (whiskey owns the physics; echo confirms the dialect emits it).",
+    "partZeroTurning": "Lathe part-zero: X is on the spindle centerline (diameter mode, X=0 at center), Z=0 at the finished face. The work-offset form fields differ from the mill XYZ form.",
+    "fieldInputRecipeUnverified": "ASSUME the mill recipe carries over (click <id> -> type-raw '<digits>' -> commit), but VERIFY on the lathe controller — the lathe forms may use different commit keys. Marked unverified until a live probe confirms.",
+    "driverIsShared": "PrismWinMaxUI.exe attaches by process name (--process 'WinMax'), so the SAME UIA driver drives the lathe controller. No winmax-lathe-bridge/ C# copy is required — the lathe-specific knowledge lives in THIS courses doc + a lathe FSM map (winmax-lathe-ui-map, to be probed)."
+  },
+  "primitives": {
+    "nav": "Navigate the lathe FSM map from current screen to args.to (lathe map TBD by live probe; runner re-fingerprints after).",
+    "key": "sendkeys args.keys verbatim.",
+    "field": "Proven mill field recipe (click args.id -> type-raw args.value -> commit) — CARRIED OVER, verify on lathe.",
+    "assert": "get-text args.id; PASS iff value matches. Records actual.",
+    "read": "get-text args.id; logs value.",
+    "fingerprint": "probe -> whereami; on the lathe this is the PRIMARY discovery op (every lathe screen signature is currently unknown — fingerprint each form to build winmax-lathe-ui-map).",
+    "note": "documentation-only no-op."
+  },
+  "courses": {
+    "fingerprint-lathe-screens": {
+      "status": "probe-first",
+      "goal": "DISCOVERY course: walk the lathe controller's menus and fingerprint each screen to build the lathe FSM map (winmax-lathe-ui-map). Run this FIRST against the live WinMax Lathe before any field course — it resolves the UNRESOLVED ids the other courses need. READ-ONLY (no field writes, no motion).",
+      "steps": [
+        { "op": "note", "text": "Discovery only. Capture each screen's UIA signature (Edit/Button ids + any list flags) so define-turning-tool / set-turning-offset / load-turning-program can be encoded with real ids." },
+        { "op": "fingerprint", "note": "INPUT/MAIN menu — record signature + softkey labels." },
+        { "op": "fingerprint", "note": "TOOL SETUP (turning) — record NOSE RADIUS / ORIENTATION / X-OFFSET / Z-OFFSET Edit ids. These replace mill 303(dia)/310(callen)." },
+        { "op": "fingerprint", "note": "PART SETUP / WORK OFFSET (turning) — record X(centerline)/Z(face) field ids." },
+        { "op": "fingerprint", "note": "PROGRAM MANAGER — record the file-open flow (mill has this gap too)." },
+        { "op": "fingerprint", "note": "ISNC/conversational EDITOR — record where the turning program buffer lives + the Draw/verify trigger." }
+      ]
+    },
+    "define-turning-tool": {
+      "status": "intent-encoded-ids-unresolved",
+      "goal": "Define one turning tool (Tool Setup form): tool number + nose radius + ISO orientation + X/Z geometry offsets, then save. Lathe analog of the mill define-tool course.",
+      "params": { "toolNumber": 1, "noseRadius": "0.0313", "orientation": "3", "xOffset": "0.0", "zOffset": "0.0" },
+      "steps": [
+        { "op": "note", "text": "Orientation 3 = back-left tip (typical OD right-hand turning). Nose radius 0.0313in = 0.8mm insert. VERIFY these field ids via fingerprint-lathe-screens FIRST." },
+        { "op": "nav", "to": "TOOL_SETUP_TURN", "status": "UNRESOLVED", "note": "lathe Tool Setup screen — FSM path unknown until probed." },
+        { "op": "fingerprint", "expectScreen": "TOOL_SETUP_TURN" },
+        { "op": "field", "id": "PROBE:tool_number", "value": "${toolNumber}", "status": "UNRESOLVED", "note": "TOOL NUMBER — id from live probe." },
+        { "op": "field", "id": "PROBE:nose_radius", "value": "${noseRadius}", "status": "UNRESOLVED", "note": "NOSE RADIUS — id from live probe." },
+        { "op": "field", "id": "PROBE:orientation", "value": "${orientation}", "status": "UNRESOLVED", "note": "ISO ORIENTATION 1-9 — id from live probe." },
+        { "op": "field", "id": "PROBE:x_offset", "value": "${xOffset}", "status": "UNRESOLVED", "note": "X GEOMETRY OFFSET (diameter) — id from live probe." },
+        { "op": "field", "id": "PROBE:z_offset", "value": "${zOffset}", "status": "UNRESOLVED", "note": "Z GEOMETRY OFFSET (face) — id from live probe." },
+        { "op": "assert", "id": "PROBE:nose_radius", "equals": "${noseRadius}", "status": "UNRESOLVED", "note": "Confirm nose radius committed (numeric compare)." }
+      ]
+    },
+    "set-turning-offset": {
+      "status": "draft-gap",
+      "goal": "Set the turning part-zero work offset (X on centerline, Z at finished face).",
+      "gaps": ["Lathe WORK_OFFSET form field ids unknown until probed (X/Z fields differ from the mill XYZ form)."],
+      "steps": [
+        { "op": "nav", "to": "PART_SETUP_TURN", "status": "UNRESOLVED" },
+        { "op": "fingerprint", "note": "Discover the turning work-offset form's X(centerline)/Z(face) Edit ids, then encode field steps." }
+      ]
+    },
+    "load-turning-program": {
+      "status": "draft-gap",
+      "goal": "Open a turning .nc into the editor.",
+      "gaps": ["PROGRAM_MANAGER file-open flow unmapped (shared gap with the mill load-program course)."],
+      "steps": [
+        { "op": "nav", "to": "PROGRAM_MANAGER", "status": "UNRESOLVED" },
+        { "op": "note", "text": "Resolve PROGRAM_MANAGER file-open flow live (mill course shares this gap), then encode concrete steps." }
+      ]
+    },
+    "verify-turning-program": {
+      "status": "draft",
+      "goal": "Run a graphics verify (Draw) of the loaded turning program. Same Draw-key vision boundary as the mill verify-program course.",
+      "preconditions": ["A turning NC program is loaded (see load-turning-program)."],
+      "steps": [
+        { "op": "nav", "to": "ISNC_EDITOR_TURN", "status": "UNRESOLVED", "note": "turning program editor screen." },
+        { "op": "fingerprint", "expectScreen": "ISNC_EDITOR_TURN" },
+        { "op": "draw-trigger", "status": "UNRESOLVED", "note": "Same genuine vision touch-point as the mill: the Draw console key has no UIA tooltip; resolve by one-time visual id of the lathe DS Draw button coordinate, or a keyboard accelerator if the lathe manual documents one." },
+        { "op": "note", "text": "G50 clamp check: confirm the loaded turning program declares a G50 max-RPM under any G96 CSS (whiskey owns the physics threshold; echo confirms the dialect emits it). This is a program-content assert, addable once load-turning-program works." }
+      ]
+    }
+  },
+  "gaps": [
+    "ENTIRE lathe FSM map (winmax-lathe-ui-map) is unprobed — run the fingerprint-lathe-screens course against the live WinMax Lathe FIRST; it resolves every UNRESOLVED id below.",
+    "Tool Setup turning field ids (nose radius / orientation / X-offset / Z-offset) — the mill 301/303/310 ids do NOT carry over.",
+    "WORK_OFFSET turning form (X centerline / Z face) field ids.",
+    "PROGRAM_MANAGER file-open flow (shared with mill).",
+    "draw-trigger: same Draw console-key vision boundary as the mill.",
+    "G50-clamp content assert depends on load-turning-program working first."
+  ],
+  "safetyRouting": {
+    "cutPhysicsAndSafety": "whiskey (G96 CSS -> G50 max-RPM cap, parting L/D, boring-bar deflection, chuck/jaw)",
+    "feedSpeed": "oscar (cam_speedfeed_compute / SFC)",
+    "echoOwns": "the dialect emission + the vision-free course/FSM navigation only"
+  }
+}

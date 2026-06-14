@@ -10,12 +10,13 @@ import {
   type LessonSection,
 } from '../../data/academy';
 import { useCourses } from '../../hooks/useCourses';
+import { useStudentId } from '../../hooks/useStudentId';
 import { LessonStudio } from './LessonStudio';
 import { LessonVisual } from './LessonVisual';
 
 export function LessonView() {
   const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
-  const { completeLesson, getLessonProgress, isLessonComplete } = useCourses();
+  const { completeLesson, getLessonProgress, isLessonComplete } = useCourses(useStudentId());
   const lesson = getLessonById(lessonId || '');
   const course = getCourseById(courseId || '') || getCourseForLesson(lessonId || '');
 
@@ -23,7 +24,11 @@ export function LessonView() {
     return (
       <div className="py-16 text-center">
         <p className="mb-4 text-gray-500">Lesson not found.</p>
-        <Link to="/learning/academy" className="text-sm font-medium text-prism-600 hover:text-prism-700">
+        <Link
+          to="/learning/academy"
+          className="inline-flex min-h-[44px] items-center rounded-lg px-3 py-2 text-sm font-medium text-prism-600 transition hover:bg-prism-50 hover:text-prism-700 active:bg-prism-100"
+          aria-label="Back to Academy course catalog"
+        >
           ← Back to Academy
         </Link>
       </div>
@@ -239,18 +244,37 @@ export function LessonView() {
   );
 }
 
+/**
+ * Render a lesson section by ContentType. iter43: multi-type rendering for visual
+ * learners + mobile tap-target compliance (≥44pt buttons per web/CLAUDE.md).
+ *
+ * ContentType handling:
+ *   - calculator → live link to /calculator with engine+input/output preview
+ *   - diagram    → inline SVG or ASCII pre-block (whitespace-pre-wrap; preserves ASCII force-vector diagrams from courses 29-34)
+ *   - video      → semantic placeholder (video URL populated by course author)
+ *   - 3d_viewer  → semantic placeholder (glTF/USDZ URL populated by course author)
+ *   - sandbox    → semantic placeholder (interactive task spec)
+ *   - animation  → semantic placeholder
+ *   - text       → reading panel (default)
+ */
 function LessonSectionCard({ section }: { section: LessonSection }) {
   if (section.type === 'calculator') {
     return (
       <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
-        <div className="flex items-start justify-between gap-4">
-          <div>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <div className="text-xs font-semibold uppercase tracking-wide text-amber-700">Interactive calculator</div>
-            <h2 className="mt-2 text-lg font-semibold text-amber-950">{section.title}</h2>
+            <h2 className="mt-2 break-words text-lg font-semibold text-amber-950">{section.title}</h2>
           </div>
-          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-amber-700 shadow-sm">
-            {section.engine || 'PRISM calculator'}
-          </span>
+          {section.engine && (
+            <Link
+              to="/calculator"
+              className="inline-flex min-h-[44px] items-center rounded-full bg-white px-4 py-2 text-xs font-medium text-amber-800 shadow-sm transition hover:bg-amber-100 active:bg-amber-200"
+              aria-label={`Open Calculator Studio for ${section.engine}`}
+            >
+              Open in Calculator →
+            </Link>
+          )}
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <FieldGroup label="Inputs" values={section.inputFields ?? []} emptyLabel="Defined in engine" />
@@ -260,10 +284,130 @@ function LessonSectionCard({ section }: { section: LessonSection }) {
     );
   }
 
+  if (section.type === 'diagram') {
+    return (
+      <div className="rounded-3xl border border-cyan-200 bg-cyan-50 p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-cyan-800 shadow-sm">Visual diagram</span>
+        </div>
+        <pre className="overflow-x-auto whitespace-pre-wrap rounded-2xl bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100">
+          {section.body}
+        </pre>
+      </div>
+    );
+  }
+
+  if (section.type === 'video') {
+    // U-VIDEO-EMBED (2026-05-27 lima): if section.body's first line is a YouTube
+    // watch / youtu.be URL, embed it. Anything else falls back to the original
+    // placeholder so author-defined non-YT video remains supported.
+    const firstLine = (section.body ?? '').split(/\r?\n/, 1)[0].trim();
+    const ytMatch = firstLine.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/);
+    const description = section.body
+      ? section.body.replace(firstLine, '').trim()
+      : '';
+
+    if (ytMatch) {
+      const videoId = ytMatch[1];
+      const embedSrc = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`;
+      return (
+        <div className="rounded-3xl border border-violet-200 bg-violet-50 p-5 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-violet-800 shadow-sm">Video walkthrough</span>
+          </div>
+          <div className="overflow-hidden rounded-2xl bg-slate-950" style={{ aspectRatio: '16 / 9' }}>
+            <iframe
+              src={embedSrc}
+              title={section.title}
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              style={{ border: 0, width: '100%', height: '100%' }}
+            />
+          </div>
+          {description && (
+            <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-700">{description}</p>
+          )}
+          <p className="mt-2 text-xs text-slate-500">
+            <a href={`https://www.youtube.com/watch?v=${videoId}`} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline">
+              Open in YouTube ↗
+            </a>
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-3xl border border-violet-200 bg-violet-50 p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-violet-800 shadow-sm">Video walkthrough</span>
+        </div>
+        <div className="rounded-2xl bg-slate-950 p-6 text-center text-sm text-slate-300">
+          <p className="text-base font-medium text-white">▶ Video placeholder</p>
+          <p className="mt-2 text-xs leading-5 text-slate-400">
+            Paste a YouTube URL on the first line of this section's body to embed it. Other video sources render here as a placeholder.
+          </p>
+        </div>
+        {section.body && (
+          <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-700">{section.body}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (section.type === '3d_viewer') {
+    return (
+      <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-emerald-800 shadow-sm">3D model</span>
+        </div>
+        <div className="rounded-2xl bg-slate-950 p-6 text-center text-sm text-slate-300">
+          <p className="text-base font-medium text-white">⬢ 3D viewer placeholder</p>
+          <p className="mt-2 text-xs leading-5 text-slate-400">
+            glTF/USDZ models render here when the course author populates the model URL.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (section.type === 'sandbox') {
+    return (
+      <div className="rounded-3xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-rose-800 shadow-sm">Hands-on sandbox</span>
+        </div>
+        <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{section.body}</div>
+        <p className="mt-4 text-xs leading-5 text-rose-700">
+          Apply the technique above against your own job. PRISM calculators + the controller emulator are linked from the lesson header.
+        </p>
+      </div>
+    );
+  }
+
+  if (section.type === 'animation') {
+    return (
+      <div className="rounded-3xl border border-indigo-200 bg-indigo-50 p-5 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-indigo-800 shadow-sm">Animation</span>
+        </div>
+        <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{section.body}</div>
+      </div>
+    );
+  }
+
+  // Default: text content (also handles unknown types — fail-loud via fallback rendering)
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <h2 className="text-lg font-semibold text-slate-900">{section.title}</h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="break-words text-lg font-semibold text-slate-900">{section.title}</h2>
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">Reading</span>
       </div>
       <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">
@@ -303,11 +447,12 @@ function InlineQuestionCard({
               key={option.id}
               type="button"
               onClick={() => onSelect(option.id)}
-              className={`rounded-2xl border px-4 py-3 text-left text-sm transition-all ${
+              className={`min-h-[44px] rounded-2xl border px-4 py-3 text-left text-sm transition-all ${
                 active
                   ? 'border-teal-500 bg-white text-slate-900 shadow-sm'
-                  : 'border-teal-100 bg-white/80 text-slate-700 hover:border-teal-300'
+                  : 'border-teal-100 bg-white/80 text-slate-700 hover:border-teal-300 active:bg-teal-100'
               }`}
+              aria-pressed={active}
             >
               {option.text}
             </button>
@@ -390,14 +535,15 @@ function FinalAssessmentCard({
                     key={option.id}
                     type="button"
                     onClick={() => onSelect(question.id, option.id)}
-                    className={`rounded-2xl border px-4 py-3 text-left text-sm transition-all ${
+                    aria-pressed={active}
+                    className={`min-h-[44px] rounded-2xl border px-4 py-3 text-left text-sm transition-all ${
                       showResult && isCorrectOption
                         ? 'border-emerald-400 bg-emerald-500/20 text-emerald-100'
                         : showResult && !isCorrectOption
                           ? 'border-amber-400 bg-amber-500/20 text-amber-100'
                           : active
                             ? 'border-teal-300 bg-teal-500/20 text-white'
-                            : 'border-white/10 bg-white/5 text-slate-200 hover:border-teal-300/70'
+                            : 'border-white/10 bg-white/5 text-slate-200 hover:border-teal-300/70 active:bg-white/10'
                     }`}
                   >
                     {option.text}
@@ -429,9 +575,9 @@ function FinalAssessmentCard({
           type="button"
           onClick={onSubmit}
           disabled={!readyToSubmit}
-          className={`rounded-2xl px-5 py-3 text-sm font-medium transition-colors ${
+          className={`min-h-[44px] rounded-2xl px-5 py-3 text-sm font-medium transition-colors ${
             readyToSubmit
-              ? 'bg-teal-400 text-slate-950 hover:bg-teal-300'
+              ? 'bg-teal-400 text-slate-950 hover:bg-teal-300 active:bg-teal-500'
               : 'cursor-not-allowed bg-slate-700 text-slate-400'
           }`}
         >

@@ -40,7 +40,59 @@ import { log } from "../../utils/Logger.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_SHOP_PRACTICE_SCHEMAS } from "../../schemas/shopPracticeActionSchemas.js";
 import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
-import { machiningPlaybookEngine, type RuleCategory } from "../../engines/MachiningPlaybookEngine.js";
+import {
+  machiningPlaybookEngine,
+  type ConflictParameter,
+  type DirectiveDirection,
+  type PlaybookConflict,
+  type RuleCategory,
+} from "../../engines/MachiningPlaybookEngine.js";
+
+// Compile-time exhaustiveness — if a new ConflictParameter variant is added to
+// MachiningPlaybookEngine.ts, the Record requires a key for it here, forcing
+// CONFLICT_PARAMETER_VALUES to stay in sync (Reviewer B P1-3, iter9 close-out).
+const CONFLICT_PARAMETER_EXHAUSTIVE: Record<ConflictParameter, true> = {
+  feedrate: true,
+  spindle_speed: true,
+  depth_of_cut: true,
+  width_of_cut: true,
+  coolant: true,
+};
+const CONFLICT_PARAMETER_VALUES: ReadonlySet<ConflictParameter> = new Set<ConflictParameter>(
+  Object.keys(CONFLICT_PARAMETER_EXHAUSTIVE) as ConflictParameter[],
+);
+
+const DIRECTIVE_DIRECTION_EXHAUSTIVE: Record<DirectiveDirection, true> = {
+  increase: true,
+  decrease: true,
+};
+const DIRECTIVE_DIRECTION_VALUES: ReadonlySet<DirectiveDirection> = new Set<DirectiveDirection>(
+  Object.keys(DIRECTIVE_DIRECTION_EXHAUSTIVE) as DirectiveDirection[],
+);
+
+// Input-length caps protect against operator-supplied payload blowup
+// (Reviewer B P1-1, iter9 close-out). Rule ids in the corpus are short
+// (e.g., "SEQ-001"); sharedContext is a free-form description.
+const RULE_ID_MAX_LEN = 256;
+const SHARED_CONTEXT_MAX_LEN = 4096;
+
+function asConflictParameter(v: unknown): ConflictParameter | null {
+  return typeof v === "string" && CONFLICT_PARAMETER_VALUES.has(v as ConflictParameter)
+    ? (v as ConflictParameter)
+    : null;
+}
+
+function asDirectiveDirection(v: unknown, fallback: DirectiveDirection): DirectiveDirection {
+  return typeof v === "string" && DIRECTIVE_DIRECTION_VALUES.has(v as DirectiveDirection)
+    ? (v as DirectiveDirection)
+    : fallback;
+}
+
+function asBoundedString(v: unknown, maxLen: number): string | null {
+  if (typeof v !== "string") return null;
+  if (v.length === 0 || v.length > maxLen) return null;
+  return v;
+}
 import { PATHS } from "../../constants.js";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -78,6 +130,32 @@ const ACTIONS = [
   "tribal_enrich_tips_only",
   "tribal_enrich_playbook_only",
   "tribal_enrich_controller_only",
+  "playbook_rules_query",
+  "playbook_rules_search",
+  "playbook_rules_safety",
+  "playbook_rules_stats",
+  "lathe_lora_tribal_augment",
+  "lathe_lora_tribal_find_tips",
+  "lathe_lora_tribal_aug_stats",
+  "lathe_lora_tribal_extract",
+  "lathe_lora_tribal_extract_batch",
+  "lathe_lora_tribal_extractor_stats",
+  "tribal_apply",
+  "tribal_apply_stats",
+  "playbook_explain",
+  "playbook_coverage",
+  "playbook_quantitative",
+  "playbook_audit",
+  "playbook_conflicts",
+  "playbook_conflicts_ranked",
+  "playbook_suggest_resolutions",
+  "playbook_suggest_resolution",
+  "playbook_related_graph",
+  "playbook_validate_corpus",
+  // Mill-studio AI-reachable training index (MILL-PDF-CORPUS-MS0, 2026-05-26)
+  "mill_training_for_operation",
+  "mill_training_search",
+  "mill_training_summary",
 ] as const;
 
 // Python & cad-engine paths — uses centralized PATHS.PYTHON
@@ -934,6 +1012,391 @@ async function handleTribalEnrichControllerOnly(params: Record<string, any>): Pr
 }
 
 // ---------------------------------------------------------------------------
+// PlaybookRulesEngine — U-BRIDGE-WIRE-TRIBAL (133KB domain-rule corpus)
+// ---------------------------------------------------------------------------
+
+/** Query the domain-classified machining rule corpus with optional filters. */
+async function handlePlaybookRulesQuery(params: Record<string, any>): Promise<any> {
+  const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+  const rules = playbookRulesEngine.getRules({
+    domain: params.domain,
+    categories: params.categories,
+    severity_min: params.severity_min,
+  } as Parameters<typeof playbookRulesEngine.getRules>[0]);
+  return { count: rules.length, rules };
+}
+
+/** Free-text keyword search across all machining playbook rules. */
+async function handlePlaybookRulesSearch(params: Record<string, any>): Promise<any> {
+  const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+  const rules = playbookRulesEngine.searchRules(params.keyword);
+  return { keyword: params.keyword, count: rules.length, rules };
+}
+
+/** Critical safety + anti-pattern rules — the highest-priority rule subset. */
+async function handlePlaybookRulesSafety(_params: Record<string, any>): Promise<any> {
+  const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+  const rules = playbookRulesEngine.getSafetyRules();
+  return { count: rules.length, safety_rules: rules };
+}
+
+/** Rule-corpus statistics + per-domain coverage report. */
+async function handlePlaybookRulesStats(_params: Record<string, any>): Promise<any> {
+  const { playbookRulesEngine } = await import("../../engines/PlaybookRulesEngine.js");
+  return { stats: playbookRulesEngine.getStats(), coverage: playbookRulesEngine.getCoverage() };
+}
+
+// ---------------------------------------------------------------------------
+// LatheLoRATribalAugmentationEngine — U-BRIDGE-WIRE-TRIBAL
+// ---------------------------------------------------------------------------
+
+/** Augment LatheLoRA output with JM-Die / Okuma tribal tips + anti-pattern warnings. */
+async function handleLatheLoRATribalAugment(params: Record<string, any>): Promise<any> {
+  const { latheLoRATribalAugmentationEngine } = await import("../../engines/LatheLoRATribalAugmentationEngine.js");
+  return latheLoRATribalAugmentationEngine.augment(params.response, params.query);
+}
+
+/** Find tribal tips relevant to a response without rewriting it. */
+async function handleLatheLoRATribalFindTips(params: Record<string, any>): Promise<any> {
+  const { latheLoRATribalAugmentationEngine } = await import("../../engines/LatheLoRATribalAugmentationEngine.js");
+  const matches = latheLoRATribalAugmentationEngine.findRelevantTips(params.response, params.query);
+  return { count: matches.length, matches };
+}
+
+/** Tribal augmentation engine statistics (tip/rule counts by source/severity). */
+async function handleLatheLoRATribalAugStats(_params: Record<string, any>): Promise<any> {
+  const { latheLoRATribalAugmentationEngine } = await import("../../engines/LatheLoRATribalAugmentationEngine.js");
+  return { stats: latheLoRATribalAugmentationEngine.getStats() };
+}
+
+// ---------------------------------------------------------------------------
+// LatheLoRATribalExtractorEngine — U-BRIDGE-WIRE-TRIBAL
+// ---------------------------------------------------------------------------
+
+/** Extract one structured tribal tip from operator free-text. */
+async function handleLatheLoRATribalExtract(params: Record<string, any>): Promise<any> {
+  const { latheLoRATribalExtractorEngine } = await import("../../engines/LatheLoRATribalExtractorEngine.js");
+  const tip = latheLoRATribalExtractorEngine.extractTip(params.text, {
+    author: params.author,
+    source: params.source,
+  });
+  return { extracted: tip !== null, tip };
+}
+
+/** Batch-extract tribal tips from multiple operator texts. */
+async function handleLatheLoRATribalExtractBatch(params: Record<string, any>): Promise<any> {
+  const { latheLoRATribalExtractorEngine } = await import("../../engines/LatheLoRATribalExtractorEngine.js");
+  const tips = latheLoRATribalExtractorEngine.extractBatch(params.texts);
+  return { input_count: params.texts.length, extracted_count: tips.length, tips };
+}
+
+/** Tribal extractor statistics + human-readable summary. */
+async function handleLatheLoRATribalExtractorStats(_params: Record<string, any>): Promise<any> {
+  const { latheLoRATribalExtractorEngine } = await import("../../engines/LatheLoRATribalExtractorEngine.js");
+  return { stats: latheLoRATribalExtractorEngine.getStats(), summary: latheLoRATribalExtractorEngine.getSummary() };
+}
+
+// ---------------------------------------------------------------------------
+// Tribal Knowledge Applicator actions (TypeScript — TribalKnowledgeApplicatorEngine)
+// U-CAMAGI12 (CADCAM-DAGI-MS4) — Wisdom Synthesis: score strategy candidates
+// against tribal constraints + MachiningPlaybook rules, rank, emit rationale.
+// ---------------------------------------------------------------------------
+
+/**
+ * Score a set of strategy candidates against tribal constraints — supplied
+ * explicitly and/or derived from a MachiningPlaybook rule category — rank them,
+ * and emit a human-readable tribal rationale for the chosen strategy.
+ */
+async function handleTribalApply(params: Record<string, any>): Promise<any> {
+  const { tribalKnowledgeApplicatorEngine } = await import(
+    "../../engines/TribalKnowledgeApplicatorEngine.js"
+  );
+
+  const candidates = Array.isArray(params.candidates) ? params.candidates : [];
+  if (candidates.length === 0) {
+    return { error: "candidates is required and must be a non-empty array of strategy candidates" };
+  }
+
+  const explicit = Array.isArray(params.constraints) ? params.constraints : [];
+
+  // Optional live composition — fold MachiningPlaybook rules for a category into
+  // the constraint set (spec step: "Query MachiningPlaybookEngine for rules").
+  let playbookConstraints: any[] = [];
+  if (typeof params.playbook_category === "string" && params.playbook_category.length > 0) {
+    try {
+      const rawRules: any[] = machiningPlaybookEngine.byCategory(
+        params.playbook_category as RuleCategory,
+      );
+      const ruleLikes = (Array.isArray(rawRules) ? rawRules : []).map((r: any) => ({
+        id: r?.id,
+        severity: r?.severity,
+        category: r?.category,
+        rule: r?.rule,
+        description: r?.description,
+        parameter: r?.parameter,
+        min: r?.min,
+        max: r?.max,
+      }));
+      playbookConstraints = tribalKnowledgeApplicatorEngine.fromPlaybookRules(ruleLikes);
+    } catch {
+      playbookConstraints = [];
+    }
+  }
+
+  const result = tribalKnowledgeApplicatorEngine.apply({
+    candidates,
+    constraints: [...explicit, ...playbookConstraints],
+    context: params.context,
+  });
+
+  return {
+    success: true,
+    chosen: result.chosen,
+    ranked: result.ranked,
+    naive_pick: result.naivePick,
+    tribal_rationale: result.tribalRationale,
+    improvement_pct: result.improvementPct,
+    constraints_applied: explicit.length + playbookConstraints.length,
+  };
+}
+
+/** Engine introspection — invocation telemetry + scoring configuration. */
+async function handleTribalApplyStats(_params: Record<string, any>): Promise<any> {
+  const { tribalKnowledgeApplicatorEngine } = await import(
+    "../../engines/TribalKnowledgeApplicatorEngine.js"
+  );
+  return { success: true, stats: tribalKnowledgeApplicatorEngine.getStats() };
+}
+
+// ---------------------------------------------------------------------------
+// Playbook capability extensions (MachiningPlaybookEngine, U-PB-EXPAND-CAPABILITIES)
+// Surface deep single-rule explanation, per-job coverage analysis, and
+// applicable-rules-with-quantitative-formulas filtering on top of the existing
+// 296-rule store + advise() ranker.
+// ---------------------------------------------------------------------------
+
+/**
+ * Deep single-rule explanation: the rule itself plus every related_rules
+ * cross-reference resolved to its actual rule (cycle-guarded).
+ */
+async function handlePlaybookExplain(params: Record<string, any>): Promise<any> {
+  if (typeof params.rule_id !== "string" || params.rule_id.length === 0) {
+    return { error: "rule_id is required and must be a non-empty string" };
+  }
+  const explanation = machiningPlaybookEngine.explainRule(params.rule_id);
+  if (!explanation) {
+    return { error: `Rule '${params.rule_id}' not found in the playbook`, rule_id: params.rule_id };
+  }
+  return { success: true, explanation };
+}
+
+/**
+ * Playbook coverage analysis for a job context: per-category / per-severity
+ * counts, blind-spot categories with zero applicable rules, and the applicable
+ * rule ID list in severity order.
+ */
+async function handlePlaybookCoverage(params: Record<string, any>): Promise<any> {
+  const report = machiningPlaybookEngine.coverageReport(params as Parameters<typeof machiningPlaybookEngine.coverageReport>[0]);
+  return { success: true, report };
+}
+
+/**
+ * Applicable playbook rules carrying a quantitative threshold formula.
+ * Filters the broader applicable set down to rules whose numeric guidance
+ * is explicitly encoded.
+ */
+async function handlePlaybookQuantitative(params: Record<string, any>): Promise<any> {
+  const guidance = machiningPlaybookEngine.quantitativeGuidance(params as Parameters<typeof machiningPlaybookEngine.quantitativeGuidance>[0]);
+  return { success: true, guidance };
+}
+
+/**
+ * Playbook-corpus integrity audit: scans every rule for cross-reference and
+ * completeness defects (dangling / asymmetric / self related-rule links,
+ * duplicate ids, empty reasoning, unreachable rules).
+ */
+async function handlePlaybookAudit(_params: Record<string, any>): Promise<any> {
+  return { success: true, report: machiningPlaybookEngine.auditIntegrity() };
+}
+
+/**
+ * Playbook-corpus semantic conflict scan: finds pairs of rules that give
+ * contradictory parameter directives (e.g. one "increase feedrate", the other
+ * "reduce feedrate") under overlapping machining conditions. Heuristic review
+ * surface — see PlaybookConflictReport.method.
+ */
+async function handlePlaybookConflicts(_params: Record<string, any>): Promise<any> {
+  return { success: true, report: machiningPlaybookEngine.detectConflicts() };
+}
+
+/**
+ * Severity + evidence-based prioritization of the playbook conflict scan:
+ * each conflict gets a priorityScore in [0,1] and a coarse urgent/high/
+ * medium/low bucket so an operator can triage. Composes on detectConflicts —
+ * no re-scan.
+ */
+async function handlePlaybookConflictsRanked(_params: Record<string, any>): Promise<any> {
+  return { success: true, report: machiningPlaybookEngine.rankConflicts() };
+}
+
+/**
+ * Batch resolution proposal — closes the detect → rank → RESOLVE workflow.
+ * For each conflict in the corpus, names the winning rule based on
+ * evidence_level (primary) and severity (tiebreaker), or flags ambiguous
+ * when both axes tie. Returns one ResolutionProposal per conflict plus a
+ * byDecision bucket count operators use to dashboard evidence-tagging
+ * coverage gaps.
+ */
+async function handlePlaybookSuggestResolutions(_params: Record<string, any>): Promise<any> {
+  return { success: true, report: machiningPlaybookEngine.suggestResolutions() };
+}
+
+/**
+ * Single-pair resolution proposal. Caller supplies a conflict (any shape
+ * matching PlaybookConflict / RankedConflict — ruleIdA, ruleIdB, parameter
+ * are the only fields read); returns the winner, confidence, decision axis,
+ * and an honest rationale (R12 fail-loud surfaces stale-id input via the
+ * `warning` field instead of masking it as "human judgment required").
+ */
+/**
+ * Multi-hop BFS over PlaybookRule.related_rules — extends explainRule()
+ * (1-hop) to arbitrary depth. Surfaces unresolved-ref ids (R12 fail-loud
+ * on stale corpus refs) and cycle-edges (back-edges to already-visited
+ * nodes) explicitly. Returns {success:false, error} on missing root rule.
+ * maxDepth defaults to 2; bounded [0, 10] at the schema layer.
+ */
+async function handlePlaybookRelatedGraph(params: Record<string, any>): Promise<any> {
+  const ruleId = asBoundedString(params?.ruleId, RULE_ID_MAX_LEN);
+  if (!ruleId) {
+    return {
+      success: false,
+      error: `playbook_related_graph requires ruleId (non-empty string ≤${RULE_ID_MAX_LEN} chars).`,
+    };
+  }
+  // maxDepth is bounded [0, 10] at the schema; safe-coerce here as a defense-
+  // in-depth + default to 2 (root → neighbor → neighbor-of-neighbor).
+  const maxDepthRaw = params?.maxDepth;
+  const maxDepth =
+    typeof maxDepthRaw === "number" && Number.isFinite(maxDepthRaw) && maxDepthRaw >= 0
+      ? Math.min(Math.floor(maxDepthRaw), 10)
+      : 2;
+  const report = machiningPlaybookEngine.relatedGraph(ruleId, maxDepth);
+  if (report === null) {
+    return {
+      success: false,
+      error: `playbook_related_graph: rule "${ruleId}" not found in corpus.`,
+    };
+  }
+  return { success: true, report };
+}
+
+/**
+ * Corpus-wide health audit. Pure read-only — no rule mutations. Surfaces
+ * duplicateIds / orphans / unresolvedRefs / cycles / schemaIssues + a
+ * normalized healthScore for at-a-glance triage. Operators should drill
+ * into individual findings via playbook_related_graph(ruleId) before acting.
+ *
+ * No inputs. Always returns {success:true, report:CorpusValidationReport}
+ * — an empty corpus returns totalRules:0 + empty arrays + healthScore:1.
+ */
+async function handlePlaybookValidateCorpus(_params: Record<string, any>): Promise<any> {
+  const report = machiningPlaybookEngine.validateCorpus();
+  return { success: true, report };
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Mill-studio AI-reachable training index (MILL-PDF-CORPUS-MS0, 2026-05-26)
+// Exposes the source-attributed milling tribal-tip corpus to AI agents
+// (Claude, Ollama, training pipelines) via MCP. Three actions:
+//   mill_training_for_operation  — operation-keyed retrieval for wizard
+//   mill_training_search         — BM25-lite text search (RAG baseline)
+//   mill_training_summary        — index introspection (counts by vendor,
+//                                  confidence, kind, operation)
+// All return `{success, ...}` per dispatcher convention. Empty/invalid
+// inputs fail soft with empty results, not exceptions.
+// ─────────────────────────────────────────────────────────────────────
+
+async function handleMillTrainingForOperation(params: Record<string, any>): Promise<any> {
+  const { nodesForOperation } = await import("../../data/tribal-tips/milling-training-index.js");
+  const operation = typeof params?.operation === "string" ? params.operation : "";
+  const nodes = nodesForOperation(operation);
+  return {
+    success: true,
+    operation,
+    count: nodes.length,
+    nodes,
+  };
+}
+
+async function handleMillTrainingSearch(params: Record<string, any>): Promise<any> {
+  const { searchMillingTrainingNodes } = await import("../../data/tribal-tips/milling-training-index.js");
+  const query = typeof params?.query === "string" ? params.query : "";
+  const topK = Number.isFinite(params?.topK) ? Math.max(1, Math.min(50, Math.floor(params.topK))) : 5;
+  const hits = searchMillingTrainingNodes(query, topK);
+  return {
+    success: true,
+    query,
+    topK,
+    count: hits.length,
+    hits,
+  };
+}
+
+async function handleMillTrainingSummary(_params: Record<string, any>): Promise<any> {
+  const { summarizeMillingTrainingIndex } = await import("../../data/tribal-tips/milling-training-index.js");
+  const summary = summarizeMillingTrainingIndex();
+  return { success: true, summary };
+}
+
+async function handlePlaybookSuggestResolution(params: Record<string, any>): Promise<any> {
+  const c = params.conflict ?? params;
+  const parameter = asConflictParameter(c?.parameter);
+  const ruleIdA = asBoundedString(c?.ruleIdA, RULE_ID_MAX_LEN);
+  const ruleIdB = asBoundedString(c?.ruleIdB, RULE_ID_MAX_LEN);
+  if (!ruleIdA || !ruleIdB || !parameter) {
+    return {
+      success: false,
+      error:
+        `playbook_suggest_resolution requires conflict.{ruleIdA, ruleIdB, parameter}. ` +
+        `ruleIdA/ruleIdB must be non-empty strings ≤${RULE_ID_MAX_LEN} chars. ` +
+        `parameter must be one of: ${[...CONFLICT_PARAMETER_VALUES].join(", ")}.`,
+    };
+  }
+  // sharedContext is operator-supplied free text — bound it. Empty/oversized
+  // falls back to the synthetic placeholder rather than rejecting, since the
+  // engine doesn't read this field from the synthetic struct (only the corpus
+  // entries' contexts matter for the proposal — Reviewer B P1-1).
+  const sharedContext = asBoundedString(c?.sharedContext, SHARED_CONTEXT_MAX_LEN)
+    ?? "operator-supplied conflict";
+  // Defaults for directionA/directionB are intentionally OPPOSING ("increase"
+  // vs "decrease") so the synthesized PlaybookConflict represents a genuine
+  // contradiction even when the caller omits them (matches the engine's
+  // detectConflicts() output shape — Reviewer B P2-1).
+  const directionA = asDirectiveDirection(c?.directionA, "increase");
+  const directionB = asDirectiveDirection(c?.directionB, "decrease");
+  // category defaults to "tactics" — the engine's proposeFromConflict() reads
+  // only ruleIdA/ruleIdB/parameter from the struct (verified line 5111+); this
+  // field is structurally required by PlaybookConflict but not load-bearing.
+  // Routed through asBoundedString for path-consistency with ruleIdA/B + a
+  // documented oversized-string rejection (Reviewer B P1-2). Caller-supplied
+  // category names are NOT enum-validated against the engine's RuleCategory
+  // union — the engine ignores the field, and rule lookup is id-keyed.
+  // If the engine ever grows category-aware resolution logic, revisit by
+  // adding a RuleCategory enum validator alongside asConflictParameter.
+  const category = (asBoundedString(c?.category, RULE_ID_MAX_LEN) ?? "tactics") as RuleCategory;
+  const synthetic: PlaybookConflict = {
+    ruleIdA,
+    ruleIdB,
+    parameter,
+    directionA,
+    directionB,
+    category,
+    sharedContext,
+  };
+  return { success: true, proposal: machiningPlaybookEngine.suggestResolution(synthetic) };
+}
+
+// ---------------------------------------------------------------------------
 // Action routing
 // ---------------------------------------------------------------------------
 
@@ -966,6 +1429,32 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
   tribal_enrich_tips_only: handleTribalEnrichTipsOnly,
   tribal_enrich_playbook_only: handleTribalEnrichPlaybookOnly,
   tribal_enrich_controller_only: handleTribalEnrichControllerOnly,
+  playbook_rules_query: handlePlaybookRulesQuery,
+  playbook_rules_search: handlePlaybookRulesSearch,
+  playbook_rules_safety: handlePlaybookRulesSafety,
+  playbook_rules_stats: handlePlaybookRulesStats,
+  lathe_lora_tribal_augment: handleLatheLoRATribalAugment,
+  lathe_lora_tribal_find_tips: handleLatheLoRATribalFindTips,
+  lathe_lora_tribal_aug_stats: handleLatheLoRATribalAugStats,
+  lathe_lora_tribal_extract: handleLatheLoRATribalExtract,
+  lathe_lora_tribal_extract_batch: handleLatheLoRATribalExtractBatch,
+  lathe_lora_tribal_extractor_stats: handleLatheLoRATribalExtractorStats,
+  tribal_apply: handleTribalApply,
+  tribal_apply_stats: handleTribalApplyStats,
+  playbook_explain: handlePlaybookExplain,
+  playbook_coverage: handlePlaybookCoverage,
+  playbook_quantitative: handlePlaybookQuantitative,
+  playbook_audit: handlePlaybookAudit,
+  playbook_conflicts: handlePlaybookConflicts,
+  playbook_conflicts_ranked: handlePlaybookConflictsRanked,
+  playbook_suggest_resolutions: handlePlaybookSuggestResolutions,
+  playbook_suggest_resolution: handlePlaybookSuggestResolution,
+  playbook_related_graph: handlePlaybookRelatedGraph,
+  playbook_validate_corpus: handlePlaybookValidateCorpus,
+  // Mill-studio AI-reachable training index (MILL-PDF-CORPUS-MS0)
+  mill_training_for_operation: handleMillTrainingForOperation,
+  mill_training_search: handleMillTrainingSearch,
+  mill_training_summary: handleMillTrainingSummary,
 };
 
 // ---------------------------------------------------------------------------

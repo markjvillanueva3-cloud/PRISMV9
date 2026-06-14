@@ -1,0 +1,244 @@
+{
+  "tips": [
+    {
+      "title": "Define virtual tool in XML format",
+      "body": "Create a .vtx file with an ID matching the macro database and place it in the same location.",
+      "category": "tool_selection",
+      "tags": [
+        "virtual_tool",
+        "XML"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.2",
+      "_chunk": 1
+    },
+    {
+      "title": "Set tool data mode to VT",
+      "body": "In hyperMILL, set the Tool Data Mode to 'VT' and use the ID of the virtual tool.",
+      "category": "tool_selection",
+      "tags": [
+        "virtual_tool",
+        "hyperMILL"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.2",
+      "_chunk": 1
+    },
+    {
+      "title": "Use RuleFilter for tool selection",
+      "body": "Define multiple RuleFilters within SearchFilters to combine conditions with 'And' logic.",
+      "category": "tool_selection",
+      "tags": [
+        "rule_filter",
+        "search_filters"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.7",
+      "_chunk": 1
+    },
+    {
+      "title": "Set user variable in PreSearchActions",
+      "body": "Use <Action Type='SetUserVariable'> to define variables before tool search.",
+      "category": "tool_selection",
+      "tags": [
+        "pre_search_actions",
+        "user_variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.6",
+      "_chunk": 1
+    },
+    {
+      "title": "Define post search actions for ToolFound and ToolNotFound",
+      "body": "Use <ToolFound> and <ToolNotFound> to define actions based on whether a tool is found or not.",
+      "category": "tool_selection",
+      "tags": [
+        "post_search_actions",
+        "tool_found"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.9",
+      "_chunk": 1
+    },
+    {
+      "title": "Define select priority for virtual tools",
+      "body": "Set global or local select priorities using <SelectPriority> with multiple <SelectStrategy> elements.",
+      "category": "tool_selection",
+      "tags": [
+        "virtual tool",
+        "select priority"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10-21",
+      "_chunk": 2
+    },
+    {
+      "title": "Supported select strategies",
+      "body": "Four strategies: Min, Max, Sequence, Condition.",
+      "category": "tool_selection",
+      "tags": [
+        "select strategy",
+        "virtual tool"
+      ],
+      "confidence": 95,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.10-21",
+      "_chunk": 2
+    },
+    {
+      "title": "Variable format in virtual tool definition",
+      "body": "Variables use the format Object.Parameter or Object.SubObject::Parameter.",
+      "category": "tool_selection",
+      "tags": [
+        "variable",
+        "virtual tool"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12-13",
+      "_chunk": 2
+    },
+    {
+      "title": "Commonly used tool variables",
+      "body": "List of commonly used parameters like NCTool.UsableLength, MillingTool.Diameter.",
+      "category": "tool_selection",
+      "tags": [
+        "tool variable",
+        "virtual tool"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.12-13",
+      "_chunk": 2
+    },
+    {
+      "title": "MacroTool variables",
+      "body": "Supported parameters include ID, NCNumber, Diameter, CornerRadius.",
+      "category": "tool_selection",
+      "tags": [
+        "macro tool",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.14-16",
+      "_chunk": 2
+    },
+    {
+      "title": "Feature variables",
+      "body": "Combine main parameters with base object parameters using :: separator.",
+      "category": "tool_selection",
+      "tags": [
+        "feature variable",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.17-20",
+      "_chunk": 2
+    },
+    {
+      "title": "Connector variables",
+      "body": "Return parameters of current active feature connection item, e.g., Connector.Diameter.",
+      "category": "tool_selection",
+      "tags": [
+        "connector variable",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2
+    },
+    {
+      "title": "JobCfg variables",
+      "body": "Can be used as variables, e.g., JobCfg.*Comment.",
+      "category": "tool_selection",
+      "tags": [
+        "jobcfg variable",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2
+    },
+    {
+      "title": "Joblist variables",
+      "body": "Select machine and material in joblist, e.g., Joblist.Machine.",
+      "category": "tool_selection",
+      "tags": [
+        "joblist variable",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2
+    },
+    {
+      "title": "Macro variables",
+      "body": "Define machine and material groups in macro, e.g., Macro.MachineGroup.",
+      "category": "tool_selection",
+      "tags": [
+        "macro variable",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2
+    },
+    {
+      "title": "Window system environment variables",
+      "body": "Return values of window system environment variables, e.g., EnvVariable.USERNAME.",
+      "category": "tool_selection",
+      "tags": [
+        "environment variable",
+        "variable"
+      ],
+      "confidence": 85,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.20",
+      "_chunk": 2
+    }
+  ],
+  "formulas": [],
+  "parameter_tables": [],
+  "extraction_stats": {
+    "source_pdf": "H:/prism/Resources/OPEN MIND/hyperMILL/31.0/addins project/hmAutoColor/doc/documents/Virtual Tool Format Reference.pdf",
+    "title": "Virtual Tool Format Reference",
+    "force_domain": null,
+    "backend": "ollama",
+    "model": "qwen2.5-coder:7b",
+    "page_count": 21,
+    "chunk_count": 2,
+    "tips_total": 16,
+    "tips_unique": 16,
+    "formulas_total": 0,
+    "tables_total": 0,
+    "chunk_errors": 0
+  }
+}

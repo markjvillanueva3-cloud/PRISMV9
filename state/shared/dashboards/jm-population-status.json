@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-06-03T05:01:47.485Z",
+  "milestone": "JM-DOC-POPULATION-MS0",
+  "total_documents": 554999,
+  "shipped_coverage_pct": 67.034,
+  "shipped_volume": 372036,
+  "deferred_volume": 1036,
+  "pending_volume": 179202,
+  "by_disposition": {
+    "consumed": 179201,
+    "indexed-only": 144973,
+    "viewer-only": 85345,
+    "metadata": 142622,
+    "unrouted-misc": 2858,
+    "malformed-line": 0
+  },
+  "tuples": {
+    "shipped": 21,
+    "deferred": 2,
+    "pending": 6
+  },
+  "pending_detail": [
+    {
+      "tuple": "jm_die_category/program",
+      "count": 140215,
+      "disposition": "consumed",
+      "unit": "U-JMDOC03",
+      "owner": "coord:echo+kilo"
+    },
+    {
+      "tuple": "part_library/program",
+      "count": 25976,
+      "disposition": "consumed",
+      "unit": "U-JMDOC03",
+      "owner": "coord:echo+kilo"
+    },
+    {
+      "tuple": "jm_die_category/cad",
+      "count": 7285,
+      "disposition": "consumed",
+      "unit": "U-JMDOC04",
+      "owner": "coord:delta"
+    },
+    {
+      "tuple": "part_library/cad",
+      "count": 5709,
+      "disposition": "consumed",
+      "unit": "U-JMDOC04",
+      "owner": "coord:delta"
+    },
+    {
+      "tuple": "jm_die_category/setup",
+      "count": 16,
+      "disposition": "consumed",
+      "unit": "U-JMDOC06",
+      "owner": "coord:foxtrot"
+    },
+    {
+      "tuple": "docustrata_manifest/packing_slip",
+      "count": 1,
+      "disposition": "metadata",
+      "unit": "U-JMDOC09",
+      "owner": "coord:charlie"
+    }
+  ],
+  "customers": 474,
+  "corpus_customers": 473,
+  "crm_seeded_docs": 147791,
+  "financial_guarded": 34452,
+  "gate_green": true,
+  "sources": {
+    "ledger": "state/shared/databases/jm-document-ledger-summary.json",
+    "registry": "state/shared/databases/jm-doc-bridge-registry.json",
+    "corpus": "state/shared/databases/jm-corpus-summary.json"
+  }
+}

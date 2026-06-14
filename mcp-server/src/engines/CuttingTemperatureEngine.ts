@@ -22,7 +22,7 @@
  * Actions: cutting_temperature_calc
  */
 
-import { resolveMaterial } from "../physics/constants.js";
+import { resolveMaterial, buildMaterialPhysics } from "../physics/constants.js";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -86,7 +86,9 @@ const MAT_THERMAL_OVERRIDES: Record<string, {
 
 /** Resolve thermal properties: conductivity from canonical DB, rest from overrides. */
 function getMatThermal(mat: string): { kc_base: number; conductivity: number; melting_point: number } {
-  const canonical = resolveMaterial(mat);
+  // resolveMaterial returns MaterialEntry | undefined; buildMaterialPhysics
+  // backstops with a complete, runtime-safe generic material (k_thermal set).
+  const canonical = resolveMaterial(mat) ?? buildMaterialPhysics({ name: mat });
   const overrides = MAT_THERMAL_OVERRIDES[mat] ?? MAT_THERMAL_OVERRIDES.steel;
   return {
     kc_base: overrides.kc_base,

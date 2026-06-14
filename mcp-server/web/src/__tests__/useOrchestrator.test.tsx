@@ -63,7 +63,8 @@ describe('useOrchestrator hooks', () => {
       expect(result.current.tier).toBe('multi_domain');
     });
 
-    expect(response?.task_id).toBe('TASK-1');
+    // Cast: closure assignment of response is invisible to TS control-flow.
+    expect((response as { task_id?: string } | null)?.task_id).toBe('TASK-1');
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v1/orchestration/unified/execute',
       expect.objectContaining({

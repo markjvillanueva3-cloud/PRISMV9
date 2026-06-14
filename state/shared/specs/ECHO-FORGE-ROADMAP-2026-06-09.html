@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="90946709bcffe7482ed5c4c299ac84c983dc5e59def371afa1148a29b96e660f">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Echo Forge Roadmap v2</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Echo Forge Roadmap v2</h1>
+<div class="meta">rendered from state/shared/specs/ECHO-FORGE-ROADMAP-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-09T19:00:35.829Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">ECHO FORGE ROADMAP (v2 — H-drive-wide ultracode synthesis)</li><li class="prism-toc-l2">Method (rate-limit-safe; Ollama bulk + ultracode synthesis)</li><li class="prism-toc-l2">Verification + corrections (R12 — I checked the load-bearing claims)</li><li class="prism-toc-l1">PRISM Echo (Post-Processor) Galaxy Finalization Roadmap</li><li class="prism-toc-l2">Executive Summary</li><li class="prism-toc-l2">Shipped Reconciliation (do NOT re-propose)</li><li class="prism-toc-l2">Phases</li><li class="prism-toc-l3">PHASE 0 -- Pre-Diligence Hygiene (cheapest, no dependencies)</li><li class="prism-toc-l3">PHASE 1 -- Make the Masked Engines Real (verifiable cores, before exposure)</li><li class="prism-toc-l3">PHASE 2 -- Expose the Post Surface (consumer atop now-proven engines)</li><li class="prism-toc-l3">PHASE 3 -- Golden-NC CI Gate (proves correctness before any live machine)</li><li class="prism-toc-l3">PHASE 4 -- Learning Loop (closed-loop auto-tap on proven feedback path)</li><li class="prism-toc-l3">PHASE 5 -- CIMCO Read-Report Wire (close the last sim verdict gap)</li><li class="prism-toc-l3">PHASE 6 -- LIVE Operator-Gated CIMCO Loop (the north-star)</li><li class="prism-toc-l3">PHASE 7 -- Hardening + Polish (last)</li><li class="prism-toc-l2">Critical Path to &quot;Closed-Loop Testing on All 15 JM Machines&quot;</li><li class="prism-toc-l2">Operator Decisions Required</li><li class="prism-toc-l2">Top Risks</li><li class="prism-toc-l2">Provenance</li></ul></nav><h1 class="prism-h1">ECHO FORGE ROADMAP (v2 — H-drive-wide ultracode synthesis)</h1>
+<p><strong>Date:</strong> 2026-06-09 · <strong>Slot:</strong> echo (post-processors) · <strong>Branch:</strong> cad-fusion-live-ms0 <strong>Supersedes:</strong> v1 (commit <code class="prism-inline-code">e5ef8227</code>, 7-slice Ollama dive). This v2 is the broader, ultracode-synthesized version the operator requested.</p>
+<h2 class="prism-h2">Method (rate-limit-safe; Ollama bulk + ultracode synthesis)</h2>
+<ol class="prism-md-list"><li><strong>Deep-dive = LOCAL Ollama</strong> (<code class="prism-inline-code">qwen2.5-coder:32b</code>, <strong>17 corpus slices</strong> across ALL echo + post-processor work on H: — specs, the 89K adversarial digest, galaxy MEMORY/synthesis/KB, Hurco/india/consolidation specs, open handoff threads. Zero Claude API.) -&gt; <code class="prism-inline-code">state/shared/cimco/echo-forge-dive.{json,md}</code>.</li><li><strong>Synthesis = ultracode Workflow</strong> (<code class="prism-inline-code">wf_71586f0f-084</code>): 3 strategic-lens agents (closed-loop / product-launch / learning+cross-domain) -&gt; 1 synthesis agent. Bounded 4-agent fan-out (the first attempt rate-limited at 6+; this one completed clean, 844K subagent tokens).</li><li><strong>Ground truth = git</strong> (the dive read PLAN docs and over-lists shipped work; the synthesis subtracted the git-verified shipped set).</li></ol>
+<h2 class="prism-h2">Verification + corrections (R12 — I checked the load-bearing claims)</h2>
+<ul class="prism-md-list"><li><strong>VERIFIED:</strong> <code class="prism-inline-code">registerPPDispatcher</code> IS commented out at <code class="prism-inline-code">src/index.ts:229</code> and <code class="prism-inline-code">:739</code> (<code class="prism-inline-code">// NOT ON THIS BRANCH</code>); <code class="prism-inline-code">ppDispatcher.ts</code> exists with <strong>802 cases</strong>. The <code class="prism-inline-code">prism_pp</code> post surface is genuinely dark. <strong>Caveat:</strong> it is disabled as <code class="prism-inline-code">NOT ON THIS BRANCH</code> alongside agentDispatcher + resourceHarvestingDispatcher — likely a deliberate branch-scope decision, so <code class="prism-inline-code">U-PP-DISPATCHER-REGISTER</code> must start with a build check (uncommenting may surface branch-specific compile errors), not a blind uncomment.</li><li><strong>CORRECTION:</strong> <code class="prism-inline-code">U-CIMCO-SIM-1A-P2</code> (read-report -&gt; sim-driver wire) is listed below as <code class="prism-inline-code">[NOW]</code> pending, but it <strong>SHIPPED THIS SESSION</strong> (driver <code class="prism-inline-code">read-report</code> mode + <code class="prism-inline-code">assessReadReport</code> + 12 tests, 52/52 green; commit follows this file). Treat Phase 5&#39;s first row as DONE.</li></ul>
+<hr class="prism-hr">
+<h1 class="prism-h1">PRISM Echo (Post-Processor) Galaxy Finalization Roadmap</h1>
+<h2 class="prism-h2">Executive Summary</h2>
+<p>Echo is approximately 80 percent of the way to its north-star. The CIMCO closed-loop spine is fully shipped end to end at the engine + scripting layer (SPINE-1 verification bridge with <code class="prism-inline-code">prism_cimco</code> 12 actions, SIM-2..7 covering sim-driver, UI-map FSM, bind gate, completion gate, the 5-gate <code class="prism-inline-code">assessLiveRunClearance</code>, and the SIM-7 fleet rollup that already classifies 12 sim-able + 3 EDM-routed machines), plus the entire POST-BRIDGE-SYNERGY envelope (V11 fixes, EMIT-<em>, NOVEL-</em>, CAM add-ins) and the 2,588-row alarm DB wired at Stage 5.1b. The remaining work is NOT new physics; it is (1) closing the last read-report wire so the sim verdict is real and not faked [DONE this session], (2) lighting up the dark <code class="prism-inline-code">prism_pp</code> tool surface so the post engines are actually reachable, (3) making the masked WEDM/lathe/AGI engines real, (4) building the launch-readiness CI + learning loop, and (5) the operator-gated LIVE interactive CIMCO loop and legal sign-off. The critical path to &quot;closed-loop testing on all 15 JM machines&quot; is short and almost entirely [NOW]-buildable up to the single operator action of opening CIMCO Edit interactively on VMC-01.</p>
+<h2 class="prism-h2">Shipped Reconciliation (do NOT re-propose)</h2>
+<p>SHIPPED: CIMCO SPINE-1 (CimcoVerificationBridgeEngine + prism_cimco 12 actions) + SPINE-2 SIM-2..7 (sim-driver, ui-map FSM, bind gate, completion gate, 5-gate assessLiveRunClearance, fleet rollup 12 sim + 3 EDM) + U-CIMCO-SIM-1A PART 1 (commit 01c53f6872: C# --op read-report MSAA reader + cimco-report-normalize.mjs + 15 tests) + <strong>U-CIMCO-SIM-1A PART 2 (this session: sim-driver read-report mode + assessReadReport + 12 tests)</strong> + POST-BRIDGE-SYNERGY envelope (~40 units: V11 x6, EMIT-<em>, NOVEL-</em> x5, Mastercam/hyperMILL/Inventor add-ins, BRIDGE-CONTRACT-VERIFY) + alarm-DB (2,588 rows) wired at Stage 5.1b.</p>
+<h2 class="prism-h2">Phases</h2>
+<h3 class="prism-h3">PHASE 0 -- Pre-Diligence Hygiene (cheapest, no dependencies)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-ECHO-FINETUNE-RED-GREEN</td><td>Green the 2 RED specs in MasterPostFineTuningEngine.test.ts (getConfidenceScore stability not in {stable,converging}); 44/46 -&gt; 46/46</td><td>[NOW]</td><td>h</td><td>none</td><td><code class="prism-inline-code">vitest run MasterPostFineTuningEngine.test.ts</code> reports 46/46 pass, 0 RED</td></tr>
+<tr><td>U-PP-MISSING-ENGINE-TESTS</td><td>Add the 7 absent engine tests: ThermalWearCoupling / ConstitutiveModel / PredictionCalibration / BoringBarDeflection / InstantaneousEngagement / SpeedFeedOrchestrator / EngagementAdaptiveFeed</td><td>[NOW]</td><td>w</td><td>none</td><td>7 new <code class="prism-inline-code">*.test.ts</code> files exist, each with real reference-value asserts (no toBeDefined stubs), all green</td></tr>
+<tr><td>U-PP-KIENZLE-EMIT-REGRESSION</td><td>Kienzle -&gt; feed/RPM emit-boundary regression test through PostProcessorPipelineEngine P1; assert emitted F/S equals physics-core output</td><td>[NOW]</td><td>d</td><td>none</td><td>test fails if emitted F/S drifts from physics-core value; passes at parity on Hurco/Okuma/Haas goldens</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 1 -- Make the Masked Engines Real (verifiable cores, before exposure)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-ECHO-WEDM-DIALECT-UNMASK</td><td>Make Sodick/Makino/Agie/Fanuc WEDM posts REAL + reachable (drop the engine.method?.() mask); Mitsubishi already real</td><td>[NOW]</td><td>1.5d</td><td>none</td><td>each of 4 engines emits a real NC string proven byte-equiv vs its golden; no method?.() mask remains in grep</td></tr>
+<tr><td>U-PP-LATHE-LEARNERS-REAL</td><td>Un-dark the 3 lathe learners: LathePostProcessorAIEngine (73K, largest dark), JMDiePostProcessorLearningEngine, LathePostGeneratorActiveLearningEngine -&gt; &gt;=1 real executing path each</td><td>[NOW]</td><td>w</td><td>none</td><td>each engine has &gt;=1 real method executing real logic (not stub-return), unit-tested with a reference assertion</td></tr>
+<tr><td>U-PP-AGI-SURFACE</td><td>Give the ~14 AGI engines &gt;=1 REAL case each: MasterPostProcessorUnifiedAGIEngine, MachineFingerprintEngine, CrossCAMPostEngine, HybridPostMergeEngine, NovelPostProcessorBridgeEngine, PostProcessorTransformerEngine, PostProcessorAGIContinuousLearningEngine</td><td>[NOW]</td><td>w</td><td>none</td><td>each engine imported + invoked by a real ppDispatcher case returning real output, round-trip asserted</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 2 -- Expose the Post Surface (consumer atop now-proven engines)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-PP-DISPATCHER-REGISTER</td><td>Uncomment + wire registerPPDispatcher at src/index.ts:229/739 so prism_pp (ppDispatcher.ts, 802 cases) is exposed. <strong>START with a build check</strong> -- it is disabled <code class="prism-inline-code">NOT ON THIS BRANCH</code>, so confirm it compiles on cad-fusion-live-ms0 before relying on the uncomment</td><td>[NOW]</td><td>d</td><td>U-ECHO-WEDM-DIALECT-UNMASK, U-PP-LATHE-LEARNERS-REAL, U-PP-AGI-SURFACE</td><td>prism_pp appears in the live MCP tool list; a smoke action round-trips through the dispatcher and returns real output; no &quot;NOT ON THIS BRANCH&quot; comment remains; build green</td></tr>
+<tr><td>U-MASTERPOST-FACADE</td><td>Declare ONE canonical MasterPost facade over MasterPostProcessor{UnifiedAGI,Genius,AGIOrchestration}Engine so consumers bind one entry, not 4</td><td>[NOW]</td><td>d</td><td>U-PP-DISPATCHER-REGISTER</td><td>a single facade module is the sole import for MasterPost consumers; the 4 underlying engines reachable only through it; test asserts each route resolves</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 3 -- Golden-NC CI Gate (proves correctness before any live machine)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-ECHO-GOLDEN-NC-CI</td><td>Golden-NC byte-equivalence CI harness adding Fanuc/Siemens/Heidenhain to the proven Hurco/Okuma/Haas (covers the 3 EDM-routed + non-sim controllers); no golden*nc harness currently exists in src/__tests__</td><td>[NOW]</td><td>w</td><td>U-ECHO-WEDM-DIALECT-UNMASK, U-PP-DISPATCHER-REGISTER</td><td>CI workflow gates &gt;=6 controllers (Hurco/Okuma/Haas/Fanuc/Siemens/Heidenhain) on byte-equiv vs golden; red on any drift</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 4 -- Learning Loop (closed-loop auto-tap on proven feedback path)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-ECHO-FEEDBACKBUS-SUBSCRIBER</td><td>Add the FeedbackBus -&gt; MasterPostFineTuningEngine.recordActualVsPredicted subscriber + de-circularize the reward (score actual-vs-golden, not predicted-vs-predicted)</td><td>[NOW]</td><td>d</td><td>U-ECHO-FINETUNE-RED-GREEN</td><td>a FeedbackBus event triggers recordActualVsPredicted automatically; reward scores against golden NC, test proves no predicted-vs-predicted circularity</td></tr>
+<tr><td>U-ECHO-JMPOST-FEEDER</td><td>Add learnFromModified(modifiedPost) ingestion + vendor-branching so operator-edited JM .cps deltas feed the loop (currently zero JM-post feeder)</td><td>[NOW]</td><td>d</td><td>U-ECHO-FEEDBACKBUS-SUBSCRIBER</td><td>feeding a modified JM .cps delta produces a recorded training triple tagged by vendor; asserted on a real JM sample</td></tr>
+<tr><td>U-PP-THERMAL-LITERATURE</td><td>Replace the linear T_cut hack in MasterPostFineTuning&#39;s reward with a literature thermal model (cited constants, imported from constants.ts, never inlined)</td><td>[NOW]</td><td>d</td><td>U-ECHO-FINETUNE-RED-GREEN</td><td>reward uses a cited thermal model; constants sourced from physics/constants.ts; test asserts non-linear T_cut response vs a reference point</td></tr>
+<tr><td>U-ECHO-NN-REAL-TRAIN</td><td>Replace _trainingHistory.push accumulator with a real PostProcessorNeuralNetworkEngine.train() (epoch loop over the triples + backprop)</td><td>[india]</td><td>1.5d</td><td>U-ECHO-JMPOST-FEEDER</td><td>train() runs an epoch loop reducing loss on a held set; test asserts loss decreases across epochs (not a no-op push)</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 5 -- CIMCO Read-Report Wire (close the last sim verdict gap)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-CIMCO-SIM-1A-P2</td><td><strong>SHIPPED THIS SESSION</strong> -- sim-driver <code class="prism-inline-code">read-report</code> mode consuming the part-1 C# reader + cimco-report-normalize.mjs; assessReadReport gates clearance on a real (grid/textscrape/empty) read; 12 tests</td><td>[DONE]</td><td>--</td><td>PART 1 (01c53f6872)</td><td>DONE: <code class="prism-inline-code">node --test scripts/cimco-sim-driver.test.mjs</code> 52/52; a blocked/opaque read never clears</td></tr>
+<tr><td>U-CIMCO-FSM-LIVE-DRIVE</td><td>FSM live drive chain in the sim-driver: navigate (PrismCimcoUI map/find/window-info) -&gt; run -&gt; read-report -&gt; feed assessLiveRunClearance 5-gate</td><td>[NOW]</td><td>2-3d</td><td>U-CIMCO-SIM-1A-P2 (done)</td><td>the full FSM chain executes navigate-&gt;run-&gt;read-report-&gt;assessLiveRunClearance end to end in a dry/recorded harness, returning a 5-gate clearance verdict</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 6 -- LIVE Operator-Gated CIMCO Loop (the north-star)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-LEGAL-13</td><td>Operator legal gate: confirm public-manuals-only provenance before any post ships to a live machine</td><td>[OP-GATED]</td><td>h</td><td>none</td><td>operator records a public-manuals-only provenance sign-off; no post ships to a live machine without it</td></tr>
+<tr><td>U-CIMCO-OPEN-VMC01</td><td>Operator opens CIMCO Edit interactively on VMC-01 (Codejock/Machine-Sim ribbon realizes only in a foreground session); confirm Machine-Sim enabled</td><td>[OP-GATED]</td><td>h</td><td>U-CIMCO-FSM-LIVE-DRIVE</td><td>CIMCO Edit is open in a foreground session on VMC-01 with Machine-Sim confirmed enabled; PrismCimcoUI window-info resolves the ribbon</td></tr>
+<tr><td>U-CIMCO-LIVE-E2E-VMC01</td><td>First live closed-loop E2E on VMC-01: post -&gt; NC -&gt; CIMCO sim -&gt; read-report -&gt; cimco_live_run_clearance, with a real JM part</td><td>[OP-GATED]</td><td>d</td><td>U-CIMCO-OPEN-VMC01, U-LEGAL-13</td><td>a real JM part runs the full post-&gt;sim-&gt;read-report-&gt;clearance loop on VMC-01 and emits a recorded clearance verdict</td></tr>
+<tr><td>U-CIMCO-FLEET-ROLLOUT</td><td>Roll the proven loop across the 12 sim-able machines + confirm the 3 EDM-routed machines fall through to the EDM path (SIM-7 rollup lists them)</td><td>[OP-GATED]</td><td>2-3d</td><td>U-CIMCO-LIVE-E2E-VMC01</td><td>all 12 sim-able machines pass a live loop; the 3 EDM-routed machines confirmed routing to EDM path; 15/15 fleet accounted for</td></tr></tbody></table>
+<h3 class="prism-h3">PHASE 7 -- Hardening + Polish (last)</h3>
+<table class="prism-md-table"><thead><tr><th>id</th><th>what</th><th>tag</th><th>effort</th><th>dependency</th><th>done-when</th></tr></thead><tbody><tr><td>U-ECHO-HURCO-DNC-CHAIN</td><td>Wire the proven Hurco chain end to end: CAM -&gt; MillOperation[] -&gt; HurcoV11MillMasterPostEngine.post() -&gt; SLD/deflection/Ra/thermal per-op gates -&gt; S(x)&gt;=0.98 block -&gt; winmax-driver --load --verify roundtrip -&gt; cycle-time/quote/job-status emit</td><td>[NOW]</td><td>w</td><td>U-ECHO-GOLDEN-NC-CI, U-PP-DISPATCHER-REGISTER</td><td>full Hurco chain runs CAM-to-WinMax roundtrip with per-op physics gates and S(x)&gt;=0.98 block enforced; emits cycle-time/quote/job-status on a real JM part</td></tr></tbody></table>
+<h2 class="prism-h2">Critical Path to &quot;Closed-Loop Testing on All 15 JM Machines&quot;</h2>
+<p>The exact minimal sequence (everything off this path can run in parallel or defer):</p>
+<pre class="prism-codeblock"><code>U-CIMCO-SIM-1A-P2   [DONE this session]   wire read-report into sim-driver
+   -&gt; U-CIMCO-FSM-LIVE-DRIVE   [NOW, ~2-3d]   navigate-&gt;run-&gt;read-report-&gt;5-gate
+       -&gt; U-LEGAL-13   [OP-GATED, ~1h]   (parallel, no dep) legal sign-off
+       -&gt; U-CIMCO-OPEN-VMC01   [OP-GATED, ~1h]   operator opens CIMCO foreground
+           -&gt; U-CIMCO-LIVE-E2E-VMC01   [OP-GATED, ~1d]   first live loop on VMC-01
+               -&gt; U-CIMCO-FLEET-ROLLOUT   [OP-GATED, ~2-3d]   12 sim + 3 EDM-routed = 15/15</code></pre>
+<p>With P2 now shipped, the ONLY remaining [NOW] technical prerequisite on the critical path is <strong>U-CIMCO-FSM-LIVE-DRIVE (~2-3 days)</strong>. Everything after is operator-gated. The dark-engine / dispatcher / CI / learning phases (0-4, 7) are launch-quality hardening and do NOT block the first live loop, EXCEPT U-LEGAL-13 must clear before any post ships to a physical machine. Fastest path: build FSM-LIVE-DRIVE now, run U-LEGAL-13 in parallel, then hand to the operator.</p>
+<h2 class="prism-h2">Operator Decisions Required</h2>
+<ul class="prism-md-list"><li><strong>U-LEGAL-13</strong>: confirm public-manuals-only provenance for the dialect/post corpus before any post reaches a live machine (legal, not technical). Blocks U-CIMCO-LIVE-E2E-VMC01.</li><li><strong>U-CIMCO-OPEN-VMC01</strong>: operator must open CIMCO Edit interactively in a foreground session on VMC-01 (the Codejock/Machine-Sim ribbon does not realize headless/background). Hard blocker on the live loop -- no code path around it (proven across 4 SIM-realize probes).</li><li><strong>Fleet-rollout scheduling</strong>: when to take each of the 12 sim-able machines for a live-loop window; confirm the 3 EDM-routed machines fall through to the EDM path rather than CIMCO sim.</li><li><strong>india hand-off</strong>: confirm U-ECHO-NN-REAL-TRAIN (real backprop loop) is owned by india vs echo (shares the triple schema with the learning loop).</li></ul>
+<h2 class="prism-h2">Top Risks</h2>
+<ul class="prism-md-list"><li><strong>FOREGROUND-SESSION BLOCKER</strong>: the ribbon realizing only interactively is unverified at scale -- if window-info cannot resolve the ribbon under automation, FSM live drive stalls. Mitigation: prove window-info ribbon resolution in U-CIMCO-FSM-LIVE-DRIVE before the operator opens VMC-01.</li><li><strong>EXPOSING MASKED ENGINES</strong>: registering prism_pp before the WEDM/lathe/AGI masks are dropped would surface stub-returning cases as live tools -- Phase 1 before Phase 2 is mandatory.</li><li><strong>REWARD CIRCULARITY</strong>: if the FeedbackBus subscriber scores predicted-vs-predicted, the learning loop optimizes a tautology -- the de-circularization assert is load-bearing.</li><li><strong>GOLDEN COVERAGE GAP</strong>: the 3 EDM-routed + non-sim controllers are NOT validated by CIMCO sim; golden-NC CI must cover Fanuc/Siemens/Heidenhain or they reach &quot;tested&quot; with no byte-equiv gate.</li><li><strong>EMIT-BOUNDARY DRIFT</strong>: physics-core F/S diverging at P1 would pass live sim yet cut wrong -- U-PP-KIENZLE-EMIT-REGRESSION must gate every post path.</li></ul>
+<h2 class="prism-h2">Provenance</h2>
+<ul class="prism-md-list"><li>Ollama deep-dive: <code class="prism-inline-code">state/shared/cimco/echo-forge-dive.{json,md}</code> (17 slices, qwen2.5-coder:32b)</li><li>ultracode Workflow: <code class="prism-inline-code">wf_71586f0f-084</code> (3 lens + 1 synthesis, 4 agents, 844K subagent tokens)</li><li>Verification: <code class="prism-inline-code">src/index.ts:229/739</code> (prism_pp commented), <code class="prism-inline-code">ppDispatcher.ts</code> (802 cases) -- grep-confirmed</li><li>v1 (superseded): commit <code class="prism-inline-code">e5ef8227</code></li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

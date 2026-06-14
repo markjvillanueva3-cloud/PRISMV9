@@ -1,8 +1,9 @@
 ---
 name: skill-lint
 description: Run the static skill-quality linter over PRISM's skill library — flags lazy hand-wave language, bodies past the 500-line cap, descriptions with too few trigger phrases, leftover unfinished-skill markers, and over-long descriptions. Use when asked to "lint my skills", "check skill quality", "find vague language in a skill", "audit the skill library", "which skills are over 500 lines", or "show the skill-lint report".
+composes_with:
+  - "/wiki-lint"
 ---
-
 # /skill-lint — static skill-quality linter (U-SKU03)
 
 A fast, no-LLM check over every skill file (`~/.claude/commands/*.md`, project

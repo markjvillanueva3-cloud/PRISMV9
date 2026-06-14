@@ -9,6 +9,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming, writeGraphStreamingAtomic } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -27,7 +28,7 @@ function richness(n) {
 }
 
 const t0 = Date.now();
-const G = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+const G = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
 
 const byId = new Map();
 const dupGroups = new Map();
@@ -69,7 +70,7 @@ G.nodes = out;
 G.dedupedAt = new Date().toISOString();
 G.dedupStats = { duplicateGroups: dupGroups.size, nodesRemoved: merged, before, after: G.nodes.length };
 
-fs.writeFileSync(GRAPH, JSON.stringify(G));
+writeGraphStreamingAtomic(GRAPH, G);  // per-element+atomic: JSON.stringify(G) throws Invalid-string-length at >512MiB (U-VIZ-POSTMERGE-CAPSAFE 2026-06-10)
 const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
 console.log(`deduped in ${elapsed}s`);
 console.log(`  duplicate id groups: ${dupGroups.size}`);

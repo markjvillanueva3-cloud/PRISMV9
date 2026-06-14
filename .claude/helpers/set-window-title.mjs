@@ -18,7 +18,9 @@ import { dirname } from "node:path";
 import os from "node:os";
 
 const IS_WIN = process.platform === "win32";
-const MAX_TITLE_LEN = 80;
+// Exported so title-matching consumers (e.g. scripts/lib/resolve-hwnd-by-title.mjs)
+// can reason about truncation against the SAME cap this module stamps with.
+export const MAX_TITLE_LEN = 80;
 const PS_TIMEOUT_MS = 5000;
 const MAX_ANCESTRY_HOPS = 12;
 const ATTACH_PARENT_PROCESS = 4294967295; // (DWORD)-1 — Win32 ATTACH_PARENT_PROCESS

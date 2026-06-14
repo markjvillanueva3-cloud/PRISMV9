@@ -21,6 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -118,7 +119,7 @@ function shouldSkip(dirPath) {
 
 function generate() {
   const idx = JSON.parse(fs.readFileSync(DIR_INDEX, "utf8"));
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
   const existingIds = new Set(graph.nodes.map(n => n.id));
 
   const newNodes = [];

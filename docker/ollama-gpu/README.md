@@ -1,7 +1,8 @@
 # Ollama GPU — containerized, GPU-resident, model-preloaded
 
-REAPER-PERMFIX-MS1 / U-D1+U-D2. Turns the host's idle RTX 4080 SUPER
-(~15 GB free VRAM, observed ~16–27 % utilization) into a persistent local
+REAPER-PERMFIX-MS1 / U-D1+U-D2 (retuned 2026-06-04 BLACKWELL-GPU-SWAP).
+Turns the host's idle RTX PRO 6000 Blackwell 96GB (~85 GB free VRAM; was a
+16GB RTX 4080 SUPER) into a persistent local
 inference engine so PRISM's Ollama offload path (`/ollama-*` skills,
 `ollama-task-offloader.mjs`, `ollama-auto-router.mjs`) gets a sub-100 ms
 first token instead of a 30–90 s cold load.
@@ -75,13 +76,13 @@ PRELOAD_MODELS="qwen2.5-coder:14b" docker compose \
 | Model | Pull size | VRAM (q4_K_M) | Role |
 |-------|-----------|----------------|------|
 | `qwen2.5-coder:7b`  | ~4.7 GB | ~5 GB  | Offload workhorse — code explain/summarize/classify/lint (CLAUDE.md AI routing) |
-| `qwen2.5-coder:14b` | ~9 GB   | ~10 GB | Pure-GPU-resident sweet spot for the 16 GB card |
-| `qwen2.5-coder:32b` | ~20 GB  | ~18 GB | Heaviest; exceeds 16 GB → partial CPU offload. Use only if you accept the spill |
+| `qwen2.5-coder:14b` | ~9 GB   | ~10 GB | Mid-tier; fully GPU-resident with ease on the 96GB Blackwell |
+| `qwen2.5-coder:32b` | ~20 GB  | ~18 GB | Heaviest; **fully GPU-resident** on the 96GB Blackwell (was a CPU-spill compromise on the old 16GB card) — preferred heavy model now |
 
 **Default (`qwen2.5-coder:7b qwen2.5-coder:32b`)** follows the
-REAPER-PERMFIX plan. If you want a *fully* GPU-resident heavy model with no
-CPU spill on the 16 GB card, set `PRELOAD_MODELS="qwen2.5-coder:7b
-qwen2.5-coder:14b"` instead.
+REAPER-PERMFIX plan and is fully GPU-resident on the 96GB Blackwell — no CPU
+spill (unlike the old 16GB card, where 32b required a `qwen2.5-coder:14b`
+downgrade to stay pure-GPU).
 
 ## Teardown / reversal
 
@@ -95,7 +96,7 @@ preload service. The persistent volume (pulled models) survives either way.
 
 ## Why this matters for the fleet
 
-PRISM runs up to 13 concurrent chats. Every chat that routes a
+PRISM runs up to 26 concurrent chats. Every chat that routes a
 summarize/classify/lint task to a *cold* Ollama waits 30–90 s; with a
 GPU-resident model that drops to <100 ms. The REAPER-PERMFIX plan's
 Ollama-offload-rate target is ≥30 % (was 22.2 %) — cold-load latency is a

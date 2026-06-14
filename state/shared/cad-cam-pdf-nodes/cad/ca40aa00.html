@@ -1,0 +1,5912 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>simulation_theory_manual</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>simulation_theory_manual</h1>
+<dl>
+<dt>Domain</dt><dd>cad</dd>
+<dt>Software</dt><dd>solidworks</dd>
+<dt>Path</dt><dd><code>SOLIDWORKS/SOLIDWORKS Corp/SOLIDWORKS/lang/english/simulation_theory_manual.pdf</code></dd>
+<dt>Pages</dt><dd>116</dd>
+<dt>Text chars</dt><dd>119626</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>THEORETICAL MANUAL
+SOLIDWORKS Simulation
+
+-- 1 of 116 --
+
+
+
+-- 2 of 116 --
+
+1
+Table of Contents
+Introduction ..................................................................................................................................... 3
+Chapter 1. 	Fundamental Relations for Linearly Elastic Solids .................................................. 6
+1.1. 	Stresses ............................................................................................................................. 7
+1.1.1. 	Stress Matrix ............................................................................................................. 7
+1.1.2. 	Rotated Coordinate Systems ................................................................................... 10
+1.1.3. 	Principal Stresses .................................................................................................... 14
+1.1.4. 	Equations of Equilibrium ........................................................................................ 16
+1.2. 	Strains ............................................................................................................................. 17
+1.2.1. 	Strain Matrix ........................................................................................................... 17
+1.2.2. 	Rotated Coordinate Axes ........................................................................................ 19
+1.2.3. 	Principal Strains ...................................................................................................... 21
+1.3. 	Stress-Strain Relations ................................................................................................... 21
+1.3.1. 	Anisotropic Material ............................................................................................... 21
+1.3.2. 	Plane Strain ............................................................................................................. 26
+1.3.3. 	Plane Stress ............................................................................................................. 28
+1.3.4. 	Axisymmetric Stress State ...................................................................................... 31
+Chapter 2. 	The Finite Element Method .................................................................................... 36
+2.1. 	The Principle of Minimum Potential Energy ................................................................. 37
+2.2. 	Strain Energy Expressions for Beams, Plates and Shells ............................................... 38
+2.2.1. 	Straight Beams ........................................................................................................ 39
+2.2.2. 	Flat Plates ................................................................................................................ 43
+2.3. 	The Finite Element Method............................................................................................ 47
+2.4. 	Interpolation Functions .................................................................................................. 51
+2.5. 	Isoparametric Elements .................................................................................................. 54
+2.6. 	Numerical Integration .................................................................................................... 57
+2.7. 	Reduced Integration ....................................................................................................... 59
+2.8. 	Solution of simultaneous Linear Expressions ................................................................ 59
+2.9. 	Stress Calculations ......................................................................................................... 60
+
+-- 3 of 116 --
+
+2
+Chapter 3. 	Vibration Frequencies of Structures ....................................................................... 61
+3.1. 	Vibration Modes and Frequencies.................................................................................. 62
+3.2. 	Finite Element Analysis ................................................................................................. 62
+3.3. 	Solution of Linear Eigenvalue Problems ....................................................................... 64
+3.3.1. 	Subspace Iteration[11, 13] .......................................................................................... 65
+3.3.2. 	Lanczos Algorithm.................................................................................................. 66
+Chapter 4. 	Buckling of Structures ............................................................................................ 70
+4.1. 	The Phenomenon of Buckling ........................................................................................ 71
+4.2. 	Calculation of Critical Loads ......................................................................................... 71
+4.3. 	Variational Principles for Buckling................................................................................ 72
+4.3.1. 	Inplane Buckling for Plane Stress, Plane Strain, Axisymmetric Stress States ....... 73
+4.3.2. 	Straight Beams ........................................................................................................ 75
+4.3.3. 	Flat Plates ................................................................................................................ 76
+4.4. 	Calculation of Eigenvalues............................................................................................. 76
+Chapter 5. 	Heat Transfer .......................................................................................................... 77
+5.1. 	Equations of Heat Transfer[13] ........................................................................................ 78
+5.2. 	Variational Statement and the Finite element Method ................................................... 81
+5.3. 	Solution of Transient Heat Conduction[13] ..................................................................... 85
+Chapter 6. 	The Element Library ............................................................................................... 86
+6.1. 	TRUSS3D: Linear 3-D Truss/Spar ................................................................................ 87
+6.2. 	BEAM3D:Linear 3-D Elastic Beam .............................................................................. 90
+6.3. 	RBAR: 2-Node Rigid Bar[20] .......................................................................................... 98
+6.4. 	SPRING: Spring Element .............................................................................................. 99
+6.5. 	SHELL3T: Triangular Thick Shell [24,25,26] ................................................................... 100
+6.6. 	SHELL3: Triangular Thin Shell................................................................................... 103
+Notation Table ............................................................................................................................ 106
+References ................................................................................................................................... 112
+Index ........................................................................................................................................... 114
+
+-- 4 of 116 --
+
+INTRODUCTION
+3
+Introduction
+Why Finite Elements?
+
+-- 5 of 116 --
+
+INTRODUCTION
+4
+An investigator seeking the solution of the partial differential equations which govern the
+behavior of deformable bodies soon discovers that few exact analytical descriptions are available
+and that those that are available are very much limited in applicability. Solutions are generally
+obtainable only for regions having certain regular geometric shapes (circles, rectangles, spheres,
+etc.) and then only for restricted boundary conditions [l-3] The need for results for more complex
+structures leads to the use of approximate methods of solution.
+A number of different approximate methods have been devised since the beginning of the
+twentieth century. One of the earliest [4] replaces the goal of obtaining a continuously varying
+solution distribution by that of obtaining values at a finite number of discrete grid or nodal
+points. The differential equations are replaced by finite difference equations, which, together
+with appropriate boundary conditions expressed in difference form, yield a set of simultaneous
+linear equations for the nodal values. An alternative approximate method, the Rayleigh-Ritz
+method [5] introduced almost at the same time, seeks to expand the solution of the differential
+equations in a linear series of known functions. The coefficients multiplying these functions are
+obtained by requiring the satisfaction of the equivalent variational formulation of the problem
+and are, again, the solution of a set of simultaneous linear equations. These methods have
+extended the range of problems that may be considered but have been found to be limited by the
+extreme difficulty involved in applying them to even more complex shapes. The need to analyze
+the complicated swept-wing and delta-wing structures of high speed aircraft was the impetus
+which led to the development of the finite element method.
+It is common in the traditional analysis of complicated building structures to divide them
+into pieces whose behavior under general states of deformation or loading is more readily
+available. The pieces are then reattached subject to conditions of equilibrium or compatibility.
+The slope- deflection method [6] in statically indeterminate rigid-frame analysis is an example of
+such an approach. Attempts at rational analysis of wing-structures initially took the same
+physically motivated path with, however, the improvements of matrix formulations and the use
+of electronic digital computers. Methods based on Castigliano&#39;s theorems were devised for the
+calculation of flexibility matrices for obtaining deflections from forces and stiffness matrices for
+the determination of forces from displacements. The former matrices were used in &quot;force&quot;
+methods of analysis while the latter were used in &quot;displacement&quot; methods.
+An explosion in the development of the finite element methods occurred in the years
+subsequent to 1960 when it was realized that the method, whether based on forces or
+displacements, could be interpreted as an application of the Rayleigh-Ritz method. This was first
+suggested for two dimensional continua by R. Courant,[8] who proposed the division of a domain
+into triangular regions with the desired functions continuous over the entire domain replaced by
+piecewise continuous approximations within the triangles. The use of flexibility matrices was
+found to imply the implementation of the principle of minimum complementary energy while
+stiffness matrices imply the principle of minimum potential energy. The use of this approach
+permits the investigation of such topics as the continuity requirements for the piecewise
+
+-- 6 of 116 --
+
+INTRODUCTION
+5
+approximations and convergence rates obtained with increasing numbers of elements or with
+increasing complexity of functional representation. It also allows stiffness or flexibility matrices
+to be calculated from a conceptually simpler mathematical viewpoint, while indicating the
+possibility of using variational principles in which both forces and displacements are varied to
+produce &quot;hybrid&quot; elements. Despite the possible advantage of hybrid elements for some
+problems, solutions based upon the principle of minimum potential energy and displacement
+approximations have become dominant for the simple reason that the associated computer
+software is more universally applicable and requires the least interaction between machine and
+operator.
+In recent years the finite element method has been applied to mechanics problems other
+than those of structural analysis, i.e., fluid flow and thermal analysis. It has been extended to
+permit the solution of nonlinear as well as linear problems, those of large deformation geometric
+nonlinearity and/or material property nonlinearity, for example. It is hard to think of any field in
+which finite elements are not extensively used to provide answers to problems which would have
+been unsolvable only a few years ago.
+
+-- 7 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+6
+Chapter 1. 	Fundamental Relations
+for Linearly Elastic Solids
+
+-- 8 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+7
+Problems in solid mechanics deal with states of stress, strain and displacement in deformable
+solids. The basic relationships which govern these states and which are the basis for finite
+element applications are summarized below. The discussion is limited to states of small
+displacements and rotations and rotations to linear elastic materials. A more complete exposition
+may be found in a number of texts. [1, 9]
+1.1. 	Stresses
+1.1.1. Stress Matrix
+External loading on the surface of a deformable body is assumed to be transmitted into
+the interior by the pressure of one part of the body on an adjacent portion. If such a body is
+divided by a plane having a given orientation in space (Fig. l a) and a region about a point P on
+the cut surface is considered, the pressure forces on this region may be resolved into a resultant
+moment vector ∆M	���⃑ 	and a resultant force vector ∆P��⃑ 	(Fig. 1 b). As the region considered is
+decreased in size about the point, these resultant vectors decrease in magnitude and their
+directions will vary. In the limit it is assumed that the ratio of the force vector and the area upon
+which it acts, the stress vector, approaches a limit t⃑ (Fig. lc), while the ratio of the moment vector
+and the area, the couple stress vector, vanishes, i.e.
+lim
+∆A→0
+∆P��⃑
+∆A = t⃑
+Equation 1-1a
+lim
+∆A→0
+∆M	���⃑
+∆A = 0
+Equation 1-1b
+
+-- 9 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+8
+FIGURE 1 THE STRESS VECTOR AT A POINT
+The stress vector t⃑ at a point in the body is a function of the orientation of the plane on
+which it acts and is related to the components of the stress vectors on three perpendicular planes
+passing through the point. The set of nine components, called the stress matrix, defines the state
+of stress at a point. In Cartesian coordinates these nine components are
+S = �
+σxx 	σxy 	σxz
+σyx 	σyy 	σyz
+σzx 	σzy 	σzz
+�
+Equation 1-2
+
+-- 10 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+9
+The first subscript denotes the direction of the outwardly directed normal to the plane on
+which the stress component acts while the second subscript denotes the direction of the s tress
+component. These are shown in Fig. 2 acting on faces for which the outwardly directed normal is
+in the positive direction of the coordinate axis. On the remaining faces for which the outwardly
+directed normal is in the opposite direction, the stress component directions are reversed.
+Conditions of moment equilibrium of forces about a point require symmetry of the stress matrix,
+i.e.
+σ xy = σ yz
+σ yz = σ zy
+σ zx = σ xz
+Equation 1-3
+FIGURE 2 STRESS VECTOR COMPONENTS ON THREE
+PERPENDICULAR PLANES ABOUT POINT 0
+
+-- 11 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+10
+If the outwardly directed normal to the plane through point O (Fig. 3) is
+n = �
+nx
+ny
+nz
+�
+Equation 1-4
+the stress vector on that plane is given by
+tn = �
+tx
+ty
+tz
+� = STn = �
+σ xxnx + σ yxny + σ zxnz
+σ xynx + σ yyny + σ zynz
+σ xznx + σ yzny + σ zznz
+�
+Equation 1-5
+FIGURE 3 STRESS VECTOR IN PLANE WITH NORMAL VECTOR N
+1.1.2. Rotated Coordinate Systems
+The stress matrix has been defined with respect to a given coordinate system x, y, z. If a
+second set of Cartesian coordinates x&#39;, y&#39;, z&#39; having the same origin but different orientation is
+introduced, the two systems of coordinates are related by (Fig. 4)
+x′ = Nx
+Equation 1-6
+with
+x = �
+x
+y
+z
+� 	x′ = �
+x′
+y′
+z′
+�
+Equation 1-7
+
+-- 12 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+11
+FIGURE 4 COMPONENT OF A VECTOR IN ROTATED CARTESIAN
+COORDINATE SYSTEMS
+and
+N = �
+nx′x 	nx′y 	nx′z
+ny′x 	ny′y 	ny′z
+nz′x 	nz′y 	nz′z
+�
+Equation 1-8
+where ni&#39;j is the cosine of the angle between the primed i&#39;-axis and the unprimed j-axis. The
+relationship
+N−1 = NT
+Equation 1-9
+holds for this matrix. The stress matrix with respect to the second set of Cartesian axes is
+expressed by
+S′ = NSNT
+Equation 1-10
+
+-- 13 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+12
+It is sometimes more convenient to speak of the six independent stress components which
+comprise the stress matrix
+σ =
+⎩
+⎪
+⎨
+⎪
+⎧σ xx
+σ yy
+σ zz
+σ xy
+σ yz
+σ zx ⎭
+⎪
+⎬
+⎪
+⎫
+Equation 1-11
+The transformation relation under a rotation of the coordinate system given by Eq. (1.6 ) then
+becomes
+σ′ = Tσ σ
+Equation 1-12
+with
+σ ′ =
+⎩
+⎪
+⎨
+⎪
+⎧σ x ′ x
+σ y ′ y
+σ z ′ z
+σ x ′ y
+σ y ′ z
+σ z ′ x ⎭
+⎪
+⎬
+⎪
+⎫
+Equation 1-13
+and
+Tσ =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ nx ′ x
+2 	nx ′ y
+2 	nx ′ z
+2 	2nx ′ xnx ′ y 	2nx ′ ynx ′ z 	2nx ′ znx ′ x
+ny′ x
+2 	ny′ y
+2 	ny′ z
+2 	2ny′ xny′ y 	2ny′ yny′ z 	2ny′ zny′ x
+nz ′ x
+2 	nz ′ y
+2 	nz ′ z
+2 	2nz ′ xnz ′ y 	2nz ′ ynz ′ z 	2nz ′ znz ′ x
+nx ′ xny′ x 	nx ′ yny′ y 	nx ′ zny′ z 	nx ′ xny′ y + nx ′ yny′ x 	nx ′ yny′ z + nx ′ zny′ y 	nx ′ zny′ x + nx ′ xny′ z
+ny′ xnz ′ x 	ny′ ynz ′ y 	ny′ znz ′ z 	ny′ xnz ′ y + ny′ ynz ′ x 	ny′ yny′ z + ny′ znz ′ y 	ny′ znz ′ x + ny′ xnz ′ z
+nz ′ xnx ′ x 	nz ′ ynx ′ y 	nz ′ znx ′ z 	nz ′ xnx ′ y + nz ′ ynx ′ x 	nz ′ ynx ′ z + nz ′ znx ′ y 	nz ′ zny′ x + nz ′ xnx ′ z ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-14
+If the coordinate axes rotate through an angle θ about a coordinate axis, say the z-axis, (Fig. 5) the matrix N
+becomes
+N = �
+cosθ 	sinθ 	0
+−sinθ 	cosθ 	0
+0 	0 	1
+�
+Equation 1-15
+
+-- 14 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+13
+FIGURE 5 COORDINATE SYSTEMS ROTATED ABOUT A COMMON
+AXIS
+and Tσ is given by
+Tσ =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡ cos2 θ 	sin2 θ 	0 	2sinθcosθ 	0 	0
+sin2 θ 	cos2 θ 	0 	−2sinθcosθ 	0 	0
+0 	0 	1 	0 	0 	0
+−sinθcosθ 	sinθcosθ 	0 	cos2(−sin2 θ) 	0 	0
+0 	0 	0 	0 	cosθ 	−sinθ
+0 	0 	0 	0 	sinθ 	cosθ ⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-16
+
+-- 15 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+14
+1.1.3. Principal Stresses
+For certain coordinate axis rotations the stress matrix becomes diagonal so that shear stresses
+vanish. The stress vectors on the three faces perpendicular to the coordinate axes are normal to
+the surface on which they act (Fig. 6).
+FIGURE 6 PRINCIPAL STRESS COMPONENTS
+The three diagonal stress components σi are called principal stresses and their corresponding
+directions are called the principal directions. They are given by the solution of the sets of
+homogeneous equations
+[ST − σ iI]ni = 0 	i = 1, 2, 3
+Equation 1-17
+where n i is the vector defining the direction of the principal stress σi . Thus the three values of the
+principal stresses are the solution of the determinantal equation
+det�ST − σ iI� = 0
+Equation 1-18
+
+-- 16 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+15
+or by the cubic equation
+σ i
+3 − I1 σ i
+2 + I2 σ i − I3 = 0
+Equation 1-19
+where the coefficients are stress invariants independent of the chosen coordinate system and are
+defied by
+I1 = σ xx + σ yy + σ zz = σ1 + σ 2 + σ 3
+Equation 1-20 a
+I2 = σxx σyy + σyy σzz + σzz σxx − σxy σyx − σyz σzy − σzx σxz = σ1 σ2 + σ2 σ3 + σ3 σ1
+Equation 1-20 b
+I3 = det|S| = σ1 σ2 σ3
+Equation 1-20 c
+For an isotropic material, a measure of stress intensity required for the material to yield
+and become plastic is the von Mises stress given by
+σ M = ��1
+2 �σ xx − σ yy �
+2 + �σ yy − σ zz �
+2 + (σ zz − σ xx)2 + 6�σ xy
+2 + σ yz
+2 + σ zx
+2 ��
+Equation 1-21 a
+This stress is related to the octahedral shearing stress, the shear stress on a plane making equal
+angles with respect to the principal axes, by
+σ M = √3τ oct
+Equation 21-1 b
+
+-- 17 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+16
+1.1.4. Equations of Equilibrium
+The six stress components are not arbitrary but must satisfy the force equilibrium equations
+(Fig. 7)
+FIGURE 7
+
+-- 18 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+17
+∂σ xx
+∂σ x
++ ∂σ yx
+∂σ y
++ ∂σ zx
+∂σ z
++ fx = 0
+Equation 1-22 a
+∂σ xy
+∂σ x
++ ∂σ yy
+∂σ y
++ ∂σ zy
+∂σ z
++ fy = 0
+Equation 1-22 b
+∂σ xz
+∂σ x
++ ∂σ yz
+∂σ y
++ ∂σ zz
+∂σ z
++ fz = 0
+Equation 1-22 c
+Where fx, f x, fx are the components of the body force vector (force per unit volume) f⃑.
+1.2. 	Strains
+1.2.1. Strain Matrix
+The deformation state at a point in a deformed body is defined by the strain matrix
+E =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡ ε xx
+1
+2 ε xy
+1
+2 ε xz
+1
+2 ε yx 	ε yy
+1
+2 ε yz
+1
+2 ε zx
+1
+2 ε zy 	ε zz ⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-23
+in which the diagonal strain components are a measure of the relative change of length of lines
+originally in the directions of the coordinate axes while the off-diagonal components are
+symmetric and are a measure of the change of angle between two lines originally in the direction
+of the coordinate axes (Fig. 8). For small strains and rotations, the relationships between the
+strain components and the components of the displacement vector
+
+-- 19 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+18
+FIGURE 8 INTERPRETATION OF A SMALL STRAIN COMPONENTS
+
+-- 20 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+19
+u = �
+ux
+uy
+uz
+�
+Equation 1-24
+are
+ε xx = ∂u x
+∂ x
+ε yy = ∂u y
+∂ y
+ε zz = ∂u z
+∂ z
+ε xy = ε yx = ∂uy
+∂x
++ ∂ux
+∂y
+ε yz = ε zy = ∂uz
+∂y
++ ∂uy
+∂z
+ε zx = ε xz = ∂ux
+∂z
++ ∂uz
+∂x
+Equation 1-25
+1.2.2. Rotated Coordinate Axes
+Under a change of Cartesian coordinate systems at the point, the strain matrix has a
+transformation similar to that of the stress matrix, i.e.
+E′ = NENT
+Equation 1-26
+In terms of the independent strain component matrix
+ε =
+⎩
+⎪
+⎨
+⎪
+⎧ε xx
+ε yy
+ε zz
+ε xy
+ε yz
+ε zx ⎭
+⎪
+⎬
+⎪
+⎫
+Equation 1-27
+
+-- 21 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+20
+the transformation becomes
+ε ′ = Tε ε
+Equation 1-28
+with
+ε ′ =
+⎩
+⎪
+⎨
+⎪
+⎧ε x ′ x ′
+ε y ′ y ′
+ε z ′ z ′
+ε x ′ y ′
+ε y ′ z ′
+ε z ′ x ′ ⎭
+⎪
+⎬
+⎪
+⎫
+Equation 1-29
+and
+Tε =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ nx′x
+2 	nx′y
+2 	nx′z
+2 	nx′xnx′y 	nx′ynx′z 	nx′znx′x
+ny′x
+2 	ny′y
+2 	ny′z
+2 	ny′xny′y 	ny′yny′z 	ny′zny′x
+nz′x
+2 	nz′y
+2 	nz′z
+2 	nz′xnz′y 	nz′ynz′z 	nz′znz′x
+2nx′xny′x 	2nx′yny′y 	2nx′zny′z 	nx′xny′y + nx′yny′x 	nx′yny′z + nx′zny′y 	nx′zny′x + nx′xny′z
+2ny′xnz′x 	2ny′ynz′y 	2ny′znz′z 	ny′xnz′y + ny′ynz′x 	ny′yny′z + ny′znz′y 	ny′znz′x + ny′xnz′z
+2nz′xnx′x 	2nz′ynx′y 	2nz′znx′z 	nz′xnx′y + nz′ynx′x 	nz′ynx′z + nz′znx′y 	nz′zny′x + nz′xnx′z ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-30
+Tε is related to Tσ by
+Tε = (Tσ
+T)−1
+If the rotation is about a coordinate axis, say the z axis,
+Tε =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡ cos2 θ 	sin2 θ 	0 	2sinθcosθ 	0 	0
+sin2 θ 	cos2 θ 	0 	−2sinθcosθ 	0 	0
+0 	0 	1 	0 	0 	0
+−sinθcosθ 	sinθcosθ 	0 	cos2(−sin2 θ) 	0 	0
+0 	0 	0 	0 	cosθ 	−sinθ
+0 	0 	0 	0 	sinθ 	cosθ ⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-31
+
+-- 22 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+21
+1.2.3. Principal Strains
+As in the case of stress, the strain matrix becomes diagonal for a particular set of axes, the
+principal strain directions, which are the solution of homogeneous equation
+[ET − ε iI]ni = 0 i = 1, 2, 3
+Equation 1-32
+The three principal strains are given by the solution of the cubic equation
+ε i
+3 − Ji ε i
+2 + J2 ε i − J3 = 0
+Equation 1-33
+in which the invariants coefficients are defined as
+J1 = ε xx + ε yy + ε zz = ε1 + ε 2 + ε 3
+Equation 1-34 a
+J2 = εxx εyy + εyy εzz + εzz εxx − 1
+4 �εxy εyx + εyz εzy + εzx εxz � = ε1 ε2 + ε2 ε3 + ε3 ε1
+Equation 1-34 b
+J3 = det|E| = ε1 ε2 ε3
+Equation 1-34 c
+1.3. 	Stress-Strain Relations
+1.3.1. Anisotropic Material
+The relationship between the components of stress and strain is the generalized Hooke’s
+law given by the linear equation
+σ = C(ε − A�∆T)
+Equation 1-35
+in which C is the symmetric elastic-coefficient matrix
+C =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ C11 	C12 	C13 	C14 	C15 	C16
+C22 	C23 	C24 	C25 	C26
+C33 	C34 	C35 	C36
+C44 	C45 	C46
+C55 	C56
+sym 	C66 ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-36
+
+-- 23 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+22
+A	� is the thermal expansion coefficient matrix
+A� =
+⎩
+⎪
+⎨
+⎪
+⎧α xx
+α yy
+α zz
+α xy
+α yz
+α zx ⎭
+⎪
+⎬
+⎪
+⎫
+Equation 1-37
+and ∆T is the difference between the actual temperature and the uniform temperature at which
+the body is stress free. The relation may also be expressed by the inverted form
+ε = Fσ + A∆T
+Equation 1-38
+in which
+F = C−1
+Equation 1-39
+Under a rigid body of rotation of the coordinate system the matrix C transforms as
+C′ = TσCTσ
+T
+Equation 1-40a
+while F transforms as
+F = TεFTε
+T
+Equation 1-40b
+
+-- 24 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+23
+For an orthotropic material, one with three preferred material axes and with the material
+axes coinciding with the coordinate axes, the matrices F and A	� are defined by
+F =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ 1
+Exx
+− vxy
+Eyy
+− vxz
+Ezz
+0 	0 	0
+− vyx
+Exx
+1
+Eyy
+− vyz
+Ezz
+0 	0 	0
+− vzx
+Exx
+− vzy
+Eyy
+1
+Ezz
+0 	0 	0
+0 	0 	0 1
+Gxy
+0 	0
+0 	0 	0 	0 1
+Gyx
+0
+0 	0 	0 	0 	0 1
+Gzx ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-41
+in which
+vxy
+Eyy
+= vyx
+Exx
+vxz
+Ezz
+= vzx
+Exx
+vyz
+Ezz
+= vzy
+Eyy
+Equation 1-42
+and
+A� =
+⎩
+⎪
+⎨
+⎪
+⎧α xx
+α yy
+α zz
+0
+0
+0 ⎭
+⎪
+⎬
+⎪
+⎫
+Equation 1-43
+Then the elastic constant matrix C may be written as
+C =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ �1 − vyzvzx �Sxx 	�vxy − vxzvzy �Sxx 	�vxz − vxyvyz �Sxx 	0 	0 	0
+�vyx − vyzvzx �Syy 	(1 − vzxvxz)Syy 	�vyz − vyxvxz �Syy 	0 	0 	0
+�vzx − vzyvyx �Szz 	�vzy − vzxvxy �Szz 	�1 − vxyvyx �Szz 	0 	0 	0
+0 	0 	0 	Gxy 	0 	0
+0 	0 	0 	0 	Gyz 	0
+0 	0 	0 	0 	0 	Gzx ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-44
+
+-- 25 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+24
+with
+Sxx
+Exx
+= Syy
+Eyy
+= Szz
+Ezz
+= (1 − vxyvzx − vyzvzy − vxyvyx − vxyvyzvzx − vyxvxzvzy)−1
+Equation 1-45
+If only the terms above the principal diagonal of F are defined, the inverted matrix may be
+written as
+C =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡Sxx �1 − vyx
+2 Exx
+Ezz
+� 	Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� 	Sxxvxz + vxuvyz 	0 	0 	0
+Sxx �1 − vxz
+2 Exx
+Ezz
+� 	Sxxvyz + vxyvxz
+Exx
+Eyy
+0 	0 	0
+Szz �1 − vxy
+2 Exx
+Eyy
+� 	0 	0 	0
+Gxy 	0 	0
+Gyz 	0
+sym 	Gzx ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-46
+and
+Sxx
+Exx
+= Syy
+Eyy
+= Szz
+Ezz
+= �1 − v2 Exx
+Eyy
+− v2 Eyy
+Ezz
+− v2 Exx
+Eyy
+− 2vxyvyzvxz
+Exx
+Ezz
+�
+−1
+Equation 1-47
+If the material is isotropic so that
+Exx = Eyy = Ezz = E
+Equation 1-48 a
+vxy = vyx = vyz = vzy = vzx = vxz = v
+Equation 1-48 b
+Gxy = Gyz = Gzx = G = E
+2(1 + v)
+Equation 1-48 c
+αxx = αyy = αzz = α
+Equation 1-48 d
+
+-- 26 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+25
+the elastic coefficient and material property matrices become
+F =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ 1
+E − v
+E − v
+E 0 	0 	0
+1
+E − v
+E 0 	0 	0
+1
+E 0 	0 	0
+2(1 + v)
+E 0 	0
+2(1 + v)
+E 0
+sym 2(1 + v)
+E 	⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-49
+C =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ (1 − v)E
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v) 0 	0 	0
+(1 − v)E
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v) 0 	0 	0
+(1 − v)E
+(1 + v)(1 − 2v) 0 	0 	0
+E
+2(1 − 2v) 0 	0
+E
+2(1 − 2v) 0
+sym E
+2(1 − 2v)⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 1-50
+and
+CA� =
+⎩
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎧ Eα
+1 − 2v
+Eα
+1 − 2v
+Eα
+1 − 2v
+0
+0
+0 	⎭
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎫
+Equation 1-51
+
+-- 27 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+26
+1.3.2. Plane Strain
+For a body in a state of plain strain, the displacements, and therefore the loading are
+assumed to be independent of one coordinate, say the z-coordinate, so that
+ε xz = ε yz = ε zx = 0
+Equation 1-52
+Then for an orthotropic material with one of the material axes coinciding with the longitudinal
+axis
+σ xz = σ yz = 0
+Equation 1-53
+and
+σ zz = vxz σ xx + vyz σ yy − α zzEzz ∆T
+Equation 1-54
+The remaining stresses are given in the material coordinate system by
+�
+σxx
+σyy
+σzz
+� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡Sxx �1 − vyz
+2 Eyy
+Ezz
+� 	Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� 	0
+Syy �1 − vyy
+2 Exx
+Ezz
+� 	0
+sym 	Gxy ⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+��
+εxx
+εxx
+εxx
+� − �
+αxx + vxz αzz
+αyy + vyz αzz
+0
+� ∆T�
+Equation 1-55
+If the angle between the x&#39;, y&#39; coordinate axes and the x, y material axes are denoted by θ
+(positive in the counterclockwise direction), then the stress0strain relations become
+�
+σ x ′ x ′
+σ y ′ y ′
+σ z ′ z ′
+� = �
+C11
+′ 	C12
+′ 	C13
+′
+C22
+′ 	C23
+′
+sym 	C33
+′
+� �
+ε x ′ x ′
+ε y ′ y′
+ε z ′ z′
+� − �
+Ax ′ x ′
+′
+Ay ′ y ′
+′
+Az ′ z ′
+′
+� ∆T
+Equation 1-56
+with
+C11
+′
+C22
+′ � = Sxx �1 − vyz
+2 Eyy
+Ezz
+� �cos4 θ
+sin4 θ + Syy �1 − vxz
+2 Exx
+Ezz
+� �sin4 θ
+cos4 θ
++ �2Sxx �vxy − vxzvyz
+Eyy
+Ezz
+� + 4Gxy � sin2 θ cos2 θ
+Equation 1-57 a
+
+-- 28 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+27
+C33
+′ 	= �Sxx �1 − vyz
+2 Eyy
+Ezz
+� + Sxx �1 − vyz
+2 Eyy
+Ezz
+� − 2Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� − 4Gxy � sin2 θ cos2 θ + Gxy
+Equation 1-57 b
+C12
+′ 	= �Sxx �1 − vyz
+2 Eyy
+Ezz
+� + Syy �1 − vxz
+2 Exx
+Ezz
+� − 2Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� − 4Gxy � sin2 θ cos2 θ
++ Sxx �vxy + vxzvyz
+Eyy
+Ezz
+�
+Equation 1-57 c
+C13
+′
+C23
+′ � = ��Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� − Sxx �1 − vyz
+2 Eyy
+Ezz
+� + 2Gxy � �cos2 θ
+sin2 θ
++ �Syy �1 − vxz
+2 Exx
+Ezz
+� − Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� − 2Gxy � �sin2 θ
+cos2 θ sin θ cos θ
+Equation 1-57 d
+and
+Ax ′ x ′
+′ 	= Sxx ��α xxvxz α zz �1 − vyz
+2 Eyy
+Ezz
+� + �α yy + vyz α zz � + �vxy + vxzvyz
+Eyy
+Ezz
+�� cos2 θ
++ �α xx + vyz α zz � �vxy + vxzvyz
+Eyy
+Ezz
+� sin2 θ� Syy �1 − vxz
+2 Exx
+Ezz
+� �α yy + vyz α zz � sin2 θ
+Equation 1-58 a
+Ay′ y′
+′ 	= Sxx ��α xxvxz α zz �1 − vyz
+2 Eyy
+Ezz
+� + �α yy + vyz α zz � + �vxy + vxzvyz
+Eyy
+Ezz
+�� sin2 θ
++ �α xx + vyz α zz � �vxy + vxzvyz
+Eyy
+Ezz
+� cos2 θ� Syy �1 − vxz
+2 Exx
+Ezz
+� �α yy + vyz α zz � cos2 θ
+Equation 1-58 b
+Ax ′ y ′
+′ = �Syy �1 − vyz
+2 Eyy
+Ezz
+� �αyy + vyz αzz �
++ Sxx �vxy + vxzvyz
+Eyy
+Ezz
+� �αxx − αyy + �vxz − vyz �αzz �
+− Sxx �1 − vxz
+2 Exx
+Ezz
+� �αxx + vyz αzz �� sin θ cos θ
+Equation 1-58 c
+
+-- 29 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+28
+For an isotropic material, the stress-strain relationship in any coordinate system is given by
+�
+σxx
+σyy
+σzz
+� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ (1 − v)E
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v) 0
+(1 − v)E
+(1 + v)(1 − 2v) 0
+sym E
+2(1 + v)⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+�
+εxx
+εyy
+εzz
+� − �
+1
+1
+0
+� Eα∆T
+(1 + v)(1 − 2v)
+Equation 1-59
+1.3.3. Plane Stress
+A body in state of plane stress is characterized by the relations
+σ xz = σ yz = σ zz = 0
+Equation 1-60
+which are generally satisfied only approximately. Then for an orthotropic material with
+coincident material and body z-coordinate axes, the pertinent strains in the material coordinate
+system are given in terms of the remaining stress components by
+�
+ε xx
+ε yy
+ε xy
+� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ 1
+Exx
+− vxy
+Eyy
+0
+1
+Eyy
+0
+sym 1
+Gxy ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+�
+σ xx
+σ yy
+σ zz
+� + �
+σ xx
+σ yy
+0
+� ∆T
+Equation 1-61
+which can be inverted to yield
+�
+σ xx
+σ yy
+σ xy
+� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡ Exx
+1 − vxy
+2 Exx
+Eyy
+vxyExx
+1 − vxy
+2 Exx
+Eyy
+0
+0
+sym 	Gxy ⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+�
+ε xx − α xx ∆T
+ε yy − α yy ∆T
+ε xy
+�
+Equation 1-62
+If the body coordinates axes x&#39;, y&#39; are rotated through a counterclockwise angle θ with
+respect to the material x, y axes, the stress strain relations are given in body coordinates by
+
+-- 30 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+29
+⎩
+⎪
+⎨
+⎪
+⎧σ x ′ x ′
+σ y ′ y ′
+σ x ′ y ′ ⎭
+⎪
+⎬
+⎪
+⎫
+= �
+C11
+′ 	C12
+′ 	C13
+′
+C22
+′ 	C23
+′
+sym 	C33
+′
+�
+⎩
+⎪
+⎨
+⎪
+⎧ε x ′ x′
+ε y ′ y′
+ε x ′ y′ ⎭
+⎪
+⎬
+⎪
+⎫
+− �
+A11
+′
+A22
+′
+A12
+′
+� ∆T
+Equation 1-63
+and
+C11
+′
+C22
+′ � = 1
+1 − vxy
+2 Exx
+Eyy
+�Exx �cos4 θ
+sin4 θ + 2vxyExx sin2 θ cos2 θ + Eyy �sin4 θ
+cos4 θ� + 4Gxy sin2 θ cos2 θ
+Equation 1-64 a
+C33
+′ 	=
+⎣
+⎢
+⎢
+⎢
+⎡ 1
+1 − vxy
+2 Exx
+Eyy
+�Exx + Eyy − 2vxyExx � − 4Gxy
+⎦
+⎥
+⎥
+⎥
+⎤
+sin2 θ cos2 θ + Gxy
+Equation 1-64 b
+C12
+′ 	= vxyExx
+1 − vxy
+2 Exx
+Eyy ⎣
+⎢
+⎢
+⎢
+⎡ 1
+1 − vxy
+2 Exx
+Ey
+�Exx + Eyy − 2vxyExx � − 4Gxy
+⎦
+⎥
+⎥
+⎥
+⎤
+sin2 θ cos2 θ
+Equation 1-64 c
+C13
+′
+C23
+′ � =
+⎩
+⎪
+⎨
+⎪
+⎧
+⎣
+⎢
+⎢
+⎢
+⎡ 1
+1 − vxy
+2 Exx
+Eyy
+�Eyy − vxyExx � − 2Gxy
+⎦
+⎥
+⎥
+⎥
+⎤
+�sin2 θ
+cos2 θ −
+⎣
+⎢
+⎢
+⎢
+⎡ 1
+1 − vxy
+2 Exx
+Eyy
+�Exx − vxyExx � − 2Gxy
+⎦
+⎥
+⎥
+⎥
+⎤
+�cos2 θ
+sin2 θ
+⎭
+⎪
+⎬
+⎪
+⎫
+sin θ cos θ
+Equation 1-64 d
+For an isotropic material the stress-strain relations in any orthogonal coordinate systems
+are
+�
+σ xx
+σ yy
+σ zz
+� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ E
+1 − v2
+vE
+1 − v2 	0
+E
+1 − v2 	0
+sym E
+2(1 + v)⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+�
+ε xx
+ε yy
+ε xy
+� − �
+1
+1
+0
+� Eα∆T
+1 + v
+Equation 1-65
+
+-- 31 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+30
+and
+A11
+′
+A22
+′ 	� = ��αxxExx + vxy αyyExx � �cos2 θ
+sin2 θ + αxxvxyExx + αyyEyy �sin2 θ
+cos2 θ� 1
+1 − vxy
+2 Exx
+Eyy
+Equation 1-66 a
+A12
+′ 	= �α yyEyy − �α xx �1 − vxy � + vxy α yy �Exx � sin θ cos θ
+1 − vxy
+2 Exx
+Eyy
+Equation 1-66 b
+
+-- 32 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+31
+1.3.4. Axisymmetric Stress State
+A final special care is that of a body of revolution in a state of axisymmetric stress. In this
+case, a cylindrical coordinate system (Fig. 9) is used, with the displacement ur and uz and the
+temperature independent of the ϕ coordinate and uϕ equal to zero. The non-zero strains are
+then
+ε rr = ∂ur
+∂r
+Equation 1-67 a
+ε zz = ∂uz
+∂z
+Equation 1-67 b
+FIGURE 9 CYLINDRICAL COORDINATE SYSTEM
+
+-- 33 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+32
+ε φφ = ur
+r
+Equation 1-67 c
+ε rz = ∂ur
+∂z + ∂uz
+∂r
+Equation 1-67 d
+The material is assumed to be locally conically orthotropic. One material axis coincides with the
+circumferential direction. The others are oriented at angles θ and θ + π/2, with respect to the
+radial direction (Fig. 10). Then shearing stresses σsϕ and σnϕ vanish and the relations between the
+remaining stresses and strains are given by
+FIGURE 10 	DIRECTIONS OF MATERIAL ORTHOTROPY AT A
+POINT IN A BODY OF REVOLUTION
+
+-- 34 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+33
+⎩
+⎪
+⎨
+⎪
+⎧ ε ss
+ε nn
+ε φφ
+ε sn ⎭
+⎪
+⎬
+⎪
+⎫
+=
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ 1
+Ess
+− vsn
+Enn
+− vsφ
+Eφφ
+0
+1
+Enn
+− vnφ
+Eφφ
+0
+1
+Eφφ
+0
+1
+Gsn ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+⎩
+⎪
+⎨
+⎪
+⎧ σ ss
+σ nn
+σ φφ
+σ sn ⎭
+⎪
+⎬
+⎪
+⎫
++
+⎩
+⎪
+⎨
+⎪
+⎧ α ss
+α nn
+α φφ
+α sn ⎭
+⎪
+⎬
+⎪
+⎫
+∆T
+Equation 1-68
+or in the inverted form
+⎩
+⎪
+⎨
+⎪
+⎧ σ ss
+σ nn
+σ φφ
+σ sn ⎭
+⎪
+⎬
+⎪
+⎫
+=
+⎣
+⎢
+⎢
+⎢
+⎡ C11 	C12 	C13 	0
+C22 	C23 	0
+C33 	0
+sym 	Gsn ⎦
+⎥
+⎥
+⎥
+⎤
+⎝
+⎜
+⎛
+⎩
+⎪
+⎨
+⎪
+⎧ ε ss
+ε nn
+ε φφ
+ε sn ⎭
+⎪
+⎬
+⎪
+⎫
+−
+⎩
+⎪
+⎨
+⎪
+⎧ α ss
+α nn
+α φφ
+0 ⎭
+⎪
+⎬
+⎪
+⎫
+∆T
+⎠
+⎟
+⎞
+Equation 1-69
+with
+C11 = �1 − vnφ
+2 	Enn
+Eφφ
+� Sss
+Equation 1-70 a
+C12 = �vns + vsφvnφ
+Enn
+Eφφ
+� Sss
+Equation 1-70 b
+C13 = �vsφ + vsnvnφ
+Enn
+Eφφ
+� Sss
+Equation 1-70 c
+C22 = �1 − vsφ
+2 	Ess
+Eφφ
+� Snn
+Equation 1-70 d
+C23 = �vnφ + vsnvsφ
+Ess
+Eφφ
+� Snn
+Equation 1-70 e
+
+-- 35 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+34
+C33 = �1 − vns
+2 Ess
+Enn
+� Sφφ
+Equation 1-70 f
+and
+Sss
+Ess
+= Sφφ
+Eφφ
+= Snn
+Enn
+= �1 − vsφ
+2 	Ess
+Eφφ
+− vnφ
+2 	Enn
+Eφφ
+− vsn
+2 Ess
+Enn
+− 2vsnvnφvsφ
+Ess
+Eφφ
+�
+−1
+Equation 1-71
+In the r, z coordinate system the relations become
+⎩
+⎪
+⎨
+⎪
+⎧ σ rr
+σ zz
+σ φφ
+σ rz ⎭
+⎪
+⎬
+⎪
+⎫
+=
+⎣
+⎢
+⎢
+⎡ C11
+′ 	C12
+′ 	C13
+′ 	C14
+′
+C22
+′ 	C23
+′ 	C24
+′
+C33
+′ 	C34
+′
+sym 	C44
+′ ⎦
+⎥
+⎥
+⎤
+⎩
+⎪
+⎨
+⎪
+⎧ ε rr
+ε zz
+ε φφ
+ε rz ⎭
+⎪
+⎬
+⎪
+⎫
+−
+⎩
+⎨
+⎧A1
+′
+A2
+′
+A3
+′
+A4
+′ ⎭
+⎬
+⎫
+∆T
+Equation 1-72
+where
+C11
+′ 	= C11 cos4 θ + C22 sin4 θ + 2�C12 + 2Gsn � sin2 θ cos2 θ
+Equation 1-73 a
+C12
+′ 	= C12 + �C11 + C22 − 2�C12 + 2Gsn �� sin2 θ cos2 θ
+Equation 1-73 b
+C13
+′ 	= C13 cos2 θ + C23 sin2 θ
+Equation 1-73 c
+C14
+′ 	= �C11 cos2 θ − C22 sin2 θ − �C12 + 2Gsn �(cos2 θ − sin2 θ)� sin θ cos θ
+Equation 1-73 d
+C22
+′ 	= C11 sin4 θ + C22 cos4 θ + 2�C12 + 2Gsn � sin2 θ cos2 θ
+Equation 1-73 e
+C23
+′ 	= C13 sin2 θ + C23 cos2 θ
+Equation 1-73 f
+C24
+′ 	= C11 sin2 θ − C22 cos2 θ + C12 + 2Gsn cos2 θ − sin2 θ sin θ cos θ
+Equation 1-73 g
+
+-- 36 of 116 --
+
+FUNDAMENTAL RELATIONS FOR LINEARLY ELASTIC SOLIDS
+35
+C33
+′ 	= C33
+Equation 1-73 h
+C34
+′ 	= �C13 − C23 � sin θ cos θ
+Equation 1-73 i
+C44
+′ 	= Gsn + �C11 + C22 − 2�C12 + 2Gsn �� sin2 θ cos2 θ
+Equation 1-73 j
+and
+A1
+′ = �C11 αss + C12 αnn + C13 αφφ � cos2 θ + �C12 αss + C22 αnm + C23 αφφ � sin2 θ
+Equation 1-74 a
+A2
+′ = �C11 αss + C12 αnn + C13 αφφ � sin2 θ + �C12 αss + C22 αnm + C23 αφφ � cos2 θ
+Equation 1-74 b
+A3
+′ = C13 α ss + C23 αnm + C33 α φφ
+Equation 1-74 c
+A4
+′ = �C11 − C12 �α ss + �C12 − C22 �α nn + �C13 − C23 �α φφ sin θ cos θ
+Equation 1-74 d
+For an isotropic material the stress-strain relations are
+⎩
+⎪
+⎨
+⎪
+⎧ σrr
+σzz
+σφφ
+σrz ⎭
+⎪
+⎬
+⎪
+⎫
+=
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ (1 − v)E
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v) 0
+(1 − v)E
+(1 + v)(1 − 2v)
+vE
+(1 + v)(1 − 2v) 0
+(1 − v)E
+(1 + v)(1 − 2v) 0
+E
+2(1 + v)⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+⎩
+⎪
+⎨
+⎪
+⎧ ε rr
+ε zz
+ε φφ
+ε rz ⎭
+⎪
+⎬
+⎪
+⎫
+− �
+1
+1
+1
+0
+� Eα∆T
+1 − 2v
+Equation 1-75
+
+-- 37 of 116 --
+
+THE FINITE ELEMENT METHOD
+36
+Chapter 2. 	The Finite Element
+Method
+
+-- 38 of 116 --
+
+THE FINITE ELEMENT METHOD
+37
+2.1. 	The Principle of Minimum Potential Energy
+A variational principle which is equivalent to the differential equations of equilibrium and
+boundary conditions of linear elastic solids may be derived from the principle of virtual work.
+This principle may be expressed mathematical as
+� σ T δεdV = � tn
+T δudA + � f T δudV
+V	S	V
+Equation 2-1
+where integrals are over the volume V and over the surface S of the deformed body. The left side
+of the equation is called the internal virtual work, the virtual work of internal forces, while the
+right side is the virtual work of surface and body forces. Here σ is the actual stress matrix
+satisfying the equations of equilibrium, t n is the surface stress vector, f is a body force vector
+(force per unit volume)
+f = �
+fx
+fy
+fz
+�
+Equation 2-2
+δu is an arbitrary infinitesimal change in the displacement vector u, and
+δε =
+⎩
+⎪
+⎪
+⎨
+⎪
+⎪
+⎧δε xx
+δε yy
+δε zz
+δε xy
+δε yz
+δε zx ⎭
+⎪
+⎪
+⎬
+⎪
+⎪
+⎫
+=
+⎩
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎧ ∂δux
+∂x
+∂δuy
+∂y
+∂δuz
+∂z
+∂δux
+∂y
++ ∂δuy
+∂x
+∂δuy
+∂z
++ ∂δuy
+∂x
+∂δuz
+∂x
++ ∂δuz
+∂y 	⎭
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎫
+Equation 2-3
+
+-- 39 of 116 --
+
+THE FINITE ELEMENT METHOD
+38
+If the surface is divided into the region S u on which displacements are prescribed and Sσ on
+which the stress vector is prescribed, and if the displacement matrix u is chosen so as to satisfy
+the displacement boundary conditions on S u , the principle of virtual work may be rewritten for a
+linearly elastic body which satisfies Hooke&#39;s law as the principle of minimum potential energy
+δП = 0
+Equation 2-4
+where
+П = � ε T C 1
+2 ε − A�∆T − uT f
+V
+dV − � 	uT
+S σ
+tdS
+Equation 2-5
+The functional П is called the potential energy of the deformed body. The integral
+U = 1
+2 � ε T CεdV
+V
+Equation 2-6
+is called the strain energy of the body. The principle may be stated as follows:
+Of all displacement states which satisfy boundary conditions on displacement, the unique
+displacement state which satisfies the equations of equilibrium and boundary conditions on stress
+minimizes the potential energy of the deformed body.
+Variational principles in which quantities other than the displacements vary may be obtained [10] .
+The principle of minimum potential energy, however, is the statement most commonly used in
+finite element approximations.
+2.2. 	Strain Energy Expressions for Beams, Plates and
+Shells
+The analysis of structures which have one or two dimensions small compared to the others is
+usually accomplished with the help of simplifying assumptions. These are discussed below. It
+will be noted that in all cases the strain energy is expressible as an integral involving an
+integrand of the form εT Cε.
+
+-- 40 of 116 --
+
+THE FINITE ELEMENT METHOD
+39
+2.2.1. Straight Beams
+A beam is a three dimensional structure for which the length is large compared to the width or
+depth of the cross-section. The reference axis defined by the line joining the centroid of each
+perpendicular cross-section is straight. When shear deformations are taken into account, the
+stretching and bending displacements are assumed to be given by the following:
+Plane cross-sections perpendicular to the undeformed centroidal axis remain plane and
+unchanged in shape but translate and rotate with respect to the plane normal to the deformed
+centroidal axis. Then for small deformations the deflection can be shown to be of the form
+uy = uy (x)
+Equation 2-7a
+uz = uz (x)
+Equation 2-7b
+ux = ux 0
+(x) − yΨz (x) + zΨy (x)
+Equation 2-7c
+where Ψy and Ψz are rotations of the cross-section about the y and z axes, respectively. In
+addition, torsional deformations are assumed to be governed by St. Venant torsion theory
+wherein the cross-sections rotate as rigid bodies about the x-axis through an angle which varies
+linearly with distance from the origin and undergo axial displacements which are a functional
+only of position in the cross-section. Then
+ux = w(y, z)
+Equation 2-8a
+uy = −xz dΨx
+dx
+Equation 2-8b
+uz = xy dΨx
+dx
+Equation 2-8c
+where w is the cross-sectional warping function and dΨx
+dx is the constant rate of change of the
+angle of rotation about the x-axis. Then the non-zero strains are given by
+
+-- 41 of 116 --
+
+THE FINITE ELEMENT METHOD
+40
+ε xx =
+dux 0
+dx − y dΨz
+dx + z dΨy
+dx − α∆T
+Equation 2-9a
+ε xy = �duy
+dx − Ψz � + �∂w
+∂y + y dΨx
+dx �
+Equation 2-9b
+ε xz = �duz
+dx − Ψy � + �∂w
+∂z + y dΨx
+dx �
+Equation 2-9c
+With the additional assumption that the direct stresses σyy and σzz are negligible compared to σxx,
+stress resultants are defined in terms of deformations by
+Px 	= � 	σ xxdA = E �A
+dux 0
+dx − α � ∆TdA
+A
+�
+A
+Equation 2-10a
+My = � 	zσ xxdA = E �Iyy
+dΨy
+dx − Ixy
+dΨz
+dx − α � z∆TdA
+A
+�
+A
+Equation 2-10b
+Mz = − � 	yσ xxdA = E �Izz
+dΨz
+dx − Ixy
+dΨy
+dx − α � y∆TdA
+A
+�
+A
+Equation 2-10c
+Vy = − � σ xydA = ky
+����
+A
+GA �Ψz − duy
+dx �
+Equation 2-10d
+Vz = � σ xzdA = kz GA
+A
+�Ψy + duz
+dx �
+Equation 2-10e
+T = � �yσ xz − zσ xy �dA = GJ dΨx
+dx	A
+Equation 2-10f
+
+-- 42 of 116 --
+
+THE FINITE ELEMENT METHOD
+41
+These may be expressed in matrix form as
+p� = C�e� − A�
+Equation 2-11
+with
+p� T = �Vx Vy Vz TMy Mz �
+Equation 2-12a
+e� T = �
+dux0
+dx �duy
+dx − Ψz � 	�duz
+dx + Ψy � dΨx
+dx
+dΨy
+dx
+dΨz
+dx �
+Equation 2-12b
+C� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ EA 	0 	0 	0 	0 	0
+k� y GA 	0 	0 	0 	0
+k� z GA 	0 	0 	0
+GJ 	0 	0
+EIzz 	−EIyz
+sym 	EIyy ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 2-12c
+A�T = Eα �� ∆T dA
+A
+0 	0 	0 	� z∆T dA 	− � y∆T dA
+A	A
+�
+Equation 2-12d
+Here P x is the axial force, while Vy and Vz are cross-sectional shearing forces. Bending moments
+about the y and z axes are denoted by M y and M z, respectively and T is the torsional moment
+about the x-axis. Positive directions for these quantities are shown in Figure 11. Geometric
+properties are denoted by A, the cross-sectional area, and l yy. Lzz and Iyz, the cross-sectional
+moments and product of inertia:
+
+-- 43 of 116 --
+
+THE FINITE ELEMENT METHOD
+42
+FIGURE 11 	POSITIVE DIRECTIONS FOR STRESS RESULTANTS
+Iyy = � z2
+A
+dA
+Equation 2-13a
+Izz = � y2
+A
+dA
+Equation 2-13b
+Iyz = � yz
+A
+dA
+Equation 2-13c
+
+-- 44 of 116 --
+
+THE FINITE ELEMENT METHOD
+43
+For principal axes, Iyz vanishes. J is the cross-sectional torsion constant and has no simple
+geometric interpretation except for solid or annular circular cross-sections for which it is the
+polar moment of inertia. The constants k y and kz are correction factors introduced to account for
+the actual non-uniform distribution of shearing stresses and strains over the beam cross-section
+The strain energy stores in the beam is now given by
+U = 1
+2 � e� T C�e�dx
+L
+0
+Equation 2-14
+Axial stresses in the beam may be calculated from the expression
+σ x = Px
+A − y Mz
+Iz
++ z My
+Iy
+Equation 2-15
+The maximum shearing stress due to torsion is calculated from the formula
+τ max = TCtor
+J
+Equation 2-16
+Where C tor is a constant which depends on the shape of the cross-section [1] .
+2.2.2. Flat Plates
+A plate is a structure for which one of the dimensions, the thickness, is small compared to
+the length and width. A reference plane is situated midway between the top and bottom plate
+surfaces. Deformations are given by assumptions which are an extension of those for beams:
+Straight lines initially perpendicular to the undeformed plate middle surface remain
+straight and unchanged in length but rotate with respect to the normal to the deformed middle
+surface.
+The displacement components can then be shown to be given by
+ux = u(x, y) + zΨy (x, y)
+Equation 2-17a
+uy = v(x, y) − zΨx (x, y)
+Equation 2-17b
+
+-- 45 of 116 --
+
+THE FINITE ELEMENT METHOD
+44
+uz = w(x, y)
+Equation 2-17c
+where Ψx and Ψy are rotations about the x and y axes, respectively. The strains are now found to
+be
+ε xx = ∂u
+∂x + z ∂Ψy
+∂x
+Equation 2-18a
+ε yy = ∂v
+∂x − z ∂Ψx
+∂y
+Equation 2-18b
+ε zz = 0
+ε xy = ∂u
+∂x + ∂v
+∂x + z �∂Ψy
+∂y − ∂Ψx
+∂x �
+Equation 2-18c
+ε xz = ∂w
+∂x + Ψy
+Equation 2-18d
+ε yz = ∂w
+∂x − Ψx
+Equation 2-18e
+With the direct stress σzz assumed to be negligible, the strain energy may be derived for
+an isotropic plate as
+U = 1
+2 � e� T
+A
+C�e� dxdy
+Equation 2-19
+where
+e� T = �∂u
+∂x
+∂v
+∂y �∂u
+∂y + ∂v
+∂x� ∂Ψy
+∂y − ∂Ψx
+∂y �∂Ψy
+∂y − ∂Ψx
+∂x � 	�∂w
+∂x − Ψy � 	�∂w
+∂y + Ψx ��
+Equation 2-20
+
+-- 46 of 116 --
+
+THE FINITE ELEMENT METHOD
+45
+C� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ K 	vK 	0 	0 	0 	0 	0 	0
+K 	0 	0 	0 	0 	0 	0
+1 − v
+2 K 	0 	0 	0 	0 	0
+D 	vD 	0 	0 	0
+D 	0 	0 	0
+1 − v
+2 D 	0 	0
+5
+6 Gh 	0
+sym 5
+6 Gh⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 2-21
+and
+K = Eh
+1 − v2
+Equation 2-22a
+D = Eh3
+12(1 − v2 )
+Equation 2-22b
+The integration is over the middle surface area of the plate. The factor 5/6 is inserted into the
+transverse shearing strain expression to account for the nonuniform distribution of shear stress
+and strain over the plate thickness.
+If transverse shearing strains are neglected, the normal to the undeformed plate middle
+surface remains normal to the deformed middle surface. Then
+Ψy = − ∂w
+∂x
+Equation 2-23a
+Ψx = − ∂w
+∂y
+Equation 2-23b
+and the non-zero strains become
+ε xx = ∂u
+∂x − z ∂2 w
+∂x2
+Equation 2-24a
+
+-- 47 of 116 --
+
+THE FINITE ELEMENT METHOD
+46
+ε yy = ∂v
+∂y − z ∂2 w
+∂y2
+Equation 2-24b
+ε xy = ∂u
+∂y + ∂v
+∂x − 2z ∂2 w
+∂x ∂y
+Equation 2-24c
+The strain matrix e� and C� are then replaced in Eq. (2.20) by
+e� t = �∂u
+∂x
+∂v
+∂y
+∂u
+∂y + ∂v
+∂x
+∂2 w
+∂x2
+∂2 w
+∂y2
+∂2 w
+∂x ∂y �
+Equation 2-25
+C� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ K 	vK 	0 	0 	0 	0
+K 	0 	0 	0 	0
+1 − v
+2 K 	0 	0 	0
+D 	vD 	0
+D 	0
+sym 	2(1 − v)D⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 2-26
+
+-- 48 of 116 --
+
+THE FINITE ELEMENT METHOD
+47
+2.3. 	The Finite Element Method
+In the implementation of the principle of minimum potential energy as the basis of
+approximate solutions by means of the finite element method of analysis, the region under
+consideration is divided into a finite number of subregions, say N, called “elements” (Fig.
+12).
+FIGURE 12 	DIVISION OF A REGION INTO SUBREGIONS
+The total potential energy of the region is then the sum of the potential energy of the
+subregions, i.e.
+π = � πi
+N
+i=1
+Equation 2-27
+
+-- 49 of 116 --
+
+THE FINITE ELEMENT METHOD
+48
+with
+πi 	= � �ε T C �1
+2 ε − A�∆T� − f T u� dV − 	� tT udS
+S σi
+v i
+Equation 2-28
+The volume Vi is that of the i th element while Sσi is that portion of the surface which bounds the
+i th element.
+The displacement matrix u is now represented within a typical element as
+ui 	= Di qi
+Equation 2-29
+where the components of q i are displacements and possibly displacement derivatives at a number
+of nodal points of the element and those of Di are functions of position within the element, called
+interpolation functions, which define the variation of the displacement matrix within the element
+and on its surface. Since the displacement matrix u must be continuous over the entire region, it
+follows that the displacements at the common nodes of the interelement boundary of two
+adjoining elements must be the same and that the functional representations of the displacements
+over the common · boundary must be identical. The strain matrix εi is then obtained as
+ε i 	= Bi qi
+Equation 2-30
+in which Bi is a matrix the elements of which are, in general, function of position. Thus
+πi 	= qi
+T �1
+2 ki qi − Fi �
+Equation 2-31
+with
+ki 	= � Bi
+TCi Bi dV
+v i
+Equation 2-32
+and
+
+-- 50 of 116 --
+
+THE FINITE ELEMENT METHOD
+49
+Fi 	= � Di
+TfdV + 	� Di
+Ttn dS + � Bi
+TCi Aı
+����∆Ti dV
+v i	S σi
+v i
+Equation 2-33
+The matrix ki is called the element stiffness matrix. The components of Fi are equivalent
+applied nodal forces which are consistent with the assumed displacement distribution.
+With some manipulation, the potential energy of the entire region given by
+π = � πi
+N
+i=1
+Equation 2-34
+may be expressed in the form
+π = qT �1
+2 Kq − F�
+Equation 2-35
+where q is the matrix of all nodal displacements and derivatives arranged consecutively, K is the
+assembled symmetric stiffness matrix of the entire region and F is the assembled nodal load
+matrix. The relationship between qi and q may be defined by
+qi = Mi q
+Equation 2-36
+where M i is a matrix giving the identification between nodal displacements qi of region I and the
+elements of the total nodal displacement matrix q. Then the stiffness matrix K is given by
+K = � Mi
+Tki M
+N
+i=1
+Equation 2-37a
+and
+F = � Mi
+TFi
+N
+i=1
+Equation 2-37b
+
+-- 51 of 116 --
+
+THE FINITE ELEMENT METHOD
+50
+The potential energy must now be minimized with respect to each of the unknown nodal
+displacements and derivatives, say M in number, while those nodal displacements on the surface
+S u must satisfy the prescribed displacement conditions. Then
+δπ = � ∂π
+∂qj
+δqi = 0
+M
+j=1
+Equation 2-38
+where the summation is over all unknown values of qj . Since the values of δqj are arbitrary, the
+minimization procedure leads to the set of equations
+∂π
+∂qj
+= 0 	j = 1, 2, … M
+Equation 2-39
+where there are as many equations as there are unknown values of qj .
+The 	procedure 	outlined 	above 	leads 	to 	nodal 	values 	which, 	in 	general, 	are 	an
+approximation of the actual nodal values and which define approximate element stresses
+obtained from the equation
+σ i 	= Ci Bi qi
+Equation 2-40
+The accuracy of the approximation may be improved by
+a) 	Decreasing the size of the subregions and increasing their number, with the interpolation
+functions for each region unchanged (the h-method).
+b) 	Increasing the number of nodal points and the complexity of the polynomial interpolation
+functions in the subregions, with the number of subregions unchanged (the p-method).
+c) 	A combination of methods (a) and (b) wherein the size of some elements is decreased and
+their number increased with no change in the interpolation functions while for other
+elements the size is unchanged but the complexity of the interpolation functions and
+number of nodal points is increased (the h-p method).
+
+-- 52 of 116 --
+
+THE FINITE ELEMENT METHOD
+51
+2.4. 	Interpolation Functions
+The interpolation functions which define element displacements at points other than at the
+nodes are not completely arbitrary but are required to satisfy certain conditions imposed by the
+form of the strain energy function and by convergence requirements:
+a) 	Nodal displacements consistent with constant strain should not yield nonconstant strains
+in the element. Nodal displacements consistent with rigid body motion should yield zero
+element strains.
+b) 	The derivation of section 2.3 requires that the displacements along the common edge of
+adjoining elements are such that the stresses or forces along that edge do no work in
+acting through the virtual displacements associated with each element. For strains
+involving only first derivatives of displacements, the implication is that displacements
+along the common edge of adjoining elements, and hence the functions defining those
+displacements, should be identical; for strains involving second derivatives (beams,
+plates, shells), first derivatives of displacements should be identical as well. In particular
+the derivatives normal to the common edge should be identical in this case.
+Elements involving displacement functions satisfying these conditions are called conforming
+elements.
+The satisfaction of condition (b) may be difficult to achieve. It is possible, however, to obtain
+convergence of the finite element process with the use of displacements functions which violate
+continuity requirements, but which satisfy continuity in the limit as the size of the element
+decreases. Such elements are called non-conforming elements. The condition is ensured if the
+previous constant strain requirement (a) is satisfied and if displacement continuity occurs under a
+constant strain condition. A test for the achievement of such continuity is known as the &quot;patch
+test&quot;. It requires that an arbitrary group of elements having a common node be given nodal
+displacements corresponding to a constant strain condition. The finite element equilibrium
+equation at that node must then be satisfied identically to ensure continuity satisfaction.
+The interpolation functions are usually taken as polynomials of orders depending on the
+number of nodes and nodal variables. The coefficients of the polynomial terms are equal in
+number to the total number of nodal variables and are obtained by requiring that the function
+give the desired nodal variables at the chosen nodal points.
+Linear interpolation functions yield the simplest elements and are often used. For a
+normalized square, for example, displacements are expressible as (Fig. 13)
+u = � Ni ui
+4
+i=1
+Equation 2-41a
+
+-- 53 of 116 --
+
+THE FINITE ELEMENT METHOD
+52
+v = � Ni vi
+4
+i=1
+Equation 2-41b
+with
+N1 = (1 − ξ)(1 − η)
+N2 = (1 − ξ)(1 − η)
+N3 = (1 − ξ)(1 + η)
+N4 = (1 − ξ)(1 + η)
+−1 ≤ ξ ≤ +1
+−1 ≤ η ≤ +1
+Equation 2-42
+FIGURE 13 	LINEAR INTERPOLATION FUNCTIONS
+
+-- 54 of 116 --
+
+THE FINITE ELEMENT METHOD
+53
+In the p-method of analysis considerably increased accuracy relative to the number of
+additional unknowns is achieved by increasing the complexity of the polynomial interpolation
+function while keeping the element size constant. Additional unknown quantities associated with
+the element can be defined in a variety of ways. For problems which require only displacement
+continuity (called C 0 continuity) displacements at additional nodal points along the element sides
+and in the element interior may be introduced. It is also possible to use higher order derivatives
+at the original nodes as additional unknowns, in which case continuity of first derivatives as well
+as displacements (called C 1 continuity) is obtainable.
+In both of the above types of higher order elements, the stiffness matrix must be recalculated
+anew for each new set of unknowns. Hierarchic interpolation functions have the advantage of
+requiring only the calculation of additional row and column terms for the added unknowns. For
+these interpolation functions, nodes are introduced at element corners. Unknown quantities for
+C 0 continuity are chosen as corner node displacements and as higher order derivatives at the
+element side midpoints. Each additional set of derivatives is associated with polynomial terms
+having the same order as the derivatives and which vanish at the element corners. Hierarchical
+shape functions for C 1 continuity can be obtained but with more difficulty.
+
+-- 55 of 116 --
+
+THE FINITE ELEMENT METHOD
+54
+2.5. 	Isoparametric Elements
+Element interpolation functions are readily derived for single geometric shapes, i.e.,
+triangles, rectangles, tetrahedrons, and cubes. In many applications of the finite element method
+it may be desirable, however, to consider elements with more irregular shapes and with curved
+rather than straight edges. In particular, curved elements may be used to closely model curves or
+surfaces. Interpolation functions for simple shapes may be extended to these more complicated
+shapes by a transformation of coordinates which map the boundaries of the irregular element
+onto those of the regular element. While this transformation can be effected in many ways, a
+very useful mapping is one for which the mapping function and the interpolation function are of
+the same form. The elements resulting from this type of mapping are called isoparametric
+elements. If the simple element is conforming, the isoparametric element will likewise be
+conforming.
+Displacements in the simple geometric shape are assumed in the form
+u(ξ) = D(ξ)q
+Equation 2-43
+where q is the matrix of nodal unknowns and coordinates ξ denote non-dimensional position in
+the element. These can be normalized area and volume coordinates for triangles and tetrahedra,
+respectively, and normalized Cartesian coordinates in rectangles and cubes. The transformation
+mapping the complex element onto the simple element is then taken as
+x = D(ξ)x�
+Equation 2-44
+with x� the matrix of nodal coordinates. Thus the number of nodes that must be considered on
+each edge is governed by the shape of the element to be mapped. For example, a quadrilateral
+can be obtained by using a linear interpolation function for a square and the four corner nodes.
+The inclusion of additional nodes and interpolation functions of higher order will result in
+quadrilaterals with curved sides (Figure 14).
+
+-- 56 of 116 --
+
+THE FINITE ELEMENT METHOD
+55
+FIGURE 14 	ISOPARAMETRIC MAPPINGS OF QUADRILATERAL
+REGIONS
+In order to use isoparametric elements, the variational functions which are expressed in
+terms of a Cartesian coordinate system must be expressed in terms of the parametric coordinates.
+In two dimensions
+x = x(ξ, η)
+Equation 2-45a
+y = y(ξ, η)
+Equation 2-45b
+
+-- 57 of 116 --
+
+THE FINITE ELEMENT METHOD
+56
+so that
+∂
+∂x = ∂
+∂ξ
+∂ξ
+∂x + ∂
+∂η
+∂η
+∂x
+Equation 2-46a
+∂
+∂y = ∂
+∂ξ
+∂ξ
+∂x + ∂
+∂η
+∂η
+∂y
+Equation 2-46b
+where
+⎩
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎧∂ξ
+∂x
+∂ξ
+∂y
+∂η
+∂x
+∂η
+∂y⎭
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎫
+= 1
+J �
+0 	0 	0 	1
+0 	−1 	0 	0
+0 	0 	−1 	0
+1 	0 	0 	0
+�
+⎩
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎧∂y
+∂ξ
+∂x
+∂η
+∂y
+∂ξ
+∂y
+∂η⎭
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎫
+Equation 2-47
+and
+J = det ��
+∂x
+∂ξ
+∂x
+∂η
+∂y
+∂ξ
+∂y
+∂η
+��
+Equation 2-48
+Thus
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧ ∂u
+∂x
+∂v
+∂y
+∂u
+∂y + ∂v
+∂x⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
+= �
+1 	0 	0 	0
+0 	0 	0 	1
+0 	1 	1 	0
+�
+⎩
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎧∂u
+∂x
+∂u
+∂y
+∂v
+∂x
+∂v
+∂y⎭
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎫
+= 1
+J �
+1 	0 	0 	0
+0 	0 	0 	1
+0 	1 	1 	0
+�
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ ∂y
+∂η − ∂y
+∂ξ 0 	0
+− ∂x
+∂η
+∂x
+∂ξ 0 	0
+0 	1 ∂y
+∂η − ∂y
+∂ξ
+0 	0 	− ∂x
+∂η
+∂x
+∂ξ ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+⎩
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎧∂y
+∂ξ
+∂y
+∂η
+∂v
+∂ξ
+∂v
+∂η⎭
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎫
+Equation 2-49
+And
+
+-- 58 of 116 --
+
+THE FINITE ELEMENT METHOD
+57
+dxdy = Jdξdη
+Equation 2-50
+The resulting integrals must be evaluated numerically since exact integration is usually difficult
+or impossible in terms of known functions.
+It is also possible to define elements with different interpolation functions and mapping
+functions, i.e.,
+u(ξ) = D(ξ)q
+Equation 2-51a
+x = D�(ξ)x�
+Equation 2-51b
+with
+D�(ξ) ≠ D(ξ)
+Equation 2-51c
+If the interpolation functions are of higher order than the mapping functions, the element is said
+to be subparametric. Hierarchic elements are subparametric if a linear or quadratic mapping
+transformation is used. If the interpolation functions are of lower order than the mapping
+functions, the element is said to be superparametric. Subparametric elements generally satisfy
+convergence and completeness requirements. Superparametric elements may cause problems,
+however, and must be investigated for completeness and compatibility.
+2.6. 	Numerical Integration
+While the integrals required for stiffness and nodal force matrices may often be expressed in
+explicit form, it is sometimes more convenient and less time consuming to use methods of
+numerical integration for their calculation. These consist of expressing the integral as a
+summation of products of values of the function at specified sampling points and weighting
+constants.
+In one dimension, then,
+� f(ξ)dξ = � Wi f(ξi )
+M
+i=1
+1
+−1
+Equation 2-52
+
+-- 59 of 116 --
+
+THE FINITE ELEMENT METHOD
+58
+If the values of ξi are equally spaced, m sampling points yield m unknown values of Wi which
+can be chosen to integrate a polynomial of degree m-1 exactly. This method is known as
+Newton-Cotes quadrature. If, however, the locations of the sampling points are unknown as well,
+m sampling points yield 2m unknowns which can integrate a polynomial of 2m-1 exactly. This
+method is known as Gauss quadrature and is preferable in that fewer sampling points are
+required for a polynomial of a given degree. Consider, for example, a third degree polynomial
+f = a + bξ + cξ2 + dξ3 − 1 &lt; ξ &lt; −1
+Equation 2-53
+Then
+� f dξ
+1
+−1
+= 2a + 2
+3 c
+Equation 2-54
+The use of two Guass points at ξ=ξ1 , ξ2 then requires that
+W1 �a + bξ1 + cξ1
+2 + dξ1
+3 � + W2 �a + bξ2 + cξ2
+2 + ξ2
+3 � = 2a + 2
+3 c
+Equation 2-55a
+Equating coefficients of a, b, c and d on both sides of the equations yields four relations from
+which is obtained
+W1 = W2 = 1
+Equation 2-55b
+ξ1 = −ξ2 = 1
+√3
+Equation 2-55c
+Newton Cotes integration would have required the use of 4 sampling points.
+For a square or a cube, integration can be considered to be carried out first in one
+direction and then in the other. Thus for a two-dimensional square
+� � f(ξ, η)dξdη = � Wi 	� f�ξi , η�dη = � � Wi Wj f(ξi , η j )
+N
+j=1
+M
+i=1
+1
+−1
+M
+i=1
+1
+−1
+1
+−1
+Equation 2-56
+
+-- 60 of 116 --
+
+THE FINITE ELEMENT METHOD
+59
+where the point locations and weighting functions are identical to those of one dimensional
+Gauss quadrature. The number of sampling points need not be the same in both directions but are
+usually taken to be identical. For a cube, similarly,
+� � � fξ, η, ζ dξ dη dζ = � � � Wi Wj Wk f(ξi , η j , ζ k )
+P
+k=1
+N
+j=1
+M
+i=1
+1
+−1
+1
+−1
+1
+−1
+Equation 2-57
+2.7. 	Reduced Integration
+While numerical integration using an appropriate number of Gauss sampling points can
+exactly integrate polynomial expressions of a given order, exact integration may lead to
+erroneous results in some cases. Examples of problems for which errors will occur with exact
+integration are those involving isotropic elasticity elements with Poisson&#39;s ratio v near 1/2 or thin
+beam, or plate and shell elements with shear flexibility. The strain energy associated with
+volume change should become small compared to to strain energy of shape change as Poisson&#39;s
+ratio approaches 1/2, in the former case. In the latter case, the strain energy associated with shear
+deformation should become small compared to the strain energy of bending as the thickness
+decreases.
+The difficulty arises from the circumstance that the part of the structural stiffness matrix
+associated with the vanishing portion of the strain energy actually becomes increasingly
+dominant and the structure overly stiff. The displacements obtained from the analysis then
+decrease to zero as Poisson&#39;s ratio approaches 1/2 or thickness approaches zero, giving a set of
+erroneous displacements which satisfies the condition of zero volume change or of zero shearing
+deformation. The situation is usually remedied by reduced integration, i.e., the use of fewer
+Gauss sampling points for numerical integration of the offending terms than are required for
+exact integration. If the number of points is reduced sufficiently, that pan of the stiffness matrix
+will become singular and will result in accurate solutions.
+2.8. 	Solution of simultaneous Linear Expressions
+The set of finite element equilibrium equations, however obtained, must b e solved to achieve
+the purpose of the analysis. Although there are a number of ways to solve simultaneous linear
+equations, the method which is most widely used is that of Gauss elimination. In this method the
+equation
+Kq = F
+Equation 2-58a
+is transformed to the form
+
+-- 61 of 116 --
+
+THE FINITE ELEMENT METHOD
+60
+Uq = F�
+Equation 2-58b
+where U is an upper triangular matrix, i.e., all elements of the matrix below the principal
+diagonal are zero. The process of matrix transformation to upper diagonal form consists of using
+the first equation to eliminate q1 from the second and succeeding equations. The second equation
+is then used to eliminate qz from the third and succeeding equations. The process of elimination
+is continued until the last equation consisting of a single term in the U matrix is obtained. The
+values of q are then obtained by solving the last equation for qN alone, then substituting the
+result in the preceding equation to yield qN-1 , and so on.
+2.9. 	Stress Calculations
+The end result of the analysis, the distribution of stresses in the structure, can be obtained
+from an appropriate finite element expression once the displacements are calculated. The stress
+values will vary over the element. At the boundary between adjoining elements with only C 0
+continuity imposed, the first derivatives of displacement normal to the edge and henc the stresses
+will be discontinuous. Similarly for beams, plates and shells which require C 1 continuity, the
+second and mixed derivatives of displacements will usually be discontinuous at the boundary of
+adjoining elements and will lead to discontinuous stresses. The question of what are accurate
+stress values therefore arises. Investigations have shown that the most accurate stress values are
+those at the Gauss integration points. These values are calculated in the analysis and are
+extrapolated to yield stresses at element boundaries.
+
+-- 62 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+61
+Chapter 3. 	Vibration Frequencies of
+Structures
+
+-- 63 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+62
+3.1. 	Vibration Modes and Frequencies
+A structure which is initially disturbed from a rest state will continue in motion without the
+application of force. For small deformations, this motion can be expressed as the superposition of
+vibration modes, each of which has a sinusoidal time variation with a distinct frequency. Such
+motions are called free harmonic vibrations. The modes of vibration are orthogonal, a fact which
+renders them useful in solving problems of the response of structures under time dependent
+loading as well as under specified initial conditions.
+3.2. 	Finite Element Analysis
+The variational principle for determination of vibration modes and frequencies is given by
+δ(U + V) = 0
+Equation 3-1
+where U is the strain energy stored in the body given by
+U = 1
+2 � ε T Cεdv
+V
+Equation 3-2
+And V is the kinetic energy of the body
+V = 1
+2 � ρ
+V
+� �∂ux
+∂t �
+2
++ �∂uy
+∂t �
+2
++ �∂uz
+∂t �
+2
+� dv
+Equation 3-3
+For plates and shells where the displacements are assumed to be given by
+ux = ux
+����(x, y, t) + zΨy (x, y, t)
+uy = uy
+����(x, y, t) − zΨx (x, y, t)
+uz = uz
+����(x, y, t)
+the kinetic energy becomes
+V = 1
+2 � �ρ �∂u� x
+∂t �
+2
++ �∂u� y
+∂t �
+2
++ �∂u� z
+∂t �
+2
++ ρh3
+12 ��∂Ψx
+∂t �
+2
++ �∂Ψy
+∂t �
+2
+�� dA
+A
+where integration is over the area of the middle surface.
+
+-- 64 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+63
+The displacement are expressed as the product of a function of space and a harmonic
+function of time
+ux = ux
+����(x, y, z)eiωt
+Equation 3-4a
+uy = uy
+����(x, y, z)eiωt
+Equation 3-4b
+uz = uz
+����(x, y, z)eiωt
+Equation 3-4c
+The use of the notation
+u� = �
+ux
+����
+uy
+����
+uz
+����
+�
+Equation 3-5
+and ε� for the space portion of the strain matrix, yields the variational equation as
+δ �1
+2 ���ε� T Cε� − ω2 ρu� T u��dv�� = 0
+Equation 3-6
+The usual finite element approximations then lead to a set of homogeneous simultaneous
+equations of the form
+�K − ω2 M�{q} = {0}
+Equation 3-7
+where K is the static stiffness matrix of the structure and M is a mass matrix. If the interpolation
+functions for displacements are used to determine the mass matrix M, the result will be banded.
+It is called the consistent mass matrix since it is consistent with the assumptions used to
+determine K. Sometimes a diagonal matrix M, called a lumped mass matrix, is used. This implies
+that the mass of the structure is concentrated at nodal points. There are no terms in the mass
+matrix for those equations corresponding to minimization with respect to nodal displacement
+derivatives 	so 	that 	nodal 	displacement 	derivatives 	may be expressed 	in 	terms 	of 	nodal
+displacements and eliminated from the equations. Diagonalization of the mass matrix may also
+
+-- 65 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+64
+be obtained by using a diagonal value which is the sum of all of the mass matrix elements in a
+given row and avoids the elimination of nodal displacement derivatives.
+For values of q other than zero to exist, the matrix of coefficients of Eqs. (3.7) must be
+singular. Thus the characteristic equation for the vibration frequencies ω is given by
+det�K − ω2 M� = 0
+Equation 3-8
+The corresponding nodal values q which determine the vibration mode shapes are obtained by
+eliminating one of Eqs. (3.7) and solving for N-1 of the elements of q in terms of the Nth
+element. The vibration modes may be normalized to satisfy the weighted orthogonality condition
+�qi � T[M]�qi � = δij
+Equation 3-9a
+where
+δij = �0 if i ≠ j
+1 if i = j
+Equation 3-9b
+3.3. 	Solution of Linear Eigenvalue Problems
+The set of equations described by
+�K − ω2 M�{q} = 0
+Equation 3-10
+is called a linear eigenvalue problem. The characteristic equation for the eigenvalue ω2 is given
+by
+det�K − ω2 M� = 0
+Equation 3-11
+which, if expanded, would yield a polynomial equation for ω2 . The order of the polynomial is
+equal to the order of the matrices involved. Unless the matrices are of low order, expansion is not
+attempted. In any case, exact solutions are known only for polynomials of fourth order or less.
+Thus iterative numerical methods must be used. There are numerous methods [11] , some of which
+are discussed below.
+
+-- 66 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+65
+3.3.1. Subspace Iteration[11, 13]
+When the number of eigenvalues of the system of equations is large, determination of all
+them may be very time consuming. In many cases, a smaller number of eigenvalues and
+eigenvectors may be sufficient and alternative methods are used. One of these is the method of
+subspace iteration in which an initial set of mode shapes which are likely to represent the
+important modes of the structure is chosen. If the eigenvalue problem is of nth order the number
+of modes chosen is m&lt;&lt;n. These modes are arranged by column to produce the matrix &lt;1&gt;1
+which is of order n x m. The equation
+[K]nxn 	�T2 � nxm = 	[M]nxn 	�ϕ1 �nxm
+Equation 3-12
+is then solved for T2 . Define now
+K (mxm)
+(2) = T2
+TKT2
+Equation 3-13a
+M (mxm)
+(2) = T2
+TMT2
+Equation 3-14a
+and solve, say by the Jacobi method, for the eigenvalues and eigenvectors of the system
+K (2) V2 = M (2) V2 Λ 2
+Equation 3-15
+An improved set of eigenvectors is now
+ϕ2 = T2
+TV2
+Equation 3-16
+The process is repeated using the operations
+KTk+1 = Mϕk
+Equation 3-17a
+K (k+1) = Tk+1
+T 	KTk+1
+Equation 3-17b
+M (k+1) = Tk+1
+T 	MTk+1
+Equation 3-17c
+
+-- 67 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+66
+K (k+1) Vk+1 = M (k+1) Vk+1 Λ k+1
+Equation 3-17d
+ϕk+1 = Tk+1
+T 	Vk+1
+Equation 3-17e
+until convergence is achieved.
+A check on whether the desired eigenvalues and eigenvectors have been obtained is
+afforded by the S turm sequence property of the eigenvalue problem which states that if the
+matrix [K – ω2M] with a given value of ω2 is decomposed into the form
+�K − ω2 M� = ST S
+Equation 3-18
+where S is an upper triangular matrix, the number of eigenvalues less than ω2 is equal to the
+number of negative diagonal elements of S . Thus if the subspace iteration method has produced
+m eigenvectors which are supposedly the m lowest eigenvectors, then the use of a value of ω2
+slightly greater than ωm
+2 should produce exactly m negative diagonal values of S.
+3.3.2. Lanczos Algorithm
+A method of eigenvalue extraction which has been found to involve considerably less
+computation time for large eigenvalue problems is the Lanczos algorithm. The stiffness matrix K
+is decomposed into the form
+K = LLT
+Equation 3-19
+where L is a lower triangular matrix. The substitutions
+Y = LT q
+Equation 3-20a
+λ� = 1
+ω2
+Equation 3-20b
+transform the eigenvalue problem to the form
+AY = λ�Y
+Equation 3-21a
+
+-- 68 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+67
+with
+A = �L−1 �M�L−1 �
+T
+Equation 3-21b
+The matrix A is then transformed to a symmetric tridiagonal form with the use of an orthogonal
+matrix V such that
+VT AV = T
+Equation 3-22
+with T tridiagonal. The substitution
+Y = VQ
+Equation 3-23
+results in
+TQ =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡α1 	β1
+β1 	α2 	β2
+β2 	α3 	β3
+β3 	α4 	.
+. 	. 	.
+. 	. 	.
+βn−2 	αn 	βn−1
+βn−1 	αn ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Q = 1
+λ Q
+Equation 3-24
+which can be solved easily for accurate eigenvalues using a determinant search method (the
+bisection method) in conjunction with the Sturm sequence property of the eigenvalues. Not all of
+the n eigenvalues are found. The number of eigenvector components and equations is usually
+truncated 	to 	a 	value 	m&lt;n, 	where 	m 	is 	twice 	the 	number 	of 	desired 	eigenvalues. 	The
+corresponding eigenvectors Q may be found by the method of inverse iteration.
+The column vectors of the matrix V are generated so that each is orthogonal to the two
+preceding vectors. From the definition
+AV = VT
+Equation 3-25a
+can be obtained the relation
+
+-- 69 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+68
+AVi 	= βi−1Vi−1 + α i Vi 	+ βi Vi+1
+Equation 3-25b
+Where Vj is the jth column vector of V and satisfies the relation
+ViTVj 	= δij
+Equation 3-25c
+If Vi and Vi-1 are known, then
+α i 	= ViTAVi
+Equation 3-26a
+βi 	= �WiTWi �
+1 2	�
+Equation 3-26b
+with
+Wi 	= AVi 	− βi−1Vi−1 − α i Vi
+Equation 3-26c
+and
+Vi+1 = 1
+βi
+Wi
+Equation 3-26d
+The sequence of operations is started by using the first column of the unit vector as V1 and β0
+taken as zero.
+After a number of steps, the Lanczos vectors Vi may lose orthogonality because of
+truncation of the number of eigenvalues and will require reorthogonalization. Vector
+reorthogonalization is achieved by a procedure which can be summarized as follows
+Si+1 = Pi Pi−1 … P1 Wi
+Equation 3-27a
+Pi+1Si+1 = βi ei+1
+Equation 3-27b
+
+-- 70 of 116 --
+
+VIBRATION FREQUENCIES OF STRUCTURES
+69
+Vi+1 = P1 P2 	… Pi+1ei+1
+Equation 3-27c
+with
+P1 	= I
+Equation 3-27d
+and ej the j th column of the unit matrix. The eigenvectors of the original equation are then
+q = �L−1 �
+T P1 P2 … . . Pm
+Q
+0
+Equation 3-28
+
+-- 71 of 116 --
+
+BUCKLING OF STRUCTURES
+70
+Chapter 4. 	Buckling of Structures
+
+-- 72 of 116 --
+
+BUCKLING OF STRUCTURES
+71
+4.1. 	The Phenomenon of Buckling
+In the linear theory of structural analysis, the behavior of a structure under a given loading is
+unique. For specified loading and support conditions the structure can deform in only one way
+and have only one internal stress state. For sufficiently large loads the nonlinear aspects of
+structural behavior can no longer be ignored. One of the causes of nonlinearity is nonlinear
+material behavior for which Hooke&#39;s law no longer applies. It is possible, however, for the
+structure to behave in a nonlinear fashion while the material is still in the elastic range. This is
+especially true for structures for which one dimension is small compared to the others, such as in
+long beams or thin plates and shells.
+One of the phenomena which may occur is that of buckling. The classic example is that of an
+axially compressed initially straight beam which is found to have two distinct equilibrium
+positions, the straight position and a deflected position, when the load exceeds a certain critical
+value. Similarly, an initially flat plate under inplane loading can deflect laterally and remain in
+equilibrium when the load exceeds a critical value. In both of these cases the critical load is a
+reasonably accurate measure of the load below which deflections will not become excessive.
+Thin shells are also subject to buckling, but the effect of small initial deviations from the
+idealized shape can result in actual critical loads which are very much less than those calculated
+theoretically. For these structures recourse is usually had to empirical &quot;knockdown factors&quot; by
+means of which the theoretical load is reduced.
+4.2. 	Calculation of Critical Loads
+Critical loads are calculated by considering a structure which has an initial stress and
+deformation state due to some distribution of externally applied loads with a magnitude governed
+by a proportionality factor λ. When the linear theory of elasticity is used, the calculated initial
+stress and deformation states are proportional to the external loading and thus have a magnitude
+which varies linearly with λ. The equilibrium of the structure when arbitrary infinitesimal
+disturbances of the initial deflection state are superimposed is then investigated. The equations of
+equilibrium are linearized with respect to the small disturbances so that their solution by means
+of the finite element method leads to a set of simultaneous linear equations for the modal
+unknowns of the form
+�KB − λKG �{q} = {0}
+Equation 4-1
+where KB is the usual structural stiffness matrix in the absence of applied loading while K G is a
+“geometric stiffness matrix” which is independent of the material properties of the structure.
+
+-- 73 of 116 --
+
+BUCKLING OF STRUCTURES
+72
+For solutions other than the initial stress state to exist, i.e.,
+{q} = {0}
+Equation 4-2
+the determinant of the coefficients matrix must vanish. Then an equation for λ is given by
+det�K − λKG � = 0
+Equation 4-3
+The lowest value of λ which satisfies equation (4.3) is called the critical value, the value at which
+the 	structure 	can 	suddenly 	undergo 	large 	deformations 	which 	differ 	from 	the 	expected
+deformation state under the system of loading. The corresponding distribution of nodal values of
+q is called the buckling mode shape. Relative values of q may be calculated by deleting one
+equation from Eqs (4.1) and solving for the ratio of N- 1 of the nodal values and the Nth nodal
+value.
+4.3. 	Variational Principles for Buckling
+A variational principle from which critical loads can be obtained is given by
+δπB = 0
+Equation 4-4
+with
+πB = 1
+2 ��ε TCε + λ∆ T σ�∆�
+v
+dv
+Equation 4-5a
+and
+∆ T= �∂ux
+∂x
+∂ux
+∂y
+∂ux
+∂z
+∂uy
+∂x
+∂uy
+∂y
+∂uy
+∂z
+∂uz
+∂x
+∂uz
+∂y
+∂uz
+∂z �
+Equation 4-6b
+
+-- 74 of 116 --
+
+BUCKLING OF STRUCTURES
+73
+σ� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ σ xx
+0 	σ xy
+0 	σ xz
+0
+σ yy
+0 	σ yz
+0
+σ xx
+0
+σ xx
+0 	σ xy
+0 	σ xz
+0
+σ yy
+0 	σ yz
+0
+σ zz
+0
+σ xx
+0 	σ xy
+0 	σ xz
+0
+σ yy
+0 	σ yx
+0
+sym 	σ zz
+0 ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 4-5c
+The superscript 0 on the stresses denotes a distribution calculated from linear elasticity theory.
+The coefficient A is the proportionality factor by which the calculated linear stress state must be
+multiplied for buckling to occur. The initial stress state may be the superposition of stress
+distributions with different proportionality factors, i.e.,
+σ� = � λ i σ� i
+P
+i=1
+Equation 4-6
+in which case the variational principle becomes
+δ 1
+2 � �ε TCε + � λ i ∆ T σ� i ∆
+P
+i=1
+� dv = 0
+v
+Equation 4-7
+The variational principle may be specialized for various types of structures and load conditions.
+4.3.1. Inplane Buckling for Plane Stress, Plane Strain,
+Axisymmetric Stress States
+For a body in a state of plane stress or plane strain which is subject only to inplane buckling,
+uz = σ xz
+0 	= σ yz
+0 	= 0
+while ux and uy are functions of x and y only. Then for a orthotropic material
+ε T = �∂ux
+∂x
+∂uy
+∂y
+∂ux
+∂y + ∂uy
+∂x �
+Equation 4-8a
+
+-- 75 of 116 --
+
+BUCKLING OF STRUCTURES
+74
+C = �
+C11
+′ 	C12
+′ 	C13
+′
+C22
+′ 	C23
+′
+sym 	C33
+′
+�
+Equation 4-8b
+∆ T= �∂ux
+∂x
+∂ux
+∂y
+∂uy
+∂x
+∂uy
+∂y �
+Equation 4-8c
+σ� =
+⎣
+⎢
+⎢
+⎢
+⎡ σ xx
+0 	σ xy
+0 	0 	0
+σ yy
+0 	0 	0
+σ xx
+0 	σ xy
+0
+sym 	σ yy
+0 ⎦
+⎥
+⎥
+⎥
+⎤
+Equation 4-8d
+πB = 1
+2 ��ε TCε + λ∆ T σ�∆�
+a
+da
+Equation 4-9
+where the integration is over the area of the body.
+For an axisymmetric body with an initial axisymmetric stress state and which buckles
+axisymmetrically, the function 1tB is of the same form as given in Eq. (4.9). However, the
+matrices in that expression are now defined by
+ε T = �∂ur
+∂r
+∂uz
+∂z
+ur
+r
+∂ur
+∂z + ∂uz
+∂r �
+Equation 4-10a
+C =
+⎣
+⎢
+⎢
+⎡ C11
+′ 	C12
+′ 	C13
+′ 	C14
+′
+C22
+′ 	C23
+′ 	C24
+′
+C33
+′ 	C34
+′
+sym 	C44
+′ ⎦
+⎥
+⎥
+⎤
+Equation 4-10b
+∆ T= �∂ur
+∂r
+∂ur
+∂z
+∂uz
+∂r
+∂uz
+∂z
+ur
+r �
+Equation 4-10c
+
+-- 76 of 116 --
+
+BUCKLING OF STRUCTURES
+75
+σ� =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡ σ rr
+0 	σ rz
+0
+σ zz
+0
+σ rr
+0 	σ rz
+0
+σ zz
+0
+sym 	σ ⏀⏀
+0 ⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+Equation 4-10d
+4.3.2. Straight Beams
+For buckling of straight beams with shear deformations included, the usual assumptions of beam
+theory are made. Then, with x, y, and z denoting the centroidal longitudinal axis and the
+centroidal principle axes, respectively,
+πB = U − 1
+2 � P ��∂ux
+∂x �
+2
++ �∂uy
+∂x �
+2
++ �∂uz
+∂x �
+2
+�
+L
+0
+dx
+Equation 4-11
+where the strain energy U is given by Eqs. (2.1 2) and (2.14) and P is the axial load calculated
+from a linear analysis and assumed positive in compression. With this formulation, the beam
+element may have an arbitrary orientation in space when the proper axis rotations are made. The
+form of the variational equation implies that interpolation functions chosen for displacements
+and rotations need only satisfy C0 continuity at element edges.
+For overall buckling of trusses, the members are assumed to change orientation but to remain
+straight. Then πB may be written as
+πB = 1
+2 � �EA �∂ux
+∂x �
+2
+− P ��∂ux
+∂x �
+2
++ �∂uy
+∂x �
+2
++ �∂uz
+∂x �
+2
+��
+L
+0
+dx
+Equation 4-12
+In all functionals, the term P �∂ux
+∂x �2
+may be deleted since
+P
+EA = σ 0
+E ≪ 1
+Equation 4-13
+
+-- 77 of 116 --
+
+BUCKLING OF STRUCTURES
+76
+4.3.3. Flat Plates
+Assumptions similar to those for linear analysis of flat plates are made for buckling of flat plates.
+Then the functional πB may be written for an isotropic plate as
+πB = U + 1
+2 � �∂uz
+∂x
+∂uz
+∂y � � N� xo 	N� xyo
+N� xyo 	N� yo
+� �
+∂uz
+∂x
+∂uz
+∂y
+� dxdy
+Equation 4-14
+where U is the strain energy given by Eqs. (2.19) to (2.22) and N	� xo, N	� yo, N	� xyoare inplane stress
+resultants in the plate prior to buckling. If shearing deformations are neglected for thin plates, the
+strain energy function is replaced by Eqs. (2.19), (2.25), and (2.26). In the former formulation
+C0continuity is required whereas in the latter C1continuity is needed.
+4.4. 	Calculation of Eigenvalues
+The lowest buckling load is generally the only one of interest so that use of the inverse iteration
+method is indicated. Any of the other eigenvalue extraction methods can be used, however.
+
+-- 78 of 116 --
+
+HEAT TRANSFER
+77
+Chapter 5. 	Heat Transfer
+
+-- 79 of 116 --
+
+HEAT TRANSFER
+78
+5.1. 	Equations of Heat Transfer [13]
+Let qx, qy, and qz be the heat flux in a body in the x, y, and z directions and Q the internally
+generated heat flow. Then the heat balance equation is given by
+Q − ∂qx
+∂x − ∂qy
+∂y − ∂qz
+∂z = cρ ∂T
+∂t
+Equation 5-1
+where T is temperature, c is specific heat, and ρ is mass density.
+The Fourier heat conduction equation relates heat flux and temperature for a thermally
+orthotropic body with axes of orthotropy coinciding with the coordinate axes as
+qx′ = −kx′
+∂T
+∂x′
+Equation 5-2a
+qy′ = −ky′
+∂T
+∂y′
+Equation 5-2b
+qz′ = −kz′
+∂T
+∂z′
+Equation 5-2c
+with kx′, ky′, and kz′ the thermal conductivities in the principal thermal orthotrophy directions.
+These equations can be expressed in matrix form as
+�
+qx′
+qy′
+qz′
+� = −[k′]
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧∂T
+∂x′
+∂T
+∂y′
+∂T
+∂z′⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
+Equation 5-3
+
+-- 80 of 116 --
+
+HEAT TRANSFER
+79
+with
+[k′] = �
+kx′ 	0 	0
+0 	ky′ 	0
+0 	0 	kz′
+�
+Equation 5-4
+The three components of heat conduction can be considered to be components of the heat flux
+vector q. Similarly the three derivatives of T are the three components of the temperature
+gradient vector. Under a rotation of the coordinate system, then, the Fourier heat conduction
+relations become
+�
+qx
+qy
+qz
+� = −[k]
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧∂T
+∂x
+∂T
+∂y
+∂T
+∂z⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
+Equation 5-5
+where
+[k] = �
+kxx 	kxy 	kxz
+kyy 	kyz
+sym 	kzz
+� = NT[k′]N
+Equation 5-6
+with N the rotation matrix given by Eq. (1.8). When the coordinate axis rotation consists of a
+clockwise rotation through an angle θ about the z-axis, the rotation matrix becomes
+N = �
+cos θ 	sin θ 	0
+− sin θ 	cos θ 	0
+0 	0 	1
+�
+Equation 5-7
+and
+[k] = �
+kx′ cos2 θ + ky′ sin2 θ 	�kx′ − ky′ � sin θ cos θ 	0
+kx′ sin2 θ + ky′ cos2 θ 	0
+sym 	kz′
+�
+Equation 5-8
+
+-- 81 of 116 --
+
+HEAT TRANSFER
+80
+The heat balance equation may now be written as
+� ∂
+∂x
+∂
+∂y
+∂
+∂z� [k]
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧∂T
+∂x
+∂T
+∂y
+∂T
+∂z⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
++ Q = cρ ∂T
+∂t
+Equation 5-9
+When cylindrical coordinates r, ϕ, and z are used, as for a body of revolution, the heat balance
+equation is readily derived as
+� ∂
+∂r
+1 ∂
+r∂ϕ
+∂
+∂z� [k]
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧ ∂T
+∂r
+1 ∂T
+r∂ϕ
+∂T
+∂z ⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
++ Q = cρ ∂T
+∂t
+Equation 5-10
+The material is usually assumed to be thermally orthotropic with one axis of orthotropic
+coinciding with the circumferential ⏀ direction. Then [k] is of the form of Eq. (5.8) with kx′ and
+ky′ replaced by the equivalent conductivities in the r-z plane while kz′ is replaced by the
+conductivity k⏀.
+Boundary conditions that may be imposed are the following:
+(a) temperature T* may be prescribed on portion ST of the boundary S
+(b) heat flux q* may be prescribed on portion ST of the boundary S. Since heat flow occurs
+normal to the boundary, the prescribed heat flux is given by
+q�⃗ . n�⃗ = qxnx + qyny + qznz = −�nxnynz �[k]
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧∂T
+∂x
+∂T
+∂y
+∂T
+∂z⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
+= q∗
+Equation 5-11a
+
+-- 82 of 116 --
+
+HEAT TRANSFER
+81
+with n�⃗ the vector normal to the surface Sq and nx, ny, and nz its components. If the surface is
+insulated
+q∗ = 0
+Equation 5-11b
+(c) convective heat transfer conditions may be prescribed on portion SC of S. Then
+q�⃗ . n�⃗ = h(T − T∞)
+Equation 5-12
+with h the convective heat transfer or film coefficient and T∞ the fluid temperature.
+In addition, the temperature distribution within the body must be prescribed at time t=O.
+5.2. 	Variational Statement and the Finite element
+Method
+An equivalent variational principle valid at every instant of time may be written as
+δπT = 0
+Equation 5-13
+where
+πr = �
+⎝
+⎜
+⎛1
+2
+⎩
+⎪
+⎨
+⎪
+⎧∂T ∂x�
+∂T ∂y	�
+∂T ∂z� ⎭
+⎪
+⎬
+⎪
+⎫
+T
+[k]
+⎩
+⎪
+⎨
+⎪
+⎧∂T ∂x�
+∂T ∂y	�
+∂T ∂z� ⎭
+⎪
+⎬
+⎪
+⎫
+− QT − ρcT ∂T
+∂t
+⎠
+⎟
+⎞
+V
+dxdydz + � 	q∗TdS
+S q
++ � 	h �1
+2 T2 − TT∞ � ds
+S c
+Equation 5-14
+and dS is an element of area on the surface S. In this formulation
+∂T ∂t� 	is not subject to variation.
+The body is now divided into elemental subregions and the temperature field within the element
+is represented by
+T = {D}{Tn}
+Equation 5-15
+
+-- 83 of 116 --
+
+HEAT TRANSFER
+82
+where [D] is a row vector of interpolation or shape functions which depend on the position in the
+element and {Tn} is a column vector of nodal temperatures and possible derivatives of the
+temperatures. The shape function need only satisfy C0continuity, i.e., only the function itself
+need be continuous at element boundaries.
+Then
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧∂T
+∂x
+∂T
+∂y
+∂T
+∂z⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
+= [B]{Tn}
+Equation 5-16
+with
+[B] =
+⎩
+⎪	⎪
+⎨
+⎪	⎪
+⎧∂D
+∂x
+∂D
+∂y
+∂D
+∂z ⎭
+⎪	⎪
+⎬
+⎪	⎪
+⎫
+Equation 5-17
+The portion of πT contributed by each element is then given by
+∆πT = {Tn}T �1
+2 ([kT] + [hT]){Tn} − �rQ � + �rq � − [CT] �∂Tn
+∂t � − {r∞}�
+Equation 5-18
+with
+[kT] = �[B]T[k][B]dV
+∆V
+Equation 5-19a
+[hT] = � h
+∆S c
+[D]T[D]dS
+Equation 5-19b
+
+-- 84 of 116 --
+
+HEAT TRANSFER
+83
+�rQ � = � Q[D]T dV
+∆V
+Equation 5-19c
+�rq � = � q∗ [D]T dS
+∆S q
+Equation 5-19d
+�CT � = � ρc[D]T [D]dV
+∆V
+Equation 5-19e
+�r∞ � = � hT∞ [D]T dS
+∆S c
+Equation 5-19f
+Here ∆V is the volume of the element,∆S c is that portion of the boundary S c which is a boundary
+of the element, and ∆S q is that portion of the boundary S q which is a boundary of the element.
+For interior elements these are equal to zero. On the remaining portions of the boundary S T, the
+temperature at nodal points is given by T*
+Assembly of the variational functional ПT yields an expression of the form
+πT = {T}T �1
+2 ��KT � + �HT ��{T} − �RQ � + �Rq � + �CT � �∂T
+∂t � − �R∞ ��
+Equation 5-20
+Where {T} is the matrix of nodal temperatures arranged sequentially and the remaining matrices
+are the assembled versions of those defined by Eqs. (5.19). Minimization with respect to the
+nodal quantities then yields the set of equations
+�CT � �∂T
+∂t � + [K]{T} = {R}
+Equation 5-21
+
+-- 85 of 116 --
+
+HEAT TRANSFER
+84
+with
+[K] = �KT � + �HT � 	{R} = �RQ � + �R∞ � − �Rq �
+Equation 5-22
+Those equations of the above set which represent minimization with respect to nodal
+temperatures on S T should be deleted. In the remaining equations those terms of ∂T ∂t	⁄ 	referring
+to temperatures on S T vanish while the corresponding terms in T are set equal to the prescribed
+temperature. This approach can be applied easily if the prescribed temperature is zero since the
+node at which that temperature is prescribed need not be included in the numbering system. For a
+non-zero prescribed nodal temperature T *
+, another approach is to add a large value of
+conductivity 	Kn 	to 	the 	corresponding 	diagonal 	coefficient 	of 	[K] 	and 	to 	replace 	the
+corresponding 	coefficient 	in 	{R} 	by 	Kn Tn* · 	This 	method 	effectively 	forces 	the 	nodal
+temperature to be equal to the prescribed value for sufficiently large Kn .
+
+-- 86 of 116 --
+
+HEAT TRANSFER
+85
+5.3. 	Solution of Transient Heat Conduction[13]
+The analysis of steady-state heat conduction problems involves the solution of a set of
+simultaneous equations given by Eqs. (5.21) with each term of ∂T ∂t	⁄ 	set equal to zero and with
+Q and q* assumed to be independent of time. This may be accomplished, as for static stress ·
+analysis, by Gaussian elimination. The analysis of transient heat conduction, however, involves
+the solution of Eqs. (5.21) as a set of simultaneous first order linear differential equations in time
+subject to certain initial conditions.
+These equations may be solved by mode superposition, as for dynamic stress problems, by
+determining the eigenvalues and eigenvectors of the equation
+�K − λCT �{T} = {0}
+Equation 5-23
+A more usual approach is to numerically integrate the differential equations. One such method
+uses the assumption that temperatures at time t and t+∆t are related by
+{T}t+∆t = {T}t + �(1 − β) �∂T
+∂t �
+t
++ β �∂T
+∂t � t+∆t
+�
+Equation 5-24
+By writing Eqs. (5.21) for time t and t+∆t, the derivatives of temperature can be eliminated and a
+set of equations for temperature at time t+∆t can be obtained as
+� 1
+∆t �CT � + β[K]� {T}t+∆t = � 1
+∆t �CT � + (1 − β)[K]� (T)t + (1 − β){R}t + β{R}t+∆t
+Equation 5-25
+Thus the problem is reduced to the repeated solution of a set of simultaneous equations. For
+constant .0.t the matrix on the left side of the equation is independent of time and need be
+reduced by Gaussian elimination only once. With given initial values of {T} at t=0 and with
+{R}t=0 at {R}t=∆t known, the set of equations may be solved for {T} t=∆t . The right side is then
+changed using the new values of {T}t=∆t and the values of {R} t=∆t and {R} t=2∆t and the solution
+obtained for {T} t=2∆t and so on.
+In the program β is taken as 1, in which case the method is known as the Euler method. The
+method is unconditionally stable if ∆t is less than 2/∆max. where λmax is the largest eigenvalue of
+Eq. (5.23).
+
+-- 87 of 116 --
+
+THE ELEMENT LIBRARY
+86
+Chapter 6. 	The Element Library
+
+-- 88 of 116 --
+
+THE ELEMENT LIBRARY
+87
+A number of elements for different uses are available in the program. These are discussed
+below.
+6.1. 	TRUSS3D: Linear 3-D Truss/Spar
+FIGURE 15
+Matrix 	Variational Function 	Shape Function 	Integration
+Geometric
+Stiffness
+�k′G �
+1
+2 � 	Px
+∆L
+0
+�∂ux
+∂x �
+2
++ �∂uY
+∂x �
+2
++ �∂uZ
+∂x �
+2
+dx
+P x constant
+uX = uX1 �1 − x
+∆L� + uX2 � x
+∆L�
+uY = uY1 �1 − x
+∆L� + uY2 � x
+∆L�
+uZ = uZ1 �1 − x
+∆L� + uZ2 � x
+∆L�
+Exact, no
+integration
+points
+Mass
+[m′]
+1
+2 � 	ρA�ux
+2 + uy
+2 + uz
+2�dx
+∆L
+0
+ρ, A constant
+uX = uX1 �1 − x
+∆L� + uX2 � x
+∆L�
+uY = uY1 �1 − x
+∆L� + uY2 � x
+∆L�
+uZ = uZ1 �1 − x
+∆L� + uZ2 � x
+∆L�
+Exact, no
+integration
+points
+Gravitational
+Loading
+P g
+� 	ρA�gxux + gyuy + gzuz�dx
+∆L
+0
+ρ, A, gX , gY , g Z constant
+uX = uX1 �1 − x
+∆L� + uX2 � x
+∆L�
+uY = uY1 �1 − x
+∆L� + uY2 � x
+∆L�
+uZ = uZ1 �1 − x
+∆L� + uZ2 � x
+∆L�
+Exact, no
+integration
+points
+
+-- 89 of 116 --
+
+THE ELEMENT LIBRARY
+88
+Transformed Linear Stiffness Matrix:
+kB = TT k′ BT
+with
+T =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡∆X
+∆L
+∆Y
+∆L
+∆Z
+∆L 0 	0 	0
+0 	0 	0 	0 	0 	0
+0 	0 	0 	0 	0 	0
+0 	0 	0 ∆X
+∆L
+∆Y
+∆L
+∆Z
+∆L
+0 	0 	0 	0 	0 	0
+0 	0 	0 	0 	0 	0 ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+and
+∆X = X2 − X1
+∆Y = Y2 − Y1
+∆Z = Z2 − Z1
+∆L = �∆X2 + ∆Y2 + ∆Z2
+Stress:
+σ x = E �ux2 − ux1
+∆L − α∆T�
+σx = E
+⎝
+⎜
+⎜
+⎜
+⎜
+⎛
+− ∆X
+∆L2 − ∆Y
+∆L2 − ∆Z
+∆L2
+∆X
+∆L2
+∆Y
+∆L2
+Z
+∆L2
+⎩
+⎪
+⎪
+⎨
+⎪
+⎪
+⎧ux1
+uy1
+uz1
+ux2
+uy2
+uz2 ⎭
+⎪
+⎪
+⎬
+⎪
+⎪
+⎫
+− α∆T
+⎠
+⎟
+⎟
+⎟
+⎟
+⎞
+
+-- 90 of 116 --
+
+THE ELEMENT LIBRARY
+89
+Transformed Thermal Loading:
+PT =
+⎩
+⎪
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎪
+⎧ ∆X
+∆L
+∆Y
+∆L
+∆Z
+∆L
+− ∆X
+∆L
+− ∆Y
+∆L
+− ∆Z
+∆L⎭
+⎪
+⎪
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎪
+⎪
+⎫
+p′ T
+
+-- 91 of 116 --
+
+THE ELEMENT LIBRARY
+90
+6.2. 	BEAM3D:Linear 3-D Elastic Beam
+FIGURE 16
+For symmetric beams the x axis coincides with the beam centroidal axis and the y and z axes are
+principal centroidal axes. 	Node 3 lies in the principal x-y plane. 	For unsymmetric beams with
+offset, the orientation of the element x, y, and z axes is determined by the location of two offset
+nodes and a third node. The location of the element end nodal points with respect to the member
+end centroids is given in terms of member centroidal coordinate axes x&#39;, y&#39;, and z&#39; defined such
+that the x&#39; axis coincides with the member centroidal axis, the z&#39; axis lies in the element x-z plane
+and is perpendicular to the x&#39; axis, while the y&#39; axis is perpendicular to both the x&#39; and z&#39; axes, the
+three forming a right-handed Cartesian coordinate system. Shear factors, however, are those for
+the member principal axes. Stiffness matrices are first calculated for member principal axes and
+are then transformed to account for the orientation of the various coordinate axes with respect to
+principal axes and for the offsets of the nodes from the centroids of the element end cross-
+sections. If Iy&#39;y&#39;, Iz&#39;z&#39;, and Iy&#39;z&#39; are, respectively, the moments of inertia of the cross-section about
+the y&#39; and z&#39; centroidal axes and the centroidal product of inertia, the principal moments of inertia
+are given by
+�I̅y
+I̅z
+� = �
+1
+2 (1 + cos 2θ) 1
+2 (1 − cos 2θ) 	− sin 2θ
+1
+2 (1 − cos 2θ) 1
+2 (1 + cos 2θ) 	sin 2θ
+� �
+Iy′y′
+Iz′z′
+Iy′z′
+�
+
+-- 92 of 116 --
+
+THE ELEMENT LIBRARY
+91
+where
+−90° ≤ 2θ = tan−1 2Iy′z′
+Iz′z′ − Iy′y′
+≤ 90°
+Matrix 	Variational Function 	Shape Functions 	Integration
+Linear
+Stiffness
+[kB]
+Eq. (2.14) for principal axes
+E, G, v, A, I̅ y, I̅ z, J̅ , k� y, k� z
+ux = ux1 �1 − x
+∆L� + ux2 � x
+∆L�
+uy = 1
+1 + ϕ y
+��1 + ϕ y + x
+∆L − 2 � x
+∆L�
+2
+� �1
+− x
+∆L� uy1
++ x
+∆L �1 − x
+∆L� �1 + 1
+2 ϕ y
+− x
+∆L� Ψz1 ∆L
++ � x
+∆L� �ϕ y + 3 x
+∆L
+− 2 � x
+∆L�
+2
+� uy2
+− x
+∆L �1 − x
+∆L� �1
+2 ϕ y
++ x
+∆L� Ψz2 ∆L�
+uz = 1
+1 + ϕ z
+��1 + ϕ z + x
+∆L − 2 � x
+∆L�
+2
+� �1
+− x
+∆L� uz1
++ x
+∆L �1 − x
+∆L� �1 + 1
+2 ϕ z
+− x
+∆L� Ψy1 ∆L
++ � x
+∆L� �ϕ z + 3 x
+∆L
+− 2 � x
+∆L�
+2
+� uz2
+− x
+∆L �1 − x
+∆L� �1
+2 ϕ z
++ x
+∆L� Ψy2 ∆L�
+Ψx = Ψx1 �1 − x
+∆L� + Ψx2 � x
+∆L�
+Ψy = 1
+1 + ϕ z
+��1 − x
+∆L� �1 + ϕ z − 3 x
+∆L� Ψy1
+− � x
+∆L� �2 − ϕ z − 3 x
+∆L� Ψy2
+− 6 x
+∆L �1 − x
+∆L� �uz2 − uz1
+∆L ��
+Ψz = 1
+1 + ϕ z
+��1 − x
+∆L� �1 + ϕ y − 3 x
+∆L� Ψz1
+− � x
+∆L� �2 − ϕ y − 3 x
+∆L� Ψz2
+− 6 x
+∆L �1 − x
+∆L� �uy2 − uy1
+∆L ��
+Exact, no
+integration
+points
+
+-- 93 of 116 --
+
+THE ELEMENT LIBRARY
+92
+ϕy = 24(1 + v)I̅ z
+k�yAL2 	ϕ z = 24(1 + v)I̅ y
+k� zAL2
+(x, y, z principal axes)
+Geometric
+Stiffness
+[kG ]
+1
+2 � 	Px
+∆L
+0
+��∂uy
+∂x �
+2
++ �∂uz
+∂x �
+2
+� dx
+P x constant
+uy = �1 − x
+∆L�
+2
+��1 + 2 x
+∆L� uy1 + x
+∆L Ψz1∆L�
++ � x
+∆L�
+2
+��3 − 2 x
+∆L� uy2
+− �1 − x
+∆L� Ψz2 ∆L�
+uz = �1 − x
+∆L�
+2
+��1 + 2 x
+∆L� uz1 + x
+∆L Ψy1 ∆L�
++ � x
+∆L�
+2
+��3 − 2 x
+∆L� uz2
+− �1 − x
+∆L� Ψy2 ∆L�
+(Shear Deformation Neglected)
+Exact, no
+integration
+points
+Mass
+[m]
+1
+2 � 	ρA
+∆L
+0
+�ux uy uz Ψx Ψy Ψz �
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡1 	0 	0 	0 	0 	0
+0 	1 	0 	0 	0 	0
+0 	0 	1 	0 	0 	?
+0 	0 	0 I̅ x
+A 0 	0
+0 	0 	0 	0 I̅ z
+A ρ
+0 	0 	0 	0 	0 I̅ y
+A⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+⎩
+⎪
+⎨
+⎪
+⎧ux
+uy
+uz
+Ψx
+Ψy
+Ψz ⎭
+⎪
+⎬
+⎪
+⎫
+dx
+I̅ x = I̅ y + I̅ z
+ρ, A, I̅ x, I̅ y, I̅ z constant
+ux = �1 − x
+∆L� ux1 + � x
+∆L� ux2
+uy = same as for [kG ]
+uz = same as for [kG ]
+Ψx = �1 − x
+∆L� Ψx1 + � x
+∆L� Ψx2
+Ψy = �1 − x
+∆L� �1 − 3 x
+∆L� Ψy1
+− � x
+∆L� �2 − 3 x
+∆L� Ψy2
+− x
+∆L �1 − x
+∆L� �uz2 − uz1
+∆L �
+Ψz = �1 − x
+∆L� �1 − 3 x
+∆L� Ψz1
+− � x
+∆L� �2 − 3 x
+∆L� Ψz2
+− x
+∆L �1 − x
+∆L� �uy2 − uy1
+∆L �
+(Shear Deformation Neglected)
+Exact, no
+integration
+points
+Pressure
+Loading 	� 	�pyuy + pzuz�
+∆L
+0
+dx uy, uz same as those for [kG ]
+Thermal
+Loading
+p&#39;T
+� 	Eα
+∆L
+0
+�A ∆T0
+∂ux
+∂x − I̅ z
+∆Ty
+h
+∂Ψz
+∂x
++ I̅ y
+∂Tz
+b
+∂Ψy
+∂x � dx
+∆T y and ∆T z = constant
+temperature differences in the y
+and z directions, respectively
+ux, Ψy, Ψz same as for [kG ]
+∆T0 = ∆T1 �1 − x
+∆L� + ∆T2
+x
+∆L
+
+-- 94 of 116 --
+
+THE ELEMENT LIBRARY
+93
+Stiffness and Mass Matrix Transformation
+Matrix referred to Global Coordinates 	= (T1 T2 T3 T4 )T (Matrix referred to principal axes) (T1
+T2 T3 T4 )
+The matrix T1 is the transformation matrix from principal to member axes:
+T1(12x12) = �
+R 	0 	0 	0
+0 	R 	0 	0
+0 	0 	R 	0
+0 	0 	0 	R
+�
+R (3x3) = �
+1 	0 	0
+0 	cos θ 	sin θ
+0 	− sin θ 	cos θ
+�
+with θ as defined previously. If the symmetric beam option is used, T1 is set equal to the identity
+matrix I. Matrix T2 is the transformation matrix for translation from element ends to offset nodes
+in member coordinates:
+T2(12x12) = �S1 	0
+0 	S2
+�
+Si(6x6) =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡1 	0 	0 	0 	−DZi 	DYi
+0 	1 	0 	DZi 	0 	−DXi
+0 	0 	1 	−DYi 	DXi 	0
+0 	0 	0 	1 	0 	0
+0 	0 	0 	0 	1 	0
+0 	0 	0 	0 	0 	1 	⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+For the symmetric beam option, T2 is taken as I.
+Matrix T3 is the transformation matrix for rotation from member axes to element axes.
+T3 = �
+Rx′x 	0 	0 	0
+0 	Rx′x 	0 	0
+0 	0 	Rx′x 	0
+0 	0 	0 	Rx′x
+�
+Where the rotation matrix R x&#39;x can be determined from Figure 17 as
+Rx′x =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ LA
+LN
+∆ y′
+LB
+− LA ∆ z′
+LNLB
+− ∆ y′
+LN
+LA
+LB
+∆ y′ ∆ z′
+LNLB
+∆ z′
+LN
+0 LB
+LN 	⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+
+-- 95 of 116 --
+
+THE ELEMENT LIBRARY
+94
+FIGURE 17
+
+-- 96 of 116 --
+
+THE ELEMENT LIBRARY
+95
+where
+∆x′ = DX2 − DX1
+∆y′ = DY2 − DY1
+∆z′ = DZ2 − DZ1
+LA = LCG − ∆x′
+LB = �LA
+2 + y′2 = �LN
+2 − (∆z′)2
+For the symmetric beam option, T3 is set equal to I.
+The matrix T4 is the transformation matrix from element to global coordinates.
+T4(12x12) = �
+R� 	0 	0 	0
+0 	R 	0 	0
+0 	0 	R 	0
+0 	0 	0 	R
+�
+where
+R�(3x3) = �
+nxX 	nxY 	nxZ
+nyX 	nyY 	nyZ
+nzX 	nzY 	nzZ
+�
+When the third point is used
+nxX = X2 − X1
+∆L , 	nxX = Y2 − Y1
+∆L , 	nxX = Z2 − Z1
+∆L
+nzX = NzX
+Nz
+, 	nzY = NzY
+Nz
+, 	nzZ = NzZ
+Nz
+with
+NzX = (Z3 − Z1)(Y2 − Y1) − (Y3 − Y1)(Z2 − Z1)
+NzY = (X3 − X1)(Z2 − Z1) − (Z3 − Z1)(X2 − X1)
+NzZ = (Y3 − Y1)(X2 − X1) − (X3 − X1)(Y2 − Y1)
+Nz = �NzX
+2 + NzY
+2 + NzZ
+2
+
+-- 97 of 116 --
+
+THE ELEMENT LIBRARY
+96
+nyX = nzYnxZ − nzZnxY
+nyY = nzZnxX − nzXnxZ
+nyZ = nzXnxY − nzYnxX
+Here Xi , Yi , Zi are the global coordinates of the three nodes. The matrix is used for both
+symmetric and unsymmetrical beams.
+Force Matrix Transformation:
+f = (T1 T2 T3 T4)T f′
+Stress Calculation:
+The stress is best determined in terms of forces at the member ends. These are given for
+principal axis coordinates as
+⎩
+⎪
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎪
+⎧ Px1
+Py1
+Pz1
+Mx1
+My1
+Mz1
+Px2
+Py2
+Py2
+Mx2
+My2
+Mz2 ⎭
+⎪
+⎪
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎪
+⎪
+⎫
+= k′ B(T1 T2 T3 T4)
+⎩
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎧ux1
+uy1
+uz1
+Ψx1
+Ψy1
+Ψz1
+ux2
+uy2
+uz2
+Ψx2
+Ψy2
+Ψz2 ⎭
+⎪
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎪
+⎫
++ Eα
+⎩
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎧ A∆T0
+0
+0
+0
+I̅ y
+b ∆Tz
+− I̅ z
+h ∆Ty
+−A∆T0
+0
+0
+0
+− I̅ y
+b ∆Tz
+I̅ z
+h ∆Ty ⎭
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎪
+⎫
+The axial stress is then determined as
+σ x′i = (−1)i Px′i
+A − Mz′iy
+I̅ z
++ My′iZ
+I̅ y
+To obtain the torsional stress, the twisting moments must be referred to the shear center
+for an unsymmetrical section. The end forces given above are then premultiplied by the
+transformation matrix.
+
+-- 98 of 116 --
+
+THE ELEMENT LIBRARY
+97
+T5 = �SSC 	0
+0 	SSC
+�
+with
+SSC =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡ 1 	0 	0 	0 	0 	0
+0 	1 	0 	0 	0 	0
+0 	0 	1 	0 	0 	0
+0 	DZSc 	DYSc 	1 	0 	0
+−DZSc 	0 	0 	0 	1 	0
+DYSc 	0 	0 	0 	0 	1⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+i.e., the forces referred to the shear center are given by
+Pshear center = T5Pend
+For the symmetric beam option T 5 is set equal to I, but this is valid only for doubly symmetrical
+beams.
+The torsional stress is then
+τ max = (Mx)(CTOR)
+J
+Tapered Symmetrical Beams:
+For a tapered doubly symmetrical beam, all matrices are calculated as for a doubly
+symmetrical uniform beam with the following equivalent properties:
+A = 1
+3 �A1 + �A1A2 + A2 �
+I̅ y = 1
+5 �I̅ y1 + �Iy1
+−3I̅ y2
+4
++ �I̅ y1I̅ y2 + �I̅ y1Iy2
+−3	4
++ I̅ y2 �
+I̅ z = 1
+5 �I̅ z1 + �Iz1
+−3I̅ z2
+4
++ �I̅ z1I̅ z2 + �I̅ z1Iz2
+−3	4
++ I̅ z2 �
+J = 1
+5 �J1 + �J1
+3J2
+4
++ �J1J2 + �J1J2
+3	4
++ J2 �
+For stress calculations, the actual stiffness at ends 1 and 2 are used.
+
+-- 99 of 116 --
+
+THE ELEMENT LIBRARY
+98
+6.3. 	RBAR: 2-Node Rigid Bar [20]
+FIGURE 18
+Nodes 1 and 2 are connected by a rigid bar and are constrained to have rigid body relative
+displacements and the same rotation. The constraints in vector form are
+θ�⃗ 1 = θ�⃗ 2
+and
+u�⃗ 2 − u�⃗ 1 = 1
+2 �θ�⃗ 1 + θ�⃗ 2 � × (r⃗2 − r⃗1)
+where θ�⃗ is the rotation vector, u�⃗ the displacement vector, and r⃗ the radius vector. These
+constitute a set of six equations which are imposed via the penalty function method. The term
+R = 1
+2 � �Ei(θ 2i − θ1i)2 + Fi �u21 − u1i − 1
+2 � � εijk �θ 2j + θ1j �(x2k − x1k)2
+3
+k=3
+3
+j=1
+��
+3
+i=1
+is used as a variational function. The resulting stiffness matrix is included in the structural
+stiffness matrix. The quantities Ei and Fi are large numbers of the order of lE l0. The single
+subscripts i, j , k indicate the components of the various vectors and Eijk is the permutation
+symbol which is equal to zero if two or more of the subscripts are equal, and
+ε123 = ε 231 = ε 312 = +1, 	ε 321 = ε 213 = ε132 = −1
+
+-- 100 of 116 --
+
+THE ELEMENT LIBRARY
+99
+6.4. 	SPRING: Spring Element
+FIGURE 19
+The element allows input of concentrated axial loads in the direction of the element axis and
+concentrated moments about the element axis which are proportional to the relative
+displacements of the nodes.
+Matrix 	Variational Function 	Shape
+Functions
+Integration
+Linear
+Stiffness
+[k&#39; B]
+1
+2 {ux1 Ψx1 ux2 Ψx2} �
+kaxial 	0 	−kaxial 	0
+0 	ktorsional 	0 	−ktorsional
+−kaxial 	0 	kaxial 	0
+0 	−kaxial 	0 	ktorsional
+� �
+ux1
+Ψx1
+ux2
+Ψx2
+�
+None 	None
+
+-- 101 of 116 --
+
+THE ELEMENT LIBRARY
+100
+6.5. 	SHELL3T: Triangular Thick Shell [24,25,26]
+FIGURE 20
+Material is isotropic.
+Matrix 	Variational Function 	Shop Functions 	Integration
+Linear
+Stiffness
+�k′B 18x18 �
+Eqs. (2.19) to (2.21) 	ux = ux1L1 + ux2L2 + ux3L3
++ 1
+2 y3L3[L2(Ψz3
+− Ψz2)
+− L1(Ψz1 − Ψz3)]
+uy = uy1L1 + uy2L2 + uy3L3
++ 1
+2 [x3L1L2(Ψz1
+− Ψz2)
++ (x2 − x3)L2L3(Ψz3
+− Ψz2)
+− x2L1L2(Ψz2 − Ψz1)]
+uz = uz1L1 + uz2L2 + uz3L3*
+Ψx = Ψx1L1 + Ψx2L2 + Ψx3L3
+Ψ 	= Ψy1L1 + Ψy2L2 + Ψy3L3
+* This is nominally the assumed
+displacement function. Derivation is
+Exact for
+inplane
+energy;
+numerical
+with one
+integration
+point for
+bending
+energy
+
+-- 102 of 116 --
+
+THE ELEMENT LIBRARY
+101
+modified by dividing displacements into
+bending and shear components and
+deleting bending portions of shear
+displacements.
+(L1, L2, L3 area coordinates for triangle.)
+Geometric
+Stiffness
+[k&#39; G ]
+1
+2 � �∂uz
+∂x
+∂uz
+∂y �
+Area
+� Nx 	Nxy
+Nxy 	Ny
+�
+⎩
+⎨
+⎧∂uz
+∂x
+∂uz
+∂y ⎭
+⎬
+⎫
+dx dy
+uz = uz1L1 + uz2L2 + uz3L3 	Numerical, 1
+Gauss point
+Mass
+[m&#39;] 1
+2 � ρ�ux uy uz Ψx Ψy �
+Area
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡ρh 	0 	0 	0 	0
+0 	ρh 	0 	0 	0
+0 	0 	ρh 	0 	0
+0 	0 	0 1
+12 ρh3 	0
+0 	0 	0 	0 1
+12 ρh3
+⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+⎩
+⎪
+⎨
+⎪
+⎧ux
+uy
+uz
+Ψx
+Ψy ⎭
+⎪
+⎬
+⎪
+⎫
+dx dy
+Same as for Linear Stiffness 	Numerical, 1
+Gauss point
+Heat Transfer
+[k&#39; T ]
+[c&#39;T ]
+{r Q }
+h
+2 � �∂T
+∂x
+∂T
+∂y�
+Area
+�kxx 	kxy
+kxy 	kyy
+�
+⎩
+⎨
+⎧∂T
+∂x
+∂T
+∂y⎭
+⎬
+⎫
+dx dy
+h � ρcT ∂T
+∂t dx dy
+Area
+h � QT dx dy
+Area
+T = T1L1 + T2L2 + T3L3 	Numerical
+1 point
+3 points
+1 point
+Pressure
+Loading 	� p uz dx dy
+Area
+Same as for Linear Stiffness 	1 point
+Thermal
+Loading 	� Eα ��∂ux
+∂x + ∂uy
+∂y � ∆T
++ h3
+12 �∂Ψy
+∂x − ∂Ψy
+∂y � ∆Tz � dx dy
+Same as for Linear Stiffness
+∆T = ∆T1L1 + ∆T2L2 + ∆T3L3
+∆Tz constant
+1 point
+Gravitational
+Loading ��gxux + gyuy + gzuz� h dx dy Same as for Linear Stiffness 	1 point
+
+-- 103 of 116 --
+
+THE ELEMENT LIBRARY
+102
+Transformation Matrix for Stiffness and Mass
+k = TT k′T
+where
+T(18x18) =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡R� 	0 	0 	0 	0 	0
+0 	R� 	0 	0 	0 	0
+0 	0 	R� 	0 	0 	0
+0 	0 	0 	R� 	0 	0
+0 	0 	0 	0 	R� 	0
+0 	0 	0 	0 	0 	R�⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+R	� is same as rotation matrix R	� used in BEAM3D
+Load Transformation
+f = TT f′
+No transformation matrix for heat transfer
+
+-- 104 of 116 --
+
+THE ELEMENT LIBRARY
+103
+6.6. 	SHELL3: Triangular Thin Shell
+FIGURE 21
+Material is isotropic.
+Matrix 	Variational Function 	Shape Functions 	Integration
+Linear
+Stiffness 1
+2 � �∂ux
+∂x
+∂uy
+∂y
+∂ux
+∂y + ∂uy
+∂x �
+Area
+�
+K 	−vK 	0
+−vK 	K 	0
+0 	0 1 − v
+2 K
+�
+⎩
+⎪⎪
+⎨
+⎪⎪
+⎧ ∂uy
+∂y
+∂ux
+∂x
+∂ux
+∂y + ∂uy
+∂x ⎭
+⎪⎪
+⎬
+⎪⎪
+⎫
+dx dy
++ 1
+2 � �∂Ψy
+∂x
+∂Ψx
+∂y
+∂Ψy
+∂y − ∂Ψx
+∂x �
+Area
+�
+D 	−vD 	0
+−vD 	D 	0
+0 	0 1 − v
+2 D
+�
+⎩
+⎪⎪
+⎨
+⎪⎪
+⎧ ∂Ψy
+∂x
+∂Ψx
+∂y
+∂Ψy
+∂y − ∂Ψx
+∂x ⎭
+⎪⎪
+⎬
+⎪⎪
+⎫
+dx dy
+ux, uy same as for SHELL3T
+uz is unspecified in interior along sides
+uz = �1 − s
+ɭ�
+2
+��1 + 2 s
+ɭ� uzi + s
+ɭ
+∂uzi
+∂s �
++ �s
+ɭ�
+2
+��3 − 2 s
+ɭ� uzj
++ 1 − s
+ɭ
+∂uzj
+∂s �
+i = end 1, j = end 2, ɭ = length of a side,
+s = distance along side from node I to
+node j
+1 point
+integration
+
+-- 105 of 116 --
+
+THE ELEMENT LIBRARY
+104
+�Ψy
+Ψz
+� = L12L1 − 1 �Ψy1
+Ψz1
+� + L22L2
+− 1 �Ψy2
+Ψz2
+� + L32L3
+− 1 �Ψy3
+Ψz3
+�
++ 4L2L3 �Ψy4
+Ψz4
+�
++ 4L3L1 �Ψy5
+Ψz5
+�
++ 4L1L2 �Ψy6
+Ψz6
+�
+with Ψyi, Ψzi (i = 4, 5, 6) the rotations at
+the side midpoints. These are
+eliminated by imposing the Kirchoff
+conditions
+∂uz
+∂x + Ψy = 0
+∂uz
+∂y + Ψx = 0
+at the corners of the triangles, the
+conditions
+Ψs + ∂uz
+∂s = 0
+at the triangle midsides, with Ψs the
+rotation component in the direction of
+the side, and by imposing a linear
+variation of the normal rotation
+component along the sides, i.e., at the
+side midpoints
+Ψn = 1
+2 �Ψni + Ψnj�
+Geometric
+Stiffness 1
+2 � �∂u
+∂x
+∂u
+∂y
+∂u
+∂y
+∂u
+∂x −Ψn Ψn �
+Area
+⎣
+⎢
+⎢
+⎢
+⎢
+⎢
+⎢
+⎡Nxx
+0 	Nxy
+0 	0 	0 	0 	0
+Nyy
+0 	0 	0 	0 	0
+Nxx
+0 	Nxy
+0 	0 	0
+Nyy
+0 	0 	0
+Nxx
+0 	Nxy
+0
+Nyy
+0 ⎦
+⎥
+⎥
+⎥
+⎥
+⎥
+⎥
+⎤
+⎩
+⎪
+⎪
+⎪
+⎪
+⎨
+⎪
+⎪
+⎪
+⎪
+⎧ ∂ux
+∂x
+∂uy
+∂y
+∂ux
+∂y
+∂uy
+∂x
+−Ψy
+Ψx ⎭
+⎪
+⎪
+⎪
+⎪
+⎬
+⎪
+⎪
+⎪
+⎪
+⎫
+dx dy
+Same Shape Functions as for Linear
+Stiffness
+Exact
+All other variational functions are identical
+with those for SHELL3T
+Same Shape Functions as for Linear
+Stiffness
+Exact, no
+integration
+points
+
+-- 106 of 116 --
+
+THE ELEMENT LIBRARY
+105
+Transformation Matrix
+T =
+⎣
+⎢
+⎢
+⎢
+⎢
+⎡R 	0 	0 	0 	0 	0
+0 	R 	0 	0 	0 	0
+0 	0 	R 	0 	0 	0
+0 	0 	0 	R 	0 	0
+0 	0 	0 	0 	R 	0
+0 	0 	0 	0 	0 	R⎦
+⎥
+⎥
+⎥
+⎥
+⎤
+R is identical with 3rd node transformation for BEAM3D.
+
+-- 107 of 116 --
+
+NOTATION TABLE
+106
+Notation Table
+A 	area of a cross-section of a beam
+A	� 	thermal expansion coefficient matrices (Eq. 1.37)
+A	� 	beam thermal expansion matrix
+Bi 	matrix of strain function of position within the i th finite element
+C, C&#39; 	symmetric elastic coefficient matrices defining stress in terms of strain, referred to
+different coordinate systems (Eq. 1.36, 1.40a)
+C i 	elastic constant matrix for i th finite element
+C tor 	coefficient for maximum shear stress of a section in torsion
+C� 	beam elastic stiffness matrix
+C� 	flat plate elastic stiffness matrix
+C� 	elastic coefficient matrix for a conical shell
+c 	specific heat
+c� 	shifting parameter for frequency
+D 	isotropic plate bending stiffness
+Di 	matrix of displacement functions of position within the i th finite element
+Ds, Dϕ 	meridional and circumferential bending stiffnesses for an orthotropic conical
+shell
+E, E&#39; 	square symmetric strain matrix of nine strain components at a point referred to
+different coordinate systems (Eqs 1.23, 1.26)
+E 	Young’s modulus of isotropic material
+εi 	strain matrix for the i th finite element
+Eii 	Young’s modulus of orthotropic material with coincident material and coordinate
+axes relating direct strain in I direction due to direct stress in i direction
+Es, Eϕ 	Young’s modulus in shell meridional and circumferential directions
+e� 	beam strain matrix (Eq. 2.12b)
+
+-- 108 of 116 --
+
+NOTATION TABLE
+107
+e� 	flat plate strain matrix (Eq. 2.20)
+e� 	strain matrix for a conical shell
+F, F&#39; 	symmetric elastic coefficient matrices defining strain in terms of stress, referred to
+different coordinate systems (Eqs. 1.39, 1.40b)
+F 	assembled body force matrix
+Fi 	body force matrix for i th finite element
+fi 	components of body force vector at a point acting in i direction
+G 	shear modulus of isotropic material �G = E
+2(1+v)�
+Gij 	shear modulus of orthotropic material with coincident material at coordinate axes
+giving shearing strain between lines in the I and j directions due to shearing stress
+component σij
+h 	plate shell thickness; convective heat transfer or film coefficient
+I 	beam moment of inertia about an axis normal to plane of bending
+Iyy, Izz, Iyz beam cross-sectional moments and product of inertia
+I1 , I2 , I3 	stress invariants at a point (Eq. 1.20)
+I̅y, I̅z 	principal moments of inertia
+J 	beam cross-sectional torsion constant; Jacobian
+J 1 , J 2 , J 3 	strain invariants (Eq. 1.34)
+K 	assembled stiffness matrix
+K 	isotropic plate stretching stiffness K = Eh
+1−v 2
+KB 	structural stiffness matrix
+KG 	geometric stiffness matrix
+KS, Kϕ 	meridional and circumferential stretching stiffnesses for an orthotropic conical shell
+k 	thermal conductivity matrix
+ki 	stiffness matrix for the i th finite element
+
+-- 109 of 116 --
+
+NOTATION TABLE
+108
+kx, k y, kz 	thermal conductivities in Cartesian coordinate directions
+k� y, k� z 	shear strain energy correction coefficients for non-uniform distribution of shearing
+stress
+M 	assembled mass matrix
+M i 	matrix relating nodal variables of ith element to the assembled matrix of all nodal
+variables
+N 	rotation matrix (square matrix of cosines of angles between coordinate axes in x and
+x&#39; coordinate systems
+n 	outwardly directed normal to a plane passing through a point
+n i 	outwardly directed normal to principal plane i at a point
+P k 	transformation matrix used in Jacobi method (Eq. 3.19)
+P x, V y, Vz force components acting on a beam ends (Fig. 11)
+p� 	beam end force and moment matrix (Eq. 2.12a)
+Q 	internally generated heat flux
+q 	nodal variable matrix
+qi 	matrix of nodal variables for i th finite element
+qx, q y, qz 	body heat flux in Cartesian coordinate directions
+r, ϕ, z 	coordinates of cylindrical coordinate system
+S, S&#39; 	square symmetric stress matrices of nine components of stress vectors acting on
+different sets of three perpendicular planes about a point
+Sσi 	square symmetric matrices of nine components of stress vectors acting on
+different sets of three perpendicular planes about a point
+s, n 	axes of conical orthotropy (Fig. 10)
+s, ϕ, z 	meridional, circumferential, and normal coordinates for a conical shell
+T 	temperature
+T, M y, M z 	moment components acting on beam ends (Fig. 11)
+Tk 	kth transformation matrix for subspace iteration (Eq. 3.27a)
+
+-- 110 of 116 --
+
+NOTATION TABLE
+109
+Tn 	nodal temperature matrix for finite element
+Tε 	transformation matrix relating strain matrices ε and ε&#39;
+Tσ 	transformation matrix relating stress matrices σ and σ&#39; (Eq. 1.14)
+T∞ 	fluid temperature
+t 	time
+t n 	stress vector on a plane passing through a point and having the normal vector n
+U 	strain energy (Eq. 2.5)
+u, v, w 	flat plate reference plane displacements
+u(s), w(s) 	axisymmetric meridional and normal reference surface displacements for a conical
+shell
+u i 	displacement matrix for i th finite element of deformable body
+us, uϕ, uz 	conical shell displacements in direction of coordinate axes
+ux, u y, uz 	deformation components in the direction of the Cartesian coordinate axes
+ux0 	axial displacement of centroidal axes of an initially straight beam
+u� x, u� y, u� z 	displacements of reference surface of plate or shell
+V 	volume of deformable body; kinetic energy (Eq. 3.3)
+Vi 	volume of the i th finite element
+Vk 	transformed eigenvector matrix for kth round of subspace iteration (Eq. 3.27e)
+W i 	numerical integration weighting constant for sampling point i in region
+W 	warping of beam cross-section
+x, x&#39; 	matrices of Cartesian coordinates of a point in space referred to different coordinate
+axes
+x, y, z 	coordinates of Cartesian coordinate system
+α 	thermal expansion coefficients for isotropic material
+α, γ 	terms in i th and jth rows and columns of P k
+αij 	thermal expansion coefficients for direct (i = j) and shearing (i ≠ j) strains
+
+-- 111 of 116 --
+
+NOTATION TABLE
+110
+∆0 	displacement gradient matrix
+∆T 	difference between actual temperature at a point and uniform temperature at which
+body is stress-free
+δij 	Kronecker delta ( = 1 if i = j, = 0 if i ≠ j)
+ε, ε&#39; 	column strain matrix of six independent components of E, E&#39; (Eq. 1.27. 1.29)
+εB 	strain matrix for conical shells used in the determination of the geometric
+stiffness matrix
+εi 	principal strains
+εij 	measure of change of length of a line originally in the i direction if i=j, a measure
+of the change of angle between two originally perpendicular lines in the i and j
+directions if i≠j
+ε� 	linear strain matrix for conical shells
+θ 	angle between coordinate systems having a common axis (Fig. 5); angle between
+radial axis and s axis of conical orthotropy in a body of revolution (Fig. 10)
+λ 	diagonal matrix of eigenvalues
+λ 	initial stress distribution proportionality factor
+λk 	diagonal eigenvalue matrix for kth round of subspace iteration (Eq. 3.27d)
+v 	Poisson’s ratio of isotropic material
+vij 	Poisson’s ratio; ratio of strain in the i direction and strain in the j direction, due to
+stress in the j direction
+vsϕ 	Poisson’s ratio for orthotropic material
+ξ, η 	non-dimensional coordinates of a point in a regular element
+П 	potential energy of elastic deformable body (Eq. 2.5)
+ПB 	potential energy for buckling problems
+Пi 	potential energy of i th finite element
+ρ 	mass of body per unit volume
+σ, σ&#39; 	column stress matrix of six independent components of stress matrices S,S&#39;
+
+-- 112 of 116 --
+
+NOTATION TABLE
+111
+σi 	stress matrix i th finite element
+σi 	principal stresses at a point
+σij 	stress component in j direction of stress vector acting on plane perpendicular to the I
+direction
+σM 	von Mises stress (Eq. 1.21a)
+σ� 	initial stress distribution matrix for buckling problems
+τoct 	shear stress on a plane making equal angles with respect to the principal axes
+ϕ 	matrix of eigenvectors arranged by columns
+ϕ	� k 	eigenvector matrix for kth round of subspace iteration (Eq. 3.27e)
+Ψx,Ψy,Ψz 	small rotation components in the direction of the Cartesian coordinate axes
+ω 	vibration frequency
+x1
+x2 � = 	represents combination of two equations where each equation is defined by the
+corresponding terms on the same level after the bracket symbol
+
+-- 113 of 116 --
+
+REFERENCES
+112
+References
+1. Timoshenko, S ., and Goodier, J. W.: Theory of Elasticity, 3rd Ed., McGraw-Hill Book Co.,
+Inc., 1969.
+2. Timoshenko, S., and Woinowsky-Krieger, S . : Theory of Plates and Shells, 2nd Ed.,
+McGraw-Hill Book Co., Inc., 1959.
+3. Timoshenko, S., and Gere, J. M.: Theory of Elastic Stability, 2nd Ed., McGraw-Hill Book Co.,
+Inc., 196 1.
+4. Runge, C.: Z . Math. u . Physik, vol. 50, p . 225, 1908.
+5. Ritz, W.: übeer einer neue Methode zur Losung gewisser Variations probleme de
+mathematischer Physik, j .f.d. reine u. angew. Math. (Crelle), vol. 1 35, pp. 1 - 6 1 , 1909.
+6. McCormac, J., and Elling, R.E.: Structural Analysis, Harper &amp; Row, Publishers, 1 988.
+7. Martin, H. C. , and Carey, G. F. : Introduction to Finite Element Analysis , Theory and
+Application, McGraw-Hill Book Co., 1973.
+8. Courant, R.: &quot;Variational Methods for the Solution of Problems of Equilibrium and
+Vibrations&quot;, Bulletin of the Am. Math. Soc., vol. 49, pp. 1-23, 1943.
+9. Lekhnitskii, S. G.: Theory of Elasticity of an Anisotropic Body, Mir Publishers, Moscow,
+1981.
+10. Washizu, K . : Variational Methods in Elasticity and Plasticity, 2nd Ed., Pergamon Press,
+1975.
+11. Cook, R. D.: Concepts and Applications of Finite Element Analysis, Second Edition, John
+Wiley &amp; Sons, 198 1 .
+12. Zienkiewicz, 0 . C . : The Finite Element Method, 3rd Ed., McGraw-Hill Book Co. (UK)
+Ltd., 1977.
+13. Bathe, K. J., and Wilson, E. L.: Numerical Methods in Finite Element Analysis, Prentice-
+Hall, Inc., 197 6.
+14. Weingarten, V. I., Ramanathan, R. K., and Chen, C. N.: Lanczos Eigenvalue Algorithm for
+Large Structures on a Minicomputer, Computers &amp; Structures, vol. 1 6, no. 1-4, pp. 253-257,
+1983.
+
+-- 114 of 116 --
+
+REFERENCES
+113
+15. Chowdhury, P. C.: The Truncated Lanczos Algorithm for Partial Solution of the Symmetric
+Eigenproblem, Computers &amp; Structures, vol. 6, pp. 439-446, 1976.
+16. Hughes, T. J. R.: The Finite Element Method, Prentice-Hall, Inc., 1987.
+17. Seide, P.: Small Elastic Deformations of Thin Shells, Noordhoff Int. Publishing, 1975.
+18. Przemieniecki, J. S.: Theory of Matrix Structural Analysis, McGraw-Hill Book Co., 1 968.
+19. Hall, A. S., and Woodland, R. W.: Frame Analysis, John Wiley &amp; Sons, 1961.
+20. Lashkari, M., Liang, T.: Unpublished work, Structural Research.
+21. Peano, A.: Hierarchies of Conforming Finite Elements for Plane Elasticity and Plate
+Bending, Comp. &amp; Maths with Appls., vol. 2, pp. 2 1 1 -224, 1 976.
+22. Szabo, B. A.: Some Recent Developments in Finite Element Analysis, Comp. &amp; Maths with
+Appls., vol. 5, pp. 99- 1 15 , 1 979.
+23. Babilska, I., Griebel, M., and Pitkaranta, J.: The Problem of Selecting the Shape Functions
+for a p-Type Finite Element, Int. J. Num. Methods in Eng., vol. 28, pp. 1891 - 1908, 1989.
+24. Allman, D. J.: A Compatible Triangular Element Including Vertex Rotations for Plane
+Elasticity Analysis, Computers &amp; Structures, vol. 19, no. 1-2, pp. 1-8, 1984.
+25. Batoz, J. L., Bathe, K. J., and Ho, L. W.: A Study of Three-Node Triangular Plate Bending
+Elements, Int. J. Num. Methods in Eng., vol. 15, pp. 1771-1812, 1980.
+26. Belytschko, T., Stolarski, H., and Carpenter, N.: A co Triangular Plate Element with one
+point Quadrature, Int. J. Num. Methods in Eng., vol. 20, pp. 787-802, 1984.
+27. Cook, R. D. : On the Allman Triangle and a Related Quadrilateral Element, Computers &amp;
+Structures, vol. 22, no. 6, pp. 1065-1067, 1086.
+28. Bathe, K. J., and Dvorkin, E. N. : A Four-Node Plate Bending Element Based on
+Mindlin/Reissner Plate Theory and A Mixed Interpolation, Int. J. Num. Methods in Eng., vol. 21,
+pp. 367-383, 1985.
+29. Bathe, K. J., and Ho, L. W. : A Simple and Effective Element for Analysis of General Shell
+Structures, Computers &amp; Structures, vol. 13 , pp. 673-681, 1981.
+
+-- 115 of 116 --
+
+INDEX
+114
+Index
+Anisotropic................................................ 21
+BEAM3D .................................................. 90
+beams .................................................. 38, 75
+buckling..................................................... 71
+inplane ................................................... 73
+coordinate system...................................... 10
+critical loads .............................................. 71
+eigenvalue ........................................... 64, 76
+element ...................................................... 47
+2-node rigid bar ..................................... 98
+isoparametric ......................................... 54
+linear 3D elastic beam ........................... 90
+linear 3D truss/spar ............................... 87
+spring..................................................... 99
+triangular thick shell ........................... 100
+triangular thin shell ............................. 103
+equations of equilibrium ........................... 16
+finite element method ............................... 47
+heat conduction ......................................... 85
+heat flux .................................................... 78
+heat transfer ............................................... 78
+Hooke&#39;s law ............................................... 21
+interpolation functions .............................. 51
+isoparametric element ............................... 54
+mass matrix ............................................... 63
+plates ................................................... 43, 76
+potential energy......................................... 37
+principal stress .......................................... 14
+RBAR ........................................................ 98
+SHELL3 .................................................. 103
+SHELL3T ................................................ 100
+SPRING .................................................... 99
+stiffness matrix .......................................... 63
+strain .......................................................... 17
+energy.................................................... 38
+matrix .................................................... 17
+plane ...................................................... 26
+principal ................................................ 21
+strain energy .............................................. 38
+stress ............................................................ 7
+calculations ........................................... 60
+matrix ...................................................... 7
+plane ...................................................... 28
+principal ................................................ 14
+vector....................................................... 7
+stress-strain relations ................................. 21
+subspace iteration ...................................... 65
+TRUSS3D ................................................. 87
+vibration modes and frequencies .............. 62
+virtual work ............................................... 37
+
+-- 116 of 116 --
+
+</pre>
+</body></html>

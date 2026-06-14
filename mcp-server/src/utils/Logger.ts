@@ -29,5 +29,26 @@ export const log = {
     console.error(`[DEBUG] ${msg}${formatContext(context)}`),
 };
 
-// Legacy alias: many engines import `logger` — keep in sync with `log`.
+// Legacy alias: many engines import `logger` -- keep in sync with `log`.
 export const logger = log;
+
+/**
+ * Named logger class -- a lightweight console wrapper over `log`, consistent
+ * with this module's stub intent (basic console logging, no Winston).
+ *
+ * BaseRegistry (+ ~15 registry subclasses) does `new Logger("Registry:" + name)`
+ * and calls .info/.warn/.error/.debug. Before this class existed the named
+ * import `{ Logger }` resolved to `undefined`, so `new Logger()` threw
+ * "Logger is not a constructor" and EVERY registry subclass was
+ * non-constructable. Additive: the `log`/`logger` consts above are unchanged.
+ */
+export class Logger {
+  private readonly prefix: string;
+  constructor(name = "") {
+    this.prefix = name ? `[${name}] ` : "";
+  }
+  info(msg: string, context?: unknown): void { log.info(this.prefix + msg, context); }
+  warn(msg: string, context?: unknown): void { log.warn(this.prefix + msg, context); }
+  error(msg: string, context?: unknown): void { log.error(this.prefix + msg, context); }
+  debug(msg: string, context?: unknown): void { log.debug(this.prefix + msg, context); }
+}

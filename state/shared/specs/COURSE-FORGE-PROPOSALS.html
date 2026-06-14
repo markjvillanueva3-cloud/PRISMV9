@@ -1,157 +1,395 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs</title>
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="3c7f9cdd275e9b5032838fcad256b47f3f6478fa7a01a1497bb900e526b455f9">
+<title>COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates</title>
 <style>
-  :root {
-    --bg: #0f1014;
-    --panel: #1a1c23;
-    --panel-2: #232631;
-    --fg: #e4e6eb;
-    --fg-dim: #9aa0a8;
-    --border: #2c303a;
-    --ok: #4ade80;
-    --warn: #fbbf24;
-    --fail: #f87171;
-    --info: #60a5fa;
-    --link: #93c5fd;
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-    font-size: 14px; line-height: 1.5; }
-  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
-  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
-    border-bottom: 1px solid var(--border); color: var(--fg); }
-  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.75rem 1rem; margin-bottom: 1rem; }
-  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.5rem; margin-bottom: 1rem; }
-  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.65rem 0.85rem; }
-  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
-  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
-  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
-  .card.ok    { border-left: 3px solid var(--ok); }
-  .card.warn  { border-left: 3px solid var(--warn); }
-  .card.fail  { border-left: 3px solid var(--fail); }
-  .card.info  { border-left: 3px solid var(--info); }
-  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
-    background: var(--panel-2); font-weight: 500; }
-  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
-    font-variant-numeric: tabular-nums; vertical-align: top; }
-  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
-    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
-  tr:last-child td { border-bottom: none; }
-  td.right { text-align: right; }
-  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
-  li { margin: 0.15rem 0; }
-  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
-    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
-    border: 1px solid var(--border); }
-  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
-  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
-  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
-  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
-  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
-  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
-    margin: 0.4rem 0 1rem 0; }
-  .kv .k { color: var(--fg-dim); }
-  svg.bar-chart { display: block; max-width: 100%; height: auto; }
-  svg .bar { fill: var(--info); }
-  svg .bar.ok   { fill: var(--ok); }
-  svg .bar.warn { fill: var(--warn); }
-  svg .bar.fail { fill: var(--fail); }
-  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
-  svg .axis text { fill: var(--fg-dim); }
-  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
-    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
-  a { color: var(--link); }
-  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
-    font-size: 0.8rem; color: var(--fg-dim); }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
 </style>
 </head>
 <body>
-<h1>COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs</h1>
-<div class="meta">rendered from state/shared/specs/COURSE-FORGE-PROPOSALS.md</div>
-<div class="meta">Generated 2026-05-17T15:23:30.555Z</div>
-<style>
-  .prism-md-body { max-width: 70rem; margin: 0 auto; }
-  .prism-h1 { font-size: 1.6rem; }
-  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-  .prism-h3 { font-size: 1.1rem; color: var(--info); }
-  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
-  .prism-md-body p { margin: 0.5rem 0; }
-  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
-  .prism-md-list li { margin: 0.15rem 0; }
-  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
-  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
-  .prism-md-table th { background: var(--panel-2); }
-  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
-  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
-  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
-  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
-  .prism-link { color: var(--link); text-decoration: none; }
-  .prism-link:hover { text-decoration: underline; }
-  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
-  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
-  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates</li><li class="prism-toc-l2">How to read this file</li><li class="prism-toc-l2">Top-12 candidates (mfg_relevance = 0.80, sorted by domain leverage)</li><li class="prism-toc-l3">P1: algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</li><li class="prism-toc-l3">P2: algorithm:transition-equations-solver (2.854 / &quot;Introduction to Manufacturing Systems&quot;)</li><li class="prism-toc-l3">P3: algorithm:bernoullis-equation-solver (1.060 / &quot;Engineering Mechanics II&quot;) + formula:moody-diagram-analysis (same course)</li><li class="prism-toc-l3">P4: engine:lean-manufacturing-engine (16.885j / &quot;Aircraft Systems Engineering&quot;)</li><li class="prism-toc-l3">P5: engine:lean-enterprise-engine + algorithm:lesat-algorithm (16.852j / &quot;Integrating the Lean Enterprise&quot;)</li><li class="prism-toc-l3">P6: algorithm:pendulum-cart-modeling + formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</li><li class="prism-toc-l3">P7: algorithm:euler-method (2.003j / &quot;Dynamics and Control I&quot;)</li><li class="prism-toc-l3">P8: algorithm:cam-path-optimization (2.007 / &quot;Design and Manufacturing I&quot;)</li><li class="prism-toc-l3">P9: engine:solidworks (2.007 / &quot;Design and Manufacturing I&quot;)</li><li class="prism-toc-l3">P10: algorithm:response-surface-modeling (2.830j / &quot;Control of Manufacturing Processes&quot;)</li><li class="prism-toc-l2">Lower-tier (mfg_relevance 0.6-0.79, not auto-surfaced)</li><li class="prism-toc-l2">Recommended operator workflow</li><li class="prism-toc-l2">Anti-patterns (do NOT do these)</li><li class="prism-toc-l2">Related</li></ul></nav><h1 class="prism-h1">COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates</h1>
-<p><strong>Generated:</strong> 2026-05-17 by claude-41db1b82 (slot india, /loop bc83bbdb) <strong>Source:</strong> <code class="prism-inline-code">state/shared/specs/COURSE-DATA-ROUTING-LEDGER.json</code> (69 FORGE-QUEUE items, 65 courses) <strong>Status:</strong> advisory · mustHumanVerify · NOT auto-build <strong>Doctrine:</strong> Lane C (per <code class="prism-inline-code">COURSE-DATA-ROUTING-PIPELINE.md</code>) — every entry below requires operator review + duplicationGuardEngine check before /forge-triple invocation. Course-derived intent has no production-validated authority.</p>
-<hr class="prism-hr">
-<h2 class="prism-h2">How to read this file</h2>
-<p>Each proposal is a <strong>stub</strong> — the smallest actionable description an operator (or <code class="prism-inline-code">/forge-triple</code> skill) needs to ship the asset:</p>
-<table class="prism-md-table"><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><strong>proposed_path</strong></td><td>The PRISM file the asset would land at. Follows existing convention (<code class="prism-inline-code">src/algorithms/&lt;Name&gt;.ts</code>, <code class="prism-inline-code">src/engines/&lt;Name&gt;Engine.ts</code>).</td></tr>
-<tr><td><strong>dispatcher_action</strong></td><td><code class="prism-inline-code">&lt;dispatcher&gt;:&lt;action&gt;</code> to add. Existing dispatchers preferred; new ones require their own audit.</td></tr>
-<tr><td><strong>physics_gate</strong></td><td><code class="prism-inline-code">required</code> for formulas — physics-reviewer agent must verify equation + dimensional consistency before constants port to <code class="prism-inline-code">src/physics/constants.ts</code>.</td></tr>
-<tr><td><strong>dedup_preflight</strong></td><td>Notes from grep against <code class="prism-inline-code">mcp-server/src/<strong></code>. </strong>DUP-RISK** flags must be resolved by operator before forge.</td></tr>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.379Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#course-forge-proposals-operator-actionable-forge-stubs-for-top-forge-queue-candidates">COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates</a></li>
+<li class="toc-l2"><a href="#how-to-read-this-file">How to read this file</a></li>
+<li class="toc-l2"><a href="#top-12-candidates-mfg_relevance-080-sorted-by-domain-leverage">Top-12 candidates (mfg_relevance = 0.80, sorted by domain leverage)</a></li>
+<li class="toc-l3"><a href="#p1-algorithmoperator-splitting-1034-numerical-methods-applied-to-chemical-engineering">P1: algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</a></li>
+<li class="toc-l3"><a href="#p2-algorithmtransition-equations-solver-2854-introduction-to-manufacturing-systems">P2: algorithm:transition-equations-solver (2.854 / &quot;Introduction to Manufacturing Systems&quot;)</a></li>
+<li class="toc-l3"><a href="#p3-algorithmbernoullis-equation-solver-1060-engineering-mechanics-ii-formulamoody-diagram-analysis-same-course">P3: algorithm:bernoullis-equation-solver (1.060 / &quot;Engineering Mechanics II&quot;) + formula:moody-diagram-analysis (same course)</a></li>
+<li class="toc-l3"><a href="#p4-enginelean-manufacturing-engine-16885j-aircraft-systems-engineering">P4: engine:lean-manufacturing-engine (16.885j / &quot;Aircraft Systems Engineering&quot;)</a></li>
+<li class="toc-l3"><a href="#p5-enginelean-enterprise-engine-algorithmlesat-algorithm-16852j-integrating-the-lean-enterprise">P5: engine:lean-enterprise-engine + algorithm:lesat-algorithm (16.852j / &quot;Integrating the Lean Enterprise&quot;)</a></li>
+<li class="toc-l3"><a href="#p6-algorithmpendulum-cart-modeling-formulatransfer-functions-2003-modeling-dynamics-and-control-i">P6: algorithm:pendulum-cart-modeling + formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</a></li>
+<li class="toc-l3"><a href="#p7-algorithmeuler-method-2003j-dynamics-and-control-i">P7: algorithm:euler-method (2.003j / &quot;Dynamics and Control I&quot;)</a></li>
+<li class="toc-l3"><a href="#p8-algorithmcam-path-optimization-2007-design-and-manufacturing-i">P8: algorithm:cam-path-optimization (2.007 / &quot;Design and Manufacturing I&quot;)</a></li>
+<li class="toc-l3"><a href="#p9-enginesolidworks-2007-design-and-manufacturing-i">P9: engine:solidworks (2.007 / &quot;Design and Manufacturing I&quot;)</a></li>
+<li class="toc-l3"><a href="#p10-algorithmresponse-surface-modeling-2830j-control-of-manufacturing-processes">P10: algorithm:response-surface-modeling (2.830j / &quot;Control of Manufacturing Processes&quot;)</a></li>
+<li class="toc-l2"><a href="#lower-tier-mfg_relevance-06-079-not-auto-surfaced">Lower-tier (mfg_relevance 0.6-0.79, not auto-surfaced)</a></li>
+<li class="toc-l2"><a href="#recommended-operator-workflow">Recommended operator workflow</a></li>
+<li class="toc-l2"><a href="#anti-patterns-do-not-do-these">Anti-patterns (do NOT do these)</a></li>
+<li class="toc-l2"><a href="#related">Related</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="course-forge-proposals-operator-actionable-forge-stubs-for-top-forge-queue-candidates"><a class="anchor" href="#course-forge-proposals-operator-actionable-forge-stubs-for-top-forge-queue-candidates" aria-label="Permalink to COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates">#</a>COURSE-FORGE-PROPOSALS — operator-actionable /forge stubs for top FORGE-QUEUE candidates</h1>
+<p><strong>Generated:</strong> 2026-05-17 by claude-41db1b82 (slot india, /loop bc83bbdb) <strong>Source:</strong> <code>state/shared/specs/COURSE-DATA-ROUTING-LEDGER.json</code> (69 FORGE-QUEUE items, 65 courses) <strong>Status:</strong> advisory · mustHumanVerify · NOT auto-build <strong>Doctrine:</strong> Lane C (per <code>COURSE-DATA-ROUTING-PIPELINE.md</code>) — every entry below requires operator review + duplicationGuardEngine check before /forge-triple invocation. Course-derived intent has no production-validated authority.</p>
+<hr>
+<h2 id="how-to-read-this-file"><a class="anchor" href="#how-to-read-this-file" aria-label="Permalink to How to read this file">#</a>How to read this file</h2>
+<p>Each proposal is a <strong>stub</strong> — the smallest actionable description an operator (or <code>/forge-triple</code> skill) needs to ship the asset:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><strong>proposed_path</strong></td><td>The PRISM file the asset would land at. Follows existing convention (<code>src/algorithms/&lt;Name&gt;.ts</code>, <code>src/engines/&lt;Name&gt;Engine.ts</code>).</td></tr>
+<tr><td><strong>dispatcher_action</strong></td><td><code>&lt;dispatcher&gt;:&lt;action&gt;</code> to add. Existing dispatchers preferred; new ones require their own audit.</td></tr>
+<tr><td><strong>physics_gate</strong></td><td><code>required</code> for formulas — physics-reviewer agent must verify equation + dimensional consistency before constants port to <code>src/physics/constants.ts</code>.</td></tr>
+<tr><td><strong>dedup_preflight</strong></td><td>Notes from grep against <code>mcp-server/src/**</code>. <strong>DUP-RISK</strong> flags must be resolved by operator before forge.</td></tr>
 <tr><td><strong>deliverables</strong></td><td>The artifact set the operator should expect when /forge-triple completes.</td></tr>
-<tr><td><strong>mfg_relevance</strong></td><td>Score from router (0.0-1.0). Top tier ≥ 0.8 surfaced here.</td></tr></tbody></table>
+<tr><td><strong>mfg_relevance</strong></td><td>Score from router (0.0-1.0). Top tier ≥ 0.8 surfaced here.</td></tr>
+</tbody>
+</table></div>
 <p><strong>Hard gates that DO NOT auto-clear:</strong></p>
-<ul class="prism-md-list"><li><code class="prism-inline-code">duplicationGuardEngine.mustCheckBeforeCreating()</code> THROWS on dup — every entry here MUST pass that check at /forge time.</li><li>Formula entries: <code class="prism-inline-code">physics-reviewer</code> agent verdict PASS required.</li><li>Tier-1 CAM bridge engines (Mastercam, hyperMILL, etc.) NOT eligible — those are first-party and shipped; course-derived re-build would be regression.</li></ul>
-<hr class="prism-hr">
-<h2 class="prism-h2">Top-12 candidates (mfg_relevance = 0.80, sorted by domain leverage)</h2>
-<h3 class="prism-h3">P1: algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/OperatorSplittingMethod.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:operator_split</code></li><li><strong>dedup_preflight:</strong> No hits for <code class="prism-inline-code">OperatorSplitting</code>, <code class="prism-inline-code">operator.splitting</code>, <code class="prism-inline-code">operator_split</code> in <code class="prism-inline-code">mcp-server/src</code>. <strong>CLEAR</strong>.</li><li><strong>domains:</strong> cam · thermal</li><li><strong>deliverables:</strong></li><li>Engine class <code class="prism-inline-code">OperatorSplittingMethod</code> with <code class="prism-inline-code">step(state, dt, operators[])</code> API</li><li>30+ vitest cases (real-value: heat-equation Strang split convergence test, multi-physics CFL stability)</li><li>Dispatcher wire in <code class="prism-inline-code">calcDispatcher.ts</code> with z.enum action</li><li>Wiki entry <code class="prism-inline-code">knowledge/wiki/algorithms/operator-splitting-method.md</code></li><li><strong>physics_gate:</strong> not required (algorithm, not formula); but cite Strang 1968 splitting + reference convergence proof in JSDoc</li><li><strong>rationale:</strong> Strong fit for PRISM thermal solvers + CFD-adjacent CAM (coolant simulation, milling thermal field decomposition). Direct leverage for <code class="prism-inline-code">ThermalDeflectionEngine</code> family.</li></ul>
-<h3 class="prism-h3">P2: algorithm:transition-equations-solver (2.854 / &quot;Introduction to Manufacturing Systems&quot;)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/MfgTransitionEquationsSolver.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_intelligence:transition_solve</code> OR new <code class="prism-inline-code">prism_scheduling:transition_solve</code></li><li><strong>dedup_preflight:</strong> Grep <code class="prism-inline-code">TransitionEquations|transition.solver</code> → no engine-level hits; review <code class="prism-inline-code">SchedulingEngine.ts</code> family before forge. <strong>REVIEW</strong>.</li><li><strong>domains:</strong> cad · cam · scheduling</li><li><strong>deliverables:</strong></li><li>Engine <code class="prism-inline-code">MfgTransitionEquationsSolver</code> modeling state transitions in manufacturing line balance</li><li>Tests covering: Markov-chain steady-state, Buzacott-Shanthikumar bottleneck verification</li><li>Wiki entry + cross-link to <code class="prism-inline-code">LineBalancingEngine</code> if exists</li><li><strong>physics_gate:</strong> n/a</li><li><strong>rationale:</strong> Directly applies to JM Die shop-floor scheduling — multi-machine routing, WIP queue dynamics.</li></ul>
-<h3 class="prism-h3">P3: algorithm:bernoullis-equation-solver (1.060 / &quot;Engineering Mechanics II&quot;) + formula:moody-diagram-analysis (same course)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path (algorithm):</strong> <code class="prism-inline-code">mcp-server/src/algorithms/BernoulliEquationSolver.ts</code></li><li><strong>proposed_path (formula constants):</strong> ADD to <code class="prism-inline-code">mcp-server/src/physics/constants.ts</code> (NEVER inline)</li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:bernoulli_flow</code> + <code class="prism-inline-code">prism_calc:moody_friction_factor</code></li><li><strong>dedup_preflight:</strong> Bernoulli appears in <code class="prism-inline-code">__tests__/dispatcher.orificeFlowMeter.test.ts</code> + <code class="prism-inline-code">ChatterStabilityLobeEngine.ts</code> (mentioned in JSDoc, NOT implemented as standalone solver). <strong>DUP-RISK low</strong> but operator must verify <code class="prism-inline-code">orificeFlowMeter</code> action isn&#39;t already the Bernoulli surface.</li><li><strong>domains:</strong> cam · metrology</li><li><strong>deliverables:</strong></li><li>Bernoulli solver with <code class="prism-inline-code">solve(p1, p2, ρ, v1, z1, z2)</code> signature</li><li>Moody-diagram formula in canonical-form (Colebrook-White equation; iterative friction-factor) with all constants in <code class="prism-inline-code">physics/constants.ts</code></li><li><strong>physics_gate required for Moody</strong> — dimensional consistency: Re (dimensionless), ε/D (dimensionless), f (dimensionless)</li><li>Tests: laminar regime f=64/Re, fully-rough plateau, transition zone Colebrook iteration convergence</li><li>Wire to <code class="prism-inline-code">prism_calc</code> + cross-ref from <code class="prism-inline-code">OrificeFlowMeter</code> action</li><li><strong>rationale:</strong> Coolant flow modeling, swarf-flush pressure analysis, hydraulic-clamp force calculation. Multi-engine consumer surface.</li></ul>
-<h3 class="prism-h3">P4: engine:lean-manufacturing-engine (16.885j / &quot;Aircraft Systems Engineering&quot;)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/LeanManufacturingEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_intelligence:lean_assess</code> (extend) OR <code class="prism-inline-code">prism_orchestrate:lean_pipeline</code></li><li><strong>dedup_preflight:</strong> No hits for <code class="prism-inline-code">LeanManufacturing</code>, <code class="prism-inline-code">LeanEnterprise</code>, <code class="prism-inline-code">LESAT</code>. <strong>CLEAR</strong>.</li><li><strong>domains:</strong> cam · scheduling · thermal</li><li><strong>deliverables:</strong></li><li>Engine implementing 7-waste classification, value-stream-map graph operations, takt-time computation</li><li>Integration tests against <code class="prism-inline-code">JM-DIE/</code> shop archive (real-data E2E per RGS-TOOL-MS1 lesson — pure-core + injected reader)</li><li>LESAT (Lean Enterprise Self-Assessment Tool) scoring sub-API</li><li><strong>physics_gate:</strong> n/a</li><li><strong>rationale:</strong> Direct JM Die test-shop fit — operator&#39;s stated business goal includes operator-in-the-loop closed-loop learning from shop floor.</li></ul>
-<h3 class="prism-h3">P5: engine:lean-enterprise-engine + algorithm:lesat-algorithm (16.852j / &quot;Integrating the Lean Enterprise&quot;)</h3>
-<ul class="prism-md-list"><li><strong>CONSOLIDATION RECOMMENDATION:</strong> P4 + P5 should be ONE engine with LESAT as an inner algorithm. Operator: do not /forge both separately — duplicationGuardEngine WILL throw.</li><li><strong>proposed_path:</strong> Same as P4 (<code class="prism-inline-code">LeanManufacturingEngine</code>) with <code class="prism-inline-code">algorithms/LESATScorer.ts</code> as composed sub-asset</li><li><strong>rationale:</strong> 16.852j and 16.885j are sibling courses; combining avoids parallel-implementation rot.</li></ul>
-<h3 class="prism-h3">P6: algorithm:pendulum-cart-modeling + formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path (algorithm):</strong> <code class="prism-inline-code">mcp-server/src/algorithms/PendulumCartStateSpace.ts</code></li><li><strong>proposed_path (formula):</strong> <code class="prism-inline-code">mcp-server/src/algorithms/TransferFunctionBuilder.ts</code> (NOT a formula in the inline-constant sense; it&#39;s an algebraic algorithm)</li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:state_space_model</code> + <code class="prism-inline-code">prism_calc:transfer_function_build</code></li><li><strong>dedup_preflight:</strong> <code class="prism-inline-code">transfer.function</code> only appears in <code class="prism-inline-code">TribalKnowledgeEngine.ts</code> as a string mention (knowledge tip, not implementation). Transfer-function algebra not implemented. <strong>CLEAR</strong>.</li><li><strong>domains:</strong> control · thermal · vibration</li><li><strong>deliverables:</strong></li><li>State-space matrices (A, B, C, D) for inverted-pendulum-on-cart canonical example</li><li>Laplace-domain transfer-function builder (numerator/denominator polynomials from state-space)</li><li>Bode plot data emit (magnitude/phase vs ω)</li><li>Tests: known closed-form pendulum poles, controllability/observability matrix rank</li><li><strong>physics_gate not required</strong> (algebraic, no physical constants); but cite Ogata &quot;Modern Control Engineering&quot; Ch.5 in JSDoc</li><li><strong>rationale:</strong> Spindle chatter prediction, servo-loop tuning, vibration-damping analysis. Direct consumer: <code class="prism-inline-code">ChatterStabilityLobeEngine</code> upgrade path.</li></ul>
-<h3 class="prism-h3">P7: algorithm:euler-method (2.003j / &quot;Dynamics and Control I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/EulerIntegrator.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:ode_integrate</code> (variant flag: method=euler|rk4)</li><li><strong>dedup_preflight:</strong> No hits for <code class="prism-inline-code">EulerMethod</code>, <code class="prism-inline-code">euler_integrator</code>, <code class="prism-inline-code">euler.ode</code>. <strong>CLEAR</strong>.</li><li><strong>domains:</strong> cad · cam · control</li><li><strong>deliverables:</strong></li><li>Pure-function Euler step + composed <code class="prism-inline-code">integrate(f, y0, [t0,tf], dt)</code> API</li><li>Sister RK4 implementation (same file or sibling — operator decides) for accuracy comparison</li><li>Tests: linear-decay exact-solution comparison, stiff-equation divergence detection</li><li><strong>physics_gate:</strong> n/a</li><li><strong>rationale:</strong> Foundation for any ODE-based PRISM solver (thermal transient, motion-profile, control simulation).</li></ul>
-<h3 class="prism-h3">P8: algorithm:cam-path-optimization (2.007 / &quot;Design and Manufacturing I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>DUP-RISK HIGH:</strong> CAM toolpath optimization is core PRISM territory. Existing engines: <code class="prism-inline-code">PPGreedyToolpathOptimizerEngine</code>, <code class="prism-inline-code">MachiningPlaybookEngine</code>, multiple CAM-vendor bridges.</li><li><strong>action:</strong> REJECT auto-forge. Operator: convert this to a /scrutinize task — does 2.007 OCW material provide ANY content not in PRISM&#39;s existing CAM family? If yes, port as algorithm-internal helper; if no, reclassify as TRIBAL-SHIPPED (knowledge tip only).</li><li><strong>rationale:</strong> Course-derived intent is generic; PRISM&#39;s CAM stack is already production-grade.</li></ul>
-<h3 class="prism-h3">P9: engine:solidworks (2.007 / &quot;Design and Manufacturing I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>DUP-RISK HIGH:</strong> SolidWorks is one of the 6 tier-1 CAM bridges per CLAUDE-BRIEF. Course-derived re-build = regression.</li><li><strong>action:</strong> REJECT. Reclassify as TRIBAL-SHIPPED.</li><li><strong>rationale:</strong> First-party bridge already exists.</li></ul>
-<h3 class="prism-h3">P10: algorithm:response-surface-modeling (2.830j / &quot;Control of Manufacturing Processes&quot;)</h3>
-<ul class="prism-md-list"><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/ResponseSurfaceMethodology.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_intelligence:rsm_fit</code> OR extend <code class="prism-inline-code">prism_calc:doe_analyze</code></li><li><strong>dedup_preflight:</strong> <code class="prism-inline-code">ResponseSurface</code> mentioned in <code class="prism-inline-code">TurningCpkSurrogateEngine.ts</code> + <code class="prism-inline-code">camDispatcher.ts</code> + <code class="prism-inline-code">WireEDMResearchAIEngine.ts</code> — may be partially implemented as inline surrogate. <strong>REVIEW REQUIRED</strong>.</li><li><strong>domains:</strong> cam · metrology</li><li><strong>deliverables:</strong></li><li>RSM polynomial-fit (1st + 2nd order) with optimization (steepest ascent, gradient projection)</li><li>Central composite design (CCD) + Box-Behnken design (BBD) sample generators</li><li>Tests: known quadratic surface recovery, design-orthogonality check</li><li><strong>physics_gate:</strong> n/a</li><li><strong>rationale:</strong> Direct fit for speed/feed optimization (PRISM saleable product SFC).</li></ul>
-<hr class="prism-hr">
-<h2 class="prism-h2">Lower-tier (mfg_relevance 0.6-0.79, not auto-surfaced)</h2>
-<p>The remaining ~57 FORGE-QUEUE items in <code class="prism-inline-code">COURSE-DATA-ROUTING-LEDGER.json</code> have lower confidence and should be operator-reviewed in bulk via:</p>
-<pre class="prism-codeblock"><code>node H:/prism/scripts/course-data-router.mjs --filter mfg_relevance&gt;=0.6 --emit forge-stubs</code></pre>
+<ul>
+<li><code>duplicationGuardEngine.mustCheckBeforeCreating()</code> THROWS on dup — every entry here MUST pass that check at /forge time.</li>
+<li>Formula entries: <code>physics-reviewer</code> agent verdict PASS required.</li>
+<li>Tier-1 CAM bridge engines (Mastercam, hyperMILL, etc.) NOT eligible — those are first-party and shipped; course-derived re-build would be regression.</li>
+</ul>
+<hr>
+<h2 id="top-12-candidates-mfg_relevance-080-sorted-by-domain-leverage"><a class="anchor" href="#top-12-candidates-mfg_relevance-080-sorted-by-domain-leverage" aria-label="Permalink to Top-12 candidates (mfg_relevance = 0.80, sorted by domain leverage)">#</a>Top-12 candidates (mfg_relevance = 0.80, sorted by domain leverage)</h2>
+<h3 id="p1-algorithmoperator-splitting-1034-numerical-methods-applied-to-chemical-engineering"><a class="anchor" href="#p1-algorithmoperator-splitting-1034-numerical-methods-applied-to-chemical-engineering" aria-label="Permalink to P1: algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)">#</a>P1: algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</h3>
+<ul>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/OperatorSplittingMethod.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:operator_split</code></li>
+<li><strong>dedup_preflight:</strong> No hits for <code>OperatorSplitting</code>, <code>operator.splitting</code>, <code>operator_split</code> in <code>mcp-server/src</code>. <strong>CLEAR</strong>.</li>
+<li><strong>domains:</strong> cam · thermal</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>Engine class <code>OperatorSplittingMethod</code> with <code>step(state, dt, operators[])</code> API</li>
+<li>30+ vitest cases (real-value: heat-equation Strang split convergence test, multi-physics CFL stability)</li>
+<li>Dispatcher wire in <code>calcDispatcher.ts</code> with z.enum action</li>
+<li>Wiki entry <code>knowledge/wiki/algorithms/operator-splitting-method.md</code></li>
+</ul></li>
+<li><strong>physics_gate:</strong> not required (algorithm, not formula); but cite Strang 1968 splitting + reference convergence proof in JSDoc</li>
+<li><strong>rationale:</strong> Strong fit for PRISM thermal solvers + CFD-adjacent CAM (coolant simulation, milling thermal field decomposition). Direct leverage for <code>ThermalDeflectionEngine</code> family.</li>
+</ul>
+<h3 id="p2-algorithmtransition-equations-solver-2854-introduction-to-manufacturing-systems"><a class="anchor" href="#p2-algorithmtransition-equations-solver-2854-introduction-to-manufacturing-systems" aria-label="Permalink to P2: algorithm:transition-equations-solver (2.854 / &quot;Introduction to Manufacturing Systems&quot;)">#</a>P2: algorithm:transition-equations-solver (2.854 / &quot;Introduction to Manufacturing Systems&quot;)</h3>
+<ul>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/MfgTransitionEquationsSolver.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_intelligence:transition_solve</code> OR new <code>prism_scheduling:transition_solve</code></li>
+<li><strong>dedup_preflight:</strong> Grep <code>TransitionEquations|transition.solver</code> → no engine-level hits; review <code>SchedulingEngine.ts</code> family before forge. <strong>REVIEW</strong>.</li>
+<li><strong>domains:</strong> cad · cam · scheduling</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>Engine <code>MfgTransitionEquationsSolver</code> modeling state transitions in manufacturing line balance</li>
+<li>Tests covering: Markov-chain steady-state, Buzacott-Shanthikumar bottleneck verification</li>
+<li>Wiki entry + cross-link to <code>LineBalancingEngine</code> if exists</li>
+</ul></li>
+<li><strong>physics_gate:</strong> n/a</li>
+<li><strong>rationale:</strong> Directly applies to JM Die shop-floor scheduling — multi-machine routing, WIP queue dynamics.</li>
+</ul>
+<h3 id="p3-algorithmbernoullis-equation-solver-1060-engineering-mechanics-ii-formulamoody-diagram-analysis-same-course"><a class="anchor" href="#p3-algorithmbernoullis-equation-solver-1060-engineering-mechanics-ii-formulamoody-diagram-analysis-same-course" aria-label="Permalink to P3: algorithm:bernoullis-equation-solver (1.060 / &quot;Engineering Mechanics II&quot;) + formula:moody-diagram-analysis (same course)">#</a>P3: algorithm:bernoullis-equation-solver (1.060 / &quot;Engineering Mechanics II&quot;) + formula:moody-diagram-analysis (same course)</h3>
+<ul>
+<li><strong>proposed_path (algorithm):</strong> <code>mcp-server/src/algorithms/BernoulliEquationSolver.ts</code></li>
+<li><strong>proposed_path (formula constants):</strong> ADD to <code>mcp-server/src/physics/constants.ts</code> (NEVER inline)</li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:bernoulli_flow</code> + <code>prism_calc:moody_friction_factor</code></li>
+<li><strong>dedup_preflight:</strong> Bernoulli appears in <code>__tests__/dispatcher.orificeFlowMeter.test.ts</code> + <code>ChatterStabilityLobeEngine.ts</code> (mentioned in JSDoc, NOT implemented as standalone solver). <strong>DUP-RISK low</strong> but operator must verify <code>orificeFlowMeter</code> action isn&#39;t already the Bernoulli surface.</li>
+<li><strong>domains:</strong> cam · metrology</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>Bernoulli solver with <code>solve(p1, p2, ρ, v1, z1, z2)</code> signature</li>
+<li>Moody-diagram formula in canonical-form (Colebrook-White equation; iterative friction-factor) with all constants in <code>physics/constants.ts</code></li>
+<li><strong>physics_gate required for Moody</strong> — dimensional consistency: Re (dimensionless), ε/D (dimensionless), f (dimensionless)</li>
+<li>Tests: laminar regime f=64/Re, fully-rough plateau, transition zone Colebrook iteration convergence</li>
+<li>Wire to <code>prism_calc</code> + cross-ref from <code>OrificeFlowMeter</code> action</li>
+</ul></li>
+<li><strong>rationale:</strong> Coolant flow modeling, swarf-flush pressure analysis, hydraulic-clamp force calculation. Multi-engine consumer surface.</li>
+</ul>
+<h3 id="p4-enginelean-manufacturing-engine-16885j-aircraft-systems-engineering"><a class="anchor" href="#p4-enginelean-manufacturing-engine-16885j-aircraft-systems-engineering" aria-label="Permalink to P4: engine:lean-manufacturing-engine (16.885j / &quot;Aircraft Systems Engineering&quot;)">#</a>P4: engine:lean-manufacturing-engine (16.885j / &quot;Aircraft Systems Engineering&quot;)</h3>
+<ul>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/LeanManufacturingEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_intelligence:lean_assess</code> (extend) OR <code>prism_orchestrate:lean_pipeline</code></li>
+<li><strong>dedup_preflight:</strong> No hits for <code>LeanManufacturing</code>, <code>LeanEnterprise</code>, <code>LESAT</code>. <strong>CLEAR</strong>.</li>
+<li><strong>domains:</strong> cam · scheduling · thermal</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>Engine implementing 7-waste classification, value-stream-map graph operations, takt-time computation</li>
+<li>Integration tests against <code>JM-DIE/</code> shop archive (real-data E2E per RGS-TOOL-MS1 lesson — pure-core + injected reader)</li>
+<li>LESAT (Lean Enterprise Self-Assessment Tool) scoring sub-API</li>
+</ul></li>
+<li><strong>physics_gate:</strong> n/a</li>
+<li><strong>rationale:</strong> Direct JM Die test-shop fit — operator&#39;s stated business goal includes operator-in-the-loop closed-loop learning from shop floor.</li>
+</ul>
+<h3 id="p5-enginelean-enterprise-engine-algorithmlesat-algorithm-16852j-integrating-the-lean-enterprise"><a class="anchor" href="#p5-enginelean-enterprise-engine-algorithmlesat-algorithm-16852j-integrating-the-lean-enterprise" aria-label="Permalink to P5: engine:lean-enterprise-engine + algorithm:lesat-algorithm (16.852j / &quot;Integrating the Lean Enterprise&quot;)">#</a>P5: engine:lean-enterprise-engine + algorithm:lesat-algorithm (16.852j / &quot;Integrating the Lean Enterprise&quot;)</h3>
+<ul>
+<li><strong>CONSOLIDATION RECOMMENDATION:</strong> P4 + P5 should be ONE engine with LESAT as an inner algorithm. Operator: do not /forge both separately — duplicationGuardEngine WILL throw.</li>
+<li><strong>proposed_path:</strong> Same as P4 (<code>LeanManufacturingEngine</code>) with <code>algorithms/LESATScorer.ts</code> as composed sub-asset</li>
+<li><strong>rationale:</strong> 16.852j and 16.885j are sibling courses; combining avoids parallel-implementation rot.</li>
+</ul>
+<h3 id="p6-algorithmpendulum-cart-modeling-formulatransfer-functions-2003-modeling-dynamics-and-control-i"><a class="anchor" href="#p6-algorithmpendulum-cart-modeling-formulatransfer-functions-2003-modeling-dynamics-and-control-i" aria-label="Permalink to P6: algorithm:pendulum-cart-modeling + formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)">#</a>P6: algorithm:pendulum-cart-modeling + formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</h3>
+<ul>
+<li><strong>proposed_path (algorithm):</strong> <code>mcp-server/src/algorithms/PendulumCartStateSpace.ts</code></li>
+<li><strong>proposed_path (formula):</strong> <code>mcp-server/src/algorithms/TransferFunctionBuilder.ts</code> (NOT a formula in the inline-constant sense; it&#39;s an algebraic algorithm)</li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:state_space_model</code> + <code>prism_calc:transfer_function_build</code></li>
+<li><strong>dedup_preflight:</strong> <code>transfer.function</code> only appears in <code>TribalKnowledgeEngine.ts</code> as a string mention (knowledge tip, not implementation). Transfer-function algebra not implemented. <strong>CLEAR</strong>.</li>
+<li><strong>domains:</strong> control · thermal · vibration</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>State-space matrices (A, B, C, D) for inverted-pendulum-on-cart canonical example</li>
+<li>Laplace-domain transfer-function builder (numerator/denominator polynomials from state-space)</li>
+<li>Bode plot data emit (magnitude/phase vs ω)</li>
+<li>Tests: known closed-form pendulum poles, controllability/observability matrix rank</li>
+<li><strong>physics_gate not required</strong> (algebraic, no physical constants); but cite Ogata &quot;Modern Control Engineering&quot; Ch.5 in JSDoc</li>
+</ul></li>
+<li><strong>rationale:</strong> Spindle chatter prediction, servo-loop tuning, vibration-damping analysis. Direct consumer: <code>ChatterStabilityLobeEngine</code> upgrade path.</li>
+</ul>
+<h3 id="p7-algorithmeuler-method-2003j-dynamics-and-control-i"><a class="anchor" href="#p7-algorithmeuler-method-2003j-dynamics-and-control-i" aria-label="Permalink to P7: algorithm:euler-method (2.003j / &quot;Dynamics and Control I&quot;)">#</a>P7: algorithm:euler-method (2.003j / &quot;Dynamics and Control I&quot;)</h3>
+<ul>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/EulerIntegrator.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:ode_integrate</code> (variant flag: method=euler|rk4)</li>
+<li><strong>dedup_preflight:</strong> No hits for <code>EulerMethod</code>, <code>euler_integrator</code>, <code>euler.ode</code>. <strong>CLEAR</strong>.</li>
+<li><strong>domains:</strong> cad · cam · control</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>Pure-function Euler step + composed <code>integrate(f, y0, [t0,tf], dt)</code> API</li>
+<li>Sister RK4 implementation (same file or sibling — operator decides) for accuracy comparison</li>
+<li>Tests: linear-decay exact-solution comparison, stiff-equation divergence detection</li>
+</ul></li>
+<li><strong>physics_gate:</strong> n/a</li>
+<li><strong>rationale:</strong> Foundation for any ODE-based PRISM solver (thermal transient, motion-profile, control simulation).</li>
+</ul>
+<h3 id="p8-algorithmcam-path-optimization-2007-design-and-manufacturing-i"><a class="anchor" href="#p8-algorithmcam-path-optimization-2007-design-and-manufacturing-i" aria-label="Permalink to P8: algorithm:cam-path-optimization (2.007 / &quot;Design and Manufacturing I&quot;)">#</a>P8: algorithm:cam-path-optimization (2.007 / &quot;Design and Manufacturing I&quot;)</h3>
+<ul>
+<li><strong>DUP-RISK HIGH:</strong> CAM toolpath optimization is core PRISM territory. Existing engines: <code>PPGreedyToolpathOptimizerEngine</code>, <code>MachiningPlaybookEngine</code>, multiple CAM-vendor bridges.</li>
+<li><strong>action:</strong> REJECT auto-forge. Operator: convert this to a /scrutinize task — does 2.007 OCW material provide ANY content not in PRISM&#39;s existing CAM family? If yes, port as algorithm-internal helper; if no, reclassify as TRIBAL-SHIPPED (knowledge tip only).</li>
+<li><strong>rationale:</strong> Course-derived intent is generic; PRISM&#39;s CAM stack is already production-grade.</li>
+</ul>
+<h3 id="p9-enginesolidworks-2007-design-and-manufacturing-i"><a class="anchor" href="#p9-enginesolidworks-2007-design-and-manufacturing-i" aria-label="Permalink to P9: engine:solidworks (2.007 / &quot;Design and Manufacturing I&quot;)">#</a>P9: engine:solidworks (2.007 / &quot;Design and Manufacturing I&quot;)</h3>
+<ul>
+<li><strong>DUP-RISK HIGH:</strong> SolidWorks is one of the 6 tier-1 CAM bridges per CLAUDE-BRIEF. Course-derived re-build = regression.</li>
+<li><strong>action:</strong> REJECT. Reclassify as TRIBAL-SHIPPED.</li>
+<li><strong>rationale:</strong> First-party bridge already exists.</li>
+</ul>
+<h3 id="p10-algorithmresponse-surface-modeling-2830j-control-of-manufacturing-processes"><a class="anchor" href="#p10-algorithmresponse-surface-modeling-2830j-control-of-manufacturing-processes" aria-label="Permalink to P10: algorithm:response-surface-modeling (2.830j / &quot;Control of Manufacturing Processes&quot;)">#</a>P10: algorithm:response-surface-modeling (2.830j / &quot;Control of Manufacturing Processes&quot;)</h3>
+<ul>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/ResponseSurfaceMethodology.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_intelligence:rsm_fit</code> OR extend <code>prism_calc:doe_analyze</code></li>
+<li><strong>dedup_preflight:</strong> <code>ResponseSurface</code> mentioned in <code>TurningCpkSurrogateEngine.ts</code> + <code>camDispatcher.ts</code> + <code>WireEDMResearchAIEngine.ts</code> — may be partially implemented as inline surrogate. <strong>REVIEW REQUIRED</strong>.</li>
+<li><strong>domains:</strong> cam · metrology</li>
+<li><strong>deliverables:</strong>
+<ul>
+<li>RSM polynomial-fit (1st + 2nd order) with optimization (steepest ascent, gradient projection)</li>
+<li>Central composite design (CCD) + Box-Behnken design (BBD) sample generators</li>
+<li>Tests: known quadratic surface recovery, design-orthogonality check</li>
+</ul></li>
+<li><strong>physics_gate:</strong> n/a</li>
+<li><strong>rationale:</strong> Direct fit for speed/feed optimization (PRISM saleable product SFC).</li>
+</ul>
+<hr>
+<h2 id="lower-tier-mfg_relevance-06-079-not-auto-surfaced"><a class="anchor" href="#lower-tier-mfg_relevance-06-079-not-auto-surfaced" aria-label="Permalink to Lower-tier (mfg_relevance 0.6-0.79, not auto-surfaced)">#</a>Lower-tier (mfg_relevance 0.6-0.79, not auto-surfaced)</h2>
+<p>The remaining ~57 FORGE-QUEUE items in <code>COURSE-DATA-ROUTING-LEDGER.json</code> have lower confidence and should be operator-reviewed in bulk via:</p>
+<pre><code>node H:/prism/scripts/course-data-router.mjs --filter mfg_relevance&gt;=0.6 --emit forge-stubs
+</code></pre>
 <p>(That flag is NOT yet implemented — adding it is the next /forge unit if the operator wants bulk-stub emission for the long tail.)</p>
-<hr class="prism-hr">
-<h2 class="prism-h2">Recommended operator workflow</h2>
-<ol class="prism-md-list"><li><strong>Review P1-P10 above.</strong> Reject DUP-RISK entries (P8, P9). Approve or modify P1-P7, P10.</li><li><strong>For each approved entry:</strong></li></ol>
-<ul class="prism-md-list"><li><code class="prism-inline-code">node H:/prism/.claude/helpers/duplication-guard-precheck.mjs --kind &lt;algorithm|engine|formula&gt; --name &lt;name&gt;</code> — surfaces conflicts the router missed.</li><li>For formulas (P3 Moody, anything in physics_gate=required): spawn <code class="prism-inline-code">physics-reviewer</code> agent first, await PASS, then proceed.</li><li><code class="prism-inline-code">/forge-triple &lt;kind&gt;:&lt;name&gt;</code> — produces engine + skill + hook in one shot. Per-file scrutiny gate fires after each generated file.</li></ul>
-<ol class="prism-md-list"><li><strong>Consolidate P4+P5</strong> (Lean) into a single engine before /forge.</li><li><strong>Decline P8 + P9</strong> — already covered by first-party CAM stack.</li><li><strong>After /forge completes for any entry</strong>, /close-out-audit + envelope update + chat-bus post.</li></ol>
-<hr class="prism-hr">
-<h2 class="prism-h2">Anti-patterns (do NOT do these)</h2>
-<ul class="prism-md-list"><li>❌ Auto-/forge any entry above without operator review.</li><li>❌ Inline Moody-diagram constants or any physics-gate=required formula constant into engine source. Constants go to <code class="prism-inline-code">src/physics/constants.ts</code>.</li><li>❌ Create <code class="prism-inline-code">LeanEnterpriseEngine</code> AND <code class="prism-inline-code">LeanManufacturingEngine</code> as separate assets — duplicationGuardEngine WILL throw, and rightfully so.</li><li>❌ Treat course-derived intent as production-validated. The course is the IDEA source; PRISM convention + JM Die test-data is the VALIDATION source.</li></ul>
-<hr class="prism-hr">
-<h2 class="prism-h2">Related</h2>
-<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/COURSE-DATA-ROUTING-LEDGER.{json,md}</code> — full 69-item FORGE-QUEUE inventory</li><li><code class="prism-inline-code">state/shared/specs/COURSE-DATA-ROUTING-PIPELINE.md</code> — 3-lane policy doctrine</li><li><code class="prism-inline-code">scripts/course-data-router.mjs</code> + <code class="prism-inline-code">scripts/lib/course-data-router-lib.mjs</code> — the routing engine itself</li><li><code class="prism-inline-code">mcp-server/src/engines/DuplicationGuardEngine.ts</code> — pre-create gate (THROWS on dup)</li><li><code class="prism-inline-code">.claude/commands/forge-triple.md</code> — the operator-facing forge skill</li><li>[[knowledge-conversion-ms0]] (wiki, milestone parent for course→node work)</li><li><code class="prism-inline-code">mcp-server/src/physics/constants.ts</code> — canonical constants surface for any formula</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T15:23:30.555Z</div>
-<div>html-report-render schemaVersion 1.0.0</div>
+<hr>
+<h2 id="recommended-operator-workflow"><a class="anchor" href="#recommended-operator-workflow" aria-label="Permalink to Recommended operator workflow">#</a>Recommended operator workflow</h2>
+<ol>
+<li><strong>Review P1-P10 above.</strong> Reject DUP-RISK entries (P8, P9). Approve or modify P1-P7, P10.</li>
+<li><strong>For each approved entry:</strong>
+<ul>
+<li><code>node H:/prism/.claude/helpers/duplication-guard-precheck.mjs --kind &lt;algorithm|engine|formula&gt; --name &lt;name&gt;</code> — surfaces conflicts the router missed.</li>
+<li>For formulas (P3 Moody, anything in physics_gate=required): spawn <code>physics-reviewer</code> agent first, await PASS, then proceed.</li>
+<li><code>/forge-triple &lt;kind&gt;:&lt;name&gt;</code> — produces engine + skill + hook in one shot. Per-file scrutiny gate fires after each generated file.</li>
+</ul></li>
+<li><strong>Consolidate P4+P5</strong> (Lean) into a single engine before /forge.</li>
+<li><strong>Decline P8 + P9</strong> — already covered by first-party CAM stack.</li>
+<li><strong>After /forge completes for any entry</strong>, /close-out-audit + envelope update + chat-bus post.</li>
+</ol>
+<hr>
+<h2 id="anti-patterns-do-not-do-these"><a class="anchor" href="#anti-patterns-do-not-do-these" aria-label="Permalink to Anti-patterns (do NOT do these)">#</a>Anti-patterns (do NOT do these)</h2>
+<ul>
+<li>❌ Auto-/forge any entry above without operator review.</li>
+<li>❌ Inline Moody-diagram constants or any physics-gate=required formula constant into engine source. Constants go to <code>src/physics/constants.ts</code>.</li>
+<li>❌ Create <code>LeanEnterpriseEngine</code> AND <code>LeanManufacturingEngine</code> as separate assets — duplicationGuardEngine WILL throw, and rightfully so.</li>
+<li>❌ Treat course-derived intent as production-validated. The course is the IDEA source; PRISM convention + JM Die test-data is the VALIDATION source.</li>
+</ul>
+<hr>
+<h2 id="related"><a class="anchor" href="#related" aria-label="Permalink to Related">#</a>Related</h2>
+<ul>
+<li><code>state/shared/specs/COURSE-DATA-ROUTING-LEDGER.{json,md}</code> — full 69-item FORGE-QUEUE inventory</li>
+<li><code>state/shared/specs/COURSE-DATA-ROUTING-PIPELINE.md</code> — 3-lane policy doctrine</li>
+<li><code>scripts/course-data-router.mjs</code> + <code>scripts/lib/course-data-router-lib.mjs</code> — the routing engine itself</li>
+<li><code>mcp-server/src/engines/DuplicationGuardEngine.ts</code> — pre-create gate (THROWS on dup)</li>
+<li><code>.claude/commands/forge-triple.md</code> — the operator-facing forge skill</li>
+<li>[[knowledge-conversion-ms0]] (wiki, milestone parent for course→node work)</li>
+<li><code>mcp-server/src/physics/constants.ts</code> — canonical constants surface for any formula</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="COURSE-FORGE-PROPOSALS.md">COURSE-FORGE-PROPOSALS.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
 </footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
 </body>
 </html>

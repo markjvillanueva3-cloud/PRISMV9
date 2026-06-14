@@ -261,8 +261,23 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { shear_area_mm2: result.shear_area_mm2, pullout_force_n: result.pullout_force_N ?? result.pullout_force_n, safety_factor: result.safety_factor, fatigue_ratio: result.fatigue_safety_ratio };
     case "adaptive_engagement_calc":
       return { peak_ae_mm: result.peak_engagement_mm, spike_ratio: result.engagement_spike_ratio, adjusted_feed: result.adjusted_feed_mmmin };
-    case "hybrid_post_merge":
-      return { total_lines: result.merged_gcode.length, conflicts: result.conflicts.length, tools_used: result.tool_map.size };
+    case "hybrid_post_merge": {
+      // Engine returns AtomicValue<MergeResult>; unwrap value.program for slim shape.
+      // Fixed 2026-05-23 slot:india U-INDIA-WIRE-HPM — prior slimmer read
+      // result.merged_gcode / result.tool_map which never existed on the engine
+      // contract (it returns {value:{program:{header,body,footer,total_lines,
+      // total_tools,total_time_min,tool_list,conflicts,transition_blocks},
+      // segment_map, quality_score, warnings}, unit, formula, confidence}).
+      const mr = (result?.value ?? result) as { program?: any; quality_score?: number; warnings?: string[] };
+      const program = mr?.program ?? {};
+      return {
+        total_lines: program.total_lines ?? 0,
+        conflicts: Array.isArray(program.conflicts) ? program.conflicts.length : 0,
+        tools_used: program.total_tools ?? 0,
+        quality_score: mr?.quality_score ?? 0,
+        warnings: Array.isArray(mr?.warnings) ? mr.warnings.length : 0,
+      };
+    }
     case "thermal_compensation_model":
       return { peak_drift_um: result.peak_drift_um, peak_axis: result.peak_drift_axis, z_offset_um: result.compensation_offsets.z_um, warmup_min: result.warmup_time_min, risk: result.risk_level };
     case "spc_capability_analyze":
@@ -288,7 +303,18 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
     case "surface_integrity_full":
       return { ra_um: result.roughness.ra_um, rz_um: result.roughness.rz_um, stress_type: result.residual_stress.type, stress_mpa: result.residual_stress.surface_mpa, white_layer: result.subsurface.white_layer_risk, grade: result.quality_grade };
     case "machining_energy_model":
-      return { total_kwh: result.total_kwh, sec_j_mm3: result.sec_j_mm3, co2_kg: result.co2_kg, efficiency_pct: result.efficiency_pct };
+      // U-WIRE-ENERGY P3 close 2026-05-17 kilo: extend pressure-slim from 4
+      // keys to 6 by adding operator-critical cycle_time_min (timing) and
+      // cost_energy (USD). Original 4 kept positionally; new keys appended so
+      // any caller that destructures by name (vs index) is unaffected.
+      return {
+        total_kwh: result.total_kwh,
+        sec_j_mm3: result.sec_j_mm3,
+        co2_kg: result.co2_kg,
+        efficiency_pct: result.efficiency_pct,
+        cycle_time_min: result.cycle_time_min,
+        cost_energy: result.cost_energy,
+      };
     case "monte_carlo_process":
       return { trials: result.value.trials, force_mean: result.value.force_distribution.mean, ra_mean: result.value.roughness_distribution.mean, scrap_pct: result.value.risk_summary.scrap_rate_pct, converged: result.value.convergence.converged };
     case "doe_taguchi":
@@ -544,7 +570,7 @@ const ACTIONS = [
   "cutting_force", "tool_life", "speed_feed", "flow_stress", "surface_finish",
   "mrr", "power", "torque", "power_torque", "chip_load", "stability", "deflection", "thermal",
   "cost_optimize", "multi_optimize", "productivity", "engagement",
-  "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
+  "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit", "arc_fit_kasa",
   "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
   "tolerance_analysis", "fit_analysis", "gcode_generate", "decision_tree",
   "render_report", "campaign_create", "campaign_validate", "campaign_optimize",
@@ -582,6 +608,7 @@ const ACTIONS = [
   "chatter_stability_lobes", "chatter_check_stability", "chatter_detect", "chatter_critical_speeds",
   "heat_conduction_1d", "heat_lumped_capacitance", "heat_convection_coeff", "heat_coolant_effectiveness",
   "geometry_delaunay", "geometry_convex_hull", "geometry_polygon_info", "geometry_point_in_polygon", "geometry_polygon_offset",
+  "minimum_zone_fit",
   "nurbs_curve_evaluate", "nurbs_curve_tangent", "nurbs_curve_curvature", "nurbs_surface_evaluate", "nurbs_surface_closest_point",
   "mesh_curvature_all", "mesh_curvature_classify",
   "silhouette_extract", "silhouette_crease", "silhouette_all_edges",
@@ -656,6 +683,7 @@ const ACTIONS = [
   // ── Tool Catalog ──
   "tool_catalog_search", "tool_catalog_lookup", "tool_catalog_assembly",
   "tool_catalog_collision_envelope", "tool_catalog_recommend", "tool_catalog_stats",
+  "tool_catalog_corpus_stats", "tool_catalog_load_corpus",
   // ── Unit Conversion ──
   "unit_convert", "unit_convert_batch", "unit_system_toggle", "unit_list_conversions", "unit_rpm_calc",
   // ── Machine Profile ──
@@ -885,6 +913,8 @@ const ACTIONS = [
   // -- USF-MS0: Speed/Feed Orchestrator + Tool Library + Geometry Pipeline --
   "sf_orchestrate", "sf_quick", "sf_resolve_machine", "sf_resolve_tool",
   "sf_resolve_material", "sf_stochastic", "sf_compare", "sf_optimize",
+  // -- SFC-ACCURACY-MS1 Iter 4+5: parameter-cascade auto-adjust + pareto recommender --
+  "sf_auto_adjust", "prism_enhanced_recommend",
   "tool_library_add", "tool_library_import_csv", "tool_library_filter",
   "tool_library_stats", "geometry_job_plan",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
@@ -1007,7 +1037,7 @@ const ACTIONS = [
   "session_stability_report", "session_stability_lyapunov",
   "tribal_playbook_validate", "tribal_playbook_ranges", "tribal_playbook_guidance",
   // -- SFC: Surface Finish Calculation (CAM-EXHAUST-MS0) --
-  "sfc_calculate", "sfc_feed_for_target",
+  "sfc_calculate", "sfc_feed_for_target", "surface_finish_compare",
   // -- ENGINE-WIRE-MS0/U-WIRE09: 5 leaf physics engines --
   "engagement_dynamics_calc", "engagement_optimize_adapter",
   "cutting_fluid_lifecycle_calc", "chip_formation_predict", "surface_measure_calc",
@@ -1023,6 +1053,242 @@ const ACTIONS = [
   "smart_defaults_get", "smart_defaults_sfm", "smart_defaults_chipload",
   "smart_defaults_engagement", "smart_defaults_coolant", "smart_defaults_materials",
   "smart_defaults_oneliner",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-PARTIAL-L1-STATS (2026-05-20): SpeedFeedDeepLearningEngine L1 introspection.
+  // R12-safe wire — exposes calibration/training status, NOT inference (L1 NN has random-init weights until trained).
+  "speedfeed_dl_stats",
+  // MS-CRITWIRE/U-CW-06 (2026-05-20): SF-AI L2/L3 introspection wire — completes the L1-L3 ladder. R12-safe: exposes
+  // deterministic stats() (query counts, capability inventory, episodic/KG sizes), NOT NN inference (L3 has 13
+  // Math.random() sites; inference output is untrained until U-AITRAIN-SPEEDFEED ships).
+  "speedfeed_advanced_ai_stats", "speedfeed_ultimate_ai_stats",
+  // OSCAR-SFC-SELFLEARN-WIRE (bravo, 2026-06-11): SpeedFeedOutcomeFeedbackBridgeEngine was built + consumed by the
+  // 9-axis orchestrator but exposed via ZERO dispatcher actions -> the SFC closed-loop fold-back (shop-floor actuals
+  // -> calibration) had no external surface. These 3 open it. R12-safe: ring-buffer capture/fold-back/introspection
+  // DATA, not NN inference.
+  "speedfeed_outcome_record_actuals", "speedfeed_outcome_stats", "speedfeed_outcome_recent",
+  // OSCAR-SFC-SELFLEARN-WIRE (bravo, 2026-06-11): SFCMultiHypothesisRankerEngine carried a FALSE // WIRE-EXEMPT
+  // marker (phantom consumers: a comment + a surfaces_into metadata string, zero real callers) -> the Bayesian
+  // speed/feed candidate arbiter was dark. Its own getSelfAwareness already declares sfc_rank_hypotheses. R12-safe:
+  // deterministic ranking (likelihood = reward.weighted_total), NOT NN inference.
+  "sfc_rank_hypotheses", "sfc_ranker_stats",
+  // OSCAR-SFC-SELFLEARN-WIRE (bravo, 2026-06-11): SFCParameterRefinementEngine carried a FALSE // WIRE-EXEMPT marker
+  // (zero real callers -- only its own test references it). It closes the SFC self-improving loop: reads shop-floor
+  // actuals off the OutcomeCaptureBus, computes median+IQR multiplicative correction factors per machine/material
+  // context, hard-clamped to [0.25,4.0], fail-loud below min evidence. This action surfaces that calibration. R12-safe:
+  // deterministic median/IQR + safety clamp, NEVER NN inference. SECURITY: forwards only validated tuning fields --
+  // never params.bus / params.clock (the engine honors input.bus/input.clock; exposing them would let a caller swap
+  // the data source out from under the singleton).
+  "sfc_parameter_refinement_compute",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-GILBERT (2026-05-20): GilbertEconomicSpeedEngine wire (Gilbert 1950 minimum-cost cutting velocity for turning).
+  // Pure economics + Taylor — no NN, no random init. Closes 1 of ~12 unwired SF engines.
+  "gilbert_econ_speed_compute", "gilbert_econ_speed_compare_vc", "gilbert_econ_speed_stats",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-BARPITCH (2026-05-20): BarFeedPitchOptimizerEngine wire — 1-D bar-feed pitch optimization for lathe/Swiss.
+  // Pure bin-packing math — no NN, no random init.
+  "bar_feed_pitch_optimize", "bar_feed_pitch_stats",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-CSS-CHIPLOAD (2026-05-20): CSSChipLoadInvariantCoordinatorEngine wire — G96 CSS chip-load invariance.
+  // Pure Kienzle physics (no NN, no random init). Closes 1 of ~12 unwired SF engines.
+  "css_chipload_analyze",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-AUTO-CALC (2026-05-20): AutoSpeedFeedCalculatorEngine wire — multi-op SF auto-calc
+  // (RPM from SFM/diameter, G50 clamp, boring-bar L/D feed scale, surface-finish from nose-radius, Kienzle power check).
+  // Engine imports rpmFromVc + predictedRa from src/physics/constants.ts. Closes 1 of ~10 remaining unwired SF calculator engines.
+  "auto_speed_feed_calc",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-FEEDRATE-OPT (2026-05-20, slot:juliett): FeedRateOptimizationEngine wire —
+  // engagement-aware feed optimization with chip-thinning compensation, corner-feed reduction, Kienzle power capping.
+  // Pure physics (Sandvik Coromant + Altintas + iMachining patent). Closes 1 of ~10 remaining unwired SF calculator engines.
+  "feed_rate_optimize",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-CAM-BRIDGE (2026-05-21, slot:juliett): CAMSpeedFeedBridgeEngine wire —
+  // pure translation + encoding layer between 7 CAM hosts (hyperMILL/Fusion360/Inventor HSM/Mastercam/ESPRIT/SolidCAM/generic)
+  // and the central SpeedFeedOrchestratorEngine. Normalizes native parameter vocabularies → OrchestratorInput, runs compute,
+  // encodes the result back into the host's wire format (XML-RPC, JSON-RPC, pipe-delimited, JSON). Closes 1 of ~6 remaining
+  // unwired SF calculator engines. Ref: CAM-EXHAUST-MS0 U-CAM99.
+  "cam_speed_feed_bridge",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-PP-SCALER (2026-05-21, slot:juliett): PPFeedSpeedScalerEngine wire —
+  // post-process G-code F/S rewriter (trial-cut scaling, machine-max clamping, range-filtered scaling). Paren-comment-safe.
+  // Distinct from feed_rate_optimize: this is byte-level G-code text transformation, not engagement-physics. Closes 1 of ~5.
+  "pp_feed_speed_scale",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MINER (2026-05-21, slot:juliett): SpeedFeedMinerEngine wire — mine speed/feed
+  // patterns from a batch of parsed CNC programs (ProgramRecord[]). Pure statistical mining: per-(material × operation ×
+  // machine) median/mean/stddev + outlier detection vs CANONICAL_RANGES (steel/aluminum/stainless) + shop-median
+  // calibration entries. Sibling action speed_feed_compare_to_baseline takes a single program + pre-computed stats and
+  // grades each tool optimal | conservative | aggressive | dangerous. Closes 2 of ~4 remaining unwired SF calculator engines.
+  "speed_feed_mine",
+  "speed_feed_compare_to_baseline",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC-WIRE-TRIVENDOR (2026-06-08, slot:oscar): SpeedFeedTriComparatorEngine wire — the
+  // PRISM × baseline-DB × G-Wizard tri-vendor comparison matrix. Runs ONE 9-axis physics pass, then grades PRISM's
+  // recommendation against the vendor baseline DBs, returning per-system Vc/fz opinions + agreement deltas. THE
+  // closed-loop comparison keystone (SFC ↔ HSMAdvisor ↔ G-Wizard). Own TriCompareInputSchema validates input.
+  "speed_feed_tri_compare",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC-WIRE-EXHAUST (2026-06-08, slot:oscar): SpeedFeedExhaustiveCombinationEngine wire —
+  // physics-invariant bounded cartesian sweep over (material × tool × operation × machine) cells with a ledger of
+  // invariant violations (I1–I6). demo/sampled/full modes. Drives the at-scale comparison harness. Closes 1 of ~3.
+  "speed_feed_exhaustive_sweep",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC-WIRE-DOWNSTREAM (2026-06-08, slot:oscar): SpeedFeedDownstreamSubscriberEngine wire —
+  // read-only query of the resolved post-processor / mill-wizard / lathe-wizard default packs the SFC fans out to.
+  // Surfaces what each downstream consumer would receive from a recommendation. Closes the last SF orphan.
+  "speed_feed_downstream_packs",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC-CALIB-PERSIST (2026-06-08, slot:oscar): SpeedFeedCalibrationPersistEngine wire —
+  // the closed-loop TRAINING layer's persist foundation. Reads the full-sweep comparison ledger
+  // (PRISM vs vendor baseline across all inputs) and derives + persists a schema-versioned per-(ISO×mode)
+  // calibration model. ADVISORY-ONLY: factors are never auto-applied (apply is operator-gated + S(x)≥0.98);
+  // every factor that would INCREASE Vc (more aggressive vs an un-safety-validated baseline) is flagged.
+  "speed_feed_calibration_persist",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC-GPU-JUDGE (2026-06-08, slot:oscar): SpeedFeedGpuJudgeEngine wire — the GPU-IN-THE-LOOP
+  // layer of the closed-loop training pipeline. For each sweep regime it asks a GPU-resident reasoning model
+  // (Ollama on the RTX PRO 6000 Blackwell, proven 100%-VRAM-resident via /api/ps) to judge — as a master machinist —
+  // whether PRISM's physics-derived Vc is soundly conservative vs the vendor baseline. ADVISORY-ONLY: verdicts never
+  // change a recommendation or raise Vc. Fail-loud: unreachable endpoint → labeled fallback (never a fabricated verdict).
+  "speed_feed_gpu_judge",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-AUTOPILOT (2026-05-21, slot:juliett): SpeedFeedAutopilotEngine wire — end-to-end
+  // speed/feed product autopilot. 5-step chain: resolveMaterial → resolveTool → resolveMachine → computeSpeedFeed →
+  // safety_check. Minimal input (material name, tool diameter, optional flutes/operation/machine/HRC/coolant) → fully
+  // resolved {rpm, feed_mm_min, fz, Vc, MRR, Fc, power_kW, safety_score} with per-step pass/warn/fail + recommendations.
+  // Imports CANONICAL_MATERIAL_DB from physics/constants.ts (Kc1.1/mc/Taylor) — no inlined physics. Closes 1 of ~2.
+  "speed_feed_autopilot",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MACHINE-AWARE (2026-05-21, slot:juliett): MachineAwareSpeedFeedEngine wire —
+  // clamp calculated S/F to real machine constraints (max_rpm/max_feed/max_power/max_torque from CanonicalMachinePackage).
+  // Returns {unconstrained, constrained, constraints:{rpmLimited,feedLimited,powerLimited,torqueLimited,limitingFactor},
+  // machine:{id,manufacturer,model,constraints}, headroom, safety, recommendations}. Engine.constrain() reads only 8 fields
+  // from the package (canonical_id, manufacturer, model, spindle.{max_rpm,min_rpm,power,torque}, axes.x_rapid) — schema
+  // accepts the slim subset, full CanonicalMachinePackage compatible via .passthrough(). Closes 1 of ~1 remaining.
+  "machine_aware_constrain",
+  // MS-CRITWIRE/U-CW-02 + KAR-MS2.1/U-KAR17 (2026-05-20): ProvenSpeedFeedAggregatorEngine wire — aggregate shop-proven
+  // speed/feed data (Okuma lathe + mill-pattern samples) into statistically-analyzed proven parameters. Pure statistics
+  // (mean/stddev/percentile/CV/2σ-outlier) — no NN, no random init. Closes 1 of ~12 unwired SF engines.
+  "proven_speed_feed_aggregate_lathe", "proven_speed_feed_aggregate_mill", "proven_speed_feed_query", "proven_speed_feed_export",
+  // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-RESOURCE (2026-05-20): SpeedFeedResourceIntegrationEngine wire — authoritative
+  // speed/feed knowledge (CNCCookbook 2024 + Sandvik/Kennametal catalogs): material SFM ranges, chip-load guidance,
+  // face-mill 45/90 strategy, HEM params, JM-Die special-material lookup, optimal-speed/feed calc. Closes 1 of ~12 unwired SF engines.
+  "speed_feed_resource_sfm", "speed_feed_resource_chiploads", "speed_feed_resource_facemill_strategy",
+  "speed_feed_resource_hem", "speed_feed_resource_jmdie_material", "speed_feed_resource_optimal",
+  // MS-CRITWIRE/U-CW-10 (2026-05-20): surface material designation resolution on prism_calc —
+  // designation (AISI grade / material-family token) -> ISO 513 group + Kienzle kc1.1/mc + Taylor C/n.
+  "material_resolve",
+  // PRISM-CAPABILITY-CLOSE/U-CLOSED-LOOP-VERIFIER (foxtrot iter17 — GAP-7 closure):
+  // wraps DigitalTwinFormulasEngine EKF + drift + divergence into a single
+  // closed-loop verifier. Verdict: in_control/drifted/diverged/abort.
+  "closed_loop_verify",
+  // PRISM-CAPABILITY-CLOSE/U-FIXTURE-TOPOLOGY-OPT (foxtrot iter17 — GAP-6 closure):
+  // SIMP compliance-minimization topology optimization for fixture-design sub-feature.
+  // Bendsøe & Sigmund (2003); Sigmund (2001) 99-line code.
+  "fixture_topology_optimize",
+  // PRISM-PART-TYPE-STACK (foxtrot iter19 — 4-layer per-part-type pipeline pilot):
+  // L1 recognizer (CAD geometry → part class) + L2 adapters (3 pilot classes) +
+  // L4 variability regression harness (5-axis acceptance gate).
+  "part_type_recognize",
+  "adapt_mill_prismatic",
+  "adapt_lathe_shaft",
+  "adapt_wire_edm_punch_die",
+  "part_variability_assert",
+  // -- iter5+6+7 wire-unwired-loop: 13 optimization/calc engines --
+  "grep_optimizer_optimize",
+  "monte_carlo_process_compute",
+  "optimization_formulas_constrained",
+  "optimization_engine_run",
+  "pipeline_optimization_record",
+  "formula_wiring_list_unwired",
+  "machine_confidence_calc",
+  "calculator_prism_mode_calc",
+  "sfc_optimize_run",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-01: 9-axis comprehensive speed/feed orchestrator
+  "sfc_nine_axis_run",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-08: ShopToolLibrary → MRR-ranked SFC bridge (operator's REAL Fusion 360 tools)
+  "sfc_shop_library_rank",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-09: HSMAdvisor settings_v2.xml live-state adapter (vendor baseline read)
+  "hsmadvisor_read_current_state",
+  // CATALOG-APP-WIRING (romeo, 2026-06-09): PRISM tool -> HSMAdvisor settings_v2.xml <Tool> EXPORT (write-back, single-tool state)
+  "hsmadvisor_export_settings",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-10: fleet PDF-corpus → SFC tribal-prior bridge (kilo seeds + extracted JSONL)
+  "sfc_pdf_corpus_bridge",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-11: PRISM ↔ HSMAdvisor live-state comparison bridge (5-axis diff + agreement score)
+  "hsmadvisor_compare",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-12: G-Wizard Calculator toolcrib.csv read-only adapter
+  "gwizard_read_toolcrib",
+  // CATALOG-APP-WIRING (romeo, 2026-06-08): PRISM tool catalog -> G-Wizard toolcrib.csv EXPORT (write-back)
+  "gwizard_export_toolcrib",
+  // OSCAR-SFC-9AXIS-MS0/U-OSC9-13: mike WEDM training-corpus pair indexer/lookup bridge
+  "wedm_training_pair_lookup",
+  "algorithm_orchestrator_run",
+  "realtime_optimization_run",
+  "pallet_pool_optimizer_solve",
+  "monte_carlo_schedule_simulate",
+  // iter9 wire-unwired-loop: process/physics/industrial engines
+  "conveyor_belt_calc",
+  "ball_mill_calc",
+  "flying_shear_calc",
+  "cyclone_separator_calc",
+  "screw_conveyor_calc",
+  "bucket_elevator_calc",
+  "multi_obj_pareto_optimize",
+  "transformer_size_calc",
+  "distillation_column_calc",
+  "centrifuge_calc",
+  "flotation_cell_calc",
+  "membrane_filtration_calc",
+  "thickener_calc",
+  "rocket_nozzle_calc",
+  "thermoelectric_calc",
+  "electrospinning_calc",
+  "freeze_drying_calc",
+  "process_digital_twin_calc",
+  "process_robustness_calc",
+  "amsaa_reliability_growth_calc",
+  "kalman_filter_calc",
+  "sensor_data_schema_validate",
+  "sensor_fusion_calc",
+  "machine_tool_error_budget_calc",
+  "swept_volume_calc",
+  "surface_location_error_calc",
+  "receptance_coupling_calc",
+  "tapping_torque_calc",
+  "process_capability_prediction_calc",
+  "process_variability_integration_calc",
+  "physics_prediction_calc",
+  "calibrated_simulation_calc",
+  "sensor_simulator_calc",
+  "fixture_clamping_calc",
+  "runout_effect_calc",
+  "iso286_extended_calc",
+  // ── Batch-2 UNKNOWN-bucket wiring (iter10) ──
+  "advanced_cnc_config_analyze",
+  "complete_machining_plan",
+  "holder_operation_match_select",
+  "in_process_stock_model_update",
+  "inter_operation_state_transfer",
+  "micro_milling_analyze",
+  "micro_milling_size_effect_calc",
+  "physics_aware_data_augmentation_run",
+  "process_environment_sensitivity_analyze",
+  "rcsa_frf_predict",
+  "stock_feed_cycle_track",
+  "swiss_guide_bushing_physics_calc",
+  "trilobe_deformation_calc",
+  "virtual_machining_simulate",
+  "joint_speed_feed_optimize",
+  "effective_diameter_compute",
+  "hardness_vc_multiplier",
+  "coolant_vc_modifier",
+  "hpc_vc_boost",
+  "climb_conventional_pick",
+  "block_number_renumber",
+  "flush_strategy_pick",
+  "coolant_sequence_generate",
+  "tool_change_sequence",
+  "safe_retract_plan",
+  "hsm_smoothing_filter",
+  "glide_cut_detect",
+  "subprogram_call_generate",
+  "retract_plane_optimize",
+  "chip_control_strategy",
+  "taper_compensate",
+  "csg_tree_reduce",
+  "stock_envelope_compute",
+  "step_iges_diff",
+  "five_axis_tilt_lead",
+  "wedm_lead_geometry",
+  "job_cost_rollup",
+  "quote_confidence_estimate",
+  "setup_time_predict",
+  "material_yield_optimize",
+  "customer_ltv_dcf",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1053,6 +1319,12 @@ export function registerCalcDispatcher(server: any): void {
       if (params.diameter !== undefined && params.tool_diameter === undefined) params.tool_diameter = params.diameter;
       // H1-MS2: Also accept camelCase → snake_case for calc
       if (params.toolDiameter !== undefined && params.tool_diameter === undefined) params.tool_diameter = params.toolDiameter;
+      // SFC plumbing fix (2026-05-31, slot echo): UltimateSpeedFeedEngine (+ peers) read
+      // `tool_diameter_mm`, but only `tool_diameter` was normalized — so the diameter never
+      // reached the engine and it defaulted to a 12mm tool (every diameter gave the same rpm).
+      // Mirror tool_diameter → tool_diameter_mm so the material-aware Vc lookup also yields a
+      // diameter-correct rpm. Convention: the dispatcher's tool_diameter is MM (engine is mm-native).
+      if (params.tool_diameter !== undefined && params.tool_diameter_mm === undefined) params.tool_diameter_mm = params.tool_diameter;
       if (params.feedPerTooth !== undefined && params.feed_per_tooth === undefined) params.feed_per_tooth = params.feedPerTooth;
       if (params.axialDepth !== undefined && params.axial_depth === undefined) params.axial_depth = params.axialDepth;
       if (params.radialDepth !== undefined && params.radial_depth === undefined) params.radial_depth = params.radialDepth;
@@ -1241,9 +1513,53 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "arc_fit_kasa": {
+            // Kasa point-cloud → G02/G03 arc fitter (least-squares circle fitting).
+            // Distinct from `arc_fit` (block-time scalar calc). Wired 2026-05-17 kilo.
+            // Uses ArcFittingEngine.Point3D structural shape (x/y/z).
+            const { arcFittingEngine } = await import("../../engines/ArcFittingEngine.js");
+            const pts = params.points as Array<{ x: number; y: number; z: number }>;
+            const fitParams: Record<string, unknown> = {};
+            if (params.tolerance_mm !== undefined) fitParams.tolerance_mm = params.tolerance_mm;
+            if (params.min_points !== undefined) fitParams.min_points = params.min_points;
+            if (params.max_radius_mm !== undefined) fitParams.max_radius_mm = params.max_radius_mm;
+            if (params.min_radius_mm !== undefined) fitParams.min_radius_mm = params.min_radius_mm;
+            if (params.plane !== undefined) fitParams.plane = params.plane;
+            const fitResult = arcFittingEngine.fit(pts, fitParams as Partial<{ tolerance_mm: number; min_points: number; max_radius_mm: number; min_radius_mm: number; plane: "XY" | "XZ" | "YZ"; }>);
+            if (params.emit_gcode) {
+              // Defensive: even though Zod optPosNum already validates >0, guard
+              // the engine boundary against future drift (direct engine import,
+              // schema rewire). Non-finite or non-positive feedrate → omit (engine
+              // emits `f: undefined` which the consumer treats as machine-default).
+              const rawFr = params.feedrate;
+              const safeFr = (typeof rawFr === "number" && Number.isFinite(rawFr) && rawFr > 0) ? rawFr : undefined;
+              result = { ...fitResult, gcode: arcFittingEngine.toGCode(fitResult.arcs, safeFr) };
+            } else {
+              result = fitResult;
+            }
+            break;
+          }
+
           case "chip_thinning": {
             const { calculateChipThinning } = await import("../../engines/ToolpathCalculations.js");
             result = calculateChipThinning(params.tool_diameter, params.radial_depth, params.feed_per_tooth, params.number_of_teeth || 4, params.cutting_speed || 150);
+            break;
+          }
+
+          case "machining_energy_model": {
+            // Gutowski energy model + Kienzle force, with per-stage breakdown.
+            // Engine wraps result in AtomicValue<MachiningEnergyResult>. We unwrap
+            // the .value into `result` so the existing slimResponse remap at
+            // calcExtractKeyValues (line 290) reads `result.total_kwh` directly,
+            // matching the contract already declared there. Wired 2026-05-17 kilo,
+            // U-WIRE-ENERGY (closes the ghost-wired half-orphan — action was in
+            // ACTIONS enum + slimResponse but had no executor body).
+            const { machiningEnergyModelEngine } = await import("../../engines/MachiningEnergyModelEngine.js");
+            const wrapped = machiningEnergyModelEngine.compute(params as Parameters<typeof machiningEnergyModelEngine.compute>[0]);
+            // Carry the AtomicValue envelope under reserved keys so consumers
+            // that want unit/formula provenance can still get it, but the bare
+            // numerics live on the top-level (slimResponse contract).
+            result = { ...wrapped.value, _unit: wrapped.unit, _formula: wrapped.formula, _confidence: wrapped.confidence };
             break;
           }
 
@@ -1909,6 +2225,24 @@ export function registerCalcDispatcher(server: any): void {
           case "geometry_polygon_offset": {
             const { geometryAlgorithmsEngine } = await import("../../engines/GeometryAlgorithmsEngine.js");
             result = geometryAlgorithmsEngine.polygonOffset(params.vertices, params.distance);
+            break;
+          }
+          case "minimum_zone_fit": {
+            // Invention A2 — ASME Y14.5.1 minimum-zone (Chebyshev / L-infinity)
+            // GD&T form-error fit. See wiki [[prism-invention-high-roi-engine-ideas]].
+            const { minimumZoneFitEngine } = await import("../../engines/MinimumZoneFitEngine.js");
+            const feature = params.feature;
+            if (feature === "straightness") {
+              result = minimumZoneFitEngine.straightness(params.points);
+            } else if (feature === "flatness") {
+              result = minimumZoneFitEngine.flatness(params.points);
+            } else if (feature === "circularity") {
+              result = minimumZoneFitEngine.circularity(params.points);
+            } else {
+              throw new Error(
+                `minimum_zone_fit: unknown feature '${feature}' — expected straightness | flatness | circularity`,
+              );
+            }
             break;
           }
 
@@ -4314,6 +4648,28 @@ export function registerCalcDispatcher(server: any): void {
             result = toolCatalogEngine.stats();
             break;
           }
+          case "tool_catalog_corpus_stats": {
+            // Manifest-only stats (declared corpus size + runtime-loaded count). Cheap.
+            const { catalogCorpusLoaderEngine } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            result = catalogCorpusLoaderEngine.corpusStats();
+            break;
+          }
+          case "tool_catalog_load_corpus": {
+            // Load the full vendor catalog corpus (~49.8K deduped tools; the loader skips 3
+            // *-extracted.json twins that were 100%-redundant with richer .ts-getter caches) into
+            // ToolCatalogEngine so every downstream consumer of toolCatalogEngine.search()
+            // (Fusion / Mastercam / hyperMILL / Inventor HSM exports + SFC) sees it.
+            // params.dryRun → normalize + report only (no feed). params.onlyManufacturer
+            // → restrict to one vendor (incremental / testing).
+            const { catalogCorpusLoaderEngine } = await import("../../engines/CatalogCorpusLoaderEngine.js");
+            result = catalogCorpusLoaderEngine.load({
+              dryRun: params.dryRun === true,
+              ...(typeof params.onlyManufacturer === "string"
+                ? { onlyManufacturer: params.onlyManufacturer }
+                : {}),
+            });
+            break;
+          }
 
           // ── Unit Conversion ──
           case "unit_convert": {
@@ -6472,6 +6828,24 @@ export function registerCalcDispatcher(server: any): void {
             result = sfo5.optimizeFn(sfo5.speedFeedOrchestratorEngine, params as ValidatedParams, params.objectives as string[]);
             break;
           }
+          case "sf_auto_adjust": {
+            // SFC-ACCURACY-MS1 Iter 4 — parameter dependency DAG cascade
+            const { autoAdjustCascadeEngine } = await import("../../engines/AutoAdjustCascadeEngine.js");
+            result = autoAdjustCascadeEngine.cascade({
+              oldInput: params.oldInput as Record<string, unknown>,
+              changedField: params.changedField as string,
+              newValue: params.newValue,
+              maxDepth: params.maxDepth as number | undefined,
+              dryRun: params.dryRun as boolean | undefined,
+            });
+            break;
+          }
+          case "prism_enhanced_recommend": {
+            // SFC-ACCURACY-MS1 Iter 5 — NSGA-II pareto-optimal selection
+            const { prismEnhancedRecommenderEngine } = await import("../../engines/PrismEnhancedRecommenderEngine.js");
+            result = prismEnhancedRecommenderEngine.recommend(params as ValidatedParams);
+            break;
+          }
 
           // ── QS-MS6: Cross-Pipeline What-If ──
           case "what_if_analyze": {
@@ -7312,6 +7686,52 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Closed-Loop Verifier (GAP-7 orchestration, foxtrot iter17) ──
+          // Wraps DigitalTwinFormulas EKF + drift + divergence into a single
+          // closed-loop verification call. Verdict: in_control/drifted/diverged/abort.
+          case "closed_loop_verify": {
+            const { closedLoopVerifierEngine: clve } = await import("../../engines/ClosedLoopVerifierEngine.js");
+            result = clve.verify(params as Parameters<typeof clve.verify>[0]);
+            break;
+          }
+
+          // ── Fixture Topology Optimization (GAP-6 closure, foxtrot iter17) ──
+          // SIMP compliance-minimization for fixture-design topology optimization.
+          // Bendsøe & Sigmund (2003) §1.3 + §2.4; Sigmund (2001) 99-line code.
+          case "fixture_topology_optimize": {
+            const { fixtureTopologyOptimizerEngine: ftoe } = await import("../../engines/FixtureTopologyOptimizerEngine.js");
+            result = ftoe.optimize(params as Parameters<typeof ftoe.optimize>[0]);
+            break;
+          }
+
+          // ── 4-Layer Per-Part-Type Pipeline Stack (foxtrot iter19 pilot) ──
+          // L1: PartTypeRecognizerEngine (CAD signature → part class per domain)
+          case "part_type_recognize": {
+            const { partTypeRecognizerEngine: ptr } = await import("../../engines/PartTypeRecognizerEngine.js");
+            result = ptr.recognize(params as Parameters<typeof ptr.recognize>[0]);
+            break;
+          }
+          case "adapt_mill_prismatic": {
+            const { millPrismaticAdapterEngine: mpa } = await import("../../engines/MillPrismaticAdapterEngine.js");
+            result = mpa.adapt(params as Parameters<typeof mpa.adapt>[0]);
+            break;
+          }
+          case "adapt_lathe_shaft": {
+            const { latheShaftAdapterEngine: lsa } = await import("../../engines/LatheShaftAdapterEngine.js");
+            result = lsa.adapt(params as Parameters<typeof lsa.adapt>[0]);
+            break;
+          }
+          case "adapt_wire_edm_punch_die": {
+            const { wireEDMPunchDieAdapterEngine: wpa } = await import("../../engines/WireEDMPunchDieAdapterEngine.js");
+            result = wpa.adapt(params as Parameters<typeof wpa.adapt>[0]);
+            break;
+          }
+          case "part_variability_assert": {
+            const { partVariabilityRegressionHarnessEngine: pvr } = await import("../../engines/PartVariabilityRegressionHarnessEngine.js");
+            result = pvr.assert(params as Parameters<typeof pvr.assert>[0]);
+            break;
+          }
+
           // ── Metrology Budget (4 actions) ──
           case "metrology_expanded_uncertainty":
           case "metrology_thermal_compensation":
@@ -8065,6 +8485,16 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Hybrid Post Merge (HybridPostMergeEngine) ──
+          // Slot:india U-INDIA-WIRE-HPM 2026-05-23 — completes the half-wire
+          // that had the action in z.enum + response-slimmer but no compute()
+          // call site (calling it would have crashed on undefined result).
+          case "hybrid_post_merge": {
+            const { hybridPostMergeEngine: hpme } = await import("../../engines/HybridPostMergeEngine.js");
+            result = hpme.compute(params as any);
+            break;
+          }
+
           // ── Thermal Compensation Model (ThermalCompensationModelEngine) ──
           case "thermal_compensation_model": {
             const { thermalCompensationModelEngine: tcme } = await import("../../engines/ThermalCompensationModelEngine.js");
@@ -8704,6 +9134,15 @@ export function registerCalcDispatcher(server: any): void {
             result = { feed: SFCCalculateEngine.calculateFeedForTarget(p.targetRa, p.operation, p.toolNoseRadius, p.toolDiameter) };
             break;
           }
+          // U-WIRE-SFCMP: SFCCompareEngine — measured-Ra-vs-spec SPC (Cpk + trend +
+          // in/out-of-spec assessment). DISTINCT from sfc_calculate above, which
+          // PREDICTS Ra from cutting params; this one COMPARES measured surface
+          // finish against a specification. Engine ships its own CompareInputSchema.
+          case "surface_finish_compare": {
+            const { SFCCompareEngine } = await import("../../engines/SFCCompareEngine.js");
+            result = SFCCompareEngine.compare(params as Parameters<typeof SFCCompareEngine.compare>[0]);
+            break;
+          }
 
           // ENGINE-WIRE-MS0/U-WIRE02: 5 leaf-physics engines wired (4 orphan enum slots + 1 new action)
           case "power_budget": {
@@ -9012,7 +9451,1455 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
-default:
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-PARTIAL-L1-STATS (2026-05-20): SpeedFeedDeepLearningEngine L1 introspection wire.
+          // R12-safe — exposes calibration/training status, NOT inference output. The L1 NN has Math.random() init weights
+          // until U-AITRAIN-SPEEDFEED training ships, so wiring inference paths would ship garbage (silently violating R12).
+          // This stats action gives operators visibility into "is L1 trained yet?" — load-bearing precondition for safely
+          // wiring L2 (SpeedFeedAdvancedAIEngine) and L3 (SpeedFeedUltimateAIEngine) which transitively depend on L1.
+          case "speedfeed_dl_stats": {
+            const { speedFeedDeepLearningEngine } = await import("../../engines/SpeedFeedDeepLearningEngine.js");
+            const learning = speedFeedDeepLearningEngine.getSelfLearningStats();
+            const operational = speedFeedDeepLearningEngine.stats();
+            result = {
+              success: true,
+              stats: {
+                queries_processed: operational.queries_processed,
+                neural_networks: operational.neural_networks,
+                self_learning_feedback: operational.self_learning_feedback,
+                calibrated: learning.calibrated,
+                avg_errors_pct: learning.avg_errors,
+              },
+            };
+            break;
+          }
+
+          // MS-CRITWIRE/U-CW-06 (2026-05-20): SF-AI L2/L3 introspection wire — completes the L1-L3 ladder begun by
+          // speedfeed_dl_stats (L1). R12-safe by design: exposes only the engines' deterministic stats() surface
+          // (query counts, AI-capability inventory, reasoning frameworks, episodic-memory / knowledge-graph sizes).
+          // It does NOT expose NN inference — SpeedFeedUltimateAIEngine has 13 Math.random() sites and its inference
+          // output is untrained until U-AITRAIN-SPEEDFEED ships; wiring an inference path would silently ship garbage.
+          // OSCAR-SFC-SELFLEARN-WIRE (bravo, 2026-06-11): close the SFC self-learning loop externally.
+          // recordActuals folds operator/shop-floor observed values back onto the most-recent matching prediction;
+          // stats/recent give the AI ladder its calibration-training-set introspection. The singleton ring buffer is
+          // the SAME one SpeedFeedNineAxisOrchestratorEngine populates via capture(), so this is the in-process closed
+          // loop. R12-safe: exposes captured DATA + fold-back, never NN inference output.
+          case "speedfeed_outcome_record_actuals": {
+            const { speedFeedOutcomeFeedbackBridgeEngine } = await import("../../engines/SpeedFeedOutcomeFeedbackBridgeEngine.js");
+            const key = (params.key ?? {}) as { machine_name?: string; material_name?: string; tool_diameter_mm?: number };
+            if (!key.machine_name || !key.material_name || typeof key.tool_diameter_mm !== "number") {
+              result = { success: false, error: "key requires { machine_name, material_name, tool_diameter_mm } -- the prediction-match key for the fold-back" };
+              break;
+            }
+            const actuals = (params.actuals ?? {}) as { actual_vc_mpm?: number; actual_fz_mm?: number; actual_tool_life_min?: number };
+            const hasRealActual = [actuals.actual_vc_mpm, actuals.actual_fz_mm, actuals.actual_tool_life_min].some((v) => typeof v === "number" && Number.isFinite(v));
+            if (!hasRealActual) {
+              result = { success: false, error: "actuals must include at least one finite field: actual_vc_mpm, actual_fz_mm, or actual_tool_life_min -- a content-free override would inflate the calibration training-set" };
+              break;
+            }
+            const folded = speedFeedOutcomeFeedbackBridgeEngine.recordActuals(
+              { machine_name: key.machine_name, material_name: key.material_name, tool_diameter_mm: key.tool_diameter_mm },
+              actuals,
+            );
+            result = { success: true, folded, actuals_count: speedFeedOutcomeFeedbackBridgeEngine.actualsCount() };
+            break;
+          }
+          case "speedfeed_outcome_stats": {
+            const { speedFeedOutcomeFeedbackBridgeEngine } = await import("../../engines/SpeedFeedOutcomeFeedbackBridgeEngine.js");
+            result = { success: true, stats: speedFeedOutcomeFeedbackBridgeEngine.stats(), actuals_count: speedFeedOutcomeFeedbackBridgeEngine.actualsCount() };
+            break;
+          }
+          case "speedfeed_outcome_recent": {
+            const { speedFeedOutcomeFeedbackBridgeEngine } = await import("../../engines/SpeedFeedOutcomeFeedbackBridgeEngine.js");
+            const key = (params.key ?? {}) as { machine_name?: string; material_name?: string; tool_diameter_mm?: number };
+            if (!key.machine_name || !key.material_name || typeof key.tool_diameter_mm !== "number") {
+              result = { success: false, error: "key requires { machine_name, material_name, tool_diameter_mm }" };
+              break;
+            }
+            const rawLimit = params.limit;
+            const limit = typeof rawLimit === "number" && rawLimit > 0 ? Math.min(rawLimit, 64) : 16;
+            const records = speedFeedOutcomeFeedbackBridgeEngine.recentForKey(
+              { machine_name: key.machine_name, material_name: key.material_name, tool_diameter_mm: key.tool_diameter_mm },
+              limit,
+            );
+            result = { success: true, count: records.length, records };
+            break;
+          }
+          // OSCAR-SFC-SELFLEARN-WIRE (bravo, 2026-06-11): expose the SFC multi-hypothesis Bayesian ranker.
+          // Static methods on the class-as-singleton. rank() is SELF-CONTAINED (candidates passed inline;
+          // RAG priors optional). R12-safe: deterministic posterior ranking + safety-shield, never NN inference.
+          case "sfc_rank_hypotheses": {
+            const { sfcMultiHypothesisRankerEngine } = await import("../../engines/SFCMultiHypothesisRankerEngine.js");
+            if (!Array.isArray(params.candidates) || params.candidates.length === 0) {
+              result = { success: false, error: "candidates must be a non-empty array of { source, sfm, fpt, doc } speed/feed hypotheses" };
+              break;
+            }
+            if (typeof params.material !== "string" || !params.material) {
+              result = { success: false, error: "material (string) is required -- the workpiece material to resolve physics priors against" };
+              break;
+            }
+            const ranked = sfcMultiHypothesisRankerEngine.rank(params as Parameters<typeof sfcMultiHypothesisRankerEngine.rank>[0]);
+            result = { success: true, ...ranked };
+            break;
+          }
+          case "sfc_ranker_stats": {
+            const { sfcMultiHypothesisRankerEngine } = await import("../../engines/SFCMultiHypothesisRankerEngine.js");
+            result = {
+              success: true,
+              ready: sfcMultiHypothesisRankerEngine.isReady(),
+              self_awareness: sfcMultiHypothesisRankerEngine.getSelfAwareness(),
+            };
+            break;
+          }
+          // OSCAR-SFC-SELFLEARN-WIRE (bravo, 2026-06-11): SFCParameterRefinementEngine -- closes the SFC self-improving
+          // loop. Reads shop-floor actuals off the OutcomeCaptureBus (singleton), computes median+IQR multiplicative
+          // correction factors per machine/material context, hard-clamped to [0.25,4.0], fail-loud below minSamples.
+          // computeRefinement NEVER throws (returns ok:false on no_evidence/below_min_samples/bus_error/invalid_context),
+          // so no try/catch needed. R12-safe: deterministic stats + safety clamp, never NN inference.
+          // SECURITY: forward ONLY validated JSON-safe tuning fields. The engine honors input.bus / input.clock; if we
+          // forwarded params.bus / params.clock a caller could swap the data source out from under the singleton -- so
+          // those two keys are deliberately NOT threaded through. Singleton uses the real bus + real Date.now().
+          // NOTE: applyToRecommendation() is intentionally NOT surfaced -- it is a pure in-process helper the
+          // SpeedFeedOrchestrator wires directly (needs the prior refinement result threaded back), not a natural MCP action.
+          case "sfc_parameter_refinement_compute": {
+            const ctx = params.context;
+            if (ctx === undefined || ctx === null || typeof ctx !== "object" || Array.isArray(ctx)) {
+              result = { success: false, error: "context (object) is required -- {customer?,material?,machine_id?,tool_id?,operation?}; pass {} explicitly to match ALL outcomes (cross-context refinement leaks bias -- prefer a specific machine+material)" };
+              break;
+            }
+            const { sfcParameterRefinementEngine } = await import("../../engines/SFCParameterRefinementEngine.js");
+            const refineInput: Record<string, unknown> = { context: ctx as Record<string, unknown> };
+            if (params.sinceDays !== undefined) refineInput.sinceDays = params.sinceDays;
+            if (params.minSamples !== undefined) refineInput.minSamples = params.minSamples;
+            if (params.maxFactor !== undefined) refineInput.maxFactor = params.maxFactor;
+            if (params.iqrScale !== undefined) refineInput.iqrScale = params.iqrScale;
+            if (params.fullConfidenceSamples !== undefined) refineInput.fullConfidenceSamples = params.fullConfidenceSamples;
+            const refined = sfcParameterRefinementEngine.computeRefinement(
+              refineInput as unknown as Parameters<typeof sfcParameterRefinementEngine.computeRefinement>[0],
+            );
+            result = { success: true, ...refined };
+            break;
+          }
+          case "speedfeed_advanced_ai_stats": {
+            const { speedFeedAdvancedAIEngine } = await import("../../engines/SpeedFeedAdvancedAIEngine.js");
+            const out = speedFeedAdvancedAIEngine.stats();
+            result = { success: true, stats: out };
+            break;
+          }
+          case "speedfeed_ultimate_ai_stats": {
+            const { speedFeedUltimateAIEngine } = await import("../../engines/SpeedFeedUltimateAIEngine.js");
+            const out = speedFeedUltimateAIEngine.stats();
+            result = { success: true, stats: out };
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-GILBERT (2026-05-20): GilbertEconomicSpeedEngine — Gilbert (1950)
+          // minimum-cost cutting velocity for turning. Pure economics + Taylor (no NN, no random init), so safe to wire
+          // inference paths immediately. Closes 1 of ~12 unwired SF engines.
+          // Refs: Gilbert (1950) ASME · Shaw (2005) Metal Cutting Principles §20 · Armarego (1969) §9.5.
+          case "gilbert_econ_speed_compute": {
+            const { gilbertEconomicSpeedEngine } = await import("../../engines/GilbertEconomicSpeedEngine.js");
+            try {
+              const out = gilbertEconomicSpeedEngine.compute({
+                K_T: params.K_T,
+                n: params.n,
+                machining_cost_per_sec_usd: params.machining_cost_per_sec_usd,
+                tool_change_time_sec: params.tool_change_time_sec,
+                tool_cost_per_edge_usd: params.tool_cost_per_edge_usd,
+                cut_length_mm: params.cut_length_mm,
+                f_mm_rev: params.f_mm_rev,
+                diameter_mm: params.diameter_mm,
+                revenue_per_part_usd: params.revenue_per_part_usd,
+                rpm_clamp: params.rpm_clamp,
+              });
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "gilbert_econ_speed_compare_vc": {
+            const { gilbertEconomicSpeedEngine } = await import("../../engines/GilbertEconomicSpeedEngine.js");
+            try {
+              const out = gilbertEconomicSpeedEngine.compareVc(params.candidate_vc_m_min, {
+                K_T: params.K_T,
+                n: params.n,
+                machining_cost_per_sec_usd: params.machining_cost_per_sec_usd,
+                tool_change_time_sec: params.tool_change_time_sec,
+                tool_cost_per_edge_usd: params.tool_cost_per_edge_usd,
+              });
+              result = { success: true, comparison: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "gilbert_econ_speed_stats": {
+            const { gilbertEconomicSpeedEngine } = await import("../../engines/GilbertEconomicSpeedEngine.js");
+            const out = gilbertEconomicSpeedEngine.getStats();
+            result = { success: true, stats: out };
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-BARPITCH (2026-05-20): BarFeedPitchOptimizerEngine — 1-D bar-feed pitch
+          // optimization for lathe/Swiss workflows. Pure bin-packing math (no NN, no random init), inference safe immediately.
+          // Closes 1 of ~12 unwired SF engines. Refs: ISO 6983 · Sandvik Cutting Tools Technical Guide (collet/feed losses).
+          case "bar_feed_pitch_optimize": {
+            const { barFeedPitchOptimizerEngine } = await import("../../engines/BarFeedPitchOptimizerEngine.js");
+            try {
+              const out = barFeedPitchOptimizerEngine.optimize({
+                part_length_mm: params.part_length_mm,
+                quantity_needed: params.quantity_needed,
+                bar_length_mm: params.bar_length_mm,
+                cutoff_kerf_mm: params.cutoff_kerf_mm,
+                bar_end_loss_mm: params.bar_end_loss_mm,
+                bar_head_face_mm: params.bar_head_face_mm,
+                candidate_bar_diameters_mm: params.candidate_bar_diameters_mm,
+                bar_diameter_mm: params.bar_diameter_mm,
+                part_max_diameter_mm: params.part_max_diameter_mm,
+                material_density_kgm3: params.material_density_kgm3,
+                material_price_per_kg: params.material_price_per_kg,
+                part_mass_kg: params.part_mass_kg,
+              });
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "bar_feed_pitch_stats": {
+            const { barFeedPitchOptimizerEngine } = await import("../../engines/BarFeedPitchOptimizerEngine.js");
+            const out = barFeedPitchOptimizerEngine.getStats();
+            result = { success: true, stats: out };
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-CSS-CHIPLOAD (2026-05-20): CSSChipLoadInvariantCoordinatorEngine — G96 CSS
+          // chip-load invariance analysis. Pure Kienzle/Kronenberg physics (no NN, no random init). Closes 1 of ~12 unwired SF
+          // engines. The engine's analyze() parses its own Zod schema internally, so the dispatcher passes the input through.
+          case "css_chipload_analyze": {
+            const { CSSChipLoadInvariantCoordinatorEngine } = await import("../../engines/CSSChipLoadInvariantCoordinatorEngine.js");
+            try {
+              const out = CSSChipLoadInvariantCoordinatorEngine.analyze(params as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-AUTO-CALC (2026-05-20): AutoSpeedFeedCalculatorEngine — auto-calculates
+          // RPM/feed/G50-clamp/peck-schedule/Ra/Kienzle-power for a multi-operation program and emits Okuma macro lines.
+          // Per-call instantiation (engine has instance state only for the calculate() invocation). Pure physics —
+          // imports rpmFromVc / predictedRa from src/physics/constants.ts. NOTE: pre-existing dual-source-constant smell in
+          // engine (APPROX_KC1_1 / APPROX_MC duplicate canonical kc1.1/mc values from physics/constants.ts) is OUT OF SCOPE
+          // for this wire and is recorded as a follow-up in the close-out memory.
+          case "auto_speed_feed_calc": {
+            const { AutoSpeedFeedCalculatorEngine } = await import("../../engines/AutoSpeedFeedCalculatorEngine.js");
+            try {
+              const engine = new AutoSpeedFeedCalculatorEngine();
+              const out = engine.calculate(params as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-FEEDRATE-OPT (2026-05-20, slot:juliett): FeedRateOptimizationEngine —
+          // engagement-aware feed optimization (chip-thinning compensation + corner-feed reduction + Kienzle power cap).
+          case "feed_rate_optimize": {
+            const { feedRateOptimizationEngine } = await import("../../engines/FeedRateOptimizationEngine.js");
+            try {
+              const out = feedRateOptimizationEngine.optimize(params as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-CAM-BRIDGE (2026-05-21, slot:juliett): CAMSpeedFeedBridgeEngine.compute —
+          // translate native CAM-host SF request → OrchestratorInput → compute → encode result back to host wire format.
+          // Static method (no singleton); engine validates target + native_request via its own Zod schemas internally.
+          case "cam_speed_feed_bridge": {
+            const { CAMSpeedFeedBridgeEngine } = await import("../../engines/CAMSpeedFeedBridgeEngine.js");
+            try {
+              const out = CAMSpeedFeedBridgeEngine.compute(params as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-PP-SCALER (2026-05-21, slot:juliett): PPFeedSpeedScalerEngine.scale —
+          // rewrite F/S words in a G-code program per uniform/clamp/range rules. Preserves paren-comments + ;-tails verbatim.
+          // Singleton method; engine handles defaults internally. Param shape: { gcode: string, options?: FeedScalerOptions }.
+          case "pp_feed_speed_scale": {
+            const { ppFeedSpeedScalerEngine } = await import("../../engines/PPFeedSpeedScalerEngine.js");
+            try {
+              const p = params as { gcode?: string; options?: any };
+              if (typeof p?.gcode !== "string") {
+                result = { success: false, error: "pp_feed_speed_scale requires params.gcode: string (G-code program text)" };
+                break;
+              }
+              const out = ppFeedSpeedScalerEngine.scale(p.gcode, p.options ?? {});
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MINER (2026-05-21, slot:juliett): SpeedFeedMinerEngine.mine —
+          // ingest ProgramRecord[] (from OkumaOSP/Haas/Hurco/RokuRoku parsers), emit per-group statistics + outliers vs
+          // CANONICAL_RANGES + shop-median calibration entries. Pure statistical mining; canonical ranges live in the
+          // engine module, NOT in physics constants (they're shop-experience SFM bands, not Kienzle/Taylor).
+          case "speed_feed_mine": {
+            const { speedFeedMinerEngine } = await import("../../engines/SpeedFeedMinerEngine.js");
+            try {
+              const p = params as { records?: unknown };
+              if (!Array.isArray(p?.records)) {
+                result = { success: false, error: "speed_feed_mine requires params.records: ProgramRecord[]" };
+                break;
+              }
+              const out = speedFeedMinerEngine.mine(p.records as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MINER (2026-05-21, slot:juliett): SpeedFeedMinerEngine.compareToBaseline —
+          // grade a single program against a pre-computed baseline (typically the output of speed_feed_mine).
+          // Returns per-tool {speed_diff_pct, feed_diff_pct, assessment: optimal | conservative | aggressive | dangerous}.
+          // |speedDiff| ≤30% → optimal, 30-50% → conservative/aggressive, >50% → dangerous.
+          case "speed_feed_compare_to_baseline": {
+            const { speedFeedMinerEngine } = await import("../../engines/SpeedFeedMinerEngine.js");
+            try {
+              const p = params as { record?: unknown; baseline?: unknown };
+              if (!p?.record || typeof p.record !== "object") {
+                result = { success: false, error: "speed_feed_compare_to_baseline requires params.record: ProgramRecord" };
+                break;
+              }
+              if (!Array.isArray(p?.baseline)) {
+                result = { success: false, error: "speed_feed_compare_to_baseline requires params.baseline: SpeedFeedStats[]" };
+                break;
+              }
+              const out = speedFeedMinerEngine.compareToBaseline(p.record as any, p.baseline as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // OSCAR-SFC-9AXIS-MS0/U-OSC-WIRE-TRIVENDOR (2026-06-08, slot:oscar): SpeedFeedTriComparatorEngine.run —
+          // tri-vendor comparison (PRISM × baseline DBs × G-Wizard). One 9-axis physics pass, graded against vendor
+          // baselines → per-system Vc/fz opinions + agreement deltas. The engine's TriCompareInputSchema validates raw.
+          case "speed_feed_tri_compare": {
+            const { speedFeedTriComparatorEngine } = await import("../../engines/SpeedFeedTriComparatorEngine.js");
+            try {
+              const out = speedFeedTriComparatorEngine.run(params);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // OSCAR-SFC-9AXIS-MS0/U-OSC-WIRE-EXHAUST (2026-06-08, slot:oscar): SpeedFeedExhaustiveCombinationEngine.run —
+          // physics-invariant bounded cartesian sweep with an I1–I6 invariant-violation ledger. sample_mode:
+          // demo | sampled | full controls cell count. Returns per-cell results + the violation report.
+          case "speed_feed_exhaustive_sweep": {
+            const { speedFeedExhaustiveCombinationEngine } = await import("../../engines/SpeedFeedExhaustiveCombinationEngine.js");
+            try {
+              const out = speedFeedExhaustiveCombinationEngine.run(params as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // OSCAR-SFC-9AXIS-MS0/U-OSC-WIRE-DOWNSTREAM (2026-06-08, slot:oscar): SpeedFeedDownstreamSubscriberEngine —
+          // read-only query of the resolved default packs the SFC fans out to. params.pack: "post" | "mill" | "lathe"
+          // selects which downstream consumer's defaults to surface; omitted → all three + registration status.
+          case "speed_feed_downstream_packs": {
+            const { speedFeedDownstreamSubscriberEngine } = await import("../../engines/SpeedFeedDownstreamSubscriberEngine.js");
+            try {
+              // The 5 downstream caches are keyed by published-snapshot key, so a
+              // zero-arg pack read is meaningless until a snapshot exists. Expose
+              // the lifecycle + cache introspection instead.
+              // op: "status" (default) | "register" | "unregister" | "snapshot".
+              const p = params as { op?: unknown };
+              const op = typeof p?.op === "string" ? p.op : "status";
+              let out: unknown;
+              if (op === "register") {
+                out = { op: "register", ...speedFeedDownstreamSubscriberEngine.registerAllSubscribers() };
+              } else if (op === "unregister") {
+                speedFeedDownstreamSubscriberEngine.unregisterAllSubscribers();
+                out = { op: "unregister", registered: speedFeedDownstreamSubscriberEngine.isRegistered() };
+              } else if (op === "snapshot") {
+                out = {
+                  op: "snapshot",
+                  registered: speedFeedDownstreamSubscriberEngine.isRegistered(),
+                  total_versions: speedFeedDownstreamSubscriberEngine.totalVersionCount(),
+                  cache: speedFeedDownstreamSubscriberEngine.cacheSnapshot(),
+                };
+              } else {
+                out = {
+                  op: "status",
+                  registered: speedFeedDownstreamSubscriberEngine.isRegistered(),
+                  total_versions: speedFeedDownstreamSubscriberEngine.totalVersionCount(),
+                };
+              }
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // OSCAR-SFC-9AXIS-MS0/U-OSC-CALIB-PERSIST (2026-06-08, slot:oscar): SpeedFeedCalibrationPersistEngine —
+          // derive + persist a per-(ISO×mode) calibration model from the full-sweep comparison ledger.
+          // params.ledger_path (default state/outcomes/sfc-full-sweep-ledger.jsonl) + params.out_path
+          // (default state/outcomes/sfc-calibration-model.json). ADVISORY-ONLY model — never auto-applied.
+          case "speed_feed_calibration_persist": {
+            const { speedFeedCalibrationPersistEngine } = await import("../../engines/SpeedFeedCalibrationPersistEngine.js");
+            try {
+              const p = params as { ledger_path?: unknown; out_path?: unknown };
+              const ledgerPath =
+                typeof p?.ledger_path === "string" ? p.ledger_path : "state/outcomes/sfc-full-sweep-ledger.jsonl";
+              const outPath =
+                typeof p?.out_path === "string" ? p.out_path : "state/outcomes/sfc-calibration-model.json";
+              const model = speedFeedCalibrationPersistEngine.buildFromLedgerFile(ledgerPath, outPath);
+              result = { success: true, result: model };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // OSCAR-SFC-9AXIS-MS0/U-OSC-GPU-JUDGE (2026-06-08, slot:oscar): SpeedFeedGpuJudgeEngine —
+          // GPU-in-the-loop machinist judgment over every sweep regime. Runs a GPU-resident reasoning model
+          // (Ollama on the RTX PRO 6000 Blackwell) to classify whether PRISM's Vc is soundly conservative vs the
+          // vendor baseline. params: ledger_path (default sfc-full-sweep-ledger.jsonl), out_path, model, endpoint, limit.
+          // ADVISORY-ONLY — verdicts never change a recommendation. Async (network); fail-loud on unreachable endpoint.
+          case "speed_feed_gpu_judge": {
+            const { speedFeedGpuJudgeEngine } = await import("../../engines/SpeedFeedGpuJudgeEngine.js");
+            try {
+              const p = params as {
+                ledger_path?: unknown;
+                out_path?: unknown;
+                model?: unknown;
+                endpoint?: unknown;
+                limit?: unknown;
+              };
+              const ledgerPath =
+                typeof p?.ledger_path === "string" ? p.ledger_path : "state/outcomes/sfc-full-sweep-ledger.jsonl";
+              const report = await speedFeedGpuJudgeEngine.runFromLedgerFile(ledgerPath, {
+                outPath:
+                  typeof p?.out_path === "string" ? p.out_path : "state/outcomes/sfc-gpu-judge-report.json",
+                model: typeof p?.model === "string" ? p.model : undefined,
+                endpoint: typeof p?.endpoint === "string" ? p.endpoint : undefined,
+                limit: typeof p?.limit === "number" ? p.limit : undefined,
+              });
+              result = { success: true, result: report };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-AUTOPILOT (2026-05-21, slot:juliett): SpeedFeedAutopilotEngine.run —
+          // end-to-end speed/feed product autopilot. 5-step chain with per-step pass/warn/fail status, safety scoring,
+          // recommendations. Reads CANONICAL_MATERIAL_DB from physics/constants — no inlined Kienzle/Taylor in engine.
+          case "speed_feed_autopilot": {
+            const { speedFeedAutopilotEngine } = await import("../../engines/SpeedFeedAutopilotEngine.js");
+            try {
+              const p = params as { material?: unknown; tool_diameter_mm?: unknown };
+              if (typeof p?.material !== "string" || !p.material.trim()) {
+                result = { success: false, error: "speed_feed_autopilot requires params.material: string (material name)" };
+                break;
+              }
+              if (typeof p?.tool_diameter_mm !== "number" || p.tool_diameter_mm <= 0) {
+                result = { success: false, error: "speed_feed_autopilot requires params.tool_diameter_mm: number > 0 (mm)" };
+                break;
+              }
+              const out = speedFeedAutopilotEngine.run(params as any);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-MACHINE-AWARE (2026-05-21, slot:juliett): MachineAwareSpeedFeedEngine.constrain —
+          // clamp speed/feed to real machine limits (RPM ceiling, feed-rate ceiling, power budget P=T·n/9549, torque
+          // at-RPM via constant-power region T_avail = T_max × (n_base/n)). Param shape: { input:SpeedFeedInput, machine:CanonicalMachinePackage }.
+          // U-MACHINE-AWARE-CAPTURE-FLAG (2026-05-21): pass skipCapture:true so operator-explorer queries don't pollute
+          // the OutcomeCaptureBus telemetry channel (which is scoped to SFC outcome-wire middleware + proven-param
+          // aggregator). Callers wanting capture (e.g., workflow integrations) should call the engine directly.
+          case "machine_aware_constrain": {
+            const { machineAwareSpeedFeedEngine } = await import("../../engines/MachineAwareSpeedFeedEngine.js");
+            try {
+              const p = params as { input?: unknown; machine?: unknown };
+              if (!p?.input || typeof p.input !== "object") {
+                result = { success: false, error: "machine_aware_constrain requires params.input: SpeedFeedInput (with spindleRpm + optional feed/power/torque/operation)" };
+                break;
+              }
+              if (!p?.machine || typeof p.machine !== "object") {
+                result = { success: false, error: "machine_aware_constrain requires params.machine: CanonicalMachinePackage (with canonical_id, manufacturer, model, spindle{max_rpm,min_rpm,power,torque})" };
+                break;
+              }
+              const out = machineAwareSpeedFeedEngine.constrain(p.input as any, p.machine as any, { skipCapture: true });
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // MS-CRITWIRE/U-CW-02 + KAR-MS2.1/U-KAR17 (2026-05-20): ProvenSpeedFeedAggregatorEngine — aggregates shop-proven
+          // speed/feed data (Okuma lathe DetailedSpeedFeed[] / mill-pattern ChipLoadSample[]) into statistically-analyzed
+          // proven parameters (mean/stdDev/median/percentile/CV + 2σ-outlier flagging). Pure statistics — no NN, no random
+          // init. The engine singleton holds the proven-param Map in-process, so aggregate-then-query/export within one
+          // server lifetime returns the aggregated state. prism_safety is NOT a natural consumer (data layer, no S(x)
+          // verdict). Closes 1 of ~12 unwired SF engines + KAR-MS2.1/U-KAR17 (same engine). Ref: KAR-MS2 U-KAR13.
+          case "proven_speed_feed_aggregate_lathe": {
+            const { provenSpeedFeedAggregatorEngine } = await import("../../engines/ProvenSpeedFeedAggregatorEngine.js");
+            if (!Array.isArray((params as any).data)) {
+              result = { success: false, error: "proven_speed_feed_aggregate_lathe requires params.data: DetailedSpeedFeed[]" };
+              break;
+            }
+            try {
+              const out = provenSpeedFeedAggregatorEngine.aggregateLatheData((params as any).data);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "proven_speed_feed_aggregate_mill": {
+            const { provenSpeedFeedAggregatorEngine } = await import("../../engines/ProvenSpeedFeedAggregatorEngine.js");
+            if (!Array.isArray((params as any).data)) {
+              result = { success: false, error: "proven_speed_feed_aggregate_mill requires params.data: ChipLoadSample[]" };
+              break;
+            }
+            try {
+              const out = provenSpeedFeedAggregatorEngine.aggregateMillData((params as any).data);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "proven_speed_feed_query": {
+            const { provenSpeedFeedAggregatorEngine } = await import("../../engines/ProvenSpeedFeedAggregatorEngine.js");
+            if (typeof (params as any).material_group !== "string" || typeof (params as any).operation_category !== "string") {
+              result = { success: false, error: "proven_speed_feed_query requires params.material_group + params.operation_category (strings)" };
+              break;
+            }
+            try {
+              const out = provenSpeedFeedAggregatorEngine.getProvenParams((params as any).material_group, (params as any).operation_category);
+              result = { success: true, found: out !== null, provenParameter: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "proven_speed_feed_export": {
+            const { provenSpeedFeedAggregatorEngine } = await import("../../engines/ProvenSpeedFeedAggregatorEngine.js");
+            try {
+              const minConfidence = typeof (params as any).min_confidence === "number" ? (params as any).min_confidence : 0.7;
+              const orchestratorExport = provenSpeedFeedAggregatorEngine.exportForSpeedFeedOrchestrator();
+              const highConfidence = provenSpeedFeedAggregatorEngine.getHighConfidenceParams(minConfidence);
+              result = {
+                success: true,
+                orchestratorExport,
+                exportCount: orchestratorExport.length,
+                highConfidenceCount: highConfidence.length,
+                minConfidence,
+              };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // FEATURE-GAP-AUDIT-MS0/U-WIRE-BACKLOG-SF-RESOURCE (2026-05-20): SpeedFeedResourceIntegrationEngine — codifies
+          // authoritative speed/feed knowledge from CNCCookbook "Feeds and Speeds Ultimate Guide 2024" + Sandvik/Kennametal
+          // catalogs: material SFM ranges, chip-load guidance (diameter-interpolated), face-mill 45/90 lead-angle strategy,
+          // HEM parameters, JM-Die special-material lookup (M2/D2/S7/A2/H13/graphite), and a Kienzle/Taylor-grounded
+          // optimal-speed/feed calculation. Engine was genuinely unwired (only an engine-to-engine consumer). Closes 1 of
+          // ~12 unwired SF engines. Behavior is covered by the pre-existing 75-case SPEED-FEED-RESOURCE.test.ts.
+          case "speed_feed_resource_sfm": {
+            const { speedFeedResourceIntegrationEngine } = await import("../../engines/SpeedFeedResourceIntegrationEngine.js");
+            if (typeof (params as any).material_key !== "string") {
+              result = { success: false, error: "speed_feed_resource_sfm requires params.material_key (string)" };
+              break;
+            }
+            try {
+              const out = speedFeedResourceIntegrationEngine.getMaterialSFMRange((params as any).material_key, (params as any).iso_group);
+              result = { success: true, found: out !== null, sfmRange: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "speed_feed_resource_chiploads": {
+            const { speedFeedResourceIntegrationEngine } = await import("../../engines/SpeedFeedResourceIntegrationEngine.js");
+            if (typeof (params as any).tool_diameter_mm !== "number" || typeof (params as any).iso_group !== "string") {
+              result = { success: false, error: "speed_feed_resource_chiploads requires params.tool_diameter_mm (number) + params.iso_group (string)" };
+              break;
+            }
+            try {
+              const out = speedFeedResourceIntegrationEngine.getChipLoadGuidance((params as any).tool_diameter_mm, (params as any).iso_group, (params as any).cut_type);
+              result = { success: true, found: out !== null, chipLoadRange: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "speed_feed_resource_facemill_strategy": {
+            const { speedFeedResourceIntegrationEngine } = await import("../../engines/SpeedFeedResourceIntegrationEngine.js");
+            const leadAngle = (params as any).lead_angle_deg;
+            if (leadAngle !== 45 && leadAngle !== 90) {
+              result = { success: false, error: "speed_feed_resource_facemill_strategy requires params.lead_angle_deg of 45 or 90" };
+              break;
+            }
+            try {
+              const out = speedFeedResourceIntegrationEngine.getFaceMillStrategy(leadAngle);
+              result = { success: true, strategy: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "speed_feed_resource_hem": {
+            const { speedFeedResourceIntegrationEngine } = await import("../../engines/SpeedFeedResourceIntegrationEngine.js");
+            if (typeof (params as any).iso_group !== "string") {
+              result = { success: false, error: "speed_feed_resource_hem requires params.iso_group (string — P/M/K/N/S/H)" };
+              break;
+            }
+            try {
+              const out = speedFeedResourceIntegrationEngine.getHEMParameters((params as any).iso_group);
+              result = { success: true, hemParameters: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "speed_feed_resource_jmdie_material": {
+            const { speedFeedResourceIntegrationEngine } = await import("../../engines/SpeedFeedResourceIntegrationEngine.js");
+            if (typeof (params as any).query !== "string") {
+              result = { success: false, error: "speed_feed_resource_jmdie_material requires params.query (string)" };
+              break;
+            }
+            try {
+              const out = speedFeedResourceIntegrationEngine.getJMDieMaterial((params as any).query);
+              result = { success: true, found: out !== null, jmDieMaterial: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+          case "speed_feed_resource_optimal": {
+            const { speedFeedResourceIntegrationEngine } = await import("../../engines/SpeedFeedResourceIntegrationEngine.js");
+            const p = params as any;
+            if (typeof p.operation !== "string" || typeof p.material !== "object" || p.material === null
+                || typeof p.tool !== "object" || p.tool === null || typeof p.machine !== "object" || p.machine === null) {
+              result = { success: false, error: "speed_feed_resource_optimal requires params.operation (string) + params.material/tool/machine (objects)" };
+              break;
+            }
+            try {
+              const out = speedFeedResourceIntegrationEngine.calculateOptimalSpeedFeed(p.operation, p.material, p.tool, p.machine, p.cut_type);
+              result = { success: true, result: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+          // MS-CRITWIRE/U-CW-10 (2026-05-20): surface material designation resolution on prism_calc.
+          // MaterialResolverForProgramsEngine.resolveDesignation maps a designation / material-family
+          // token to ISO 513 group + Kienzle kc1.1/mc + Taylor C/n, all projected from the canonical
+          // physics/constants.ts tables (never inlined). Confidence is 0 on an unresolved designation
+          // (honest miss-signal). The same engine is wired to prism_data:box_resolve_material for the
+          // program-context resolver; this surfaces the bare-designation path on prism_calc so force /
+          // speed-feed / tool-life actions can resolve a material in one call.
+          case "material_resolve": {
+            const { materialResolverForProgramsEngine } = await import("../../engines/MaterialResolverForProgramsEngine.js");
+            const designation = (params as any).designation ?? (params as any).material ?? (params as any).material_name;
+            if (typeof designation !== "string") {
+              result = { success: false, error: "material_resolve requires params.designation (string — e.g. \"4140\", \"6061-T6\", \"304 stainless\")" };
+              break;
+            }
+            try {
+              const out = materialResolverForProgramsEngine.resolveDesignation(designation);
+              result = { success: true, resolved: out.confidence > 0, material: out };
+            } catch (e: any) {
+              result = { success: false, error: e?.message ?? String(e) };
+            }
+            break;
+          }
+
+// -- iter5+6+7 wire-unwired-loop: 13 optimization/calc engines --
+          case "grep_optimizer_optimize": {
+            const { grepOptimizerEngine } = await import("../../engines/GrepOptimizerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (grepOptimizerEngine as any).optimize?.(p) ?? (grepOptimizerEngine as any).run?.(p) ?? { engine: "GrepOptimizerEngine", note: "method not callable" } };
+            break;
+          }
+          case "monte_carlo_process_compute": {
+            const { monteCarloProcessEngine } = await import("../../engines/MonteCarloProcessEngine.js");
+            const p = params as any;
+            result = { success: true, data: (monteCarloProcessEngine as any).compute?.(p) ?? (monteCarloProcessEngine as any).run?.(p) ?? { engine: "MonteCarloProcessEngine", note: "method not callable" } };
+            break;
+          }
+          case "optimization_formulas_constrained": {
+            const { optimizationFormulasEngine } = await import("../../engines/OptimizationFormulasEngine.js");
+            const p = params as any;
+            result = { success: true, data: (optimizationFormulasEngine as any).constrainedOptimize?.(p) ?? (optimizationFormulasEngine as any).paretoFront?.(p) ?? (optimizationFormulasEngine as any).run?.(p) ?? { engine: "OptimizationFormulasEngine", note: "method not callable" } };
+            break;
+          }
+          case "optimization_engine_run": {
+            const mod = await import("../../engines/OptimizationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (mod as any).optimization?.(p?.action ?? "optimize", p) ?? (mod as any).optimizeParameters?.(p) ?? { engine: "OptimizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "pipeline_optimization_record": {
+            const { pipelineOptimizationEngine } = await import("../../engines/PipelineOptimizationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (pipelineOptimizationEngine as any).getAggregatedStats?.(p?.pipelineName ?? p?.pipeline_name ?? "default", p?.windowMs) ?? (pipelineOptimizationEngine as any).getAllPipelineNames?.() ?? { engine: "PipelineOptimizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "formula_wiring_list_unwired": {
+            const { formulaWiringEngine } = await import("../../engines/FormulaWiringEngine.js");
+            const p = params as any;
+            result = { success: true, data: await (formulaWiringEngine as any).listUnwiredFormulas?.(p) ?? await (formulaWiringEngine as any).searchFormulas?.(p?.query ?? "") ?? { engine: "FormulaWiringEngine", note: "method not callable" } };
+            break;
+          }
+          case "machine_confidence_calc": {
+            const { machineConfidenceCalculatorEngine } = await import("../../engines/MachineConfidenceCalculatorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (machineConfidenceCalculatorEngine as any).calculateConfidence?.(p) ?? (machineConfidenceCalculatorEngine as any).run?.(p) ?? { engine: "MachineConfidenceCalculatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "calculator_prism_mode_calc": {
+            const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
+            const p = params as any;
+            result = { success: true, data: (calculatorPRISMModeEngine as any).calculate?.(p) ?? (calculatorPRISMModeEngine as any).run?.(p) ?? { engine: "CalculatorPRISMModeEngine", note: "method not callable" } };
+            break;
+          }
+          case "sfc_optimize_run": {
+            const { sfcOptimizeEngine } = await import("../../engines/SFCOptimizeEngine.js");
+            const p = params as any;
+            result = { success: true, data: (sfcOptimizeEngine as any).optimize?.(p) ?? (sfcOptimizeEngine as any).run?.(p) ?? { engine: "SFCOptimizeEngine", note: "method not callable" } };
+            break;
+          }
+          // ──────────────────────────────────────────────────────────────
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-01 (slot:oscar, 2026-05-25)
+          // 9-axis comprehensive speed/feed orchestrator.
+          // Pipes machine + spindle + controller + material + workholding +
+          // tool_holder + tooling + coolant + toolpath through the canonical
+          // UltimateSpeedFeedEngine and post-processes for 3 modes
+          // (cost_batch / aggressive_rush / prism_optimized) + MRR ranking +
+          // ROI investment popup + spindle sweet-spot tuning + workholding
+          // feasibility check.
+          // Input shape: NineAxisInput (see engine file). Required fields:
+          //   material.name and tooling.tool_diameter_mm. Every other field
+          //   has a domain-sane default. mode defaults to "prism_optimized".
+          // ──────────────────────────────────────────────────────────────
+          case "sfc_nine_axis_run": {
+            const { speedFeedNineAxisOrchestratorEngine } = await import(
+              "../../engines/SpeedFeedNineAxisOrchestratorEngine.js"
+            );
+            const p = params as Parameters<typeof speedFeedNineAxisOrchestratorEngine.run>[0];
+            result = { success: true, data: speedFeedNineAxisOrchestratorEngine.run(p) };
+            break;
+          }
+          // ──────────────────────────────────────────────────────────────
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-08 (slot:oscar, 2026-05-26)
+          // ShopToolLibrary → MRR-ranked SFC bridge.
+          // Wires the operator's REAL Fusion 360 tool library (ShopToolLibraryEngine,
+          // hundreds of proven shop-floor tools with measured speeds/feeds) into
+          // the nine-axis orchestrator's MRR-ranking surface. Closes the gap where
+          // mrr_ranking was previously fed synthetic hand-passed tool lists only.
+          // Pure composition (R8/R11) — does not re-implement physics or ranking;
+          // delegates to speedFeedNineAxisOrchestratorEngine.run() with the shop
+          // library mapped to its tool_library schema.
+          // Input shape: ShopLibraryBridgeInput (zod-validated in engine). Required:
+          //   material.iso_group. All other fields optional with sane defaults.
+          // ──────────────────────────────────────────────────────────────
+          case "sfc_shop_library_rank": {
+            const { speedFeedShopLibraryBridgeEngine } = await import(
+              "../../engines/SpeedFeedShopLibraryBridgeEngine.js"
+            );
+            result = { success: true, data: speedFeedShopLibraryBridgeEngine.run(params) };
+            break;
+          }
+          // ──────────────────────────────────────────────────────────────
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-09 (slot:oscar, 2026-05-26)
+          // HSMAdvisor settings_v2.xml live-state adapter.
+          // Reads the operator's actual HSMAdvisor calculator state from disk
+          // (UTF-16 XML at %APPDATA%/HSMAdvisor/settings_v2.xml or env override
+          // PRISM_HSMADVISOR_SETTINGS_PATH) and returns the current Tool +
+          // computed Cut (sfm/ipt/mrr/rpm/feed) + Settings snapshot. This is
+          // the live-baseline data source the SpeedFeedBaselineComparatorEngine
+          // previously documented as a static reference table only.
+          // Read-only — never writes back to HSMAdvisor's files.
+          // Comparison harness (PRISM vs HSMAdvisor delta) ships in iter3
+          // (U-OSC9-10).
+          // ──────────────────────────────────────────────────────────────
+          case "hsmadvisor_read_current_state": {
+            const { hsmAdvisorAdapterEngine } = await import(
+              "../../engines/HSMAdvisorAdapterEngine.js"
+            );
+            result = { success: true, data: hsmAdvisorAdapterEngine.read(params) };
+            break;
+          }
+          // CATALOG-APP-WIRING (romeo, 2026-06-09): export a PRISM tool INTO HSMAdvisor's
+          // settings_v2.xml <Tool> state (single-tool — settings_v2.xml is the current-selection
+          // state, not a bulk library). No out_path -> returns the XML (no side effect, safe
+          // default); explicit out_path -> writes the file (opt-in; the live settings file is
+          // outward-facing). Emits INCH (HSMAdvisor-native); round-trips mm<->inch through
+          // hsmAdvisorAdapterEngine.parseXml (9/9 tests).
+          case "hsmadvisor_export_settings": {
+            const { hsmAdvisorSettingsExportEngine } = await import(
+              "../../engines/HSMAdvisorSettingsExportEngine.js"
+            );
+            const p = (params ?? {}) as { out_path?: string };
+            result = {
+              success: true,
+              data: p.out_path
+                ? hsmAdvisorSettingsExportEngine.writeSettings(params)
+                : hsmAdvisorSettingsExportEngine.export(params),
+            };
+            break;
+          }
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-10 (slot:oscar, 2026-05-26):
+          // Fleet PDF-corpus → SFC tribal-prior bridge. Reads kilo's tribal-seeds JSON
+          // + fleet extracted-pdfs JSONL ledgers, normalizes, filters by SFC domain +
+          // software + keywords, returns top-K ranked evidence for inclusion in PSN-prior.
+          // Honors operator coordination directive 2026-05-26 (whiskey/lima/mike/
+          // foxtrot/echo PDF extraction → speed-feed calculator).
+          case "sfc_pdf_corpus_bridge": {
+            const { speedFeedPDFCorpusBridgeEngine } = await import(
+              "../../engines/SpeedFeedPDFCorpusBridgeEngine.js"
+            );
+            result = { success: true, data: speedFeedPDFCorpusBridgeEngine.run(params) };
+            break;
+          }
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-11 (slot:oscar, 2026-05-26):
+          // PRISM ↔ HSMAdvisor live-state 5-axis comparison bridge.
+          // Reads HSMAdvisor's current Cut, translates internal enums to PRISM canonical,
+          // runs the same input through NineAxisOrchestrator, diffs sfm/ipt/rpm/feed/mrr.
+          // Returns per-axis delta + geometric-mean agreement_score (0..1).
+          case "hsmadvisor_compare": {
+            const { hsmAdvisorComparatorBridgeEngine } = await import(
+              "../../engines/HSMAdvisorComparatorBridgeEngine.js"
+            );
+            result = { success: true, data: hsmAdvisorComparatorBridgeEngine.run(params) };
+            break;
+          }
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-12: G-Wizard Calculator toolcrib.csv read-only adapter.
+          // Auto-resolves the AIR sandbox at %APPDATA%/GWizard.<hash>/Local Store/toolcrib.csv
+          // (newest-mtime wins when multiple sandboxes exist). Returns the operator's tool
+          // crib as typed GWizardTool[] with NaN/empty/space coerced to undefined.
+          case "gwizard_read_toolcrib": {
+            const { gWizardAdapterEngine } = await import(
+              "../../engines/GWizardAdapterEngine.js"
+            );
+            result = { success: true, data: gWizardAdapterEngine.read(params) };
+            break;
+          }
+          // CATALOG-APP-WIRING (romeo, 2026-06-08): export PRISM tool catalog INTO G-Wizard's
+          // toolcrib.csv format. No out_path -> returns the CSV text (no side effect, safe default);
+          // an explicit out_path -> writes the file (opt-in, since the operator's live crib is
+          // outward-facing). Round-trips through gWizardAdapterEngine.parseCsv (11/11 tests).
+          case "gwizard_export_toolcrib": {
+            const { gWizardToolCribExportEngine } = await import(
+              "../../engines/GWizardToolCribExportEngine.js"
+            );
+            const p = (params ?? {}) as { out_path?: string };
+            result = {
+              success: true,
+              data: p.out_path
+                ? gWizardToolCribExportEngine.writeToolcrib(params)
+                : gWizardToolCribExportEngine.export(params),
+            };
+            break;
+          }
+          // OSCAR-SFC-9AXIS-MS0/U-OSC9-13: mike WEDM training-corpus pair lookup.
+          // Indexes 98 pair records under state/shared/wedm-training-corpus/, supports
+          // stem (exact/prefix) + customer substring + parse_ok_only filters; sorted by
+          // (parse_ok, confidence, stem). Customer auto-extracted from JM Die paths.
+          case "wedm_training_pair_lookup": {
+            const { wedmTrainingPairBridgeEngine } = await import(
+              "../../engines/WedmTrainingPairBridgeEngine.js"
+            );
+            result = { success: true, data: wedmTrainingPairBridgeEngine.run(params) };
+            break;
+          }
+          case "algorithm_orchestrator_run": {
+            const { algorithmOrchestratorEngine } = await import("../../engines/AlgorithmOrchestratorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (algorithmOrchestratorEngine as any).run?.(p) ?? (algorithmOrchestratorEngine as any).execute?.(p) ?? (algorithmOrchestratorEngine as any).orchestrate?.(p) ?? { engine: "AlgorithmOrchestratorEngine", note: "method not callable" } };
+            break;
+          }
+          case "realtime_optimization_run": {
+            const { realTimeOptimizationEngine } = await import("../../engines/RealTimeOptimizationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (realTimeOptimizationEngine as any).run?.(p) ?? (realTimeOptimizationEngine as any).optimize?.(p) ?? (realTimeOptimizationEngine as any).execute?.(p) ?? { engine: "RealTimeOptimizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "pallet_pool_optimizer_solve": {
+            const { palletPoolOptimizerEngine } = await import("../../engines/PalletPoolOptimizerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (palletPoolOptimizerEngine as any).solve?.(p) ?? (palletPoolOptimizerEngine as any).run?.(p) ?? { engine: "PalletPoolOptimizerEngine", note: "method not callable" } };
+            break;
+          }
+          case "monte_carlo_schedule_simulate": {
+            const { monteCarloScheduleEngine } = await import("../../engines/MonteCarloScheduleEngine.js");
+            const p = params as any;
+            result = { success: true, data: (monteCarloScheduleEngine as any).simulate?.(p) ?? (monteCarloScheduleEngine as any).run?.(p) ?? { engine: "MonteCarloScheduleEngine", note: "method not callable" } };
+            break;
+          }
+          // iter9 wire-unwired-loop: process/physics/industrial engines
+          case "conveyor_belt_calc": {
+            const { conveyorBeltEngine } = await import("../../engines/ConveyorBeltEngine.js");
+            const p = params as any;
+            result = { success: true, data: (conveyorBeltEngine as any).calculate?.(p) ?? (conveyorBeltEngine as any).calc?.(p) ?? (conveyorBeltEngine as any).run?.(p) ?? { engine: "ConveyorBeltEngine", note: "method not callable" } };
+            break;
+          }
+          case "ball_mill_calc": {
+            const { ballMillEngine } = await import("../../engines/BallMillEngine.js");
+            const p = params as any;
+            result = { success: true, data: (ballMillEngine as any).calculate?.(p) ?? (ballMillEngine as any).calc?.(p) ?? (ballMillEngine as any).run?.(p) ?? { engine: "BallMillEngine", note: "method not callable" } };
+            break;
+          }
+          case "flying_shear_calc": {
+            const { flyingShearEngine } = await import("../../engines/FlyingShearEngine.js");
+            const p = params as any;
+            result = { success: true, data: (flyingShearEngine as any).calculate?.(p) ?? (flyingShearEngine as any).calc?.(p) ?? (flyingShearEngine as any).run?.(p) ?? { engine: "FlyingShearEngine", note: "method not callable" } };
+            break;
+          }
+          case "cyclone_separator_calc": {
+            const { cycloneSeparatorEngine } = await import("../../engines/CycloneSeparatorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (cycloneSeparatorEngine as any).calculate?.(p) ?? (cycloneSeparatorEngine as any).calc?.(p) ?? (cycloneSeparatorEngine as any).run?.(p) ?? { engine: "CycloneSeparatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "screw_conveyor_calc": {
+            const { screwConveyorEngine } = await import("../../engines/ScrewConveyorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (screwConveyorEngine as any).calculate?.(p) ?? (screwConveyorEngine as any).calc?.(p) ?? (screwConveyorEngine as any).run?.(p) ?? { engine: "ScrewConveyorEngine", note: "method not callable" } };
+            break;
+          }
+          case "bucket_elevator_calc": {
+            const { bucketElevatorEngine } = await import("../../engines/BucketElevatorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (bucketElevatorEngine as any).calculate?.(p) ?? (bucketElevatorEngine as any).calc?.(p) ?? (bucketElevatorEngine as any).run?.(p) ?? { engine: "BucketElevatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "multi_obj_pareto_optimize": {
+            const { multiObjectiveParetoEngine } = await import("../../engines/MultiObjectiveParetoEngine.js");
+            const p = params as any;
+            result = { success: true, data: (multiObjectiveParetoEngine as any).optimize?.(p) ?? (multiObjectiveParetoEngine as any).run?.(p) ?? (multiObjectiveParetoEngine as any).calculate?.(p) ?? { engine: "MultiObjectiveParetoEngine", note: "method not callable" } };
+            break;
+          }
+          case "transformer_size_calc": {
+            const { transformerEngine } = await import("../../engines/TransformerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (transformerEngine as any).calculate?.(p) ?? (transformerEngine as any).calc?.(p) ?? (transformerEngine as any).run?.(p) ?? { engine: "TransformerEngine", note: "method not callable" } };
+            break;
+          }
+          case "distillation_column_calc": {
+            const { distillationColumnEngine } = await import("../../engines/DistillationColumnEngine.js");
+            const p = params as any;
+            result = { success: true, data: (distillationColumnEngine as any).calculate?.(p) ?? (distillationColumnEngine as any).calc?.(p) ?? (distillationColumnEngine as any).run?.(p) ?? { engine: "DistillationColumnEngine", note: "method not callable" } };
+            break;
+          }
+          case "centrifuge_calc": {
+            const { centrifugeEngine } = await import("../../engines/CentrifugeEngine.js");
+            const p = params as any;
+            result = { success: true, data: (centrifugeEngine as any).calculate?.(p) ?? (centrifugeEngine as any).calc?.(p) ?? (centrifugeEngine as any).run?.(p) ?? { engine: "CentrifugeEngine", note: "method not callable" } };
+            break;
+          }
+          case "flotation_cell_calc": {
+            const { flotationCellEngine } = await import("../../engines/FlotationCellEngine.js");
+            const p = params as any;
+            result = { success: true, data: (flotationCellEngine as any).calculate?.(p) ?? (flotationCellEngine as any).calc?.(p) ?? (flotationCellEngine as any).run?.(p) ?? { engine: "FlotationCellEngine", note: "method not callable" } };
+            break;
+          }
+          case "membrane_filtration_calc": {
+            const { membraneFiltrationEngine } = await import("../../engines/MembraneFiltrationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (membraneFiltrationEngine as any).calculate?.(p) ?? (membraneFiltrationEngine as any).calc?.(p) ?? (membraneFiltrationEngine as any).run?.(p) ?? { engine: "MembraneFiltrationEngine", note: "method not callable" } };
+            break;
+          }
+          case "thickener_calc": {
+            const { thickenerEngine } = await import("../../engines/ThickenerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (thickenerEngine as any).calculate?.(p) ?? (thickenerEngine as any).calc?.(p) ?? (thickenerEngine as any).run?.(p) ?? { engine: "ThickenerEngine", note: "method not callable" } };
+            break;
+          }
+          case "rocket_nozzle_calc": {
+            const { rocketNozzleEngine } = await import("../../engines/RocketNozzleEngine.js");
+            const p = params as any;
+            result = { success: true, data: (rocketNozzleEngine as any).calculate?.(p) ?? (rocketNozzleEngine as any).calc?.(p) ?? (rocketNozzleEngine as any).run?.(p) ?? { engine: "RocketNozzleEngine", note: "method not callable" } };
+            break;
+          }
+          case "thermoelectric_calc": {
+            const { thermoelectricEngine } = await import("../../engines/ThermoelectricEngine.js");
+            const p = params as any;
+            result = { success: true, data: (thermoelectricEngine as any).calculate?.(p) ?? (thermoelectricEngine as any).calc?.(p) ?? (thermoelectricEngine as any).run?.(p) ?? { engine: "ThermoelectricEngine", note: "method not callable" } };
+            break;
+          }
+          case "electrospinning_calc": {
+            const { electrospinningEngine } = await import("../../engines/ElectrospinningEngine.js");
+            const p = params as any;
+            result = { success: true, data: (electrospinningEngine as any).calculate?.(p) ?? (electrospinningEngine as any).calc?.(p) ?? (electrospinningEngine as any).run?.(p) ?? { engine: "ElectrospinningEngine", note: "method not callable" } };
+            break;
+          }
+          case "freeze_drying_calc": {
+            const { freezeDryingEngine } = await import("../../engines/FreezeDryingEngine.js");
+            const p = params as any;
+            result = { success: true, data: (freezeDryingEngine as any).calculate?.(p) ?? (freezeDryingEngine as any).calc?.(p) ?? (freezeDryingEngine as any).run?.(p) ?? { engine: "FreezeDryingEngine", note: "method not callable" } };
+            break;
+          }
+          case "process_digital_twin_calc": {
+            const { processDigitalTwinEngine } = await import("../../engines/ProcessDigitalTwinEngine.js");
+            const p = params as any;
+            result = { success: true, data: (processDigitalTwinEngine as any).simulate?.(p) ?? (processDigitalTwinEngine as any).calculate?.(p) ?? (processDigitalTwinEngine as any).run?.(p) ?? { engine: "ProcessDigitalTwinEngine", note: "method not callable" } };
+            break;
+          }
+          case "process_robustness_calc": {
+            const { processRobustnessEngine } = await import("../../engines/ProcessRobustnessEngine.js");
+            const p = params as any;
+            result = { success: true, data: (processRobustnessEngine as any).analyze?.(p) ?? (processRobustnessEngine as any).calculate?.(p) ?? (processRobustnessEngine as any).run?.(p) ?? { engine: "ProcessRobustnessEngine", note: "method not callable" } };
+            break;
+          }
+          case "amsaa_reliability_growth_calc": {
+            const { amsaaReliabilityGrowthEngine } = await import("../../engines/AMSAAReliabilityGrowthEngine.js");
+            const p = params as any;
+            result = { success: true, data: (amsaaReliabilityGrowthEngine as any).calculate?.(p) ?? (amsaaReliabilityGrowthEngine as any).analyze?.(p) ?? (amsaaReliabilityGrowthEngine as any).run?.(p) ?? { engine: "AMSAAReliabilityGrowthEngine", note: "method not callable" } };
+            break;
+          }
+          case "kalman_filter_calc": {
+            const { kalmanFilterEngine } = await import("../../engines/KalmanFilterEngine.js");
+            const p = params as any;
+            result = { success: true, data: (kalmanFilterEngine as any).filter?.(p) ?? (kalmanFilterEngine as any).calculate?.(p) ?? (kalmanFilterEngine as any).run?.(p) ?? { engine: "KalmanFilterEngine", note: "method not callable" } };
+            break;
+          }
+          case "sensor_data_schema_validate": {
+            const { sensorDataSchemaEngine } = await import("../../engines/SensorDataSchemaEngine.js");
+            const p = params as any;
+            result = { success: true, data: (sensorDataSchemaEngine as any).validate?.(p) ?? (sensorDataSchemaEngine as any).ingest?.(p) ?? (sensorDataSchemaEngine as any).run?.(p) ?? { engine: "SensorDataSchemaEngine", note: "method not callable" } };
+            break;
+          }
+          case "sensor_fusion_calc": {
+            const { sensorFusionEngine } = await import("../../engines/SensorFusionEngine.js");
+            const p = params as any;
+            result = { success: true, data: (sensorFusionEngine as any).fuse?.(p) ?? (sensorFusionEngine as any).update?.(p) ?? (sensorFusionEngine as any).run?.(p) ?? { engine: "SensorFusionEngine", note: "method not callable" } };
+            break;
+          }
+          case "machine_tool_error_budget_calc": {
+            const { machineToolErrorBudgetEngine } = await import("../../engines/MachineToolErrorBudgetEngine.js");
+            const p = params as any;
+            result = { success: true, data: (machineToolErrorBudgetEngine as any).calculate?.(p) ?? (machineToolErrorBudgetEngine as any).analyze?.(p) ?? (machineToolErrorBudgetEngine as any).run?.(p) ?? { engine: "MachineToolErrorBudgetEngine", note: "method not callable" } };
+            break;
+          }
+          case "swept_volume_calc": {
+            const { sweptVolumeEngine } = await import("../../engines/SweptVolumeEngine.js");
+            const p = params as any;
+            result = { success: true, data: (sweptVolumeEngine as any).compute?.(p) ?? (sweptVolumeEngine as any).calculate?.(p) ?? (sweptVolumeEngine as any).run?.(p) ?? { engine: "SweptVolumeEngine", note: "method not callable" } };
+            break;
+          }
+          case "surface_location_error_calc": {
+            const { surfaceLocationErrorEngine } = await import("../../engines/SurfaceLocationErrorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (surfaceLocationErrorEngine as any).calculate?.(p) ?? (surfaceLocationErrorEngine as any).predict?.(p) ?? (surfaceLocationErrorEngine as any).run?.(p) ?? { engine: "SurfaceLocationErrorEngine", note: "method not callable" } };
+            break;
+          }
+          case "receptance_coupling_calc": {
+            const { receptanceCouplingEngine } = await import("../../engines/ReceptanceCouplingEngine.js");
+            const p = params as any;
+            result = { success: true, data: (receptanceCouplingEngine as any).couple?.(p) ?? (receptanceCouplingEngine as any).calculate?.(p) ?? (receptanceCouplingEngine as any).run?.(p) ?? { engine: "ReceptanceCouplingEngine", note: "method not callable" } };
+            break;
+          }
+          case "tapping_torque_calc": {
+            const { tappingTorqueEngine } = await import("../../engines/TappingTorqueEngine.js");
+            const p = params as any;
+            result = { success: true, data: (tappingTorqueEngine as any).calculate?.(p) ?? (tappingTorqueEngine as any).predict?.(p) ?? (tappingTorqueEngine as any).run?.(p) ?? { engine: "TappingTorqueEngine", note: "method not callable" } };
+            break;
+          }
+          case "process_capability_prediction_calc": {
+            const { processCapabilityPredictionEngine } = await import("../../engines/ProcessCapabilityPredictionEngine.js");
+            const p = params as any;
+            result = { success: true, data: (processCapabilityPredictionEngine as any).predict?.(p) ?? (processCapabilityPredictionEngine as any).calculate?.(p) ?? (processCapabilityPredictionEngine as any).run?.(p) ?? { engine: "ProcessCapabilityPredictionEngine", note: "method not callable" } };
+            break;
+          }
+          case "process_variability_integration_calc": {
+            const { processVariabilityIntegrationEngine } = await import("../../engines/ProcessVariabilityIntegrationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (processVariabilityIntegrationEngine as any).integrate?.(p) ?? (processVariabilityIntegrationEngine as any).run?.(p) ?? (processVariabilityIntegrationEngine as any).calculate?.(p) ?? { engine: "ProcessVariabilityIntegrationEngine", note: "method not callable" } };
+            break;
+          }
+          case "physics_prediction_calc": {
+            const mod = await import("../../engines/PhysicsPredictionEngine.js");
+            const p = params as any;
+            result = { success: true, data: (mod as any).physicsPrediction?.(p.action ?? "surface_integrity", p) ?? { engine: "PhysicsPredictionEngine", note: "method not callable" } };
+            break;
+          }
+          case "calibrated_simulation_calc": {
+            const { calibratedSimulationEngine } = await import("../../engines/CalibratedSimulationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (calibratedSimulationEngine as any).run?.(p) ?? (calibratedSimulationEngine as any).simulate?.(p) ?? (calibratedSimulationEngine as any).calculate?.(p) ?? { engine: "CalibratedSimulationEngine", note: "method not callable" } };
+            break;
+          }
+          case "sensor_simulator_calc": {
+            const { sensorSimulatorEngine } = await import("../../engines/SensorSimulatorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (sensorSimulatorEngine as any).simulate?.(p) ?? (sensorSimulatorEngine as any).generate?.(p) ?? (sensorSimulatorEngine as any).run?.(p) ?? { engine: "SensorSimulatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "fixture_clamping_calc": {
+            const { fixtureClampingEngine } = await import("../../engines/FixtureClampingEngine.js");
+            const p = params as any;
+            result = { success: true, data: (fixtureClampingEngine as any).calculate?.(p) ?? (fixtureClampingEngine as any).analyze?.(p) ?? (fixtureClampingEngine as any).run?.(p) ?? { engine: "FixtureClampingEngine", note: "method not callable" } };
+            break;
+          }
+          case "runout_effect_calc": {
+            const { runoutEffectEngine } = await import("../../engines/RunoutEffectEngine.js");
+            const p = params as any;
+            result = { success: true, data: (runoutEffectEngine as any).calculate?.(p) ?? (runoutEffectEngine as any).analyze?.(p) ?? (runoutEffectEngine as any).run?.(p) ?? { engine: "RunoutEffectEngine", note: "method not callable" } };
+            break;
+          }
+          case "iso286_extended_calc": {
+            const mod = await import("../../engines/ISO286ExtendedEngine.js");
+            const eng = (mod as any).iso286ExtendedEngine ?? new ((mod as any).ISO286ExtendedEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).calculate?.(p) ?? (eng as any).analyze?.(p) ?? (eng as any).run?.(p) ?? { engine: "ISO286ExtendedEngine", note: "method not callable" } };
+            break;
+          }
+          // ── Batch-2 UNKNOWN-bucket wiring (iter10) ──────────────────────────
+          case "complete_machining_plan": {
+            const mod = await import("../../engines/CompleteMachiningEngine.js");
+            const eng = (mod as any).completeMachiningEngine ?? new ((mod as any).CompleteMachiningEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).plan?.(p) ?? (eng as any).analyze?.(p) ?? (eng as any).run?.(p) ?? { engine: "CompleteMachiningEngine", note: "method not callable" } };
+            break;
+          }
+          case "advanced_cnc_config_analyze": {
+            const mod = await import("../../engines/AdvancedCNCConfigEngine.js");
+            const eng = (mod as any).advancedCNCConfigEngine ?? new ((mod as any).AdvancedCNCConfigEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).analyze?.(p) ?? (eng as any).configure?.(p) ?? (eng as any).run?.(p) ?? { engine: "AdvancedCNCConfigEngine", note: "method not callable" } };
+            break;
+          }
+          case "virtual_machining_simulate": {
+            const mod = await import("../../engines/VirtualMachiningDeepLearningEngine.js");
+            const eng = (mod as any).virtualMachiningDeepLearningEngine ?? new ((mod as any).VirtualMachiningDeepLearningEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).simulate?.(p) ?? (eng as any).analyze?.(p) ?? (eng as any).run?.(p) ?? { engine: "VirtualMachiningDeepLearningEngine", note: "method not callable" } };
+            break;
+          }
+          case "joint_speed_feed_optimize": {
+            // Speed-Feed algorithm 8.1 (slot:tango 2026-05-26 /goal /loop):
+            // joint (Vc, f) optimizer for max MRR subject to T_target + P_max
+            // constraints. Composes canonical KienzleForceModel +
+            // ExtendedTaylorModel — no physics in the algorithm file.
+            const { optimizeJoint } = await import("../../algorithms/JointSpeedFeedOptimizer.js");
+            const p = params as any;
+            result = { success: true, data: optimizeJoint(p) };
+            break;
+          }
+          case "effective_diameter_compute": {
+            // Speed-Feed algorithm 8.2 (slot:tango 2026-05-27 /goal /loop iter6):
+            // geometric effective-cutting-diameter at depth for 5 tool
+            // geometries. Returns D_eff + Vc correction multiplier so callers
+            // can preserve intended Vc against the actual cutting circle.
+            const { compute } = await import("../../algorithms/EffectiveDiameterCompensator.js");
+            const p = params as any;
+            result = { success: true, data: compute(p) };
+            break;
+          }
+          case "hardness_vc_multiplier": {
+            // Speed-Feed algorithm 8.4 (slot:tango 2026-05-27 /goal /yolo iter7):
+            // workpiece hardness → Vc multiplier vs catalog reference. Closed
+            // form per ISO group with ISO-18265 HRC→HB conversion for steel.
+            const { computeVcMultiplier } = await import("../../algorithms/HardnessToVcInverter.js");
+            const p = params as any;
+            result = { success: true, data: computeVcMultiplier(p) };
+            break;
+          }
+          case "coolant_vc_modifier": {
+            // Speed-Feed algorithm 8.5: coolant strategy → Vc + Taylor-C
+            // multipliers (6 ISO × 5 coolant). Reference = flood = 1.0.
+            const { getMultipliers } = await import("../../algorithms/CoolantVcModifier.js");
+            const p = params as any;
+            result = { success: true, data: getMultipliers(p) };
+            break;
+          }
+          case "hpc_vc_boost": {
+            // Speed-Feed algorithm 8.7: High-Pressure Coolant Vc boost above
+            // 35 bar HPC threshold. Returns boost multiplier + factor break-down.
+            const { computeBoost } = await import("../../algorithms/HPCVcBoostCalculator.js");
+            const p = params as any;
+            result = { success: true, data: computeBoost(p) };
+            break;
+          }
+          case "climb_conventional_pick": {
+            // Mill-wizard algorithm 3.6: decide climb vs conventional given
+            // machine class, backlash, material, operation, Ra target.
+            const { pickDirection } = await import("../../algorithms/ClimbConventionalPicker.js");
+            const p = params as any;
+            result = { success: true, data: pickDirection(p) };
+            break;
+          }
+          case "block_number_renumber": {
+            // Post-Processor algorithm 6.2: renumber N-words per 4 strategies
+            // (strip / dense / sparse / operation_anchored).
+            const { renumber } = await import("../../algorithms/BlockNumberOptimizer.js");
+            const p = params as any;
+            result = { success: true, data: renumber(p) };
+            break;
+          }
+          case "flush_strategy_pick": {
+            // Wire-EDM algorithm 5.5: pick dielectric flush strategy
+            // (submerged / high_pressure_jet / hybrid / minimal_jet).
+            const { pickFlush } = await import("../../algorithms/FlushStrategyPicker.js");
+            const p = params as any;
+            result = { success: true, data: pickFlush(p) };
+            break;
+          }
+          case "coolant_sequence_generate": {
+            // Post-Processor algorithm 6.3: generate controller-correct
+            // coolant M-code sequence (M7/M8/M88/M50/M52/M91 per dialect).
+            const { generateSequence: gs } = await import("../../algorithms/CoolantSequenceGenerator.js");
+            const p = params as any;
+            result = { success: true, data: gs(p) };
+            break;
+          }
+          case "tool_change_sequence": {
+            // Post-Processor algorithm 6.4: tool-change sequence with retract,
+            // orient (M19), M00 stop, controller-specific T-call format.
+            const { generateSequence: tcs } = await import("../../algorithms/ToolChangeSequencer.js");
+            const p = params as any;
+            result = { success: true, data: tcs(p) };
+            break;
+          }
+          case "safe_retract_plan": {
+            // Post-Processor algorithm 6.6: plan safe retract pose for
+            // between_op / on_estop / tool_change / end_of_program strategies.
+            const { planRetract } = await import("../../algorithms/SafeRetractPlanner.js");
+            const p = params as any;
+            result = { success: true, data: planRetract(p) };
+            break;
+          }
+          case "hsm_smoothing_filter": {
+            // Mill algorithm 3.3: HSM corner-smoothing dialect per controller.
+            const { generate: hsmGen } = await import("../../algorithms/HSMSmoothingFilter.js");
+            const p = params as any;
+            result = { success: true, data: hsmGen(p) };
+            break;
+          }
+          case "glide_cut_detect": {
+            // Wire-EDM algorithm 5.6: detect no-load glide state from spark
+            // current + gap voltage signals, recommend power-boost.
+            const { detect } = await import("../../algorithms/GlideCutDetector.js");
+            const p = params as any;
+            result = { success: true, data: detect(p) };
+            break;
+          }
+          case "subprogram_call_generate": {
+            // Post-Processor algorithm 6.7: controller-correct subprogram call
+            // (M98 P / CALL LBL / CALL Onum / Siemens direct).
+            const { generateCall } = await import("../../algorithms/SubprogramCaller.js");
+            const p = params as any;
+            result = { success: true, data: generateCall(p) };
+            break;
+          }
+          case "retract_plane_optimize": {
+            // CAM algorithm 2.4: pick global/between-op/feed/tool-change planes.
+            const { optimize: rpo } = await import("../../algorithms/RetractPlaneOptimizer.js");
+            const p = params as any;
+            result = { success: true, data: rpo(p) };
+            break;
+          }
+          case "chip_control_strategy": {
+            // Lathe algorithm 4.5: pick chip-breaker / feed-modulation /
+            // dwell-and-break / interrupted-cut by ISO group + feed regime.
+            const { pickStrategy: chipPick } = await import("../../algorithms/ChipControlStrategy.js");
+            const p = params as any;
+            result = { success: true, data: chipPick(p) };
+            break;
+          }
+          case "taper_compensate": {
+            // Wire-EDM algorithm 5.2: upper/lower guide offset for taper angle
+            // by machine kinematics (Sodick / Makino / Mitsubishi / Fanuc).
+            const { compensate } = await import("../../algorithms/TaperCompensator.js");
+            const p = params as any;
+            result = { success: true, data: compensate(p) };
+            break;
+          }
+          case "csg_tree_reduce": {
+            // CAD algorithm 1.2: reduce CSG-tree depth via identity collapse
+            // + same-op associativity merge + zero-volume drop.
+            const { reduceTree } = await import("../../algorithms/CSGTreeOptimizer.js");
+            const p = params as any;
+            result = { success: true, data: reduceTree(p) };
+            break;
+          }
+          case "stock_envelope_compute": {
+            // CAD algorithm 1.4: AABB + bar-round envelope from point set
+            // for block/plate/bar stock allocation.
+            const { computeEnvelope } = await import("../../algorithms/ConvexHullStockEnvelope.js");
+            const p = params as any;
+            result = { success: true, data: computeEnvelope(p) };
+            break;
+          }
+          case "step_iges_diff": {
+            // CAD algorithm 1.7: STEP/IGES round-trip diff — flag geometry,
+            // topology, and feature loss across CAD↔CAM file conversions.
+            const { diff: stepDiff } = await import("../../algorithms/StepIgesRoundTripDiff.js");
+            const p = params as any;
+            result = { success: true, data: stepDiff(p) };
+            break;
+          }
+          case "five_axis_tilt_lead": {
+            // CAM algorithm 2.7: tilt + lead angles for 5-axis ball-end finishing.
+            const { optimize: optTL } = await import("../../algorithms/FiveAxisTiltLeadOptimizer.js");
+            const p = params as any;
+            result = { success: true, data: optTL(p) };
+            break;
+          }
+          case "wedm_lead_geometry": {
+            // WEDM algorithm 5.1: lead-in/lead-out geometry per cut kind.
+            const { planLead } = await import("../../algorithms/WedmLeadInOutGeometry.js");
+            const p = params as any;
+            result = { success: true, data: planLead(p) };
+            break;
+          }
+          case "job_cost_rollup": {
+            // Business/ERP algorithm 7.1: multi-level BOM cost roll-up.
+            const { rollupCost } = await import("../../algorithms/JobCostBomRollup.js");
+            const p = params as any;
+            result = { success: true, data: rollupCost(p) };
+            break;
+          }
+          case "quote_confidence_estimate": {
+            // Business/ERP algorithm 7.3: RSS uncertainty propagation across cost components.
+            const { estimate: qce } = await import("../../algorithms/QuoteConfidenceEstimator.js");
+            const p = params as any;
+            result = { success: true, data: qce(p) };
+            break;
+          }
+          case "setup_time_predict": {
+            // Business/ERP algorithm 7.5: setup-time regression on JM Die data.
+            const { predict } = await import("../../algorithms/SetupTimePredictor.js");
+            const p = params as any;
+            result = { success: true, data: predict(p) };
+            break;
+          }
+          case "material_yield_optimize": {
+            // Business/ERP algorithm 7.6: bar/plate/sheet yield + waste fraction + cost-per-part.
+            const { optimize: myo } = await import("../../algorithms/MaterialYieldOptimizer.js");
+            const p = params as any;
+            result = { success: true, data: myo(p) };
+            break;
+          }
+          case "customer_ltv_dcf": {
+            // Business/ERP algorithm 7.7: discounted-cashflow Customer Lifetime Value.
+            const { compute: ltvCompute } = await import("../../algorithms/CustomerLtvDcf.js");
+            const p = params as any;
+            result = { success: true, data: ltvCompute(p) };
+            break;
+          }
+          case "micro_milling_analyze": {
+            const mod = await import("../../engines/MicroMillingEngine.js");
+            const eng = (mod as any).microMillingEngine ?? new ((mod as any).MicroMillingEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).analyze?.(p) ?? (eng as any).calculate?.(p) ?? (eng as any).run?.(p) ?? { engine: "MicroMillingEngine", note: "method not callable" } };
+            break;
+          }
+          case "micro_milling_size_effect_calc": {
+            const mod = await import("../../engines/MicroMillingSizeEffectEngine.js");
+            const eng = (mod as any).microMillingSizeEffectEngine ?? new ((mod as any).MicroMillingSizeEffectEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).calculate?.(p) ?? (eng as any).analyze?.(p) ?? (eng as any).run?.(p) ?? { engine: "MicroMillingSizeEffectEngine", note: "method not callable" } };
+            break;
+          }
+          case "rcsa_frf_predict": {
+            const mod = await import("../../engines/RCSAEngine.js");
+            const eng = (mod as any).rcsaEngine ?? new ((mod as any).RCSAEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).predict?.(p) ?? (eng as any).calculate?.(p) ?? (eng as any).run?.(p) ?? { engine: "RCSAEngine", note: "method not callable" } };
+            break;
+          }
+          case "swiss_guide_bushing_physics_calc": {
+            const mod = await import("../../engines/SwissGuideBushingPhysicsEngine.js");
+            const eng = (mod as any).swissGuideBushingPhysicsEngine ?? new ((mod as any).SwissGuideBushingPhysicsEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).calculate?.(p) ?? (eng as any).analyze?.(p) ?? (eng as any).run?.(p) ?? { engine: "SwissGuideBushingPhysicsEngine", note: "method not callable" } };
+            break;
+          }
+          case "trilobe_deformation_calc": {
+            const mod = await import("../../engines/TrilobeDeformationEngine.js");
+            const eng = (mod as any).trilobeDeformationEngine ?? new ((mod as any).TrilobeDeformationEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).calculate?.(p) ?? (eng as any).predict?.(p) ?? (eng as any).run?.(p) ?? { engine: "TrilobeDeformationEngine", note: "method not callable" } };
+            break;
+          }
+          case "stock_feed_cycle_track": {
+            const mod = await import("../../engines/StockFeedCycleEngine.js");
+            const eng = (mod as any).stockFeedCycleEngine ?? new ((mod as any).StockFeedCycleEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).track?.(p) ?? (eng as any).update?.(p) ?? (eng as any).run?.(p) ?? { engine: "StockFeedCycleEngine", note: "method not callable" } };
+            break;
+          }
+          case "in_process_stock_model_update": {
+            const mod = await import("../../engines/InProcessStockModelEngine.js");
+            const eng = (mod as any).inProcessStockModelEngine ?? new ((mod as any).InProcessStockModelEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).update?.(p) ?? (eng as any).simulate?.(p) ?? (eng as any).run?.(p) ?? { engine: "InProcessStockModelEngine", note: "method not callable" } };
+            break;
+          }
+          case "inter_operation_state_transfer": {
+            const mod = await import("../../engines/InterOperationStateEngine.js");
+            const eng = (mod as any).interOperationStateEngine ?? new ((mod as any).InterOperationStateEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).transfer?.(p) ?? (eng as any).get?.(p) ?? (eng as any).run?.(p) ?? { engine: "InterOperationStateEngine", note: "method not callable" } };
+            break;
+          }
+          case "process_environment_sensitivity_analyze": {
+            const mod = await import("../../engines/ProcessEnvironmentSensitivityEngine.js");
+            const eng = (mod as any).processEnvironmentSensitivityEngine ?? new ((mod as any).ProcessEnvironmentSensitivityEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).analyze?.(p) ?? (eng as any).calculate?.(p) ?? (eng as any).run?.(p) ?? { engine: "ProcessEnvironmentSensitivityEngine", note: "method not callable" } };
+            break;
+          }
+          case "holder_operation_match_select": {
+            const mod = await import("../../engines/HolderOperationMatchEngine.js");
+            const eng = (mod as any).holderOperationMatchEngine ?? new ((mod as any).HolderOperationMatchEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).select?.(p) ?? (eng as any).match?.(p) ?? (eng as any).run?.(p) ?? { engine: "HolderOperationMatchEngine", note: "method not callable" } };
+            break;
+          }
+          case "physics_aware_data_augmentation_run": {
+            const mod = await import("../../engines/PhysicsAwareDataAugmentationEngine.js");
+            const eng = (mod as any).physicsAwareDataAugmentationEngine ?? new ((mod as any).PhysicsAwareDataAugmentationEngine)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).augment?.(p) ?? (eng as any).run?.(p) ?? (eng as any).generate?.(p) ?? { engine: "PhysicsAwareDataAugmentationEngine", note: "method not callable" } };
+            break;
+          }
+          // ── end Batch-2 calc wiring ───────────────────────────────────────────
+          default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
 

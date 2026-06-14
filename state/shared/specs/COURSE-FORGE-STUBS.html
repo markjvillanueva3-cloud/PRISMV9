@@ -1,245 +1,903 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="3798d3f78126944e46ae64ba6b185b77b1331b9ed3b723491981ef189655d563">
 <title>COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</title>
 <style>
-  :root {
-    --bg: #0f1014;
-    --panel: #1a1c23;
-    --panel-2: #232631;
-    --fg: #e4e6eb;
-    --fg-dim: #9aa0a8;
-    --border: #2c303a;
-    --ok: #4ade80;
-    --warn: #fbbf24;
-    --fail: #f87171;
-    --info: #60a5fa;
-    --link: #93c5fd;
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-    font-size: 14px; line-height: 1.5; }
-  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
-  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
-    border-bottom: 1px solid var(--border); color: var(--fg); }
-  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.75rem 1rem; margin-bottom: 1rem; }
-  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.5rem; margin-bottom: 1rem; }
-  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.65rem 0.85rem; }
-  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
-  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
-  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
-  .card.ok    { border-left: 3px solid var(--ok); }
-  .card.warn  { border-left: 3px solid var(--warn); }
-  .card.fail  { border-left: 3px solid var(--fail); }
-  .card.info  { border-left: 3px solid var(--info); }
-  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
-    background: var(--panel-2); font-weight: 500; }
-  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
-    font-variant-numeric: tabular-nums; vertical-align: top; }
-  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
-    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
-  tr:last-child td { border-bottom: none; }
-  td.right { text-align: right; }
-  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
-  li { margin: 0.15rem 0; }
-  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
-    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
-    border: 1px solid var(--border); }
-  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
-  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
-  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
-  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
-  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
-  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
-    margin: 0.4rem 0 1rem 0; }
-  .kv .k { color: var(--fg-dim); }
-  svg.bar-chart { display: block; max-width: 100%; height: auto; }
-  svg .bar { fill: var(--info); }
-  svg .bar.ok   { fill: var(--ok); }
-  svg .bar.warn { fill: var(--warn); }
-  svg .bar.fail { fill: var(--fail); }
-  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
-  svg .axis text { fill: var(--fg-dim); }
-  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
-    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
-  a { color: var(--link); }
-  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
-    font-size: 0.8rem; color: var(--fg-dim); }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
 </style>
 </head>
 <body>
-<h1>COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</h1>
-<div class="meta">rendered from state/shared/specs/COURSE-FORGE-STUBS.md</div>
-<div class="meta">Generated 2026-05-17T15:32:15.615Z</div>
-<style>
-  .prism-md-body { max-width: 70rem; margin: 0 auto; }
-  .prism-h1 { font-size: 1.6rem; }
-  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-  .prism-h3 { font-size: 1.1rem; color: var(--info); }
-  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
-  .prism-md-body p { margin: 0.5rem 0; }
-  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
-  .prism-md-list li { margin: 0.15rem 0; }
-  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
-  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
-  .prism-md-table th { background: var(--panel-2); }
-  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
-  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
-  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
-  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
-  .prism-link { color: var(--link); text-decoration: none; }
-  .prism-link:hover { text-decoration: underline; }
-  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
-  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
-  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</li><li class="prism-toc-l2">Hard gates (do NOT bypass)</li><li class="prism-toc-l2">Stubs</li><li class="prism-toc-l3">#1 algorithm:batch-reactor-sizing-algorithm (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</li><li class="prism-toc-l3">#2 algorithm:bayes-net-inference (9.66j / &quot;Computational Cognitive Science&quot;)</li><li class="prism-toc-l3">#3 algorithm:bayes-nets (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</li><li class="prism-toc-l3">#4 algorithm:bernoullis-equation-solver (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</li><li class="prism-toc-l3">#5 algorithm:cahn-hilliard-equation-solver (3.21 / &quot;Kinetic Processes in Materials&quot;)</li><li class="prism-toc-l3">#6 algorithm:cam-path-optimization (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</li><li class="prism-toc-l3">#7 algorithm:differential-evolution (15.099-fall-2003 / &quot;Readings in Optimization&quot;)</li><li class="prism-toc-l3">#8 algorithm:ellipsoid-method (15.083J / &quot;Integer Programming and Combinatorial Optimization&quot;)</li><li class="prism-toc-l3">#9 algorithm:euler-method (2.003j-fall-2007 / &quot;Dynamics and Control I&quot;)</li><li class="prism-toc-l3">#10 algorithm:finite-difference-method (2.086 / &quot;Numerical Computation for Mechanical Engineers&quot;)</li><li class="prism-toc-l3">#11 algorithm:finite-element-analysis (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</li><li class="prism-toc-l3">#12 algorithm:finite-element-analysis (3.22 / &quot;Mechanical Behavior of Materials&quot;)</li><li class="prism-toc-l3">#13 algorithm:finite-element-method (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</li><li class="prism-toc-l3">#14 algorithm:gradient-descent (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</li><li class="prism-toc-l3">#15 algorithm:lagranges-equations (16.07 / &quot;Dynamics&quot;)</li><li class="prism-toc-l3">#16 algorithm:lagranges-equations (2.032 / &quot;Dynamics&quot;)</li><li class="prism-toc-l3">#17 algorithm:lesat-algorithm (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</li><li class="prism-toc-l3">#18 algorithm:multigrid-method (18.086 / &quot;Mathematical Methods for Engineers II&quot;)</li><li class="prism-toc-l3">#19 algorithm:mutation-testing (6.883 / &quot;Program Analysis&quot;)</li><li class="prism-toc-l3">#20 algorithm:newmarks-algorithm (16.225 / &quot;Computational Mechanics of Materials&quot;)</li><li class="prism-toc-l3">#21 algorithm:numerical-integration (3.016 / &quot;Mathematics for Materials Scientists and Engineers&quot;)</li><li class="prism-toc-l3">#22 algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</li><li class="prism-toc-l3">#23 algorithm:operator-splitting (resources / &quot;resources&quot;)</li><li class="prism-toc-l3">#24 algorithm:pendulum-cart-modeling (2.003 / &quot;Modeling Dynamics and Control I&quot;)</li><li class="prism-toc-l3">#25 algorithm:pid-tuning (2.004 / &quot;Dynamics and Control II&quot;)</li><li class="prism-toc-l3">#26 algorithm:pugh_chart_selection (ec.s06-fall-2005 / &quot;Prototypes to Products&quot;)</li><li class="prism-toc-l3">#27 algorithm:response-surface-modeling (2.830j-spring-2008 / &quot;Control of Manufacturing Processes (SMA 6303)&quot;)</li><li class="prism-toc-l3">#28 algorithm:singular-value-decomposition (12.864 / &quot;Inference from Data and Models&quot;)</li><li class="prism-toc-l3">#29 algorithm:taylor_series_expansion (18.098 / &quot;Street-Fighting Mathematics&quot;)</li><li class="prism-toc-l3">#30 algorithm:transition-equations-solver (2.854-fall-2016 / &quot;Introduction to Manufacturing Systems&quot;)</li><li class="prism-toc-l3">#31 algorithm:value-iteration (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</li><li class="prism-toc-l3">#32 algorithm:wave-propagation-simulation-algorithm (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</li><li class="prism-toc-l3">#33 engine:architectural-engine (ESD.34 / &quot;System Architecture&quot;)</li><li class="prism-toc-l3">#34 engine:cilk-runtime-system (6.189 / &quot;Multicore Programming Primer&quot;)</li><li class="prism-toc-l3">#35 engine:constraint-based-optimizer (9.66j / &quot;Computational Cognitive Science&quot;)</li><li class="prism-toc-l3">#36 engine:digital-logic-engine (16.682 / &quot;Prototyping Avionics&quot;)</li><li class="prism-toc-l3">#37 engine:dynamic-system-simulation-engine (2.141 / &quot;Modeling and Simulation of Dynamic Systems&quot;)</li><li class="prism-toc-l3">#38 engine:economic-model-engine (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</li><li class="prism-toc-l3">#39 engine:finite-element-analysis-fea (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</li><li class="prism-toc-l3">#40 engine:inertial-guidance-system (16.07 / &quot;Dynamics&quot;)</li><li class="prism-toc-l3">#41 engine:lean-enterprise-engine (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</li><li class="prism-toc-l3">#42 engine:lean-manufacturing-engine (16.885j-fall-2004 / &quot;Aircraft Systems Engineering&quot;)</li><li class="prism-toc-l3">#43 engine:material-property-prediction-engine (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</li><li class="prism-toc-l3">#44 engine:material-property-prediction-engine (3.225-fall-2007 / &quot;Electronic and Mechanical Properties of Materials&quot;)</li><li class="prism-toc-l3">#45 engine:operating-window-methods (esd.33-summer-2010 / &quot;Systems Engineering&quot;)</li><li class="prism-toc-l3">#46 engine:pdca-cycle-engine (esd.60-summer-2004 / &quot;Lean/Six Sigma Processes&quot;)</li><li class="prism-toc-l3">#47 engine:policy-iteration-engine (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</li><li class="prism-toc-l3">#48 engine:relativistic-dynamics-engine (8.022 / &quot;Physics II: Electricity and Magnetism&quot;)</li><li class="prism-toc-l3">#49 engine:scheme-evaluator-engine (6.001 / &quot;Structure and Interpretation of Computer Programs&quot;)</li><li class="prism-toc-l3">#50 engine:seelect (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</li><li class="prism-toc-l3">#51 engine:simulink-models (2.004 / &quot;Dynamics and Control II&quot;)</li><li class="prism-toc-l3">#52 engine:solidworks (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</li><li class="prism-toc-l3">#53 engine:test-case-reduction-engine (6.883 / &quot;Program Analysis&quot;)</li><li class="prism-toc-l3">#54 formula:buckling-formula (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</li><li class="prism-toc-l3">#55 formula:euler-buckling-formula (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</li><li class="prism-toc-l3">#56 formula:kinetic-rate-equation (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</li><li class="prism-toc-l3">#57 formula:moody-diagram-analysis (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</li><li class="prism-toc-l3">#58 formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</li><li class="prism-toc-l3">#59 formula:transistor-gain-formula (16.682 / &quot;Prototyping Avionics&quot;)</li><li class="prism-toc-l3">#60 algorithm:cauchy-goursat-theorem (18.112-fall-2008 / &quot;Functions of a Complex Variable&quot;)</li><li class="prism-toc-l3">#61 algorithm:louvain-algorithm (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</li><li class="prism-toc-l3">#62 engine:ucinet (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</li><li class="prism-toc-l2">Re-run</li><li class="prism-toc-l2">Related</li></ul></nav><h1 class="prism-h1">COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</h1>
-<p><strong>Generator:</strong> scripts/course-data-router.mjs (<code class="prism-inline-code">--emit forge-stubs</code>) <strong>Generated:</strong> 2026-05-17T15:31:48.697Z <strong>Source:</strong> <code class="prism-inline-code">state/shared/specs/COURSE-DATA-ROUTING-LEDGER.json</code> (69 FORGE-QUEUE items, 65 courses) <strong>Filter:</strong> <code class="prism-inline-code">mfg_relevance &gt;= 0.6</code> → 62 stubs surfaced <strong>Status:</strong> advisory · mustHumanVerify · NOT auto-build</p>
-<blockquote class="prism-quote">Per <code class="prism-inline-code">state/shared/specs/COURSE-FORGE-PROPOSALS.md</code> (P1-P10 hand-curated) + Lane C policy:</blockquote>
-<blockquote class="prism-quote">every entry below requires operator review + <code class="prism-inline-code">duplicationGuardEngine.mustCheckBeforeCreating()</code></blockquote>
-<blockquote class="prism-quote">+ (for formulas) <code class="prism-inline-code">physics-reviewer</code> agent PASS before <code class="prism-inline-code">/forge-triple</code> invocation.</blockquote>
-<h2 class="prism-h2">Hard gates (do NOT bypass)</h2>
-<ul class="prism-md-list"><li><code class="prism-inline-code">duplicationGuardEngine.mustCheckBeforeCreating()</code> THROWS on dup at /forge time.</li><li>Formula stubs: physics-reviewer PASS REQUIRED; constants land in <code class="prism-inline-code">src/physics/constants.ts</code> only.</li><li>Tier-1 CAM bridges (Mastercam, hyperMILL, Esprit, Fusion 360, Inventor HSM, SolidWorks) auto-REJECTED.</li><li>Course-derived intent ≠ production-validated. The course is the IDEA source; PRISM convention + JM Die data is the VALIDATION source.</li></ul>
-<hr class="prism-hr">
-<h2 class="prism-h2">Stubs</h2>
-<h3 class="prism-h3">#1 algorithm:batch-reactor-sizing-algorithm (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, process optimization</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/BatchReactorSizingAlgorithm.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:batch-reactor-sizing-algorithm</code></li></ul>
-<h3 class="prism-h3">#2 algorithm:bayes-net-inference (9.66j / &quot;Computational Cognitive Science&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, control, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/BayesNetInference.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:bayes-net-inference</code></li></ul>
-<h3 class="prism-h3">#3 algorithm:bayes-nets (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/BayesNets.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:bayes-nets</code></li></ul>
-<h3 class="prism-h3">#4 algorithm:bernoullis-equation-solver (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/BernoullisEquationSolver.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:bernoullis-equation-solver</code></li></ul>
-<h3 class="prism-h3">#5 algorithm:cahn-hilliard-equation-solver (3.21 / &quot;Kinetic Processes in Materials&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, materials, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/CahnHilliardEquationSolver.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:cahn-hilliard-equation-solver</code></li></ul>
-<h3 class="prism-h3">#6 algorithm:cam-path-optimization (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/CamPathOptimization.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> <strong>REJECT</strong> — name matches first-party PRISM stack (no forge)</li><li><strong>action:</strong> <code class="prism-inline-code">REJECT (reclassify TRIBAL-SHIPPED)</code></li></ul>
-<h3 class="prism-h3">#7 algorithm:differential-evolution (15.099-fall-2003 / &quot;Readings in Optimization&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/DifferentialEvolution.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> <strong>REVIEW</strong> — name-similarity hits: DifferentialEvolutionEngine</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:differential-evolution</code></li></ul>
-<h3 class="prism-h3">#8 algorithm:ellipsoid-method (15.083J / &quot;Integer Programming and Combinatorial Optimization&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/EllipsoidMethod.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:ellipsoid-method</code></li></ul>
-<h3 class="prism-h3">#9 algorithm:euler-method (2.003j-fall-2007 / &quot;Dynamics and Control I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/EulerMethod.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:euler-method</code></li></ul>
-<h3 class="prism-h3">#10 algorithm:finite-difference-method (2.086 / &quot;Numerical Computation for Mechanical Engineers&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/FiniteDifferenceMethod.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:finite-difference-method</code></li></ul>
-<h3 class="prism-h3">#11 algorithm:finite-element-analysis (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/FiniteElementAnalysis.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:finite-element-analysis</code></li></ul>
-<h3 class="prism-h3">#12 algorithm:finite-element-analysis (3.22 / &quot;Mechanical Behavior of Materials&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/FiniteElementAnalysis.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:finite-element-analysis</code></li></ul>
-<h3 class="prism-h3">#13 algorithm:finite-element-method (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/FiniteElementMethod.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:finite-element-method</code></li></ul>
-<h3 class="prism-h3">#14 algorithm:gradient-descent (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/GradientDescent.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:gradient-descent</code></li></ul>
-<h3 class="prism-h3">#15 algorithm:lagranges-equations (16.07 / &quot;Dynamics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/LagrangesEquations.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:lagranges-equations</code></li></ul>
-<h3 class="prism-h3">#16 algorithm:lagranges-equations (2.032 / &quot;Dynamics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/LagrangesEquations.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:lagranges-equations</code></li></ul>
-<h3 class="prism-h3">#17 algorithm:lesat-algorithm (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/LesatAlgorithm.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:lesat-algorithm</code></li></ul>
-<h3 class="prism-h3">#18 algorithm:multigrid-method (18.086 / &quot;Mathematical Methods for Engineers II&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/MultigridMethod.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:multigrid-method</code></li></ul>
-<h3 class="prism-h3">#19 algorithm:mutation-testing (6.883 / &quot;Program Analysis&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/MutationTesting.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:mutation-testing</code></li></ul>
-<h3 class="prism-h3">#20 algorithm:newmarks-algorithm (16.225 / &quot;Computational Mechanics of Materials&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> thermal, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/NewmarksAlgorithm.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:newmarks-algorithm</code></li></ul>
-<h3 class="prism-h3">#21 algorithm:numerical-integration (3.016 / &quot;Mathematics for Materials Scientists and Engineers&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/NumericalIntegration.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> <strong>REVIEW</strong> — name-similarity hits: NumericalIntegrationEngine</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:numerical-integration</code></li></ul>
-<h3 class="prism-h3">#22 algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/OperatorSplitting.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:operator-splitting</code></li></ul>
-<h3 class="prism-h3">#23 algorithm:operator-splitting (resources / &quot;resources&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/OperatorSplitting.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:operator-splitting</code></li></ul>
-<h3 class="prism-h3">#24 algorithm:pendulum-cart-modeling (2.003 / &quot;Modeling Dynamics and Control I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> control, thermal, vibration</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/PendulumCartModeling.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:pendulum-cart-modeling</code></li></ul>
-<h3 class="prism-h3">#25 algorithm:pid-tuning (2.004 / &quot;Dynamics and Control II&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> control, cam</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/PidTuning.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:pid-tuning</code></li></ul>
-<h3 class="prism-h3">#26 algorithm:pugh_chart_selection (ec.s06-fall-2005 / &quot;Prototypes to Products&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/PughChartSelection.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:pugh_chart_selection</code></li></ul>
-<h3 class="prism-h3">#27 algorithm:response-surface-modeling (2.830j-spring-2008 / &quot;Control of Manufacturing Processes (SMA 6303)&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/ResponseSurfaceModeling.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:response-surface-modeling</code></li></ul>
-<h3 class="prism-h3">#28 algorithm:singular-value-decomposition (12.864 / &quot;Inference from Data and Models&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/SingularValueDecomposition.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:singular-value-decomposition</code></li></ul>
-<h3 class="prism-h3">#29 algorithm:taylor_series_expansion (18.098 / &quot;Street-Fighting Mathematics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/TaylorSeriesExpansion.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:taylor_series_expansion</code></li></ul>
-<h3 class="prism-h3">#30 algorithm:transition-equations-solver (2.854-fall-2016 / &quot;Introduction to Manufacturing Systems&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/TransitionEquationsSolver.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:transition-equations-solver</code></li></ul>
-<h3 class="prism-h3">#31 algorithm:value-iteration (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/ValueIteration.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:value-iteration</code></li></ul>
-<h3 class="prism-h3">#32 algorithm:wave-propagation-simulation-algorithm (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> materials, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/WavePropagationSimulationAlgorithm.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:wave-propagation-simulation-algorithm</code></li></ul>
-<h3 class="prism-h3">#33 engine:architectural-engine (ESD.34 / &quot;System Architecture&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, metrology, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/ArchitecturalEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:architectural-engine</code></li></ul>
-<h3 class="prism-h3">#34 engine:cilk-runtime-system (6.189 / &quot;Multicore Programming Primer&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/CilkRuntimeSystemEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:cilk-runtime-system</code></li></ul>
-<h3 class="prism-h3">#35 engine:constraint-based-optimizer (9.66j / &quot;Computational Cognitive Science&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, control, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/ConstraintBasedOptimizerEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:constraint-based-optimizer</code></li></ul>
-<h3 class="prism-h3">#36 engine:digital-logic-engine (16.682 / &quot;Prototyping Avionics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> control, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/DigitalLogicEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:digital-logic-engine</code></li></ul>
-<h3 class="prism-h3">#37 engine:dynamic-system-simulation-engine (2.141 / &quot;Modeling and Simulation of Dynamic Systems&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/DynamicSystemSimulationEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:dynamic-system-simulation-engine</code></li></ul>
-<h3 class="prism-h3">#38 engine:economic-model-engine (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, process optimization</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/EconomicModelEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:economic-model-engine</code></li></ul>
-<h3 class="prism-h3">#39 engine:finite-element-analysis-fea (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/FiniteElementAnalysisFeaEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:finite-element-analysis-fea</code></li></ul>
-<h3 class="prism-h3">#40 engine:inertial-guidance-system (16.07 / &quot;Dynamics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/InertialGuidanceSystemEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:inertial-guidance-system</code></li></ul>
-<h3 class="prism-h3">#41 engine:lean-enterprise-engine (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/LeanEnterpriseEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:lean-enterprise-engine</code></li></ul>
-<h3 class="prism-h3">#42 engine:lean-manufacturing-engine (16.885j-fall-2004 / &quot;Aircraft Systems Engineering&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/LeanManufacturingEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:lean-manufacturing-engine</code></li></ul>
-<h3 class="prism-h3">#43 engine:material-property-prediction-engine (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> materials, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/MaterialPropertyPredictionEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:material-property-prediction-engine</code></li></ul>
-<h3 class="prism-h3">#44 engine:material-property-prediction-engine (3.225-fall-2007 / &quot;Electronic and Mechanical Properties of Materials&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> materials, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/MaterialPropertyPredictionEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:material-property-prediction-engine</code></li></ul>
-<h3 class="prism-h3">#45 engine:operating-window-methods (esd.33-summer-2010 / &quot;Systems Engineering&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/OperatingWindowMethodsEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:operating-window-methods</code></li></ul>
-<h3 class="prism-h3">#46 engine:pdca-cycle-engine (esd.60-summer-2004 / &quot;Lean/Six Sigma Processes&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> scheduling, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/PdcaCycleEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:pdca-cycle-engine</code></li></ul>
-<h3 class="prism-h3">#47 engine:policy-iteration-engine (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, control</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/PolicyIterationEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:policy-iteration-engine</code></li></ul>
-<h3 class="prism-h3">#48 engine:relativistic-dynamics-engine (8.022 / &quot;Physics II: Electricity and Magnetism&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> thermal, cam</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/RelativisticDynamicsEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:relativistic-dynamics-engine</code></li></ul>
-<h3 class="prism-h3">#49 engine:scheme-evaluator-engine (6.001 / &quot;Structure and Interpretation of Computer Programs&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, process optimization</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/SchemeEvaluatorEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:scheme-evaluator-engine</code></li></ul>
-<h3 class="prism-h3">#50 engine:seelect (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/SeelectEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:seelect</code></li></ul>
-<h3 class="prism-h3">#51 engine:simulink-models (2.004 / &quot;Dynamics and Control II&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> control, cam</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/SimulinkModelsEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:simulink-models</code></li></ul>
-<h3 class="prism-h3">#52 engine:solidworks (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/SolidworksEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> <strong>REJECT</strong> — name matches first-party PRISM stack (no forge)</li><li><strong>action:</strong> <code class="prism-inline-code">REJECT (reclassify TRIBAL-SHIPPED)</code></li></ul>
-<h3 class="prism-h3">#53 engine:test-case-reduction-engine (6.883 / &quot;Program Analysis&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, scheduling, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/TestCaseReductionEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:test-case-reduction-engine</code></li></ul>
-<h3 class="prism-h3">#54 formula:buckling-formula (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li><li><strong>physics_gate:</strong> required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple formula:buckling-formula</code></li></ul>
-<h3 class="prism-h3">#55 formula:euler-buckling-formula (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li><li><strong>physics_gate:</strong> required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple formula:euler-buckling-formula</code></li></ul>
-<h3 class="prism-h3">#56 formula:kinetic-rate-equation (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cad, cam, process optimization</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li><li><strong>physics_gate:</strong> required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple formula:kinetic-rate-equation</code></li></ul>
-<h3 class="prism-h3">#57 formula:moody-diagram-analysis (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li><li><strong>physics_gate:</strong> required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple formula:moody-diagram-analysis</code></li></ul>
-<h3 class="prism-h3">#58 formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> control, thermal, vibration</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li><li><strong>physics_gate:</strong> required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple formula:transfer-functions</code></li></ul>
-<h3 class="prism-h3">#59 formula:transistor-gain-formula (16.682 / &quot;Prototyping Avionics&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.80</li><li><strong>domains:</strong> control, thermal</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li><li><strong>physics_gate:</strong> required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple formula:transistor-gain-formula</code></li></ul>
-<h3 class="prism-h3">#60 algorithm:cauchy-goursat-theorem (18.112-fall-2008 / &quot;Functions of a Complex Variable&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.70</li><li><strong>domains:</strong> cam, metrology</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/CauchyGoursatTheorem.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:cauchy-goursat-theorem</code></li></ul>
-<h3 class="prism-h3">#61 algorithm:louvain-algorithm (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.60</li><li><strong>domains:</strong> cam, metrology, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/algorithms/LouvainAlgorithm.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple algorithm:louvain-algorithm</code></li></ul>
-<h3 class="prism-h3">#62 engine:ucinet (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</h3>
-<ul class="prism-md-list"><li><strong>mfg_relevance:</strong> 0.60</li><li><strong>domains:</strong> cam, metrology, scheduling</li><li><strong>proposed_path:</strong> <code class="prism-inline-code">mcp-server/src/engines/UcinetEngine.ts</code></li><li><strong>dispatcher_action:</strong> <code class="prism-inline-code">(operator-select existing dispatcher)</code></li><li><strong>physics_gate:</strong> not required</li><li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li><li><strong>action:</strong> <code class="prism-inline-code">/forge-triple engine:ucinet</code></li></ul>
-<hr class="prism-hr">
-<h2 class="prism-h2">Re-run</h2>
-<pre class="prism-codeblock" data-lang="bash"><code>node scripts/course-data-router.mjs --emit forge-stubs --min-relevance 0.6
-node scripts/course-data-router.mjs --emit forge-stubs --min-relevance 0.8  # top tier only</code></pre>
-<h2 class="prism-h2">Related</h2>
-<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/COURSE-FORGE-PROPOSALS.md</code> — hand-curated P1-P10 (companion doc)</li><li><code class="prism-inline-code">state/shared/specs/COURSE-DATA-ROUTING-LEDGER.{json,md}</code> — full inventory</li><li><code class="prism-inline-code">state/shared/specs/COURSE-DATA-ROUTING-PIPELINE.md</code> — 3-lane policy doctrine</li><li><code class="prism-inline-code">mcp-server/src/engines/DuplicationGuardEngine.ts</code> — pre-create gate (THROWS on dup)</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T15:32:15.615Z</div>
-<div>html-report-render schemaVersion 1.0.0</div>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.398Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#course-forge-stubs-auto-emitted-forge-proposal-bundle">COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</a></li>
+<li class="toc-l2"><a href="#hard-gates-do-not-bypass">Hard gates (do NOT bypass)</a></li>
+<li class="toc-l2"><a href="#stubs">Stubs</a></li>
+<li class="toc-l3"><a href="#1-algorithmbatch-reactor-sizing-algorithm-10490-fall-2006-integrated-chemical-engineering-i">#1 algorithm:batch-reactor-sizing-algorithm (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</a></li>
+<li class="toc-l3"><a href="#2-algorithmbayes-net-inference-966j-computational-cognitive-science">#2 algorithm:bayes-net-inference (9.66j / &quot;Computational Cognitive Science&quot;)</a></li>
+<li class="toc-l3"><a href="#3-algorithmbayes-nets-6871-knowledge-based-applications-systems">#3 algorithm:bayes-nets (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</a></li>
+<li class="toc-l3"><a href="#4-algorithmbernoullis-equation-solver-1060-spring-2006-engineering-mechanics-ii">#4 algorithm:bernoullis-equation-solver (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</a></li>
+<li class="toc-l3"><a href="#5-algorithmcahn-hilliard-equation-solver-321-kinetic-processes-in-materials">#5 algorithm:cahn-hilliard-equation-solver (3.21 / &quot;Kinetic Processes in Materials&quot;)</a></li>
+<li class="toc-l3"><a href="#6-algorithmcam-path-optimization-2007-spring-2009-design-and-manufacturing-i">#6 algorithm:cam-path-optimization (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</a></li>
+<li class="toc-l3"><a href="#7-algorithmdifferential-evolution-15099-fall-2003-readings-in-optimization">#7 algorithm:differential-evolution (15.099-fall-2003 / &quot;Readings in Optimization&quot;)</a></li>
+<li class="toc-l3"><a href="#8-algorithmellipsoid-method-15083j-integer-programming-and-combinatorial-optimization">#8 algorithm:ellipsoid-method (15.083J / &quot;Integer Programming and Combinatorial Optimization&quot;)</a></li>
+<li class="toc-l3"><a href="#9-algorithmeuler-method-2003j-fall-2007-dynamics-and-control-i">#9 algorithm:euler-method (2.003j-fall-2007 / &quot;Dynamics and Control I&quot;)</a></li>
+<li class="toc-l3"><a href="#10-algorithmfinite-difference-method-2086-numerical-computation-for-mechanical-engineers">#10 algorithm:finite-difference-method (2.086 / &quot;Numerical Computation for Mechanical Engineers&quot;)</a></li>
+<li class="toc-l3"><a href="#11-algorithmfinite-element-analysis-1050-fall-2004-solid-mechanics">#11 algorithm:finite-element-analysis (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</a></li>
+<li class="toc-l3"><a href="#12-algorithmfinite-element-analysis-322-mechanical-behavior-of-materials">#12 algorithm:finite-element-analysis (3.22 / &quot;Mechanical Behavior of Materials&quot;)</a></li>
+<li class="toc-l3"><a href="#13-algorithmfinite-element-method-1105-fall-2003-solid-mechanics-laboratory">#13 algorithm:finite-element-method (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</a></li>
+<li class="toc-l3"><a href="#14-algorithmgradient-descent-1802-spring-2006-multivariable-calculus">#14 algorithm:gradient-descent (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</a></li>
+<li class="toc-l3"><a href="#15-algorithmlagranges-equations-1607-dynamics">#15 algorithm:lagranges-equations (16.07 / &quot;Dynamics&quot;)</a></li>
+<li class="toc-l3"><a href="#16-algorithmlagranges-equations-2032-dynamics">#16 algorithm:lagranges-equations (2.032 / &quot;Dynamics&quot;)</a></li>
+<li class="toc-l3"><a href="#17-algorithmlesat-algorithm-16852j-fall-2005-integrating-the-lean-enterprise">#17 algorithm:lesat-algorithm (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</a></li>
+<li class="toc-l3"><a href="#18-algorithmmultigrid-method-18086-mathematical-methods-for-engineers-ii">#18 algorithm:multigrid-method (18.086 / &quot;Mathematical Methods for Engineers II&quot;)</a></li>
+<li class="toc-l3"><a href="#19-algorithmmutation-testing-6883-program-analysis">#19 algorithm:mutation-testing (6.883 / &quot;Program Analysis&quot;)</a></li>
+<li class="toc-l3"><a href="#20-algorithmnewmarks-algorithm-16225-computational-mechanics-of-materials">#20 algorithm:newmarks-algorithm (16.225 / &quot;Computational Mechanics of Materials&quot;)</a></li>
+<li class="toc-l3"><a href="#21-algorithmnumerical-integration-3016-mathematics-for-materials-scientists-and-engineers">#21 algorithm:numerical-integration (3.016 / &quot;Mathematics for Materials Scientists and Engineers&quot;)</a></li>
+<li class="toc-l3"><a href="#22-algorithmoperator-splitting-1034-numerical-methods-applied-to-chemical-engineering">#22 algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</a></li>
+<li class="toc-l3"><a href="#23-algorithmoperator-splitting-resources-resources">#23 algorithm:operator-splitting (resources / &quot;resources&quot;)</a></li>
+<li class="toc-l3"><a href="#24-algorithmpendulum-cart-modeling-2003-modeling-dynamics-and-control-i">#24 algorithm:pendulum-cart-modeling (2.003 / &quot;Modeling Dynamics and Control I&quot;)</a></li>
+<li class="toc-l3"><a href="#25-algorithmpid-tuning-2004-dynamics-and-control-ii">#25 algorithm:pid-tuning (2.004 / &quot;Dynamics and Control II&quot;)</a></li>
+<li class="toc-l3"><a href="#26-algorithmpughchartselection-ecs06-fall-2005-prototypes-to-products">#26 algorithm:pughchartselection (ec.s06-fall-2005 / &quot;Prototypes to Products&quot;)</a></li>
+<li class="toc-l3"><a href="#27-algorithmresponse-surface-modeling-2830j-spring-2008-control-of-manufacturing-processes-sma-6303">#27 algorithm:response-surface-modeling (2.830j-spring-2008 / &quot;Control of Manufacturing Processes (SMA 6303)&quot;)</a></li>
+<li class="toc-l3"><a href="#28-algorithmsingular-value-decomposition-12864-inference-from-data-and-models">#28 algorithm:singular-value-decomposition (12.864 / &quot;Inference from Data and Models&quot;)</a></li>
+<li class="toc-l3"><a href="#29-algorithmtaylorseriesexpansion-18098-street-fighting-mathematics">#29 algorithm:taylorseriesexpansion (18.098 / &quot;Street-Fighting Mathematics&quot;)</a></li>
+<li class="toc-l3"><a href="#30-algorithmtransition-equations-solver-2854-fall-2016-introduction-to-manufacturing-systems">#30 algorithm:transition-equations-solver (2.854-fall-2016 / &quot;Introduction to Manufacturing Systems&quot;)</a></li>
+<li class="toc-l3"><a href="#31-algorithmvalue-iteration-6231-dynamic-programming-and-stochastic-control">#31 algorithm:value-iteration (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</a></li>
+<li class="toc-l3"><a href="#32-algorithmwave-propagation-simulation-algorithm-360-symmetry-structure-and-tensor-properties-of-materials">#32 algorithm:wave-propagation-simulation-algorithm (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</a></li>
+<li class="toc-l3"><a href="#33-enginearchitectural-engine-esd34-system-architecture">#33 engine:architectural-engine (ESD.34 / &quot;System Architecture&quot;)</a></li>
+<li class="toc-l3"><a href="#34-enginecilk-runtime-system-6189-multicore-programming-primer">#34 engine:cilk-runtime-system (6.189 / &quot;Multicore Programming Primer&quot;)</a></li>
+<li class="toc-l3"><a href="#35-engineconstraint-based-optimizer-966j-computational-cognitive-science">#35 engine:constraint-based-optimizer (9.66j / &quot;Computational Cognitive Science&quot;)</a></li>
+<li class="toc-l3"><a href="#36-enginedigital-logic-engine-16682-prototyping-avionics">#36 engine:digital-logic-engine (16.682 / &quot;Prototyping Avionics&quot;)</a></li>
+<li class="toc-l3"><a href="#37-enginedynamic-system-simulation-engine-2141-modeling-and-simulation-of-dynamic-systems">#37 engine:dynamic-system-simulation-engine (2.141 / &quot;Modeling and Simulation of Dynamic Systems&quot;)</a></li>
+<li class="toc-l3"><a href="#38-engineeconomic-model-engine-10490-fall-2006-integrated-chemical-engineering-i">#38 engine:economic-model-engine (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</a></li>
+<li class="toc-l3"><a href="#39-enginefinite-element-analysis-fea-1802-spring-2006-multivariable-calculus">#39 engine:finite-element-analysis-fea (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</a></li>
+<li class="toc-l3"><a href="#40-engineinertial-guidance-system-1607-dynamics">#40 engine:inertial-guidance-system (16.07 / &quot;Dynamics&quot;)</a></li>
+<li class="toc-l3"><a href="#41-enginelean-enterprise-engine-16852j-fall-2005-integrating-the-lean-enterprise">#41 engine:lean-enterprise-engine (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</a></li>
+<li class="toc-l3"><a href="#42-enginelean-manufacturing-engine-16885j-fall-2004-aircraft-systems-engineering">#42 engine:lean-manufacturing-engine (16.885j-fall-2004 / &quot;Aircraft Systems Engineering&quot;)</a></li>
+<li class="toc-l3"><a href="#43-enginematerial-property-prediction-engine-360-symmetry-structure-and-tensor-properties-of-materials">#43 engine:material-property-prediction-engine (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</a></li>
+<li class="toc-l3"><a href="#44-enginematerial-property-prediction-engine-3225-fall-2007-electronic-and-mechanical-properties-of-materials">#44 engine:material-property-prediction-engine (3.225-fall-2007 / &quot;Electronic and Mechanical Properties of Materials&quot;)</a></li>
+<li class="toc-l3"><a href="#45-engineoperating-window-methods-esd33-summer-2010-systems-engineering">#45 engine:operating-window-methods (esd.33-summer-2010 / &quot;Systems Engineering&quot;)</a></li>
+<li class="toc-l3"><a href="#46-enginepdca-cycle-engine-esd60-summer-2004-leansix-sigma-processes">#46 engine:pdca-cycle-engine (esd.60-summer-2004 / &quot;Lean/Six Sigma Processes&quot;)</a></li>
+<li class="toc-l3"><a href="#47-enginepolicy-iteration-engine-6231-dynamic-programming-and-stochastic-control">#47 engine:policy-iteration-engine (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</a></li>
+<li class="toc-l3"><a href="#48-enginerelativistic-dynamics-engine-8022-physics-ii-electricity-and-magnetism">#48 engine:relativistic-dynamics-engine (8.022 / &quot;Physics II: Electricity and Magnetism&quot;)</a></li>
+<li class="toc-l3"><a href="#49-enginescheme-evaluator-engine-6001-structure-and-interpretation-of-computer-programs">#49 engine:scheme-evaluator-engine (6.001 / &quot;Structure and Interpretation of Computer Programs&quot;)</a></li>
+<li class="toc-l3"><a href="#50-engineseelect-6871-knowledge-based-applications-systems">#50 engine:seelect (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</a></li>
+<li class="toc-l3"><a href="#51-enginesimulink-models-2004-dynamics-and-control-ii">#51 engine:simulink-models (2.004 / &quot;Dynamics and Control II&quot;)</a></li>
+<li class="toc-l3"><a href="#52-enginesolidworks-2007-spring-2009-design-and-manufacturing-i">#52 engine:solidworks (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</a></li>
+<li class="toc-l3"><a href="#53-enginetest-case-reduction-engine-6883-program-analysis">#53 engine:test-case-reduction-engine (6.883 / &quot;Program Analysis&quot;)</a></li>
+<li class="toc-l3"><a href="#54-formulabuckling-formula-1050-fall-2004-solid-mechanics">#54 formula:buckling-formula (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</a></li>
+<li class="toc-l3"><a href="#55-formulaeuler-buckling-formula-1105-fall-2003-solid-mechanics-laboratory">#55 formula:euler-buckling-formula (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</a></li>
+<li class="toc-l3"><a href="#56-formulakinetic-rate-equation-10490-fall-2006-integrated-chemical-engineering-i">#56 formula:kinetic-rate-equation (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</a></li>
+<li class="toc-l3"><a href="#57-formulamoody-diagram-analysis-1060-spring-2006-engineering-mechanics-ii">#57 formula:moody-diagram-analysis (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</a></li>
+<li class="toc-l3"><a href="#58-formulatransfer-functions-2003-modeling-dynamics-and-control-i">#58 formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</a></li>
+<li class="toc-l3"><a href="#59-formulatransistor-gain-formula-16682-prototyping-avionics">#59 formula:transistor-gain-formula (16.682 / &quot;Prototyping Avionics&quot;)</a></li>
+<li class="toc-l3"><a href="#60-algorithmcauchy-goursat-theorem-18112-fall-2008-functions-of-a-complex-variable">#60 algorithm:cauchy-goursat-theorem (18.112-fall-2008 / &quot;Functions of a Complex Variable&quot;)</a></li>
+<li class="toc-l3"><a href="#61-algorithmlouvain-algorithm-esd342-spring-2006-advanced-system-architecture">#61 algorithm:louvain-algorithm (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</a></li>
+<li class="toc-l3"><a href="#62-engineucinet-esd342-spring-2006-advanced-system-architecture">#62 engine:ucinet (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</a></li>
+<li class="toc-l2"><a href="#re-run">Re-run</a></li>
+<li class="toc-l2"><a href="#related">Related</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="course-forge-stubs-auto-emitted-forge-proposal-bundle"><a class="anchor" href="#course-forge-stubs-auto-emitted-forge-proposal-bundle" aria-label="Permalink to COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle">#</a>COURSE-FORGE-STUBS — auto-emitted /forge proposal bundle</h1>
+<p><strong>Generator:</strong> scripts/course-data-router.mjs (<code>--emit forge-stubs</code>) <strong>Generated:</strong> 2026-05-17T15:31:48.697Z <strong>Source:</strong> <code>state/shared/specs/COURSE-DATA-ROUTING-LEDGER.json</code> (69 FORGE-QUEUE items, 65 courses) <strong>Filter:</strong> <code>mfg_relevance &gt;= 0.6</code> → 62 stubs surfaced <strong>Status:</strong> advisory · mustHumanVerify · NOT auto-build</p>
+<blockquote>
+<p>Per <code>state/shared/specs/COURSE-FORGE-PROPOSALS.md</code> (P1-P10 hand-curated) + Lane C policy: every entry below requires operator review + <code>duplicationGuardEngine.mustCheckBeforeCreating()</code></p>
+<ul>
+<li>(for formulas) <code>physics-reviewer</code> agent PASS before <code>/forge-triple</code> invocation.</li>
+</ul>
+</blockquote>
+<h2 id="hard-gates-do-not-bypass"><a class="anchor" href="#hard-gates-do-not-bypass" aria-label="Permalink to Hard gates (do NOT bypass)">#</a>Hard gates (do NOT bypass)</h2>
+<ul>
+<li><code>duplicationGuardEngine.mustCheckBeforeCreating()</code> THROWS on dup at /forge time.</li>
+<li>Formula stubs: physics-reviewer PASS REQUIRED; constants land in <code>src/physics/constants.ts</code> only.</li>
+<li>Tier-1 CAM bridges (Mastercam, hyperMILL, Esprit, Fusion 360, Inventor HSM, SolidWorks) auto-REJECTED.</li>
+<li>Course-derived intent ≠ production-validated. The course is the IDEA source; PRISM convention + JM Die data is the VALIDATION source.</li>
+</ul>
+<hr>
+<h2 id="stubs"><a class="anchor" href="#stubs" aria-label="Permalink to Stubs">#</a>Stubs</h2>
+<h3 id="1-algorithmbatch-reactor-sizing-algorithm-10490-fall-2006-integrated-chemical-engineering-i"><a class="anchor" href="#1-algorithmbatch-reactor-sizing-algorithm-10490-fall-2006-integrated-chemical-engineering-i" aria-label="Permalink to #1 algorithm:batch-reactor-sizing-algorithm (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)">#</a>#1 algorithm:batch-reactor-sizing-algorithm (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, process optimization</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/BatchReactorSizingAlgorithm.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:batch-reactor-sizing-algorithm</code></li>
+</ul>
+<h3 id="2-algorithmbayes-net-inference-966j-computational-cognitive-science"><a class="anchor" href="#2-algorithmbayes-net-inference-966j-computational-cognitive-science" aria-label="Permalink to #2 algorithm:bayes-net-inference (9.66j / &quot;Computational Cognitive Science&quot;)">#</a>#2 algorithm:bayes-net-inference (9.66j / &quot;Computational Cognitive Science&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, control, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/BayesNetInference.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:bayes-net-inference</code></li>
+</ul>
+<h3 id="3-algorithmbayes-nets-6871-knowledge-based-applications-systems"><a class="anchor" href="#3-algorithmbayes-nets-6871-knowledge-based-applications-systems" aria-label="Permalink to #3 algorithm:bayes-nets (6.871 / &quot;Knowledge-Based Applications Systems&quot;)">#</a>#3 algorithm:bayes-nets (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/BayesNets.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:bayes-nets</code></li>
+</ul>
+<h3 id="4-algorithmbernoullis-equation-solver-1060-spring-2006-engineering-mechanics-ii"><a class="anchor" href="#4-algorithmbernoullis-equation-solver-1060-spring-2006-engineering-mechanics-ii" aria-label="Permalink to #4 algorithm:bernoullis-equation-solver (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)">#</a>#4 algorithm:bernoullis-equation-solver (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/BernoullisEquationSolver.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:bernoullis-equation-solver</code></li>
+</ul>
+<h3 id="5-algorithmcahn-hilliard-equation-solver-321-kinetic-processes-in-materials"><a class="anchor" href="#5-algorithmcahn-hilliard-equation-solver-321-kinetic-processes-in-materials" aria-label="Permalink to #5 algorithm:cahn-hilliard-equation-solver (3.21 / &quot;Kinetic Processes in Materials&quot;)">#</a>#5 algorithm:cahn-hilliard-equation-solver (3.21 / &quot;Kinetic Processes in Materials&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, materials, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/CahnHilliardEquationSolver.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:cahn-hilliard-equation-solver</code></li>
+</ul>
+<h3 id="6-algorithmcam-path-optimization-2007-spring-2009-design-and-manufacturing-i"><a class="anchor" href="#6-algorithmcam-path-optimization-2007-spring-2009-design-and-manufacturing-i" aria-label="Permalink to #6 algorithm:cam-path-optimization (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)">#</a>#6 algorithm:cam-path-optimization (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/CamPathOptimization.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> <strong>REJECT</strong> — name matches first-party PRISM stack (no forge)</li>
+<li><strong>action:</strong> <code>REJECT (reclassify TRIBAL-SHIPPED)</code></li>
+</ul>
+<h3 id="7-algorithmdifferential-evolution-15099-fall-2003-readings-in-optimization"><a class="anchor" href="#7-algorithmdifferential-evolution-15099-fall-2003-readings-in-optimization" aria-label="Permalink to #7 algorithm:differential-evolution (15.099-fall-2003 / &quot;Readings in Optimization&quot;)">#</a>#7 algorithm:differential-evolution (15.099-fall-2003 / &quot;Readings in Optimization&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/DifferentialEvolution.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> <strong>REVIEW</strong> — name-similarity hits: DifferentialEvolutionEngine</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:differential-evolution</code></li>
+</ul>
+<h3 id="8-algorithmellipsoid-method-15083j-integer-programming-and-combinatorial-optimization"><a class="anchor" href="#8-algorithmellipsoid-method-15083j-integer-programming-and-combinatorial-optimization" aria-label="Permalink to #8 algorithm:ellipsoid-method (15.083J / &quot;Integer Programming and Combinatorial Optimization&quot;)">#</a>#8 algorithm:ellipsoid-method (15.083J / &quot;Integer Programming and Combinatorial Optimization&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/EllipsoidMethod.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:ellipsoid-method</code></li>
+</ul>
+<h3 id="9-algorithmeuler-method-2003j-fall-2007-dynamics-and-control-i"><a class="anchor" href="#9-algorithmeuler-method-2003j-fall-2007-dynamics-and-control-i" aria-label="Permalink to #9 algorithm:euler-method (2.003j-fall-2007 / &quot;Dynamics and Control I&quot;)">#</a>#9 algorithm:euler-method (2.003j-fall-2007 / &quot;Dynamics and Control I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/EulerMethod.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:euler-method</code></li>
+</ul>
+<h3 id="10-algorithmfinite-difference-method-2086-numerical-computation-for-mechanical-engineers"><a class="anchor" href="#10-algorithmfinite-difference-method-2086-numerical-computation-for-mechanical-engineers" aria-label="Permalink to #10 algorithm:finite-difference-method (2.086 / &quot;Numerical Computation for Mechanical Engineers&quot;)">#</a>#10 algorithm:finite-difference-method (2.086 / &quot;Numerical Computation for Mechanical Engineers&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/FiniteDifferenceMethod.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:finite-difference-method</code></li>
+</ul>
+<h3 id="11-algorithmfinite-element-analysis-1050-fall-2004-solid-mechanics"><a class="anchor" href="#11-algorithmfinite-element-analysis-1050-fall-2004-solid-mechanics" aria-label="Permalink to #11 algorithm:finite-element-analysis (1.050-fall-2004 / &quot;Solid Mechanics&quot;)">#</a>#11 algorithm:finite-element-analysis (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/FiniteElementAnalysis.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:finite-element-analysis</code></li>
+</ul>
+<h3 id="12-algorithmfinite-element-analysis-322-mechanical-behavior-of-materials"><a class="anchor" href="#12-algorithmfinite-element-analysis-322-mechanical-behavior-of-materials" aria-label="Permalink to #12 algorithm:finite-element-analysis (3.22 / &quot;Mechanical Behavior of Materials&quot;)">#</a>#12 algorithm:finite-element-analysis (3.22 / &quot;Mechanical Behavior of Materials&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/FiniteElementAnalysis.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:finite-element-analysis</code></li>
+</ul>
+<h3 id="13-algorithmfinite-element-method-1105-fall-2003-solid-mechanics-laboratory"><a class="anchor" href="#13-algorithmfinite-element-method-1105-fall-2003-solid-mechanics-laboratory" aria-label="Permalink to #13 algorithm:finite-element-method (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)">#</a>#13 algorithm:finite-element-method (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/FiniteElementMethod.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:finite-element-method</code></li>
+</ul>
+<h3 id="14-algorithmgradient-descent-1802-spring-2006-multivariable-calculus"><a class="anchor" href="#14-algorithmgradient-descent-1802-spring-2006-multivariable-calculus" aria-label="Permalink to #14 algorithm:gradient-descent (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)">#</a>#14 algorithm:gradient-descent (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/GradientDescent.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:gradient-descent</code></li>
+</ul>
+<h3 id="15-algorithmlagranges-equations-1607-dynamics"><a class="anchor" href="#15-algorithmlagranges-equations-1607-dynamics" aria-label="Permalink to #15 algorithm:lagranges-equations (16.07 / &quot;Dynamics&quot;)">#</a>#15 algorithm:lagranges-equations (16.07 / &quot;Dynamics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/LagrangesEquations.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:lagranges-equations</code></li>
+</ul>
+<h3 id="16-algorithmlagranges-equations-2032-dynamics"><a class="anchor" href="#16-algorithmlagranges-equations-2032-dynamics" aria-label="Permalink to #16 algorithm:lagranges-equations (2.032 / &quot;Dynamics&quot;)">#</a>#16 algorithm:lagranges-equations (2.032 / &quot;Dynamics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/LagrangesEquations.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:lagranges-equations</code></li>
+</ul>
+<h3 id="17-algorithmlesat-algorithm-16852j-fall-2005-integrating-the-lean-enterprise"><a class="anchor" href="#17-algorithmlesat-algorithm-16852j-fall-2005-integrating-the-lean-enterprise" aria-label="Permalink to #17 algorithm:lesat-algorithm (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)">#</a>#17 algorithm:lesat-algorithm (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/LesatAlgorithm.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:lesat-algorithm</code></li>
+</ul>
+<h3 id="18-algorithmmultigrid-method-18086-mathematical-methods-for-engineers-ii"><a class="anchor" href="#18-algorithmmultigrid-method-18086-mathematical-methods-for-engineers-ii" aria-label="Permalink to #18 algorithm:multigrid-method (18.086 / &quot;Mathematical Methods for Engineers II&quot;)">#</a>#18 algorithm:multigrid-method (18.086 / &quot;Mathematical Methods for Engineers II&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/MultigridMethod.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:multigrid-method</code></li>
+</ul>
+<h3 id="19-algorithmmutation-testing-6883-program-analysis"><a class="anchor" href="#19-algorithmmutation-testing-6883-program-analysis" aria-label="Permalink to #19 algorithm:mutation-testing (6.883 / &quot;Program Analysis&quot;)">#</a>#19 algorithm:mutation-testing (6.883 / &quot;Program Analysis&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/MutationTesting.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:mutation-testing</code></li>
+</ul>
+<h3 id="20-algorithmnewmarks-algorithm-16225-computational-mechanics-of-materials"><a class="anchor" href="#20-algorithmnewmarks-algorithm-16225-computational-mechanics-of-materials" aria-label="Permalink to #20 algorithm:newmarks-algorithm (16.225 / &quot;Computational Mechanics of Materials&quot;)">#</a>#20 algorithm:newmarks-algorithm (16.225 / &quot;Computational Mechanics of Materials&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> thermal, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/NewmarksAlgorithm.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:newmarks-algorithm</code></li>
+</ul>
+<h3 id="21-algorithmnumerical-integration-3016-mathematics-for-materials-scientists-and-engineers"><a class="anchor" href="#21-algorithmnumerical-integration-3016-mathematics-for-materials-scientists-and-engineers" aria-label="Permalink to #21 algorithm:numerical-integration (3.016 / &quot;Mathematics for Materials Scientists and Engineers&quot;)">#</a>#21 algorithm:numerical-integration (3.016 / &quot;Mathematics for Materials Scientists and Engineers&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/NumericalIntegration.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> <strong>REVIEW</strong> — name-similarity hits: NumericalIntegrationEngine</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:numerical-integration</code></li>
+</ul>
+<h3 id="22-algorithmoperator-splitting-1034-numerical-methods-applied-to-chemical-engineering"><a class="anchor" href="#22-algorithmoperator-splitting-1034-numerical-methods-applied-to-chemical-engineering" aria-label="Permalink to #22 algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)">#</a>#22 algorithm:operator-splitting (10.34 / &quot;Numerical Methods Applied to Chemical Engineering&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/OperatorSplitting.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:operator-splitting</code></li>
+</ul>
+<h3 id="23-algorithmoperator-splitting-resources-resources"><a class="anchor" href="#23-algorithmoperator-splitting-resources-resources" aria-label="Permalink to #23 algorithm:operator-splitting (resources / &quot;resources&quot;)">#</a>#23 algorithm:operator-splitting (resources / &quot;resources&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/OperatorSplitting.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:operator-splitting</code></li>
+</ul>
+<h3 id="24-algorithmpendulum-cart-modeling-2003-modeling-dynamics-and-control-i"><a class="anchor" href="#24-algorithmpendulum-cart-modeling-2003-modeling-dynamics-and-control-i" aria-label="Permalink to #24 algorithm:pendulum-cart-modeling (2.003 / &quot;Modeling Dynamics and Control I&quot;)">#</a>#24 algorithm:pendulum-cart-modeling (2.003 / &quot;Modeling Dynamics and Control I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> control, thermal, vibration</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/PendulumCartModeling.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:pendulum-cart-modeling</code></li>
+</ul>
+<h3 id="25-algorithmpid-tuning-2004-dynamics-and-control-ii"><a class="anchor" href="#25-algorithmpid-tuning-2004-dynamics-and-control-ii" aria-label="Permalink to #25 algorithm:pid-tuning (2.004 / &quot;Dynamics and Control II&quot;)">#</a>#25 algorithm:pid-tuning (2.004 / &quot;Dynamics and Control II&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> control, cam</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/PidTuning.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:pid-tuning</code></li>
+</ul>
+<h3 id="26-algorithmpughchartselection-ecs06-fall-2005-prototypes-to-products"><a class="anchor" href="#26-algorithmpughchartselection-ecs06-fall-2005-prototypes-to-products" aria-label="Permalink to #26 algorithm:pughchartselection (ec.s06-fall-2005 / &quot;Prototypes to Products&quot;)">#</a>#26 algorithm:pugh_chart_selection (ec.s06-fall-2005 / &quot;Prototypes to Products&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/PughChartSelection.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:pugh_chart_selection</code></li>
+</ul>
+<h3 id="27-algorithmresponse-surface-modeling-2830j-spring-2008-control-of-manufacturing-processes-sma-6303"><a class="anchor" href="#27-algorithmresponse-surface-modeling-2830j-spring-2008-control-of-manufacturing-processes-sma-6303" aria-label="Permalink to #27 algorithm:response-surface-modeling (2.830j-spring-2008 / &quot;Control of Manufacturing Processes (SMA 6303)&quot;)">#</a>#27 algorithm:response-surface-modeling (2.830j-spring-2008 / &quot;Control of Manufacturing Processes (SMA 6303)&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/ResponseSurfaceModeling.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:response-surface-modeling</code></li>
+</ul>
+<h3 id="28-algorithmsingular-value-decomposition-12864-inference-from-data-and-models"><a class="anchor" href="#28-algorithmsingular-value-decomposition-12864-inference-from-data-and-models" aria-label="Permalink to #28 algorithm:singular-value-decomposition (12.864 / &quot;Inference from Data and Models&quot;)">#</a>#28 algorithm:singular-value-decomposition (12.864 / &quot;Inference from Data and Models&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/SingularValueDecomposition.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:singular-value-decomposition</code></li>
+</ul>
+<h3 id="29-algorithmtaylorseriesexpansion-18098-street-fighting-mathematics"><a class="anchor" href="#29-algorithmtaylorseriesexpansion-18098-street-fighting-mathematics" aria-label="Permalink to #29 algorithm:taylorseriesexpansion (18.098 / &quot;Street-Fighting Mathematics&quot;)">#</a>#29 algorithm:taylor_series_expansion (18.098 / &quot;Street-Fighting Mathematics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/TaylorSeriesExpansion.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:taylor_series_expansion</code></li>
+</ul>
+<h3 id="30-algorithmtransition-equations-solver-2854-fall-2016-introduction-to-manufacturing-systems"><a class="anchor" href="#30-algorithmtransition-equations-solver-2854-fall-2016-introduction-to-manufacturing-systems" aria-label="Permalink to #30 algorithm:transition-equations-solver (2.854-fall-2016 / &quot;Introduction to Manufacturing Systems&quot;)">#</a>#30 algorithm:transition-equations-solver (2.854-fall-2016 / &quot;Introduction to Manufacturing Systems&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/TransitionEquationsSolver.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:transition-equations-solver</code></li>
+</ul>
+<h3 id="31-algorithmvalue-iteration-6231-dynamic-programming-and-stochastic-control"><a class="anchor" href="#31-algorithmvalue-iteration-6231-dynamic-programming-and-stochastic-control" aria-label="Permalink to #31 algorithm:value-iteration (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)">#</a>#31 algorithm:value-iteration (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/ValueIteration.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:value-iteration</code></li>
+</ul>
+<h3 id="32-algorithmwave-propagation-simulation-algorithm-360-symmetry-structure-and-tensor-properties-of-materials"><a class="anchor" href="#32-algorithmwave-propagation-simulation-algorithm-360-symmetry-structure-and-tensor-properties-of-materials" aria-label="Permalink to #32 algorithm:wave-propagation-simulation-algorithm (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)">#</a>#32 algorithm:wave-propagation-simulation-algorithm (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> materials, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/WavePropagationSimulationAlgorithm.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:wave-propagation-simulation-algorithm</code></li>
+</ul>
+<h3 id="33-enginearchitectural-engine-esd34-system-architecture"><a class="anchor" href="#33-enginearchitectural-engine-esd34-system-architecture" aria-label="Permalink to #33 engine:architectural-engine (ESD.34 / &quot;System Architecture&quot;)">#</a>#33 engine:architectural-engine (ESD.34 / &quot;System Architecture&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, metrology, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/ArchitecturalEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:architectural-engine</code></li>
+</ul>
+<h3 id="34-enginecilk-runtime-system-6189-multicore-programming-primer"><a class="anchor" href="#34-enginecilk-runtime-system-6189-multicore-programming-primer" aria-label="Permalink to #34 engine:cilk-runtime-system (6.189 / &quot;Multicore Programming Primer&quot;)">#</a>#34 engine:cilk-runtime-system (6.189 / &quot;Multicore Programming Primer&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/CilkRuntimeSystemEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:cilk-runtime-system</code></li>
+</ul>
+<h3 id="35-engineconstraint-based-optimizer-966j-computational-cognitive-science"><a class="anchor" href="#35-engineconstraint-based-optimizer-966j-computational-cognitive-science" aria-label="Permalink to #35 engine:constraint-based-optimizer (9.66j / &quot;Computational Cognitive Science&quot;)">#</a>#35 engine:constraint-based-optimizer (9.66j / &quot;Computational Cognitive Science&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, control, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/ConstraintBasedOptimizerEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:constraint-based-optimizer</code></li>
+</ul>
+<h3 id="36-enginedigital-logic-engine-16682-prototyping-avionics"><a class="anchor" href="#36-enginedigital-logic-engine-16682-prototyping-avionics" aria-label="Permalink to #36 engine:digital-logic-engine (16.682 / &quot;Prototyping Avionics&quot;)">#</a>#36 engine:digital-logic-engine (16.682 / &quot;Prototyping Avionics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> control, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/DigitalLogicEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:digital-logic-engine</code></li>
+</ul>
+<h3 id="37-enginedynamic-system-simulation-engine-2141-modeling-and-simulation-of-dynamic-systems"><a class="anchor" href="#37-enginedynamic-system-simulation-engine-2141-modeling-and-simulation-of-dynamic-systems" aria-label="Permalink to #37 engine:dynamic-system-simulation-engine (2.141 / &quot;Modeling and Simulation of Dynamic Systems&quot;)">#</a>#37 engine:dynamic-system-simulation-engine (2.141 / &quot;Modeling and Simulation of Dynamic Systems&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/DynamicSystemSimulationEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:dynamic-system-simulation-engine</code></li>
+</ul>
+<h3 id="38-engineeconomic-model-engine-10490-fall-2006-integrated-chemical-engineering-i"><a class="anchor" href="#38-engineeconomic-model-engine-10490-fall-2006-integrated-chemical-engineering-i" aria-label="Permalink to #38 engine:economic-model-engine (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)">#</a>#38 engine:economic-model-engine (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, process optimization</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/EconomicModelEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:economic-model-engine</code></li>
+</ul>
+<h3 id="39-enginefinite-element-analysis-fea-1802-spring-2006-multivariable-calculus"><a class="anchor" href="#39-enginefinite-element-analysis-fea-1802-spring-2006-multivariable-calculus" aria-label="Permalink to #39 engine:finite-element-analysis-fea (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)">#</a>#39 engine:finite-element-analysis-fea (18.02-spring-2006 / &quot;Multivariable Calculus&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/FiniteElementAnalysisFeaEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:finite-element-analysis-fea</code></li>
+</ul>
+<h3 id="40-engineinertial-guidance-system-1607-dynamics"><a class="anchor" href="#40-engineinertial-guidance-system-1607-dynamics" aria-label="Permalink to #40 engine:inertial-guidance-system (16.07 / &quot;Dynamics&quot;)">#</a>#40 engine:inertial-guidance-system (16.07 / &quot;Dynamics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/InertialGuidanceSystemEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:inertial-guidance-system</code></li>
+</ul>
+<h3 id="41-enginelean-enterprise-engine-16852j-fall-2005-integrating-the-lean-enterprise"><a class="anchor" href="#41-enginelean-enterprise-engine-16852j-fall-2005-integrating-the-lean-enterprise" aria-label="Permalink to #41 engine:lean-enterprise-engine (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)">#</a>#41 engine:lean-enterprise-engine (16.852j-fall-2005 / &quot;Integrating the Lean Enterprise&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/LeanEnterpriseEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:lean-enterprise-engine</code></li>
+</ul>
+<h3 id="42-enginelean-manufacturing-engine-16885j-fall-2004-aircraft-systems-engineering"><a class="anchor" href="#42-enginelean-manufacturing-engine-16885j-fall-2004-aircraft-systems-engineering" aria-label="Permalink to #42 engine:lean-manufacturing-engine (16.885j-fall-2004 / &quot;Aircraft Systems Engineering&quot;)">#</a>#42 engine:lean-manufacturing-engine (16.885j-fall-2004 / &quot;Aircraft Systems Engineering&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/LeanManufacturingEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:lean-manufacturing-engine</code></li>
+</ul>
+<h3 id="43-enginematerial-property-prediction-engine-360-symmetry-structure-and-tensor-properties-of-materials"><a class="anchor" href="#43-enginematerial-property-prediction-engine-360-symmetry-structure-and-tensor-properties-of-materials" aria-label="Permalink to #43 engine:material-property-prediction-engine (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)">#</a>#43 engine:material-property-prediction-engine (3.60 / &quot;Symmetry, Structure, and Tensor Properties of Materials&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> materials, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/MaterialPropertyPredictionEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:material-property-prediction-engine</code></li>
+</ul>
+<h3 id="44-enginematerial-property-prediction-engine-3225-fall-2007-electronic-and-mechanical-properties-of-materials"><a class="anchor" href="#44-enginematerial-property-prediction-engine-3225-fall-2007-electronic-and-mechanical-properties-of-materials" aria-label="Permalink to #44 engine:material-property-prediction-engine (3.225-fall-2007 / &quot;Electronic and Mechanical Properties of Materials&quot;)">#</a>#44 engine:material-property-prediction-engine (3.225-fall-2007 / &quot;Electronic and Mechanical Properties of Materials&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> materials, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/MaterialPropertyPredictionEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:material-property-prediction-engine</code></li>
+</ul>
+<h3 id="45-engineoperating-window-methods-esd33-summer-2010-systems-engineering"><a class="anchor" href="#45-engineoperating-window-methods-esd33-summer-2010-systems-engineering" aria-label="Permalink to #45 engine:operating-window-methods (esd.33-summer-2010 / &quot;Systems Engineering&quot;)">#</a>#45 engine:operating-window-methods (esd.33-summer-2010 / &quot;Systems Engineering&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/OperatingWindowMethodsEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:operating-window-methods</code></li>
+</ul>
+<h3 id="46-enginepdca-cycle-engine-esd60-summer-2004-leansix-sigma-processes"><a class="anchor" href="#46-enginepdca-cycle-engine-esd60-summer-2004-leansix-sigma-processes" aria-label="Permalink to #46 engine:pdca-cycle-engine (esd.60-summer-2004 / &quot;Lean/Six Sigma Processes&quot;)">#</a>#46 engine:pdca-cycle-engine (esd.60-summer-2004 / &quot;Lean/Six Sigma Processes&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> scheduling, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/PdcaCycleEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:pdca-cycle-engine</code></li>
+</ul>
+<h3 id="47-enginepolicy-iteration-engine-6231-dynamic-programming-and-stochastic-control"><a class="anchor" href="#47-enginepolicy-iteration-engine-6231-dynamic-programming-and-stochastic-control" aria-label="Permalink to #47 engine:policy-iteration-engine (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)">#</a>#47 engine:policy-iteration-engine (6.231 / &quot;Dynamic Programming and Stochastic Control&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, control</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/PolicyIterationEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:policy-iteration-engine</code></li>
+</ul>
+<h3 id="48-enginerelativistic-dynamics-engine-8022-physics-ii-electricity-and-magnetism"><a class="anchor" href="#48-enginerelativistic-dynamics-engine-8022-physics-ii-electricity-and-magnetism" aria-label="Permalink to #48 engine:relativistic-dynamics-engine (8.022 / &quot;Physics II: Electricity and Magnetism&quot;)">#</a>#48 engine:relativistic-dynamics-engine (8.022 / &quot;Physics II: Electricity and Magnetism&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> thermal, cam</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/RelativisticDynamicsEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:relativistic-dynamics-engine</code></li>
+</ul>
+<h3 id="49-enginescheme-evaluator-engine-6001-structure-and-interpretation-of-computer-programs"><a class="anchor" href="#49-enginescheme-evaluator-engine-6001-structure-and-interpretation-of-computer-programs" aria-label="Permalink to #49 engine:scheme-evaluator-engine (6.001 / &quot;Structure and Interpretation of Computer Programs&quot;)">#</a>#49 engine:scheme-evaluator-engine (6.001 / &quot;Structure and Interpretation of Computer Programs&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, process optimization</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/SchemeEvaluatorEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:scheme-evaluator-engine</code></li>
+</ul>
+<h3 id="50-engineseelect-6871-knowledge-based-applications-systems"><a class="anchor" href="#50-engineseelect-6871-knowledge-based-applications-systems" aria-label="Permalink to #50 engine:seelect (6.871 / &quot;Knowledge-Based Applications Systems&quot;)">#</a>#50 engine:seelect (6.871 / &quot;Knowledge-Based Applications Systems&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/SeelectEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:seelect</code></li>
+</ul>
+<h3 id="51-enginesimulink-models-2004-dynamics-and-control-ii"><a class="anchor" href="#51-enginesimulink-models-2004-dynamics-and-control-ii" aria-label="Permalink to #51 engine:simulink-models (2.004 / &quot;Dynamics and Control II&quot;)">#</a>#51 engine:simulink-models (2.004 / &quot;Dynamics and Control II&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> control, cam</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/SimulinkModelsEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:simulink-models</code></li>
+</ul>
+<h3 id="52-enginesolidworks-2007-spring-2009-design-and-manufacturing-i"><a class="anchor" href="#52-enginesolidworks-2007-spring-2009-design-and-manufacturing-i" aria-label="Permalink to #52 engine:solidworks (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)">#</a>#52 engine:solidworks (2.007-spring-2009 / &quot;Design and Manufacturing I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/SolidworksEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> <strong>REJECT</strong> — name matches first-party PRISM stack (no forge)</li>
+<li><strong>action:</strong> <code>REJECT (reclassify TRIBAL-SHIPPED)</code></li>
+</ul>
+<h3 id="53-enginetest-case-reduction-engine-6883-program-analysis"><a class="anchor" href="#53-enginetest-case-reduction-engine-6883-program-analysis" aria-label="Permalink to #53 engine:test-case-reduction-engine (6.883 / &quot;Program Analysis&quot;)">#</a>#53 engine:test-case-reduction-engine (6.883 / &quot;Program Analysis&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, scheduling, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/TestCaseReductionEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:test-case-reduction-engine</code></li>
+</ul>
+<h3 id="54-formulabuckling-formula-1050-fall-2004-solid-mechanics"><a class="anchor" href="#54-formulabuckling-formula-1050-fall-2004-solid-mechanics" aria-label="Permalink to #54 formula:buckling-formula (1.050-fall-2004 / &quot;Solid Mechanics&quot;)">#</a>#54 formula:buckling-formula (1.050-fall-2004 / &quot;Solid Mechanics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li>
+<li><strong>physics_gate:</strong> required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple formula:buckling-formula</code></li>
+</ul>
+<h3 id="55-formulaeuler-buckling-formula-1105-fall-2003-solid-mechanics-laboratory"><a class="anchor" href="#55-formulaeuler-buckling-formula-1105-fall-2003-solid-mechanics-laboratory" aria-label="Permalink to #55 formula:euler-buckling-formula (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)">#</a>#55 formula:euler-buckling-formula (1.105-fall-2003 / &quot;Solid Mechanics Laboratory&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li>
+<li><strong>physics_gate:</strong> required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple formula:euler-buckling-formula</code></li>
+</ul>
+<h3 id="56-formulakinetic-rate-equation-10490-fall-2006-integrated-chemical-engineering-i"><a class="anchor" href="#56-formulakinetic-rate-equation-10490-fall-2006-integrated-chemical-engineering-i" aria-label="Permalink to #56 formula:kinetic-rate-equation (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)">#</a>#56 formula:kinetic-rate-equation (10.490-fall-2006 / &quot;Integrated Chemical Engineering I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cad, cam, process optimization</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li>
+<li><strong>physics_gate:</strong> required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple formula:kinetic-rate-equation</code></li>
+</ul>
+<h3 id="57-formulamoody-diagram-analysis-1060-spring-2006-engineering-mechanics-ii"><a class="anchor" href="#57-formulamoody-diagram-analysis-1060-spring-2006-engineering-mechanics-ii" aria-label="Permalink to #57 formula:moody-diagram-analysis (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)">#</a>#57 formula:moody-diagram-analysis (1.060-spring-2006 / &quot;Engineering Mechanics II&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li>
+<li><strong>physics_gate:</strong> required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple formula:moody-diagram-analysis</code></li>
+</ul>
+<h3 id="58-formulatransfer-functions-2003-modeling-dynamics-and-control-i"><a class="anchor" href="#58-formulatransfer-functions-2003-modeling-dynamics-and-control-i" aria-label="Permalink to #58 formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)">#</a>#58 formula:transfer-functions (2.003 / &quot;Modeling Dynamics and Control I&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> control, thermal, vibration</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li>
+<li><strong>physics_gate:</strong> required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple formula:transfer-functions</code></li>
+</ul>
+<h3 id="59-formulatransistor-gain-formula-16682-prototyping-avionics"><a class="anchor" href="#59-formulatransistor-gain-formula-16682-prototyping-avionics" aria-label="Permalink to #59 formula:transistor-gain-formula (16.682 / &quot;Prototyping Avionics&quot;)">#</a>#59 formula:transistor-gain-formula (16.682 / &quot;Prototyping Avionics&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.80</li>
+<li><strong>domains:</strong> control, thermal</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/physics/constants.ts + prism_calc:&lt;action&gt;</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; (constants ALWAYS in physics/constants.ts)</code></li>
+<li><strong>physics_gate:</strong> required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple formula:transistor-gain-formula</code></li>
+</ul>
+<h3 id="60-algorithmcauchy-goursat-theorem-18112-fall-2008-functions-of-a-complex-variable"><a class="anchor" href="#60-algorithmcauchy-goursat-theorem-18112-fall-2008-functions-of-a-complex-variable" aria-label="Permalink to #60 algorithm:cauchy-goursat-theorem (18.112-fall-2008 / &quot;Functions of a Complex Variable&quot;)">#</a>#60 algorithm:cauchy-goursat-theorem (18.112-fall-2008 / &quot;Functions of a Complex Variable&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.70</li>
+<li><strong>domains:</strong> cam, metrology</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/CauchyGoursatTheorem.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:cauchy-goursat-theorem</code></li>
+</ul>
+<h3 id="61-algorithmlouvain-algorithm-esd342-spring-2006-advanced-system-architecture"><a class="anchor" href="#61-algorithmlouvain-algorithm-esd342-spring-2006-advanced-system-architecture" aria-label="Permalink to #61 algorithm:louvain-algorithm (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)">#</a>#61 algorithm:louvain-algorithm (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.60</li>
+<li><strong>domains:</strong> cam, metrology, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/algorithms/LouvainAlgorithm.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>prism_calc:&lt;action&gt; OR prism_intelligence:&lt;action&gt;</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple algorithm:louvain-algorithm</code></li>
+</ul>
+<h3 id="62-engineucinet-esd342-spring-2006-advanced-system-architecture"><a class="anchor" href="#62-engineucinet-esd342-spring-2006-advanced-system-architecture" aria-label="Permalink to #62 engine:ucinet (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)">#</a>#62 engine:ucinet (esd.342-spring-2006 / &quot;Advanced System Architecture&quot;)</h3>
+<ul>
+<li><strong>mfg_relevance:</strong> 0.60</li>
+<li><strong>domains:</strong> cam, metrology, scheduling</li>
+<li><strong>proposed_path:</strong> <code>mcp-server/src/engines/UcinetEngine.ts</code></li>
+<li><strong>dispatcher_action:</strong> <code>(operator-select existing dispatcher)</code></li>
+<li><strong>physics_gate:</strong> not required</li>
+<li><strong>dedup_preflight:</strong> CLEAR (no name-match in algorithms/ or engines/)</li>
+<li><strong>action:</strong> <code>/forge-triple engine:ucinet</code></li>
+</ul>
+<hr>
+<h2 id="re-run"><a class="anchor" href="#re-run" aria-label="Permalink to Re-run">#</a>Re-run</h2>
+<pre><code class="language-bash">node scripts/course-data-router.mjs --emit forge-stubs --min-relevance 0.6
+node scripts/course-data-router.mjs --emit forge-stubs --min-relevance 0.8  # top tier only
+</code></pre>
+<h2 id="related"><a class="anchor" href="#related" aria-label="Permalink to Related">#</a>Related</h2>
+<ul>
+<li><code>state/shared/specs/COURSE-FORGE-PROPOSALS.md</code> — hand-curated P1-P10 (companion doc)</li>
+<li><code>state/shared/specs/COURSE-DATA-ROUTING-LEDGER.{json,md}</code> — full inventory</li>
+<li><code>state/shared/specs/COURSE-DATA-ROUTING-PIPELINE.md</code> — 3-lane policy doctrine</li>
+<li><code>mcp-server/src/engines/DuplicationGuardEngine.ts</code> — pre-create gate (THROWS on dup)</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="COURSE-FORGE-STUBS.md">COURSE-FORGE-STUBS.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
 </footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
 </body>
 </html>

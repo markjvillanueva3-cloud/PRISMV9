@@ -367,6 +367,27 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     remaining: z.number().min(0),
   }).passthrough(),
 
+  // TOKEN-AWARENESS-MS0 / U-TA06 — TokenAwarenessEngine MCP facade.
+  // All 5 actions accept the same shape: optional slot OR sessionId. Slot wins
+  // when both present (explicit).
+  token_awareness_state: z.object({
+    slot: z.string().optional().describe("Slot name (alpha..mike, golf). When omitted, sessionId is resolved via chat-slots.json."),
+    sessionId: z.string().optional().describe("Claude session id. Falls through to slot='unknown' if not in chat-slots.json."),
+  }).passthrough(),
+  token_awareness_zone: z.object({
+    slot: z.string().optional().describe("Slot name."),
+    sessionId: z.string().optional().describe("Claude session id."),
+  }).passthrough(),
+  token_awareness_should_compact: z.object({
+    slot: z.string().optional().describe("Slot name."),
+    sessionId: z.string().optional().describe("Claude session id."),
+  }).passthrough(),
+  token_awareness_recommend: z.object({
+    slot: z.string().optional().describe("Slot name."),
+    sessionId: z.string().optional().describe("Claude session id."),
+  }).passthrough(),
+  token_awareness_history: z.object({}).passthrough().optional().describe("Fleet view — no params; returns one row per slot with a fresh sidecar."),
+
   // Context intelligence
   attention_score: z.object({
     content: z.string(),
@@ -431,6 +452,18 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodTypeAny> = {
     messageRetentionMs: z.number().optional(),
     claimTtlMs: z.number().optional(),
     presenceTtlMs: z.number().optional(),
+  }).optional(),
+
+  // HERMES-MASTER-ORCHESTRATOR: targeted orchestrator→slot brief WRITE side.
+  // READ/deliver side = slot-brief-inject.mjs hook. Symmetric to chat_post (broadcast).
+  slot_brief_write: z.object({
+    slot: z.string().min(1).describe("target NATO slot (alpha..zulu) — validated alpha-only"),
+    body: z.string().min(1).describe("markdown work-order body injected into the slot's next prompt"),
+    from: z.string().optional().describe("attribution — who issued the brief (e.g. zulu, hermes-app, slot:bravo)"),
+  }),
+  slot_brief_list: z.object({
+    slot: z.string().optional().describe("filter delivered archives by slot"),
+    limit: z.number().optional().describe("max delivered archives to return (default 50)"),
   }).optional(),
 
   // HOOK-SYNERGY-MS0/U-HOOK-COORD-SQLITE (H8): SQLite WAL backend for work claims.

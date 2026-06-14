@@ -1,0 +1,148 @@
+{
+  "id": "hurco-vm30i",
+  "machine_id": "VMC-01",
+  "manufacturer": "Hurco",
+  "model": "VM30i",
+  "version": "1.0.0",
+  "created_at": "2026-06-03T00:00:00Z",
+  "updated_at": "2026-06-03T00:00:00Z",
+
+  "cover_info": {
+    "manufacturer": "Hurco",
+    "model_family": "VM (i-series)",
+    "models_covered": ["VM30i"],
+    "language": "en",
+    "source": {
+      "handbook_title": "Hurco VM30i published specifications (Hurco spec sheet) + WinMAX control reference",
+      "extraction_method": "web_scrape",
+      "confidence": 0.72,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "spindle_specs": {
+    "max_rpm": 10000,
+    "min_rpm": 0,
+    "power_continuous_kw": 15,
+    "torque_max_nm": 99,
+    "taper_type": "CT40",
+    "drive_type": "belt",
+    "warmup_procedure": "Run WinMAX spindle warm-up cycle after extended idle before high-rpm cutting.",
+    "source": {
+      "handbook_title": "Hurco VM30i spindle specification (CAT40, 10000 rpm base spindle, 20 hp / 15 kW, 98.8 Nm peak) per Hurco machine data sheet. A 12000 rpm Plus/BIG-PLUS variant exists — verify JM VMC-01 spindle tag.",
+      "extraction_method": "web_scrape",
+      "confidence": 0.8,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "axis_kinematics": {
+    "axes": [
+      { "name": "X", "travel_mm": 1270, "rapid_mm_min": 27990, "max_feed_mm_min": 27990, "repeatability_um": 5, "accuracy_um": 10 },
+      { "name": "Y", "travel_mm": 508, "rapid_mm_min": 27990, "max_feed_mm_min": 27990, "repeatability_um": 5, "accuracy_um": 10 },
+      { "name": "Z", "travel_mm": 508, "rapid_mm_min": 27990, "max_feed_mm_min": 27990, "repeatability_um": 5, "accuracy_um": 10 }
+    ],
+    "simultaneous_axes": 3,
+    "work_envelope_mm": { "x": 1270, "y": 508, "z": 508 },
+    "source": {
+      "handbook_title": "Hurco VM30i travel specification (50 x 20 x 20 in = 1270 x 508 x 508 mm; 1102 ipm rapids) per Hurco machine data sheet.",
+      "extraction_method": "web_scrape",
+      "confidence": 0.8,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "controller_features": {
+    "controller_manufacturer": "Hurco",
+    "controller_model": "WinMAX v10",
+    "custom_g_codes": [
+      { "code": "G43", "description": "Tool length compensation (positive).", "syntax": "G43 H[offset] Z[pos]", "example": "G43 H1 Z25." },
+      { "code": "G54", "description": "Work coordinate system 1 (G54-G59 standard offsets).", "syntax": "G54", "example": "G54" },
+      { "code": "G81", "description": "Drilling canned cycle.", "syntax": "G81 Z[depth] R[ref] F[feed]", "example": "G81 Z-10. R2. F150" },
+      { "code": "G83", "description": "Peck drilling canned cycle (full retract).", "syntax": "G83 Z[depth] R[ref] Q[peck] F[feed]", "example": "G83 Z-30. R2. Q4. F150" },
+      { "code": "G84", "description": "Rigid tapping canned cycle.", "syntax": "G84 Z[depth] R[ref] F[feed]", "example": "G84 Z-15. R3. F1.5" }
+    ],
+    "custom_m_codes": [
+      { "code": "M03", "description": "Spindle CW.", "modal": true },
+      { "code": "M04", "description": "Spindle CCW.", "modal": true },
+      { "code": "M05", "description": "Spindle stop.", "modal": true },
+      { "code": "M06", "description": "Tool change (ATC).", "modal": false },
+      { "code": "M08", "description": "Flood coolant ON.", "modal": true },
+      { "code": "M09", "description": "Coolant OFF.", "modal": true },
+      { "code": "M30", "description": "Program end and reset.", "modal": false }
+    ],
+    "macro_support": {
+      "type": "WinMAX conversational + ISNC (ISO G-code) dual-mode",
+      "supports_goto": true
+    },
+    "probing_cycles": [
+      { "cycle_code": "G31", "description": "Skip / probe touch (with probing option).", "parameters": ["X", "Y", "Z", "F"] }
+    ],
+    "conversational_mode": true,
+    "high_speed_machining": true,
+    "source": {
+      "handbook_title": "Hurco WinMAX v10 control reference — dual conversational + NC (ISNC) programming, UltiMotion option",
+      "extraction_method": "web_scrape",
+      "confidence": 0.7,
+      "extracted_at": "2026-06-03T00:00:00Z"
+    }
+  },
+
+  "alarm_codes": [],
+  "parts_book": [],
+
+  "maintenance_schedule": [
+    {
+      "task_id": "VM30i-MAINT-001",
+      "task": "Check way-lube and coolant levels",
+      "interval": "daily",
+      "category": "lubrication",
+      "procedure_steps": ["Check way-lube reservoir level", "Top up coolant tank", "Verify lube pump cycles on power-up"],
+      "parts_needed": [],
+      "safety_warnings": ["Use Hurco-approved way lubricant"],
+      "estimated_time_min": 8,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Hurco VM30i generic preventive-maintenance checklist (parts intentionally omitted — no public OEM PN)", "extraction_method": "web_scrape", "confidence": 0.66, "extracted_at": "2026-06-03T00:00:00Z" }
+    }
+  ],
+
+  "programming_tips": [
+    {
+      "topic": "WinMAX Dual-Mode: Conversational vs NC/ISNC",
+      "controller_dialect": "WinMAX v10",
+      "code_example": "(NC mode runs standard ISO G-code)\nG90 G54\nG00 X0. Y0.\nG43 H1 Z25.\n(Conversational data blocks coexist in the same part program)",
+      "description": "WinMAX runs both Hurco conversational data blocks and standard ISO NC (ISNC) in the same part. CAM-posted G-code is run in NC mode; operators add conversational features (e.g. drill patterns, transform/repeat) for quick edits at the machine. UltiMotion (when enabled) improves contour following and reduces cycle time on 3D paths.",
+      "gotchas": ["Verify the posted program targets ISNC (ISO), not a foreign dialect", "UltiMotion smoothing changes the effective path tolerance — validate finish passes"],
+      "related_alarms": [],
+      "applicable_operations": ["nc_programming", "conversational", "contour_milling"],
+      "source": { "handbook_title": "Hurco WinMAX programming reference — dual conversational/NC", "extraction_method": "web_scrape", "confidence": 0.68, "extracted_at": "2026-06-03T00:00:00Z" }
+    }
+  ],
+
+  "safety_limits": [
+    { "parameter": "Maximum spindle speed", "max_value": 10000, "unit": "RPM", "consequence_of_violation": "Spindle overspeed fault", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Hurco VM30i spindle specification", "extraction_method": "web_scrape", "confidence": 0.7, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "X-axis travel", "max_value": 1270, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Hurco VM30i travel specification", "extraction_method": "web_scrape", "confidence": 0.8, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Y-axis travel", "max_value": 508, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Hurco VM30i travel specification", "extraction_method": "web_scrape", "confidence": 0.68, "extracted_at": "2026-06-03T00:00:00Z" } },
+    { "parameter": "Z-axis travel", "max_value": 508, "unit": "mm", "consequence_of_violation": "Over-travel alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Hurco VM30i travel specification", "extraction_method": "web_scrape", "confidence": 0.68, "extracted_at": "2026-06-03T00:00:00Z" } }
+  ],
+
+  "coolant_specs": {
+    "coolant_types": [
+      { "type": "Water-soluble semi-synthetic", "concentration_pct_min": 6, "concentration_pct_max": 9 }
+    ],
+    "through_spindle": false,
+    "mql_capable": false,
+    "chip_conveyor_type": "Flood wash to chip pan (conveyor optional)",
+    "source": { "handbook_title": "Hurco VM30i coolant system specification", "extraction_method": "web_scrape", "confidence": 0.64, "extracted_at": "2026-06-03T00:00:00Z" }
+  },
+
+  "tooling_constraints": {
+    "max_tool_diameter_mm": 80,
+    "max_tool_length_mm": 250,
+    "max_tool_weight_kg": 7,
+    "magazine_capacity": 24,
+    "taper_type": "CT40",
+    "gauge_line_mm": 50.8,
+    "source": { "handbook_title": "Hurco VM30i tooling / ATC specification (CAT40, 24-tool magazine; max tool 80 mm dia / 250 mm length / 7 kg) per Hurco machine data sheet", "extraction_method": "web_scrape", "confidence": 0.8, "extracted_at": "2026-06-03T00:00:00Z" }
+  }
+}

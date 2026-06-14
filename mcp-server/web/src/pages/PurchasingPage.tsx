@@ -47,7 +47,7 @@ function humanizeSummaryKey(key: string) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
-function formatSummaryValue(value: unknown) {
+function formatSummaryValue(value: unknown): string {
   if (value == null) {
     return 'Unavailable';
   }
@@ -61,7 +61,7 @@ function formatSummaryValue(value: unknown) {
   }
 
   if (Array.isArray(value)) {
-    return value.map((entry) => formatSummaryValue(entry)).join(', ');
+    return value.map((entry: unknown) => formatSummaryValue(entry)).join(', ');
   }
 
   return JSON.stringify(value);

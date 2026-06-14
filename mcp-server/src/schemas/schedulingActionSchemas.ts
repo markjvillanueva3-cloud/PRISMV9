@@ -102,6 +102,23 @@ const resource_balance = z.object({
 }).passthrough();
 
 // ============================================================================
+// queue_lead_time — Kingman VUT honest lead-time (invention E7)
+// ============================================================================
+
+const queueWorkstation = z.object({
+  id: z.string().describe("Workstation id"),
+  effectiveProcessTime_min: z.number().describe("Effective process time te (minutes)"),
+  arrivalCV: z.number().describe("Coefficient of variation of inter-arrival times Ca (>= 0)"),
+  serviceCV: z.number().describe("Coefficient of variation of process time Cs (>= 0)"),
+  utilization: z.number().describe("Utilization rho in (0,1); >= 1 means over capacity"),
+}).passthrough();
+
+const queue_lead_time = z.object({
+  workstations: z.array(queueWorkstation).describe("Workstations on the job's routing"),
+  jobRouting: z.array(z.string()).describe("Ordered workstation ids the job visits"),
+}).passthrough();
+
+// ============================================================================
 // EXPORTED SCHEMA MAP
 // ============================================================================
 
@@ -112,6 +129,7 @@ export const ACTION_SCHEDULING_SCHEMAS: ActionSchemaMap = {
   priority_queue,
   bottleneck_find,
   lead_time_estimate,
+  queue_lead_time,
   due_date_track,
   resource_balance,
 };

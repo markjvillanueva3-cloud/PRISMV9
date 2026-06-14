@@ -27,6 +27,11 @@ async function getEngine(name: string): Promise<any> {
 const ACTIONS = [
   "ctc_analyze", "ctc_optimal_gain", "ctc_autocorrelation",
   "spc_ewma", "spc_cusum", "doe_analyze",
+  // WIRE-PROCESS-DIRECT-MS0/U-VICTOR-PROCESS-DIRECT (slot:victor, 2026-05-26):
+  // close 2 unwired engines from the fresh audit. DOETaguchEngine (distinct
+  // from the existing DOEAnalysisEngine — Taguchi method vs factorial) +
+  // CUSUMEngine streaming wrapper (one-shot full-stream analysis).
+  "doe_taguchi_compute", "cusum_stream_analyze",
 ] as const;
 
 /** Registers process control dispatcher.
@@ -119,6 +124,28 @@ Params vary by action — pass relevant fields in params object.`,
             }
             break;
           }
+          // ─── WIRE-PROCESS-DIRECT-MS0/U-VICTOR-PROCESS-DIRECT (2026-05-26) ───
+          case "doe_taguchi_compute": {
+            const { doeTaguchEngine } = await import("../../engines/DOETaguchEngine.js");
+            result = doeTaguchEngine.compute(params as any);
+            break;
+          }
+          case "cusum_stream_analyze": {
+            const { CUSUMEngine } = await import("../../engines/CUSUMEngine.js");
+            const p = params as any;
+            const values: number[] = Array.isArray(p?.values) ? p.values : (Array.isArray(p?.data) ? p.data : []);
+            const config = p?.config ?? { target: 0, k: 0.5, h: 5, sigma: 1 };
+            if (!values.length) {
+              result = { error: "cusum_stream_analyze requires `values` or `data` (non-empty number array)" };
+              break;
+            }
+            const engine = new CUSUMEngine(config);
+            const trace = values.map((v: number) => engine.step(v));
+            const alarmCount = trace.filter((p: any) => p?.alarm === true).length;
+            result = { config, n: values.length, trace, alarm_count: alarmCount, final: trace[trace.length - 1] };
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

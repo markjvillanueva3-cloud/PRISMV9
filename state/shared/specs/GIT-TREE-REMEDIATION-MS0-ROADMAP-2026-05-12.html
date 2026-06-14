@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="f61ee6d9fa278df7bdfbd66e634c9b207f280497d8d4b3c06875f8e3765f5720">
+<title>GIT-TREE-REMEDIATION-MS0 — Roadmap</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">GIT-TREE-REMEDIATION-MS0 — Roadmap</h1>
+<p class="provenance">Generated 2026-05-12T18:55:24.802Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#git-tree-remediation-ms0-roadmap">GIT-TREE-REMEDIATION-MS0 — Roadmap</a></li>
+<li class="toc-l2"><a href="#meta">META</a></li>
+<li class="toc-l3"><a href="#decision-gates-blocking-the-roadmap-cannot-proceed-past-these-without-the-user">Decision gates (BLOCKING — the roadmap cannot proceed past these without the user)</a></li>
+<li class="toc-l2"><a href="#dependency-dag">DEPENDENCY DAG</a></li>
+<li class="toc-l2"><a href="#phase-0-zero-risk-no-history-rewrite-do-now-no-fleet-quiesce">PHASE 0 — Zero-risk, no history rewrite (do now; no fleet quiesce)</a></li>
+<li class="toc-l3"><a href="#u-gc-03-add-the-gitignore-block-for-generated-artifacts">U-GC-03 — Add the .gitignore block for generated artifacts</a></li>
+<li class="toc-l3"><a href="#u-gc-04-git-rm-cached-the-now-ignored-tracked-artifacts">U-GC-04 — git rm --cached the now-ignored tracked artifacts</a></li>
+<li class="toc-l3"><a href="#u-gc-05-git-reflog-expire-expirenow-all-git-gc-prunenow">U-GC-05 — git reflog expire --expire=now --all &amp;&amp; git gc --prune=now</a></li>
+<li class="toc-l3"><a href="#u-gc-06b-part-of-p0-listed-here-executes-in-p0-remove-the-brave-euclid-stray-worktree-delete-the-14-worktree-agent-cruft-branches">U-GC-06b (part of P0 — listed here, executes in P0) — Remove the brave-euclid stray worktree + delete the 14 worktree-agent-* cruft branches</a></li>
+<li class="toc-l2"><a href="#phase-1-process-fixes-so-it-doesnt-re-bifurcate-low-risk-after-p0-beforeindependent-of-p2">PHASE 1 — Process fixes so it doesn&#39;t re-bifurcate (low risk; after P0; before/independent of P2)</a></li>
+<li class="toc-l3"><a href="#u-gc-05cfg-executes-in-p1-git-config-worktreebaseref-head">U-GC-05cfg (executes in P1) — git config worktree.baseRef head</a></li>
+<li class="toc-l3"><a href="#u-gc-06-new-trunk-guardmjs-sessionstart-hook">U-GC-06 — New trunk-guard.mjs SessionStart hook</a></li>
+<li class="toc-l3"><a href="#u-gc-07-worktree-commit-routemjs-main-bypasses-only-worktree-routing-never-trunk-routing">U-GC-07 — worktree-commit-route.mjs: [MAIN] bypasses only worktree-routing, never trunk-routing</a></li>
+<li class="toc-l3"><a href="#u-gc-08-reconcile-stale-doctrine-point-sync-rebase-at-the-canonical-trunk">U-GC-08 — Reconcile stale doctrine + point /sync-rebase at the canonical trunk</a></li>
+<li class="toc-l2"><a href="#phase-4-pre-dirty-worktree-sweep-hard-prerequisite-for-p2">PHASE 4-pre — Dirty-worktree sweep (HARD prerequisite for P2)</a></li>
+<li class="toc-l3"><a href="#u-gc-14-sweep-all-40-worktrees-for-uncommitted-wip-resolve-before-p2s-reset-hard">U-GC-14 — Sweep all 40 worktrees for uncommitted WIP; resolve before P2&#39;s reset --hard</a></li>
+<li class="toc-l2"><a href="#phase-2-unblock-the-push-shrink-git-quiesce-window-force-push-irreversible">PHASE 2 — Unblock the push + shrink .git (QUIESCE WINDOW; force-push; irreversible)</a></li>
+<li class="toc-l3"><a href="#u-gc-09-history-rewrite-strip-generated-blobs-filter-repo-on-a-fresh-mirror">U-GC-09 — History rewrite: strip generated blobs (filter-repo on a fresh mirror)</a></li>
+<li class="toc-l3"><a href="#u-gc-10-force-push-the-rewritten-history-re-sync-every-worktree">U-GC-10 — Force-push the rewritten history; re-sync every worktree</a></li>
+<li class="toc-l2"><a href="#phase-3-trunk-reconciliation-tier-2-on-a-staging-branch-only-if-mains-unique-work-must-be-preserved">PHASE 3 — Trunk reconciliation (tier-2; on a staging branch; only if main&#39;s unique work must be preserved)</a></li>
+<li class="toc-l3"><a href="#u-gc-11-characterize-mains-874-unique-commits">U-GC-11 — Characterize main&#39;s 874 unique commits</a></li>
+<li class="toc-l3"><a href="#u-gc-12-reconcile-mains-unique-work-onto-cad-f-via-the-staging-branch-or-declare-cad-f-strictly-canonical">U-GC-12 — Reconcile main&#39;s unique work onto cad-f via the staging branch (OR declare cad-f strictly canonical)</a></li>
+<li class="toc-l3"><a href="#u-gc-13-promote-the-canonical-trunk-to-main-retire-the-old-trunks">U-GC-13 — Promote the canonical trunk to main; retire the old trunks</a></li>
+<li class="toc-l2"><a href="#phase-4-worktree-branch-cleanup-tier-3-after-shas-stable-ie-after-u-gc-13">PHASE 4 — Worktree / branch cleanup (tier-3; after SHAs stable, i.e. after U-GC-13)</a></li>
+<li class="toc-l3"><a href="#u-gc-15-retire-the-broken-workxproc-neural-worktree">U-GC-15 — Retire the broken work/xproc-neural worktree</a></li>
+<li class="toc-l3"><a href="#u-gc-16-retire-the-stale-merged-worktreesbranches">U-GC-16 — Retire the stale-merged worktrees/branches</a></li>
+<li class="toc-l3"><a href="#u-gc-17-triage-the-24-stale-unmerged-work-branch-forks">U-GC-17 — Triage the ~24 stale-unmerged work-branch forks</a></li>
+<li class="toc-l3"><a href="#u-gc-18-retire-worktree-u-fus-api0102">U-GC-18 — Retire worktree-u-fus-api01/02</a></li>
+<li class="toc-l3"><a href="#u-gc-19-clean-the-claude-auto-branches-originarchive-2026-02-01-originworktree-data-loss-fix">U-GC-19 — Clean the claude/* auto-branches + origin/archive-2026-02-01 + origin/worktree-data-loss-fix</a></li>
+<li class="toc-l3"><a href="#u-gc-20-decide-on-archiveforge-orphans-2026-05-01-the-309-gb-whisper-model">U-GC-20 — Decide on archive/forge-orphans-2026-05-01 (the 3.09 GB whisper model)</a></li>
+<li class="toc-l2"><a href="#phase-5-verify-document-tier-3-after-everything">PHASE 5 — Verify &amp; document (tier-3; after everything)</a></li>
+<li class="toc-l3"><a href="#u-gc-21-post-cleanup-verification-suite">U-GC-21 — Post-cleanup verification suite</a></li>
+<li class="toc-l3"><a href="#u-gc-22-document-the-new-topology-update-memory-claudemd">U-GC-22 — Document the new topology + update memory + CLAUDE.md</a></li>
+<li class="toc-l2"><a href="#failure-mode-register-surfaced-not-pruned">FAILURE-MODE REGISTER (surfaced, not pruned)</a></li>
+<li class="toc-l2"><a href="#rollback-plan">ROLLBACK PLAN</a></li>
+<li class="toc-l2"><a href="#sequencing-recommendation">SEQUENCING RECOMMENDATION</a></li>
+<li class="toc-l2"><a href="#open-decisions-blocking-start">OPEN DECISIONS BLOCKING START</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="git-tree-remediation-ms0-roadmap"><a class="anchor" href="#git-tree-remediation-ms0-roadmap" aria-label="Permalink to GIT-TREE-REMEDIATION-MS0 — Roadmap">#</a>GIT-TREE-REMEDIATION-MS0 — Roadmap</h1>
+<blockquote>
+<p><strong>Generated:</strong> 2026-05-12 · <strong>Generator:</strong> <code>/rgs6</code> pipeline, domain-adapted (git-infra/ops, not engine-build — &quot;wiring&quot; = settings.json hook registration + git config; &quot;tests&quot; = verification commands: <code>git fsck</code> / <code>git count-objects -vH</code> / <code>git push --dry-run</code> / <code>git merge-base --is-ancestor</code> assertions). · <strong>Scope tag:</strong> <code>[GIT-CLEANUP]</code> · <strong>Status:</strong> PLANNING — no git mutations performed during generation. <strong>Source audit:</strong> 4-agent parallel forensic pass 2026-05-12 (forensics / worktree-branch inventory / repo-bloat / PRISM git-tooling recon). Prior artifact: <code>state/shared/GIT-TOPOLOGY-AUDIT-2026-05-11.md</code> (commit <code>2d0859a31</code>, side branch). <strong>Not registered in <code>mcp-server/data/roadmap-index.json</code></strong> — this is single-operator serial ops + decision gates, not 6-chat parallelizable engine work. RGS discipline applied (atomic-first, dependency-ordered, every unit has acceptance criteria, tier floors, no orphan units); the engine-centric S2.5/S2.6 fan-out (ai-priority-rank, atomic-roadmap-emit, per-domain subagent scrutiny) is N/A for this domain and was skipped deliberately.</p>
+</blockquote>
+<hr>
+<h2 id="meta"><a class="anchor" href="#meta" aria-label="Permalink to META">#</a>META</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Milestone</td><td><code>GIT-TREE-REMEDIATION-MS0</code></td></tr>
+<tr><td>Tier</td><td><strong>2</strong> (dev-tools / system-knowledge — git infra; per AI-PRIORITY LAW this is priority-class 2 &quot;development tools&quot; — it accelerates <em>every</em> future milestone by making the repo pushable, small, and bifurcation-resistant)</td></tr>
+<tr><td>Total units</td><td>23 (<code>U-GC-00</code> … <code>U-GC-22</code>) — 3 decision gates, 5 phases</td></tr>
+<tr><td>Parallelizable</td><td>Mostly NO. P0 units are independent; everything from P2 on is serial + needs a fleet-quiesce window.</td></tr>
+<tr><td>Leverage rationale</td><td>Today: <code>cad-fusion-live-ms0</code> cannot push (113 MB blob); <code>.git</code> is 42.4 GB; the repo silently re-bifurcates every time a chat creates a worktree. Realized after MS0: pushable trunk, <code>.git</code> &lt; 2 GB, one canonical trunk, harness-created worktrees inherit it, <code>[MAIN]</code> can&#39;t mask trunk drift. Every chat, every session, every commit benefits. Leverage score: <strong>9/10</strong>.</td></tr>
+<tr><td>Quiesce windows needed</td><td>1 (for P2 — the history rewrite + force-push; ~30–60 min with all 8 chats frozen).</td></tr>
+<tr><td>Rollback posture</td><td>P0/P1 are commits (revertable). P2 force-push is the irreversible point — full mirror backup of <code>.git</code> taken at <code>U-GC-09</code>. P3 reconciliation done on a staging branch first.</td></tr>
+</tbody>
+</table></div>
+<h3 id="decision-gates-blocking-the-roadmap-cannot-proceed-past-these-without-the-user"><a class="anchor" href="#decision-gates-blocking-the-roadmap-cannot-proceed-past-these-without-the-user" aria-label="Permalink to Decision gates (BLOCKING — the roadmap cannot proceed past these without the user)">#</a>Decision gates (BLOCKING — the roadmap cannot proceed past these without the user)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>ID</th><th>Decision</th><th>Default recommendation</th><th>Blocks</th></tr></thead>
+<tbody>
+<tr><td><code>U-GC-00</code></td><td><strong>Which trunk is canonical?</strong></td><td><code>cad-fusion-live-ms0</code> (1211 vs 874 commits, live vs frozen-5-days, checked out everywhere; all 4 audit agents concur)</td><td><code>U-GC-06</code>, <code>U-GC-07</code>, <code>U-GC-12</code>, <code>U-GC-13</code></td></tr>
+<tr><td><code>U-GC-01</code></td><td><strong><code>archive/forge-orphans-2026-05-01</code> (3.09 GB whisper model + ~9881 orphaned files): keep as cold storage, or delete (−3.3 GB)?</strong></td><td>Keep the branch; rely on <code>gc --prune=now</code> to reclaim the <em>loose</em> garbage without touching it (the 3 GB stays packed on that branch only, doesn&#39;t bloat <code>main</code>/<code>cad-f</code> checkouts). Re-evaluate after <code>U-GC-04</code>.</td><td><code>U-GC-20</code></td></tr>
+<tr><td><code>U-GC-02</code></td><td><strong>History rewrite + force-push to unblock <code>cad-f</code>&#39;s push: do it, or accept <code>cad-f</code> never pushes (H:-drive copy stays the source of truth — roughly the current reality)?</strong></td><td>Do it — a pushable trunk is worth one quiesce window.</td><td><code>U-GC-09</code>, <code>U-GC-10</code></td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="dependency-dag"><a class="anchor" href="#dependency-dag" aria-label="Permalink to DEPENDENCY DAG">#</a>DEPENDENCY DAG</h2>
+<pre><code>U-GC-00 (trunk?) ─┬─→ U-GC-06 ─→ U-GC-07 ─→ U-GC-08
+                  └─→ U-GC-12 ─→ U-GC-13
+U-GC-01 (archive?) ─→ U-GC-20
+U-GC-02 (rewrite?) ─→ U-GC-09 ─→ U-GC-10 ─→ (P4 reset --hard ops)
+
+P0  U-GC-03  U-GC-04  U-GC-05            (independent; tier-0; do now, no quiesce)
+P1  U-GC-06 ← U-GC-00 ; U-GC-07 ← U-GC-06 ; U-GC-08 ← U-GC-07   (tier-0/1; low risk)
+P4-pre  U-GC-14 (sweep dirty worktrees)  ──gates──→  P2
+P2  U-GC-09 ← {U-GC-02, U-GC-14, U-GC-03, U-GC-04} ; U-GC-10 ← U-GC-09   (tier-1; QUIESCE)
+P3  U-GC-11 ← U-GC-10 ; U-GC-12 ← {U-GC-11, U-GC-00} ; U-GC-13 ← U-GC-12  (tier-2; staging-branch)
+P4  U-GC-15..U-GC-20 ← U-GC-13 (SHAs stable)        (tier-3; cleanup)
+P5  U-GC-21 ← all ; U-GC-22 ← U-GC-21               (tier-3; verify+doc)
+</code></pre>
+<p>Tier-floor invariant: <strong>P0 must complete before P2</strong> (the <code>.gitignore</code> + <code>rm --cached</code> must land so the rewrite has a clean target); <strong><code>U-GC-14</code> (dirty-worktree sweep) is a HARD prerequisite for <code>U-GC-09</code></strong> (the force-push makes every worktree <code>reset --hard</code>, which destroys uncommitted WIP — there&#39;s ~17 k+ uncommitted lines across the 40 worktrees today).</p>
+<hr>
+<h2 id="phase-0-zero-risk-no-history-rewrite-do-now-no-fleet-quiesce"><a class="anchor" href="#phase-0-zero-risk-no-history-rewrite-do-now-no-fleet-quiesce" aria-label="Permalink to PHASE 0 — Zero-risk, no history rewrite (do now; no fleet quiesce)">#</a>PHASE 0 — Zero-risk, no history rewrite (do now; no fleet quiesce)</h2>
+<h3 id="u-gc-03-add-the-gitignore-block-for-generated-artifacts"><a class="anchor" href="#u-gc-03-add-the-gitignore-block-for-generated-artifacts" aria-label="Permalink to U-GC-03 — Add the .gitignore block for generated artifacts">#</a><code>U-GC-03</code> — Add the <code>.gitignore</code> block for generated artifacts</h3>
+<ul>
+<li><strong>Type:</strong> config / commit (<code>[MAIN] [GIT-CLEANUP]/U-GC-03</code>)</li>
+<li><strong>Why:</strong> stops the bleeding — <code>system-graph.json</code> and friends never get committed again. Prerequisite for a clean rewrite target in P2.</li>
+<li><strong>What:</strong> append to root <code>.gitignore</code>: <code>state/shared/system-viz/system-graph.json</code>, <code>state/shared/system-viz/graph.cypher</code>, <code>state/shared/system-viz/obsidian-augmentation.json</code>, <code>state/shared/system-viz/*-augmentation.json</code>, <code>state/shared/system-viz/data-catalogs-atomic-augmentation.json</code>, <code>**/.serena/cache/</code>, <code>mcp-server/.serena/</code>, <code>c/tmp/</code>, <code>mcp-server/tmp/</code>, <code>mcp-server/dev/null</code>, <code>models/*.bin</code>, <code>state/shared/tribal-embed-index.json</code>, <code>mcp-server/data/state/CAM_TRIBAL_RAG_INDEX.json</code>, <code>Docustrata/.index/*.json</code> (keep the <code>.py</code> scripts). Verify nothing legitimately-needed matches <code>models/*.bin</code> first.</li>
+<li><strong>Depends on:</strong> nothing. <strong>Blocks:</strong> <code>U-GC-04</code>, <code>U-GC-09</code>.</li>
+<li><strong>Acceptance:</strong> <code>git check-ignore state/shared/system-viz/system-graph.json</code> → matched; <code>git status --porcelain | grep system-graph</code> → empty after <code>U-GC-04</code>; <code>node --check</code> (n/a, no code).</li>
+<li><strong>Risk:</strong> none (additive). <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> any chat / direct.</li>
+</ul>
+<h3 id="u-gc-04-git-rm-cached-the-now-ignored-tracked-artifacts"><a class="anchor" href="#u-gc-04-git-rm-cached-the-now-ignored-tracked-artifacts" aria-label="Permalink to U-GC-04 — git rm --cached the now-ignored tracked artifacts">#</a><code>U-GC-04</code> — <code>git rm --cached</code> the now-ignored tracked artifacts</h3>
+<ul>
+<li><strong>Type:</strong> git-op / commit</li>
+<li><strong>Why:</strong> removes the 118.76 MB <code>system-graph.json</code> blob (+ <code>graph.cypher</code>, the augmentation JSONs, <code>mcp-server/dev/null</code>) from the <em>next</em> tree, so future commits don&#39;t carry it — partial relief ahead of the full history strip in P2.</li>
+<li><strong>What:</strong> <code>git rm --cached state/shared/system-viz/system-graph.json state/shared/system-viz/graph.cypher state/shared/system-viz/obsidian-augmentation.json state/shared/system-viz/*-augmentation.json mcp-server/dev/null</code> (+ any others from <code>U-GC-03</code>&#39;s list that are currently tracked: <code>git ls-files | grep -E &#39;&lt;patterns&gt;&#39;</code>). Commit.</li>
+<li><strong>Depends on:</strong> <code>U-GC-03</code>. <strong>Blocks:</strong> <code>U-GC-09</code> (cleaner pre-rewrite state).</li>
+<li><strong>Acceptance:</strong> <code>git ls-files | grep -c system-graph.json</code> → 0; <code>git cat-file -s $(git rev-parse HEAD:state/shared/system-viz/system-graph.json 2&gt;/dev/null)</code> → errors (path gone from HEAD tree); <code>/system-viz</code> still runs (regenerates the file as ignored).</li>
+<li><strong>Risk:</strong> LOW — confirm <code>scripts/system-viz-query.mjs</code> and the <code>/system-viz</code> server tolerate <code>system-graph.json</code> being absent on a fresh checkout (it regenerates it). <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-05-git-reflog-expire-expirenow-all-git-gc-prunenow"><a class="anchor" href="#u-gc-05-git-reflog-expire-expirenow-all-git-gc-prunenow" aria-label="Permalink to U-GC-05 — git reflog expire --expire=now --all &amp;&amp; git gc --prune=now">#</a><code>U-GC-05</code> — <code>git reflog expire --expire=now --all &amp;&amp; git gc --prune=now</code></h3>
+<ul>
+<li><strong>Type:</strong> git-op (no commit — repo-local maintenance)</li>
+<li><strong>Why:</strong> reclaims the bulk of the 41.5 GiB loose-object garbage (16 511 prune-packable objects, dead <code>system-graph.json</code> versions, orphaned <code>.serena</code> caches, <code>audit.jsonl</code> history-but-untracked). Expected <code>.git</code>: ~42 GB → ~3–5 GB. Does NOT rewrite any branch.</li>
+<li><strong>What:</strong> <code>git reflog expire --expire=now --all</code> then <code>git gc --prune=now</code> (NOT <code>--aggressive</code> first time — too slow; can do <code>--aggressive</code> later in P5).</li>
+<li><strong>Depends on:</strong> <code>U-GC-14</code> (sweep dirty/abandoned worktrees first — <code>gc --prune=now</code> drops objects only reachable from dead-worktree reflogs; if a worktree has uncommitted WIP that&#39;s never been committed, it&#39;s NOT in any reflog and survives, but a worktree that was <code>reset --hard</code>&#39;d loses its old reflog → those objects go. So: sweep first.). <strong>Soft-blocks on <code>U-GC-14</code></strong> but can run before P2 independently.</li>
+<li><strong>Acceptance:</strong> <code>git count-objects -vH</code> → <code>size</code> &lt; 5 GiB, <code>count</code> (loose) &lt; 50 k; <code>git fsck --full</code> → no errors; all worktrees still <code>git status</code> cleanly.</li>
+<li><strong>Risk:</strong> LOW — only drops unreachable objects; irreversible but only affects garbage. <strong>Quiesce:</strong> brief (no chat should be mid-<code>git gc</code>); ideally announce. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-06b-part-of-p0-listed-here-executes-in-p0-remove-the-brave-euclid-stray-worktree-delete-the-14-worktree-agent-cruft-branches"><a class="anchor" href="#u-gc-06b-part-of-p0-listed-here-executes-in-p0-remove-the-brave-euclid-stray-worktree-delete-the-14-worktree-agent-cruft-branches" aria-label="Permalink to U-GC-06b (part of P0 — listed here, executes in P0) — Remove the brave-euclid stray worktree + delete the 14 worktree-agent-* cruft branches">#</a><code>U-GC-06b</code> <em>(part of P0 — listed here, executes in P0)</em> — Remove the <code>brave-euclid</code> stray worktree + delete the 14 <code>worktree-agent-*</code> cruft branches</h3>
+<ul>
+<li><strong>Type:</strong> git-op (no commit)</li>
+<li><strong>Why:</strong> <code>H:/PRISM/.claude/worktrees/brave-euclid</code> has a <code>.git</code> file pointing at <code>C:/PRISM/.git/...</code> (wrong drive) — not a worktree of this repo, pure orphan. The 14 <code>worktree-agent-*</code> branches are all ancestors of <code>main</code>, have no worktree dirs, are auto-generated cruft.</li>
+<li><strong>What:</strong> <code>rm -rf H:/PRISM/.claude/worktrees/brave-euclid</code> (or <code>git worktree remove --force</code> if git knows about it — it doesn&#39;t, so <code>rm</code>); <code>git worktree prune</code>; for each <code>worktree-agent-*</code>: <code>git merge-base --is-ancestor &lt;b&gt; main &amp;&amp; git branch -D &lt;b&gt;</code>.</li>
+<li><strong>Depends on:</strong> nothing. <strong>Blocks:</strong> nothing.</li>
+<li><strong>Acceptance:</strong> <code>git worktree list | grep -c brave-euclid</code> → 0; <code>git branch | grep -c worktree-agent</code> → 0; <code>git fsck</code> clean.</li>
+<li><strong>Risk:</strong> LOW (the agent branches are merged-into-main; per &quot;never delete only disable&quot; these are auto-cruft not user assets, but get the user&#39;s nod). <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> direct. <em>(Renumbered note: this is unit &quot;U-GC-04b&quot; in execution order; kept here for grouping. Use id <code>U-GC-04</code> for the rm-cached commit and a sibling <code>U-GC-04b</code> for branch cruft, OR merge into one P0 housekeeping commit — operator&#39;s choice.)</em></li>
+</ul>
+<hr>
+<h2 id="phase-1-process-fixes-so-it-doesnt-re-bifurcate-low-risk-after-p0-beforeindependent-of-p2"><a class="anchor" href="#phase-1-process-fixes-so-it-doesnt-re-bifurcate-low-risk-after-p0-beforeindependent-of-p2" aria-label="Permalink to PHASE 1 — Process fixes so it doesn&#39;t re-bifurcate (low risk; after P0; before/independent of P2)">#</a>PHASE 1 — Process fixes so it doesn&#39;t re-bifurcate (low risk; after P0; before/independent of P2)</h2>
+<h3 id="u-gc-05cfg-executes-in-p1-git-config-worktreebaseref-head"><a class="anchor" href="#u-gc-05cfg-executes-in-p1-git-config-worktreebaseref-head" aria-label="Permalink to U-GC-05cfg (executes in P1) — git config worktree.baseRef head">#</a><code>U-GC-05cfg</code> <em>(executes in P1)</em> — <code>git config worktree.baseRef head</code></h3>
+<ul>
+<li><strong>Type:</strong> config (git config, not a commit — <code>.git/config</code> is repo-local)</li>
+<li><strong>Why:</strong> <code>worktree.baseRef</code> is currently <strong>unset</strong> → the harness <code>EnterWorktree</code> default is <code>fresh</code> = &quot;branch from <code>origin/&lt;default-branch&gt;</code>&quot; = <code>origin/main</code>. So every harness-created worktree forks off <code>main</code> while the live repo is <code>cad-fusion-live-ms0</code> — a direct, mechanical bifurcation vector. Setting <code>head</code> makes new worktrees inherit whatever&#39;s checked out.</li>
+<li><strong>What:</strong> <code>git config worktree.baseRef head</code> (or, post-<code>U-GC-13</code> when <code>cad-f</code>→<code>main</code>, this becomes moot but harmless).</li>
+<li><strong>Depends on:</strong> nothing (independent of <code>U-GC-00</code>). <strong>Blocks:</strong> nothing.</li>
+<li><strong>Acceptance:</strong> <code>git config --get worktree.baseRef</code> → <code>head</code>; spot-check: <code>EnterWorktree</code> (or <code>git worktree add ../tmp-test</code>) creates a branch whose merge-base is the current HEAD, not <code>origin/main</code>; then remove the test worktree.</li>
+<li><strong>Risk:</strong> none. <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> direct. <em>(Use id <code>U-GC-05</code> for the gc, <code>U-GC-05cfg</code>→renumber as the operator likes; suggested final numbering: P0 = U-GC-03 gitignore, U-GC-04 rm-cached, U-GC-04b branch-cruft, U-GC-05 gc; P1 = U-GC-06 baseRef-config, U-GC-07 trunk-guard, U-GC-08 worktree-route-fix, U-GC-09… wait — keep the canonical numbering from the DAG above. The DAG numbering is authoritative; this section&#39;s sub-ids are illustrative.)</em></li>
+</ul>
+<h3 id="u-gc-06-new-trunk-guardmjs-sessionstart-hook"><a class="anchor" href="#u-gc-06-new-trunk-guardmjs-sessionstart-hook" aria-label="Permalink to U-GC-06 — New trunk-guard.mjs SessionStart hook">#</a><code>U-GC-06</code> — New <code>trunk-guard.mjs</code> SessionStart hook</h3>
+<ul>
+<li><strong>Type:</strong> hook-create + wiring (commit <code>[MAIN] [GIT-CLEANUP]/U-GC-06</code>)</li>
+<li><strong>Why:</strong> nothing today detects &quot;you&#39;re on a branch that doesn&#39;t descend from the canonical trunk.&quot; This hook asserts it at session start and warns loudly; later (after a grace period) it can refuse new <code>work/*</code> branch creation off the wrong base. Single highest-leverage process fix per the audit.</li>
+<li><strong>What:</strong> <code>.claude/hooks/trunk-guard.mjs</code>: read <code>CANONICAL_TRUNK</code> (env <code>PRISM_CANONICAL_TRUNK</code>, default = the <code>U-GC-00</code> decision); <code>git merge-base --is-ancestor &lt;CANONICAL&gt; HEAD</code> → if false, emit <code>additionalContext</code> warning (&quot;HEAD does not descend from &lt;CANONICAL&gt; — you may be on a bifurcated branch; see GIT-TOPOLOGY.md&quot;). Wire into <code>.claude/hooks/bundles/sessionstart-bundle.mjs</code> SUB_HOOKS (timeout 2000). Fail-open.</li>
+<li><strong>Depends on:</strong> <code>U-GC-00</code>. <strong>Blocks:</strong> <code>U-GC-07</code>.</li>
+<li><strong>Acceptance:</strong> <code>node --check .claude/hooks/trunk-guard.mjs</code>; <code>echo &#39;{}&#39; | node trunk-guard.mjs</code> → exit 0; on a <code>work/*</code> branch off the canonical trunk → emits nothing; on <code>master</code> (not an ancestor of either) → emits the warning; <code>node .claude/scripts/verify-hook-refs.mjs --quiet</code> → clean; <code>stop_on_hook_unregistration.mjs</code> allows (bundle-absorbed name auto-recognized via <code>bundleAbsorbedHookNames()</code>).</li>
+<li><strong>Risk:</strong> LOW (warn-only initially). <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-07-worktree-commit-routemjs-main-bypasses-only-worktree-routing-never-trunk-routing"><a class="anchor" href="#u-gc-07-worktree-commit-routemjs-main-bypasses-only-worktree-routing-never-trunk-routing" aria-label="Permalink to U-GC-07 — worktree-commit-route.mjs: [MAIN] bypasses only worktree-routing, never trunk-routing">#</a><code>U-GC-07</code> — <code>worktree-commit-route.mjs</code>: <code>[MAIN]</code> bypasses only worktree-routing, never trunk-routing</h3>
+<ul>
+<li><strong>Type:</strong> hook-edit (commit)</li>
+<li><strong>Why:</strong> <code>[MAIN]</code>/<code>[MAIN-FORCE]</code> is the bypass everyone uses to dump cross-scope work onto <code>cad-fusion-live-ms0</code>. A commit on a branch that doesn&#39;t descend from the canonical trunk must be blocked regardless of prefix.</li>
+<li><strong>What:</strong> add a trunk-ancestry check (<code>git merge-base --is-ancestor &lt;CANONICAL&gt; HEAD</code>) that runs <em>before</em> the <code>[MAIN]</code>/<code>CROSS_CUTTING_SCOPES</code>/<code>[MAIN-FORCE]</code> bypasses; if HEAD isn&#39;t on the canonical trunk and isn&#39;t an active <code>work/&lt;scope&gt;</code> matching the commit, deny with &quot;switch to the canonical trunk or a matching worktree&quot;. Ship as <strong>warn-first</strong> for a grace period (env <code>PRISM_TRUNK_GUARD_MODE=warn|block</code>, default <code>warn</code> for ~1 week then <code>block</code>) so live chats aren&#39;t broken mid-task.</li>
+<li><strong>Depends on:</strong> <code>U-GC-06</code> (shares the <code>CANONICAL_TRUNK</code> constant). <strong>Blocks:</strong> <code>U-GC-08</code>.</li>
+<li><strong>Acceptance:</strong> <code>node --check</code>; test: on canonical trunk, <code>[MAIN] X: y</code> → allowed; on a wrong-trunk branch, <code>[MAIN] X: y</code> → warn (mode=warn) / deny (mode=block); on <code>work/lathe-master</code> committing <code>[LATHE-PRO] …</code> → still allowed (existing routing preserved); <code>verify-hook-refs --quiet</code> clean.</li>
+<li><strong>Risk:</strong> MEDIUM — could block live chats; mitigated by warn-first + the existing 3-strike auto-pass escape hatch. <strong>Quiesce:</strong> no, but announce on <code>AGENT_CHAT.md</code> when flipping to <code>block</code>. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-08-reconcile-stale-doctrine-point-sync-rebase-at-the-canonical-trunk"><a class="anchor" href="#u-gc-08-reconcile-stale-doctrine-point-sync-rebase-at-the-canonical-trunk" aria-label="Permalink to U-GC-08 — Reconcile stale doctrine + point /sync-rebase at the canonical trunk">#</a><code>U-GC-08</code> — Reconcile stale doctrine + point <code>/sync-rebase</code> at the canonical trunk</h3>
+<ul>
+<li><strong>Type:</strong> doc-edit (commit)</li>
+<li><strong>Why:</strong> <code>H:/PRISM/CLAUDE.md</code> (&quot;Lane discipline&quot;) and <code>mcp-server/data/docs/gsd/GSD_MICRO.md</code> say <code>worktree-commit-route</code> is &quot;NOT YET WIRED&quot; — it <em>is</em> (via <code>bash-bundle</code>). <code>RESUME_AT_WORK.md §8</code> is referenced but the file doesn&#39;t exist. &quot;move work via git stash → pop&quot; contradicts <code>feedback_no_git_stash_shared_tree.md</code>. <code>/sync-rebase</code> rebases onto <code>main</code> — wrong trunk for a <code>cad-f</code>-derived branch.</li>
+<li><strong>What:</strong> update both docs to &quot;wired&quot;; either create <code>state/shared/RESUME_AT_WORK.md</code> (with the §8 silent-overwrite history) or remove the dangling reference; replace the git-stash instruction with the <code>git show &lt;ref&gt;:&lt;path&gt;</code> pattern; change <code>/sync-rebase</code>&#39;s default <code>--base</code> to <code>$PRISM_CANONICAL_TRUNK</code>; add a one-paragraph &quot;canonical trunk&quot; section to <code>H:/PRISM/CLAUDE.md</code>.</li>
+<li><strong>Depends on:</strong> <code>U-GC-07</code> (so the docs describe the new behavior). <strong>Blocks:</strong> nothing.</li>
+<li><strong>Acceptance:</strong> <code>grep -c &quot;NOT YET WIRED&quot; CLAUDE.md mcp-server/data/docs/gsd/GSD_MICRO.md</code> → 0; <code>grep -c &quot;git stash&quot; &lt;those docs&gt;</code> → 0 (or only in a &quot;DON&#39;T&quot; context); <code>grep &quot;base.*main&quot; ~/.claude/commands/sync-rebase.md</code> → references the canonical-trunk var.</li>
+<li><strong>Risk:</strong> LOW. <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<hr>
+<h2 id="phase-4-pre-dirty-worktree-sweep-hard-prerequisite-for-p2"><a class="anchor" href="#phase-4-pre-dirty-worktree-sweep-hard-prerequisite-for-p2" aria-label="Permalink to PHASE 4-pre — Dirty-worktree sweep (HARD prerequisite for P2)">#</a>PHASE 4-pre — Dirty-worktree sweep (HARD prerequisite for P2)</h2>
+<h3 id="u-gc-14-sweep-all-40-worktrees-for-uncommitted-wip-resolve-before-p2s-reset-hard"><a class="anchor" href="#u-gc-14-sweep-all-40-worktrees-for-uncommitted-wip-resolve-before-p2s-reset-hard" aria-label="Permalink to U-GC-14 — Sweep all 40 worktrees for uncommitted WIP; resolve before P2&#39;s reset --hard">#</a><code>U-GC-14</code> — Sweep all 40 worktrees for uncommitted WIP; resolve before P2&#39;s <code>reset --hard</code></h3>
+<ul>
+<li><strong>Type:</strong> coordination + per-worktree triage (no single commit — produces a report + per-chat asks)</li>
+<li><strong>Why:</strong> <code>U-GC-09</code>&#39;s force-push makes every worktree need <code>git fetch &amp;&amp; git reset --hard origin/&lt;branch&gt;</code> — which <strong>destroys uncommitted WIP</strong>. Today there&#39;s ~17 k+ uncommitted lines across worktrees: <code>work/xproc-neural</code> 13 119 (but that branch has 0 commits — it&#39;s broken; the 13 119 are untracked files), <code>work/cad-complete-ms0</code> 3 811, <code>meta/file-claim-fix</code> 452, <code>meta/claudemd-enforcement</code> 97, <code>work/knowledge-wiki-ms0</code> 77, <code>worktree-u-fus-api01</code> 116, <code>worktree-u-fus-api02</code> 77, <code>work/mill-master</code> 51, <code>work/merge-staging-ms0</code> 47, <code>work/session-efficiency</code> 31, <code>work/cam-exhaust-cam43-plus</code> 30, <code>work/psau-sav2</code> 28, <code>work/intel-ollama-obsidian-ms0</code> 19, <code>work/cam-exhaust-ms0</code> 18, <code>work/cam-fusion-ms1</code> 15, <code>work/engine-wire-ms0</code> 14, plus ~15 more with &lt;10 lines each.</li>
+<li><strong>What:</strong> for each worktree with dirty state: (a) if a chat owns it → post on <code>AGENT_CHAT.md</code> asking the owner to commit-or-discard; (b) if abandoned → <code>git -C &lt;wt&gt; diff &gt; state/shared/wip-archive/&lt;branch&gt;.diff</code> and <code>git -C &lt;wt&gt; add -A &amp;&amp; git -C &lt;wt&gt; commit -m &quot;[ARCHIVE] WIP snapshot before git-tree remediation&quot;</code> on that branch (or just archive the diff and leave the worktree to be reset). Special-case <code>work/xproc-neural</code>: it&#39;s broken — capture wanted files, then <code>git worktree remove --force</code>.</li>
+<li><strong>Depends on:</strong> nothing (can start immediately). <strong>Blocks:</strong> <code>U-GC-09</code>, and <code>U-GC-05</code>&#39;s <code>gc --prune</code> is cleaner after it.</li>
+<li><strong>Acceptance:</strong> <code>for wt in $(git worktree list --porcelain | awk &#39;/^worktree/{print $2}&#39;); do echo &quot;$wt: $(git -C &quot;$wt&quot; status --porcelain 2&gt;/dev/null | wc -l)&quot;; done</code> → every line is <code>0</code> OR the non-zero ones are explicitly acknowledged in <code>state/shared/wip-archive/</code> / on the chat bus.</li>
+<li><strong>Risk:</strong> MEDIUM — if a sweep misses a dirty worktree, that WIP dies at P2&#39;s reset. The acceptance check above must be re-run immediately before <code>U-GC-09</code>. <strong>Quiesce:</strong> partial (chats need to commit their WIP). <strong>Owner-hint:</strong> coordinated across the fleet.</li>
+</ul>
+<hr>
+<h2 id="phase-2-unblock-the-push-shrink-git-quiesce-window-force-push-irreversible"><a class="anchor" href="#phase-2-unblock-the-push-shrink-git-quiesce-window-force-push-irreversible" aria-label="Permalink to PHASE 2 — Unblock the push + shrink .git (QUIESCE WINDOW; force-push; irreversible)">#</a>PHASE 2 — Unblock the push + shrink <code>.git</code> (QUIESCE WINDOW; force-push; irreversible)</h2>
+<h3 id="u-gc-09-history-rewrite-strip-generated-blobs-filter-repo-on-a-fresh-mirror"><a class="anchor" href="#u-gc-09-history-rewrite-strip-generated-blobs-filter-repo-on-a-fresh-mirror" aria-label="Permalink to U-GC-09 — History rewrite: strip generated blobs (filter-repo on a fresh mirror)">#</a><code>U-GC-09</code> — History rewrite: strip generated blobs (<code>filter-repo</code> on a fresh mirror)</h3>
+<ul>
+<li><strong>Type:</strong> history rewrite (NOT a commit — rewrites all of <code>cad-fusion-live-ms0</code> and any branch carrying the blobs)</li>
+<li><strong>Why:</strong> the only way <code>cad-fusion-live-ms0</code> ever pushes — 5 commits exceed GitHub&#39;s 100 MB hard limit (<code>e78eeeaaf</code> 101.8MB, <code>1f5642dbb</code> 113.1MB, <code>43535d2b7</code> 118.7MB, <code>02720fd64</code> 118.76MB at HEAD, + one more); all are <code>state/shared/system-viz/system-graph.json</code>.</li>
+<li><strong>What:</strong>
+<ol>
+<li><strong>Backup:</strong> <code>git clone --mirror H:/prism H:/prism-git-backup-$(date +%Y%m%d).git</code> (the irreversibility insurance).</li>
+<li><strong>Quiesce:</strong> announce on <code>AGENT_CHAT.md</code>, freeze all commits, confirm <code>U-GC-14</code> acceptance is green.</li>
+<li><strong>Fresh mirror</strong> (because <code>git filter-repo</code> <em>refuses to run with linked worktrees</em> — 40 exist): <code>git clone --no-local H:/prism /tmp/prism-rewrite &amp;&amp; cd /tmp/prism-rewrite</code>.</li>
+<li><code>git filter-repo --force --invert-paths --path state/shared/system-viz/system-graph.json --path state/shared/system-viz/graph.cypher --path state/shared/system-viz/obsidian-augmentation.json --path state/shared/system-viz/data-catalogs-atomic-augmentation.json --path mcp-server/dev/null --path-glob &#39;mcp-server/.serena/cache/*&#39;</code> then belt-and-suspenders <code>git filter-repo --force --strip-blobs-bigger-than 20M</code> (catches <code>audit.jsonl</code> history, the <code>extracted_modules/GIANT/*.js</code> dumps, <code>c/tmp/prism-build-check.js</code>, <code>mcp-server/tmp/build-check.js</code>, etc. — NOT <code>models/*.bin</code> which are on <code>archive/forge-orphans</code> only; handle that branch separately via <code>U-GC-20</code>).</li>
+<li><code>git reflog expire --expire=now --all &amp;&amp; git gc --prune=now --aggressive</code>.</li>
+</ol></li>
+<li><strong>Depends on:</strong> <code>U-GC-02</code> (decision), <code>U-GC-03</code>+<code>U-GC-04</code> (clean target), <code>U-GC-14</code> (dirty sweep done). <strong>Blocks:</strong> <code>U-GC-10</code>, all P4 <code>reset --hard</code>.</li>
+<li><strong>Acceptance:</strong> in the rewritten mirror: <code>git rev-list --all --objects | git cat-file --batch-check=&#39;%(objecttype) %(objectname) %(objectsize) %(rest)&#39; | awk &#39;$3 &gt; 52428800&#39;</code> → empty (no blob &gt; 50 MB except whatever&#39;s on <code>archive/*</code>); <code>git log --all --oneline -- state/shared/system-viz/system-graph.json</code> → empty; <code>du -sh .git</code> → &lt; 2 GB; <code>git fsck --full</code> → clean; <code>git push --dry-run origin cad-fusion-live-ms0</code> → no <code>GH001</code>/size-limit error.</li>
+<li><strong>Risk:</strong> <strong>HIGH</strong> — every SHA changes; force-push required; all 40 worktrees diverge. Mitigated by the <code>--mirror</code> backup + the dirty-worktree sweep. <strong>Quiesce:</strong> YES (~30–60 min, all chats frozen). <strong>Owner-hint:</strong> the user + one operator chat, coordinated.</li>
+</ul>
+<h3 id="u-gc-10-force-push-the-rewritten-history-re-sync-every-worktree"><a class="anchor" href="#u-gc-10-force-push-the-rewritten-history-re-sync-every-worktree" aria-label="Permalink to U-GC-10 — Force-push the rewritten history; re-sync every worktree">#</a><code>U-GC-10</code> — Force-push the rewritten history; re-sync every worktree</h3>
+<ul>
+<li><strong>Type:</strong> git-op (force-push + per-worktree reset)</li>
+<li><strong>Why:</strong> lands the rewrite on origin and re-attaches all local clones/worktrees.</li>
+<li><strong>What:</strong> from the rewritten mirror, <code>git push --force-with-lease --all origin &amp;&amp; git push --force-with-lease --tags origin</code>. Then in <code>H:/prism</code> (the real repo): <code>git fetch origin &amp;&amp; git reset --hard origin/cad-fusion-live-ms0</code> (and similarly for <code>main</code> etc.). For each of the ~40 worktrees: <code>git -C &lt;wt&gt; fetch origin &amp;&amp; git -C &lt;wt&gt; reset --hard origin/&lt;that-branch&gt;</code> (skip-or-handle any whose branch was rewritten differently). Re-create <code>H:/prism-git-backup-*.git</code>&#39;s value: keep it for ~30 days then delete.</li>
+<li><strong>Depends on:</strong> <code>U-GC-09</code>. <strong>Blocks:</strong> P3, P4.</li>
+<li><strong>Acceptance:</strong> <code>git -C H:/prism status</code> clean and at the new HEAD; <code>git rev-parse cad-fusion-live-ms0 == git rev-parse origin/cad-fusion-live-ms0</code>; every worktree <code>git status</code> clean; <code>git -C H:/prism push origin cad-fusion-live-ms0</code> → &quot;Everything up-to-date&quot;; spot-check 3 chats can <code>git fetch &amp;&amp; git reset --hard</code> without error.</li>
+<li><strong>Risk:</strong> HIGH (same window). <strong>Quiesce:</strong> YES (same window as <code>U-GC-09</code>). <strong>Owner-hint:</strong> coordinated.</li>
+</ul>
+<hr>
+<h2 id="phase-3-trunk-reconciliation-tier-2-on-a-staging-branch-only-if-mains-unique-work-must-be-preserved"><a class="anchor" href="#phase-3-trunk-reconciliation-tier-2-on-a-staging-branch-only-if-mains-unique-work-must-be-preserved" aria-label="Permalink to PHASE 3 — Trunk reconciliation (tier-2; on a staging branch; only if main&#39;s unique work must be preserved)">#</a>PHASE 3 — Trunk reconciliation (tier-2; on a staging branch; only if <code>main</code>&#39;s unique work must be preserved)</h2>
+<h3 id="u-gc-11-characterize-mains-874-unique-commits"><a class="anchor" href="#u-gc-11-characterize-mains-874-unique-commits" aria-label="Permalink to U-GC-11 — Characterize main&#39;s 874 unique commits">#</a><code>U-GC-11</code> — Characterize <code>main</code>&#39;s 874 unique commits</h3>
+<ul>
+<li><strong>Type:</strong> analysis (no mutation; produces <code>state/shared/MAIN-UNIQUE-WORK-AUDIT.md</code>)</li>
+<li><strong>Why:</strong> decide whether to merge or discard. Breakdown: 732 untagged + <code>INTEL-OLLAMA-OBSIDIAN-MS0</code> (39) + <code>INFRA-NEURAL-LEDGER-MS1</code> (36) + <code>[MAIN]</code> (29) + <code>MERGE-STAGING</code> (12). Which represent code/state NOT already on <code>cad-f</code>?</li>
+<li><strong>What:</strong> per subsystem, <code>git diff cad-fusion-live-ms0 main -- &lt;area&gt;</code> + <code>git log cad-fusion-live-ms0..main --oneline -- &lt;area&gt;</code>; classify each cluster: (a) superseded by <code>cad-f</code>, (b) salvageable from <code>archive/forge-orphans-2026-05-01</code>, (c) genuinely-unique-and-wanted. Same for <code>master</code> (the 7-week-old divergent line <code>4e7c67db6</code>).</li>
+<li><strong>Depends on:</strong> <code>U-GC-10</code> (SHAs stable). <strong>Blocks:</strong> <code>U-GC-12</code>.</li>
+<li><strong>Acceptance:</strong> <code>MAIN-UNIQUE-WORK-AUDIT.md</code> exists with every cluster classified (a/b/c) + a recommendation (merge vs discard).</li>
+<li><strong>Risk:</strong> LOW (read-only). <strong>Quiesce:</strong> no. <strong>Owner-hint:</strong> one chat + the user reviews.</li>
+</ul>
+<h3 id="u-gc-12-reconcile-mains-unique-work-onto-cad-f-via-the-staging-branch-or-declare-cad-f-strictly-canonical"><a class="anchor" href="#u-gc-12-reconcile-mains-unique-work-onto-cad-f-via-the-staging-branch-or-declare-cad-f-strictly-canonical" aria-label="Permalink to U-GC-12 — Reconcile main&#39;s unique work onto cad-f via the staging branch (OR declare cad-f strictly canonical)">#</a><code>U-GC-12</code> — Reconcile <code>main</code>&#39;s unique work onto <code>cad-f</code> via the staging branch (OR declare <code>cad-f</code> strictly canonical)</h3>
+<ul>
+<li><strong>Type:</strong> merge/cherry-pick on a staging branch (commits land on <code>work/merge-staging-ms0</code>, then merge to canonical)</li>
+<li><strong>Why:</strong> preserve <code>main</code>&#39;s genuinely-unique-and-wanted work without a conflict-fest on the live trunk.</li>
+<li><strong>What:</strong> <strong>Path A (reconcile):</strong> reset <code>work/merge-staging-ms0</code> to <code>cad-f</code> HEAD; for each &quot;category (c)&quot; cluster from <code>U-GC-11</code>, either <code>git cherry-pick</code> (if the commits apply cleanly) or <code>git diff main..cad-f -- &lt;area&gt; | git apply -R</code> style &quot;import main&#39;s state for this area&quot; as a single squashed commit per area; resolve conflicts (unrelated histories → expect conflicts on most files — budget hours); when staging is green and tested, merge <code>work/merge-staging-ms0</code> → canonical. <strong>Path B (declare cad-f canonical):</strong> if <code>U-GC-11</code> shows all of <code>main</code>&#39;s unique work is (a) or (b), skip the reconcile — just archive <code>main</code> as <code>archive/main-pre-remediation-&lt;date&gt;</code> and proceed to <code>U-GC-13</code>.</li>
+<li><strong>Depends on:</strong> <code>U-GC-11</code>, <code>U-GC-00</code>. <strong>Blocks:</strong> <code>U-GC-13</code>.</li>
+<li><strong>Acceptance:</strong> if Path A: <code>git merge-base --is-ancestor &lt;main-unique-cluster-tips&gt; &lt;canonical&gt;</code> for every &quot;(c)&quot; cluster → true; build + tests green on the canonical trunk after the merge. If Path B: <code>archive/main-pre-remediation-&lt;date&gt;</code> exists pointing at the old <code>main</code> HEAD; <code>U-GC-11</code>&#39;s audit confirms no &quot;(c)&quot; clusters.</li>
+<li><strong>Risk:</strong> <strong>HIGH</strong> (Path A — unrelated-history merge). Path B is LOW. <strong>Quiesce:</strong> Path A wants a quiet window; Path B doesn&#39;t. <strong>Owner-hint:</strong> the user picks A vs B; one chat executes; physics/test reviewer agents validate the merge.</li>
+</ul>
+<h3 id="u-gc-13-promote-the-canonical-trunk-to-main-retire-the-old-trunks"><a class="anchor" href="#u-gc-13-promote-the-canonical-trunk-to-main-retire-the-old-trunks" aria-label="Permalink to U-GC-13 — Promote the canonical trunk to main; retire the old trunks">#</a><code>U-GC-13</code> — Promote the canonical trunk to <code>main</code>; retire the old trunks</h3>
+<ul>
+<li><strong>Type:</strong> git-op (branch rename + remote head + branch retirement)</li>
+<li><strong>Why:</strong> end state — one trunk named <code>main</code>, <code>origin/HEAD → origin/main</code>, the bifurcation history archived not live.</li>
+<li><strong>What:</strong> <code>git branch -m main archive/main-pre-remediation-&lt;date&gt;</code> (if not already done in <code>U-GC-12</code> Path B); <code>git branch -m cad-fusion-live-ms0 main</code>; <code>git push origin :cad-fusion-live-ms0</code> (delete old remote branch) <code>&amp;&amp; git push -u origin main</code>; <code>git remote set-head origin main</code>; <code>git symbolic-ref refs/remotes/origin/HEAD refs/remotes/origin/main</code>; <code>git config init.defaultBranch main</code> (already is); update <code>worktree-commit-route.mjs</code> / <code>trunk-guard.mjs</code> <code>CANONICAL_TRUNK</code> default to <code>main</code>; re-point <code>H:/prism</code> and all worktrees&#39; upstreams. Diff-review <code>master</code> (<code>4e7c67db6</code>) — if nothing unique, <code>git branch -m master archive/master-2026-XX</code>; retire <code>work/merge-staging-ms0</code> (now == <code>main</code>).</li>
+<li><strong>Depends on:</strong> <code>U-GC-12</code>, <code>U-GC-00</code>. <strong>Blocks:</strong> P4, P5.</li>
+<li><strong>Acceptance:</strong> <code>git rev-parse --abbrev-ref HEAD</code> in <code>H:/prism</code> → <code>main</code>; <code>git ls-remote origin | grep -c cad-fusion-live-ms0</code> → 0; <code>git symbolic-ref refs/remotes/origin/HEAD</code> → <code>refs/remotes/origin/main</code>; <code>git rev-parse main == origin/main</code>; all worktrees&#39; <code>git status -sb</code> show <code>...origin/&lt;branch&gt;</code> tracking correctly.</li>
+<li><strong>Risk:</strong> MEDIUM (rename + remote-head change; force-push of <code>main</code>). <strong>Quiesce:</strong> brief announce. <strong>Owner-hint:</strong> the user + operator chat.</li>
+</ul>
+<hr>
+<h2 id="phase-4-worktree-branch-cleanup-tier-3-after-shas-stable-ie-after-u-gc-13"><a class="anchor" href="#phase-4-worktree-branch-cleanup-tier-3-after-shas-stable-ie-after-u-gc-13" aria-label="Permalink to PHASE 4 — Worktree / branch cleanup (tier-3; after SHAs stable, i.e. after U-GC-13)">#</a>PHASE 4 — Worktree / branch cleanup (tier-3; after SHAs stable, i.e. after <code>U-GC-13</code>)</h2>
+<h3 id="u-gc-15-retire-the-broken-workxproc-neural-worktree"><a class="anchor" href="#u-gc-15-retire-the-broken-workxproc-neural-worktree" aria-label="Permalink to U-GC-15 — Retire the broken work/xproc-neural worktree">#</a><code>U-GC-15</code> — Retire the broken <code>work/xproc-neural</code> worktree</h3>
+<ul>
+<li><strong>Why:</strong> 0 commits, <code>0000000</code> HEAD, 13 119 untracked files sitting in <code>H:/prism-xproc-neural</code>.</li>
+<li><strong>What:</strong> capture any wanted files (after <code>U-GC-14</code> already triaged it), <code>git worktree remove --force H:/prism-xproc-neural</code>, <code>git branch -D work/xproc-neural</code> (it&#39;s unborn — <code>git branch -D</code> may say &quot;not found&quot;; <code>git update-ref -d refs/heads/work/xproc-neural</code> if needed).</li>
+<li><strong>Depends on:</strong> <code>U-GC-14</code> (WIP triaged), <code>U-GC-13</code>. <strong>Acceptance:</strong> <code>git worktree list | grep -c xproc-neural</code> → 0. <strong>Risk:</strong> LOW. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-16-retire-the-stale-merged-worktreesbranches"><a class="anchor" href="#u-gc-16-retire-the-stale-merged-worktreesbranches" aria-label="Permalink to U-GC-16 — Retire the stale-merged worktrees/branches">#</a><code>U-GC-16</code> — Retire the stale-merged worktrees/branches</h3>
+<ul>
+<li><strong>Why:</strong> fully absorbed into the canonical trunk — <code>work/cost-cascade-ms0</code> and <code>work/graph-context-ms0</code> (literally the SAME HEAD <code>20d8967e1</code> — collapse the redundant pair first), <code>work/sfc-calibrate</code>, <code>work/cad-complete-ms0</code> + <code>work/psau-sav2</code> (after their WIP from <code>U-GC-14</code>), remote <code>origin/work/ussh-sci</code> + <code>recovery/work/intel-ollama-obsidian-ms0</code> (ancestors of <code>main</code>).</li>
+<li><strong>What:</strong> for each: confirm <code>git merge-base --is-ancestor &lt;branch&gt; main</code>, <code>git worktree remove &lt;path&gt;</code>, <code>git branch -d &lt;branch&gt;</code>, <code>git push origin :&lt;branch&gt;</code> (or for remote-only, <code>git push &lt;remote&gt; :&lt;branch&gt;</code>).</li>
+<li><strong>Depends on:</strong> <code>U-GC-14</code>, <code>U-GC-13</code>. <strong>Acceptance:</strong> <code>git branch --merged main | grep -E &#39;cost-cascade|graph-context|sfc-calibrate|cad-complete|psau-sav2&#39;</code> → empty; the 6+ worktree dirs gone. <strong>Risk:</strong> LOW. <strong>Owner-hint:</strong> direct (with user nod per &quot;never delete only disable&quot; — these are merged work products, the commits live on <code>main</code>).</li>
+</ul>
+<h3 id="u-gc-17-triage-the-24-stale-unmerged-work-branch-forks"><a class="anchor" href="#u-gc-17-triage-the-24-stale-unmerged-work-branch-forks" aria-label="Permalink to U-GC-17 — Triage the ~24 stale-unmerged work-branch forks">#</a><code>U-GC-17</code> — Triage the ~24 stale-unmerged work-branch forks</h3>
+<ul>
+<li><strong>Why:</strong> these have real unique commits — <code>intel-ollama-obsidian-ms0</code> (<strong>983</strong>), <code>lathe-pro-v3-ms2</code> (497), <code>mill-master</code> (489), <code>ai-aware-harden</code> (403), <code>lathe-master</code> (443), <code>wedm-consolidated</code> (427), <code>tsc-cleanup-ms0</code> (88), <code>engine-wire-cad-ms0</code> (89), <code>cad-fidx-solidworks</code> (66), <code>ppgh05</code> (49), <code>ppg-advancedpost</code> (43), <code>cad-fidx-fus-93a0</code> (40), <code>intel-p8-schema</code> (30), <code>engine-wire-ms0</code> (28), <code>intel-ollama-obsidian-ms1</code> (26), <code>lathe-prod-ready-ms0</code> (18), <code>cam-hypermill-ms1</code> (15), <code>cam-exhaust-cam43-plus</code> (14), <code>cam-fusion-ms1</code> (12), <code>knowledge-wiki-ms0</code> (11), <code>session-efficiency</code> (7), <code>cam-spcfai-ms0</code> (3), <code>cam-engine-fixes</code> (1), <code>lathe-pro-v3-bookkeeping</code> (1), <code>meta/claudemd-enforcement</code> (1), <code>meta/file-claim-fix</code> (4) — plus the <code>claude/*</code> auto-branches (200–1300 unique commits each, pre-fork). These are abandoned milestone forks created by the conflict-fork rule.</li>
+<li><strong>What:</strong> the user triages each: <strong>revive</strong> (paused work to resume), <strong>merge</strong> (cherry-pick its unique commits onto <code>main</code>, then retire), or <strong>archive-and-retire</strong> (<code>git branch -m work/&lt;x&gt; archive/&lt;x&gt;-2026-XX</code>, <code>git worktree remove</code>). Produce <code>state/shared/STALE-FORK-TRIAGE.md</code> with the decision per branch.</li>
+<li><strong>Depends on:</strong> <code>U-GC-13</code>. <strong>Blocks:</strong> nothing (can be done incrementally over weeks). <strong>Acceptance:</strong> <code>STALE-FORK-TRIAGE.md</code> has a decision for all ~24 + the <code>claude/*</code> branches; the &quot;merge&quot; ones are merged; the &quot;archive-and-retire&quot; ones renamed under <code>archive/</code>. <strong>Risk:</strong> MEDIUM (don&#39;t lose wanted work — that&#39;s why it&#39;s user-triaged, not automated). <strong>Owner-hint:</strong> the user decides; chats execute the merges.</li>
+</ul>
+<h3 id="u-gc-18-retire-worktree-u-fus-api0102"><a class="anchor" href="#u-gc-18-retire-worktree-u-fus-api0102" aria-label="Permalink to U-GC-18 — Retire worktree-u-fus-api01/02">#</a><code>U-GC-18</code> — Retire <code>worktree-u-fus-api01/02</code></h3>
+<ul>
+<li><strong>Why:</strong> auto-generated-name worktrees under <code>.claude/worktrees/</code>, 2 weeks idle, dirty (116 / 77 lines). <code>api01</code> has 497 unique commits (near <code>main</code>), <code>api02</code> has 2.</li>
+<li><strong>What:</strong> after <code>U-GC-14</code> triages the WIP: if the 497 commits on <code>api01</code> are an old milestone fork, fold into <code>U-GC-17</code>&#39;s triage; <code>git worktree remove --force</code>, <code>git branch -m worktree-u-fus-api0X archive/u-fus-api0X-2026-XX</code> or <code>-D</code> if confirmed merged.</li>
+<li><strong>Depends on:</strong> <code>U-GC-14</code>, <code>U-GC-17</code> (api01&#39;s 497 commits). <strong>Acceptance:</strong> the 2 worktrees gone. <strong>Risk:</strong> LOW-MED. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-19-clean-the-claude-auto-branches-originarchive-2026-02-01-originworktree-data-loss-fix"><a class="anchor" href="#u-gc-19-clean-the-claude-auto-branches-originarchive-2026-02-01-originworktree-data-loss-fix" aria-label="Permalink to U-GC-19 — Clean the claude/* auto-branches + origin/archive-2026-02-01 + origin/worktree-data-loss-fix">#</a><code>U-GC-19</code> — Clean the <code>claude/*</code> auto-branches + <code>origin/archive-2026-02-01</code> + <code>origin/worktree-data-loss-fix</code></h3>
+<ul>
+<li><strong>Why:</strong> <code>claude/fervent-bohr</code>, <code>claude/zen-dirac</code> (+ origin copies) + <code>origin/claude/affectionate-perlman</code>, <code>origin/claude/interesting-shamir</code> — Claude-Code auto-generated, 7 weeks–3 months old, unmerged into both trunks (pre-fork divergence). <code>origin/archive-2026-02-01</code> (2 months, no local) — older cold-storage. <code>origin/worktree-data-loss-fix</code> (2 weeks, no local, unmerged).</li>
+<li><strong>What:</strong> review each for salvageable work (the <code>claude/*</code> ones predate the fork — likely abandoned but check); archive-and-retire (<code>git push origin :claude/&lt;x&gt;</code> after <code>git branch -m</code> to <code>archive/</code>). Keep <code>origin/archive-2026-02-01</code> (cold storage) unless its contents are confirmed elsewhere.</li>
+<li><strong>Depends on:</strong> <code>U-GC-13</code>. <strong>Acceptance:</strong> <code>git branch -a | grep -c &#39;claude/&#39;</code> reduced to 0 (or all renamed under <code>archive/</code>); <code>STALE-FORK-TRIAGE.md</code> covers them. <strong>Risk:</strong> LOW-MED. <strong>Owner-hint:</strong> the user reviews; direct executes.</li>
+</ul>
+<h3 id="u-gc-20-decide-on-archiveforge-orphans-2026-05-01-the-309-gb-whisper-model"><a class="anchor" href="#u-gc-20-decide-on-archiveforge-orphans-2026-05-01-the-309-gb-whisper-model" aria-label="Permalink to U-GC-20 — Decide on archive/forge-orphans-2026-05-01 (the 3.09 GB whisper model)">#</a><code>U-GC-20</code> — Decide on <code>archive/forge-orphans-2026-05-01</code> (the 3.09 GB whisper model)</h3>
+<ul>
+<li><strong>Why:</strong> it&#39;s the <em>only</em> thing holding <code>models/ggml-large-v3.bin</code> (3.09 GB) + <code>ggml-base.bin</code> (148 MB) + ~9 881 orphaned files (502 unique commits). Keeping it means ~3.3 GB stays packed in <code>.git</code> (but never checked out on <code>main</code>).</li>
+<li><strong>What:</strong> per <code>U-GC-01</code>&#39;s decision — <strong>keep:</strong> no action (the <code>U-GC-05</code>/<code>U-GC-09</code> <code>gc --prune</code> doesn&#39;t touch reachable-from-a-branch blobs). <strong>delete:</strong> confirm the ~9 881 files are recoverable elsewhere (or <code>git diff archive/forge-orphans-2026-05-01 ^main</code> reviewed), then <code>git branch -D archive/forge-orphans-2026-05-01 &amp;&amp; git push origin :archive/forge-orphans-2026-05-01 &amp;&amp; git worktree remove H:/prism-forge-archive &amp;&amp; git reflog expire --expire=now --all &amp;&amp; git gc --prune=now</code> → reclaims ~3.3 GB.</li>
+<li><strong>Depends on:</strong> <code>U-GC-01</code>. <strong>Acceptance:</strong> if keep — <code>git branch | grep -c forge-orphans</code> → 1, documented in <code>GIT-TOPOLOGY.md</code> as intentional cold storage. If delete — <code>git count-objects -vH</code> size drops by ~3.3 GB; <code>git fsck</code> clean. <strong>Risk:</strong> MED (delete path — irreversible loss of the archive). <strong>Owner-hint:</strong> the user decides.</li>
+</ul>
+<hr>
+<h2 id="phase-5-verify-document-tier-3-after-everything"><a class="anchor" href="#phase-5-verify-document-tier-3-after-everything" aria-label="Permalink to PHASE 5 — Verify &amp; document (tier-3; after everything)">#</a>PHASE 5 — Verify &amp; document (tier-3; after everything)</h2>
+<h3 id="u-gc-21-post-cleanup-verification-suite"><a class="anchor" href="#u-gc-21-post-cleanup-verification-suite" aria-label="Permalink to U-GC-21 — Post-cleanup verification suite">#</a><code>U-GC-21</code> — Post-cleanup verification suite</h3>
+<ul>
+<li><strong>Type:</strong> verification (the &quot;tests&quot; for this milestone)</li>
+<li><strong>What:</strong> <code>git fsck --full</code> → clean; <code>git count-objects -vH</code> → <code>size</code> &lt; 2 GiB (target), loose <code>count</code> &lt; 10 k; <code>git push --dry-run origin main</code> → &quot;Everything up-to-date&quot; (no size errors); <code>git merge-base --is-ancestor main HEAD</code> in <code>H:/prism</code> → true; <code>node .claude/scripts/verify-hook-refs.mjs --quiet</code> → clean; spot-check 3 active chats can <code>git fetch &amp;&amp; git reset --hard origin/&lt;branch&gt;</code> without error; <code>git worktree list</code> → only active worktrees remain (target ≤ ~12, down from 40); <code>git branch -a | wc -l</code> → roughly halved; <code>node .claude/hooks/trunk-guard.mjs</code> and <code>worktree-commit-route.mjs</code> behave per <code>U-GC-06</code>/<code>U-GC-07</code>; <code>du -sh .git</code>.</li>
+<li><strong>Depends on:</strong> all prior. <strong>Acceptance:</strong> every check above passes; results pasted into the commit message / <code>GIT-TOPOLOGY.md</code>.</li>
+<li><strong>Risk:</strong> none. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<h3 id="u-gc-22-document-the-new-topology-update-memory-claudemd"><a class="anchor" href="#u-gc-22-document-the-new-topology-update-memory-claudemd" aria-label="Permalink to U-GC-22 — Document the new topology + update memory + CLAUDE.md">#</a><code>U-GC-22</code> — Document the new topology + update memory + CLAUDE.md</h3>
+<ul>
+<li><strong>Type:</strong> doc-create + memory-update (commit + memory file)</li>
+<li><strong>What:</strong> write <code>state/shared/GIT-TOPOLOGY.md</code> — the live trunk (<code>main</code>), the active worktree→branch map, the retired/archived branches, the <code>worktree.baseRef=head</code> + <code>trunk-guard</code> + <code>[MAIN]</code>-restriction process model, the rollback note (the <code>--mirror</code> backup, kept 30 days). Update <code>H:/PRISM/CLAUDE.md</code> (the &quot;Lane discipline / PER-CHAT HANDOFF&quot; sections) to reference it. Add/update memory <code>reference_git_topology.md</code> (and update <code>MEMORY.md</code> pointer). Mark <code>GIT-TREE-REMEDIATION-MS0</code> complete in this roadmap file&#39;s status header. Delete the <code>H:/prism-git-backup-*.git</code> mirror after 30 days (calendar reminder).</li>
+<li><strong>Depends on:</strong> <code>U-GC-21</code>. <strong>Acceptance:</strong> <code>GIT-TOPOLOGY.md</code> exists; <code>grep -c GIT-TOPOLOGY H:/PRISM/CLAUDE.md</code> → ≥1; memory file + <code>MEMORY.md</code> pointer present; this file&#39;s status = <code>COMPLETE</code>.</li>
+<li><strong>Risk:</strong> none. <strong>Owner-hint:</strong> direct.</li>
+</ul>
+<hr>
+<h2 id="failure-mode-register-surfaced-not-pruned"><a class="anchor" href="#failure-mode-register-surfaced-not-pruned" aria-label="Permalink to FAILURE-MODE REGISTER (surfaced, not pruned)">#</a>FAILURE-MODE REGISTER (surfaced, not pruned)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Failure mode</th><th>Trigger</th><th>Mitigation</th><th>Owning unit</th></tr></thead>
+<tbody>
+<tr><td>F1</td><td><code>git filter-repo</code> refuses to run</td><td>linked worktrees present (40)</td><td>run on a fresh <code>git clone --no-local</code> mirror, not the live repo</td><td>U-GC-09</td></tr>
+<tr><td>F2</td><td>Uncommitted WIP destroyed</td><td><code>reset --hard</code> after force-push without sweeping first</td><td><code>U-GC-14</code> is a HARD prerequisite; re-run its acceptance check immediately before <code>U-GC-09</code></td><td>U-GC-14 → U-GC-09</td></tr>
+<tr><td>F3</td><td>Live chat breaks mid-commit</td><td>force-push during an active commit</td><td>quiesce window + <code>AGENT_CHAT.md</code> announcement + commit freeze</td><td>U-GC-09/10</td></tr>
+<tr><td>F4</td><td><code>git stash</code> clobbers peers&#39; WIP</td><td>following the stale &quot;move work via git stash → pop&quot; doctrine</td><td><code>U-GC-08</code> removes that instruction; use <code>git show &lt;ref&gt;:&lt;path&gt;</code></td><td>U-GC-08</td></tr>
+<tr><td>F5</td><td><code>master</code> deleted but had unique work</td><td><code>branch -d master</code> without diff-review (it diverged, isn&#39;t a clean predecessor)</td><td><code>U-GC-11</code>/<code>U-GC-13</code> diff-review <code>master</code> first</td><td>U-GC-13</td></tr>
+<tr><td>F6</td><td>Unrelated-history merge conflict-fest</td><td>Path A of <code>U-GC-12</code></td><td>do it on <code>work/merge-staging-ms0</code>, not the live trunk; budget hours; or take Path B</td><td>U-GC-12</td></tr>
+<tr><td>F7</td><td><code>system-graph.json</code> regen breaks on fresh checkout</td><td><code>/system-viz</code> assumes the file exists</td><td>confirm it regenerates from scratch (it does — that&#39;s why it&#39;s generated); test in <code>U-GC-04</code></td><td>U-GC-04</td></tr>
+<tr><td>F8</td><td><code>archive/forge-orphans</code> deleted, contents lost</td><td><code>U-GC-20</code> delete path without confirming recoverability</td><td>confirm the ~9 881 files exist elsewhere first; the <code>--mirror</code> backup also has it for 30 days</td><td>U-GC-20</td></tr>
+<tr><td>F9</td><td>Backup mirror deleted too soon</td><td>cleanup over-eagerness</td><td>keep <code>H:/prism-git-backup-*.git</code> 30 days, calendar reminder in <code>U-GC-22</code></td><td>U-GC-22</td></tr>
+<tr><td>F10</td><td><code>trunk-guard</code> blocks everything (wrong <code>CANONICAL_TRUNK</code> default)</td><td>mis-set env / decision changed</td><td><code>PRISM_TRUNK_GUARD_MODE=warn</code> default for a grace period; fail-open on hook error</td><td>U-GC-06/07</td></tr>
+<tr><td>F11</td><td><code>gc --prune=now</code> drops a not-yet-committed object</td><td>running it before <code>U-GC-14</code></td><td>order: <code>U-GC-14</code> before <code>U-GC-05</code> (uncommitted-but-never-committed files aren&#39;t in any reflog, so they survive — but a <code>reset --hard</code>&#39;d worktree&#39;s old objects go; sweep first)</td><td>U-GC-14 → U-GC-05</td></tr>
+</tbody>
+</table></div>
+<h2 id="rollback-plan"><a class="anchor" href="#rollback-plan" aria-label="Permalink to ROLLBACK PLAN">#</a>ROLLBACK PLAN</h2>
+<ul>
+<li><strong>P0 (<code>U-GC-03/04/04b/05</code>):</strong> <code>git revert</code> the commits; <code>U-GC-05</code>&#39;s <code>gc --prune</code> is the only irreversible bit and it only drops garbage — no rollback needed.</li>
+<li><strong>P1 (<code>U-GC-06/07/08</code> + <code>worktree.baseRef</code>):</strong> <code>git revert</code> the hook/doc commits; <code>git config --unset worktree.baseRef</code>.</li>
+<li><strong>P2 (<code>U-GC-09/10</code>):</strong> <strong>the irreversibility point.</strong> Insurance = <code>H:/prism-git-backup-$(date).git</code> (<code>--mirror</code> clone taken in <code>U-GC-09</code> step 1). If the rewrite goes wrong: <code>git remote set-url origin H:/prism-git-backup-*.git &amp;&amp; git fetch &amp;&amp; git reset --hard &lt;old-sha&gt;</code> per worktree, then re-push the backup. Keep the backup 30 days.</li>
+<li><strong>P3 (<code>U-GC-11/12/13</code>):</strong> done on <code>work/merge-staging-ms0</code> + the old <code>main</code>/<code>master</code>/<code>cad-f</code> are archived under <code>archive/*-pre-remediation-&lt;date&gt;</code> before any rename — so the pre-state is always reachable.</li>
+<li><strong>P4/P5:</strong> retired branches are renamed under <code>archive/</code> (not deleted) where there&#39;s any doubt; the <code>--mirror</code> backup covers the rest for 30 days.</li>
+</ul>
+<hr>
+<h2 id="sequencing-recommendation"><a class="anchor" href="#sequencing-recommendation" aria-label="Permalink to SEQUENCING RECOMMENDATION">#</a>SEQUENCING RECOMMENDATION</h2>
+<ol>
+<li><strong>Now, no quiesce, low risk:</strong> P0 (<code>U-GC-03</code> gitignore → <code>U-GC-04</code> rm-cached → <code>U-GC-04b</code> branch cruft → <code>U-GC-05</code> gc) + P1 (<code>U-GC-06</code> baseRef → <code>U-GC-06</code>/<code>U-GC-07</code>/<code>U-GC-08</code> once <code>U-GC-00</code> trunk is decided). Biggest hygiene win for zero risk; <code>.git</code> 42 GB → ~3–5 GB; bifurcation vectors closed.</li>
+<li><strong>Schedule a quiesce window:</strong> <code>U-GC-14</code> (dirty-worktree sweep — needs the fleet&#39;s cooperation) → then in the window, <code>U-GC-09</code> (<code>--mirror</code> backup + filter-repo + gc) → <code>U-GC-10</code> (force-push + re-sync). After this, <code>cad-f</code> pushes.</li>
+<li><strong>At leisure, on the staging branch:</strong> <code>U-GC-11</code> (audit <code>main</code>&#39;s unique work) → <code>U-GC-12</code> (Path A reconcile, or Path B declare-cad-f-canonical-and-archive-main) → <code>U-GC-13</code> (rename → <code>main</code>, retire old trunks).</li>
+<li><strong>Incrementally over weeks:</strong> P4 cleanup (<code>U-GC-15</code>..<code>U-GC-20</code>) — <code>U-GC-15</code> (broken xproc-neural) and <code>U-GC-16</code> (stale-merged) right away; <code>U-GC-17</code> (the 24 stale forks) as the user triages them; <code>U-GC-20</code> (the 3 GB archive) per the <code>U-GC-01</code> decision.</li>
+<li><strong>At the end:</strong> P5 (<code>U-GC-21</code> verify, <code>U-GC-22</code> document + memory).</li>
+</ol>
+<hr>
+<h2 id="open-decisions-blocking-start"><a class="anchor" href="#open-decisions-blocking-start" aria-label="Permalink to OPEN DECISIONS BLOCKING START">#</a>OPEN DECISIONS BLOCKING START</h2>
+<ul>
+<li><code>U-GC-00</code> — canonical trunk? (recommend <code>cad-fusion-live-ms0</code>)</li>
+<li><code>U-GC-01</code> — <code>archive/forge-orphans-2026-05-01</code> keep or delete? (recommend keep for now)</li>
+<li><code>U-GC-02</code> — do the history rewrite + force-push? (recommend yes)</li>
+<li>Plus: when can the fleet quiesce for ~30–60 min? (P2)</li>
+</ul>
+<p><em>(End of roadmap. RGS v6 discipline applied: atomic-first ordering, tier-floor gate (P0 before P2), every unit has why/depends/blocks/acceptance/risk, no orphan units, full failure-mode register, rollback per phase. The engine-centric S2.5/S2.6 stages (ai-priority-rank, atomic-roadmap-emit, per-domain subagent fan-out) were deliberately skipped — N/A for git-infra ops — per the brief&#39;s instruction to adapt RGS to the domain.)</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="GIT-TREE-REMEDIATION-MS0-ROADMAP-2026-05-12.md">GIT-TREE-REMEDIATION-MS0-ROADMAP-2026-05-12.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

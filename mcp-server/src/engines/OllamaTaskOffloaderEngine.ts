@@ -58,19 +58,42 @@ export interface OllamaModel {
 }
 
 const OLLAMA_MODELS: OllamaModel[] = [
+  // RETIRED 2026-06-04 (U-BW-TS-ENGINES-RETIRE, slot:alpha): qwen2.5-coder:7b + :14b
+  // `ollama rm`'d from the 96GB Blackwell. selectModel() already install-gates (filters
+  // on this.installedModels), so they were never selectable post-delete — but the
+  // OLLAMA_MODELS catalog must not DECLARE a deleted tag (no-retired-llm-refs source-lock).
+  // qwen2.5-coder:32b below carries a SUPERSET of their capabilities (adds
+  // code_generation), so every offloadable category still resolves to a real, installed,
+  // higher-tier model.
+  // BLACKWELL-MODEL-INTEGRATION-MS0 P2 (2026-06-06): the post-swap Blackwell models.
+  // selectModel() install-gates at RUNTIME (filters on this.installedModels — see line
+  // ~177), so these entries are INERT until /api/tags confirms each is pulled. As of the
+  // 2026-06-06 live scan only gpt-oss:20b is pulled; gpt-oss:120b + gemma4:31b are still
+  // pulling, so they cannot be selected yet — safe to declare ahead of the pull (the
+  // catalog is static; the gate is the runtime filter, NOT the declaration). selectModel
+  // sorts capable models by avgLatencyMs asc, so once pulled gpt-oss:120b (2200ms) wins
+  // search_synthesis over the 32b (15000ms), and gpt-oss:20b (800ms) wins the lighter
+  // offload categories — exactly the intended speed/quality split.
   {
-    name: "qwen2.5-coder:7b",
-    size: "7b",
-    capabilities: ["explanation", "summary", "documentation", "format_convert"],
-    maxTokens: 8192,
-    avgLatencyMs: 2000,
+    name: "gpt-oss:120b",
+    size: "120b",
+    capabilities: ["explanation", "summary", "documentation", "format_convert", "search_synthesis", "calculation", "code_generation", "reasoning"],
+    maxTokens: 32768,
+    avgLatencyMs: 2200,
   },
   {
-    name: "qwen2.5-coder:14b",
-    size: "14b",
-    capabilities: ["explanation", "summary", "documentation", "format_convert", "search_synthesis", "calculation"],
-    maxTokens: 8192,
-    avgLatencyMs: 5000,
+    name: "gpt-oss:20b",
+    size: "20b",
+    capabilities: ["explanation", "summary", "documentation", "format_convert", "search_synthesis", "calculation", "code_generation"],
+    maxTokens: 16384,
+    avgLatencyMs: 800,
+  },
+  {
+    name: "gemma4:31b",
+    size: "31b",
+    capabilities: ["explanation", "summary", "search_synthesis", "calculation", "code_generation", "reasoning"],
+    maxTokens: 16384,
+    avgLatencyMs: 2400,
   },
   {
     name: "qwen2.5-coder:32b",
@@ -95,17 +118,36 @@ const OLLAMA_MODELS: OllamaModel[] = [
   },
 ];
 
+// OFFLOADABLE_PATTERNS — widened MCP-FLEET-CAPACITY-MS0 (2026-06-08) to raise the
+// offload ratio from ~8% toward >=30%. The 96GB Blackwell sits 99.9% idle while the
+// fleet contends for CPU/RAM; the prior pattern list matched only a handful of
+// verb-prefixed phrasings, so 1170/1174 router fires kept work on Claude. These add
+// the rest of the doctrine-named offloadable classes (lint, classify, docstring-from-
+// code, diff/change summary, error/log triage, extract/parse, describe, rename) mapped
+// to EXISTING categories the installed models already declare as capabilities — no new
+// category/model-capability surface needed. SAFETY: KEEP_ON_CLAUDE_PATTERNS is checked
+// FIRST in classifyTask(), so create/edit/refactor/reasoning/physics/safety-critical
+// still correctly stay on Claude even when these broader offload patterns also match.
 const OFFLOADABLE_PATTERNS: Array<{ pattern: RegExp; category: TaskCategory }> = [
-  { pattern: /^explain\b|explain\s+(this|the|what|how|why)/i, category: "explanation" },
+  { pattern: /^explain\b|explain\s+(this|the|what|how|why)|what\s+does\s+this\s+(do|mean)/i, category: "explanation" },
   { pattern: /^what\s+(does|is|are)\s+/i, category: "explanation" },
   { pattern: /how\s+(does|do|is|are|can)\s+/i, category: "explanation" },
-  { pattern: /^summarize\b|^summary\b|^tldr\b|^overview\b/i, category: "summary" },
-  { pattern: /give\s+(me\s+)?(a\s+)?(summary|tldr|overview)/i, category: "summary" },
-  { pattern: /search\s+(for|results?)|find\s+(files?|code)/i, category: "search_synthesis" },
-  { pattern: /convert\s+(to|from)|format\s+(as|to)/i, category: "format_convert" },
-  { pattern: /^document\b|add\s+docstring|add\s+jsdoc|add\s+comment/i, category: "documentation" },
+  { pattern: /^describe\b|walk\s+(me\s+)?through|what'?s\s+happening\s+in/i, category: "explanation" },
+  { pattern: /^summarize\b|^summary\b|^tldr\b|^overview\b|^recap\b/i, category: "summary" },
+  { pattern: /give\s+(me\s+)?(a\s+)?(summary|tldr|overview|recap|gist)/i, category: "summary" },
+  { pattern: /summar(y|ize)\s+(of\s+)?(the\s+)?(diff|changes?|commit|log|output)/i, category: "summary" },
+  { pattern: /list\s+(all|the)|show\s+(me|all)|enumerate\b/i, category: "summary" },
+  { pattern: /search\s+(for|results?)|find\s+(files?|code|references?)|grep\s+for/i, category: "search_synthesis" },
+  { pattern: /convert\s+(to|from)|format\s+(as|to)|reformat\b|prettify\b|normalize\s+(the\s+)?(format|json|yaml)/i, category: "format_convert" },
+  { pattern: /^document\b|add\s+(a\s+)?(docstring|jsdoc|comment|doc\s+comment)|write\s+(a\s+)?(docstring|jsdoc|comment)/i, category: "documentation" },
   { pattern: /calculate|compute|math|formula/i, category: "calculation" },
-  { pattern: /list\s+(all|the)|show\s+(me|all)/i, category: "summary" },
+  // Mechanical text ops the AI-routing doctrine names (CLAUDE.md §TOKEN ECONOMY:
+  // "code explain/summarize/docstring/classify/lint/diff-summary/error-triage").
+  { pattern: /^lint\b|run\s+(the\s+)?lint|style\s+check|find\s+(lint|style)\s+(issues?|violations?)/i, category: "documentation" },
+  { pattern: /^classify\b|categorize\b|what\s+(kind|type|category)\s+of|label\s+(this|the)/i, category: "summary" },
+  { pattern: /triage\b|(explain|interpret|diagnose)\s+(this\s+)?(error|stack\s*trace|exception|log)/i, category: "explanation" },
+  { pattern: /^extract\b|parse\s+(out|the)|pull\s+(out\s+)?the\s+\w+\s+from/i, category: "search_synthesis" },
+  { pattern: /^translate\b|rephrase\b|reword\b|rewrite\s+(this\s+)?(more\s+)?(clearly|concisely|as)/i, category: "format_convert" },
 ];
 
 const KEEP_ON_CLAUDE_PATTERNS: Array<{ pattern: RegExp; category: TaskCategory }> = [
@@ -133,7 +175,7 @@ export class OllamaTaskOffloaderEngine {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch("http://localhost:11434/api/tags", {
+      const res = await fetch("http://127.0.0.1:11434/api/tags", {
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -249,22 +291,33 @@ export class OllamaTaskOffloaderEngine {
   async executeOffloaded(
     task: string,
     systemPrompt: string,
-    model: string
-  ): Promise<{ success: boolean; result: string; latencyMs: number }> {
+    model: string,
+    opts?: { temperature?: number; maxTokens?: number; timeoutMs?: number; numCtx?: number }
+  ): Promise<{ success: boolean; result: string; latencyMs: number; model: string }> {
     const t0 = Date.now();
+    const temperature = opts?.temperature ?? 0.1;
+    const numPredict = opts?.maxTokens ?? 2048;
+    const timeoutMs = opts?.timeoutMs ?? 30000;
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
-      const res = await fetch("http://localhost:11434/api/chat", {
+      const res = await fetch("http://127.0.0.1:11434/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
         body: JSON.stringify({
           model,
           stream: false,
-          options: { temperature: 0.1, num_predict: 2048 },
+          // num_ctx is opt-in: omitted -> Ollama uses the model default (byte-identical
+          // legacy behavior). Large-context callers (e.g. transcript mining, which chunks
+          // to fit num_ctx 32768) pass it so the prompt is not silently truncated.
+          options: {
+            temperature,
+            num_predict: numPredict,
+            ...(opts?.numCtx ? { num_ctx: opts.numCtx } : {}),
+          },
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: task },
@@ -279,6 +332,7 @@ export class OllamaTaskOffloaderEngine {
           success: false,
           result: `Ollama HTTP ${res.status}`,
           latencyMs: Date.now() - t0,
+          model,
         };
       }
 
@@ -287,12 +341,14 @@ export class OllamaTaskOffloaderEngine {
         success: true,
         result: data.message?.content || "",
         latencyMs: Date.now() - t0,
+        model,
       };
     } catch (err) {
       return {
         success: false,
         result: String(err),
         latencyMs: Date.now() - t0,
+        model,
       };
     }
   }

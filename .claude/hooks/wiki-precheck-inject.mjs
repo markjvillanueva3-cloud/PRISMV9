@@ -17,17 +17,42 @@
  * (8 KB). No-match prompts are logged to MISSES_LOG with SALTED-hashed tokens
  * (raw prompt text never persisted; salt makes the hashes non-reversible).
  *
+ * WIKI-INJECT-MS0: the semantic fallback also reports when _embeddings.jsonl is
+ * stale relative to _leaf-index.jsonl (embeddings only regenerate when Ollama is
+ * up, so they silently lag). Past EMB_STALE_HOURS a warning is appended to the
+ * semantic-hit footer and emitted to telemetry — recall degradation is loud now.
+ *
+ * WIKI-INJECT-MS0/U-WIM02: also keeps nomic-embed-text resident via a throttled
+ * detached prewarm — without it the semantic query's tight timeout loses the
+ * cold-load race ~95% of the time (measured) and paraphrase recall never fires.
+ *
  * Fail-safe: continueOnError. Never blocks. Skips silently on any error.
- * Disable: PRISM_WIKI_PRECHECK=0
+ * Disable: PRISM_WIKI_PRECHECK=0  (or PRISM_WIKI_PRECHECK_INJECT=0 — sibling _INJECT convention, MEMORY-RECALL-DOMAIN-BOOST/golf 2026-06-01)
  */
-import { readFileSync, writeFileSync, appendFileSync, statSync, existsSync, mkdirSync, renameSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, statSync, existsSync, mkdirSync, renameSync, openSync, readSync, closeSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { pathToFileURL } from "node:url";
+import { spawn } from "node:child_process";
 // SYSTEM-VIZ-BRAIN-MS0/U-P1-WIKI-PRELOAD-BY-DOMAIN — bias top-K toward the
 // active chat's milestone domain. Knob: PRISM_WIKI_DOMAIN_BIAS_DISABLE=1.
-import { getDomainTokens, domainBoostFor, chatIdFromInput } from "../helpers/wiki-domain-bias.mjs";
+import { getDomainTokens, domainBoostFor, chatIdFromInput, activeSlotName } from "../helpers/wiki-domain-bias.mjs";
+// U-WIKI-SLOT-DOMAIN-BOOST: single-source the slot->domain map from the tribal hook
+// (its main() is argv-guarded, so importing has no side effect).
+import { SLOT_TRIBAL_DOMAIN } from "./tribal-by-domain-inject.mjs";
+// RAG-UPGRADE-MS0/U-RAG-2: stage-2 lexical reranker over the widened stage-1
+// BM25 recall. Pure + never throws — degrades to the stage-1 order if it
+// can't score.
+import { rerank as lexicalRerank } from "../../scripts/lib/lexical-rerank.mjs";
+// 2026-05-26 (U-D3-WIKIINJECT-COUNTER-WIRE, slot:alpha): S6 shared counter for
+// FEATURE-UTILIZATION dashboard. WikiInject feature was 0-fire pre-wire.
+import { incrementFeature } from "../helpers/feature-counter.mjs";
+// U-WIKI-PRECHECK-WIRE (bravo 2026-06-10): same-prompt throttle so a /loop that
+// re-submits the IDENTICAL prompt every tick does not re-run BM25 + re-inject the
+// same top-K block. Serves the parallel token-efficiency goal. Fail-open (no
+// sid / ttl<=0 / IO error -> inject). Knob: PRISM_WIKI_PRECHECK_THROTTLE_MS.
+import { shouldThrottleInject } from "../../scripts/lib/inject-throttle.mjs";
 
 // Paths are env-overridable so the hook is testable in isolation (a vitest suite
 // points these at a tmpdir). Defaults are the live PRISM paths.
@@ -45,6 +70,37 @@ const TELEMETRY = process.env.PRISM_WIKI_TELEMETRY || "H:/prism/mcp-server/data/
 const MISSES_LOG = process.env.PRISM_WIKI_MISSES_LOG || "H:/prism/state/shared/wiki-inject-misses.jsonl";
 const OLLAMA_URL = `http://${(process.env.OLLAMA_HOST || "127.0.0.1:11434").replace(/^https?:\/\//, "")}/api/embeddings`;
 const SEM_MIN_COSINE = 0.62; // below this, a "semantic" hit is noise — don't surface
+// WIKI-INJECT-MS0: _leaf-index.jsonl regenerates hourly (cron) but _embeddings.jsonl
+// only regenerates when Ollama is reachable, so it legitimately lags a little. Past
+// EMB_STALE_HOURS the lag is large enough that paraphrase recall is meaningfully
+// missing recently-added wiki entries — surface it loudly instead of degrading
+// silently. Knob: PRISM_WIKI_EMB_STALE_HOURS (default 24, floor 1).
+const EMB_STALE_HOURS = Math.max(1, Number(process.env.PRISM_WIKI_EMB_STALE_HOURS) || 24);
+// WIKI-INJECT-MS0/U-WIM02: a cold nomic-embed-text takes 15-40s to load; the
+// semantic query timeout is 1500ms, so a cold model loses the race every time.
+// Keep it resident with a throttled detached warm-up. COST: keep_alive (30m) >
+// the re-warm throttle (20m), so once warmed the model effectively never
+// unloads while any chat is active — ~270MB held resident (VRAM if a GPU is
+// present, else commit RAM). PRISM_WIKI_PREWARM_DISABLE=1 is the lever if the
+// host is memory-starved. Sibling: ollama-prewarm-on-pipeline.mjs also warms
+// nomic, but only on /dedup — this hook warms it for every prompt's semantic
+// fallback. Knobs: PRISM_WIKI_PREWARM_DISABLE=1, PRISM_WIKI_PREWARM_THROTTLE_MS.
+const EMB_MODEL = "nomic-embed-text";
+const PREWARM_THROTTLE_MS = Math.max(60000, Number(process.env.PRISM_WIKI_PREWARM_THROTTLE_MS) || 20 * 60 * 1000);
+const PREWARM_STAMP = join(CACHE_DIR, "nomic-prewarm.stamp");
+const EMB_KEEP_ALIVE = "30m"; // how long Ollama holds the embed model resident after a call
+// HMEMV09: query the prism_wiki Qdrant collection (53.9K wiki vectors, ANN) as
+// the PRIMARY dense path so the semantic fallback no longer loads the 137MB
+// _embeddings.jsonl + linear-scans 53.9Kx768 int8 vectors on every paraphrase
+// miss. Fail-soft: any Qdrant miss/timeout/down falls through to the original
+// in-process linear scan (reusing the already-embedded query vector). Cosine is
+// direction-only, so Qdrant's score == the linear path's cosine for the same
+// query -> the SEM_MIN_COSINE floor applies identically. Revert:
+// PRISM_WIKI_QDRANT_DISABLE=1.
+const WIKI_QDRANT_URL = `http://${(process.env.PRISM_QDRANT_HOST || "127.0.0.1:6333").replace(/^https?:\/\//, "")}`;
+const WIKI_QDRANT_COLLECTION = process.env.PRISM_WIKI_QDRANT_COLLECTION || "prism_wiki";
+const WIKI_QDRANT_TIMEOUT_MS = Math.max(200, Number(process.env.PRISM_WIKI_QDRANT_TIMEOUT_MS) || 1200);
+const WIKI_QDRANT_ENABLED = process.env.PRISM_WIKI_QDRANT_DISABLE !== "1";
 
 function tele(decision, extra) {
   try { appendFileSync(TELEMETRY, JSON.stringify({ ts: new Date().toISOString(), hook: "wiki-precheck-inject", decision, ...extra }) + "\n", "utf8"); } catch {}
@@ -52,6 +108,10 @@ function tele(decision, extra) {
 const MIN_SCORE = 4.0;
 const MIN_MATCHES = 2;
 const TOP_K = 3;
+// RAG-UPGRADE-MS0/U-RAG-2: widen the deduped stage-1 BM25 recall to STAGE1_K,
+// then narrow via the lexical reranker to TOP_K. ×5 clamped to [TOP_K, 30] —
+// mirrors the sibling inject hooks (master-index, memory-relevance).
+const STAGE1_K = Math.min(30, Math.max(TOP_K, TOP_K * 5));
 const MIN_PROMPT_LEN = 12;
 const MIN_PROMPT_TOKENS = 2;
 const DESC_PREVIEW_LEN = 140;
@@ -192,8 +252,12 @@ function capInjection(header, entryLines, footer, maxBytes) {
 // Append a miss record to MISSES_LOG — prompt tokens are SALTED-hashed so raw
 // text never lands in the ledger. Self-rotates past MAX_MISSES_BYTES (the hook
 // fires on every prompt and nothing else reaps this file). Fail-safe: a logging
-// failure must never break the hook.
-function logMiss(promptToks, semReason) {
+// failure must never break the hook. embStale records whether _embeddings.jsonl
+// was stale vs _leaf-index.jsonl at miss time — file-level staleness, set
+// regardless of whether the query embedding itself succeeded (so an
+// "ollama_down" miss can still carry embStale:true). Lets a miss-analyzer
+// down-weight misses logged against a known-stale index.
+function logMiss(promptToks, semReason, embStale = false) {
   try {
     mkdirSync(dirname(MISSES_LOG), { recursive: true });
     try {
@@ -206,6 +270,7 @@ function logMiss(promptToks, semReason) {
       hashedKeywords: promptToks.slice(0, MISS_HASH_TOKENS).map((t) => hashKeyword(t, salt)),
       tokenCount: promptToks.length,
       sem: semReason,
+      embStale: !!embStale,
     }) + "\n", "utf8");
   } catch { /* fail-safe */ }
 }
@@ -249,6 +314,33 @@ function loadLeafCorpus() {
   } catch { return null; }
 }
 
+// ── WIKI-INJECT-MS0: embeddings staleness ────────────────────────────────────
+// Pure: compare _embeddings.jsonl mtime against _leaf-index.jsonl mtime. A
+// positive lag means embeddings are behind the leaf index (recently-added wiki
+// entries have no vector yet, so the semantic fallback cannot reach them).
+// Exported for the test suite.
+function embeddingStaleness(embMtimeMs, leafMtimeMs) {
+  if (!Number.isFinite(embMtimeMs) || !Number.isFinite(leafMtimeMs)) return { staleHours: 0, stale: false };
+  const lagMs = leafMtimeMs - embMtimeMs;
+  if (lagMs <= 0) return { staleHours: 0, stale: false };
+  const staleHours = lagMs / 3600000;
+  return { staleHours, stale: staleHours >= EMB_STALE_HOURS };
+}
+// statSync both index files FRESH on every call — never cached. The leaf index
+// can update without _embeddings.jsonl changing, so a cached staleness verdict
+// would itself rot. Fail-safe: an unreadable file → "not stale" (no false alarm).
+function computeEmbStaleness() {
+  try {
+    return embeddingStaleness(statSync(EMB_INDEX).mtimeMs, statSync(LEAF_INDEX).mtimeMs);
+  } catch { return { staleHours: 0, stale: false }; }
+}
+// Pure: the one-line staleness warning appended to the semantic-fallback footer.
+// Exported for the test suite.
+function staleFooterNote(staleHours, headerCount, generatedAt) {
+  const gen = generatedAt ? `, generated ${String(generatedAt).slice(0, 10)}` : "";
+  return `\n_⚠ Semantic index is ${Math.round(staleHours)}h stale (${headerCount || "?"} vectors${gen}) — paraphrase recall may miss recently-added wiki entries. Regen: \`node scripts/build-wiki-embeddings.mjs\`._`;
+}
+
 // ── Semantic fallback (int8-quantized nomic-embed-text vectors) ───────────────
 // Only used when BM25 over index.md + _leaf-index.jsonl yields nothing — catches
 // paraphrase/synonym queries. Lazy: the ~3.5MB JSONL is parsed only on the miss
@@ -264,20 +356,20 @@ function loadEmbeddings() {
   }
   try {
     const text = readFileSync(EMB_INDEX, "utf8");
-    let model = "nomic-embed-text", dim = 0;
+    let model = "nomic-embed-text", dim = 0, headerCount = 0, generatedAt = "";
     const entries = [];
     for (const line of text.split(/\r?\n/)) {
       if (!line.trim()) continue;
       let r;
       try { r = JSON.parse(line); } catch { continue; }
-      if (r && r.__meta) { model = r.model || model; dim = r.dim || dim; continue; }
+      if (r && r.__meta) { model = r.model || model; dim = r.dim || dim; headerCount = r.count || headerCount; generatedAt = r.generatedAt || generatedAt; continue; }
       if (!r || !r.n || !Array.isArray(r.q) || typeof r.s !== "number") continue;
       // reconstruct the unit-norm float vector once (q[i]*s); recompute exact norm
       let nrm = 0; for (const x of r.q) nrm += x * x;
       nrm = (Math.sqrt(nrm) * r.s) || 1;
       entries.push({ n: r.n, t: r.t || "", v: r.q.map((x) => (x * r.s) / nrm) });
     }
-    const corpus = { mtime: st.mtimeMs, model, dim, entries };
+    const corpus = { mtime: st.mtimeMs, model, dim, headerCount, generatedAt, entries };
     try { mkdirSync(CACHE_DIR, { recursive: true }); writeFileSync(EMB_CACHE, JSON.stringify(corpus), "utf8"); } catch {}
     return corpus;
   } catch { return null; }
@@ -290,7 +382,7 @@ async function ollamaEmbedQuery(model, prompt, timeoutMs = 1500) {
     const res = await fetch(OLLAMA_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ model, prompt: prompt.slice(0, 1200) }),
+      body: JSON.stringify({ model, prompt: prompt.slice(0, 1200), keep_alive: EMB_KEEP_ALIVE }),
       signal: ctrl.signal,
     });
     if (!res.ok) return null;
@@ -299,6 +391,33 @@ async function ollamaEmbedQuery(model, prompt, timeoutMs = 1500) {
     return Array.isArray(v) && v.length ? v : null;
   } catch { return null; }
   finally { clearTimeout(t); }
+}
+
+// WIKI-INJECT-MS0/U-WIM02: keep nomic-embed-text resident so the semantic
+// fallback's 1500ms query timeout doesn't lose the cold-load race. Throttled
+// host-wide via a stamp file in CACHE_DIR; the warm-up runs in a DETACHED
+// child (capped at 60s) so a 15-40s cold load never adds latency to the user's
+// prompt. Best-effort — every failure is swallowed. spawnImpl is injectable for
+// the test suite. Disable: PRISM_WIKI_PREWARM_DISABLE=1.
+function prewarmEmbedModel(spawnImpl = spawn) {
+  if (process.env.PRISM_WIKI_PREWARM_DISABLE === "1") return false;
+  if (!existsSync(EMB_INDEX)) return false; // no embeddings corpus → semantic path is dead regardless
+  try {
+    const now = Date.now();
+    try {
+      if (now - statSync(PREWARM_STAMP).mtimeMs < PREWARM_THROTTLE_MS) return false; // warmed recently
+    } catch { /* no stamp yet — proceed */ }
+    mkdirSync(CACHE_DIR, { recursive: true });
+    writeFileSync(PREWARM_STAMP, String(now), "utf8"); // stamp BEFORE spawn so a spawn failure still throttles
+    const body = JSON.stringify({ model: EMB_MODEL, prompt: "warm", keep_alive: EMB_KEEP_ALIVE });
+    const js = `const c=new AbortController();const t=setTimeout(()=>c.abort(),60000);`
+      + `fetch(${JSON.stringify(OLLAMA_URL)},{method:"POST",headers:{"content-type":"application/json"},`
+      + `body:${JSON.stringify(body)},signal:c.signal}).catch(()=>{}).finally(()=>{clearTimeout(t);process.exit(0)})`;
+    const child = spawnImpl(process.execPath, ["-e", js], { detached: true, stdio: "ignore" });
+    if (child && typeof child.unref === "function") child.unref();
+    tele("prewarm_fired", {});
+    return true;
+  } catch { return false; } // fail-safe — prewarm is best-effort
 }
 
 function cosineAgainstCorpus(qvec, corpus, topK) {
@@ -318,13 +437,91 @@ function cosineAgainstCorpus(qvec, corpus, topK) {
   return scored.slice(0, topK);
 }
 
+// HMEMV09: read ONLY the __meta first line (headerCount / generatedAt) without
+// loading the 137MB corpus -- the Qdrant ANN path needs these for the staleness
+// footer but must NOT pay the full-file read it is designed to avoid.
+function readEmbMeta() {
+  try {
+    const fd = openSync(EMB_INDEX, "r");
+    try {
+      const buf = Buffer.alloc(1024);
+      const n = readSync(fd, buf, 0, 1024, 0);
+      const first = buf.toString("utf8", 0, n).split("\n")[0];
+      const m = JSON.parse(first);
+      if (m && m.__meta) return { model: m.model || EMB_MODEL, headerCount: m.count || 0, generatedAt: m.generatedAt || "" };
+    } finally { closeSync(fd); }
+  } catch { /* fall through to defaults */ }
+  return { model: EMB_MODEL, headerCount: 0, generatedAt: "" };
+}
+
+// HMEMV09: ANN query against the prism_wiki Qdrant collection. Returns
+// { hits:[{n,t,cos}] } when Qdrant ANSWERS (possibly empty -> a real semantic
+// miss; do NOT fall back to the slow scan for the same null result), or null
+// when Qdrant is down/unreachable/errors -> caller falls through to the linear
+// scan. score_threshold applies SEM_MIN_COSINE server-side, identical to the
+// linear path's filter. fetchImpl injectable for the test suite.
+async function qdrantRankWiki(qvec, topK, { url = WIKI_QDRANT_URL, collection = WIKI_QDRANT_COLLECTION, timeoutMs = WIKI_QDRANT_TIMEOUT_MS, fetchImpl = fetch } = {}) {
+  if (!Array.isArray(qvec) || qvec.length === 0) return null;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetchImpl(`${url}/collections/${collection}/points/search`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ vector: qvec, limit: topK, with_payload: true, score_threshold: SEM_MIN_COSINE }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const result = j && Array.isArray(j.result) ? j.result : null;
+    if (!result) return null;
+    const hits = [];
+    const seen = new Set();
+    for (const p of result) {
+      const n = p && p.payload && typeof p.payload.node_id === "string" ? p.payload.node_id : null;
+      if (!n || seen.has(n)) continue;
+      seen.add(n);
+      hits.push({ n, t: "", cos: typeof p.score === "number" ? p.score : 0 });
+    }
+    return { hits };
+  } catch { return null; }
+  finally { clearTimeout(t); }
+}
+
 async function semanticFallback(prompt) {
+  // staleness is computed fresh (NOT from the mtime-keyed corpus cache)
+  const stale = computeEmbStaleness();
+  // HMEMV09 Qdrant-ANN primary path (default on; PRISM_WIKI_QDRANT_DISABLE=1 reverts).
+  if (WIKI_QDRANT_ENABLED) {
+    const qvec = await ollamaEmbedQuery(EMB_MODEL, prompt);
+    if (!qvec) {
+      const meta = readEmbMeta();
+      return { ok: false, reason: "ollama_down", stale, headerCount: meta.headerCount, generatedAt: meta.generatedAt };
+    }
+    const ann = await qdrantRankWiki(qvec, TOP_K);
+    if (ann) {
+      const meta = readEmbMeta();
+      return { ok: true, hits: ann.hits, stale, headerCount: meta.headerCount, generatedAt: meta.generatedAt, denseArm: "qdrant" };
+    }
+    // Qdrant down/unreachable -> fall through to the in-process linear scan, REUSING qvec.
+    return linearSemanticFallback(prompt, stale, qvec);
+  }
+  return linearSemanticFallback(prompt, stale, null);
+}
+
+// Original in-process path: load _embeddings.jsonl (137MB) + linear cosine scan.
+// Now the fail-soft fallback BEHIND the Qdrant ANN primary (and the full path
+// when PRISM_WIKI_QDRANT_DISABLE=1). qvecMaybe reuses an already-embedded query
+// so the Qdrant-down path does not embed twice.
+async function linearSemanticFallback(prompt, stale, qvecMaybe) {
   const corpus = loadEmbeddings();
   if (!corpus || !corpus.entries.length) return null;
-  const qvec = await ollamaEmbedQuery(corpus.model, prompt);
-  if (!qvec) return { ok: false, reason: "ollama_down" };
+  const headerCount = corpus.headerCount || corpus.entries.length;
+  const generatedAt = corpus.generatedAt || "";
+  const qvec = qvecMaybe || await ollamaEmbedQuery(corpus.model, prompt);
+  if (!qvec) return { ok: false, reason: "ollama_down", stale, headerCount, generatedAt };
   const hits = cosineAgainstCorpus(qvec, corpus, TOP_K);
-  return { ok: true, hits };
+  return { ok: true, hits, stale, headerCount, generatedAt, denseArm: "scan" };
 }
 
 function readStdin() {
@@ -334,9 +531,47 @@ function readStdin() {
   try { return JSON.parse(raw || "{}"); } catch { return {}; }
 }
 
+/**
+ * U-RAG-2 stage-2 lexical rerank over the wider stage-1 BM25 recall. Mirrors
+ * the 3-of-3-passed pattern in tribal-by-domain-inject.mjs (commit 6df057e098),
+ * master-index-precheck-inject.mjs, and memory-relevance-inject.mjs.
+ *
+ * Wiki-hook-specific: curated `boost_keywords` hits (`x.boosted`) are PINNED
+ * at the head and never reranked. boost_keywords exist precisely for queries
+ * with weak token overlap (multi-word phrases, filenames, globs) — letting the
+ * lexical scorer demote them would defeat the curation (BOOST_BASE_SCORE is
+ * sized so a deliberate curation reliably surfaces). Only the non-curated
+ * BM25/domain pool is reranked by coverage/phrase/labelHit.
+ *
+ * Synthesized `text` = entry name + desc; `label` = entry name; `score`
+ * carries the stage-1 BM25/domain score (field `s`) as scoreCandidate's
+ * 0.15-weighted `stage1` prior. All three synthesized fields are stripped on
+ * return so the renderer + telemetry receive the original candidate shape
+ * ({e, s, matches, leaf, boosted, boostHits, domainBoost}) unchanged — note
+ * the original score field is `s`, never `score`, so the strip is exact.
+ */
+function applyLexicalRerank(prompt, items, topK) {
+  if (!Array.isArray(items)) return [];
+  if (items.length <= 1) return items.slice(0, topK);
+  const pinned = items.filter((x) => x && x.boosted);
+  const rerankable = items.filter((x) => x && !x.boosted);
+  const cands = rerankable.map((x) => ({
+    ...x,
+    text: `${x.e?.name || ""} ${x.e?.desc || ""}`.trim(),
+    label: x.e?.name || "",
+    score: x.s,
+  }));
+  const reranked = lexicalRerank(prompt, cands, { topK });
+  return [...pinned, ...reranked].slice(0, topK).map((c) => {
+    const { text: _t, label: _l, score: _s, ...rest } = c;
+    return rest;
+  });
+}
+
 async function main(injectedInput) {
   const input = injectedInput !== undefined ? injectedInput : readStdin();
-  if (process.env.PRISM_WIKI_PRECHECK === "0") { tele("disabled"); return out({}); }
+  if (process.env.PRISM_WIKI_PRECHECK === "0" || process.env.PRISM_WIKI_PRECHECK_INJECT === "0") { tele("disabled"); return out({}); }
+  prewarmEmbedModel(); // throttled + detached — keeps the semantic fallback's embed model warm
   const prompt = String(input?.prompt || "");
   if (prompt.length < MIN_PROMPT_LEN) { tele("skip_short"); return out({}); }
   const promptToks = tokenize(prompt);
@@ -344,6 +579,8 @@ async function main(injectedInput) {
   const corpus = loadCorpus();
   const leafCorpus = loadLeafCorpus();
   if ((!corpus || !corpus.entries.length) && (!leafCorpus || !leafCorpus.entries.length)) { tele("error_no_corpus"); return out({}); }
+  // U-D3: feature engaged — at least one corpus loaded + prompt passed gates.
+  try { incrementFeature("WikiInject", { slot: input?.slot ?? null }); } catch { /* never blocks */ }
   const candidates = [];
   if (corpus?.entries?.length) {
     for (const e of corpus.entries) { const { s, matches } = score(promptToks, e, corpus.idf); if (s >= MIN_SCORE && matches >= MIN_MATCHES) candidates.push({ e, s, matches, leaf: false }); }
@@ -369,7 +606,15 @@ async function main(injectedInput) {
   // dominates. No-op when knob disabled or no slot domain resolvable.
   let domainBoostCount = 0;
   try {
-    const domainTokens = getDomainTokens({ chatId: chatIdFromInput(input) });
+    const _wdbChatId = chatIdFromInput(input);
+    const domainTokens = getDomainTokens({ chatId: _wdbChatId });
+    // U-WIKI-SLOT-DOMAIN-BOOST: a topicless slot (branch slot/<name>, no milestone)
+    // yields no domain-relevant tokens -> no wiki domain boost. Add the slot's
+    // canonical domain so ranking is domain-aware by slot identity. Skip "general"
+    // (not a useful single boost token). mill/lathe/wedm/cad/cam are real entry tokens.
+    const _wdbSlot = activeSlotName(_wdbChatId);
+    const _wdbCanon = _wdbSlot ? SLOT_TRIBAL_DOMAIN[_wdbSlot] : null;
+    if (_wdbCanon && _wdbCanon !== "general" && !domainTokens.includes(_wdbCanon)) domainTokens.push(_wdbCanon);
     if (domainTokens.length) {
       for (const c of candidates) {
         const b = domainBoostFor(c.e, domainTokens);
@@ -381,24 +626,31 @@ async function main(injectedInput) {
   // De-dup by entry name, then top-K by score (highest score wins; on a tie the
   // first-inserted survives — index.md entries are pushed before leaf entries).
   const seen = new Set();
-  const ranked = candidates
+  // U-RAG-2 two-stage: widen the deduped stage-1 BM25/boost/domain recall to
+  // STAGE1_K, then lexically rerank (curated boost hits pinned — see
+  // applyLexicalRerank) and narrow to TOP_K. Query = the user prompt.
+  const stage1 = candidates
     .sort((a, b) => b.s - a.s)
     .filter(x => { if (seen.has(x.e.name)) return false; seen.add(x.e.name); return true; })
-    .slice(0, TOP_K);
+    .slice(0, STAGE1_K);
+  const ranked = applyLexicalRerank(prompt, stage1, TOP_K);
   if (!ranked.length) {
     // BM25 missed — try the semantic fallback (paraphrase/synonym queries). Tight
     // Ollama timeout; if it's down or returns nothing useful, this stays a no-op.
     const sem = await semanticFallback(prompt);
+    const embStale = !!(sem && sem.stale && sem.stale.stale);
+    const staleHours = sem && sem.stale ? sem.stale.staleHours : 0;
     if (sem && sem.ok && sem.hits && sem.hits.length) {
-      tele("matched_semantic", { hits: sem.hits.length, top_cos: Math.round(sem.hits[0].cos * 100) / 100 });
+      tele("matched_semantic", { hits: sem.hits.length, top_cos: Math.round(sem.hits[0].cos * 100) / 100, emb_stale_h: embStale ? Math.round(staleHours) : 0 });
       const header = "## 📚 Wiki precheck — semantically related entries (BM25 missed; nearest by meaning)";
       const entryLines = sem.hits.map(h => `- **[[${h.n}]]**${h.t ? ` _(${h.t})_` : ""} — cosine ${h.cos.toFixed(2)}`);
-      const footer = "_Query \`/wiki-query <name>\` for full entry. These are paraphrase matches — verify relevance before relying on them._";
+      let footer = "_Query \`/wiki-query <name>\` for full entry. These are paraphrase matches — verify relevance before relying on them._";
+      if (embStale) footer += staleFooterNote(staleHours, sem.headerCount, sem.generatedAt);
       return out({ hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: capInjection(header, entryLines, footer, MAX_INJECT_BYTES) } });
     }
     const semReason = sem ? sem.reason || "no_hits" : "no_corpus";
-    tele("noop_no_matches", { tokens: promptToks.length, sem: semReason });
-    logMiss(promptToks, semReason);
+    tele("noop_no_matches", { tokens: promptToks.length, sem: semReason, emb_stale_h: embStale ? Math.round(staleHours) : 0 });
+    logMiss(promptToks, semReason, embStale);
     return out({});
   }
   tele("matched", { hits: ranked.length, top_score: Math.round(ranked[0].s * 10) / 10, leaf_hits: ranked.filter(r => r.leaf).length, boost_hits: ranked.filter(r => r.boosted).length, domain_boosted: domainBoostCount });
@@ -420,7 +672,7 @@ function out(obj) {
 
 // Exported for the U-CLEANUP-D5 vitest suite. main() takes an optional injected
 // input object so it's testable without a stdin pipe.
-export { main, matchBoostKeywords, hashKeyword, capInjection, loadLeafCorpus };
+export { main, matchBoostKeywords, hashKeyword, capInjection, loadLeafCorpus, embeddingStaleness, staleFooterNote, prewarmEmbedModel, applyLexicalRerank, qdrantRankWiki, readEmbMeta, semanticFallback };
 
 // Run as a hook only when invoked directly (not when imported by a test).
 const isDirectRun = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;

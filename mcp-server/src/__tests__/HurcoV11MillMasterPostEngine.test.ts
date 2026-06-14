@@ -721,16 +721,31 @@ describe("HurcoV11 — material constant overrides", () => {
 });
 
 describe("HurcoV11 — UltiMotion & metadata", () => {
-  it("UltiMotion G187 P3 emitted by default", () => {
+  // U-HURCO-G053-FIX (2026-05-22 india /loop): the prior G187 P3 expectation
+  // was inherited from Haas dialect — wrong for Hurco V11. Real JM Die-posted
+  // programs (H:/prism/JM DIE/HURCO CNC PROGRAMS/) + Fusion .cps PRISM Enhanced
+  // v8.9.153 (line 3022) both emit G05.3 P<n> immediately after T<n> M06.
+  // Operator confirmed 2026-05-22. P35 for ADAPTIVE roughing, P10 for FINISH ops.
+  it("UltiMotion G05.3 P10 emitted by default for non-adaptive ops (per tool change)", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()]);
-    const um = mustFind(result.gcode, l => /^G187/.test(l), "G187");
-    expect(um).toBe("G187 P3 (ULTIMOTION HIGH ACCURACY MODE)");
+    const sm = mustFind(result.gcode, l => /^G05\.3/.test(l), "G05.3");
+    expect(sm).toBe("G05.3 P10 (T1 FINISH SMOOTHING)");
   });
 
-  it("use_ultimotion: false suppresses G187 P3", () => {
+  it("UltiMotion G05.3 P35 emitted for adaptive operation_type", () => {
+    const result = hurcoV11MillMasterPostEngine.generateProgram([
+      makeOp({ operation_type: "adaptive", tool_number: 7 })
+    ]);
+    const sm = mustFind(result.gcode, l => /^G05\.3/.test(l), "G05.3");
+    expect(sm).toBe("G05.3 P35 (T7 ADAPTIVE ROUGH SMOOTHING)");
+  });
+
+  it("use_ultimotion: false suppresses all G05.3 emission", () => {
     const result = hurcoV11MillMasterPostEngine.generateProgram([makeOp()], {
       use_ultimotion: false
     });
+    expect(linesMatching(result.gcode, /^G05\.3/).length).toBe(0);
+    // Anti-regression: ensure the prior bogus G187 emission stays dead.
     expect(linesMatching(result.gcode, /^G187/).length).toBe(0);
   });
 

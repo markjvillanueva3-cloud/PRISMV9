@@ -71,8 +71,11 @@ impact:
     - informs: commit-vs-defer decision in /forge P6 and /handoff
   bounded: true
   reversible: true  # default is read-only; --post-proposing writes one chat-bus message
+composes_with:
+  - "/checkin"
+  - "/forge"
+  - "/handoff"
 ---
-
 # /peer-file-isolation — Conflict Matrix Against Peer Claims
 
 > **Goal:** answer the question *"of the files I've touched this session, which ones is another chat already working on?"* in one command. Today this question is answerable only by squinting at `/checkin` step 4's chat-bus-inject output and mentally diffing it against `git status`. This skill does that diff explicitly and recommends a row-by-row action.

@@ -405,13 +405,15 @@ export function WireEdmWizardPage() {
     async function checkApproval() {
       try {
         const result = await wedmApprovalStatus();
-        if (!cancelled && result.data) {
-          setApprovalStatus(result.data);
+        // PrismResponse uses `.result` not `.data` (see api/types.ts:7).
+        if (!cancelled && result.result) {
+          setApprovalStatus(result.result);
         }
       } catch {
-        // Default to requiring approval
+        // Default to requiring approval — shape matches WedmApprovalStatus + extras
+        // (approved/requires_approval are extra fields per the [key: string]: unknown signature).
         if (!cancelled) {
-          setApprovalStatus({ approved: false, requires_approval: true });
+          setApprovalStatus({ status: 'pending', approved: false, requires_approval: true });
         }
       }
     }
@@ -426,8 +428,9 @@ export function WireEdmWizardPage() {
       const result = await wedmRequestApproval({
         reason: `Wire EDM job for ${material}, ${thickness}mm thickness`,
       });
-      if (result.data) {
-        setApprovalStatus(result.data);
+      // PrismResponse uses `.result` not `.data` (see api/types.ts:7).
+      if (result.result) {
+        setApprovalStatus(result.result);
       }
     } catch {
       setErpError('Failed to request approval');
@@ -505,7 +508,10 @@ export function WireEdmWizardPage() {
         content: fileContent,
       });
 
-      const parsed = response as GeometryParseResult;
+      // Double-cast: wireEdmParseGeometry returns Record<string, unknown> at the type
+       // level (until U-WEDM-PARSE-GEOM-TYPING tightens the API contract); shape is
+       // verified by runtime guards in the geometry consumers.
+      const parsed = response as unknown as GeometryParseResult;
       setGeometry(parsed);
     } catch (err) {
       setParseError(errorMessage(err, 'Failed to parse geometry'));

@@ -3,7 +3,7 @@
  * ConnectionFinderEngine — OBSIDIAN-INTELLIGENCE-MS3 / B2 (U-CONNECTION-FINDER)
  *
  * Weekly Monday 08:00 cron. Scans memory/ + wiki/code-tribal/ + inbox/, calls
- * Ollama qwen2.5-coder:7b to surface three signal classes across the corpus:
+ * Ollama qwen2.5-coder:32b to surface three signal classes across the corpus:
  *
  *   - contradiction : two memos with directly opposing claims on the same subject
  *   - echo          : the same insight surfacing in 3+ independent memos
@@ -31,9 +31,9 @@ export const DEFAULT_OLLAMA_URL =
     ?? "http://127.0.0.1:11434/api/generate";
 
 export const DEFAULT_OLLAMA_MODEL =
-  process.env.PRISM_CONNECTION_FINDER_OLLAMA_MODEL ?? "qwen2.5-coder:7b";
+  process.env.PRISM_CONNECTION_FINDER_OLLAMA_MODEL ?? "qwen2.5-coder:32b";
 
-// Token-budget math: qwen2.5-coder:7b ships with 32K-token Ollama context;
+// Token-budget math: qwen2.5-coder:32b ships with 32K-token Ollama context;
 // `num_ctx` defaults to 2048 unless overridden, so we both set it explicitly
 // AND cap raw payload at ~60KB ≈ 15K tokens to leave headroom for the
 // prompt scaffolding + response. Source: Arm B scrutiny P0 on first pass.

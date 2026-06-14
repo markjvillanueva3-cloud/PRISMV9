@@ -58,11 +58,24 @@ function failure<T>(error: string, wallMs: number): OllamaResult<T> {
   return { ok: false, value: null, error, wallMs };
 }
 
+// Resolve the Ollama host. Default to 127.0.0.1 (IPv4) NOT localhost: on Windows
+// `localhost` resolves to IPv6 ::1 first, but Ollama binds IPv4 127.0.0.1, so
+// `http://localhost:11434` is unreachable (empirically: fetch fails in ~64ms)
+// while 127.0.0.1 connects in ~9ms. Env-overridable via OLLAMA_HOST (must be an
+// http(s) URL), mirroring OllamaCapabilityProbeEngine's resolution.
+const DEFAULT_OLLAMA_HOST =
+  typeof process !== "undefined" &&
+  process.env &&
+  typeof process.env.OLLAMA_HOST === "string" &&
+  process.env.OLLAMA_HOST.startsWith("http")
+    ? process.env.OLLAMA_HOST
+    : "http://127.0.0.1:11434";
+
 export class OllamaClientEngine {
   private client: Ollama | null = null;
-  private host = "http://localhost:11434";
+  private host = DEFAULT_OLLAMA_HOST;
 
-  async connect(host = "http://localhost:11434"): Promise<OllamaResult<void>> {
+  async connect(host = DEFAULT_OLLAMA_HOST): Promise<OllamaResult<void>> {
     const started = Date.now();
     this.validateHost(host);
     try {

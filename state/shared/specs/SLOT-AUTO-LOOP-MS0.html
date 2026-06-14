@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="282412bdee3b0f7a0c8ca424c67c1c0b7e01d61de480c26959447d984921690b">
+<title>SLOT-AUTO-LOOP-MS0 — /checkin- auto-engages /loop on slot queue (2026-05-17)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">SLOT-AUTO-LOOP-MS0 — /checkin- auto-engages /loop on slot queue (2026-05-17)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.982Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#slot-auto-loop-ms0-checkin-auto-engages-loop-on-slot-queue-2026-05-17">SLOT-AUTO-LOOP-MS0 — /checkin- auto-engages /loop on slot queue (2026-05-17)</a></li>
+<li class="toc-l2"><a href="#0-what-ships-this-milestone">§0 — What ships this milestone</a></li>
+<li class="toc-l2"><a href="#1-operational-contract">§1 — Operational contract</a></li>
+<li class="toc-l2"><a href="#2-queue-structure-slot-task-queuesjson-schema">§2 — Queue structure (slot-task-queues.json schema)</a></li>
+<li class="toc-l2"><a href="#3-integration-with-existing-systems">§3 — Integration with existing systems</a></li>
+<li class="toc-l2"><a href="#4-why-slot-queuejson-and-priority-queuejson-coexist">§4 — Why slot-queue.json AND priority-queue.json coexist</a></li>
+<li class="toc-l2"><a href="#5-pending-wrapper-changes-next-iter">§5 — Pending wrapper changes (next-iter)</a></li>
+<li class="toc-l2"><a href="#6-operator-commands-once-wrappers-updated">§6 — Operator commands once wrappers updated</a></li>
+<li class="toc-l2"><a href="#7-termination-handoff">§7 — Termination + handoff</a></li>
+<li class="toc-l2"><a href="#8-cost-downgrades-dependency-notes">§8 — Cost downgrades / dependency notes</a></li>
+<li class="toc-l2"><a href="#9-references">§9 — References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="slot-auto-loop-ms0-checkin-auto-engages-loop-on-slot-queue-2026-05-17"><a class="anchor" href="#slot-auto-loop-ms0-checkin-auto-engages-loop-on-slot-queue-2026-05-17" aria-label="Permalink to SLOT-AUTO-LOOP-MS0 — /checkin- auto-engages /loop on slot queue (2026-05-17)">#</a>SLOT-AUTO-LOOP-MS0 — <code>/checkin-&lt;nato&gt;</code> auto-engages /loop on slot queue (2026-05-17)</h1>
+<blockquote>
+<p>User directive (2026-05-17): &quot;I want to be able to just say /checkin-natoname to start a session and they&#39;ll immediately work and /loop until all units and tasks are completed for specific build they&#39;re working on which will be their /goal&quot;.</p>
+</blockquote>
+<hr>
+<h2 id="0-what-ships-this-milestone"><a class="anchor" href="#0-what-ships-this-milestone" aria-label="Permalink to §0 — What ships this milestone">#</a>§0 — What ships this milestone</h2>
+<ol>
+<li><strong><code>state/shared/slot-task-queues.json</code></strong> (SHIPPED this commit) — 12-slot ordered unit queues compiled from V1 allocation + synergy map + iter-4 token audit. Each entry: <code>{unit_id, wave, cost, spec, depends_on, summary}</code>. 36 units total across 12 slots.</li>
+<li><strong><code>scripts/slot-queue.mjs</code></strong> (SHIPPED this commit) — CLI: <code>--pick --slot &lt;nato&gt;</code> / <code>--list --slot &lt;nato&gt;</code> / <code>--status</code> / <code>--remaining --slot &lt;nato&gt;</code>. Filters already-shipped (MILESTONE_PROGRESS) + peer-claimed (slot-task-claims) + dep-blocked.</li>
+<li><strong>This spec</strong> — operational contract for how <code>/checkin-&lt;nato&gt;</code> integrates the queue.</li>
+</ol>
+<hr>
+<h2 id="1-operational-contract"><a class="anchor" href="#1-operational-contract" aria-label="Permalink to §1 — Operational contract">#</a>§1 — Operational contract</h2>
+<p>When operator types <code>/checkin-&lt;nato&gt;</code> (e.g. <code>/checkin-alpha</code>) with NO trailing args:</p>
+<ol>
+<li><strong>Slot bind</strong> (existing /checkin Step 2) — force-claim slot, reap stale peers, set topic = <code>&lt;nato&gt;-work</code>.</li>
+<li><strong>Slot worktree cutover</strong> (existing /checkin Step 2c) — migrate to <code>H:/prism-slot-&lt;nato&gt;</code> on <code>slot/&lt;nato&gt;</code> branch.</li>
+<li><strong>NEW — auto-/loop engage</strong> — read <code>state/shared/slot-task-queues.json</code> for this slot; if <code>remaining &gt; 0</code>, set the slot&#39;s /goal to &quot;ship all &lt;N&gt; units in slot queue: &lt;list&gt;&quot; and start /loop with target = remaining.</li>
+<li><strong>Loop iteration</strong> — each tick:
+<ul>
+<li><code>node scripts/slot-queue.mjs --pick --slot &lt;nato&gt; --json</code> → next eligible unit</li>
+<li>claim it via <code>slot-task-claim.mjs claim --slot &lt;nato&gt; --unitId &lt;id&gt;</code></li>
+<li>read its spec (<code>state/shared/specs/UNITS/&lt;unit_id&gt;.md</code> if exists; else read summary from queue entry)</li>
+<li>build → per-file scrutiny (2 reviewer agents per file in multi-file unit) → 3-of-3 Stop gate → commit with <code>[SCOPE]/U-ID: title</code> format → release claim</li>
+<li>tick <code>loop-state.mjs tick --status ok</code></li>
+</ul></li>
+<li><strong>Termination</strong> — <code>slot-queue.mjs --remaining --slot &lt;nato&gt;</code> returns 0 → /loop ends → <code>/handoff</code> → /precompact.</li>
+</ol>
+<p>If <code>/checkin-&lt;nato&gt;</code> receives trailing args (e.g. <code>/checkin-alpha fix tsc error in X</code>):</p>
+<ul>
+<li>The trailing arg IS the /goal per [[feedback_checkin_args_are_primary_work_order]] — supersedes queue auto-mode.</li>
+<li>Queue auto-mode resumes on next bare <code>/checkin-&lt;nato&gt;</code>.</li>
+</ul>
+<hr>
+<h2 id="2-queue-structure-slot-task-queuesjson-schema"><a class="anchor" href="#2-queue-structure-slot-task-queuesjson-schema" aria-label="Permalink to §2 — Queue structure (slot-task-queues.json schema)">#</a>§2 — Queue structure (<code>slot-task-queues.json</code> schema)</h2>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: &quot;1.0.0&quot;,
+  &quot;generatedAt&quot;: &quot;ISO8601&quot;,
+  &quot;generatedBy&quot;: &quot;&lt;chat-id&gt;&quot;,
+  &quot;queues&quot;: {
+    &quot;&lt;nato&gt;&quot;: [
+      {
+        &quot;unit_id&quot;: &quot;U-...&quot;,          // unique unit identifier
+        &quot;wave&quot;: &quot;W0|W1|W2|W3|W4|&lt;synergy|fanout|token|meta&gt;&quot;,
+        &quot;cost&quot;: &quot;S|M|L|XL&quot;,          // S=2-4h, M=4-8h, L=8-16h, XL=16h+
+        &quot;spec&quot;: &quot;&lt;path|pending-generator&gt;&quot;,  // per-unit spec under state/shared/specs/UNITS/
+        &quot;depends_on&quot;: [&quot;U-...&quot;],     // unit_ids that must SHIP before this becomes eligible
+        &quot;summary&quot;: &quot;1-line&quot;          // shown when --pick prints next unit
+      }
+    ]
+  },
+  &quot;operator_gates&quot;: [
+    { &quot;id&quot;: &quot;U-WIRE-DOCTRINE-RESOLUTION&quot;, &quot;blocks&quot;: [...] }
+  ],
+  &quot;silent_degrade_fixes&quot;: [...]      // F1-F5 from synergy iter-3
+}
+</code></pre>
+<p>Items priority-ordered by wave within each slot (W0 → W1 → W2 → W3 → W4 → synergy → fanout → token).</p>
+<hr>
+<h2 id="3-integration-with-existing-systems"><a class="anchor" href="#3-integration-with-existing-systems" aria-label="Permalink to §3 — Integration with existing systems">#</a>§3 — Integration with existing systems</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>System</th><th>Integration point</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>/checkin-&lt;nato&gt;</code> wrappers</td><td>NEW: queue auto-mode when args empty</td><td><strong>Pending wrapper edit</strong> (39 NATO×3 wrappers exist per CLAUDE.md PER-SLOT WRAPPERS)</td></tr>
+<tr><td><code>slot-task-claim.mjs</code></td><td>Claim each unit from queue head before building</td><td>✅ Existing API</td></tr>
+<tr><td><code>MILESTONE_PROGRESS.json</code></td><td>Marks shipped units; queue picker auto-skips</td><td>✅ Existing (<code>build-milestone-progress.mjs</code>)</td></tr>
+<tr><td><code>loop-state.mjs</code></td><td>Tracks /loop iter count + status</td><td>✅ Existing</td></tr>
+<tr><td><code>priority-queue.mjs</code> (PRIORITY-QUEUE-MS0)</td><td>Existing fleet-wide priority queue (4497 pending)</td><td>Sibling — slot-queue is a per-slot subset; priority-queue is fleet-wide</td></tr>
+<tr><td><code>roadmap-tool-plans.json</code> (RGS-TOOL-AUTOINVOKE)</td><td>Per-unit tool plan ingestion</td><td>✅ Existing; chat reads plan at iter start</td></tr>
+<tr><td><code>per-unit specs</code></td><td>Read at unit-pick to brief the chat</td><td>⚠️ 5 of 36 written; U-UNIT-SPEC-GENERATOR closes gap</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="4-why-slot-queuejson-and-priority-queuejson-coexist"><a class="anchor" href="#4-why-slot-queuejson-and-priority-queuejson-coexist" aria-label="Permalink to §4 — Why slot-queue.json AND priority-queue.json coexist">#</a>§4 — Why slot-queue.json AND priority-queue.json coexist</h2>
+<ul>
+<li><strong>priority-queue.json</strong> (PRIORITY-QUEUE-MS0) = fleet-wide master queue of 4497 pending units, color-coded blue=backend-dev / amber=bridge / green=app. Used when ANY slot wants &quot;next best work fleet-wide&quot;.</li>
+<li><strong>slot-task-queues.json</strong> (this milestone) = per-slot CURATED priority list, 36 hand-allocated units, /goal-style. Used when slot wants its OWN pre-assigned queue (the user&#39;s intent).</li>
+</ul>
+<p><code>/checkin-&lt;nato&gt;</code> auto-loop prefers slot-task-queues.json first; falls back to priority-queue.mjs <code>--pick --slot &lt;nato&gt;</code> when slot queue empty.</p>
+<hr>
+<h2 id="5-pending-wrapper-changes-next-iter"><a class="anchor" href="#5-pending-wrapper-changes-next-iter" aria-label="Permalink to §5 — Pending wrapper changes (next-iter)">#</a>§5 — Pending wrapper changes (next-iter)</h2>
+<p><code>.claude/commands/checkin-&lt;nato&gt;.md</code> × 12 work slots need a § appended at the end of each, BEFORE the canonical /checkin pipeline:</p>
+<pre><code class="language-markdown">## Slot-queue auto-loop (new — SLOT-AUTO-LOOP-MS0)
+
+If args after `/checkin-&lt;nato&gt;` are EMPTY:
+1. Run `node H:/prism/scripts/slot-queue.mjs --remaining --slot &lt;nato&gt;`
+2. If output &gt; 0, set /goal to &quot;ship all &lt;N&gt; units in this slot&#39;s queue&quot; and engage /loop with target=&lt;N&gt;
+3. Each /loop iteration calls `node H:/prism/scripts/slot-queue.mjs --pick --slot &lt;nato&gt; --json` for next unit
+4. /loop terminates when --remaining returns 0
+5. Then run /handoff + /precompact
+
+If args present → treat args as the work order per [[feedback_checkin_args_are_primary_work_order]]; queue auto-mode skipped.
+</code></pre>
+<p>Wrapper edits NOT shipped this commit (per-slot wrappers are peer-contention surface; designed for next-iter SkillTier wire pattern from [[reference_skill_tier_wire_pattern]]).</p>
+<hr>
+<h2 id="6-operator-commands-once-wrappers-updated"><a class="anchor" href="#6-operator-commands-once-wrappers-updated" aria-label="Permalink to §6 — Operator commands once wrappers updated">#</a>§6 — Operator commands once wrappers updated</h2>
+<pre><code class="language-bash"># Start a slot working its queue autonomously:
+/checkin-alpha          → reads alpha queue (7 units), /loops until 7 shipped
+/checkin-bravo          → reads bravo queue (5 units), /loops until 5 shipped
+/checkin-mike           → reads mike queue (3 units), /loops until 3 shipped
+
+# Status across all slots:
+node H:/prism/scripts/slot-queue.mjs --status
+# → shows: total/shipped/in-flight/dep-blocked/eligible per slot
+
+# Peek at a slot&#39;s queue without claiming:
+node H:/prism/scripts/slot-queue.mjs --list --slot alpha
+
+# What&#39;s blocked / waiting on a dep:
+node H:/prism/scripts/slot-queue.mjs --list --slot alpha | grep DEP-BLOCK
+
+# Pick next without starting a loop (manual mode):
+node H:/prism/scripts/slot-queue.mjs --pick --slot alpha
+</code></pre>
+<hr>
+<h2 id="7-termination-handoff"><a class="anchor" href="#7-termination-handoff" aria-label="Permalink to §7 — Termination + handoff">#</a>§7 — Termination + handoff</h2>
+<p>When a slot&#39;s queue exhausts:</p>
+<ul>
+<li><code>slot-queue.mjs --remaining</code> returns 0 (exit code 1)</li>
+<li>/loop ends with reason=&quot;queue-complete&quot;</li>
+<li>/handoff writes &quot;all &lt;N&gt; units in &lt;nato&gt; queue SHIPPED; queue regen needed for next phase&quot;</li>
+<li>Operator decides:
+<ul>
+<li>Regen queue from updated allocation (<code>scripts/regenerate-slot-queues.mjs</code> — pending; juliett task)</li>
+<li>Re-assign slot to fleet-wide priority-queue (<code>/checkin-&lt;nato&gt;</code> falls back to priority-queue.mjs)</li>
+<li>Manually inject new units into the slot&#39;s queue.json</li>
+</ul></li>
+</ul>
+<hr>
+<h2 id="8-cost-downgrades-dependency-notes"><a class="anchor" href="#8-cost-downgrades-dependency-notes" aria-label="Permalink to §8 — Cost downgrades / dependency notes">#</a>§8 — Cost downgrades / dependency notes</h2>
+<ul>
+<li>Wave-4 wirings (<code>U-WIRE-*</code>) ALL depend on <code>U-WIRE-DOCTRINE-RESOLUTION</code> (operator decision). Until operator resolves: wave-4 will dep-block; slots foxtrot/hotel/india/kilo/lima/mike will sit at queue head waiting. Operator must either (a) decide doctrine, (b) bypass dep manually.</li>
+<li><code>U-AUTO-MEMORY-WRITE</code> depends on <code>U-MEMORY-COMPRESS-V2</code> (mike). If mike sits idle, bravo&#39;s queue stalls at item 1.</li>
+<li><code>U-RGS-NEXT-INTEGRATE</code> (lima) depends on <code>U-UNIT-SPEC-GENERATOR</code> (juliett). If juliett doesn&#39;t ship the generator, lima sits at item 2.</li>
+<li>Cross-slot deps named explicitly in <code>depends_on</code> array per entry.</li>
+</ul>
+<hr>
+<h2 id="9-references"><a class="anchor" href="#9-references" aria-label="Permalink to §9 — References">#</a>§9 — References</h2>
+<ul>
+<li>V1 allocation: <code>state/shared/specs/JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md</code></li>
+<li>Synergy map: <code>state/shared/specs/JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md</code></li>
+<li>Token audit: <code>state/shared/specs/JULIETT-TOKEN-OPTIMIZATION-AUDIT-2026-05-17.md</code></li>
+<li>Per-slot wrapper pattern: CLAUDE.md §PER-SLOT WRAPPERS (39 wrappers)</li>
+<li>/checkin canonical: <code>.claude/commands/checkin.md</code></li>
+<li>priority-queue (fleet-wide): CLAUDE.md §PRIORITY-QUEUE-MS0</li>
+<li>Operator-args-as-work-order: [[feedback_checkin_args_are_primary_work_order]]</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SLOT-AUTO-LOOP-MS0.md">SLOT-AUTO-LOOP-MS0.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

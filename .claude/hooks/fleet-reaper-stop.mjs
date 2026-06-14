@@ -3,7 +3,7 @@
 /**
  * fleet-reaper-stop.mjs — Stop-hook arm of the slot-aware orphan reaper.
  *
- * When any of the 7 concurrent chats ends, kick a slot-aware sweep so the
+ * When any of the up to 26 concurrent chats ends, kick a slot-aware sweep so the
  * just-ended chat's orphan node/git/bash processes get noticed promptly instead
  * of waiting up to ~5 min for the next scheduled-task / Monitor tick. A chat
  * that crashes or is closed without firing the rest of its Stop chain is

@@ -1,14 +1,18 @@
 ---
 name: Local LLM routing — Ollama models loaded on this machine
-description: Updates older 7b claim. Current stack is qwen2.5-coder:14b + deepseek-r1:14b. Skill auto-discovery suppressed; hooks fire automatically.
+description: Updated 2026-06-09 to the Blackwell roster (qwen2.5-coder:32b/:1.5b + gpt-oss:120b/:20b). Supersedes the 7b and the interim 14b/deepseek-r1:14b claims. Skill auto-discovery suppressed; hooks fire automatically.
 type: reference
 originSessionId: cee63f1f-130d-4ed3-baf2-1d8812d9acb2
 ---
-**Supersedes the model claim in `feedback_ollama_token_routing.md`** (which referenced qwen2.5-coder:7b). Current stack as of 2026-05-06:
+**History:** this memo once superseded `feedback_ollama_token_routing.md`'s :7b claim with a :14b/deepseek-r1:14b stack (2026-05-06). Both are now retired — the canonical doctrine is back in `feedback_ollama_token_routing.md` pointing at `state/shared/specs/CANONICAL-HOST-FACTS-2026-06-09.md`. Current roster as of 2026-06-09 (Blackwell migration, RTX PRO 6000 96GB):
 
 **Loaded models on this machine** (`http://127.0.0.1:11434/api/tags`, install at `H:\Tools\ollama\`):
-- **qwen2.5-coder:14b** (8.99 GB, Q4_K_M) — code-focused tasks
-- **deepseek-r1:14b** (8.99 GB, Q4_K_M) — reasoning + diff/error analysis
+- **qwen2.5-coder:32b** (~20 GB, Q4_K_M) — heavy code-focused tasks (default offload tier)
+- **qwen2.5-coder:1.5b** (~1 GB) — trivial/fast classification + lint
+- **gpt-oss:120b** (~65 GB) — deep local reasoning + diff/error analysis (fits 96GB VRAM)
+- **gpt-oss:20b** (~14 GB) — mid-tier triage
+- **5 VLMs** (qwen3-vl:8b-instruct, qwen3-vl:8b, qwen2.5vl:7b, llama3.2-vision:11b, moondream:1.8b) — OCR/vision ensemble
+- **nomic-embed-text** — embeddings (unchanged)
 
 Daemon auto-started by SessionStart hook `ollama-autostart.mjs`. Telemetry at `mcp-server/data/state/ollama-offload-stats.json` (read with `node scripts/ollama-offload-dashboard.mjs`).
 
@@ -29,5 +33,5 @@ Daemon auto-started by SessionStart hook `ollama-autostart.mjs`. Telemetry at `m
 - For code-explain / docstring / lint / error-triage requests: hooks already auto-route. Don't burn Claude tokens by re-doing it.
 - Suggest `/ollama-*` slash commands when user wants explicit local-LLM call.
 - Healthy offload rate ≥30%; if `offloaded=0, keptOnClaude>0`, daemon may be down — check :11434 and rate-limit cache `H:\prism\.claude\cache\ollama-rate-limit.json`.
-- For `/ollama-architecture-plan`: deepseek-r1:14b is the recommended model for the task.
+- For `/ollama-architecture-plan`: gpt-oss:120b is the recommended model for the task (deepseek-r1:14b retired 2026-06-04).
 - Anti-pattern: sending an Ollama-routable task to Claude "to be safe." Cost compounds across every session.

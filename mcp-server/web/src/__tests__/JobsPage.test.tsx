@@ -1199,7 +1199,7 @@ describe('JobsPage', () => {
       getHotJobs: vi.fn(async () => []),
       subscribeHotJobs: () => () => undefined,
       isJobHot: () => false,
-      setJobHot: vi.fn(async () => [
+      setJobHot: vi.fn(async (_input: { jobId: string; partNumber: string; customer: string; dueDate?: string; note?: string; setBy?: string }) => [
         {
           jobId: 'JOB-002',
           partNumber: 'HOT-99',
@@ -1207,6 +1207,7 @@ describe('JobsPage', () => {
           dueDate: '2026-04-05',
           note: 'Canonical control room priority from provider response.',
           setBy: 'Control room',
+          setAt: '2026-04-01T00:00:00Z',
         },
       ]),
     };

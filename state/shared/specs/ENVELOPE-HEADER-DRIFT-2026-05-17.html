@@ -1,133 +1,241 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Envelope Header Drift Audit 2026-05-17</title>
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="2851fd2bd0deec5f5dfe9097c0c8f1a60bd70fe7c7c4ea10d61fe282c255e521">
+<title>Envelope Header-Counter Drift Audit</title>
 <style>
-  :root {
-    --bg: #0f1014;
-    --panel: #1a1c23;
-    --panel-2: #232631;
-    --fg: #e4e6eb;
-    --fg-dim: #9aa0a8;
-    --border: #2c303a;
-    --ok: #4ade80;
-    --warn: #fbbf24;
-    --fail: #f87171;
-    --info: #60a5fa;
-    --link: #93c5fd;
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-    font-size: 14px; line-height: 1.5; }
-  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
-  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
-    border-bottom: 1px solid var(--border); color: var(--fg); }
-  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.75rem 1rem; margin-bottom: 1rem; }
-  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.5rem; margin-bottom: 1rem; }
-  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
-    padding: 0.65rem 0.85rem; }
-  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
-  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
-  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
-  .card.ok    { border-left: 3px solid var(--ok); }
-  .card.warn  { border-left: 3px solid var(--warn); }
-  .card.fail  { border-left: 3px solid var(--fail); }
-  .card.info  { border-left: 3px solid var(--info); }
-  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
-    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
-  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
-    background: var(--panel-2); font-weight: 500; }
-  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
-    font-variant-numeric: tabular-nums; vertical-align: top; }
-  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
-    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
-  tr:last-child td { border-bottom: none; }
-  td.right { text-align: right; }
-  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
-  li { margin: 0.15rem 0; }
-  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
-    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
-    border: 1px solid var(--border); }
-  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
-  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
-  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
-  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
-  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
-  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
-    margin: 0.4rem 0 1rem 0; }
-  .kv .k { color: var(--fg-dim); }
-  svg.bar-chart { display: block; max-width: 100%; height: auto; }
-  svg .bar { fill: var(--info); }
-  svg .bar.ok   { fill: var(--ok); }
-  svg .bar.warn { fill: var(--warn); }
-  svg .bar.fail { fill: var(--fail); }
-  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
-  svg .axis text { fill: var(--fg-dim); }
-  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
-    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
-  a { color: var(--link); }
-  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
-    font-size: 0.8rem; color: var(--fg-dim); }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
 </style>
 </head>
 <body>
-<h1>Envelope Header Drift Audit 2026-05-17</h1>
-<div class="meta">rendered from H:/prism/state/shared/specs/ENVELOPE-HEADER-DRIFT-2026-05-17.md</div>
-<div class="meta">Generated 2026-05-17T02:39:16.707Z</div>
-<style>
-  .prism-md-body { max-width: 70rem; margin: 0 auto; }
-  .prism-h1 { font-size: 1.6rem; }
-  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
-  .prism-h3 { font-size: 1.1rem; color: var(--info); }
-  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
-  .prism-md-body p { margin: 0.5rem 0; }
-  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
-  .prism-md-list li { margin: 0.15rem 0; }
-  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
-  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
-  .prism-md-table th { background: var(--panel-2); }
-  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
-  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
-  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
-  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
-  .prism-link { color: var(--link); text-decoration: none; }
-  .prism-link:hover { text-decoration: underline; }
-  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
-  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
-  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Envelope Header-Counter Drift Audit</li><li class="prism-toc-l2">Summary</li><li class="prism-toc-l2">Why this matters</li><li class="prism-toc-l2">Fixed this session (3)</li><li class="prism-toc-l2">Header-overcount class — DO NOT auto-fix</li><li class="prism-toc-l2">Recommendation</li><li class="prism-toc-l2">Data</li></ul></nav><h1 class="prism-h1">Envelope Header-Counter Drift Audit</h1>
-<p><strong>Date:</strong> 2026-05-17 · slot mike (claude-416be9ac) · <code class="prism-inline-code">/checkin-mike /loop</code> <strong>Source:</strong> Walk of <code class="prism-inline-code">mcp-server/data/milestones/*.json</code> comparing <code class="prism-inline-code">j.completed_units</code> header against the sum of <code class="prism-inline-code">phases[].units[].status === &#39;complete&#39; | &#39;completed&#39;</code>.</p>
-<h2 class="prism-h2">Summary</h2>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">Envelope Header-Counter Drift Audit</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.472Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#envelope-header-counter-drift-audit">Envelope Header-Counter Drift Audit</a></li>
+<li class="toc-l2"><a href="#summary">Summary</a></li>
+<li class="toc-l2"><a href="#why-this-matters">Why this matters</a></li>
+<li class="toc-l2"><a href="#fixed-this-session-3">Fixed this session (3)</a></li>
+<li class="toc-l2"><a href="#header-overcount-class-do-not-auto-fix">Header-overcount class — DO NOT auto-fix</a></li>
+<li class="toc-l2"><a href="#recommendation">Recommendation</a></li>
+<li class="toc-l2"><a href="#data">Data</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="envelope-header-counter-drift-audit"><a class="anchor" href="#envelope-header-counter-drift-audit" aria-label="Permalink to Envelope Header-Counter Drift Audit">#</a>Envelope Header-Counter Drift Audit</h1>
+<p><strong>Date:</strong> 2026-05-17 · slot mike (claude-416be9ac) · <code>/checkin-mike /loop</code> <strong>Source:</strong> Walk of <code>mcp-server/data/milestones/*.json</code> comparing <code>j.completed_units</code> header against the sum of <code>phases[].units[].status === &#39;complete&#39; | &#39;completed&#39;</code>.</p>
+<h2 id="summary"><a class="anchor" href="#summary" aria-label="Permalink to Summary">#</a>Summary</h2>
 <p>14 milestone envelopes have header-counter drift after iters 1-3 close-out (16 originally; 2 fixed).</p>
-<table class="prism-md-table"><thead><tr><th>Class</th><th>Count</th><th>Action</th></tr></thead><tbody><tr><td><strong>Fixed this session</strong></td><td>3</td><td>CLEANUP-MS0 (63→71), CAD-COMPLETE-MS0 (34→60), RGS-TOOL-AUTOINVOKE-MS1 (4→5)</td></tr>
-<tr><td><strong>Header overcount, all units <code class="prism-inline-code">not_started</code>/<code class="prism-inline-code">pending</code></strong></td><td>4</td><td>LATHE-LORA-MS0, F360-AP-MS0, LATHE-PROD-READY-MS0, ULT-MS0 — <strong>roadmap-design issue, NOT drift</strong>: envelopes were declared complete before any unit was started. Do NOT auto-fix; needs operator design review.</td></tr>
-<tr><td><strong>Header overcount, status <code class="prism-inline-code">complete</code></strong></td><td>5</td><td>MS-DOCU-FINISH, SCIMATH-WIRE-MS0, etc. — envelope says complete but unit counts &lt; header. Likely the units were re-categorized post-completion. Header reflects original ship count; safe to leave.</td></tr>
+<div class="table-wrap"><table>
+<thead><tr><th>Class</th><th>Count</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><strong>Fixed this session</strong></td><td>3</td><td>CLEANUP-MS0 (63→71), CAD-COMPLETE-MS0 (34→60), RGS-TOOL-AUTOINVOKE-MS1 (4→5)</td></tr>
+<tr><td><strong>Header overcount, all units <code>not_started</code>/<code>pending</code></strong></td><td>4</td><td>LATHE-LORA-MS0, F360-AP-MS0, LATHE-PROD-READY-MS0, ULT-MS0 — <strong>roadmap-design issue, NOT drift</strong>: envelopes were declared complete before any unit was started. Do NOT auto-fix; needs operator design review.</td></tr>
+<tr><td><strong>Header overcount, status <code>complete</code></strong></td><td>5</td><td>MS-DOCU-FINISH, SCIMATH-WIRE-MS0, etc. — envelope says complete but unit counts &lt; header. Likely the units were re-categorized post-completion. Header reflects original ship count; safe to leave.</td></tr>
 <tr><td><strong>Peer-claimed milestones</strong></td><td>1</td><td>OBSIDIAN-INTELLIGENCE-MS3 (claude-c0f06dee active edits on CLOSE-OUT-DEFERRED.md). Hands off.</td></tr>
-<tr><td><strong>Other / requires investigation</strong></td><td>1</td><td>LATHE-MASTER — status <code class="prism-inline-code">not_started</code> but 10 units actually complete. Status drift, not counter drift; needs operator review.</td></tr></tbody></table>
-<h2 class="prism-h2">Why this matters</h2>
-<p>The priority-queue picker (<code class="prism-inline-code">/pick-unit</code>, <code class="prism-inline-code">/pick-dev</code>) reads from <code class="prism-inline-code">atomic-roadmap.json</code>, which is regenerated from envelope status. Header undercount means shipped units stay in the picker queue as &quot;still to do&quot; — operators waste cycles re-investigating completed work. The CLEANUP-MS0 case from this session is the canonical example: 8 shipped units (golf-slot bootstrap, golf-write-allowlist, etc.) showed up as top-5 picks though they&#39;re live on disk.</p>
-<h2 class="prism-h2">Fixed this session (3)</h2>
-<table class="prism-md-table"><thead><tr><th>Milestone</th><th>Before</th><th>After</th><th>Drift</th></tr></thead><tbody><tr><td>CLEANUP-MS0</td><td>completed_units: 63 / total: 73</td><td>71 / 73</td><td>+8</td></tr>
+<tr><td><strong>Other / requires investigation</strong></td><td>1</td><td>LATHE-MASTER — status <code>not_started</code> but 10 units actually complete. Status drift, not counter drift; needs operator review.</td></tr>
+</tbody>
+</table></div>
+<h2 id="why-this-matters"><a class="anchor" href="#why-this-matters" aria-label="Permalink to Why this matters">#</a>Why this matters</h2>
+<p>The priority-queue picker (<code>/pick-unit</code>, <code>/pick-dev</code>) reads from <code>atomic-roadmap.json</code>, which is regenerated from envelope status. Header undercount means shipped units stay in the picker queue as &quot;still to do&quot; — operators waste cycles re-investigating completed work. The CLEANUP-MS0 case from this session is the canonical example: 8 shipped units (golf-slot bootstrap, golf-write-allowlist, etc.) showed up as top-5 picks though they&#39;re live on disk.</p>
+<h2 id="fixed-this-session-3"><a class="anchor" href="#fixed-this-session-3" aria-label="Permalink to Fixed this session (3)">#</a>Fixed this session (3)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Before</th><th>After</th><th>Drift</th></tr></thead>
+<tbody>
+<tr><td>CLEANUP-MS0</td><td>completed_units: 63 / total: 73</td><td>71 / 73</td><td>+8</td></tr>
 <tr><td>CAD-COMPLETE-MS0</td><td>34 / 336</td><td>60 / 335</td><td>+26 (plus 1 phantom unit removed)</td></tr>
-<tr><td>RGS-TOOL-AUTOINVOKE-MS1</td><td>4 / 8</td><td>5 / 8</td><td>+1</td></tr></tbody></table>
+<tr><td>RGS-TOOL-AUTOINVOKE-MS1</td><td>4 / 8</td><td>5 / 8</td><td>+1</td></tr>
+</tbody>
+</table></div>
 <p>Status field NOT touched in any case (1+ unit still open in each); only header counters synced.</p>
-<h2 class="prism-h2">Header-overcount class — DO NOT auto-fix</h2>
-<p>These envelopes declare <code class="prism-inline-code">completed_units</code> &gt; 0 but all phases[].units[] are still <code class="prism-inline-code">not_started</code> or <code class="prism-inline-code">pending</code>:</p>
-<table class="prism-md-table"><thead><tr><th>Milestone</th><th>Header</th><th>Actual</th><th>Total</th><th>Status</th></tr></thead><tbody><tr><td>LATHE-LORA-MS0</td><td>23</td><td>0</td><td>50</td><td>in_progress</td></tr>
+<h2 id="header-overcount-class-do-not-auto-fix"><a class="anchor" href="#header-overcount-class-do-not-auto-fix" aria-label="Permalink to Header-overcount class — DO NOT auto-fix">#</a>Header-overcount class — DO NOT auto-fix</h2>
+<p>These envelopes declare <code>completed_units</code> &gt; 0 but all phases[].units[] are still <code>not_started</code> or <code>pending</code>:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Milestone</th><th>Header</th><th>Actual</th><th>Total</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>LATHE-LORA-MS0</td><td>23</td><td>0</td><td>50</td><td>in_progress</td></tr>
 <tr><td>F360-AP-MS0</td><td>10</td><td>0</td><td>10</td><td><strong>complete</strong></td></tr>
 <tr><td>LATHE-PROD-READY-MS0</td><td>19</td><td>1</td><td>135</td><td>in_progress</td></tr>
-<tr><td>ULT-MS0</td><td>5</td><td>0</td><td>5</td><td><strong>complete</strong></td></tr></tbody></table>
-<p><code class="prism-inline-code">F360-AP-MS0</code> and <code class="prism-inline-code">ULT-MS0</code> declare <code class="prism-inline-code">status: complete</code> with zero unit-level completion. Either (a) the unit array is a placeholder structure that was never populated as work happened (status was set manually), or (b) work was rolled back. Operator must decide; auto-syncing the header to 0 would falsely mark &quot;shipped&quot; milestones as unshipped.</p>
-<h2 class="prism-h2">Recommendation</h2>
-<ol class="prism-md-list"><li><strong>For roadmap-design class</strong>: spawn 4 cleanup units that audit each milestone&#39;s actual shipped artifacts on disk and reconcile the envelope. Probably 30 minutes per envelope.</li><li><strong>For peer-claimed</strong>: defer until peer is done, then re-run this audit.</li><li><strong>For LATHE-MASTER status drift</strong>: separate unit — its status <code class="prism-inline-code">not_started</code> is wrong if 10 units are actually complete.</li><li><strong>Make this audit recurring</strong>: register <code class="prism-inline-code">/loop --interval 1d node scripts/audit-envelope-drift.mjs</code> — a one-shot cleanup re-grows fleet-wide (same lesson as MEMORY-AUDIT-WEEKLY shipped earlier today).</li></ol>
-<h2 class="prism-h2">Data</h2>
-<p>Machine-readable JSON: <a href="ENVELOPE-HEADER-DRIFT-2026-05-17.json" class="prism-link"><code class="prism-inline-code">ENVELOPE-HEADER-DRIFT-2026-05-17.json</code></a> — <code class="prism-inline-code">{generatedAt, advisoryOnly:true, total, drifted[]}</code>.</p></main><footer><div>generated by mdToHtml() at 2026-05-17T02:39:16.707Z</div>
-<div>html-report-render schemaVersion 1.0.0</div>
+<tr><td>ULT-MS0</td><td>5</td><td>0</td><td>5</td><td><strong>complete</strong></td></tr>
+</tbody>
+</table></div>
+<p><code>F360-AP-MS0</code> and <code>ULT-MS0</code> declare <code>status: complete</code> with zero unit-level completion. Either (a) the unit array is a placeholder structure that was never populated as work happened (status was set manually), or (b) work was rolled back. Operator must decide; auto-syncing the header to 0 would falsely mark &quot;shipped&quot; milestones as unshipped.</p>
+<h2 id="recommendation"><a class="anchor" href="#recommendation" aria-label="Permalink to Recommendation">#</a>Recommendation</h2>
+<ol>
+<li><strong>For roadmap-design class</strong>: spawn 4 cleanup units that audit each milestone&#39;s actual shipped artifacts on disk and reconcile the envelope. Probably 30 minutes per envelope.</li>
+<li><strong>For peer-claimed</strong>: defer until peer is done, then re-run this audit.</li>
+<li><strong>For LATHE-MASTER status drift</strong>: separate unit — its status <code>not_started</code> is wrong if 10 units are actually complete.</li>
+<li><strong>Make this audit recurring</strong>: register <code>/loop --interval 1d node scripts/audit-envelope-drift.mjs</code> — a one-shot cleanup re-grows fleet-wide (same lesson as MEMORY-AUDIT-WEEKLY shipped earlier today).</li>
+</ol>
+<h2 id="data"><a class="anchor" href="#data" aria-label="Permalink to Data">#</a>Data</h2>
+<p>Machine-readable JSON: <a href="ENVELOPE-HEADER-DRIFT-2026-05-17.json"><code>ENVELOPE-HEADER-DRIFT-2026-05-17.json</code></a> — <code>{generatedAt, advisoryOnly:true, total, drifted[]}</code>.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="ENVELOPE-HEADER-DRIFT-2026-05-17.md">ENVELOPE-HEADER-DRIFT-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
 </footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
 </body>
 </html>

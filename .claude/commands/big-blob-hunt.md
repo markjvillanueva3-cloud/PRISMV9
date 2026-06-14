@@ -56,8 +56,10 @@ impact:
     - informs: U-GC-02 cleanup-level decision (light gc / lfs migrate / filter-repo)
   bounded: true
   reversible: true  # analysis only; no file mutations
+composes_with:
+  - "/forge-audit"
+  - "/rgs"
 ---
-
 # /big-blob-hunt — Git History Blob Size Audit
 
 > **Goal:** turn `git rev-list --objects --all | git cat-file --batch-check | sort -k3 -n -r` into a one-command operator-facing skill. Surface top-N blobs above a size threshold with one-line filter-repo / lfs-migrate / gc recommendations per blob.
@@ -96,8 +98,8 @@ impact:
 
 ### Step 1 — Enumerate blobs
 ```bash
-git -C H:/prism rev-list --objects --all 2>&1 \
-  | git -C H:/prism cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' 2>&1 \
+git rev-list --objects --all 2>&1 \
+  | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' 2>&1 \
   | grep '^blob' \
   | awk -v T=<threshold-bytes> '$3 >= T { print }' \
   | sort -k3 -n -r \

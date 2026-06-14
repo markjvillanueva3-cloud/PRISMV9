@@ -13,7 +13,11 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { ultimateSpeedFeedEngine } from "../../../src/engines/UltimateSpeedFeedEngine.js";
+// Canonical engine lives at mcp-server/src/engines. The prior `../../../src/engines/`
+// path resolved to an UNTRACKED stale duplicate tree at repo-root H:/prism/src/engines
+// (dated Apr-6, not in git) — so this suite was validating a dead copy, not production.
+// Fixed 2026-06-06 (oscar) to the canonical relative path its sibling suites use.
+import { ultimateSpeedFeedEngine } from "../engines/UltimateSpeedFeedEngine.js";
 
 describe("UltimateSpeedFeedEngine — Physics Validation", () => {
   describe("Dimensional Consistency", () => {

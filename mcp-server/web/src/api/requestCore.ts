@@ -1,4 +1,4 @@
-export type ApiErrorKind = 'http' | 'timeout' | 'offline' | 'network' | 'parse' | 'unknown';
+export type ApiErrorKind = 'http' | 'timeout' | 'offline' | 'network' | 'parse' | 'unknown' | 'auth';
 
 export type ApiErrorPresentation = {
   title: string;
@@ -93,7 +93,13 @@ export class ApiError extends Error {
   readonly hint?: string;
 
   constructor(status: number, message: string, options: ApiErrorOptions = {}) {
-    super(message, options.cause ? { cause: options.cause } : undefined);
+    super(message);
+    // Manual cause assignment — target=ES2020 lib doesn't expose the Error
+    // options-bag constructor (ES2022). Set explicitly so consumers that read
+    // `.cause` still see the chained error.
+    if (options.cause !== undefined) {
+      (this as Error & { cause?: unknown }).cause = options.cause;
+    }
     this.name = 'ApiError';
     this.status = status;
     this.kind = options.kind ?? 'unknown';

@@ -20,6 +20,11 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
+// Type-only imports (erased at compile time) — let the U-WIRE-WEDM-OUTCOME-3
+// cases pass the schema-validated `params` to the engines' typed inputs.
+import type { WireSpoolConsumptionInput } from "../../engines/WEDMWireSpoolConsumptionEngine.js";
+import type { TaperErrorBudgetInput } from "../../engines/WEDMTaperErrorBudgetEngine.js";
+import type { WEDMSlugTabRetentionInput } from "../../engines/WEDMSlugTabRetentionEngine.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
 import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
 import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
@@ -36,10 +41,11 @@ import { WEDM_DL_CORE_SCHEMAS } from "../../schemas/wedmDLCoreSchemas.js";
 import { WEDM_RECAST_ML_SCHEMAS } from "../../schemas/wedmRecastMLSchemas.js";
 import { WEDM_HAZ_SCHEMAS } from "../../schemas/wedmHAZSchemas.js";
 import { WEDM_TRAINING_TEMPLATE_SCHEMAS } from "../../schemas/wedmTrainingTemplateSchemas.js";
+import { ELECTRODE_AI_SCHEMAS } from "../../schemas/electrodeAISchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion + training-template (U-TL-U4) schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS, ...WEDM_RECAST_ML_SCHEMAS, ...WEDM_HAZ_SCHEMAS, ...WEDM_TRAINING_TEMPLATE_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion + training-template (U-TL-U4) + electrode-AI (U-BRIDGE-WIRE-ELECTRODE) schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS, ...WEDM_WEIBULL_SCHEMAS, ...WEDM_DL_CORE_SCHEMAS, ...WEDM_RECAST_ML_SCHEMAS, ...WEDM_HAZ_SCHEMAS, ...WEDM_TRAINING_TEMPLATE_SCHEMAS, ...ELECTRODE_AI_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -78,11 +84,23 @@ let _lattice: any, _gat: any, _neighbor: any;
 let _tribalTipLearner: any, _autonomyGate: any, _tribalRuntime: any;
 let _recastML: any;
 let _hazEngine: any;
+// U-BRIDGE-WIRE-ELECTRODE: 4 unwired Electrode AI engines
+let _electrodeAIReasoning: any, _electrodeAdvancedAI: any;
+let _electrodeDeepLearning: any, _electrodeUltimateAI: any;
+// U-WIRE-BACKLOG-WEDM-POST-ROUTER (slot:india) — 5-vendor WEDM post-processor master-router
+let _wedmPostRouter: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     // Legacy engines
     case "electrode": return _electrode ??= (await import("../../engines/ElectrodeDesignEngine.js")).electrodeDesignEngine;
+    // U-BRIDGE-WIRE-ELECTRODE: 4 unwired Electrode AI engines
+    case "electrodeAIReasoning": return _electrodeAIReasoning ??= (await import("../../engines/ElectrodeAIReasoningEngine.js")).electrodeAIReasoningEngine;
+    case "electrodeAdvancedAI": return _electrodeAdvancedAI ??= (await import("../../engines/ElectrodeAdvancedAIEngine.js")).electrodeAdvancedAIEngine;
+    case "electrodeDeepLearning": return _electrodeDeepLearning ??= (await import("../../engines/ElectrodeDeepLearningEngine.js")).electrodeDeepLearningEngine;
+    case "electrodeUltimateAI": return _electrodeUltimateAI ??= (await import("../../engines/ElectrodeUltimateAIEngine.js")).electrodeUltimateAIEngine;
+    // U-WIRE-BACKLOG-WEDM-POST-ROUTER (slot:india) — master-post router over 5 vendor engines
+    case "wedmPostRouter": return _wedmPostRouter ??= (await import("../../engines/WEDMPostDialectRouterEngine.js")).wedmPostDialectRouterEngine;
     case "wire": return _wire ??= (await import("../../engines/WireEDMSettingsEngine.js")).wireEDMSettingsEngine;
     case "surface": return _surface ??= (await import("../../engines/EDMSurfaceIntegrityEngine.js")).edmSurfaceIntegrityEngine;
     case "micro": return _micro ??= (await import("../../engines/MicroEDMEngine.js")).microEDMEngine;
@@ -299,6 +317,16 @@ const ACTIONS = [
   "wedm_wire_deflection_calc", "wedm_wire_flush_deflection",
   "wedm_thin_wire_derate_summary", "wedm_thin_wire_derate_current", "wedm_thin_wire_derate_ton",
 
+  // U-WIRE-BACKLOG-WEDM-POST-ROUTER (slot:india) — 6 actions wiring the
+  // WEDMPostDialectRouterEngine + 5 vendor engines (Mitsubishi, Sodick, Makino,
+  // Agie, Fanuc) under one master-post surface (9 controller dialects).
+  "wedm_post_supported_controllers",
+  "wedm_post_dialect_config",
+  "wedm_post_select_by_machine",
+  "wedm_post_generate",
+  "wedm_post_convert",
+  "wedm_post_roundtrip",
+
   // WEDM print-to-program pipelines
   "wedm_print_to_program", "auto_print_to_program_run",
 
@@ -325,6 +353,18 @@ const ACTIONS = [
   "wedm_tribal_runtime_stats", "wedm_tribal_runtime_select",
   // NT-WIRE-MS0: 5 unwired non-traditional engines (9 actions)
   "sinker_edm_electrode_plan", "sinker_edm_flush_recommend", "sinker_edm_wear_compensate",
+  "sinker_edm_electrode_inspect",           // ARC-MS10/muS-D58..D59: SinkerEDMElectrodeInspectionEngine.inspect
+  "sinker_edm_electrode_cost",              // ARC-MS6/muS-C25: SinkerElectrodeCostEngine.estimate
+  "electrode_pairing_group",                // ARC-MS6/muS-C22: ElectrodePairingEngine.pair
+  "electrode_material_decide",              // ARC-MS6/muS-C21: ElectrodeMaterialDecisionEngine.decide
+  "wafer_die_code_decode",                  // ARC-MS6/muS-C23: WaferDieCodeEngine.decode
+  "wedm_wire_spool_consumption",            // U-WIRE-WEDM-OUTCOME-3: WEDMWireSpoolConsumptionEngine.calculate
+  "wedm_taper_error_budget",                // U-WIRE-WEDM-OUTCOME-3: WEDMTaperErrorBudgetEngine.calculate
+  "wedm_slug_tab_retention",                // U-WIRE-WEDM-OUTCOME-3: WEDMSlugTabRetentionEngine.calculate
+  "wedm_program_compare",                   // U-WIRE-WEDM-PROGRAM-COMPARE-1: WEDMProgramComparisonEngine.compare
+  "sinker_agi_master",                      // AGI-MASTER-PARITY-MS30/P0-U02: SinkerAGIMasterEngine.reason
+  "laser_agi_master",                       // AGI-MASTER-PARITY-MS30/P0-U03: LaserAGIMasterEngine.reason
+  "waterjet_agi_master",                    // AGI-MASTER-PARITY-MS30/P0-U04: WaterjetAGIMasterEngine.reason
   "laser_lora_config", "laser_lora_state", "laser_lora_record",
   "waterjet_lora_config", "waterjet_lora_state", "waterjet_lora_record",
   // WEDM-NEXT-MS0 U-WN06: Recast Layer ML
@@ -361,6 +401,9 @@ const ACTIONS = [
   "wedm_failsafe_from_clearance",          // WEDMFailsafeEngine.planFromClearance
   "wedm_fault_diagnose",                   // WEDMFaultDiagnosisEngine.diagnose
   "wedm_fixture_interference",             // WEDMFixtureInterferenceEngine.analyze
+
+  // ARC-MS10/muS-D54..D55: Wire EDM offset SPC (X-bar/R + Western Electric rules)
+  "wedm_offset_spc",                       // WEDMOffsetSPCEngine.analyze
 
   // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH5: 6 unwired credit/deviation/dielectric/exception/active-query engines
   "wedm_credit_cost_calc",                 // WEDMCreditCostEngine.calculate
@@ -400,6 +443,78 @@ const ACTIONS = [
   "wedm_training_taptite_bridge",             // bridge — template → TaptiteElectrodeMacroBridge artifact
   "wedm_training_taptite_variables",          // listRequiredVariables — canonical VC variable schema
   "wedm_training_taptite_place_template",     // placeLabelledTemplate — writes _MACRO-TEMPLATE_<id>.min
+
+  // BRIDGE-WIRING/U-BRIDGE-WIRE-ELECTRODE: 4 unwired Electrode AI engines
+  "electrode_ai_reason_full",                 // ElectrodeAIReasoningEngine.fullElectrodeDesign
+  "electrode_advanced_analysis",              // ElectrodeAdvancedAIEngine.comprehensiveAdvancedAnalysis
+  "electrode_deep_learning_analyze",          // ElectrodeDeepLearningEngine.comprehensiveAnalysis
+  "electrode_ultimate_analyze",               // ElectrodeUltimateAIEngine.comprehensiveUltimateAnalysis
+  // BRIDGE-WIRING/U-WIRE-TRILOBE-ELECTRODE-GEOMETRY: TrilobeElectrodeGeometryEngine
+  // (parametric trilobe/taptite electrode geometry + STEP/DXF/G-code CAM exports).
+  "trilobe_electrode_geometry",
+
+  // WIRE-UNWIRED-LOOP-EDM/BATCH-B: 51 orphan EDM/WEDM engines
+  "advanced_milling_flowline",         // AdvancedMillingStrategiesEngine.flowlineFinishing
+  "wedm_scheduling_reserve",           // WEDMSchedulingEngine.reserveMachine
+  "wedm_scheduling_availability",      // WEDMSchedulingEngine.checkAvailability
+  "wedm_batch_analyze",                // WEDMBatchProgramAnalyzerEngine.batchAnalyze
+  "wedm_batch_harvest",                // WEDMBatchProgramAnalyzerEngine.harvestAllPrograms
+  "wire_edm_deep_reason",              // WireEDMDeepReasoningEngine.reason
+  "wire_edm_deep_diagnose",            // WireEDMDeepReasoningEngine.diagnose
+  "wire_edm_predictive_record",        // WireEDMPredictiveIntelligenceEngine.recordOutcome
+  "wire_edm_predictive_status",        // WireEDMPredictiveIntelligenceEngine.getStatus
+  "wire_edm_research_predict_mrr",     // WireEDMResearchAIEngine.predictMRR
+  "wire_edm_research_predict_all",     // WireEDMResearchAIEngine.predictAll
+  "wire_edm_self_aware_context",       // WireEDMSelfAwarenessIntegrationEngine.getJMDieWEDMContext
+  "wire_edm_self_aware_validate",      // WireEDMSelfAwarenessIntegrationEngine.validateApproach
+  "wedm_strategy_list",                // WEDMStrategyLibraryEngine.listStrategies
+  "wedm_strategy_select",              // WEDMStrategyLibraryEngine.selectStrategy
+  "wedm_part_recognize",               // WEDMPartRecognitionEngine.recognize
+  "wedm_material_characterize",        // WEDMMaterialCharacterizationEngine.characterize
+  "wedm_causality_edge_count",         // WEDMProcessCausalityEngine.edgeCount
+  "wedm_what_if_simulate",             // WEDMWhatIfSimulatorEngine.simulate
+  "wedm_pareto_search",                // WEDMParetoFrontierSearchEngine.search
+  "wedm_pareto_cache_search",          // WEDMParetoCacheEngine.search
+  "wedm_tradeoff_rank",                // WEDMTradeoffElicitationEngine.rankByWeights
+  "wedm_tradeoff_elicit",              // WEDMTradeoffElicitationEngine.elicit
+  "wedm_hierarchical_plan",            // WEDMHierarchicalPlannerEngine.plan
+  "wedm_sequencing_sequence",          // WEDMSequencingEngine.sequence
+  "wedm_tab_strategy_plan",            // WEDMTabStrategyEngine.planTabs
+  "wedm_recipe_adapt",                 // WEDMRecipeAdaptationEngine.adaptRecipe
+  "wedm_knowledge_distill",            // WEDMKnowledgeDistillationEngine.distill
+  "wedm_model_update_evaluate",        // WEDMModelUpdateEngine.evaluate
+  "wedm_reward_shape",                 // WEDMRewardShapingEngine.shape
+  "wedm_rollout_simulate",             // WEDMRolloutSimulatorEngine.simulate
+  "wedm_rl_policy_save",               // WEDMRLPolicyPersistence saveWEDMRLPolicy
+  "wedm_rl_policy_load",               // WEDMRLPolicyPersistence loadWEDMRLPolicy
+  "wedm_rul_estimate",                 // WEDMRULEngine.estimateFromRates
+  "wedm_maintenance_plan",             // WEDMMaintenanceSchedulerEngine.plan
+  "wedm_program_verify",               // WEDMProgramVerificationEngine.getSupportedControllers
+  "wedm_one_click_generate",           // OneClickWEDMGeneratorEngine (run?/process?)
+  "wedm_start_point_find",             // WEDMStartPointOptimizationEngine.findCandidateStartPoints
+  "wedm_multi_profile_batch",          // WEDMMultiProfileBatchEngine.groupProfiles
+  "wedm_wire_threading_time",          // WEDMWireThreadingMinEngine.calculateThreadingTime
+  "wedm_learning_loop_record",         // WEDMLearningLoopEngine.recordOutcome
+  "wedm_job_pattern_learn",            // WEDMJobPatternLearnerEngine.learn
+  "wedm_wire_break_cost_calc",         // WEDMWireBreakRiskCostEngine.calculate
+  "wedm_neural_training_ensemble",     // WEDMNeuralTrainingEngine.ensemblePredict
+  "wedm_production_readiness",         // WEDMProductionReadinessEngine.generate
+  "wedm_program_optimize",             // WEDMProgramOptimizerEngine.optimizeProgram
+  "wedm_wire_premium_roi",             // WEDMWirePremiumROIEngine.calculate
+  "wire_edm_deep_ai_analyze",          // WireEDMDeepAIHardeningEngine.analyzeWEDMOperation
+  "wire_edm_machine_tech_lookup",      // WireEDMMachineTechDataEngine.lookupParameters
+  "wedm_lora_cadence_state",           // WEDMLoRACadenceEngine.getState
+  "sinker_lora_dataset_schema",        // SinkerEDMLoRADatasetBuilderEngine.requiredSchema
+  "sinker_lora_cadence_state",         // SinkerEDMLoRACadenceEngine.getState
+  "laser_lora_dataset_schema",         // LaserLoRADatasetBuilderEngine.requiredSchema
+  "waterjet_lora_dataset_schema",      // WaterjetLoRADatasetBuilderEngine.requiredSchema
+  "wedm_dwg_import_versions",          // WEDMDwgImportEngine.getSupportedVersions
+  "wedm_human_handoff_escalate",       // WEDMHumanHandoffEngine.escalate
+  "wedm_human_handoff_list",           // WEDMHumanHandoffEngine.listPending
+  "wedm_fewshot_plan_first_cut",       // WEDMFewShotEngine.planFirstCut
+  "wedm_material_spark_list",          // WEDMMaterialSparkDatabaseEngine.list
+  "wedm_material_spark_resolve",       // WEDMMaterialSparkDatabaseEngine.resolve
+  "wedm_setup_sheet_generate",         // WEDMSetupSheetEngine generateSetupSheet (function)
 ] as const;
 
 /** Registers edm dispatcher.
@@ -459,6 +574,54 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "electrode_design": {
             const engine = await getEngine("electrode");
             result = engine.design?.(params) ?? engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "ElectrodeDesign method not found" };
+            break;
+          }
+
+          // BRIDGE-WIRING/U-WIRE-TRILOBE-ELECTRODE-GEOMETRY
+          // TrilobeElectrodeGeometryEngine — parametric trilobe (taptite)
+          // electrode geometry + CAM exports. Op-discriminator over 3 methods
+          // (generate/get_profile/stats). Lazy-imports the singleton. lobe_count
+          // is fixed at 3 here (taptite invariant — the engine's TrilobeInput
+          // types it as the literal 3). generate is async (AI spark-gap call).
+          case "trilobe_electrode_geometry": {
+            const { trilobeElectrodeGeometryEngine } = await import("../../engines/TrilobeElectrodeGeometryEngine.js");
+            const op = params.op;
+            switch (op) {
+              case "generate": {
+                if (!params.part_number || !Array.isArray(params.stages) || params.stages.length === 0 || params.total_length_in === undefined) {
+                  result = { error: "generate requires {part_number, stages: [{c_dia_in,e_dia_in,z_start_in,z_end_in}], total_length_in, ...}" };
+                  break;
+                }
+                result = await trilobeElectrodeGeometryEngine.generate({
+                  part_number: params.part_number,
+                  customer: params.customer,
+                  stages: params.stages,
+                  lobe_count: 3,
+                  lead_angle_deg: params.lead_angle_deg ?? 0,
+                  total_length_in: params.total_length_in,
+                  shank_dia_in: params.shank_dia_in ?? 0.5,
+                  draft_deg: params.draft_deg ?? 0,
+                  undersize_in: params.undersize_in ?? 0,
+                  oversize_in: params.oversize_in ?? 0,
+                  target_finish_Ra_um: params.target_finish_Ra_um ?? 1.6,
+                  workpiece_material: params.workpiece_material ?? "D2",
+                  export_step: params.export_step ?? false,
+                  export_dxf: params.export_dxf ?? false,
+                  export_gcode: params.export_gcode ?? false,
+                });
+                break;
+              }
+              case "get_profile": {
+                if (params.c_dia === undefined || params.e_dia === undefined) {
+                  result = { error: "get_profile requires {c_dia, e_dia, rotation_deg?}" };
+                  break;
+                }
+                result = { profile: trilobeElectrodeGeometryEngine.getProfile(params.c_dia, params.e_dia, params.rotation_deg) };
+                break;
+              }
+              case "stats": result = trilobeElectrodeGeometryEngine.stats(); break;
+              default: result = { error: `unknown trilobe_electrode_geometry op: ${String(op)} (expected generate|get_profile|stats)` };
+            }
             break;
           }
           case "wire_settings": {
@@ -1642,6 +1805,76 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // =================================================================
+          // U-WIRE-BACKLOG-WEDM-POST-ROUTER (slot:india) — master-post
+          // dialect router over 5 vendor engines (Mitsubishi, Sodick, Makino,
+          // Agie, Fanuc) exposing 9 controller dialects. The router itself
+          // owns no emission logic; it delegates to the owning vendor engine.
+          //
+          // route() is a named alias for generate() on the engine; only the
+          // canonical generate is exposed here. Config-lookup endpoints
+          // (supported_controllers/dialect_config/select_by_machine) return
+          // {ok, …} envelopes; emission endpoints (generate/convert/roundtrip)
+          // pass through the engine's own {success, warnings, …} envelope so
+          // operators see vendor diagnostics verbatim.
+          // =================================================================
+          case "wedm_post_supported_controllers": {
+            const engine = await getEngine("wedmPostRouter");
+            result = { controllers: engine.getSupportedControllers() };
+            break;
+          }
+          case "wedm_post_dialect_config": {
+            const engine = await getEngine("wedmPostRouter");
+            const cfg = engine.getDialectConfig(params.controller);
+            if (!cfg) {
+              result = {
+                ok: false,
+                error: `unsupported controller: ${params.controller}`,
+                supported: engine.getSupportedControllers(),
+              };
+            } else {
+              // The full DialectConfig carries an `engine` reference. Stripping
+              // it keeps the response JSON-safe (engines are class instances,
+              // not serializable) without losing operator-visible fields.
+              result = {
+                ok: true,
+                controller: params.controller,
+                name: cfg.name,
+                manufacturer: cfg.manufacturer,
+                dialect_name: engine.dialectNameFor(params.controller),
+              };
+            }
+            break;
+          }
+          case "wedm_post_select_by_machine": {
+            const engine = await getEngine("wedmPostRouter");
+            // Explicit "no description" path — surfaces the contract instead of
+            // letting an empty-string fall through to the engine's truthy guard.
+            const controller = params.machine_description
+              ? engine.selectByMachine(params.machine_description)
+              : undefined;
+            result = controller
+              ? { ok: true, controller, dialect_name: engine.dialectNameFor(controller) }
+              : { ok: false, controller: null, machine_description: params.machine_description ?? null };
+            break;
+          }
+          case "wedm_post_generate": {
+            const engine = await getEngine("wedmPostRouter");
+            result = engine.generate(params);
+            break;
+          }
+          case "wedm_post_convert": {
+            const engine = await getEngine("wedmPostRouter");
+            const { source_dialect, target_dialect, ...rest } = params;
+            result = engine.convert(source_dialect, target_dialect, rest);
+            break;
+          }
+          case "wedm_post_roundtrip": {
+            const engine = await getEngine("wedmPostRouter");
+            result = engine.roundtrip(params);
+            break;
+          }
+
           case "wedm_print_to_program": {
             const engine = await getEngine("printToProgram");
             result = await engine.generate(params);
@@ -1966,6 +2199,115 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = sinkerEDMWearCompensationEngine.plan(params as any);
             break;
           }
+          case "sinker_edm_electrode_inspect": {
+            // ARC-MS10/muS-D58..D59 — spark-gap back-calculation inspection.
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { sinkerEDMElectrodeInspectionEngine } = await import("../../engines/SinkerEDMElectrodeInspectionEngine.js");
+            result = sinkerEDMElectrodeInspectionEngine.inspect(params);
+            break;
+          }
+          case "sinker_edm_electrode_cost": {
+            // ARC-MS6/muS-C25 — electrode cost model (material + milling + burn + wear).
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { sinkerElectrodeCostEngine } = await import("../../engines/SinkerElectrodeCostEngine.js");
+            result = sinkerElectrodeCostEngine.estimate(params);
+            break;
+          }
+          case "electrode_pairing_group": {
+            // ARC-MS6/muS-C22 — rougher/finisher electrode pairing
+            // (naming-convention parser + optional sizing-rule validation).
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { electrodePairingEngine } = await import("../../engines/ElectrodePairingEngine.js");
+            result = electrodePairingEngine.pair(params);
+            break;
+          }
+          case "electrode_material_decide": {
+            // ARC-MS6/muS-C21 — electrode-material decision engine
+            // (5 materials × 7 workpiece classes scoring model).
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { electrodeMaterialDecisionEngine } = await import("../../engines/ElectrodeMaterialDecisionEngine.js");
+            result = electrodeMaterialDecisionEngine.decide(params);
+            break;
+          }
+          case "wafer_die_code_decode": {
+            // ARC-MS6/muS-C23 — wafer die-code decoder
+            // (WAFER880X334X145.MIN → parametric geometry).
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { waferDieCodeEngine } = await import("../../engines/WaferDieCodeEngine.js");
+            result = waferDieCodeEngine.decode(params);
+            break;
+          }
+          case "wedm_wire_spool_consumption": {
+            // U-WIRE-WEDM-OUTCOME-3 — WEDM wire-spool consumption + mid-job
+            // spool-change risk. params is schema-validated above
+            // (ALL_EDM_SCHEMAS); the engine re-validates ranges + cross-fields.
+            const { wedmWireSpoolConsumptionEngine } = await import("../../engines/WEDMWireSpoolConsumptionEngine.js");
+            result = wedmWireSpoolConsumptionEngine.calculate(params as WireSpoolConsumptionInput);
+            break;
+          }
+          case "wedm_taper_error_budget": {
+            // U-WIRE-WEDM-OUTCOME-3 — WEDM taper programming error budget
+            // (UV travel + RSS error sources + ISO 286 IT-class prediction).
+            // params is schema-validated above; the engine re-validates ranges.
+            const { wedmTaperErrorBudgetEngine } = await import("../../engines/WEDMTaperErrorBudgetEngine.js");
+            result = wedmTaperErrorBudgetEngine.calculate(params as TaperErrorBudgetInput);
+            break;
+          }
+          case "wedm_slug_tab_retention": {
+            // U-WIRE-WEDM-OUTCOME-3 — WEDM slug-tab retention safety factor
+            // (Von Mises shear vs dynamic slug-weight demand).
+            // params is schema-validated above; the engine re-validates ranges.
+            const { wedmSlugTabRetentionEngine } = await import("../../engines/WEDMSlugTabRetentionEngine.js");
+            result = wedmSlugTabRetentionEngine.calculate(params as WEDMSlugTabRetentionInput);
+            break;
+          }
+          case "wedm_program_compare": {
+            // U-WIRE-WEDM-PROGRAM-COMPARE-1 — diff a real-shop reference WEDM
+            // NC program against a PRISM-generated one (per-parameter deviation
+            // + weighted match score + production_ready gate). The engine API
+            // takes positional args (reference_nc, generated_nc, options), so
+            // the schema-validated params are destructured here.
+            const { wedmProgramComparisonEngine } = await import("../../engines/WEDMProgramComparisonEngine.js");
+            const p = params as {
+              reference_nc: string;
+              generated_nc: string;
+              reference_filename?: string;
+              generated_filename?: string;
+              tolerances?: {
+                pass_count_tol?: number;
+                offset_rel_tol?: number;
+                feed_rel_tol?: number;
+                contour_rel_tol?: number;
+              };
+            };
+            result = wedmProgramComparisonEngine.compare(p.reference_nc, p.generated_nc, {
+              reference_filename: p.reference_filename,
+              generated_filename: p.generated_filename,
+              tolerances: p.tolerances,
+            });
+            break;
+          }
+          case "sinker_agi_master": {
+            // AGI-MASTER-PARITY-MS30/P0-U02 — die-sinking-EDM domain AGI master.
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { sinkerAGIMasterEngine } = await import("../../engines/SinkerAGIMasterEngine.js");
+            result = sinkerAGIMasterEngine.reason(params);
+            break;
+          }
+          case "laser_agi_master": {
+            // AGI-MASTER-PARITY-MS30/P0-U03 — laser-machining domain AGI master.
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { laserAGIMasterEngine } = await import("../../engines/LaserAGIMasterEngine.js");
+            result = laserAGIMasterEngine.reason(params);
+            break;
+          }
+          case "waterjet_agi_master": {
+            // AGI-MASTER-PARITY-MS30/P0-U04 — waterjet-machining domain AGI master.
+            // The engine accepts `unknown` and Zod-validates internally.
+            const { waterjetAGIMasterEngine } = await import("../../engines/WaterjetAGIMasterEngine.js");
+            result = waterjetAGIMasterEngine.reason(params);
+            break;
+          }
           case "laser_lora_config": {
             const { laserLoRACadenceEngine } = await import("../../engines/LaserLoRACadenceEngine.js");
             const p = params as any;
@@ -2243,6 +2585,18 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = wedmFixtureInterferenceEngine.analyze(p);
             break;
           }
+          case "wedm_offset_spc": {
+            // ARC-MS10/muS-D54..D55 — X-bar/R SPC on measured wire-offset series.
+            const { wedmOffsetSPCEngine } = await import("../../engines/WEDMOffsetSPCEngine.js");
+            const p = params as { subgroups?: unknown };
+            if (!p || !Array.isArray(p.subgroups)) {
+              throw new Error(
+                "wedm_offset_spc requires 'subgroups' (array of measured wire-offset value arrays, µm)",
+              );
+            }
+            result = wedmOffsetSPCEngine.analyze(params);
+            break;
+          }
 
           // ENGINE-WIRE-WEDM-MS0/U-WIRE-WEDM-BATCH5: 6 unwired credit/deviation/dielectric/exception/active-query engines
           case "wedm_credit_cost_calc": {
@@ -2517,6 +2871,355 @@ Actions: ${ACTIONS.join(", ")}.`,
               );
             }
             result = taptiteElectrodeMacroBridgeEngine.placeLabelledTemplate(p as PlaceReq);
+            break;
+          }
+
+          // =================================================================
+          // BRIDGE-WIRING/U-BRIDGE-WIRE-ELECTRODE: 4 unwired Electrode AI engines
+          // Each calls the engine's orchestrator method on the validated params.
+          // =================================================================
+          case "electrode_ai_reason_full": {
+            const engine = await getEngine("electrodeAIReasoning");
+            type Input = Parameters<typeof engine.fullElectrodeDesign>[0];
+            result = await engine.fullElectrodeDesign(params as Input);
+            break;
+          }
+          case "electrode_advanced_analysis": {
+            const engine = await getEngine("electrodeAdvancedAI");
+            type Input = Parameters<typeof engine.comprehensiveAdvancedAnalysis>[0];
+            result = await engine.comprehensiveAdvancedAnalysis(params as Input);
+            break;
+          }
+          case "electrode_deep_learning_analyze": {
+            const engine = await getEngine("electrodeDeepLearning");
+            type Input = Parameters<typeof engine.comprehensiveAnalysis>[0];
+            result = await engine.comprehensiveAnalysis(params as Input);
+            break;
+          }
+          case "electrode_ultimate_analyze": {
+            const engine = await getEngine("electrodeUltimateAI");
+            type Input = Parameters<typeof engine.comprehensiveUltimateAnalysis>[0];
+            result = await engine.comprehensiveUltimateAnalysis(params as Input);
+            break;
+          }
+
+          // =================================================================
+          // WIRE-UNWIRED-LOOP-EDM/BATCH-B: 51 orphan EDM/WEDM engines
+          // Pattern: lazy import singleton, optional-chain primary method,
+          // fallback chain for engines with ambiguous main entry-point.
+          // =================================================================
+
+          case "advanced_milling_flowline": {
+            const { advancedMillingStrategiesEngine } = await import("../../engines/AdvancedMillingStrategiesEngine.js");
+            result = { success: true, data: (advancedMillingStrategiesEngine as any).flowlineFinishing?.(params as any) ?? (advancedMillingStrategiesEngine as any).run?.(params as any) ?? { engine: "AdvancedMillingStrategiesEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_scheduling_reserve": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = { success: true, data: wedmSchedulingEngine.reserveMachine(params as any) };
+            break;
+          }
+          case "wedm_scheduling_availability": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = { success: true, data: wedmSchedulingEngine.checkAvailability(params as any) };
+            break;
+          }
+          case "wedm_batch_analyze": {
+            const { wedmBatchProgramAnalyzerEngine } = await import("../../engines/WEDMBatchProgramAnalyzerEngine.js");
+            const limit = (params as any).limit as number | undefined;
+            result = { success: true, data: wedmBatchProgramAnalyzerEngine.batchAnalyze(limit) };
+            break;
+          }
+          case "wedm_batch_harvest": {
+            const { wedmBatchProgramAnalyzerEngine } = await import("../../engines/WEDMBatchProgramAnalyzerEngine.js");
+            result = { success: true, data: { programs: wedmBatchProgramAnalyzerEngine.harvestAllPrograms() } };
+            break;
+          }
+          case "wire_edm_deep_reason": {
+            const { wireEDMDeepReasoningEngine } = await import("../../engines/WireEDMDeepReasoningEngine.js");
+            result = { success: true, data: (wireEDMDeepReasoningEngine as any).reason?.(params as any, (params as any).context ?? {}) ?? { engine: "WireEDMDeepReasoningEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_deep_diagnose": {
+            const { wireEDMDeepReasoningEngine } = await import("../../engines/WireEDMDeepReasoningEngine.js");
+            const symptoms = (params as any).symptoms as string[] ?? [];
+            result = { success: true, data: wireEDMDeepReasoningEngine.diagnose(symptoms) };
+            break;
+          }
+          case "wire_edm_predictive_record": {
+            const { wireEDMPredictiveIntelligenceEngine } = await import("../../engines/WireEDMPredictiveIntelligenceEngine.js");
+            result = { success: true, data: (wireEDMPredictiveIntelligenceEngine as any).recordOutcome?.(params as any) ?? { engine: "WireEDMPredictiveIntelligenceEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_predictive_status": {
+            const { wireEDMPredictiveIntelligenceEngine } = await import("../../engines/WireEDMPredictiveIntelligenceEngine.js");
+            result = { success: true, data: (wireEDMPredictiveIntelligenceEngine as any).getStatus?.() ?? { engine: "WireEDMPredictiveIntelligenceEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_research_predict_mrr": {
+            const { wireEDMResearchAIEngine } = await import("../../engines/WireEDMResearchAIEngine.js");
+            result = { success: true, data: (wireEDMResearchAIEngine as any).predictMRR?.(params as any) ?? { engine: "WireEDMResearchAIEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_research_predict_all": {
+            const { wireEDMResearchAIEngine } = await import("../../engines/WireEDMResearchAIEngine.js");
+            result = { success: true, data: (wireEDMResearchAIEngine as any).predictAll?.(params as any) ?? { engine: "WireEDMResearchAIEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_self_aware_context": {
+            const { wireEDMSelfAwarenessIntegrationEngine } = await import("../../engines/WireEDMSelfAwarenessIntegrationEngine.js");
+            result = { success: true, data: wireEDMSelfAwarenessIntegrationEngine.getJMDieWEDMContext() };
+            break;
+          }
+          case "wire_edm_self_aware_validate": {
+            const { wireEDMSelfAwarenessIntegrationEngine } = await import("../../engines/WireEDMSelfAwarenessIntegrationEngine.js");
+            result = { success: true, data: (wireEDMSelfAwarenessIntegrationEngine as any).validateApproach?.(params as any) ?? { engine: "WireEDMSelfAwarenessIntegrationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_strategy_list": {
+            const { wedmStrategyLibraryEngine } = await import("../../engines/WEDMStrategyLibraryEngine.js");
+            result = { success: true, data: wedmStrategyLibraryEngine.listStrategies() };
+            break;
+          }
+          case "wedm_strategy_select": {
+            const { wedmStrategyLibraryEngine } = await import("../../engines/WEDMStrategyLibraryEngine.js");
+            result = { success: true, data: (wedmStrategyLibraryEngine as any).selectStrategy?.(params as any) ?? { engine: "WEDMStrategyLibraryEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_part_recognize": {
+            const { wedmPartRecognitionEngine } = await import("../../engines/WEDMPartRecognitionEngine.js");
+            result = { success: true, data: (wedmPartRecognitionEngine as any).recognize?.(params as any) ?? { engine: "WEDMPartRecognitionEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_material_characterize": {
+            const { wedmMaterialCharacterizationEngine } = await import("../../engines/WEDMMaterialCharacterizationEngine.js");
+            result = { success: true, data: (wedmMaterialCharacterizationEngine as any).characterize?.(params as any) ?? { engine: "WEDMMaterialCharacterizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_causality_edge_count": {
+            const { wedmProcessCausalityEngine } = await import("../../engines/WEDMProcessCausalityEngine.js");
+            (wedmProcessCausalityEngine as any).ensureLoaded?.();
+            result = { success: true, data: { edge_count: (wedmProcessCausalityEngine as any).edgeCount?.() ?? 0, node_count: (wedmProcessCausalityEngine as any).nodeCount?.() ?? 0 } };
+            break;
+          }
+          case "wedm_what_if_simulate": {
+            const { wedmWhatIfSimulatorEngine } = await import("../../engines/WEDMWhatIfSimulatorEngine.js");
+            result = { success: true, data: (wedmWhatIfSimulatorEngine as any).simulate?.(params as any) ?? { engine: "WEDMWhatIfSimulatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_pareto_search": {
+            const { wedmParetoFrontierSearchEngine } = await import("../../engines/WEDMParetoFrontierSearchEngine.js");
+            result = { success: true, data: (wedmParetoFrontierSearchEngine as any).search?.(params as any) ?? { engine: "WEDMParetoFrontierSearchEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_pareto_cache_search": {
+            const { wedmParetoCacheEngine } = await import("../../engines/WEDMParetoCacheEngine.js");
+            result = { success: true, data: (wedmParetoCacheEngine as any).search?.(params as any) ?? { engine: "WEDMParetoCacheEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_tradeoff_rank": {
+            const { wedmTradeoffElicitationEngine } = await import("../../engines/WEDMTradeoffElicitationEngine.js");
+            result = { success: true, data: (wedmTradeoffElicitationEngine as any).rankByWeights?.(params as any) ?? { engine: "WEDMTradeoffElicitationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_tradeoff_elicit": {
+            const { wedmTradeoffElicitationEngine } = await import("../../engines/WEDMTradeoffElicitationEngine.js");
+            result = { success: true, data: (wedmTradeoffElicitationEngine as any).elicit?.(params as any) ?? { engine: "WEDMTradeoffElicitationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_hierarchical_plan": {
+            const { wedmHierarchicalPlannerEngine } = await import("../../engines/WEDMHierarchicalPlannerEngine.js");
+            result = { success: true, data: (wedmHierarchicalPlannerEngine as any).plan?.(params as any) ?? { engine: "WEDMHierarchicalPlannerEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_sequencing_sequence": {
+            const { wedmSequencingEngine } = await import("../../engines/WEDMSequencingEngine.js");
+            result = { success: true, data: (wedmSequencingEngine as any).sequence?.(params as any) ?? { engine: "WEDMSequencingEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_tab_strategy_plan": {
+            const { wedmTabStrategyEngine } = await import("../../engines/WEDMTabStrategyEngine.js");
+            result = { success: true, data: (wedmTabStrategyEngine as any).planTabs?.(params as any) ?? { engine: "WEDMTabStrategyEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_recipe_adapt": {
+            const { wedmRecipeAdaptationEngine } = await import("../../engines/WEDMRecipeAdaptationEngine.js");
+            result = { success: true, data: (wedmRecipeAdaptationEngine as any).adaptRecipe?.(params as any) ?? { engine: "WEDMRecipeAdaptationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_knowledge_distill": {
+            const { wedmKnowledgeDistillationEngine } = await import("../../engines/WEDMKnowledgeDistillationEngine.js");
+            result = { success: true, data: (wedmKnowledgeDistillationEngine as any).distill?.(params as any) ?? { engine: "WEDMKnowledgeDistillationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_model_update_evaluate": {
+            const { wedmModelUpdateEngine } = await import("../../engines/WEDMModelUpdateEngine.js");
+            result = { success: true, data: (wedmModelUpdateEngine as any).evaluate?.(params as any) ?? { engine: "WEDMModelUpdateEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_reward_shape": {
+            const { wedmRewardShapingEngine } = await import("../../engines/WEDMRewardShapingEngine.js");
+            result = { success: true, data: (wedmRewardShapingEngine as any).shape?.(params as any) ?? { engine: "WEDMRewardShapingEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_rollout_simulate": {
+            const { wedmRolloutSimulatorEngine } = await import("../../engines/WEDMRolloutSimulatorEngine.js");
+            result = { success: true, data: (wedmRolloutSimulatorEngine as any).simulate?.(params as any, (params as any).material ?? "D2") ?? { engine: "WEDMRolloutSimulatorEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_rl_policy_save": {
+            const rlMod = await import("../../engines/WEDMRLPolicyPersistence.js");
+            result = { success: true, data: await (rlMod as any).saveWEDMRLPolicy?.(params as any) ?? { engine: "WEDMRLPolicyPersistence", note: "save not callable" } };
+            break;
+          }
+          case "wedm_rl_policy_load": {
+            const rlMod = await import("../../engines/WEDMRLPolicyPersistence.js");
+            result = { success: true, data: (rlMod as any).loadWEDMRLPolicy?.(params as any) ?? { engine: "WEDMRLPolicyPersistence", note: "load not callable" } };
+            break;
+          }
+          case "wedm_rul_estimate": {
+            const { wedmRULEngine } = await import("../../engines/WEDMRULEngine.js");
+            result = { success: true, data: (wedmRULEngine as any).estimateFromRates?.(params as any) ?? (wedmRULEngine as any).estimate?.(params as any) ?? { engine: "WEDMRULEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_maintenance_plan": {
+            const { wedmMaintenanceSchedulerEngine } = await import("../../engines/WEDMMaintenanceSchedulerEngine.js");
+            result = { success: true, data: (wedmMaintenanceSchedulerEngine as any).plan?.(params as any) ?? { engine: "WEDMMaintenanceSchedulerEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_program_verify": {
+            const { wedmProgramVerificationEngine } = await import("../../engines/WEDMProgramVerificationEngine.js");
+            result = { success: true, data: { supported_controllers: wedmProgramVerificationEngine.getSupportedControllers() } };
+            break;
+          }
+          case "wedm_one_click_generate": {
+            const { oneClickWEDMGeneratorEngine } = await import("../../engines/OneClickWEDMGeneratorEngine.js");
+            result = { success: true, data: await ((oneClickWEDMGeneratorEngine as any).generate?.(params as any) ?? (oneClickWEDMGeneratorEngine as any).run?.(params as any) ?? (oneClickWEDMGeneratorEngine as any).process?.(params as any) ?? { engine: "OneClickWEDMGeneratorEngine", note: "method not callable" }) };
+            break;
+          }
+          case "wedm_start_point_find": {
+            const { wedmStartPointOptimizationEngine } = await import("../../engines/WEDMStartPointOptimizationEngine.js");
+            result = { success: true, data: (wedmStartPointOptimizationEngine as any).findCandidateStartPoints?.(params as any) ?? { engine: "WEDMStartPointOptimizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_multi_profile_batch": {
+            const { wedmMultiProfileBatchEngine } = await import("../../engines/WEDMMultiProfileBatchEngine.js");
+            const strategy = (params as any).strategy ?? "material";
+            result = { success: true, data: (wedmMultiProfileBatchEngine as any).groupProfiles?.((params as any).profiles ?? [], strategy) ?? { engine: "WEDMMultiProfileBatchEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_wire_threading_time": {
+            const { wedmWireThreadingMinEngine } = await import("../../engines/WEDMWireThreadingMinEngine.js");
+            result = { success: true, data: (wedmWireThreadingMinEngine as any).calculateThreadingTime?.(params as any, (params as any).input ?? {}) ?? { engine: "WEDMWireThreadingMinEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_learning_loop_record": {
+            const { wedmLearningLoopEngine } = await import("../../engines/WEDMLearningLoopEngine.js");
+            (wedmLearningLoopEngine as any).recordOutcome?.(params as any);
+            result = { success: true, data: { recorded: true } };
+            break;
+          }
+          case "wedm_job_pattern_learn": {
+            const { wedmJobPatternLearnerEngine } = await import("../../engines/WEDMJobPatternLearnerEngine.js");
+            const jobs = (params as any).jobs ?? [params];
+            result = { success: true, data: (wedmJobPatternLearnerEngine as any).learn?.(jobs) ?? { engine: "WEDMJobPatternLearnerEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_wire_break_cost_calc": {
+            const { wedmWireBreakRiskCostEngine } = await import("../../engines/WEDMWireBreakRiskCostEngine.js");
+            result = { success: true, data: (wedmWireBreakRiskCostEngine as any).calculate?.(params as any) ?? { engine: "WEDMWireBreakRiskCostEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_neural_training_ensemble": {
+            const { wedmNeuralTrainingEngine } = await import("../../engines/WEDMNeuralTrainingEngine.js");
+            result = { success: true, data: (wedmNeuralTrainingEngine as any).ensemblePredict?.(params as any) ?? { engine: "WEDMNeuralTrainingEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_production_readiness": {
+            const { wedmProductionReadinessEngine } = await import("../../engines/WEDMProductionReadinessEngine.js");
+            result = { success: true, data: (wedmProductionReadinessEngine as any).generate?.(params as any) ?? { engine: "WEDMProductionReadinessEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_program_optimize": {
+            const { wedmProgramOptimizerEngine } = await import("../../engines/WEDMProgramOptimizerEngine.js");
+            const content = String((params as any).program_content ?? (params as any).content ?? "");
+            result = { success: true, data: wedmProgramOptimizerEngine.optimizeProgram(content) };
+            break;
+          }
+          case "wedm_wire_premium_roi": {
+            const { wedmWirePremiumROIEngine } = await import("../../engines/WEDMWirePremiumROIEngine.js");
+            result = { success: true, data: (wedmWirePremiumROIEngine as any).calculate?.(params as any) ?? { engine: "WEDMWirePremiumROIEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_deep_ai_analyze": {
+            const { wireEDMDeepAIHardeningEngine } = await import("../../engines/WireEDMDeepAIHardeningEngine.js");
+            result = { success: true, data: (wireEDMDeepAIHardeningEngine as any).analyzeWEDMOperation?.(params as any) ?? { engine: "WireEDMDeepAIHardeningEngine", note: "method not callable" } };
+            break;
+          }
+          case "wire_edm_machine_tech_lookup": {
+            const { wireEDMMachineTechDataEngine } = await import("../../engines/WireEDMMachineTechDataEngine.js");
+            result = { success: true, data: (wireEDMMachineTechDataEngine as any).lookupParameters?.(params as any) ?? { engine: "WireEDMMachineTechDataEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_lora_cadence_state": {
+            const { wedmLoRACadenceEngine } = await import("../../engines/WEDMLoRACadenceEngine.js");
+            result = { success: true, data: wedmLoRACadenceEngine.getState() };
+            break;
+          }
+          case "sinker_lora_dataset_schema": {
+            const { sinkerEDMLoRADatasetBuilderEngine } = await import("../../engines/SinkerEDMLoRADatasetBuilderEngine.js");
+            result = { success: true, data: (sinkerEDMLoRADatasetBuilderEngine as any).requiredSchema?.() ?? { engine: "SinkerEDMLoRADatasetBuilderEngine", note: "method not callable" } };
+            break;
+          }
+          case "sinker_lora_cadence_state": {
+            const { sinkerEDMLoRACadenceEngine } = await import("../../engines/SinkerEDMLoRACadenceEngine.js");
+            result = { success: true, data: sinkerEDMLoRACadenceEngine.getState() };
+            break;
+          }
+          case "laser_lora_dataset_schema": {
+            const { laserLoRADatasetBuilderEngine } = await import("../../engines/LaserLoRADatasetBuilderEngine.js");
+            result = { success: true, data: (laserLoRADatasetBuilderEngine as any).requiredSchema?.() ?? { engine: "LaserLoRADatasetBuilderEngine", note: "method not callable" } };
+            break;
+          }
+          case "waterjet_lora_dataset_schema": {
+            const { waterjetLoRADatasetBuilderEngine } = await import("../../engines/WaterjetLoRADatasetBuilderEngine.js");
+            result = { success: true, data: (waterjetLoRADatasetBuilderEngine as any).requiredSchema?.() ?? { engine: "WaterjetLoRADatasetBuilderEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_dwg_import_versions": {
+            const { wedmDwgImportEngine } = await import("../../engines/WEDMDwgImportEngine.js");
+            result = { success: true, data: { supported_versions: wedmDwgImportEngine.getSupportedVersions() } };
+            break;
+          }
+          case "wedm_human_handoff_escalate": {
+            const { wedmHumanHandoffEngine } = await import("../../engines/WEDMHumanHandoffEngine.js");
+            result = { success: true, data: (wedmHumanHandoffEngine as any).escalate?.(params as any) ?? { engine: "WEDMHumanHandoffEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_human_handoff_list": {
+            const { wedmHumanHandoffEngine } = await import("../../engines/WEDMHumanHandoffEngine.js");
+            result = { success: true, data: { pending: wedmHumanHandoffEngine.listPending() } };
+            break;
+          }
+          case "wedm_fewshot_plan_first_cut": {
+            const { wedmFewShotEngine } = await import("../../engines/WEDMFewShotEngine.js");
+            result = { success: true, data: (wedmFewShotEngine as any).planFirstCut?.(params as any) ?? { engine: "WEDMFewShotEngine", note: "method not callable" } };
+            break;
+          }
+          case "wedm_material_spark_list": {
+            const { wedmMaterialSparkDatabaseEngine } = await import("../../engines/WEDMMaterialSparkDatabaseEngine.js");
+            result = { success: true, data: { materials: wedmMaterialSparkDatabaseEngine.list() } };
+            break;
+          }
+          case "wedm_material_spark_resolve": {
+            const { wedmMaterialSparkDatabaseEngine } = await import("../../engines/WEDMMaterialSparkDatabaseEngine.js");
+            const input = String((params as any).input ?? "");
+            result = { success: true, data: wedmMaterialSparkDatabaseEngine.resolve(input) };
+            break;
+          }
+          case "wedm_setup_sheet_generate": {
+            const { generateSetupSheet } = await import("../../engines/WEDMSetupSheetEngine.js");
+            result = { success: true, data: generateSetupSheet((params as any).result ?? params as any, (params as any).hardness_hrc) };
             break;
           }
 

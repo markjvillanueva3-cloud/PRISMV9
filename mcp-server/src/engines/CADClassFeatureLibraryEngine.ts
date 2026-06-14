@@ -26,7 +26,11 @@
  * @milestone CAD-FUSION-LIVE-MS0
  */
 
+import { statSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { PartClass, ExpectedFeatureFlag } from "./BlueprintVisionOCREngine.js";
+import type { LearnedPrevalenceOverlay } from "./CADCorpusFeaturePrevalenceLearnerEngine.js";
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -586,6 +590,144 @@ const LIBRARY: Record<string, ClassFeatureTemplate> = {
   },
 };
 
+// ── Tunable thresholds ─────────────────────────────────────────────
+
+/**
+ * Template-prevalence threshold above which a corpus-vs-template disagreement
+ * (low evidence_ratio) emits a drift caveat. 0.7 = "the template thinks this
+ * feature is class-typical (≥70% of the canonical decomposition)" — if the
+ * trained corpus disagrees, that's a retrain signal.
+ */
+const DRIFT_TEMPLATE_PREVALENCE_THRESHOLD = 0.7;
+
+// ── U-FGE03: learned-prevalence overlay (the default-path wiring) ───
+//
+// `templateFor()` is the single read seam every build-sequence path goes
+// through (`buildSequenceFor`, `buildSequenceForEvidence`,
+// `predictVisualFidelity`). U-FGE01/02 added OPT-IN corpus-evidence
+// surfaces; this overlay closes the memory's R12 gap by making the trained
+// blend auto-apply on the DEFAULT path: when a durable overlay exists,
+// `templateFor()` returns a clone whose feature prevalences are the
+// persisted blend. When NO overlay exists (the default everywhere today),
+// `templateFor()` returns the exact static template object unchanged —
+// byte-identical, so every pre-U-FGE03 test/caller is unaffected.
+//
+// Fail-soft by construction (R12): a missing overlay → static template
+// silently (the normal state); a CORRUPT/oversized/out-of-range overlay →
+// static template + a recorded `error` surfaced via `overlayStatus()` —
+// NEVER silently applies garbage prevalences to a build sequence.
+
+/** 16 MB cap — mirrors the U-FGE01 dispatcher convention (host has hit V8
+ * string-cap OOMs on >512MB JSON 3× this month; same class). */
+const MAX_OVERLAY_BYTES = 16 * 1024 * 1024;
+
+interface OverlayCacheEntry {
+  path: string;
+  mtimeMs: number;
+  overlay: LearnedPrevalenceOverlay | null;
+  error: string | null;
+}
+let _overlayCache: OverlayCacheEntry | null = null;
+
+/** Call-time (NOT module-load) so per-test env overrides take effect. */
+function overlayPathResolved(): string {
+  const envPath = process.env.PRISM_CAD_PREVALENCE_OVERLAY_PATH;
+  if (envPath && envPath.trim()) return envPath.trim();
+  // dist/engines/CADClassFeatureLibraryEngine.js -> ../.. = mcp-server/
+  const engineDir = dirname(fileURLToPath(import.meta.url));
+  const mcpRoot = resolve(engineDir, "..", "..");
+  return resolve(mcpRoot, "data/state/cad-learned-prevalence-overlay.json");
+}
+
+function overlayDisabled(): boolean {
+  return process.env.PRISM_CAD_PREVALENCE_OVERLAY_DISABLE === "1";
+}
+
+/**
+ * Lazily load + mtime-cache the overlay. Pure of throw — every failure path
+ * yields `{ overlay:null, error }` so `templateFor` degrades to the static
+ * template loudly (the error is surfaced through `overlayStatus()`).
+ */
+function loadPrevalenceOverlay(): OverlayCacheEntry {
+  const path = overlayPathResolved();
+  if (overlayDisabled()) {
+    return { path, mtimeMs: 0, overlay: null, error: null };
+  }
+  let mtimeMs = 0;
+  try {
+    const st = statSync(path);
+    mtimeMs = st.mtimeMs;
+    if (_overlayCache && _overlayCache.path === path && _overlayCache.mtimeMs === mtimeMs) {
+      return _overlayCache;
+    }
+    if (st.size > MAX_OVERLAY_BYTES) {
+      const entry: OverlayCacheEntry = {
+        path, mtimeMs, overlay: null,
+        error: `overlay exceeds ${MAX_OVERLAY_BYTES} byte cap (size=${st.size}) — refusing to JSON.parse`,
+      };
+      _overlayCache = entry;
+      return entry;
+    }
+    const raw = readFileSync(path, "utf8");
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      !parsed || typeof parsed !== "object" ||
+      typeof (parsed as LearnedPrevalenceOverlay).prevalence !== "object" ||
+      (parsed as LearnedPrevalenceOverlay).prevalence === null ||
+      Array.isArray((parsed as LearnedPrevalenceOverlay).prevalence)
+    ) {
+      const entry: OverlayCacheEntry = {
+        path, mtimeMs, overlay: null,
+        error: "overlay parsed but shape invalid (expected { prevalence: Record<class, Record<feature, number>> })",
+      };
+      _overlayCache = entry;
+      return entry;
+    }
+    const entry: OverlayCacheEntry = {
+      path, mtimeMs, overlay: parsed as LearnedPrevalenceOverlay, error: null,
+    };
+    _overlayCache = entry;
+    return entry;
+  } catch (e: unknown) {
+    const code = (e as { code?: string }).code;
+    if (code === "ENOENT") {
+      // The normal state today — no overlay persisted yet. Not an error.
+      const entry: OverlayCacheEntry = { path, mtimeMs: 0, overlay: null, error: null };
+      _overlayCache = entry;
+      return entry;
+    }
+    const entry: OverlayCacheEntry = {
+      path, mtimeMs, overlay: null,
+      error: e instanceof Error ? e.message : String(e),
+    };
+    _overlayCache = entry;
+    return entry;
+  }
+}
+
+/**
+ * Apply the overlay's blended prevalences over a static template, returning
+ * a NEW object (the static `LIBRARY` const is never mutated). Only finite,
+ * in-[0,1] overlay values override; anything else leaves the static value
+ * intact. `expected_feature_count` is recomputed as Σ prevalence so
+ * `predictVisualFidelity`'s `covered/total` invariant (score ≤ 1 when all
+ * features planned) is preserved under the overlay.
+ */
+function applyOverlay(tmpl: ClassFeatureTemplate, byKind: Record<string, number>): ClassFeatureTemplate {
+  let changed = false;
+  const features = tmpl.features.map((f) => {
+    const v = byKind[f.kind];
+    if (typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 1 && v !== f.prevalence) {
+      changed = true;
+      return { ...f, prevalence: v };
+    }
+    return f;
+  });
+  if (!changed) return tmpl;
+  const expected_feature_count = features.reduce((s, f) => s + f.prevalence, 0);
+  return { ...tmpl, features, expected_feature_count };
+}
+
 // ── Engine ──────────────────────────────────────────────────────────
 
 export class CADClassFeatureLibraryEngine {
@@ -595,7 +737,87 @@ export class CADClassFeatureLibraryEngine {
    * to flagExpectedFeatures + macro-only build).
    */
   templateFor(partClass: PartClass): ClassFeatureTemplate | null {
+    const tmpl = LIBRARY[partClass] ?? null;
+    if (!tmpl) return null;
+    // U-FGE03: auto-apply the persisted learned-prevalence blend on the
+    // DEFAULT path. No overlay (the state everywhere today) → static
+    // template returned by identity, byte-identical to pre-U-FGE03.
+    const { overlay } = loadPrevalenceOverlay();
+    if (!overlay) return tmpl;
+    const byKind = overlay.prevalence?.[partClass];
+    if (!byKind || typeof byKind !== "object") return tmpl;
+    return applyOverlay(tmpl, byKind);
+  }
+
+  /**
+   * U-FGE03 — the RAW static template, overlay NEVER applied. This is the
+   * pre-U-FGE03 `templateFor` behavior, preserved deliberately for the
+   * U-FGE01 evidence path.
+   *
+   * `buildSequenceForEvidence` uses this (not the overlay-aware
+   * `templateFor`) as its drift-comparison baseline. FGE01's drift signal is
+   * DEFINED as "the *hand-tuned/static* template thinks this feature is
+   * class-typical (≥0.7), but the trained corpus disagrees → retrain
+   * signal." If that baseline were the overlay-blended prevalence (which
+   * already incorporates corpus evidence via `applyLearned`'s α-blend), the
+   * comparison degenerates toward corpus-vs-corpus and systematically
+   * UNDER-reports drift — silently blinding a fail-loud diagnostic that
+   * exists specifically to catch model rot (per-file scrutiny arm B, P1-1).
+   * The default build path (`buildSequenceFor` / `predictVisualFidelity` /
+   * orchestrator) intentionally keeps the overlay-aware `templateFor`.
+   */
+  templateForStatic(partClass: PartClass): ClassFeatureTemplate | null {
     return LIBRARY[partClass] ?? null;
+  }
+
+  /**
+   * U-FGE03 — R12 visibility into whether the learned-prevalence overlay is
+   * present, fresh, and being applied to the default build-sequence path.
+   * Surfaced via the `cad_corpus_overlay_status` dispatcher action so an
+   * operator can confirm the trained blend actually reaches inference (the
+   * exact thing that was silently NOT happening pre-U-FGE03).
+   */
+  overlayStatus(): {
+    present: boolean;
+    applied: boolean;
+    disabled: boolean;
+    path: string;
+    generated_at: string | null;
+    source: string | null;
+    classes_count: number;
+    error: string | null;
+  } {
+    const disabled = overlayDisabled();
+    const entry = loadPrevalenceOverlay();
+    const ov = entry.overlay;
+    return {
+      present: ov !== null,
+      applied: ov !== null && !disabled,
+      disabled,
+      path: entry.path,
+      generated_at: ov?.generated_at ?? null,
+      source: ov?.source ?? null,
+      classes_count: ov ? Object.keys(ov.prevalence ?? {}).length : 0,
+      error: entry.error,
+    };
+  }
+
+  /**
+   * Test seam — drop the memoized overlay so the next `templateFor()` /
+   * `overlayStatus()` re-reads from disk. Production never needs this (the
+   * mtime check auto-invalidates when a peer rewrites the overlay).
+   *
+   * SCOPE: `_overlayCache` is a MODULE-level singleton, shared by every
+   * `CADClassFeatureLibraryEngine` instance AND the exported
+   * `cadClassFeatureLibraryEngine` AND any `await import()` caller in the
+   * same process. This method clears that one shared cell. Test contract:
+   * any suite that writes an overlay MUST call `clearOverlayCache()` in
+   * `afterEach` and point `PRISM_CAD_PREVALENCE_OVERLAY_PATH` at a per-test
+   * tmp file (never the real `data/state/` default) so a written overlay
+   * cannot leak into a sibling test via the shared cache.
+   */
+  clearOverlayCache(): void {
+    _overlayCache = null;
   }
 
   /**
@@ -619,6 +841,15 @@ export class CADClassFeatureLibraryEngine {
    * absent → 4.05 of 4.95 prevalence units = 0.82, with the 0.85-prevalence
    * tip taper alone dropping it from 'visually faithful' to 'recognisable
    * but wrong').
+   *
+   * U-FGE03 regime note: this uses the overlay-aware `templateFor`, so when
+   * a learned-prevalence overlay is active the score is computed against the
+   * TRAINED prevalences, not the static ones. The covered/total invariant
+   * (score ≤ 1 when all features planned) still holds — `applyOverlay`
+   * recomputes `expected_feature_count` as Σ blended prevalence so numerator
+   * and denominator stay consistent. The worked example above is the
+   * STATIC-regime (no-overlay) walkthrough; under an active overlay the
+   * literal numbers shift toward the corpus-measured prevalences by design.
    */
   predictVisualFidelity(partClass: PartClass, planned_feature_kinds: ReadonlyArray<FeatureTemplate["kind"]>): {
     score: number;
@@ -659,6 +890,169 @@ export class CADClassFeatureLibraryEngine {
     if (!tmpl) return [];
     return tmpl.features.filter((f) => f.prevalence >= prevalence_threshold);
   }
+
+  /**
+   * Evidence-driven build sequence — same as `buildSequenceFor` but ranks +
+   * filters features by LIVE corpus evidence (count / files_examined) instead
+   * of the static template prevalence. This closes the gap where a static
+   * template prevalence drifts from what the trained STEP geometry corpus
+   * actually shows for that part_class.
+   *
+   * Pure (no I/O). Caller injects the corpus report via `opts.corpus_report`;
+   * the dispatcher reads `state/cad-corpus-step-geometry-report.json` and
+   * passes it through. When the corpus has no entry for `partClass`, falls
+   * back to template prevalence with an explicit caveat (R12 fail-loud — never
+   * silently substitutes).
+   *
+   * Feature ordering: descending by `evidence_ratio`. Ties broken by static
+   * template prevalence (which preserves the build-axis-first convention —
+   * `stepped_revolved_axis` always at the top because its template prevalence
+   * is 1.0).
+   *
+   * @param partClass — class identifier matching the static template.
+   * @param opts — corpus report + thresholds.
+   * @returns sequence + caveats + corpus_class_found flag for caller diagnostics.
+   */
+  buildSequenceForEvidence(
+    partClass: PartClass,
+    opts: BuildSequenceEvidenceOpts,
+  ): BuildSequenceEvidenceResult {
+    const minRatio = opts.min_evidence_ratio ?? 0.3;
+    const fallbackPrev = opts.fallback_prevalence_threshold ?? 0.5;
+    const caveats: string[] = [];
+
+    // U-FGE03 P1-1: STATIC template (overlay NEVER applied) is the drift
+    // baseline. FGE01's drift caveat = "static template vs trained corpus";
+    // using the overlay-blended prevalence here would degenerate to
+    // corpus-vs-corpus and silently under-report drift (per-file scrutiny
+    // arm B). The DEFAULT path keeps the overlay-aware `templateFor`.
+    const tmpl = this.templateForStatic(partClass);
+    if (!tmpl) {
+      caveats.push(`no template for part_class "${partClass}" — empty sequence`);
+      return { sequence: [], caveats, corpus_class_found: false };
+    }
+
+    const corpus = opts.corpus_report;
+    if (!corpus || !Array.isArray(corpus.per_class)) {
+      caveats.push("corpus_report missing or malformed — falling back to template prevalence");
+      const fallback = tmpl.features
+        .filter((f) => f.prevalence >= fallbackPrev)
+        .map((f) => ({ ...f, evidence_count: 0, evidence_ratio: 0, source: "template_fallback" as const }));
+      return { sequence: fallback, caveats, corpus_class_found: false };
+    }
+
+    const classEntry = corpus.per_class.find((c) => c.part_class === partClass);
+    if (!classEntry) {
+      caveats.push(`corpus has no entry for part_class "${partClass}" — falling back to template prevalence`);
+      const fallback = tmpl.features
+        .filter((f) => f.prevalence >= fallbackPrev)
+        .map((f) => ({ ...f, evidence_count: 0, evidence_ratio: 0, source: "template_fallback" as const }));
+      return { sequence: fallback, caveats, corpus_class_found: false };
+    }
+
+    const examined = classEntry.files_examined;
+    if (!Number.isFinite(examined) || examined <= 0) {
+      caveats.push(`corpus entry for "${partClass}" has files_examined=${examined} (invalid) — falling back`);
+      const fallback = tmpl.features
+        .filter((f) => f.prevalence >= fallbackPrev)
+        .map((f) => ({ ...f, evidence_count: 0, evidence_ratio: 0, source: "template_fallback" as const }));
+      return { sequence: fallback, caveats, corpus_class_found: false };
+    }
+
+    const counts = classEntry.feature_evidence_counts || {};
+
+    // Hardened count reader — handles NaN-poisoning from corrupt/hostile corpus
+    // entries (e.g. `{ central_oil_hole: { nested: 5 } }` → `Number({...}) = NaN`).
+    // Non-finite values become 0 with a per-feature caveat so the drift signal
+    // doesn't silently fail (NaN < minRatio is `false`, which would suppress
+    // drift detection — exactly the load-bearing diagnostic of this method).
+    const safeCount = (rawKind: string): number => {
+      const raw = counts[rawKind];
+      const n = Number(raw ?? 0);
+      if (!Number.isFinite(n)) {
+        caveats.push(`corrupt corpus count for feature "${rawKind}" (value ${JSON.stringify(raw)} → not finite); treated as 0`);
+        return 0;
+      }
+      return n;
+    };
+
+    // Drift caveats fire BEFORE the ranked-length check — drift is most useful
+    // exactly when corpus evidence disagrees with template prevalence (low-ratio
+    // case). Flag template-listed features that the corpus says are RARER than
+    // expected (template prevalence high but corpus evidence_ratio below the
+    // inclusion threshold). These are signals for the next training pass.
+    for (const f of tmpl.features) {
+      const count = safeCount(f.kind);
+      const ratio = count / examined;
+      if (f.prevalence >= DRIFT_TEMPLATE_PREVALENCE_THRESHOLD && ratio < minRatio) {
+        caveats.push(
+          `drift: feature "${f.kind}" template_prevalence=${f.prevalence} but corpus_evidence_ratio=${ratio.toFixed(3)} ` +
+          `(${count}/${examined}) — consider retraining template`,
+        );
+      }
+    }
+
+    const ranked = tmpl.features
+      .map((f) => {
+        const count = safeCount(f.kind);
+        const ratio = count / examined;
+        return { ...f, evidence_count: count, evidence_ratio: ratio, source: "corpus" as const };
+      })
+      .filter((f) => f.evidence_ratio >= minRatio)
+      .sort((a, b) => {
+        if (b.evidence_ratio !== a.evidence_ratio) return b.evidence_ratio - a.evidence_ratio;
+        return b.prevalence - a.prevalence;
+      });
+
+    if (ranked.length === 0) {
+      caveats.push(
+        `no template features cleared min_evidence_ratio=${minRatio} for "${partClass}" ` +
+        `(examined=${examined}); template_prevalence_threshold=${fallbackPrev} fallback applied`,
+      );
+      const fallback = tmpl.features
+        .filter((f) => f.prevalence >= fallbackPrev)
+        .map((f) => {
+          const count = safeCount(f.kind);
+          return { ...f, evidence_count: count, evidence_ratio: count / examined, source: "template_fallback" as const };
+        });
+      return { sequence: fallback, caveats, corpus_class_found: true };
+    }
+
+    return { sequence: ranked, caveats, corpus_class_found: true };
+  }
 }
 
 export const cadClassFeatureLibraryEngine = new CADClassFeatureLibraryEngine();
+
+// ── Evidence-driven build-sequence types ───────────────────────────
+
+/** Live STEP geometry corpus report shape (subset consumed here). */
+export interface CADCorpusStepGeometryReport {
+  per_class: Array<{
+    part_class: string;
+    files_examined: number;
+    files_parse_ok?: number;
+    feature_evidence_counts: Record<string, number>;
+  }>;
+}
+
+/** Opts for `buildSequenceForEvidence`. */
+export interface BuildSequenceEvidenceOpts {
+  /** Live corpus report. Pass `null` to force template-prevalence fallback. */
+  corpus_report: CADCorpusStepGeometryReport | null;
+  /** Minimum evidence_ratio (count / files_examined) to include a feature. Default 0.3. */
+  min_evidence_ratio?: number;
+  /** Static prevalence threshold used when corpus is unavailable. Default 0.5. */
+  fallback_prevalence_threshold?: number;
+}
+
+/** Result of `buildSequenceForEvidence`. */
+export interface BuildSequenceEvidenceResult {
+  sequence: Array<FeatureTemplate & {
+    evidence_count: number;
+    evidence_ratio: number;
+    source: "corpus" | "template_fallback";
+  }>;
+  caveats: string[];
+  corpus_class_found: boolean;
+}

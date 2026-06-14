@@ -93,7 +93,7 @@ Output:
 ${output.slice(0, MAX_OUTPUT_LENGTH)}`;
 
     const body = JSON.stringify({
-      model: 'qwen2.5-coder:7b',
+      model: 'qwen2.5-coder:32b',
       prompt,
       stream: false,
       options: { num_predict: 150 }

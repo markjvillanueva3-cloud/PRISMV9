@@ -27,6 +27,7 @@ import { isatty } from "node:tty";
 import { inferAgentIdentity } from "./agent-identity.mjs";
 import { deriveSessionTopic } from "./derive-session-topic.mjs";
 import { lastKnownSlotForChat as _lastKnownSlotForChat } from "./slot-identity-cache.mjs";
+import { SLOT_NAMES as CANONICAL_SLOT_NAMES } from "./chat-slots.mjs";
 
 // Atomic write helper — tmp + rename pattern mirrors src/utils/atomicWrite.ts
 // Required because 6+ concurrent Claude terminals + 1 Codex chat can otherwise
@@ -53,6 +54,15 @@ const PICKUP_QUEUE_MD = path.resolve("H:/prism/state/shared/PICKUP_QUEUE.md");
 const LEGACY_HANDOFF = path.resolve("H:/prism/state/HANDOFF.md");
 const SESSION_ID_FILE = path.resolve("H:/prism/state/shared/handoffs/.current-session-ids.json");
 const STALE_HOURS_DEFAULT = 6;
+
+// SESSION-CONTINUITY-MS0 (2026-05-22): the canonical 26-slot fleet, imported
+// from chat-slots.mjs (the single source of truth) and wrapped in a Set for
+// O(1) membership tests. Importing -- rather than keeping a literal copy --
+// is safe here: chat-slots.mjs is a main-guarded CLI module already imported
+// by production code (slot-task-claim.mjs), so it has no import-time side
+// effects. This avoids the multi-copy drift that the latency-critical
+// SessionStart hooks (auto-resume / terminal-pin) accept by necessity.
+const SLOT_NAMES = new Set(CANONICAL_SLOT_NAMES);
 
 // ── Session ID Management ────────────────────────────────────────
 // Since hook processes get new PIDs each invocation, we need a stable
@@ -138,6 +148,88 @@ function resolveHandoffBase(identity, args) {
   const slot = (args?.slot || "").toString().trim().toLowerCase();
   if (slot === "golf") return "golf";
   return identity.instance;
+}
+
+/**
+ * SESSION-CONTINUITY-MS0 — parse the durable `slot:` binding from a handoff's
+ * YAML frontmatter. Returns the lowercased canonical slot, or null.
+ *
+ * Resolution order mirrors session-start-auto-resume.mjs parseSlotAndTopic:
+ *   1. the explicit `slot:` frontmatter field (written since AAM01);
+ *   2. the `<slot>-` prefix of the `topic:` field — covers handoffs that
+ *      predate the slot field, since /checkin has always written a
+ *      slot-prefixed topic.
+ *
+ * CRITICAL: the colon is followed by `[ \t]*`, NOT `\s*` — `\s` includes the
+ * newline, so a greedy `\s*` would consume the line terminator and capture
+ * the NEXT frontmatter line as the slot value (the partner bug fixed in
+ * session-start-terminal-pin.mjs and in cmdWrite's slot-omit logic above).
+ */
+function handoffSlot(content) {
+  if (typeof content !== "string") return null;
+  const m = content.match(/^slot:[ \t]*([^\r\n]*?)[ \t]*$/m);
+  const fromField = m ? m[1].trim().toLowerCase() : "";
+  if (fromField && SLOT_NAMES.has(fromField)) return fromField;
+  const topic = handoffTopic(content);
+  if (topic) {
+    const dash = topic.indexOf("-");
+    if (dash > 0) {
+      const cand = topic.slice(0, dash).toLowerCase();
+      if (SLOT_NAMES.has(cand)) return cand;
+    }
+  }
+  return null;
+}
+
+/** SESSION-CONTINUITY-MS0 — parse the `topic:` frontmatter field, or null. */
+function handoffTopic(content) {
+  if (typeof content !== "string") return null;
+  const m = content.match(/^topic:[ \t]*([^\r\n]+?)[ \t]*$/m);
+  return m ? m[1].trim() : null;
+}
+
+/**
+ * SESSION-CONTINUITY-MS0 — find the most-recent handoff bound to `slot`.
+ *
+ * Why this exists: work-slot handoffs are instance-keyed
+ * (HANDOFF-<claude-id>-<topic>.md). After a full terminal restart the chat's
+ * session-id is brand new, so an instance-keyed lookup cannot find the prior
+ * session's handoff — but the operator-typed slot name (`/checkin-bravo`) is
+ * durable. This scans every HANDOFF-*.md, keeps the ones whose frontmatter
+ * binds them to `slot`, and returns the mtime-newest. When `preferTopic` is
+ * supplied, an exact topic match wins over plain newest.
+ *
+ * Returns {file, path, mtime, topic, matchedBy} or null when no handoff is
+ * bound to the slot. Fail-soft: an unreadable dir / file is skipped, not thrown.
+ */
+function newestHandoffForSlot(slot, preferTopic = null) {
+  let files;
+  try {
+    files = fs.readdirSync(HANDOFFS_DIR)
+      .filter((f) => f.startsWith("HANDOFF-") && f.endsWith(".md"));
+  } catch { return null; }
+  const matches = [];
+  for (const f of files) {
+    const fp = path.join(HANDOFFS_DIR, f);
+    try {
+      const mtime = fs.statSync(fp).mtimeMs;
+      const content = fs.readFileSync(fp, "utf-8");
+      if (handoffSlot(content) !== slot) continue;
+      // Carry `content` so cmdRead returns it directly — no second readFileSync
+      // at the call site (kills the double-read AND the statSync→readFileSync
+      // TOCTOU window the golf branch / exact tiers are exposed to).
+      matches.push({ file: f, path: fp, mtime, topic: handoffTopic(content), content });
+    } catch { /* skip unreadable handoff */ }
+  }
+  if (matches.length === 0) return null;
+  if (preferTopic) {
+    const exact = matches
+      .filter((m) => m.topic === preferTopic)
+      .sort((a, b) => b.mtime - a.mtime)[0];
+    if (exact) return { ...exact, matchedBy: "slot-frontmatter-topic" };
+  }
+  matches.sort((a, b) => b.mtime - a.mtime);
+  return { ...matches[0], matchedBy: "slot-frontmatter" };
 }
 
 function now() {
@@ -629,6 +721,37 @@ function cmdRead(identity, args) {
       return { ok: true, content: fs.readFileSync(pick.path, "utf-8"), file: pick.file, matchedBy: "slot-golf-newest", age_minutes: ageMin };
     }
     return { ok: false, error: "no_golf_handoff", message: "No HANDOFF-golf*.md found. Hygiene slot has not written a handoff yet." };
+  }
+
+  // SESSION-CONTINUITY-MS0 (2026-05-22): slot-keyed read for the 25 WORK slots
+  // (golf is handled above by its filename-keyed branch). Work-slot handoffs
+  // are instance-keyed; after a full terminal restart the session-id is brand
+  // new, so the exact/fuzzy/same-instance tiers below all MISS and the read
+  // falls through to family-latest — which returns a RANDOM peer chat's
+  // handoff. `/checkin-bravo` passes --slot bravo: the operator-typed slot
+  // name is the only identity that survives a restart. Resolve it by the
+  // durable `slot:` frontmatter field. AUTHORITATIVE like the golf branch —
+  // it returns a clean "no handoff" rather than ever falling through to a
+  // peer's file (resuming the wrong chat is worse than resuming nothing).
+  if (slotTag && slotTag !== "golf" && SLOT_NAMES.has(slotTag)) {
+    const match = newestHandoffForSlot(slotTag, targetTopic);
+    if (match) {
+      return {
+        ok: true,
+        content: match.content,
+        file: match.file,
+        matchedBy: match.matchedBy,
+        age_minutes: Math.round((Date.now() - match.mtime) / 60000),
+      };
+    }
+    return {
+      ok: false,
+      error: "no_slot_handoff",
+      slot: slotTag,
+      message: `No handoff bound to slot '${slotTag}'. No HANDOFF-*.md carries `
+        + `'slot: ${slotTag}' (frontmatter) or a '${slotTag}-' topic prefix — `
+        + `the slot has not written a handoff yet, or prior handoffs were archived.`,
+    };
   }
 
   // (0) Exact topic match — required for multi-chat partitioning so each chat

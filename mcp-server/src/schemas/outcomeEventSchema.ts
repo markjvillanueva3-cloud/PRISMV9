@@ -154,6 +154,12 @@ export const OutcomeKind = z.enum([
   // v1.1.0 — INFRA-NEURAL-LEDGER-MS1/P0-U01
   "cross_process_decision",           // bridge invocation logged by an XPROC-* engine; pair predicted+actual via lineage_id
   "cross_process_stage_complete",     // pipeline stage finished (CAD→feature, toolpath→post, consensus→commit, etc.)
+  // CAD-COMPLETE-MS0/U-CADC-LP01 — base kind, deliberately NOT v1.1.0-gated:
+  // it carries no version-guarded fields, so a v1.0.0 consumer simply sees an
+  // unrecognised kind rather than mis-reading a guarded field. Adding it here
+  // (vs V11_ONLY_KINDS) lets CADExecutionOutcomeBusEngine's durable channel
+  // validate under the default schemaVersion 1.0.0 pickSchemaVersion() stamps.
+  "cad_execution_outcome",            // a CAD adapter op finished — success/error/timing/collision/regeneration
   "other",
 ]);
 

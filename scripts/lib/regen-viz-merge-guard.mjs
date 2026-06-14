@@ -23,6 +23,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { countGraphArrayStreaming } from "./graph-io.mjs";
 
 export const EXIT_OK = 0;
 export const EXIT_MERGE_FAILED = 2;
@@ -76,21 +77,26 @@ export function decideMergePostState({
 }
 
 /**
- * Read system-graph.json node count cheaply via JSON.parse. Returns 0 on any
- * error (the orchestrator treats 0 as "couldn't verify" and falls through to
- * continue — we don't want a missing graph file to mask a real merge failure
- * with a spurious no-op abort).
+ * Read system-graph.json node count cheaply via an OFF-HEAP streaming count.
+ * Returns 0 on any error (the orchestrator treats 0 as "couldn't verify" and
+ * falls through to continue -- we don't want a missing graph file to mask a real
+ * merge failure with a spurious no-op abort).
+ *
+ * MUST NOT materialize the graph: this runs in the regen-viz ORCHESTRATOR
+ * process, which has the DEFAULT V8 heap (it spawns its stages with 24GB, but is
+ * itself default-heap). The old `JSON.parse(fs.readFileSync(...,"utf8"))` OOM'd
+ * the orchestrator at ~546MB on the post-merge 236MB graph (and threw the >512MB
+ * V8 string-cap on bigger graphs) -> a FATAL the catch can't swallow -> the regen
+ * aborted before the post-merge stages (engine-classification, sidecar rebuild)
+ * ran. `countGraphArrayStreaming` reads the file as an off-heap Buffer and walks
+ * only the nodes array, so V8-heap use is O(1) regardless of graph size.
+ * (U-VIZ-MERGE-GUARD-OOM, 2026-06-09.)
  *
  * @param {string} graphPath  absolute path to system-graph.json
  * @returns {number}
  */
 export function readGraphNodeCount(graphPath) {
-  try {
-    const g = JSON.parse(fs.readFileSync(graphPath, "utf8"));
-    return Array.isArray(g.nodes) ? g.nodes.length : 0;
-  } catch {
-    return 0;
-  }
+  return countGraphArrayStreaming(graphPath, "nodes");
 }
 
 /**

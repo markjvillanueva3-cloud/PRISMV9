@@ -18,13 +18,14 @@ import {
   type SpecializationTrackId,
 } from '../../data/academy';
 import { useCourses } from '../../hooks/useCourses';
+import { useStudentId } from '../../hooks/useStudentId';
 
 const LEVELS: CourseLevel[] = ['L0', 'L1', 'L2', 'L3'];
 const DOMAINS: CourseDomain[] = ['Foundations', 'Programming', 'Machining', 'Optimization', 'Business'];
 
 export function CourseCatalog() {
   const navigate = useNavigate();
-  const { completedCourseIds, isCourseUnlocked, isCourseComplete, stats } = useCourses();
+  const { completedCourseIds, isCourseUnlocked, isCourseComplete, stats } = useCourses(useStudentId());
   const [levelFilter, setLevelFilter] = useState<CourseLevel | 'ALL'>('ALL');
   const [domainFilter, setDomainFilter] = useState<CourseDomain | 'ALL'>('ALL');
   const [programFilter, setProgramFilter] = useState<ProgramId | 'ALL'>('ALL');

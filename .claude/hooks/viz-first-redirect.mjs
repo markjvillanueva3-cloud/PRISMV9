@@ -103,8 +103,8 @@ export function shouldQueryViz(toolName, pattern) {
 
 // Parse the system-viz-query find output. The script's `find` mode emits lines:
 //   "Found N node(s) matching \"PATTERN\":"
-//   "  L<layer>/<kind>  <node-id>  <name>"
-// We need the top-K (name, layer/kind, id) triples after the header.
+//   "  L<layer>/<kind>  <node-id>  <name>[ [docs:K]]"
+// We need the top-K (name, layer/kind, id, noteCount) tuples after the header.
 export function parseFindOutput(stdout, topK) {
   if (!stdout || typeof stdout !== "string") return [];
   const lines = stdout.split(/\r?\n/);
@@ -115,7 +115,16 @@ export function parseFindOutput(stdout, topK) {
     if (/^Found\s+\d+\s+node/i.test(line)) continue;
     const m = line.match(/^\s+(L\d+\/[\w_-]+)\s+(\S+)\s+(.+)$/);
     if (!m) continue;
-    out.push({ kind: m[1], id: m[2], name: m[3].trim() });
+    // Trailing ` [docs:N]` marker = brain-coverage count (N wiki/memory docs)
+    // emitted by `system-viz-query find` when noteCount>0. Strip it from the name
+    // and capture it so the model routes to DOCUMENTED nodes first (context-
+    // retention). ASCII + end-anchored, so it cannot false-match a real label;
+    // lines without the marker parse exactly as before (noteCount 0).
+    let name = m[3].trim();
+    let noteCount = 0;
+    const nm = name.match(/\s*\[docs:(\d+)\]$/);
+    if (nm) { noteCount = parseInt(nm[1], 10) || 0; name = name.slice(0, nm.index).trimEnd(); }
+    out.push({ kind: m[1], id: m[2], name, noteCount });
     if (out.length >= topK) break;
   }
   return out;
@@ -139,9 +148,35 @@ function runVizQuery(probe) {
 
 export function formatInjection(hits, probe) {
   if (!hits.length) return null;
+  // ` (N docs)` = brain-coverage marker — N wiki/memory docs on that node
+  // (structural count from the find-cache projection, sierra-substrate). Surfaced
+  // so the model prefers DOCUMENTED nodes (context-retention). Appended only when
+  // noteCount>0; pure ASCII so it survives all consumers.
+  const docMark = (h) => ((h.noteCount || 0) > 0 ? ` (${h.noteCount} docs)` : "");
+  // F5 upgrade (HIGH-ROI-TS2 iter1, 2026-05-22): when a SINGLE high-confidence
+  // hit matches the probe exactly, promote the message from advisory to
+  // actionable — give the model an EXACT-MATCH banner so it knows to skip
+  // the Grep/Glob and Read the path directly. Gate: 1 hit + case-insensitive
+  // name match + non-ghost kind (built/stub only, never ghost-roost).
+  if (hits.length === 1 && hits[0].name && probe) {
+    const h = hits[0];
+    const exact = String(h.name).toLowerCase() === String(probe).toLowerCase();
+    const concrete = h.kind && !String(h.kind).startsWith("ghost");
+    if (exact && concrete) {
+      const pathHint = h.wiki && Array.isArray(h.wiki) && h.wiki.length
+        ? `\n- wiki: ${h.wiki[0]}`
+        : "";
+      return `## ⚡ EXACT MATCH — graph already knows \`${probe}\`\n- [${h.kind}] **${h.name}** \`${h.id}\`${docMark(h)}${pathHint}\n_TOKEN-SAVE: skip the Grep/Glob and Read this directly. Adapter: \`scripts/system-viz-query.mjs\`. Disable: \`PRISM_VIZ_FIRST_REDIRECT_DISABLE=1\`._`;
+    }
+  }
   const header = `## 🔭 system-viz first — ${hits.length} graph node(s) match \`${probe}\``;
-  const body = hits.map((h) => `- [${h.kind}] **${h.name}** \`${h.id}\``).join("\n");
-  const footer = "_Graph-grounded answer. Prefer this over Grep/Glob when the noun is already known to the system. Adapter: `scripts/system-viz-query.mjs`. Disable: `PRISM_VIZ_FIRST_REDIRECT_DISABLE=1`._";
+  const body = hits.map((h) => `- [${h.kind}] **${h.name}** \`${h.id}\`${docMark(h)}`).join("\n");
+  // Surface the legend only when at least one hit is brain-backed, so the model
+  // knows `(N docs)` means "route here first for retained context".
+  const brainHint = hits.some((h) => (h.noteCount || 0) > 0)
+    ? " `(N docs)` = N wiki/memory entries on that node — prefer documented nodes (context-retention)."
+    : "";
+  const footer = `_Graph-grounded answer. Prefer this over Grep/Glob when the noun is already known to the system.${brainHint} Adapter: \`scripts/system-viz-query.mjs\`. Disable: \`PRISM_VIZ_FIRST_REDIRECT_DISABLE=1\`._`;
   return `${header}\n${body}\n${footer}`;
 }
 

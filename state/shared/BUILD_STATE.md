@@ -1,76 +1,92 @@
 # BUILD_STATE — what's built / what needs wiring / what's pending / what's awaiting frontend merge
 
-> Generated: 2026-05-17T19:46:40.788Z
+> Generated: 2026-05-28T19:07:46.855Z
 > Source: `scripts/build-state-snapshot.mjs` — read `BUILD_STATE.json` for the machine-queryable form.
 
 ## At a glance
 
-- **2543** engines built and wired (of 3272)
-- **1073** wiki entries indexed
-- **729** engines awaiting dispatcher wiring
-- **3197** units pending across 83 active milestones
+- **3604** engines built and wired (of 3722)
+- **1101** wiki entries indexed
+- **118** engines awaiting dispatcher wiring
+- **3029** units pending across 110 active milestones
 - **2** codex frontend builds awaiting merge
-- **175** milestones with envelope-status drift
+- **191** milestones with envelope-status drift
 
 ## BUILT
 
-2543/3272 engines wired (78%); 1073 wiki entries indexed.
+3604/3722 engines wired (97%); 1101 wiki entries indexed.
 
 ```json
 {
-  "totalEngines": 3272,
-  "unwired": 729,
-  "wiredDirect": 2368,
-  "wireExempt": 97,
-  "wiredViaHook": 10,
-  "wiredViaOrch": 53,
-  "wiredViaRoute": 14,
-  "wiredViaSingleton": 1
+  "totalEngines": 3722,
+  "unwired": 118,
+  "wiredDirect": 3434,
+  "wireExempt": 104,
+  "wiredViaHook": 9,
+  "wiredViaOrch": 41,
+  "wiredViaRoute": 12,
+  "wiredViaSingleton": 4
 }
 ```
 
 ## NEEDS_WIRING
 
-729 engines on disk with no dispatcher reference. Top domains by count:
+118 engines on disk with no dispatcher reference. Top domains by count:
 
 | Domain | Unwired count |
 |--------|---------------|
-| Other | 131 |
-| Lathe | 82 |
-| Machine | 13 |
-| Multi | 10 |
-| Tool | 9 |
-| Five | 9 |
-| Shop | 8 |
-| Outcome | 8 |
-| Process | 7 |
-| Hyper | 7 |
-| Milling | 7 |
-| Fusion | 7 |
-| Swiss | 6 |
-| Wire | 6 |
-| Wet | 6 |
-| Turning | 6 |
-| Print | 5 |
-| Mastercam | 5 |
-| Electrode | 4 |
-| Speed | 4 |
-| Okuma | 4 |
-| Mobile | 4 |
-| Session | 3 |
-| Sensor | 3 |
-| Video | 3 |
+| Other | 22 |
+| Speed | 5 |
+| Monolith | 5 |
+| Wet | 3 |
+| Creo | 3 |
+| Hyper | 3 |
+| Shop | 2 |
+| Tool | 2 |
+| Embedding | 2 |
+| Swiss | 2 |
+| Onshape | 2 |
+| Grok | 2 |
+| Mill | 2 |
+| Quoting | 2 |
+| Playwright | 1 |
+| Opus | 1 |
+| Code | 1 |
+| Model | 1 |
+| Local | 1 |
+| Formal | 1 |
+| Expanding | 1 |
+| Semantic | 1 |
+| Feedback | 1 |
+| Qdrant | 1 |
+| Counterfactual | 1 |
 
 **Next action:** Pick a top-domain bucket; wire to the matching dispatcher in batches of 5–6 engines (see U-WIRE-LATHE-BATCHN pattern). Wiki cross-refs in `wikiTitle` resolve via `/wiki-query <name>`.
 
 ## NEEDS_BUILDING
 
-3197 units across 681 milestones not yet in git.
+3029 units across 729 milestones not yet in git.
 
 ### Envelope-status drift
 
 | Milestone | Envelope says | Git says | Drift |
 |-----------|---------------|----------|-------|
+| CAMK-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS0.5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS0.7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS11 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS6 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-MS8 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-V17-P0B | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-V17-P1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-V17-P11 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CAMX-V17-P3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CC-EXT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CC-EXT-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CC-EXT-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -128,8 +144,6 @@
 | L9-P0-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | L9-P1-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | L9-P2-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| MF-MS1 | completed | not_started_real | claims_completed_but_units_pending |
-| MF-MS2 | completed | not_started_real | claims_completed_but_units_pending |
 | QA-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | QA-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | QA-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -153,6 +167,7 @@
 | S3-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | S3-MS3 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | S4-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| SCI-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ULT-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ULT-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -166,11 +181,10 @@
 | ACP-MS3 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS5 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| ACP-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | ACP-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | APP-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| COMMAND-KERNEL-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | BP-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CADCAM-DAGI-MS4 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -189,8 +203,10 @@
 | CCM-MS7 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS8 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | CCM-MS9 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| CLI-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| COST-CASCADE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CK-MS12 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| CLI-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| COMBO-EFFICIENCY-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| SYSTEM-VIZ-BRAIN-MS0 | completed | in_progress_real | claims_completed_but_units_pending |
 | EIGC-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS10 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -202,8 +218,7 @@
 | EIGC-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS8 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | EIGC-MS9 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| HTML-PRIMARY-MS0 | completed | in_progress_real | claims_completed_but_units_pending |
-| INFRA-AGI-ROUTER-MS2 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| DEA-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | L6-BACKPROP-REGISTRY-MS25 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | KNOWLEDGE-VAULT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MULTI-CLI-SYNC-HOOK-MS28 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -213,7 +228,7 @@
 | RT-ADAPTIVE-MS22a | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | OT-IT-SECURITY-MS20 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | TENANT-ONBOARD-MS29 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| LATHE-P2P-CONSENSUS-MS4 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| LATHE-MASTER | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MXU-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | MXU-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | MXU-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
@@ -229,11 +244,11 @@
 | PCCA-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | PCCA-MS0A | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | PCCA-MS1 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| PIPE-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | PPG-MS2 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | PROD-GATE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| MS-CRITWIRE | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | MS-DOCU-FINISH | completed | not_started_real | claims_completed_but_units_pending |
-| MS-DOCU-INGEST | completed | not_started_real | claims_completed_but_units_pending |
+| MS-VIZ-ROADMAP-BIND | completed | not_started_real | claims_completed_but_units_pending |
 | TWIN-SIM-GATE-MS23 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS1 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
@@ -243,38 +258,39 @@
 | SCIMATH-MS5 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS6 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 | SCIMATH-MS7 | not_started | completed_real | claims_not_started_but_has_shipped_units |
+| SF-PSN-WIRE-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
 | SIM-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
-| TOOLS-AUDIT-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
-| TRAINING-LEARNING-MS0 | completed | in_progress_real | claims_completed_but_units_pending |
+| TOOL-INVENTORY-MS0 | not_started | in_progress_real | claims_not_started_but_has_shipped_units |
+| TOOLS-AUDIT-MS0 | not_started | completed_real | claims_not_started_but_has_shipped_units |
 
 ### Top pending units (most-recently-active milestones first)
 
 | Milestone | Phase | Unit | Title |
 |-----------|-------|------|-------|
-| SYSTEM-VIZ-BRAIN-MS0 | P1-MEMORY | U-P1-QDRANT-EPISODIC-RECALL | Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall) |
-| SYSTEM-VIZ-BRAIN-MS0 | P2-VIZ-BRAIN | U-P2-SLOT-OWNERSHIP-OVERLAY | Color nodes by which of 13 chat slots edited them last; handoff dotted edges |
-| SYSTEM-VIZ-BRAIN-MS0 | P3-AUTO-BUILD | U-P3-FORGE-OLLAMA-CODEGEN | /forge-triple auto-spawns Ollama qwen2.5-coder for boilerplate stubs |
-| SYSTEM-VIZ-BRAIN-MS0 | P3-AUTO-BUILD | U-P3-SHIP-QUALITY-GATE | Stop hook blocks commit if tests fail / scrutiny incomplete / SPC red |
-| COMMAND-KERNEL-MS0 | P0 | U-CK02 | psk whoami / position / manifest syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK03 | psk handoff / checkin / pick syscalls |
-| COMMAND-KERNEL-MS0 | P0 | U-CK05 | Generated-mirror generators (JSON registries become mirrors of os/ entities) |
-| COMMAND-KERNEL-MS0 | P1 | U-CK07 | command-migrate.mjs codemod |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A1 | A1 — extend SLOT_NAMES in chat-slots.mjs to add 'golf' (NATO phonetic continuity) |
-| CLEANUP-MS0 | bootstrap-tier-0 | U-CLEANUP-A5 | A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allowlist-regex from golf-owned-paths.json; tier frontmatter; bypass env PRISM_GOLF_WRITE_ALLOWLIST_BYPASS=1) |
-| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B7 | B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via prism_dev dispatcher action with audit trail) |
-| CLEANUP-MS0 | operator-surfaces-tier-3 | U-CLEANUP-B9 | B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/golf-reviewer-eval/; weekly cron; agent.model pinned to claude-sonnet-4-6 NOT latest; alerts on slope (-0.20 over 12 weeks) AND absolute floor; R4-P1-8: wraps reviewer-verdict ledger in prism_intelligence:xproc_aps_calibrate + xproc_aps_set for conformal-prediction-set membership check instead of naive slope heuristic; reads prompt-version headers to detect prompt drift) |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A2 | [Track A] U-FAMILY-PARAM-EXTRACT — per family, extract the 8-15 driving parameters (ODs/lengths/bore-dia/thread-spec/chamfers) — the turning analogue of the .xlsm's 34 dims |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A3 | [Track A] MS-RES-XLSM-ENGINE core — olevba-decode the .xlsm's vbaProject.bin → reverse the 34-dim→geometry math per the 11 die templates; register the mill die families as PRISM parametric templates (wrap & extend) — see MS-RES-XLSM-ENGINE |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A4 | [Track A] MachineDomainTemplateLibraryEngine (NEW) — registry of parametric program skeletons keyed by (partFamily, machineDomain, controller); each refs a ProvenRecipe + a GCodeTemplate parametrization; wire to prism_proven_pipeline (template_register/get/list/instantiate) + prism_cam |
-| MS-PRINT-PROGRAM-LOOP | P0 | U-PPL-A6 | [Track A] Wire proven_generate_pipeline → final G-code; add proven_generate_program — bridge adapted-recipe → TurningProgramAssemblerEngine (turning) / MillingPrintToProgramEngine (mill) → emit. New action prism_proven_pipeline:proven_generate_program |
-| RGS-TOOL-AUTOINVOKE-MS1 | P1 | U-RIE-ADAPTER | RoadmapIntelligenceEngine complexity adapter |
-| RGS-TOOL-AUTOINVOKE-MS1 | P1 | U-CALIBRATION | Outcome confidence calibration |
-| RGS-TOOL-AUTOINVOKE-MS1 | P1 | U-TRANSFER | Cross-milestone transfer priors |
-| COST-CASCADE-MS0 | P0 | U-CASCADE-CALIBRATE | Build `CascadeCalibrationEngine` (probe cost-quality frontier) |
-| COST-CASCADE-MS0 | P0 | U-BUILD-MOA-LAYER2 | Build `MoaLayer2Engine` (aggregator across 3-of-3 verdicts) |
-| COST-CASCADE-MS0 | P0 | U-DISPATCHER-ACTION-TWO-PASS | `prism_ai:two_pass` dispatcher action (cheap-then-strong) |
-| COST-CASCADE-MS0 | P0 | U-CASCADE-FALLBACK-CHAIN | Fallback chain (cheap → mid → strong with circuit-breaker) |
-| INTEL-OLLAMA-OBSIDIAN-MS0 | P5 | P5-U05 | Wire prism_intelligence:diagnose_failure → DiagnosticReasoningEngine |
+| S1-MS2 | P2 | P2-U05 | Port Thermal Partition + Power/Torque |
+| SCIMATH-MS1 | P2 | P2-U05 | FEMThermalCoupledEngine — sequential/staggered coupling |
+| SCIMATH-MS5 | P2 | P2-U05 | AcceptanceSamplingEngine — configurable AQL + switching rules |
+| WIRE-MS0 |  | P2-U05 | Welding & Joining Page — CREATE NEW |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P11 | P11-U07 | Wire 14 critical-gap awareness/goal/continuity hooks (Agent 3 finding) |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P12 | P12-U01 | Split securityDispatcher (1055 actions) into 5 sub-dispatchers |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P16 | P16-U03 | Merge top 5 candidates into canonical PRISM (each with dedup check) |
+| INTEL-OLLAMA-OBSIDIAN-MS0 | P20 | P20-U02 | Optional: ollama pull llama3.3:70b for high-complexity tasks (disk-conditional) |
+| CCM-MS0 | P0 | P0-U06 | WorktreeCreate hook |
+| CCM-MS0 | P0 | P0-U07 | WorktreeRemove hook |
+| CCM-MS0 | P0 | P0-U08 | PostCompact hook |
+| CCM-MS0 | P0 | P0-U09 | SessionEnd hook |
+| L8-P1-MS2 | P0 | P0-U06 | Knowledge Search |
+| L8-P1-MS2 | P0 | P0-U07 | Material Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U08 | Tool Selection Wizard |
+| L8-P1-MS2 | P0 | P0-U09 | Machine Selection Wizard |
+| L8-P2-MS2 | P0 | P0-U06 | Capacity Analytics Dashboard |
+| L8-P2-MS2 | P0 | P0-U07 | Predictive Maintenance Panel |
+| L8-P2-MS2 | P0 | P0-U08 | ERP Overview Page |
+| L8-P2-MS2 | P0 | P0-U09 | ERP Layout & Navigation |
+| CCM-MS14 | P0 | P0-U06 | Cache hit rate monitor |
+| CCM-MS14 | P0 | P0-U07 | Cascade failure detector |
+| CCM-MS14 | P0 | P0-U08 | Monte Carlo convergence monitor |
+| CCM-MS14 | P0 | P0-U09 | silentCatch fire rate monitor |
 
 **Next action:** Cross-reference MILESTONE_PROGRESS.json. Avoid units already in `shipped` arrays — those are committed but envelope status is stale.
 
@@ -292,48 +308,47 @@
 
 ## COVERAGE_BY_DOMAIN
 
-Per-domain wired/unwired breakdown across 935 domain prefixes.
+Per-domain wired/unwired breakdown across 999 domain prefixes.
 
 | Domain | Total | Wired | Unwired | Coverage % |
 |--------|-------|-------|---------|-----------|
-| Other | 605 | 474 | 131 | 78% |
-| Lathe | 188 | 106 | 82 | 56% |
-| Machine | 45 | 32 | 13 | 71% |
-| Multi | 29 | 19 | 10 | 66% |
-| Tool | 57 | 48 | 9 | 84% |
-| Five | 12 | 3 | 9 | 25% |
-| Shop | 16 | 8 | 8 | 50% |
-| Outcome | 8 | 0 | 8 | 0% |
-| Hyper | 68 | 61 | 7 | 90% |
-| Fusion | 36 | 29 | 7 | 81% |
-| Milling | 34 | 27 | 7 | 79% |
-| Process | 10 | 3 | 7 | 30% |
-| Turning | 25 | 19 | 6 | 76% |
-| Wire | 20 | 14 | 6 | 70% |
-| Wet | 15 | 9 | 6 | 60% |
-| Swiss | 6 | 0 | 6 | 0% |
-| Mastercam | 28 | 23 | 5 | 82% |
-| Print | 21 | 16 | 5 | 76% |
-| Okuma | 12 | 8 | 4 | 67% |
-| Speed | 7 | 3 | 4 | 43% |
-| Electrode | 6 | 2 | 4 | 33% |
-| Mobile | 6 | 2 | 4 | 33% |
-| Cross | 67 | 64 | 3 | 96% |
-| Mill | 24 | 21 | 3 | 88% |
-| Inventor | 12 | 9 | 3 | 75% |
-| Session | 12 | 9 | 3 | 75% |
-| Tribal | 12 | 9 | 3 | 75% |
-| Unified | 9 | 6 | 3 | 67% |
-| Consensus | 8 | 5 | 3 | 63% |
-| Agent | 7 | 4 | 3 | 57% |
+| Other | 699 | 677 | 22 | 97% |
+| Speed | 19 | 14 | 5 | 74% |
+| Monolith | 17 | 12 | 5 | 71% |
+| Hyper | 73 | 70 | 3 | 96% |
+| Wet | 15 | 12 | 3 | 80% |
+| Creo | 4 | 1 | 3 | 25% |
+| Mill | 70 | 68 | 2 | 97% |
+| Tool | 63 | 61 | 2 | 97% |
+| Shop | 20 | 18 | 2 | 90% |
+| Quoting | 13 | 11 | 2 | 85% |
+| Swiss | 6 | 4 | 2 | 67% |
+| Embedding | 4 | 2 | 2 | 50% |
+| Grok | 2 | 0 | 2 | 0% |
+| Onshape | 2 | 0 | 2 | 0% |
+| Post | 63 | 62 | 1 | 98% |
+| Fusion | 36 | 35 | 1 | 97% |
+| Mastercam | 28 | 27 | 1 | 96% |
+| Blueprint | 11 | 10 | 1 | 91% |
+| Coolant | 10 | 9 | 1 | 90% |
+| Unified | 10 | 9 | 1 | 90% |
+| Consensus | 9 | 8 | 1 | 89% |
+| Pipeline | 9 | 8 | 1 | 89% |
+| Local | 8 | 7 | 1 | 88% |
+| Bar | 7 | 6 | 1 | 86% |
+| Bayesian | 7 | 6 | 1 | 86% |
+| Model | 6 | 5 | 1 | 83% |
+| Qdrant | 6 | 5 | 1 | 83% |
+| Deep | 5 | 4 | 1 | 80% |
+| Operator | 5 | 4 | 1 | 80% |
+| Catalog | 4 | 3 | 1 | 75% |
 
 ## STALE_MILESTONES
 
-224 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
+199 milestones flagged as stale (pending > 0 AND last shipped > 30d ago, OR never started).
 
 | Milestone | Track | Reason | Pending | Shipped/Total | Last shipped |
 |-----------|-------|--------|---------|---------------|--------------|
-| LATHE-MASTER | LATHE | never_started | 136 | 0/136 | never |
 | MS-WIRE-FRONTEND | revenue | never_started | 90 | 0/90 | never |
 | MS-WIRE-BACKEND | revenue | never_started | 60 | 0/60 | never |
 | MS-MASTERPOST | revenue | never_started | 44 | 0/44 | never |
@@ -345,24 +360,25 @@ Per-domain wired/unwired breakdown across 935 domain prefixes.
 | CADCAM-AGI-MS0 | CAD-CAM-AGI | never_started | 24 | 0/24 | never |
 | MS-SFC-CALIBRATE | revenue | never_started | 24 | 0/24 | never |
 | MS-PILOT | revenue | never_started | 20 | 0/20 | never |
-| CAMX-V17-P1 | — | never_started | 18 | 0/18 | never |
 | MS-DESKTOP | revenue | never_started | 18 | 0/18 | never |
-| CAMX-MS0.5 | — | never_started | 16 | 0/16 | never |
-| CAMX-MS1 | — | never_started | 16 | 0/16 | never |
-| CAMX-MS8 | — | never_started | 16 | 0/16 | never |
 | CADCAM-DAGI-MS1 | CAD-CAM-DEEPAGI | never_started | 16 | 0/16 | never |
-| CADCAM-DAGI-MS4 | CAD-CAM-DEEPAGI | never_started | 16 | 0/16 | never |
-| MS-CRITWIRE | revenue | never_started | 16 | 0/16 | never |
 | MS-GTM | revenue | never_started | 16 | 0/16 | never |
-| CAMX-V17-P11 | — | never_started | 15 | 0/15 | never |
 | CAM-ML-CLOSEDLOOP-MS0 | CAM-ML | never_started | 15 | 0/15 | never |
 | CADCAM-DAGI-MS2 | CAD-CAM-DEEPAGI | never_started | 14 | 0/14 | never |
 | MS-FRONTEND | revenue | never_started | 14 | 0/14 | never |
 | MS-LEGAL | revenue | never_started | 13 | 0/13 | never |
-| CAMX-MS3 | — | never_started | 12 | 0/12 | never |
-| CAMX-MS4 | — | never_started | 12 | 0/12 | never |
-| CAMX-V17-P3 | — | never_started | 12 | 0/12 | never |
-| AI-WIRE-MS0 | AI-WIRE | never_started | 12 | 0/12 | never |
+| MS-INFRA | revenue | never_started | 12 | 0/12 | never |
+| MS-MONOLITH-HARVEST | revenue | never_started | 11 | 0/11 | never |
+| CPL-MS2 | — | never_started | 10 | 0/10 | never |
+| CADCAM-DAGI-MS3 | CAD-CAM-DEEPAGI | never_started | 10 | 0/10 | never |
+| CADCAM-DAGI-MS5 | CAD-CAM-DEEPAGI | never_started | 10 | 0/10 | never |
+| PPG-MS1 | PPG | never_started | 10 | 0/10 | never |
+| PPG-MS17 | PPG | never_started | 10 | 0/10 | never |
+| PPG-MS21 | PPG | never_started | 10 | 0/10 | never |
+| PPG-MS3 | PPG | never_started | 10 | 0/10 | never |
+| PPG-MS4 | PPG | never_started | 10 | 0/10 | never |
+| PPG-MS9 | PPG | never_started | 10 | 0/10 | never |
+| SCENARIO-TEST-MS0 | QA | never_started | 10 | 0/10 | never |
 
 **Next action:** Review with planner; either pick up the next unit, sunset the milestone, or update its envelope status. /envelope-sync handles status drift.
 

@@ -323,6 +323,56 @@ export interface AdvancedPipelineSummary {
   } | null;
 }
 
+/**
+ * HURCO-VM30I-FULL-PSN-MS0/MS1 (echo iter18 2026-05-25) — PSN enrichment
+ * payload for the Okuma OSP master post (mirrors HurcoPSNEnrichment shape
+ * so cross-vendor reporters can consume both via a structural typecheck).
+ *
+ * Populated only by `generateProgramWithFullPSN()`; the legacy synchronous
+ * `generateProgram()` leaves `psn_enrichment` undefined so all existing
+ * Okuma test files stay byte-identical. Each substrate sub-field is
+ * independent + best-effort: a single PSN-substrate failure never blocks
+ * the rest of the enrichment (fail-soft, advisory-only — engine NEVER
+ * throws from a substrate; throw means the caller hit the legacy WCS
+ * collision gate, which is shared with `generateProgram()`).
+ */
+export interface OkumaOSPMillPSNEnrichment {
+  /** Runtime prediction via GCodeRuntimePredictorEngine (kinematic-aware). */
+  runtime_estimate?: {
+    total_minutes: number;
+    machine_id: string;
+    confidence: number;
+    error?: string;
+  };
+  /** Bidirectional optimizer recommendations (cycle / wear / surface / cost / safety). */
+  optimizer_recommendations?: {
+    count: number;
+    top_3: Array<{ category: string; description: string; estimated_savings_pct?: number }>;
+    error?: string;
+  };
+  /** Cost report (per-part labor + machine + overhead). First-order estimate
+   *  derived from runtime + shop_rates; deep CostEfficiencyBridge routing
+   *  is reserved for future composition (HURCO-VM30I-FULL-PSN-MS1+). */
+  cost_report?: {
+    total_cost_usd: number;
+    cycle_min: number;
+    most_expensive_line_item: string;
+    error?: string;
+  };
+  /** PRISM AI feature recommendations relevant to the part + material. */
+  ai_feature_recommendations?: {
+    count: number;
+    top_5: Array<{ feature: string; reason: string; priority?: string }>;
+    error?: string;
+  };
+  /** ISO timestamp of enrichment pass. */
+  enriched_at: string;
+  /** True iff every requested PSN call returned a populated field. */
+  full_psn_engaged: boolean;
+  /** Per-substrate error log for operator-visibility. */
+  substrate_errors: string[];
+}
+
 export interface OkumaOSPMillPostOutput {
   gcode: string[];
   program_number: number;
@@ -351,6 +401,13 @@ export interface OkumaOSPMillPostOutput {
    * passes verbatim to `sealMasterPostOutput` for sidecar+verify.
    */
   block_annotations: BlockAnnotation[];
+  /**
+   * PSN-substrate enrichment (HURCO-VM30I-FULL-PSN-MS0/MS1, echo iter18).
+   * Populated ONLY by `generateProgramWithFullPSN()`. Legacy
+   * `generateProgram()` leaves it undefined so existing callers stay
+   * byte-identical (no existing Okuma test file is touched by this field).
+   */
+  psn_enrichment?: OkumaOSPMillPSNEnrichment;
 }
 
 // ============================================================================
@@ -1249,6 +1306,216 @@ export class OkumaOSPMillMasterPostEngine {
       },
     };
   }
+
+  /**
+   * HURCO-VM30I-FULL-PSN-MS0/MS1 (echo iter18 2026-05-25) — Okuma PSN-engaged
+   * variant of `generateProgram()`. Composes the same 4 PSN substrates as
+   * `HurcoV11MillMasterPostEngine.generateProgramWithFullPSN()`:
+   *
+   *   • GCodeRuntimePredictorEngine.predictForMachine() — kinematic runtime
+   *   • GCodeBidirectionalOptimizerEngine.optimize() — recommendations
+   *   • First-order cost estimate (labor + machine + overhead via shop_rates)
+   *   • PRISMSelfAwarenessEngine.recommendAIFeatures() — relevant features
+   *
+   * Returns the legacy `OkumaOSPMillPostOutput` extended with an optional
+   * `psn_enrichment: OkumaOSPMillPSNEnrichment` field. Every substrate call
+   * is wrapped in try/catch — one failure populates an `error` sub-field
+   * and toggles `full_psn_engaged: false`, never the legacy fields. Legacy
+   * `generateProgram()` leaves `psn_enrichment` undefined so all existing
+   * Okuma test files stay byte-identical (anti-regression).
+   *
+   * @param operations  Mill operations (same shape as generateProgram).
+   * @param config      Okuma post config (same shape as generateProgram).
+   * @param partContext Optional part-level context (material, machine_id,
+   *                    shop_rates, part_description). Sensible defaults.
+   */
+  async generateProgramWithFullPSN(
+    operations: MillOperation[],
+    config?: Partial<OkumaOSPMillPostConfig>,
+    partContext?: {
+      program_id?: string;
+      part_description?: string;
+      material?: { name: string; iso_group: ISOGroup; price_per_kg_usd?: number; density_g_cm3?: number };
+      machine_id?: string;
+      shop_rates?: { labor_per_hr_usd: number; machine_per_hr_usd: number; overhead_pct: number };
+    },
+  ): Promise<OkumaOSPMillPostOutput> {
+    // Step 1 — base emit (byte-identical to legacy path).
+    const base = this.generateProgram(operations, config);
+
+    const substrate_errors: string[] = [];
+    const enrichment: OkumaOSPMillPSNEnrichment = {
+      enriched_at: new Date().toISOString(),
+      full_psn_engaged: true,
+      substrate_errors,
+    };
+
+    // Default machine: the registered MACHINE_LIBRARY id for the JM Die
+    // Okuma Genos M460V-5AX. Reviewer A flagged the previous default
+    // `"okuma_genos_m460v"` as a silent-substrate-failure trap: that id
+    // is NOT in `GCodeRuntimePredictorEngine.MACHINE_LIBRARY` (only
+    // `"okuma_m460v"` is registered), so the runtime + optimizer try/catch
+    // blocks would both swallow `Unknown machine_id` errors while the
+    // catch path echoed the input string back into `runtime_estimate.machine_id`,
+    // masking the failure (R12 violation — `full_psn_engaged: false` shipped
+    // undetected on every default-machine call). Operator overrides via
+    // `partContext.machine_id` for other Okuma variants.
+    const machineId = partContext?.machine_id ?? "okuma_m460v";
+
+    // Convert MillOperation[] → ParsedBlock[] for the runtime predictor +
+    // bidirectional optimizer. Same minimal mapping as V11: one G0 header
+    // rapid per op + one G1/G2/G3 block per cutting coordinate. Lossy on
+    // macro/probe ops; covers cycle-time-dominant cutting moves.
+    const blocks = operationsToParsedBlocksForOkuma(operations);
+
+    // Step 2 — runtime prediction (kinematic-aware, machine-library lookup).
+    try {
+      const { gcodeRuntimePredictorEngine } = await import("./GCodeRuntimePredictorEngine.js");
+      const rt = gcodeRuntimePredictorEngine.predictForMachine(blocks, machineId);
+      const coverage = blocks.length > 0
+        ? Math.min(1, rt.blocks?.length ? rt.blocks.length / blocks.length : 1)
+        : 0;
+      enrichment.runtime_estimate = {
+        total_minutes: rt.total_min,
+        machine_id: rt.machine.machine_id,
+        confidence: coverage,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`runtime_estimate: ${msg}`);
+      enrichment.runtime_estimate = { total_minutes: 0, machine_id: machineId, confidence: 0, error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 3 — bidirectional optimizer recommendations.
+    try {
+      const [{ gcodeBidirectionalOptimizerEngine }, { MACHINE_LIBRARY }] = await Promise.all([
+        import("./GCodeBidirectionalOptimizerEngine.js"),
+        import("./GCodeRuntimePredictorEngine.js"),
+      ]);
+      const machine = MACHINE_LIBRARY[machineId];
+      if (!machine) throw new Error(`Unknown machine_id '${machineId}' for optimizer`);
+      const opt = gcodeBidirectionalOptimizerEngine.optimize({ blocks, machine });
+      const recs = Array.isArray(opt?.recommendations) ? opt.recommendations : [];
+      enrichment.optimizer_recommendations = {
+        count: recs.length,
+        top_3: recs.slice(0, 3).map((r: { category?: string; description?: string; estimated_savings_sec?: number }) => ({
+          category: r.category ?? "uncategorized",
+          description: r.description ?? "",
+          estimated_savings_pct: typeof r.estimated_savings_sec === "number"
+            ? Math.round((r.estimated_savings_sec / Math.max(1, base.estimated_cycle_min * 60)) * 1000) / 10
+            : undefined,
+        })),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`optimizer_recommendations: ${msg}`);
+      enrichment.optimizer_recommendations = { count: 0, top_3: [], error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 4 — first-order cost estimate (mirrors V11 calc; deep
+    // CostEfficiencyBridge routing reserved for future PSN-MS1).
+    try {
+      const rates = partContext?.shop_rates ?? {
+        labor_per_hr_usd: 65,
+        machine_per_hr_usd: 95,
+        overhead_pct: 0.15,
+      };
+      const cycle_min = enrichment.runtime_estimate?.total_minutes ?? base.estimated_cycle_min;
+      const cycle_hr = cycle_min / 60;
+      const labor_cost = rates.labor_per_hr_usd * cycle_hr;
+      const machine_cost = rates.machine_per_hr_usd * cycle_hr;
+      const subtotal = labor_cost + machine_cost;
+      const overhead = subtotal * rates.overhead_pct;
+      const total = subtotal + overhead;
+      // Compare RATES not absolute costs — when cycle_hr === 0 (runtime
+      // substrate miss + base.estimated_cycle_min === 0), absolute costs
+      // are both 0 and the strict-greater comparison degenerates. Rate
+      // ratio is the load-bearing signal: whichever per-hour rate wins
+      // will always dominate the cost at any cycle_hr > 0. V11 uses
+      // absolute-cost `>=` which produces correct results only when
+      // cycle_hr > 0; this Okuma variant is the cycle-hr-invariant form.
+      const most_expensive = rates.machine_per_hr_usd > rates.labor_per_hr_usd
+        ? "machine_time"
+        : "labor";
+      enrichment.cost_report = {
+        total_cost_usd: Math.round(total * 100) / 100,
+        cycle_min,
+        most_expensive_line_item: most_expensive,
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`cost_report: ${msg}`);
+      enrichment.cost_report = { total_cost_usd: 0, cycle_min: base.estimated_cycle_min, most_expensive_line_item: "unknown", error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    // Step 5 — PRISM AI feature recommendations.
+    try {
+      const { prismSelfAwarenessEngine } = await import("./PRISMSelfAwarenessEngine.js");
+      const query = partContext?.part_description
+        ?? `Okuma OSP-${config?.osp_family ?? this.defaultConfig.osp_family ?? "P300"}M program for ${partContext?.material?.name ?? "aluminum_6061"} on ${machineId}`;
+      const recs = prismSelfAwarenessEngine.recommendAIFeatures(query);
+      const arr = Array.isArray(recs) ? recs : [];
+      enrichment.ai_feature_recommendations = {
+        count: arr.length,
+        top_5: arr.slice(0, 5).map((r: { feature?: string; reason?: string; priority?: string }) => ({
+          feature: r.feature ?? "unknown",
+          reason: r.reason ?? "",
+          priority: r.priority,
+        })),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      substrate_errors.push(`ai_feature_recommendations: ${msg}`);
+      enrichment.ai_feature_recommendations = { count: 0, top_5: [], error: msg };
+      enrichment.full_psn_engaged = false;
+    }
+
+    return { ...base, psn_enrichment: enrichment };
+  }
+}
+
+// Local helper — minimal MillOperation[] → ParsedBlock[] mapper for the
+// PSN-enrichment runtime + optimizer calls. Mirrors HurcoV11's helper
+// (intentionally NOT shared yet to keep both engines self-contained;
+// promotion to a shared module is HURCO-VM30I-FULL-PSN-MS1 candidate).
+// Emits one G0 rapid per op header followed by one block per cutting
+// coordinate (G1/G2/G3). Returns [] when operations is empty.
+// Defensive against missing fields (Number.isFinite gates).
+function operationsToParsedBlocksForOkuma(
+  operations: MillOperation[],
+): Array<{ motion: "G0" | "G1" | "G2" | "G3"; x?: number; y?: number; z?: number; f?: number; s?: number; t?: number }> {
+  const out: Array<{ motion: "G0" | "G1" | "G2" | "G3"; x?: number; y?: number; z?: number; f?: number; s?: number; t?: number }> = [];
+  for (const op of operations) {
+    if (!op?.coordinates?.length) continue;
+    const f = typeof op.feed_mm_min === "number" && Number.isFinite(op.feed_mm_min) ? op.feed_mm_min : undefined;
+    const s = typeof op.spindle_rpm === "number" && Number.isFinite(op.spindle_rpm) ? op.spindle_rpm : undefined;
+    const t = typeof op.tool_number === "number" && Number.isFinite(op.tool_number) ? op.tool_number : undefined;
+    const first = op.coordinates[0];
+    out.push({
+      motion: "G0",
+      x: typeof first?.x === "number" && Number.isFinite(first.x) ? first.x : undefined,
+      y: typeof first?.y === "number" && Number.isFinite(first.y) ? first.y : undefined,
+      z: typeof first?.z === "number" && Number.isFinite(first.z) ? first.z : undefined,
+      t,
+    });
+    for (const c of op.coordinates) {
+      if (!c) continue;
+      const motion: "G1" | "G2" | "G3" = c.type === "arc_cw" ? "G2" : c.type === "arc_ccw" ? "G3" : "G1";
+      out.push({
+        motion,
+        x: typeof c.x === "number" && Number.isFinite(c.x) ? c.x : undefined,
+        y: typeof c.y === "number" && Number.isFinite(c.y) ? c.y : undefined,
+        z: typeof c.z === "number" && Number.isFinite(c.z) ? c.z : undefined,
+        f,
+        s,
+        t,
+      });
+    }
+  }
+  return out;
 }
 
 // Singleton export — matches HurcoV11 / OkumaB250 export shape.

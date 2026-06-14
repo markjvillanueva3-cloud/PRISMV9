@@ -1,0 +1,615 @@
+{
+  "id": "FEATURE-GAP-AUDIT-MS0",
+  "version": "1.0.0",
+  "title": "Feature-Gap Audit — canonicalize 64 PRISM features absent from the task queue",
+  "brief": "Surfaces and registers as roadmap units the substantial PRISM features that were absent from the task queue at the time of the 2026-05-17 /forge-audit-v2 6-agent scan. Sources: (a) unwired-engine backlog per domain (674 unwired, ~595 absent from any roadmap), (b) v8.89 extracted/ monolith digest=0 features, (c) JM-DIE / Resources corpus-ingestion gaps not covered by RES-MS0-27. Each unit is domain-tagged so allocate-domains-to-slots.mjs routes it to the owning slot (alpha=mill...mike=misc, golf=database). Each unit is a proposal — duplicationGuardEngine.mustCheckBeforeCreating() before any /forge-triple. Advisory, mustHumanVerify.",
+  "created_at": "2026-05-17T20:58:59.484Z",
+  "created_by": "claude-9f57075a (juliett) /forge-audit-v2",
+  "track": "AUDIT",
+  "roadmap_priority": 1,
+  "status": "in_progress",
+  "total_units": 64,
+  "total_sessions": "~",
+  "source_audit": "state/shared/specs/FEATURE-GAP-AUDIT-2026-05-17.md",
+  "advisory_only": true,
+  "must_human_verify": true,
+  "units": [
+    {
+      "id": "U-GAP-MILL-FFT-CHATTER",
+      "title": "Re-modularize PRISM_FFT_PREDICTIVE_CHATTER from v8.89 monolith — FFT-based chatter prediction",
+      "status": "completed",
+      "domain": "mill",
+      "completed_at": "2026-05-17T22:30:00Z",
+      "completed_by": "claude-23c10eea-alpha",
+      "ship_notes": "Re-scoped from new-engine extraction to predictWithTrend() method addition on existing ChatterPredictionEngine. Dedup-preflight (R8) found 8 existing chatter engines + STFTChatter algorithm already subsume 90% of the monolith asset; only the trend-slope+time-to-chatter+urgency-tiered-action layer was a genuine gap. Shipped as method on ChatterPredictionEngine + PREDICT_WITH_TREND_CONFIG tuning constants. 35/35 tests (synthetic-lobes fixture bypasses pre-existing findStablePockets bug, plus 1 real-lobes integration smoke). Per-file scrutiny: 8 reviewer agents across 2 rounds (engine PASS/PASS round 1; test PASS-with-4-P1 + fix → PASS/PASS round 2). NOT dispatcher-wired (WIRE-EXEMPT — input includes in-memory StabilityLobeResult closure that does not round-trip through JSON dispatcher boundary)."
+    },
+    {
+      "id": "U-WIRE-BACKLOG-MILL",
+      "title": "Wire the ~20 unwired mill engines (MillingAIUltraIntelligence, FiveAxisAIUltraIntelligence, MillingUltimateAI, FiveAxisOrchestration) — see BUILD_STATE NEEDS_WIRING",
+      "status": "not_started",
+      "domain": "mill"
+    },
+    {
+      "id": "U-GAP-LATHE-NOSE-RADIUS-COMP",
+      "title": "Re-modularize PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "status": "completed",
+      "domain": "lathe",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/ToolNoseRadiusCompensationEngine.ts",
+        "test": "mcp-server/src/__tests__/ToolNoseRadiusCompensationEngine.test.ts",
+        "tests_passing": 28,
+        "dispatcher_actions": [
+          "turningDispatcher.tnr_lookup_p_code",
+          "turningDispatcher.tnr_get_g_code",
+          "turningDispatcher.tnr_validate_program",
+          "turningDispatcher.tnr_setup_procedure"
+        ],
+        "value_add_note": "Monolith source was 74-line reference-data only (no algorithms). Port adds an executable LAP-rule validator: validateProgram() detects the canonical 'G80 reached with TNR still active' bug (TNR must be cancelled with G40 before G80 inside LAP contours) — turns Fanuc-manual prose into an enforceable G-code lint.",
+        "literature_refs": [
+          "Fanuc Series 0/0i/15/16/18/21 lathe TNR manual"
+        ]
+      }
+    },
+    {
+      "id": "U-GAP-LATHE-LIVE-TOOLING",
+      "title": "Re-modularize PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE from v8.89 monolith",
+      "status": "completed",
+      "domain": "lathe",
+      "completed_at": "2026-05-19T05:23:21.164Z",
+      "completed_by": "claude-82514795-india (PARTIAL-NO-TESTS close-out)",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/LiveToolingEngine.ts",
+        "test": "mcp-server/src/__tests__/LiveToolingEngine.test.ts",
+        "tests_passing": 29,
+        "dispatcher_actions": [
+          "turningDispatcher (live_tool_*, ref=1)"
+        ],
+        "value_add_note": "feature-gap-dedup-win-reconciler classified PARTIAL-NO-TESTS: LiveToolingEngine.ts (173 LOC, lathe live/driven tooling — cross-mill, axial-mill, drilling, polygon-turn, keyway, flat-mill) on disk + dispatcher-wired but zero behavioral test coverage. Shipped 29-case real-invariant suite: cutting-speed/feed-rate/MRR/power/torque algebraic identities pinned to closed-form (Vc=pi*d*rpm/1000, feedRate=fz*Z*rpm, MRR=ap*ae*feed, power=kc*MRR/60e6, torque=power*60000/(2pi*rpm)), C-axis interpolation feed = (feedRate/circumference)*360 verified ON+OFF, per-operation cycle-time branches (drill, polygon-turn, mill), recommendation triggers (OVERLOAD, >90 utilization, no-Y-axis, max-RPM, low-RPM-small-tool, parameters-acceptable fallback), uniform-shape schema regression (9 keys always present, c_axis value undefined when OFF, numeric when ON), rounding-precision regression (1/2/3-decimal contracts pinned).",
+        "scope_note": "Re-port NOT needed — engine present + wired. Re-scoped extraction -> test-coverage close. R12 note: engine inlines kc=1500 N/mm**2 (violates no-inline-physics-constants rule) — pre-existing engine concern, OUTSIDE this test-coverage unit's scope. Future kc migration to CANONICAL_KIENZLE.kc1_1 is a one-line change that this suite will catch via the power-formula tests."
+      }
+    },
+    {
+      "id": "U-WIRE-BACKLOG-LATHE",
+      "title": "Wire the ~77 unwired lathe engines (LatheThermodynamics, LatheUnifiedPhysicsOrchestration, LatheOpusReasoning, LatheMetaLearning, LatheQualityGate) — largest clean unwired gap",
+      "status": "not_started",
+      "domain": "lathe"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-WIRE",
+      "title": "Wire the ~73 unwired WEDM engines (WEDMNeuralTraining, WireEDMDeepAIHardening, ElectrodeUltimateAI, WEDMProgramOptimizer, WEDMStrategyLibrary)",
+      "status": "not_started",
+      "domain": "wire"
+    },
+    {
+      "id": "U-GAP-WIRE-JMDIE-CORPUS",
+      "title": "WEDM program-learning corpus from JM DIE WIRE EDM/ (4058 Mastercam .mcx-8 + Sodick .esp across ~100 customers)",
+      "status": "not_started",
+      "domain": "wire"
+    },
+    {
+      "id": "U-GAP-CAD-GEODESIC",
+      "title": "Re-modularize PRISM_GEODESIC_DISTANCE_ENGINE from v8.89 monolith (digest=0, absent)",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/GeodesicDistanceEngine.ts",
+        "test": "mcp-server/src/__tests__/GeodesicDistanceEngine.test.ts",
+        "tests_passing": 32,
+        "dispatcher_actions": [
+          "cadDispatcher.geodesic_dijkstra",
+          "cadDispatcher.geodesic_fast_marching",
+          "cadDispatcher.geodesic_path",
+          "cadDispatcher.geodesic_iso_curves"
+        ],
+        "literature_refs": [
+          "Dijkstra 1959",
+          "Mitchell-Mount-Papadimitriou 1987",
+          "Kimmel-Sethian 1998",
+          "Crane et al. 2017"
+        ]
+      }
+    },
+    {
+      "id": "U-GAP-CAD-MESH-DECIMATION",
+      "title": "Re-modularize PRISM_MESH_DECIMATION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/MeshDecimationEngine.ts",
+        "engine_status": "already-ported-prior-session",
+        "test_added_this_session": "mcp-server/src/__tests__/MeshDecimationEngine.test.ts",
+        "tests_passing": 19,
+        "dispatcher_action": "calcDispatcher (existing reference)",
+        "rescope_note": "R8 dedup-preflight: engine header says 'Ported from PRISM_MESH_DECIMATION_ENGINE.js (monolith R2.3.1)'. Audit's 'digest=0, absent' was digest-staleness (same META-tool schema-read-blindness class as high-roi-skill-rank 2026-05-17). Closed-out by adding the missing companion test."
+      }
+    },
+    {
+      "id": "U-GAP-CAD-SURFACE-RECON",
+      "title": "Re-modularize PRISM_SURFACE_RECONSTRUCTION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/SurfaceReconstructionEngine.ts",
+        "engine_status": "already-ported-prior-session",
+        "test_added_this_session": "mcp-server/src/__tests__/SurfaceReconstructionEngine.test.ts",
+        "tests_passing": 20,
+        "literature_refs": [
+          "Bernardini et al. 1999 — Ball Pivoting"
+        ],
+        "rescope_note": "R8 dedup-preflight: engine already ported. Audit gap was missing test coverage — added 20-case suite covering geometry primitives (3-4-5 distance, area, circumradius √3/3 for unit equilateral, circumcenter), ballCenter null-on-too-small-radius, estimateBallRadius linearity, findSeedTriangle valid/null, ballPivoting vertex buffer encoding + auto-radius + empty input."
+      }
+    },
+    {
+      "id": "U-GAP-CAD-SPECTRAL-GRAPH",
+      "title": "Re-modularize PRISM_SPECTRAL_GRAPH_CAD from v8.89 monolith (digest=0, absent)",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/SpectralGraphEngine.ts",
+        "engine_status": "already-ported-prior-session",
+        "test_added_this_session": "mcp-server/src/__tests__/SpectralGraphEngine.test.ts",
+        "tests_passing": 23,
+        "rescope_note": "R8 dedup-preflight: engine already ported (Fiedler/Chung). Audit gap was missing tests — added 23-case suite covering face-graph adjacency, Laplacian L=D-A invariants (row-sum=0, diagonal=degree, symmetry), power iteration on identity/diagonal/zero/stochastic, spectral partition (trivial single + connected-strip), analyzeMesh complexity classification."
+      }
+    },
+    {
+      "id": "U-GAP-CAD-BREP-TESSELLATOR",
+      "title": "Re-modularize PRISM_BREP_TESSELLATOR + ADAPTIVE_TESSELLATION_ENGINE_V2 from v8.89 monolith",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/BRepTessellatorEngine.ts",
+        "test": "mcp-server/src/__tests__/BRepTessellatorEngine.test.ts",
+        "tests_passing": 39,
+        "dispatcher_action": "cadDispatcher.brep_tessellate",
+        "commit": "710c6b0fb4",
+        "scope_note": "Re-scoped per R8 dedup: AdaptiveTessellationEngine.ts already ports PRISM_ADAPTIVE_TESSELLATION_ENGINE_V2 (R2.3.1). Only the BRep half needed porting."
+      }
+    },
+    {
+      "id": "U-GAP-CAD-VORONOI-ISOSURFACE",
+      "title": "Re-modularize PRISM_VORONOI_ENGINE + PRISM_ISOSURFACE_ENGINE from v8.89 monolith",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engines": [
+          "mcp-server/src/engines/VoronoiEngine.ts",
+          "mcp-server/src/engines/IsosurfaceEngine.ts"
+        ],
+        "engines_status": "already-ported-prior-session",
+        "test_added_this_session": "mcp-server/src/__tests__/VoronoiIsosurfaceEngines.test.ts",
+        "tests_passing": 20,
+        "literature_refs": [
+          "Bowyer 1981",
+          "Watson 1981",
+          "Lloyd 1982",
+          "Lorensen-Cline SIGGRAPH 1987"
+        ],
+        "rescope_note": "R8 dedup-preflight: both engines already ported. Audit gap was missing tests — added 20-case suite covering Delaunay (Bowyer-Watson, 3-pt/4-pt corner cases, circumradius), Voronoi cell construction, nearestSite with ties, Lloyd relaxation, and Marching Cubes on an implicit unit sphere (sphere vertex tolerance 0.1, face index validity)."
+      }
+    },
+    {
+      "id": "U-GAP-CAD-CURVATURE-OFFSET",
+      "title": "Re-modularize PRISM_CURVATURE_ANALYSIS_ENGINE + PRISM_OFFSET_SURFACE_ENGINE from v8.89 monolith",
+      "status": "completed",
+      "domain": "cad",
+      "exit_evidence": {
+        "engines": [
+          "mcp-server/src/engines/CurvatureAnalysisEngine.ts",
+          "mcp-server/src/engines/OffsetSurfaceEngine.ts"
+        ],
+        "engines_status": "already-ported-prior-session",
+        "test_added_this_session": "mcp-server/src/__tests__/CurvatureOffsetEngines.test.ts",
+        "tests_passing": 18,
+        "rescope_note": "R8 dedup-preflight: both engines already ported (CurvatureAnalysis: Meyer-Desbrun-Schröder-Barr 2003; OffsetSurface: Maekawa 1999). Audit gap was missing test coverage — added 18-case suite covering planar zero-curvature invariants, principal-curvature finiteness on discrete tet, signed offsets, shell creation, adversarial empty/large-offset."
+      }
+    },
+    {
+      "id": "U-GAP-CAD-COMPLETE-GEN",
+      "title": "Re-modularize PRISM_COMPLETE_CAD_GENERATION_ENGINE (2915 lines) from v8.89 monolith",
+      "status": "not_started",
+      "domain": "cad"
+    },
+    {
+      "id": "U-GAP-CAD-JMDIE-REVERSE-ENG",
+      "title": "Reverse-engineering pipeline: scanned-image/JPG + DXF -> solid model, from JM DIE REVERSE ENGINEERING/ (47 jpg+dxf+ipt triplets)",
+      "status": "not_started",
+      "domain": "cad"
+    },
+    {
+      "id": "U-GAP-CAM-ADAPTIVE-CLEARING",
+      "title": "Re-modularize PRISM_ADAPTIVE_CLEARING_ENGINE from v8.89 monolith (digest=0, absent)",
+      "status": "not_started",
+      "domain": "cam"
+    },
+    {
+      "id": "U-GAP-CAM-CLIPPER2",
+      "title": "Re-modularize PRISM_CLIPPER2_ENGINE (polygon offsetting) from v8.89 monolith (digest=0, absent)",
+      "status": "not_started",
+      "domain": "cam"
+    },
+    {
+      "id": "U-GAP-CAM-AIRCUT-ELIM",
+      "title": "Re-modularize PRISM_AIRCUT_ELIMINATION_ENGINE from v8.89 monolith (digest=0, absent)",
+      "status": "not_started",
+      "domain": "cam"
+    },
+    {
+      "id": "U-GAP-CAM-REST-VOXEL",
+      "title": "Re-modularize PRISM_REST_MACHINING_ENGINE + PRISM_VOXEL_STOCK_ENGINE from v8.89 monolith",
+      "status": "completed",
+      "domain": "cam",
+      "completed_at": "2026-05-19T05:08:14.352Z",
+      "completed_by": "claude-82514795-india (via feature-gap-dedup-win-reconciler)",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/RestMachiningEngine.ts",
+        "test": "mcp-server/src/__tests__/RestMachiningEngine.test.ts",
+        "extra_tests": [
+          "mcp-server/src/__tests__/rest-machining.test.ts"
+        ],
+        "dispatcher_actions": [
+          "multiOpDispatcher.rest (lazy import)",
+          "toolpathDispatcher.* (await import)"
+        ],
+        "value_add_note": "feature-gap-dedup-win-reconciler (commit 87a62f1c2b) classified this as DEDUP-WIN against real disk: RestMachiningEngine.ts on disk, wired in 2 dispatchers (multiOpDispatcher case \"rest\" + toolpathDispatcher), 2 test files present. R8 dedup-preflight confirms the audit's \"rest+voxel\" claim — engine is already ported and wired; the audit was stale.",
+        "scope_note": "Re-port NOT needed. Same pattern as the broader india /loop 2026-05-19 close-out wave informed by the META reconciler."
+      }
+    },
+    {
+      "id": "U-GAP-CAM-MULTIAXIS-TOOLPATH",
+      "title": "Re-modularize PRISM_MULTIAXIS_TOOLPATH_ENGINE + SIEMENS_5AXIS_CAM_ENGINE from v8.89 monolith",
+      "status": "not_started",
+      "domain": "cam"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-CAM",
+      "title": "Wire the ~26 unwired CAM engines incl. CimatronCAMBridge + SprutCAMBridge (vendor bridges built but unwired)",
+      "status": "not_started",
+      "domain": "cam"
+    },
+    {
+      "id": "U-GAP-CAM-HYPERMILL-SDK",
+      "title": "hyperMILL SDK API mapper from Resources OPEN MIND/Shared SDK (~2110 Python automation scripts)",
+      "status": "not_started",
+      "domain": "cam"
+    },
+    {
+      "id": "U-GAP-TRIBAL-FORMULA-REGISTRY",
+      "title": "Formula-registry harvester — 400+ formulas in Resources MACHINING KNOWLEDGE FORMULAS (3 JS files ~310KB)",
+      "status": "completed",
+      "domain": "tribal",
+      "completed_at": "2026-05-19",
+      "commit": "4ab0fa591f",
+      "exit_evidence": "Wired FormulaHarvesterEngine (RES-MS1, was orphan) to prism_dev:formula_harvest{,_sources,_audit}; R12 degraded signal added; 3 knowledge JS files git-tracked; 4-case dispatcher round-trip test + engine 19/19; per-file scrutiny 3 rounds P0+P1+P2 closed."
+    },
+    {
+      "id": "U-GAP-TRIBAL-KNOWLEDGE-GRAPH",
+      "title": "Re-modularize PRISM_KNOWLEDGE_GRAPH + PRISM_KNOWLEDGE_FUSION from v8.89 monolith",
+      "status": "not_started",
+      "domain": "tribal"
+    },
+    {
+      "id": "U-GAP-TRIBAL-MACRO-INTEL",
+      "title": "Macro-program intelligence from JM DIE MACRO PROGRAMS/ — operator common-variable + part-counter loop patterns",
+      "status": "not_started",
+      "domain": "tribal"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-TRIBAL",
+      "title": "Wire the 12 unwired tribal engines incl. PlaybookRulesEngine (133KB — largest single unwired engine)",
+      "status": "not_started",
+      "domain": "tribal"
+    },
+    {
+      "id": "U-GAP-ERP-SUBSCRIPTION-SYSTEM",
+      "title": "Re-modularize PRISM_SUBSCRIPTION_SYSTEM from v8.89 monolith (digest=0, absent) — billing/proration/dunning",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-ERP-LEAN-SIXSIGMA",
+      "title": "Re-modularize PRISM_LEAN_SIX_SIGMA_KAIZEN engine from v8.89 monolith (digest=0, absent)",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-ERP-QUOTING-JOBCOST",
+      "title": "Re-modularize PRISM_QUOTING_ENGINE + PRISM_JOB_COSTING_ENGINE from v8.89 monolith",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-ERP-JOBSHOP-SCHEDULING",
+      "title": "Re-modularize PRISM_JOB_SHOP_SCHEDULING_ENGINE from v8.89 monolith",
+      "status": "completed",
+      "domain": "erp",
+      "completed_at": "2026-05-19T05:08:14.361Z",
+      "completed_by": "claude-82514795-india (via feature-gap-dedup-win-reconciler)",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/JobShopSchedulingEngine.ts",
+        "test": "mcp-server/src/__tests__/dispatcher.jobShopScheduling.test.ts",
+        "dispatcher_actions": [
+          "devDispatcher.U-WIRE-JSS (await import x2)"
+        ],
+        "value_add_note": "feature-gap-dedup-win-reconciler classified DEDUP-WIN: JobShopSchedulingEngine.ts on disk, wired in devDispatcher via U-WIRE-JSS (WIRE-UNWIRED-MS0), tested. businessDispatcher.ts:48 notes a partial deprecation in favor of ShopSchedulerEngine but the JobShopSchedulingEngine is still live-wired through devDispatcher.",
+        "scope_note": "Re-port NOT needed. Note: businessDispatcher routes scheduling to ShopSchedulerEngine; JobShopSchedulingEngine remains reachable via devDispatcher (a partial-consolidation pattern). Future U-CONSOL is a separate concern."
+      }
+    },
+    {
+      "id": "U-GAP-ERP-PURCHASING-INVENTORY",
+      "title": "Re-modularize PRISM_PURCHASING_SYSTEM + PRISM_INVENTORY_ENGINE from v8.89 monolith",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-ERP-FINANCIAL-ANALYTICS",
+      "title": "Re-modularize PRISM_FINANCIAL_ENGINE + PRISM_SHOP_ANALYTICS_ENGINE + PRISM_ORDER_MANAGER from v8.89 monolith",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-ERP-HR-EMPLOYEE",
+      "title": "HR/employee subsystem — scheduling, skills matrix, certifications, labor tracking (no current PRISM engine)",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-ERP-DRAWING-AUTOMATION",
+      "title": "Drawing-automation workflow ingestion from JM DIE Automated Program xlsm (34-dim parametric VBA system)",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-ERP",
+      "title": "Wire the ~17 unwired erp/business engines (BusinessIntelligence, CustomerKnowledge, BusinessDocumentExtractor)",
+      "status": "not_started",
+      "domain": "erp"
+    },
+    {
+      "id": "U-GAP-POST-RL-POSTPROCESSOR",
+      "title": "Re-modularize PRISM_RL_POST_PROCESSOR (reinforcement-learning post tuning) from v8.89 monolith",
+      "status": "completed",
+      "domain": "post",
+      "completed_at": "2026-05-18T01:10:00Z",
+      "completed_by": "claude-51013954-india",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/RLPostProcessorEngine.ts",
+        "test": "mcp-server/src/__tests__/RLPostProcessorEngine.test.ts",
+        "tests_passing": 18,
+        "dispatcher_actions": [
+          "calcDispatcher.rl_post_create",
+          "calcDispatcher.rl_post_generate",
+          "calcDispatcher.rl_post_learn",
+          "productDispatcher.(rl_post_*)"
+        ],
+        "value_add_note": "R8 dedup-preflight: RLPostProcessorEngine (PRISM_RL_POST_PROCESSOR port) already ported + already wired into prism_calc (calcDispatcher:1644-1672) + productDispatcher. Gap = zero behavioral coverage. 18-case real-invariant suite: epsilon-greedy Q-learning TD(0) update Q+=lr*(reward-Q) incl. geometric convergence to reward; exact 4-term reward additive structure (+10 no-error / +5 faster / +3 quality>0.8 / -20 error, error gates ONLY the +10 -> -12 and -20 cases re-derived); deterministic argmax exploitation + ties->standard tie-break; per-format G-code syntax (standard/optimized/ compact/verbose); epsilon=0 == deterministic:true lock; stats NaN-guard. Per-file scrutiny: test-review-agent + reviewer PASS/PASS; Reviewer-A P0 was a header-linecount miscount (1 multi-line push, not 5) refuted by 18/18 live PASS; Reviewer-B P2 (epsilon-0 lock) applied in-session.",
+        "scope_note": "Re-port NOT needed — engine present + wired. Re-scoped extraction -> test-coverage close (sibling pattern to U-GAP-POST-GCODE-BACKPLOT)."
+      }
+    },
+    {
+      "id": "U-GAP-POST-GCODE-BACKPLOT",
+      "title": "Re-modularize PRISM_GCODE_BACKPLOT_ENGINE from v8.89 monolith",
+      "status": "completed",
+      "domain": "post",
+      "completed_at": "2026-05-18T00:48:00Z",
+      "completed_by": "claude-51013954-india",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/BackplotEngine.ts",
+        "test": "mcp-server/src/__tests__/BackplotEngine.test.ts",
+        "tests_passing": 21,
+        "dispatcher_actions": [
+          "calcDispatcher.backplot_parse",
+          "calcDispatcher.backplot_statistics"
+        ],
+        "value_add_note": "R8 dedup-preflight: BackplotEngine (PRISM_GCODE_BACKPLOT_ENGINE port) was ALREADY ported + ALREADY wired into prism_calc (calcDispatcher.ts:1598-1606). Genuine gap = ZERO behavioral test coverage (only unrelated WEDM backplot tests existed). Shipped 21-case real-invariant suite: kinematics (rapid/linear/modal/3D-dist), G90/G91, arc I/J + R-form with closed-form chord-length 12*2*10*sin(pi/48), helical Z exact-linearity (intent-test), lexer (comment/N-strip/case), bbox Infinity-collapse guard, dispatcher contract mirroring the gcode??empty fallback, plus 2 honest limitation pins (G20 not rescaled; zero-length modal move). Per-file scrutiny: test-review-agent + reviewer PASS/PASS, 0 P0/P1; 1 P2 (helical-Z weak) fixed in-session.",
+        "scope_note": "Re-port NOT needed — engine present + wired. Re-scoped extraction -> test-coverage close (same pattern as U-GAP-CAD-* sibling closes)."
+      }
+    },
+    {
+      "id": "U-GAP-POST-JMDIE-LEARNING",
+      "title": "Post-processor learning from JM DIE PRISM MODIFIED POST PROCESSORS/ (12 PRISM-enhanced .cps: Haas/Hurco/Okuma/Roku-Roku)",
+      "status": "completed",
+      "domain": "post",
+      "completed_at": "2026-05-20T19:59:15Z",
+      "completed_by": "claude-india (auto close-out 2026-05-23, /goal directive)",
+      "ship_notes": "398e671a45 — JMDiePostProcessorLearningEngine.gapReport() + jmdie_post_gaps action on prism_knowledge (+856 LOC, 51/51 tests, 3-of-3 PASS). Assessment: 12 enhanced .cps posts (haas1/hurco5/okuma5/rokuroku1) + 36 patterns. Top gaps recorded: sidecar_json_export 1/12, physics_data_integration 1/12 — both deferred to operator-approved follow-up units.",
+      "exit_evidence": {
+        "commits": [
+          "398e671a45"
+        ],
+        "dispatcher_actions": [
+          "prism_knowledge: jmdie_post_gaps"
+        ],
+        "domain": "post",
+        "followups": [
+          "sidecar_json_export rollout to 11 missing posts (haas/okuma family)",
+          "prism_physics_integration for okuma family (5/5 missing)"
+        ]
+      }
+    },
+    {
+      "id": "U-WIRE-BACKLOG-POST",
+      "title": "Wire the ~8 unwired post engines (RealTimeAdaptiveController, GapEscalationController, DNCGenerate)",
+      "status": "completed",
+      "domain": "post",
+      "completed_at": "2026-05-20T22:40:09Z",
+      "completed_by": "claude-india (auto close-out 2026-05-23, /goal directive)",
+      "ship_notes": "Two-commit close: 1ffed06fb2 (2026-05-18) wired 6 DNC-family post engines into prism_cam (+13 actions); 6e770fa9d8 (2026-05-20) wired RealTimeAdaptiveControllerEngine into prism_adaptive_control. Total +14 actions across 2 dispatchers. Post-domain unwired backlog reduced; remaining post-orphans surfaced via U-GAP-POST-JMDIE-LEARNING gapReport.",
+      "exit_evidence": {
+        "commits": [
+          "1ffed06fb2",
+          "6e770fa9d8"
+        ],
+        "dispatcher_actions": [
+          "prism_cam: 13 DNC-family actions",
+          "prism_adaptive_control: RealTimeAdaptive wired"
+        ],
+        "domain": "post"
+      }
+    },
+    {
+      "id": "U-GAP-SF-ADVANCED-FEED-OPT",
+      "title": "Re-modularize PRISM_ADVANCED_FEED_OPTIMIZER from v8.89 monolith",
+      "status": "completed",
+      "domain": "speedfeed",
+      "completed_at": "2026-05-18T00:55:00Z",
+      "completed_by": "claude-4f9091a6 (juliett)",
+      "resolution": "dedup-win — NO new engine",
+      "ship_notes": "R8 dedup-preflight: the v8.89 monolith extracted/engines/optimization/PRISM_ADVANCED_FEED_OPTIMIZER.js is 59 lines — calculateChipThinning (approximate CTF=1/sqrt(1-(1-2ae/D)^2)) + compensateFeed + optimizeFeedProfile(toolpath). 100% subsumed, more rigorously, by already-wired engines: EngagementAdaptiveFeedEngine.chipThinningFactor() (3 models: simplified/martellotti/exact θ=acos(1-2ae/D) — strictly superior to the monolith's single approximate form; feed compensation at L227) + FeedOptimizationEngine (8-level aggressiveness + toolpath chip-thinning compensation) + AdvancedChipThicknessEngine.chipThinningFactorLookup (wired via prism_calc, calcDispatcher L2725). Existing coverage: ChipThinningCompensationEngine.test.ts. Building PRISM_ADVANCED_FEED_OPTIMIZER would (a) THROW in duplicationGuardEngine.mustCheckBeforeCreating and (b) REGRESS quality (approx vs exact formula). Same class as the FEATURE-GAP-AUDIT CAD dedup-wins (reference_feature_gap_audit_cad_dedup_wins_2026_05_18) — 'Re-modularize PRISM_X' units must Glob engines/ first; digest=0 'absent' is digest-staleness, not a real gap. No code shipped — close-out is the dedup determination."
+    },
+    {
+      "id": "U-GAP-SF-NC-CALIBRATION",
+      "title": "Shop-proven speed/feed calibration mined from 35K+ JM DIE NC programs (.min/.mcx-8/.cyc)",
+      "status": "not_started",
+      "domain": "speedfeed"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-SF",
+      "title": "Wire the ~12 unwired speed-feed engines (SpeedFeedUltimateAI/AdvancedAI/DeepLearning — the SF-AI L1-L3 ladder)",
+      "status": "completed",
+      "domain": "speedfeed",
+      "closedAt": "2026-05-22T16:39:49.495Z",
+      "closedBy": "claude-a8894112/juliett",
+      "closedReason": "VERIFIED-COMPLETE: all 18 speed-feed engines wired across calc/cam/data dispatchers (SF-AI L1-L3 ladder SpeedFeedUltimateAI/AdvancedAI/DeepLearning all in calcDispatcher via speedfeed_*_stats actions). Envelope status was stale not_started."
+    },
+    {
+      "id": "U-GAP-P2P-JMDIE-PARTLIB",
+      "title": "Print-to-program training corpus from JM DIE _PART LIBRARY/ — 76K blueprint PDFs paired with 16.5K .min programs",
+      "status": "not_started",
+      "domain": "print2prog"
+    },
+    {
+      "id": "U-GAP-P2P-OCR-DIMENSION",
+      "title": "Blueprint-OCR/vision dimension extraction (eDOCr2/PaddleOCR) — JM DIE GENERAL BANDAGES + QUEUE PDF prints",
+      "status": "not_started",
+      "domain": "print2prog"
+    },
+    {
+      "id": "U-GAP-P2P-VALIDATION-HARNESS",
+      "title": "Print->program validation harness from JM DIE QUEUE/CLAUDE matched QT print+part+gcode triples",
+      "status": "not_started",
+      "domain": "print2prog"
+    },
+    {
+      "id": "U-GAP-ACADEMY-220-COURSES",
+      "title": "Re-modularize PRISM_220_COURSES_MASTER curriculum + PRISM_COURSE_GATEWAY_GENERATOR from v8.89 monolith (digest=0, absent)",
+      "status": "not_started",
+      "domain": "academy"
+    },
+    {
+      "id": "U-GAP-ACADEMY-MIT-KERNELS",
+      "title": "Re-modularize MIT algorithm kernels (NumericalMethods, NURBS, ODESolvers, ControlSystems, DigitalControl, DFM) from v8.89 monolith",
+      "status": "not_started",
+      "domain": "academy"
+    },
+    {
+      "id": "U-GAP-ACADEMY-UNIVERSITY-ALGS",
+      "title": "Re-modularize PRISM_UNIVERSITY_ALGORITHMS from v8.89 monolith",
+      "status": "not_started",
+      "domain": "academy"
+    },
+    {
+      "id": "U-GAP-ACADEMY-MIT-OCW-INGEST",
+      "title": "MIT-OCW course ingestion from Resources MIT COURSES/ (354 PDFs / 730 HTML across 8+ course dirs)",
+      "status": "not_started",
+      "domain": "academy"
+    },
+    {
+      "id": "U-GAP-ACADEMY-TRAINING-DAYS",
+      "title": "Training-day curriculum ingestion from Resources Basic Training Day 1/2/3 + MILL INTRO CLASS.pptx",
+      "status": "not_started",
+      "domain": "academy"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-ACADEMY",
+      "title": "Wire the 9 unwired learning engines (VideoELearningAI, MITCourseIntegration, ToolDatabaseDeepLearning) — all absent from roadmap",
+      "status": "not_started",
+      "domain": "academy"
+    },
+    {
+      "id": "U-GAP-DB-MASTER-ALARM",
+      "title": "Ingest the v8.89 MASTER_ALARM_DATABASE — 2500 controller alarms + 68 vendor alarm files (Fanuc/Haas/Mazak/Siemens/...)",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-GAP-DB-VERIFIED-FIX-PROC",
+      "title": "Ingest v8.89 VERIFIED_FIX_PROCEDURES + ALARM_FIX_PROCEDURES — controller-diagnostic fix database",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-GAP-DB-GCODE-MCODE",
+      "title": "Ingest v8.89 GCODE_MCODE_DATABASE — canonical G/M-code reference",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-GAP-DB-MACHINE-LIBRARY",
+      "title": "Ingest v8.89 machines/ ALL_MACHINES.json + 12 ENHANCED batch JSONs + OEM STEP-model library from Resources",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-GAP-DB-TOOL-CATALOG-HARVEST",
+      "title": "Tool-database harvester — Resources OPEN MIND Tool DB + 287 .tooldb/.db/.mdb (~131MB)",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-GAP-DB-PARTLIB-MASTER",
+      "title": "JM DIE _PART LIBRARY part-master DB — 134K files, 29K JSON metadata, customer->part-number index + version dedup",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-DATABASE",
+      "title": "Wire the ~12 unwired database engines (PDFSourceRegistry, PhysicsPluginRegistry, WetRunDeviationRegistry)",
+      "status": "not_started",
+      "domain": "database"
+    },
+    {
+      "id": "U-GAP-MISC-OPTIMIZERS",
+      "title": "Re-modularize v8.89 optimization engines: PolicyGradient, DifferentialEvolution, MOEA/D, TrustRegion, InteriorPoint, LP-solvers (digest=0)",
+      "status": "completed",
+      "domain": "misc",
+      "completed_at": "2026-05-19T05:16:10.354Z",
+      "completed_by": "claude-82514795-india (PARTIAL-NO-TESTS close-out via real-invariant test suite)",
+      "exit_evidence": {
+        "engine": "mcp-server/src/engines/DifferentialEvolutionEngine.ts",
+        "test": "mcp-server/src/__tests__/DifferentialEvolutionEngine.test.ts",
+        "tests_passing": 27,
+        "dispatcher_actions": [
+          "(WIRE-EXEMPT — pure algorithm; consumed by ML/CAM optimizer engines)"
+        ],
+        "value_add_note": "feature-gap-dedup-win-reconciler classified PARTIAL-NO-TESTS: engine on disk (197 LOC, Storn & Price 1997 from MIT 6.036) + dispatcher-wired but zero behavioral test coverage. Shipped 27-case real-invariant suite: mutation algebraic identities (rand/1, best/1, current-to-best/1 verified via permutation search), jRand donor-injection guarantee (Storn & Price 1997 load-bearing property), binomial CR=0/1 boundary cases, exponential crossover contiguity, boundary reflection feasibility (modulo arithmetic adversarial cases -100..100 vs ±1 bounds), optimize convergence on negated-sphere (|x|<0.3 with pop=30/gen=500), stagnation-counter convergence detection (must trip ≤ maxGen-STAGNATION_LIMIT — guards against off-by-one regression), strategy/crossover switching, DEResult schema regression guard, -Infinity-fitness fail-on-revert. Per-file scrutiny: test-review-agent PASS, 0 P0/P1; 2 P1 advisories applied in-session (tightened sphere tolerance + stagnation upper bound).",
+        "scope_note": "Re-port NOT needed — engine present. Re-scoped extraction → test-coverage close (sibling pattern to U-GAP-CAD-*, U-GAP-POST-GCODE-BACKPLOT). PolicyGradient half of the U-GAP-MISC-OPTIMIZERS title is a separate engine — this close-out covers DifferentialEvolutionEngine specifically; if PolicyGradientEngine is also already shipped it should be a follow-up close-out."
+      }
+    },
+    {
+      "id": "U-GAP-MISC-DATA-STRUCTURES",
+      "title": "Re-modularize v8.89 data-structure primitives: KDTree, Octree, Bezier, Interval-arithmetic (digest=0)",
+      "status": "not_started",
+      "domain": "misc"
+    },
+    {
+      "id": "U-GAP-MISC-AI-ENGINES",
+      "title": "Re-modularize v8.89 AI/ML engines: GNN-Complete, Transformer, AdvancedDQN, XAI-Complete, TimeSeries-Complete",
+      "status": "not_started",
+      "domain": "misc"
+    },
+    {
+      "id": "U-GAP-MISC-AS9100-TRACE",
+      "title": "Wire AS9100TraceabilityEngine (47KB, self-labeled P0-CRITICAL aerospace traceability — built, unwired, unplanned)",
+      "status": "not_started",
+      "domain": "misc"
+    },
+    {
+      "id": "U-WIRE-BACKLOG-MISC",
+      "title": "Wire/triage the ~328 unwired misc engines — bulk of the unwired-engine debt; rank by leverage via /wire-unwired",
+      "status": "not_started",
+      "domain": "misc"
+    }
+  ],
+  "updated_at": "2026-05-23T19:56:43.531Z"
+}

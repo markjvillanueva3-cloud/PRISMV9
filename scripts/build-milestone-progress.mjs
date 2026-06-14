@@ -92,7 +92,7 @@ function git(args) {
  *   "U-AIMAX07+08-FIX2"   → ["U-AIMAX07", "U-AIMAX08"]
  *   "P0-U02+03"           → ["P0-U02", "P0-U03"]
  */
-function expandCombinedIds(captured) {
+export function expandCombinedIds(captured) {
   if (!captured.includes("+")) return [captured];
   // Strip trailing -<suffix> if the suffix starts with a non-digit
   // (so we keep things like "-U02" but drop "-FIX2").
@@ -102,11 +102,19 @@ function expandCombinedIds(captured) {
   const trailingDigits = base.match(/(\d+)$/);
   if (!trailingDigits) return [trimmed];
   const prefix = base.slice(0, base.length - trailingDigits[1].length);
+  // The base's trailing letter-run (e.g. "U" of "P23-U", "AIMAX" of "U-AIMAX").
+  // A joint part that repeats it (`+U02`) must have it stripped before
+  // reconstruction — else `prefix + "U02"` yields "P23-UU02", a malformed id
+  // that matches no envelope unit (silent close-out drift). All-digit parts
+  // like `+03` never startsWith the letter-run, so they are untouched.
+  const prefixLetters = prefix.match(/([A-Za-z]+)$/)?.[1] ?? "";
   const result = [base];
   for (let i = 1; i < parts.length; i += 1) {
-    // Each subsequent part is just the trailing digits — reconstruct with the
-    // base's leading prefix.
-    result.push(prefix + parts[i]);
+    let part = parts[i];
+    if (prefixLetters && part.startsWith(prefixLetters)) {
+      part = part.slice(prefixLetters.length);
+    }
+    result.push(prefix + part);
   }
   return result;
 }
@@ -151,13 +159,17 @@ function loadShippedFromGit() {
   return shipped;
 }
 
-async function loadMilestones() {
-  const files = await readdir(MILESTONE_DIR);
+// Envelope `status` is string-by-convention; coerce defensively so a malformed
+// numeric/object value can never leak into the `=== "complete"` credit check.
+export const asStr = (v) => (typeof v === "string" ? v : null);
+
+export async function loadMilestones(dir = MILESTONE_DIR) {
+  const files = await readdir(dir);
   const milestones = [];
   for (const file of files) {
     if (!file.endsWith(".json")) continue;
     try {
-      const raw = await readFile(join(MILESTONE_DIR, file), "utf8");
+      const raw = await readFile(join(dir, file), "utf8");
       const ms = JSON.parse(raw);
       if (!ms?.id) continue;
       // Collect unit IDs from any phases[].units[].id structure.
@@ -178,8 +190,13 @@ async function loadMilestones() {
               title: u.title ?? "",
               phase: phase.id ?? "",
               dependencies: u.dependencies ?? [],
-              envelopeStatus: unitOverlay[u.id]?.status ?? null,
-              envelopeCommits: Array.isArray(unitOverlay[u.id]?.commits) ? unitOverlay[u.id].commits : [],
+              // Read the phase unit's OWN status/commits first — close-out flips
+              // write status+commits directly onto phases[].units[]. Fall back to
+              // the object-keyed ms.units{} overlay when both shapes coexist.
+              envelopeStatus: asStr(u.status) ?? asStr(unitOverlay[u.id]?.status),
+              envelopeCommits: Array.isArray(u.commits)
+                ? u.commits
+                : (Array.isArray(unitOverlay[u.id]?.commits) ? unitOverlay[u.id].commits : []),
             });
           }
         }
@@ -194,7 +211,7 @@ async function loadMilestones() {
             title: u.title ?? "",
             phase: u.session != null ? `session-${u.session}` : "",
             dependencies: u.dependencies ?? u.depends_on ?? [],
-            envelopeStatus: u.status ?? null,
+            envelopeStatus: asStr(u.status),
             envelopeCommits: Array.isArray(u.commits) ? u.commits : [],
           });
         }
@@ -210,7 +227,7 @@ async function loadMilestones() {
             title: u?.title ?? "",
             phase: u?.phase ?? "",
             dependencies: u?.dependencies ?? u?.depends_on ?? [],
-            envelopeStatus: u?.status ?? null,
+            envelopeStatus: asStr(u?.status),
             envelopeCommits: Array.isArray(u?.commits) ? u.commits : [],
           });
         }
@@ -221,7 +238,7 @@ async function loadMilestones() {
       // even though ms.units[id] has authoritative status/commits.
       for (const u of units) {
         if ((u.envelopeStatus === null || u.envelopeStatus === undefined) && unitOverlay[u.id]) {
-          u.envelopeStatus = unitOverlay[u.id]?.status ?? u.envelopeStatus;
+          u.envelopeStatus = asStr(unitOverlay[u.id]?.status) ?? u.envelopeStatus;
           if ((!u.envelopeCommits || u.envelopeCommits.length === 0) && Array.isArray(unitOverlay[u.id]?.commits)) {
             u.envelopeCommits = unitOverlay[u.id].commits;
           }
@@ -242,7 +259,7 @@ async function loadMilestones() {
   return milestones;
 }
 
-function computeProgress(milestones, shipped, shaSet) {
+export function computeProgress(milestones, shipped, shaSet) {
   // For each milestone, look up each unit in the shipped index.
   // Match strategy: exact (milestone-tag, unit-id) pair first;
   // fallback to (any-milestone-tag, unit-id) — useful when the tag
@@ -250,7 +267,7 @@ function computeProgress(milestones, shipped, shaSet) {
   // envelope fallbacks recover units absorbed into peer commits + ops-only
   // units (tags/branch-deletes with no commit) that the envelope marks complete.
   const byUnitOnly = new Map();
-  for (const [key, val] of shipped.entries()) {
+  for (const val of shipped.values()) {
     if (!byUnitOnly.has(val.unitId)) byUnitOnly.set(val.unitId, val);
   }
   const haveShaSet = shaSet && typeof shaSet.has === "function" && shaSet.size > 0;
@@ -309,6 +326,10 @@ function computeProgress(milestones, shipped, shaSet) {
         source,
       };
     });
+    // Units credited with NO git proof (envelope JSON asserted status:"complete"
+    // with no reachable commit SHA). Surfaced so /pick-unit + audit chats can
+    // tell git-proven shipments from envelope-claimed ones.
+    const envelopeAssertedCount = unitProgress.filter((u) => u.source === "envelope-status").length;
     const total = ms.units.length;
     const pending = total - shippedCount;
     const ratio = total > 0 ? shippedCount / total : 0;
@@ -320,6 +341,7 @@ function computeProgress(milestones, shipped, shaSet) {
       total,
       shipped: shippedCount,
       pending,
+      envelopeAssertedCount,
       ratio,
       lastShippedDate,
       derivedStatus:
@@ -469,6 +491,7 @@ async function main() {
       milestones: progress.length,
       units: progress.reduce((a, p) => a + p.total, 0),
       shipped: progress.reduce((a, p) => a + p.shipped, 0),
+      envelopeAsserted: progress.reduce((a, p) => a + p.envelopeAssertedCount, 0),
       pending: progress.reduce((a, p) => a + p.pending, 0),
       drift: progress.filter((p) => p.drift !== "consistent" && p.drift !== "n/a").length,
     },
@@ -481,11 +504,18 @@ async function main() {
   process.stderr.write(`[milestone-progress] wrote ${OUT_JSON}\n`);
   process.stderr.write(`[milestone-progress] wrote ${OUT_MD}\n`);
   process.stderr.write(
-    `[milestone-progress] totals: ${json.totals.shipped}/${json.totals.units} shipped (${json.totals.drift} drift cases)\n`,
+    `[milestone-progress] totals: ${json.totals.shipped}/${json.totals.units} shipped (${json.totals.envelopeAsserted} envelope-asserted, ${json.totals.drift} drift cases)\n`,
   );
 }
 
-main().catch((err) => {
-  process.stderr.write(`[milestone-progress] FAILED: ${err.stack || err.message}\n`);
-  process.exit(1);
-});
+// Only auto-run when executed directly (`node build-milestone-progress.mjs`).
+// When imported (e.g. by build-milestone-progress.test.mjs) main() must NOT
+// fire — it would do a full real run and overwrite MILESTONE_PROGRESS.json.
+const isMainModule =
+  process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMainModule) {
+  main().catch((err) => {
+    process.stderr.write(`[milestone-progress] FAILED: ${err.stack || err.message}\n`);
+    process.exit(1);
+  });
+}

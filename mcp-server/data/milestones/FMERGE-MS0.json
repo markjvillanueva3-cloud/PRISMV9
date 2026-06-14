@@ -1,0 +1,255 @@
+{
+  "id": "FMERGE-MS0",
+  "version": "1.0.0",
+  "title": "Frontend Audit & Decision - Merge Two Web Apps",
+  "brief": "Audit the two active PRISM frontend builds, choose a single canonical frontend target, and publish the merge/migration plan that downstream convergence work must follow.",
+  "created_at": "2026-04-10T23:58:00Z",
+  "updated_at": "2026-05-25T07:15:00Z",
+  "created_by": "codex-gpt-5",
+  "extended_by": "claude-125b63b0 (slot:romeo iter36)",
+  "extension_note": "Original P0 (April 2026) decided canonical=mcp-server/web vs legacy PRISM/web. P1 (May 2026) audits the two NEW pending-merge trees (cqask + mcp-cadquery) that appeared after P0 closed.",
+  "track": "FMERGE",
+  "track_name": "Frontend Merge",
+  "status": "ready_for_merge",
+  "status_history": [
+    { "status": "in_progress", "at": "2026-04-10", "by": "codex-gpt-5" },
+    { "status": "ready_for_merge", "at": "2026-05-25", "by": "claude-125b63b0", "reason": "P1 audit published; mcp-cadquery=drop-in (Phase B half-day) + cqask=rewrite (Phase C 2-3 days) + Phase D PSN-gap + Phase E iOS+Android Capacitor scoped. All operator-gated." }
+  ],
+  "total_units": 5,
+  "total_sessions": "2",
+  "dependencies": [],
+  "omega_floor": 0.9,
+  "source_roadmap": "../../PRISM-UNIFIED-ROADMAP-v2.md",
+  "published_artifacts": [
+    "../../../state/shared/FMERGE-MS0-CANONICAL-FRONTEND-AUDIT.md",
+    "../../../state/shared/specs/FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25.md",
+    "../../../state/shared/specs/FRONTEND-AUDIT-AND-UPGRADE-PLAN-2026-05-25.md",
+    "../../web/CLAUDE.md (Aesthetic Direction + Mobile sub-block, commit c20f47ed0f)"
+  ],
+  "downstream_consumers": [
+    "APPW-MS8",
+    "FMERGE-MS1"
+  ],
+  "queue_materialization_required": true,
+  "decision_record": {
+    "canonical_target": "mcp-server/web",
+    "canonical_target_path": "H:/PRISM/mcp-server/web",
+    "legacy_donor_path": "H:/PRISM/web",
+    "route_and_page_counts": {
+      "canonical_routes": 132,
+      "legacy_routes": 111,
+      "canonical_page_components": 101,
+      "legacy_page_components": 108
+    },
+    "rationale": [
+      "mcp-server/web is the active routed ERP/business shell and already anchors APPW-MS8 route-count assumptions.",
+      "mcp-server/web already contains the reusable CAD/programming primitives that should back machine-page convergence: LatheSketch2D, FeatureEditorPanel, WireEdmContourPicker, WireEdmContour3D, CalculatorProgramWorkbench, and Viewer3D.",
+      "The legacy web app still contains useful donor machine-page surfaces, but it is no longer the right deployment target and should be absorbed selectively."
+    ],
+    "confirmed_gaps": [
+      "No unified CAD window is mounted across the dedicated machine pages in the canonical app.",
+      "The old wire studio sketch entry is unfinished and still marked coming soon.",
+      "Feature selection exists today, but feature avoid/fill/modify flows are not yet exposed as one shared machine-page workspace contract."
+    ],
+    "merge_direction": [
+      "Keep mcp-server/web as the only canonical frontend.",
+      "Use H:/PRISM/web as a donor surface for machine-page CAD/workflow capabilities that are still missing from the canonical app.",
+      "Promote calculator CAD/editor surfaces into dedicated machine pages instead of leaving them calculator-only."
+    ]
+  },
+  "lane_coordination": {
+    "mode": "finish-current-delivery-first",
+    "codex_scope": "frontend app diff, canonical target selection, and merge-plan publication",
+    "claude_scope_needed": "validate roadmap lane intent and API/backend compatibility notes for the selected canonical target",
+    "rgs_sync_lane": "frontend-merge"
+  },
+  "intent": "There is exactly one canonical frontend target before app-wide convergence, theme migration, and final route verification proceed.",
+  "phases": [
+    {
+      "id": "FMERGE-MS0-P1",
+      "title": "Audit & Plan — cqask + mcp-cadquery pending-merge trees + iOS/Android scope",
+      "sessions": "1",
+      "added_at": "2026-05-25",
+      "added_reason": "Two new PENDING_MERGE frontends (cqask/ui Next13+AntD, mcp-cadquery/frontend Vite+React19+Three.js) appeared after P0 closed. Operator directive 2026-05-25 added iOS+Android mobile scope.",
+      "completed_at": "2026-05-25",
+      "completed_commit": "c20f47ed0f",
+      "status": "completed",
+      "units": [
+        {
+          "id": "U-FMERGE-AUDIT",
+          "title": "Publish cqask + mcp-cadquery merge audit",
+          "description": "Inventory both trees vs canonical mcp-server/web. Decide drop-in (mcp-cadquery, Vite+React 19 compat) vs rewrite (cqask, Next 13 → Vite React Router). Name Phases A/B/C/D. Identify PSN-node gaps that new frontend should leverage.",
+          "preferred_family": "Claude",
+          "exit_criteria": [
+            "state/shared/specs/FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25.md exists with §1 stack matrix, §2 functional payload, §3 PSN-node gap table, §4 phase plan",
+            "Compatibility verdict per app (mcp-cadquery=drop-in, cqask=rewrite)",
+            "Operator guardrails captured verbatim in §9"
+          ],
+          "exit_status": "PASS",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "U-FMERGE-AUDIT-MOBILE",
+          "title": "Add Phase E (iOS + Android) + Mobile aesthetic block",
+          "description": "Per operator directive 2026-05-25 'design for ios and android too across the board'. Add Phase E to merge plan (Capacitor 6 wrapper, single codebase, NOT React Native rewrite). Add Mobile sub-block to mcp-server/web/CLAUDE.md with mandatory tap-targets / safe-area / thumb-zone / native-gesture rules + 7 defaults-to-avoid + 5 reference inspirations + mobile typography exception.",
+          "preferred_family": "Claude",
+          "exit_criteria": [
+            "FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25.md §4 contains Phase E with 9 sub-items (Capacitor scaffold, responsive sweep, touch-targets, safe-area, dark-mode, gestures, offline cache, native chrome, store distribution)",
+            "mcp-server/web/CLAUDE.md contains '## Mobile (iOS + Android)' section above 'Design Language: Calculator Studio'",
+            "Mobile-specific defaults-to-avoid list explicit (hamburger nav, iOS modals on Android, custom keyboards, tap-to-zoom hacks, hover-only affordances, fixed-pixel widths, top-center toasts)"
+          ],
+          "exit_status": "PASS",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    },
+    {
+      "id": "FMERGE-MS0-P0",
+      "title": "Audit and Canonical Target Decision (original April 2026 scope)",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "U-FMERGE01",
+          "title": "Diff Both Frontends",
+          "description": "Catalog every page, component, hook, context, API module, and build surface unique to `PRISM/mcp-server/web/` and `PRISM/web/`, plus the overlap set.",
+          "preferred_family": "Codex",
+          "claim_policy": "open",
+          "exit_criteria": [
+            "A diff inventory exists for pages, components, hooks, contexts, API modules, and build/config surfaces.",
+            "The overlap and app-unique surfaces are explicitly counted and named."
+          ],
+          "exit_conditions": [
+            "A diff inventory exists for pages, components, hooks, contexts, API modules, and build/config surfaces.",
+            "The overlap and app-unique surfaces are explicitly counted and named.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE02",
+          "title": "Choose Canonical Frontend",
+          "description": "Publish the canonical app target and record the decision rationale, including why the non-canonical app will be absorbed or retired.",
+          "preferred_family": "Codex",
+          "claim_policy": "open",
+          "exit_criteria": [
+            "Exactly one canonical frontend target is selected.",
+            "The decision includes rationale and high-level migration implications."
+          ],
+          "exit_conditions": [
+            "Exactly one canonical frontend target is selected.",
+            "The decision includes rationale and high-level migration implications.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "U-FMERGE03",
+          "title": "Create Merge Checklist",
+          "description": "Create the file-by-file merge checklist with API compatibility notes and downstream implications for APPW convergence work.",
+          "preferred_family": "Codex",
+          "claim_policy": "open",
+          "exit_criteria": [
+            "A file-by-file merge checklist exists.",
+            "API compatibility notes and downstream APPW impacts are captured."
+          ],
+          "exit_conditions": [
+            "A file-by-file merge checklist exists.",
+            "API compatibility notes and downstream APPW impacts are captured.",
+            "Tests pass: npx vitest run (min 10 cases for engine units)"
+          ],
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "fmerge-ms0-gate",
+    "mcp_action": "prism_fmerge:fmerge_ms0_run",
+    "skill_command": "/fmerge-ms0",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "fmerge-ms0-gate"
+    ],
+    "new_actions": [
+      "fmerge_ms0_run"
+    ],
+    "new_skills": [
+      "/fmerge-ms0"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

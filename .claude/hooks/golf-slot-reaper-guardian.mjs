@@ -9,7 +9,7 @@
  * pipeline. This hook is the enforcement arm.
  *
  * Why golf and not alpha (the change in 2026-05-16):
- *   - Alpha is the heaviest work slot in the 13-chat fleet by usage pattern;
+ *   - Alpha is the heaviest work slot in the 26-chat fleet by usage pattern;
  *     when alpha goes through `/compact` its in-session Monitor pauses. The
  *     scheduled task survives, but the guardian's "ensure + advisory" loop
  *     drops out of the SessionStart/UserPromptSubmit fast path until alpha
@@ -79,6 +79,7 @@ import { existsSync, statSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { findSlotForChat } from "../helpers/chat-slots.mjs";
+import { isTriggerStalled, parseTaskNextRun } from "../../scripts/fleet-reaper-sweep.mjs";
 
 /** The slot that owns the reaper. Single source of truth for the doctrine. */
 const OWNER_SLOT = "golf";
@@ -97,6 +98,10 @@ const SWEEP_THROTTLE_MS = 4 * 60 * 1000;
 const STDIN_DRAIN_TIMEOUT_MS = 250;
 /** schtasks query timeout — a hung query must never stall a SessionStart. */
 const SCHTASKS_TIMEOUT_MS = 4000;
+/** The scheduled task's repetition interval — used to detect a stalled trigger
+ *  (State:Ready but NextRunTime frozen in the past, the one failure a State-only
+ *  check is blind to). Override: PRISM_FLEET_REAPER_TASK_CADENCE_SEC. */
+const TASK_CADENCE_MS = (Number(process.env.PRISM_FLEET_REAPER_TASK_CADENCE_SEC) || 300) * 1000;
 
 /** Resolve repo-relative paths from this hook's own location. */
 function repoPaths() {
@@ -167,18 +172,23 @@ function eventName(payload) {
  */
 function queryScheduledTask() {
   try {
-    if (!existsSync(SCHTASKS)) return { exists: false, enabled: false, status: "schtasks-not-found" };
-    const r = spawnSync(SCHTASKS, ["/Query", "/TN", TASK_NAME, "/FO", "LIST"], {
+    if (!existsSync(SCHTASKS)) return { exists: false, enabled: false, status: "schtasks-not-found", nextRunMs: null };
+    // /V (verbose) so the output carries "Next Run Time:" — required to detect a
+    // stalled trigger (State:Ready but NextRunTime frozen in the past). /V does
+    // not change the State/Status lines the existing parse below relies on.
+    const r = spawnSync(SCHTASKS, ["/Query", "/TN", TASK_NAME, "/V", "/FO", "LIST"], {
       encoding: "utf-8", timeout: SCHTASKS_TIMEOUT_MS, windowsHide: true,
     });
-    if (r.status !== 0 || !r.stdout) return { exists: false, enabled: false, status: "not-registered" };
+    if (r.status !== 0 || !r.stdout) return { exists: false, enabled: false, status: "not-registered", nextRunMs: null };
     const m = r.stdout.match(/Scheduled Task State:\s*(\S+)/i)
       || r.stdout.match(/Status:\s*(\S+)/i);
     const state = m ? m[1].trim() : "Unknown";
     const enabled = !/disabled/i.test(state);
-    return { exists: true, enabled, status: state };
+    // parseTaskNextRun is the single source of truth for this parse (shared with
+    // fleet-reaper-sweep.mjs) — null for absent/N-A/Disabled/unparseable.
+    return { exists: true, enabled, status: state, nextRunMs: parseTaskNextRun(r.stdout) };
   } catch {
-    return { exists: false, enabled: false, status: "query-failed" };
+    return { exists: false, enabled: false, status: "query-failed", nextRunMs: null };
   }
 }
 
@@ -251,7 +261,7 @@ async function main() {
   }
 
   // Resolve which slot THIS chat holds. No id / not slotted / not golf →
-  // silent, near-instant no-op (the common case for 12 of 13 chats).
+  // silent, near-instant no-op (the common case for 25 of 26 chats).
   const stableId = deriveStableId(payload);
   if (!stableId) { emitContinue(evName); return; }
 
@@ -273,11 +283,19 @@ async function main() {
     return;
   }
 
-  const sweepEligible = !recentlySwept(stampFile);
-
   const task = queryScheduledTask();
   let reEnabled = false;
   if (task.exists && !task.enabled) reEnabled = tryEnableTask();
+
+  // A task can be State:Ready yet have a stalled trigger (NextRunTime frozen in
+  // the past). A stalled task cannot run its own Tier-3 self-heal, so the
+  // guardian's kicked --once sweep is the ONLY thing that can schtasks /Run it —
+  // a detected stall therefore FORCES a sweep past the throttle. The sweep's own
+  // 15-min self-heal cooldown still gates the actual /Run, so there is no storm.
+  const triggerStalled =
+    task.exists && task.enabled && isTriggerStalled(task.nextRunMs, Date.now(), TASK_CADENCE_MS);
+
+  const sweepEligible = !recentlySwept(stampFile) || triggerStalled;
 
   let sweptPid = null;
   if (sweepEligible
@@ -304,13 +322,22 @@ async function main() {
       `⚠ SLOT GOLF — the fleet-reaper scheduled task ("${TASK_NAME}") was DISABLED `
       + `(${task.status}). ${reEnabled ? "Re-enabled it ✓." : "Auto-re-enable FAILED — run `schtasks /Change /TN \"" + TASK_NAME + "\" /ENABLE` in an elevated shell, or /fleet-reaper."}`
       + (sweptPid !== null ? `\n  Guardian sweep kicked (pid ${sweptPid}).` : "");
+  } else if (triggerStalled) {
+    advisory =
+      `⚠ SLOT GOLF — the fleet-reaper scheduled task ("${TASK_NAME}") reads State:${task.status} `
+      + `but its TRIGGER HAS STALLED — NextRunTime is frozen in the past, so the task is NOT firing `
+      + `on its cadence. Orphan node/bash/git processes from crashed chats will accumulate.\n`
+      + (sweptPid !== null
+        ? `  → A --once sweep was kicked (pid ${sweptPid}) — it runs schtasks /Run to kick the trigger. `
+          + `If the next guardian pass still reports stalled, run /fleet-reaper (re-registers the task).`
+        : `  → Could not kick a fallback sweep (script missing / spawn failed). Run /fleet-reaper NOW.`);
   } else {
     advisory =
       `🛡 SLOT GOLF — fleet-reaper guardian: durable task "${TASK_NAME}" is ${task.status} ✓`
       + (sweptPid !== null
         ? ` · guardian sweep kicked (detached --once, pid ${sweptPid}).`
         : ` · sweep throttled (≤1 / ${Math.round(SWEEP_THROTTLE_MS / 60000)}min).`)
-      + `\n  You own the reaper for the 13-chat fleet (doctrine moved from alpha → golf 2026-05-16) — run /fleet-reaper if you also want the live in-session Monitor.`;
+      + `\n  You own the reaper for the 26-chat fleet (doctrine moved from alpha → golf 2026-05-16) — run /fleet-reaper if you also want the live in-session Monitor.`;
   }
 
   emitContinue(evName, advisory);

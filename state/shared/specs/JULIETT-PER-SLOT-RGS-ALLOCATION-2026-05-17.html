@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="59e73575d164ce258c281ffeff1192262952a5244b6f8740124b41caf0ed3ce3">
+<title>JULIETT — Per-Slot RGS Allocation (2026-05-17)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT — Per-Slot RGS Allocation (2026-05-17)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.619Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-per-slot-rgs-allocation-2026-05-17">JULIETT — Per-Slot RGS Allocation (2026-05-17)</a></li>
+<li class="toc-l2"><a href="#summary">Summary</a></li>
+<li class="toc-l2"><a href="#alpha-6-units">ALPHA — 6 units</a></li>
+<li class="toc-l2"><a href="#bravo-6-units">BRAVO — 6 units</a></li>
+<li class="toc-l2"><a href="#charlie-6-units">CHARLIE — 6 units</a></li>
+<li class="toc-l2"><a href="#delta-6-units">DELTA — 6 units</a></li>
+<li class="toc-l2"><a href="#echo-6-units">ECHO — 6 units</a></li>
+<li class="toc-l2"><a href="#foxtrot-6-units">FOXTROT — 6 units</a></li>
+<li class="toc-l2"><a href="#hotel-6-units">HOTEL — 6 units</a></li>
+<li class="toc-l2"><a href="#india-6-units">INDIA — 6 units</a></li>
+<li class="toc-l2"><a href="#juliett-6-units">JULIETT — 6 units</a></li>
+<li class="toc-l2"><a href="#kilo-6-units">KILO — 6 units</a></li>
+<li class="toc-l2"><a href="#lima-6-units">LIMA — 6 units</a></li>
+<li class="toc-l2"><a href="#mike-6-units">MIKE — 6 units</a></li>
+<li class="toc-l2"><a href="#golf-hygiene-integrator-slot">GOLF — hygiene / integrator slot</a></li>
+<li class="toc-l2"><a href="#deconfliction">Deconfliction</a></li>
+<li class="toc-l2"><a href="#how-a-slot-consumes-this">How a slot consumes this</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-per-slot-rgs-allocation-2026-05-17"><a class="anchor" href="#juliett-per-slot-rgs-allocation-2026-05-17" aria-label="Permalink to JULIETT — Per-Slot RGS Allocation (2026-05-17)">#</a>JULIETT — Per-Slot RGS Allocation (2026-05-17)</h1>
+<blockquote>
+<p>Generated by <code>scripts/allocate-rgs-per-slot.mjs</code> — re-run any time, no hand-drift. Work order: &quot;begin rgs pipeline for each chat slot&quot; (slot juliett, 2026-05-17). <strong>Advisory only</strong> — never claims a unit; an operator may swap slot assignments freely. Picking delegated to <code>.claude/helpers/priority-queue.mjs</code> (backend-dev priority 0 first).</p>
+</blockquote>
+<h2 id="summary"><a class="anchor" href="#summary" aria-label="Permalink to Summary">#</a>Summary</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Field</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Generated</td><td>2026-05-17T19:24:53.611Z</td></tr>
+<tr><td>Pool (unique)</td><td>160 priority-ordered units</td></tr>
+<tr><td>Per-slot queue depth</td><td>6</td></tr>
+<tr><td>Work slots</td><td>12 (alpha..foxtrot, hotel..mike)</td></tr>
+<tr><td>Total assigned</td><td>78 units</td></tr>
+<tr><td>golf</td><td>hygiene slot — 6 hygiene unit(s)</td></tr>
+<tr><td>Underfilled slots</td><td>none</td></tr>
+</tbody>
+</table></div>
+<p>Each work slot&#39;s queue descends in global priority — its rank-1 unit is the highest-priority unit assigned to it, picked round-robin so all 12 slots start on comparable-priority work. Launch a slot with the line in its section header.</p>
+<h2 id="alpha-6-units"><a class="anchor" href="#alpha-6-units" aria-label="Permalink to ALPHA — 6 units">#</a>ALPHA — 6 units</h2>
+<p>Launch: <code>/checkin-alpha /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CLEANUP-F1</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>F1 — extend scripts/orphan-inventory.mjs (NOT new script per R1) to call WiringPotentialEngine.…</td></tr>
+<tr><td>2</td><td><code>U-CK15</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Populate consumes/produces/composes_with frontmatter across migrated commands</td></tr>
+<tr><td>3</td><td><code>U-CK27</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Wire pipeline-telemetry.jsonl -&gt; adaptive-thresholds.mjs</td></tr>
+<tr><td>4</td><td><code>A2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-REREAD-SIGNAL-FINISH — wire Write|Edit|MultiEdit matcher so recall counter sees writes (cur…</td></tr>
+<tr><td>5</td><td><code>D3</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-CONFLICT-RESOLUTION — when 2 chats edit same memory key concurrently, capture both versions i…</td></tr>
+<tr><td>6</td><td><code>U-ACTION-TRACES</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track D4 — Action traces</td></tr>
+</tbody>
+</table></div>
+<h2 id="bravo-6-units"><a class="anchor" href="#bravo-6-units" aria-label="Permalink to BRAVO — 6 units">#</a>BRAVO — 6 units</h2>
+<p>Launch: <code>/checkin-bravo /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CLEANUP-G9</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>G9 — pr-ci-watch.ps1 (DEFERRED — low priority for current direct-to-branch workflow; spec text …</td></tr>
+<tr><td>2</td><td><code>U-CK16</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Extend skill-auto-trigger.mjs -&gt; pipeline-aware, fires on PostToolUse/Stop</td></tr>
+<tr><td>3</td><td><code>U-CK28</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Close command-utilization -&gt; auto skill-tier loop</td></tr>
+<tr><td>4</td><td><code>B1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-DAILY-CONTEXT-WORKFLOW — synthesize yesterday&#39;s daily note + active projects + inbox into mor…</td></tr>
+<tr><td>5</td><td><code>D4</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-ACTION-TRACES — log every agent write as graph edge (agent, prompt-hash, tool, target-memory,…</td></tr>
+<tr><td>6</td><td><code>U-AGENT-JOB-DESCRIPTIONS</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track G1 — Agent job descriptions</td></tr>
+</tbody>
+</table></div>
+<h2 id="charlie-6-units"><a class="anchor" href="#charlie-6-units" aria-label="Permalink to CHARLIE — 6 units">#</a>CHARLIE — 6 units</h2>
+<p>Launch: <code>/checkin-charlie /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK02</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>psk whoami / position / manifest syscalls</td></tr>
+<tr><td>2</td><td><code>U-CK17</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/session-cycle (checkin -&gt; pick -&gt; research -&gt; build -&gt; close-out -&gt; handoff)</td></tr>
+<tr><td>3</td><td><code>U-CK29</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>outcome -&gt; memory/vault -&gt; psk recommend learns</td></tr>
+<tr><td>4</td><td><code>B2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-CONNECTION-FINDER — weekly cron finds non-obvious cross-domain/contradiction/evidence connect…</td></tr>
+<tr><td>5</td><td><code>D5</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-CONTEXT-EVAL-GATE — before any agent acts, eval whether retrieved context was complete vs gol…</td></tr>
+<tr><td>6</td><td><code>U-AGENT-PIXEL-DEPT-OVERLAY</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track G2 — Agent pixel-dept overlay</td></tr>
+</tbody>
+</table></div>
+<h2 id="delta-6-units"><a class="anchor" href="#delta-6-units" aria-label="Permalink to DELTA — 6 units">#</a>DELTA — 6 units</h2>
+<p>Launch: <code>/checkin-delta /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK03</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>psk handoff / checkin / pick syscalls</td></tr>
+<tr><td>2</td><td><code>U-CK18</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/research &lt;token|unit&gt;</td></tr>
+<tr><td>3</td><td><code>H1</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>Generate HOOK_REGISTRY.json from hook source</td></tr>
+<tr><td>4</td><td><code>B3</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-QUEUE-PROCESSOR — fs.watch knowledge/memories/queue/ for RESEARCH-X/SYNTHESIZE-X/DRAFT-X file…</td></tr>
+<tr><td>5</td><td><code>E1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-IDEABLOCK-EXTRACTOR — convert memory/wiki .md → IdeaBlocks via Ollama structured output (qwen…</td></tr>
+<tr><td>6</td><td><code>U-AGENT-RUNTIME-ALERTS</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track G3 — Agent runtime alerts</td></tr>
+</tbody>
+</table></div>
+<h2 id="echo-6-units"><a class="anchor" href="#echo-6-units" aria-label="Permalink to ECHO — 6 units">#</a>ECHO — 6 units</h2>
+<p>Launch: <code>/checkin-echo /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK05</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Generated-mirror generators (JSON registries become mirrors of os/ entities)</td></tr>
+<tr><td>2</td><td><code>U-CK19</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/scrutiny-gate (per-file 2-agent -&gt; 3-of-3 -&gt; psk record)</td></tr>
+<tr><td>3</td><td><code>H1.0</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>Build verify-hook-refs.mjs script</td></tr>
+<tr><td>4</td><td><code>B4</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-WEEKLY-SYNTHESIS — Sunday 8 PM retro: 4-question synthesis of the week</td></tr>
+<tr><td>5</td><td><code>E2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-IDEABLOCK-DEDUP — iterative cosine-similarity dedup at 80-85% threshold, 3-5 rounds, collapse…</td></tr>
+<tr><td>6</td><td><code>U-CONFLICT-RESOLUTION</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track D3 — Conflict resolution</td></tr>
+</tbody>
+</table></div>
+<h2 id="foxtrot-6-units"><a class="anchor" href="#foxtrot-6-units" aria-label="Permalink to FOXTROT — 6 units">#</a>FOXTROT — 6 units</h2>
+<p>Launch: <code>/checkin-foxtrot /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK07</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>command-migrate.mjs codemod</td></tr>
+<tr><td>2</td><td><code>U-CK20</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/learn-pipeline &lt;src&gt; (detect -&gt; extract -&gt; dedup -&gt; tribal -&gt; wiki -&gt; memory)</td></tr>
+<tr><td>3</td><td><code>H2</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>Convert warn-style hooks to deterministic autofix</td></tr>
+<tr><td>4</td><td><code>B5</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-PROJECT-AUTO-UPDATER — fs.watch project subfolders, auto-update overview.md with one-line cha…</td></tr>
+<tr><td>5</td><td><code>E3</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-IDEABLOCK-RAG-ENGINE — replace ObsidianMemoryRagEngine chunk-window retrieval with IdeaBlock …</td></tr>
+<tr><td>6</td><td><code>U-CONNECTION-FINDER</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track B2 — Connection finder</td></tr>
+</tbody>
+</table></div>
+<h2 id="hotel-6-units"><a class="anchor" href="#hotel-6-units" aria-label="Permalink to HOTEL — 6 units">#</a>HOTEL — 6 units</h2>
+<p>Launch: <code>/checkin-hotel /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK08</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Migrate the command corpus: standardize frontmatter, de-hardcode, register as os/commands/ enti…</td></tr>
+<tr><td>2</td><td><code>U-CK21</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/wire-pipeline (orphan-inventory -&gt; dedup -&gt; wire -&gt; test -&gt; close)</td></tr>
+<tr><td>3</td><td><code>H3</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>Settings-dedup pass</td></tr>
+<tr><td>4</td><td><code>B6</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-KNOWLEDGE-DISTILLATION — monthly distill 30 days of resources/areas notes into canonical per-…</td></tr>
+<tr><td>5</td><td><code>E4</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-IDEABLOCK-GOVERNANCE — auto-tag each block with clearance | version-state | product-line |…</td></tr>
+<tr><td>6</td><td><code>U-CONTEXT-EVAL-GATE</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track D5 — Context eval gate</td></tr>
+</tbody>
+</table></div>
+<h2 id="india-6-units"><a class="anchor" href="#india-6-units" aria-label="Permalink to INDIA — 6 units">#</a>INDIA — 6 units</h2>
+<p>Launch: <code>/checkin-india /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK09</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Hand-tune the lifecycle commands (startup/checkin/pick-unit/precompact) to thin psk clients — S…</td></tr>
+<tr><td>2</td><td><code>U-CK22</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/diagnose-fix &lt;artifact&gt; (forensic-classify -&gt; suggest -&gt; apply -&gt; test -&gt; trace -&gt; commit)</td></tr>
+<tr><td>3</td><td><code>H4</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>TaskCreated claim guard</td></tr>
+<tr><td>4</td><td><code>C1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-HTML-OUTPUT-MODE — add --html flag to generate-claude-brief / generate-system-viz / build-sta…</td></tr>
+<tr><td>5</td><td><code>F1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-VOICE-CAPTURE — Whisper local bridge → operator voice memos → tribal knowledge ingest (phase …</td></tr>
+<tr><td>6</td><td><code>U-DAILY-CONTEXT-WORKFLOW</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track B1 — Daily context workflow</td></tr>
+</tbody>
+</table></div>
+<h2 id="juliett-6-units"><a class="anchor" href="#juliett-6-units" aria-label="Permalink to JULIETT — 6 units">#</a>JULIETT — 6 units</h2>
+<p>Launch: <code>/checkin-juliett /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK11</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Per-category scrutiny pass over the migrated corpus</td></tr>
+<tr><td>2</td><td><code>U-CK23</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/program-perfect &lt;part&gt; (gen -&gt; optimize -&gt; validate -&gt; loop -&gt; ship)</td></tr>
+<tr><td>3</td><td><code>H5</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>PostToolBatch budget ceiling hook</td></tr>
+<tr><td>4</td><td><code>C2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-HTML-DASHBOARD — unified state/shared/system-viz/dashboard.html aggregating viz + brief + bui…</td></tr>
+<tr><td>5</td><td><code>F2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-HIGHLIGHTS-ONLY — --highlights-only flag on /pdf-learn extracts only PDF highlight annotation…</td></tr>
+<tr><td>6</td><td><code>U-DOCKER-HOOK-BROKER</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track A1 — Docker hook broker</td></tr>
+</tbody>
+</table></div>
+<h2 id="kilo-6-units"><a class="anchor" href="#kilo-6-units" aria-label="Permalink to KILO — 6 units">#</a>KILO — 6 units</h2>
+<p>Launch: <code>/checkin-kilo /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK12</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Pipeline registry — adopt ACP-MS0A automation-chain schema (or contribute back if pending)</td></tr>
+<tr><td>2</td><td><code>U-CK24</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/forge-supervised (/forge-triple -&gt; /scrutiny-gate -&gt; close)</td></tr>
+<tr><td>3</td><td><code>H6</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>Cross-worktree firewall (K2 unlocker)</td></tr>
+<tr><td>4</td><td><code>C3</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-HTML-DESIGN-SYSTEM — extract PRISM design system reference from mcp-server/web/ so HTML gener…</td></tr>
+<tr><td>5</td><td><code>G1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-AGENT-JOB-DESCRIPTIONS — codify narrow job descriptions per subagent type in AGENT_JOB_DESCRI…</td></tr>
+<tr><td>6</td><td><code>U-HIGHLIGHTS-ONLY</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track F2 — Highlights-only PDF ingest</td></tr>
+</tbody>
+</table></div>
+<h2 id="lima-6-units"><a class="anchor" href="#lima-6-units" aria-label="Permalink to LIMA — 6 units">#</a>LIMA — 6 units</h2>
+<p>Launch: <code>/checkin-lima /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK13</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Pipeline EXECUTOR (stage graph, gating, rollback, dry-run-first)</td></tr>
+<tr><td>2</td><td><code>U-CK25</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>/pipeline &lt;name&gt; meta-command (list/dry-run/execute/resume)</td></tr>
+<tr><td>3</td><td><code>H7</code></td><td>HOOK-SYNERGY-MS0</td><td>backend-dev</td><td>Boris-style defer decision in PreToolUse</td></tr>
+<tr><td>4</td><td><code>D1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-PROVENANCE-LAYER — every memory/wiki entry gets source frontmatter (agent, sessionId, writeEv…</td></tr>
+<tr><td>5</td><td><code>G2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-AGENT-PIXEL-DEPT-OVERLAY — extend system-viz with agent-status overlay (idle/typing/parsing/e…</td></tr>
+<tr><td>6</td><td><code>U-HTML-DASHBOARD</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track C2 — HTML dashboard</td></tr>
+</tbody>
+</table></div>
+<h2 id="mike-6-units"><a class="anchor" href="#mike-6-units" aria-label="Permalink to MIKE — 6 units">#</a>MIKE — 6 units</h2>
+<p>Launch: <code>/checkin-mike /loop work my RGS queue</code></p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CK14</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>Activate pipeline_integrations: frontmatter + wire to executor</td></tr>
+<tr><td>2</td><td><code>U-CK26</code></td><td>COMMAND-KERNEL-MS0</td><td>backend-dev</td><td>psk record emits real command-invocation telemetry -&gt; pipeline-telemetry.jsonl</td></tr>
+<tr><td>3</td><td><code>A1</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-DOCKER-HOOK-BROKER — persistent prism-hooks container holds all 50+ hooks warm</td></tr>
+<tr><td>4</td><td><code>D2</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-ONTOLOGY-LAYER — explicit type tagging fact|interpretation, current|deprecated|draft, publ…</td></tr>
+<tr><td>5</td><td><code>G3</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>U-AGENT-RUNTIME-ALERTS — watchdog: if subagent runs &gt;N min without progress, PushNotification a…</td></tr>
+<tr><td>6</td><td><code>U-HTML-DESIGN-SYSTEM</code></td><td>OBSIDIAN-INTELLIGENCE-MS3</td><td>backend-dev</td><td>Track C3 — HTML design system</td></tr>
+</tbody>
+</table></div>
+<h2 id="golf-hygiene-integrator-slot"><a class="anchor" href="#golf-hygiene-integrator-slot" aria-label="Permalink to GOLF — hygiene / integrator slot">#</a>GOLF — hygiene / integrator slot</h2>
+<p>Launch: <code>/checkin-golf /loop fleet hygiene</code></p>
+<p>Golf is NOT a feature slot — it never gets a work-unit queue. Standing duties:</p>
+<ul>
+<li>Own the Fleet Reaper (golf-slot-reaper-guardian.mjs) + Fleet Memory Monitor scheduled tasks.</li>
+<li>Reconcile envelope drift (<code>node scripts/audit-roadmap-drift.mjs</code>) — flip claimed-vs-derived mismatches.</li>
+<li>Integrate slot branches into cad-fusion-live-ms0 (golf is the integrator slot).</li>
+<li>Watch MEMORY.md size ceiling (<code>node scripts/memory-size-watch.mjs</code>) — compress before 24576 B.</li>
+<li>Sweep dead claims / zombie slots (<code>node .claude/helpers/chat-slots.mjs reclaim</code>).</li>
+</ul>
+<p>Hygiene-milestone units golf may also pick up this cycle:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Unit</th><th>Milestone</th><th>Cat</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>U-CLEANUP-A1</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>A1 — extend SLOT_NAMES in chat-slots.mjs to add &#39;golf&#39; (NATO phonetic continuity)</td></tr>
+<tr><td>2</td><td><code>U-CLEANUP-A5</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>A5 — golf-slot-write-allowlist.mjs PreToolUse T0 hook (path-resolve hardened against ../; allow…</td></tr>
+<tr><td>3</td><td><code>U-CLEANUP-B7</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>B7 — /peer-audit skill (READ-ONLY operator query; never mutates ledger; mutations only via pris…</td></tr>
+<tr><td>4</td><td><code>U-CLEANUP-B9</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>B9 — model-drift eval suite (10 frozen known-bug commits + expected verdicts in state/shared/go…</td></tr>
+<tr><td>5</td><td><code>U-CLEANUP-D2</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>D2 — extract Master Index detail (lines ~253-283) to wiki/architecture/master-index-surface.md;…</td></tr>
+<tr><td>6</td><td><code>U-CLEANUP-E1</code></td><td>CLEANUP-MS0</td><td>backend-dev</td><td>E1 — 04-prism-mcp-orphan-monitor.ps1 + CronCreate 3036ea16 (PRISM MCP dist/index.js orphan reap…</td></tr>
+</tbody>
+</table></div>
+<h2 id="deconfliction"><a class="anchor" href="#deconfliction" aria-label="Permalink to Deconfliction">#</a>Deconfliction</h2>
+<p>All 78 assigned unit IDs are globally unique — no two slots share a unit (the allocator fail-louds and exits non-zero on any collision).</p>
+<p><strong>Caveat (mustHumanVerify):</strong> priority-queue filters units flagged shipped in <code>MILESTONE_PROGRESS</code>. Its claim filter is best-effort only — a topic-string token match, NOT a <code>slot-task-claim</code> lookup — so a unit actively claimed by a peer may still appear here; run <code>node .claude/helpers/slot-task-claim.mjs check</code> before claiming. A unit whose deliverable shipped but whose envelope was never flipped (silent close-out debt) can also still appear — verify against <code>/close-out-audit</code>. Most likely for the golf CLEANUP-MS0 queue, several of which look complete.</p>
+<h2 id="how-a-slot-consumes-this"><a class="anchor" href="#how-a-slot-consumes-this" aria-label="Permalink to How a slot consumes this">#</a>How a slot consumes this</h2>
+<ol>
+<li>Operator runs the launch line for the slot (e.g. <code>/checkin-alpha /loop work my RGS queue</code>).</li>
+<li>The slot reads its row in this spec, picks its rank-1 unit.</li>
+<li><code>/checkin</code> claims the unit (slot-task-claim), builds, per-file scrutiny, 3-of-3 Stop gate, commits.</li>
+<li>The autonomous loop advances to rank-2, and so on down the queue.</li>
+<li>On queue exhaustion, the slot pulls fresh from <code>node .claude/helpers/priority-queue.mjs --pick --slot &lt;s&gt;</code>.</li>
+</ol>
+<p><em>Regenerate: <code>node scripts/allocate-rgs-per-slot.mjs</code> — advisory, mustHumanVerify.</em></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-PER-SLOT-RGS-ALLOCATION-2026-05-17.md">JULIETT-PER-SLOT-RGS-ALLOCATION-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

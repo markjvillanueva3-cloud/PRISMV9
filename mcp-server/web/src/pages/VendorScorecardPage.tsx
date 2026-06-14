@@ -131,7 +131,7 @@ export default function VendorScorecardPage() {
     ? Math.round(sortedVendors.reduce((sum, vendor) => sum + vendor.composite_score, 0) / sortedVendors.length)
     : 0;
   const topVendor = sortedVendors[0] ?? null;
-  const weakestVendor = sortedVendors.at(-1) ?? null;
+  const weakestVendor = sortedVendors.length > 0 ? sortedVendors[sortedVendors.length - 1] : null;
   const qualityRiskCount = sortedVendors.filter((vendor) => vendor.quality_score < 75 || vendor.ncr_count > 2).length;
   const deliveryRiskCount = sortedVendors.filter((vendor) => vendor.delivery_score < 75 || vendor.on_time_pct < 90).length;
   const priceRiskCount = sortedVendors.filter((vendor) => vendor.price_score < 70).length;

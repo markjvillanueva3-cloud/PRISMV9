@@ -1088,7 +1088,7 @@ export class FiveAxisToolpathSynthesisEngine {
       // HSM bonus if high-speed capable (0.05)
       if (strategy.hsm) score += 0.05;
 
-      return { strategy, score };
+      return { strategy, score } as { strategy: FiveAxisStrategyEntry; score: number; why_not?: string };
     });
 
     // Sort by score descending

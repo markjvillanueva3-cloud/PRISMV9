@@ -15,6 +15,10 @@ const READ_HOOKS = [
   { path: `${HOOK_BASE}/read-auto-limit.mjs`,                timeout: 2000 },
   { path: `${HOOK_BASE}/ollama-route-pretooluse.mjs`,        timeout: 2500 }, // nudge bulk-data reads at local qwen (auto-substitute is opt-in) — HOOKS-AUTOMATION-V2 U-HKA04
   { path: `${HOOK_BASE}/read-already-have.mjs`,              timeout: 2000 },
+  // PRISM-SEARCH-MS0/U-PSM01 (2026-05-18): inject master-index top-K hits for
+  // the file being read so Claude understands callers/wiring before opening.
+  // Knob: PRISM_PRE_READ_GRAPH_INJECT=0. Fail-open by construction.
+  { path: `${HOOK_BASE}/pre-read-graph-inject.mjs`,          timeout: 2000 },
   { path: `${HOOK_BASE}/mcp-route-suggest.mjs`,              timeout: 1500 },
   // HS-15 (2026-05-12): PreToolUse stash for duration-derivation. Runs LAST so a
   // prior-hook deny short-circuits before any stash entry leaks into the cache.

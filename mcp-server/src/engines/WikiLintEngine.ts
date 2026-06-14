@@ -44,7 +44,13 @@ const DRIFT_CRITICAL_THRESHOLD = 0.10; // 10%
 
 const ISO_GROUPS: ISOGroup[] = ["P", "M", "K", "N", "S", "H"];
 
-const WIKILINK_RE = /\[\[([^\]|]+?)\]\]/g;
+// Capture group 1 = the link TARGET. The optional non-capturing `(?:\|[^\]]*?)?`
+// consumes an Obsidian display alias `[[target|alias]]` so the target still
+// resolves. Without it the old regex demanded `]]` immediately after the
+// target and FAILED to match aliased links entirely — silently dropping every
+// `[[target|alias]]` backlink, which inflated orphan counts and corrupted the
+// wikilink-graph PageRank recall.
+const WIKILINK_RE = /\[\[([^\]|]+?)(?:\|[^\]]*?)?\]\]/g;
 const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 const PAGE_FILE_RE = /\.md$/i;
 

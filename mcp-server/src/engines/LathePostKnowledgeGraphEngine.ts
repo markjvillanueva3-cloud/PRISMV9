@@ -47,7 +47,7 @@ export const GraphNodeSchema = z.object({
   id: z.string(),
   type: NodeTypeSchema,
   label: z.string(),
-  properties: z.record(z.unknown()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const GraphEdgeSchema = z.object({
@@ -56,7 +56,7 @@ export const GraphEdgeSchema = z.object({
   source: z.string(),
   target: z.string(),
   weight: z.number().default(1.0),
-  properties: z.record(z.unknown()).optional(),
+  properties: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const KnowledgeGraphSchema = z.object({
@@ -285,6 +285,7 @@ export class LathePostKnowledgeGraphEngine {
         type: "made_by",
         source: ctrl.id,
         target: `mfr_${ctrl.manufacturer.toLowerCase()}`,
+        weight: 1.0,
       });
 
       edges.push({
@@ -292,6 +293,7 @@ export class LathePostKnowledgeGraphEngine {
         type: "uses_dialect",
         source: ctrl.id,
         target: `dialect_${ctrl.dialect}`,
+        weight: 1.0,
       });
 
       for (const cycle of ctrl.cycles) {
@@ -300,6 +302,7 @@ export class LathePostKnowledgeGraphEngine {
           type: "supports_cycle",
           source: ctrl.id,
           target: `cycle_${cycle}`,
+          weight: 1.0,
         });
       }
 
@@ -309,6 +312,7 @@ export class LathePostKnowledgeGraphEngine {
           type: "has_feature",
           source: ctrl.id,
           target: `feature_${feature}`,
+          weight: 1.0,
         });
       }
 
@@ -322,6 +326,7 @@ export class LathePostKnowledgeGraphEngine {
           type: "has_axis",
           source: ctrl.id,
           target: axisNodeId,
+          weight: 1.0,
         });
       }
     }
@@ -345,6 +350,7 @@ export class LathePostKnowledgeGraphEngine {
           type: "requires_validator",
           source: `dialect_${dialect}`,
           target: `validator_${validator}`,
+          weight: 1.0,
         });
       }
     }

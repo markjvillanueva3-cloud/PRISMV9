@@ -44,6 +44,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { loadPredictor, embedGraph, scoreLink } from "./lib/graphsage-predictor.mjs";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
+import { mcpToolToDispNodeId } from "./lib/viz-dispatcher-node-id.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -64,7 +66,39 @@ export const GNN_DEFAULTS = Object.freeze({
   topK: 15,             // nearest references that vote per target
   maxNodes: 2000,       // subgraph embedding cap (the ghost set is < 1000)
   confidenceCap: 0.8,   // a propagated label never claims keyword-tier hardness
+  // GNN-F0 (2026-06-04): base-rate vote normalization. The AUROC-0.5 constant-vote
+  // collapse was a class-prior monopoly — when the embedding is feature-starved
+  // every target->reference cosine is near-uniform, so the raw weighted sum is
+  // won by whichever class has the MOST references (prism_turning, 60/125). We
+  // divide each class's accumulated weight by its reference-pool frequency so the
+  // residual cosine signal, not the prior, picks the winner.
+  baseRateAlpha: 1.0,   // Laplace smoothing on the per-class divisor (PRISM_NNG_BASE_RATE_ALPHA)
+  minClassRefs: 2,      // a class needs >= this many references to be a confident winner (PRISM_NNG_MIN_CLASS_REFS); relaxes if the floor would empty the ballot
+  // GNN-F0/2d: direct-embed inference. The deployed 8-d checkpoint + edgeless
+  // subgraph produces UNIFORM per-target embeddings (every structural feature
+  // collapses to 0 with no edges) → uniform cosines → constant vote regardless
+  // of base-rate normalization. The direct-embed path BYPASSES the model: it
+  // votes raw cosine k-NN over precomputed 768-d nomic vectors (distinct per
+  // ghost — see scripts/build-node-embeddings.mjs --ghosts-only), which is what
+  // actually breaks the AUROC-0.5 degeneracy. No checkpoint/model needed.
+  directEmbed: false,   // PRISM_NNG_DIRECT_EMBED=1
+  // GNN-F0 confidence calibration (2026-06-04) — OPT-IN (default OFF). Richer
+  // source-signal embeddings left voteShare UNDERconfident, so we tried a monotone
+  // isotonic confidence→P(correct) map fit by LEAVE-ONE-OUT on the reference pool
+  // (leak-free; argmax untouched). EMPIRICAL RESULT: it REGRESSED both metrics on
+  // the live holdout (AUROC 0.788→0.755, Brier 0.183→0.206). Root cause is
+  // structural: LOO drops 1 reference while the eval holdout drops ~62 at once, so
+  // the LOO reference pool is DENSER → LOO votes are systematically easier than
+  // holdout votes → the calibrator transfers as OVER-confidence; isotonic flats also
+  // add score ties that depress AUROC. Kept as tested, fail-soft infrastructure
+  // behind PRISM_NNG_DIRECT_CALIBRATE=1; a correct fix needs a held-out calibration
+  // split (or k-at-a-time LOO matching the holdout size). See the F0 spec.
+  calibrateDirect: false,
 });
+
+/** Default precomputed ghost embeddings for the direct-embed path (768-d nomic,
+ *  one distinct vector per ghost). Built by build-node-embeddings.mjs --ghosts-only. */
+export const DEFAULT_DIRECT_EMBED_PATH = path.join(ROOT, "state", "shared", "nn-graph", "ghost-node-embeddings.jsonl");
 
 /** True when `label` is a syntactically valid prism_* dispatcher name. */
 export function isValidDispatcher(label) {
@@ -111,6 +145,16 @@ export function resolveGnnConfig(env = process.env, overrides = {}) {
     topK: intOr(pick(overrides.topK, env.PRISM_NNG_TOPK), d.topK),
     maxNodes: intOr(overrides.maxNodes, d.maxNodes),
     confidenceCap: finiteOr(overrides.confidenceCap, d.confidenceCap, { min: 0, max: 1 }),
+    baseRateAlpha: finiteOr(pick(overrides.baseRateAlpha, env.PRISM_NNG_BASE_RATE_ALPHA), d.baseRateAlpha, { min: 0 }),
+    minClassRefs: intOr(pick(overrides.minClassRefs, env.PRISM_NNG_MIN_CLASS_REFS), d.minClassRefs, 1),
+    baseRateDisabled: env.PRISM_NNG_BASE_RATE_DISABLE === "1" || overrides.baseRateDisabled === true,
+    directEmbed: env.PRISM_NNG_DIRECT_EMBED === "1" || overrides.directEmbed === true,
+    directEmbedPath: pick(overrides.directEmbedPath, env.PRISM_NNG_DIRECT_EMBED_PATH) || DEFAULT_DIRECT_EMBED_PATH,
+    // OPT-IN (default OFF — it regressed the live holdout, see GNN_DEFAULTS note);
+    // PRISM_NNG_DIRECT_CALIBRATE=1 enables for experimentation.
+    calibrateDirect: overrides.calibrateDirect !== undefined
+      ? overrides.calibrateDirect === true
+      : env.PRISM_NNG_DIRECT_CALIBRATE === "1",
     checkpointPath: pick(overrides.checkpoint, env.PRISM_NNG_CHECKPOINT) || DEFAULT_CHECKPOINT,
   };
 }
@@ -133,6 +177,37 @@ export function loadGnnCheckpoint(checkpointPath, { readFileImpl = fs.readFileSy
   } catch (err) {
     return { ok: false, reason: `checkpoint-load-failed: ${err && err.message ? err.message : err}` };
   }
+}
+
+/**
+ * Load precomputed ghost embeddings for the direct-embed path (GNN-F0/2d).
+ * Returns Map<id, number[]> of dequantized UNIT vectors — `q * s` reconstructs
+ * the L2-unit vector `quantize()` produced (unit = q*scale), so a dot product
+ * of two is their cosine. Restricted to `neededIds` (the subgraph) to bound
+ * memory. Fail-soft: a missing/unparseable file returns an empty Map so the
+ * caller skips the tier rather than crashing (never fabricates zero vectors).
+ */
+export function loadDirectEmbeddings(filePath, neededIds, { readFileImpl = fs.readFileSync } = {}) {
+  const out = new Map();
+  let raw;
+  try {
+    raw = readFileImpl(filePath, "utf8");
+  } catch {
+    return out;
+  }
+  for (const line of raw.split(/\r?\n/)) {
+    const t = line.trim();
+    if (t.length === 0 || t.startsWith('{"__meta')) continue;
+    let rec;
+    try { rec = JSON.parse(t); } catch { continue; }
+    const id = rec && typeof rec.id === "string" ? rec.id : null;
+    if (!id || (neededIds instanceof Set && !neededIds.has(id))) continue;
+    const q = rec.q;
+    const s = typeof rec.s === "number" && Number.isFinite(rec.s) ? rec.s : 1;
+    if (!Array.isArray(q) || q.length === 0) continue;
+    out.set(id, q.map((x) => x * s));
+  }
+  return out;
 }
 
 /**
@@ -236,19 +311,136 @@ export function voteDispatcher(target, embeddings, references, opts = {}) {
   }
   if (total <= 0 || votes.size === 0) return null;
 
-  // Winner + runner-up, ties broken by dispatcher name for determinism.
-  const ranked = [...votes.entries()].sort((a, b) =>
+  // GNN-F0 base-rate normalization. The AUROC-0.5 constant-vote collapse was a
+  // class-prior monopoly: feature-starved embeddings make every target->reference
+  // cosine near-uniform, so the raw weighted sum is won by whichever class has the
+  // MOST references (prism_turning, 60/125) — for EVERY target, hence one constant
+  // prediction. We divide each class's accumulated weight by its FULL reference-
+  // pool frequency (+Laplace alpha) so the residual cosine signal, not the prior,
+  // picks the winner. A minClassRefs support floor keeps a single noisy rare-class
+  // reference from flipping the vote; it relaxes if the floor would empty the
+  // ballot (tiny pool) so a confident call is still produced. `baseRateDisabled`
+  // reproduces the legacy raw-sum path byte-for-byte (rollback knob).
+  const baseRateDisabled = opts.baseRateDisabled === true;
+  const baseRateAlpha = finiteOr(opts.baseRateAlpha, GNN_DEFAULTS.baseRateAlpha, { min: 0 });
+  const minClassRefs = intOr(opts.minClassRefs, GNN_DEFAULTS.minClassRefs, 1);
+  let refFreq = null;
+  if (!baseRateDisabled) {
+    refFreq = new Map();
+    for (const ref of references || []) {
+      if (ref && typeof ref.proposed_wiring === "string") {
+        refFreq.set(ref.proposed_wiring, (refFreq.get(ref.proposed_wiring) || 0) + 1);
+      }
+    }
+  }
+  // Math.max guards the (operator alpha=0 AND a hand-built disjoint references)
+  // footgun where refFreq.get(cls) could be 0 → divide-by-zero; unreachable via
+  // partitionGhosts (every voted class is in references) but cheap defence.
+  const normWeight = ([cls, w]) => [cls, baseRateDisabled ? w : w / Math.max(1e-9, (refFreq.get(cls) || 0) + baseRateAlpha)];
+  let normEntries;
+  if (baseRateDisabled) {
+    normEntries = [...votes.entries()];
+  } else {
+    normEntries = [...votes.entries()].filter(([cls]) => (refFreq.get(cls) || 0) >= minClassRefs).map(normWeight);
+    if (normEntries.length === 0) normEntries = [...votes.entries()].map(normWeight); // floor fallback
+  }
+  const normTotal = normEntries.reduce((s, [, w]) => s + w, 0);
+  if (normTotal <= 0 || normEntries.length === 0) return null;
+
+  // Winner + runner-up on normalized weights, ties broken by dispatcher name.
+  const ranked = normEntries.sort((a, b) =>
     (b[1] - a[1]) || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
   const [winner, winnerVotes] = ranked[0];
   const runnerUpVotes = ranked.length > 1 ? ranked[1][1] : 0;
-  const voteShare = winnerVotes / total;
+  const voteShare = winnerVotes / normTotal;
   return {
     dispatcher: winner,
     confidence: Math.min(cap, voteShare),
     voteShare,
-    margin: (winnerVotes - runnerUpVotes) / total,
+    margin: (winnerVotes - runnerUpVotes) / normTotal,
     k: top.length,
   };
+}
+
+/**
+ * Isotonic regression (Pool-Adjacent-Violators) → a monotone non-decreasing fit.
+ * `pairs` = [{x, y}] with x the raw confidence and y∈{0,1} the correctness label.
+ * Returns { xs, ys } breakpoints (sorted by x) or null when there is no data.
+ * Monotone is the right inductive bias here: a higher vote-share is never less
+ * likely to be correct, so we want the calibrated map to be non-decreasing.
+ */
+export function fitIsotonic(pairs) {
+  const pts = (pairs || [])
+    .filter((p) => p && Number.isFinite(p.x) && Number.isFinite(p.y))
+    .sort((a, b) => a.x - b.x);
+  if (pts.length === 0) return null;
+  // PAV: merge adjacent blocks while the running means violate monotonicity.
+  /** @type {Array<{ sumY: number, w: number, xmin: number, xmax: number, val: number }>} */
+  const blocks = [];
+  for (const p of pts) {
+    let nb = { sumY: p.y, w: 1, xmin: p.x, xmax: p.x, val: p.y };
+    while (blocks.length && blocks[blocks.length - 1].val >= nb.val) {
+      const prev = blocks.pop();
+      const sumY = prev.sumY + nb.sumY;
+      const w = prev.w + nb.w;
+      nb = { sumY, w, xmin: prev.xmin, xmax: nb.xmax, val: sumY / w };
+    }
+    blocks.push(nb);
+  }
+  const xs = [];
+  const ys = [];
+  for (const b of blocks) {
+    xs.push(b.xmin); ys.push(b.val);
+    if (b.xmax !== b.xmin) { xs.push(b.xmax); ys.push(b.val); }
+  }
+  return { xs, ys };
+}
+
+/** Apply an isotonic model to x with linear interpolation + flat extrapolation. */
+export function applyIsotonic(model, x) {
+  if (!model || !Array.isArray(model.xs) || model.xs.length === 0) return x;
+  const { xs, ys } = model;
+  if (x <= xs[0]) return ys[0];
+  if (x >= xs[xs.length - 1]) return ys[ys.length - 1];
+  for (let i = 1; i < xs.length; i++) {
+    if (x <= xs[i]) {
+      const x0 = xs[i - 1], x1 = xs[i];
+      const t = x1 > x0 ? (x - x0) / (x1 - x0) : 0;
+      return ys[i - 1] + t * (ys[i] - ys[i - 1]);
+    }
+  }
+  return ys[ys.length - 1];
+}
+
+/**
+ * Fit a leak-free confidence calibrator for the direct-embed path. For each
+ * reference, re-vote using ONLY the OTHER references (leave-one-out) over the same
+ * embeddings, pairing the produced confidence with whether the LOO prediction
+ * matched that reference's own dispatcher. The holdout is never touched, so this
+ * is honest post-hoc calibration. Returns an isotonic model (or null when there
+ * is too little signal — < `minPairs` LOO votes, e.g. a tiny pool).
+ */
+export function fitDirectConfidenceCalibrator(references, embeddings, opts = {}) {
+  const refs = Array.isArray(references) ? references : [];
+  if (refs.length < 3) return null;
+  const minPairs = intOr(opts.minPairs, 10, 1);
+  const voteOpts = {
+    topK: opts.topK,
+    confidenceCap: opts.confidenceCap,
+    baseRateAlpha: opts.baseRateAlpha,
+    minClassRefs: opts.minClassRefs,
+    baseRateDisabled: opts.baseRateDisabled,
+    calibrator: null, // raw link scores; this fits the FINAL confidence, not link scores
+  };
+  const pairs = [];
+  for (const held of refs) {
+    const others = refs.filter((r) => r.id !== held.id);
+    const v = voteDispatcher(held, embeddings, others, voteOpts);
+    if (!v || !Number.isFinite(v.confidence)) continue;
+    pairs.push({ x: v.confidence, y: v.dispatcher === held.proposed_wiring ? 1 : 0 });
+  }
+  if (pairs.length < minPairs) return null;
+  return fitIsotonic(pairs);
 }
 
 /**
@@ -270,13 +462,16 @@ export function classifyUnknownGhosts(graph, opts = {}) {
 
   if (cfg.disabled) return empty(true, "disabled");
 
+  // Direct-embed (GNN-F0/2d) votes raw nomic cosine — no checkpoint/model needed.
   let predictor = opts.predictor;
-  if (!predictor) {
-    const loaded = loadGnnCheckpoint(cfg.checkpointPath, { readFileImpl: opts.readFileImpl });
-    if (!loaded.ok) return empty(true, loaded.reason);
-    predictor = loaded.predictor;
+  if (!cfg.directEmbed) {
+    if (!predictor) {
+      const loaded = loadGnnCheckpoint(cfg.checkpointPath, { readFileImpl: opts.readFileImpl });
+      if (!loaded.ok) return empty(true, loaded.reason);
+      predictor = loaded.predictor;
+    }
+    if (!predictor || !predictor.model) return empty(true, "invalid-predictor");
   }
-  if (!predictor || !predictor.model) return empty(true, "invalid-predictor");
 
   const partition = partitionGhosts(graph, {
     refMinConf: cfg.refMinConf,
@@ -302,31 +497,88 @@ export function classifyUnknownGhosts(graph, opts = {}) {
   }
 
   const subgraph = buildGhostSubgraph(targets, references);
+  // Direct-embed (GNN-F0/2d) votes raw nomic cosine — no calibrator (the model's
+  // isotonic calibrator was fit on 8-d link scores, meaningless for raw cosine).
+  const calibrator = cfg.directEmbed ? null : predictor.calibrator;
   let embeddings;
-  try {
-    const res = embedGraph(predictor.model, subgraph, {
-      maxNodes: Math.max(cfg.maxNodes, subgraph.nodes.length + 1),
+  if (cfg.directEmbed) {
+    // Load precomputed DISTINCT 768-d nomic vectors for the subgraph, bypassing
+    // the 8-d edgeless-SAGE that collapsed every target to a uniform vector
+    // (the actual root of the AUROC-0.5 constant-vote collapse). Memory-bounded
+    // to the subgraph ids. Fail-soft if the embedding file is absent/empty.
+    const needed = new Set(subgraph.nodes.map((n) => n.id));
+    embeddings = loadDirectEmbeddings(cfg.directEmbedPath, needed, { readFileImpl: opts.readFileImpl });
+    if (embeddings.size === 0) {
+      return empty(true, `direct-embed-no-vectors: ${cfg.directEmbedPath}`,
+        { targets: targets.length, references: references.length });
+    }
+  } else {
+    try {
+      // U-NN-PREDICTOR-EMBED-WIRE follow-up (2026-05-24, slot papa): forward the
+      // checkpoint's baked-in embeddingSource to embedGraph so a 768-d checkpoint
+      // applies the correct feature layout at inference. Without this forward, a
+      // 768-d trained model fell back to 8-d projected features and the inputDim
+      // guard threw "checkpoint/feature-layout mismatch" — defeating tier-5 eval.
+      // Caller-supplied opts.embeddingSource still wins (test seam); the metadata
+      // value is the production fallback.
+      const embeddingSource =
+        (typeof opts.embeddingSource === "string" && opts.embeddingSource.length > 0)
+          ? opts.embeddingSource
+          : (predictor.metadata && typeof predictor.metadata.embeddingSource === "string"
+              && predictor.metadata.embeddingSource.length > 0
+            ? predictor.metadata.embeddingSource
+            : null);
+      const res = embedGraph(predictor.model, subgraph, {
+        maxNodes: Math.max(cfg.maxNodes, subgraph.nodes.length + 1),
+        ...(embeddingSource ? { embeddingSource } : {}),
+      });
+      embeddings = res.embeddings;
+    } catch (err) {
+      return empty(true, `embed-failed: ${err && err.message ? err.message : err}`,
+        { targets: targets.length, references: references.length });
+    }
+  }
+
+  // GNN-F0 direct-embed confidence calibration (leak-free LOO over references, never
+  // the holdout). Richer source-signal embeddings lifted the argmax (macroF1/acc) but
+  // left voteShare UNDERconfident → Brier/AUROC regressed. The isotonic map realigns
+  // confidence to empirical P(correct); the argmax is untouched. Model mode keeps its
+  // own link-score calibrator. Fail-soft: null map (tiny pool) → raw confidence.
+  let confCal = null;
+  if (cfg.directEmbed && cfg.calibrateDirect) {
+    confCal = fitDirectConfidenceCalibrator(references, embeddings, {
+      topK: cfg.topK,
+      confidenceCap: cfg.confidenceCap,
+      baseRateAlpha: cfg.baseRateAlpha,
+      minClassRefs: cfg.minClassRefs,
+      baseRateDisabled: cfg.baseRateDisabled,
     });
-    embeddings = res.embeddings;
-  } catch (err) {
-    return empty(true, `embed-failed: ${err && err.message ? err.message : err}`,
-      { targets: targets.length, references: references.length });
   }
 
   const classifications = [];
   for (const target of targets) {
     const v = voteDispatcher(target, embeddings, references, {
       topK: cfg.topK,
-      calibrator: predictor.calibrator,
+      calibrator,
       confidenceCap: cfg.confidenceCap,
+      baseRateAlpha: cfg.baseRateAlpha,
+      minClassRefs: cfg.minClassRefs,
+      baseRateDisabled: cfg.baseRateDisabled,
     });
-    if (!v || v.confidence < cfg.minConf) continue;
+    if (!v) continue;
+    // Report (and gate on) the calibrated confidence: a raw voteShare of 0.5 that is
+    // empirically ~0.9-correct SHOULD pass the deployment gate. Eval runs minConf:0,
+    // so calibration moves only AUROC/Brier there, not the classified set.
+    const reportedConf = confCal
+      ? Math.max(0, Math.min(1, applyIsotonic(confCal, v.confidence)))
+      : v.confidence;
+    if (reportedConf < cfg.minConf) continue;
     classifications.push({
       engine: target.label,
       dispatcher: v.dispatcher,
-      confidence: Math.round(v.confidence * 1e4) / 1e4,
+      confidence: Math.round(reportedConf * 1e4) / 1e4,
       voteShare: Math.round(v.voteShare * 1e4) / 1e4,
-      reason: `GNN tier-5 k-NN label-prop (voteShare ${v.voteShare.toFixed(2)}, k=${v.k})`,
+      reason: `GNN tier-5 k-NN label-prop (voteShare ${v.voteShare.toFixed(2)}, k=${v.k}${confCal ? ", calibrated" : ""})`,
     });
   }
   return {
@@ -338,14 +590,38 @@ export function classifyUnknownGhosts(graph, opts = {}) {
       references: references.length,
       embedded: embeddings.size,
       classified: classifications.length,
-      calibrated: predictor.calibrator != null,
+      calibrated: calibrator != null,
+      confidenceCalibrated: confCal != null,
+      mode: cfg.directEmbed ? "direct-embed" : "model",
     },
   };
 }
 
-/** Parse + JSON-load a graph file. Returns the parsed object (throws on error). */
+/** Parse + JSON-load a graph file. Returns the parsed object (throws on error).
+ *  U-NN-PREDICTOR-EMBED-WIRE follow-up (2026-05-24, slot papa): use the
+ *  streaming reader for graphs >256MB to bypass V8's max-string-length ceiling.
+ *  Test seam (readFileImpl) preserved for the legacy synchronous path. */
 function readGraph(graphPath, readFileImpl = fs.readFileSync) {
-  return JSON.parse(readFileImpl(graphPath, "utf8"));
+  if (readFileImpl === fs.readFileSync) {
+    try {
+      const st = fs.statSync(graphPath);
+      if (st && Number.isFinite(st.size) && st.size > 256 * 1024 * 1024) {
+        return readGraphStreaming(graphPath);
+      }
+    } catch {
+      // fall through to the legacy text path so the upstream error message
+      // shape (test-asserted) is preserved.
+    }
+  }
+  try {
+    return JSON.parse(readFileImpl(graphPath, "utf8"));
+  } catch (e) {
+    if (e && e.code === "ERR_STRING_TOO_LONG") {
+      // Last-ditch streaming retry even when the seam is user-injected.
+      return readGraphStreaming(graphPath);
+    }
+    throw e;
+  }
 }
 
 /**
@@ -415,7 +691,11 @@ export function applyGnnClassifications(graph, classifications) {
     nodesUpdated++;
     const edge = {
       from: node.id,
-      to: `dispatcher.${c.dispatcher}`,
+      // U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra): canonical file-derived disp node
+      // id, not the dead `dispatcher.${c.dispatcher}`. GNN tier-5 builds its own
+      // edge (does NOT route through classificationToGraphUpdate), so it needs
+      // the same resolver as the LLM tier + seed-ghost-from-unwired.
+      to: mcpToolToDispNodeId(c.dispatcher),
       type: "ghost-wire",
       relation: "proposed-wire",
       status: "proposed",

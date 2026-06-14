@@ -17,7 +17,7 @@
  * full 7-day week, window-boundary exclusion).
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -314,9 +314,137 @@ describe("exported constants", () => {
     expect(MIN_SOURCES_FOR_RETRO).toBe(1);
   });
   it("default Ollama model + url match the token-economy canon", () => {
-    expect(DEFAULT_OLLAMA_MODEL).toBe("qwen2.5-coder:7b");
+    // Blackwell migration (2026-06-04) retired :7b -> the canonical local-synthesis
+    // default is now qwen2.5-coder:32b (the fail-soft fallback when the host
+    // resolver can't reach Ollama). This is also the resolver's `fallback`.
+    expect(DEFAULT_OLLAMA_MODEL).toBe("qwen2.5-coder:32b");
     expect(DEFAULT_OLLAMA_URL).toBe("http://127.0.0.1:11434/api/generate");
     expect(typeof defaultOllamaSummarizer).toBe("function");
+  });
+});
+
+/* ===================================================================== */
+/* defaultOllamaSummarizer — host-aware model resolution (U-WEEKLY-SYNTH- */
+/* RESOLVER). Injects resolveModel + fetchImpl so the model-selection +   */
+/* POST is exercised without a GPU, Ollama, or any network.              */
+/* ===================================================================== */
+
+/** A fetch fake that captures the POST body and returns a scripted reply. */
+function fakeFetch(opts: {
+  status?: number;
+  ok?: boolean;
+  response?: string;
+  capture?: (body: {
+    model?: string;
+    options?: { num_predict?: number; num_ctx?: number };
+  }) => void;
+}): typeof fetch {
+  const status = opts.status ?? 200;
+  const ok = opts.ok ?? (status >= 200 && status < 300);
+  const response = opts.response ?? VALID_RETRO;
+  return (async (_url: string, init?: { body?: string }) => {
+    if (opts.capture && init && typeof init.body === "string") {
+      opts.capture(JSON.parse(init.body));
+    }
+    return { ok, status, json: async () => ({ response }) } as unknown as Response;
+  }) as unknown as typeof fetch;
+}
+
+/** Minimal but valid summarizer input (1 source is the documented floor). */
+const SUMM_OPTS = {
+  sources: [mkSource("2026-05-10", "shipped X; stalled Y")],
+  weekIso: "2026-W19",
+};
+
+describe("defaultOllamaSummarizer — host-aware model resolution", () => {
+  const ENV_KEYS = [
+    "PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL",
+    "PRISM_WEEKLY_SYNTHESIS_OLLAMA_URL",
+    "PRISM_WEEKLY_SYNTHESIS_OLLAMA_TIMEOUT_MS",
+  ];
+  const saved: Record<string, string | undefined> = {};
+  beforeEach(() => {
+    for (const k of ENV_KEYS) {
+      saved[k] = process.env[k];
+      delete process.env[k];
+    }
+  });
+  afterEach(() => {
+    for (const k of ENV_KEYS) {
+      if (saved[k] === undefined) delete process.env[k];
+      else process.env[k] = saved[k];
+    }
+  });
+
+  it("POSTs the host-resolved model (router tier) when no env pin is set", async () => {
+    let posted: { model?: string; options?: { num_predict?: number } } | null = null;
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "host-best-sentinel", source: "router" as const }),
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(res.ok).toBe(true);
+    expect(posted).not.toBeNull();
+    expect(posted!.model).toBe("host-best-sentinel");
+    // num_predict must be unlimited (-1): a harmony reasoning model (gpt-oss:120b)
+    // emits a preamble before the answer; a starving cap -> empty 4-section retro.
+    expect(posted!.options?.num_predict).toBe(-1);
+  });
+
+  it("threads the env pin as `override` and POSTs it (operator pin wins)", async () => {
+    process.env.PRISM_WEEKLY_SYNTHESIS_OLLAMA_MODEL = "operator-pin-model";
+    let seenOverride: string | null | undefined = "UNSET";
+    let posted: { model?: string } | null = null;
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      // Mimic the real resolver: an explicit override always wins.
+      resolveModel: async (o: { fallback: string; override?: string | null }) => {
+        seenOverride = o.override;
+        if (typeof o.override === "string" && o.override.trim()) {
+          return { model: o.override.trim(), source: "override" as const };
+        }
+        return { model: "should-not-be-used", source: "router" as const };
+      },
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(res.ok).toBe(true);
+    expect(seenOverride).toBe("operator-pin-model");
+    expect(posted!.model).toBe("operator-pin-model");
+  });
+
+  it("fail-soft to DEFAULT_OLLAMA_MODEL when the resolver throws", async () => {
+    let posted: { model?: string } | null = null;
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => {
+        throw new Error("resolver boom");
+      },
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(res.ok).toBe(true);
+    expect(posted!.model).toBe(DEFAULT_OLLAMA_MODEL);
+  });
+
+  it("fail-soft to DEFAULT_OLLAMA_MODEL when the resolver yields an empty model", async () => {
+    let posted: { model?: string } | null = null;
+    await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "", source: "fallback" as const }),
+      fetchImpl: fakeFetch({ capture: (b) => (posted = b) }),
+    });
+    expect(posted!.model).toBe(DEFAULT_OLLAMA_MODEL);
+  });
+
+  it("returns ok:false http-<status> on a non-2xx reply (no throw)", async () => {
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "m", source: "router" as const }),
+      fetchImpl: fakeFetch({ status: 503 }),
+    });
+    expect(res).toEqual({ ok: false, error: "http-503" });
+  });
+
+  it("returns ok:false empty-response on a blank/whitespace reply", async () => {
+    const res = await defaultOllamaSummarizer(SUMM_OPTS, {
+      resolveModel: async () => ({ model: "m", source: "router" as const }),
+      fetchImpl: fakeFetch({ response: "   \n  " }),
+    });
+    expect(res).toEqual({ ok: false, error: "empty-response" });
   });
 });
 

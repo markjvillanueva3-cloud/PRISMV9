@@ -201,7 +201,7 @@ const DEFAULT_ASSETS: BackupAsset[] = [
   },
 ];
 
-class BackupRestoreDrillEngine {
+export class BackupRestoreDrillEngine {
   private assets: Map<string, BackupAsset> = new Map();
   private jobs: BackupJob[] = [];
   private attestations: Map<string, AttestationEnvelope> = new Map(); // job_id → envelope

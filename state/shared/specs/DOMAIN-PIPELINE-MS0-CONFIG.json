@@ -1,0 +1,235 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-17",
+  "generatedBy": "claude-9f57075a (juliett) /forge-audit-v2 /forge7",
+  "milestone": "DOMAIN-PIPELINE-MS0",
+  "advisoryOnly": true,
+  "mustHumanVerify": true,
+  "note": "Per-domain print-to-part pipeline definition. Engine mappings are best-effort initial mappings; operators refine via the same JSON. 'status' values: built (engine wired + producing) | partial (built but unwired or partially covered) | missing (no engine yet, gap). The 'adaptive' field flags stages where the orchestrator must handle missing user input intelligently with safe defaults.",
+
+  "canonical_stages": [
+    { "id": "PRINT_INTAKE",      "label": "Print intake",           "desc": "Upload + validate blueprint PDF / CAD STEP / IGES / DXF / IPT / SLDPRT / .min sample" },
+    { "id": "GEOMETRY_PARSE",    "label": "Geometry parse",         "desc": "BREP from CAD; build solid model from .stp/.iges/.x_t/.x_b" },
+    { "id": "PRINT_OCR",         "label": "Print OCR",              "desc": "PDF blueprint → dimensions, tolerances, GD&T, title-block (eDOCr2 / PaddleOCR / vision LLM)" },
+    { "id": "FEATURE_RECOG",     "label": "Feature recognition",    "desc": "Pockets, holes, threads, slots, faces, ID/OD, grooves; ML + rule-based" },
+    { "id": "MATERIAL_SELECT",   "label": "Material select",        "desc": "From print spec or operator → material DB → Kienzle/Taylor params, machinability, hardness, ISO group" },
+    { "id": "MACHINE_SELECT",    "label": "Machine select",         "desc": "Match part envelope + kinematics + controller to available machines (JM-DIE 21-machine fleet)" },
+    { "id": "TOOLING_SELECT",    "label": "Tooling select",         "desc": "Tool DB lookup (287 .tooldb, 131MB); geometry-compatible; prefer existing inventory; cost-aware" },
+    { "id": "FIXTURE_DESIGN",    "label": "Fixture / workholding",  "desc": "Workholding by geometry, accessibility, machine; vise/chuck/3R/custom; force adequacy gate" },
+    { "id": "OPERATION_SEQUENCE","label": "Operation sequence",     "desc": "Order of ops, setup count, datum strategy, roughing→semi→finish, S(x)-gated" },
+    { "id": "SPEED_FEED",        "label": "Speed / feed calc",      "desc": "Kienzle force, Taylor tool-life, deflection, machine HP/torque limits, GilbertEconomicSpeed cost triad" },
+    { "id": "TOOLPATH_GEN",      "label": "Toolpath generation",    "desc": "Domain-specific: mill=3-axis/5-axis, lathe=turning/grooving/threading, wire=wire-cut path, sinker=electrode path" },
+    { "id": "SAFETY_VALIDATE",   "label": "Safety validate",        "desc": "Collision, force, thermal, workholding adequacy, vibration; Ω≥0.95 / S(x)≥0.98 for shop-floor" },
+    { "id": "POST_PROCESS",      "label": "Post-process to NC",     "desc": "Controller-specific NC: Fanuc/Haas/Okuma/Mitsubishi/Mazak/Heidenhain/Hurco; master-post or CAM bridge" },
+    { "id": "SIMULATE",          "label": "Pre-cut simulate",       "desc": "Virtual machining, voxel/swept-volume stock removal, collision sim, cycle-time" },
+    { "id": "OPERATOR_GATE",     "label": "Operator approval",      "desc": "UNCONDITIONAL human-in-loop gate before machine touches material (CLAUDE.md doctrine)" },
+    { "id": "MACHINE_RUN",       "label": "Machine execution",      "desc": "DNC drip / NCnet load; MTConnect / OPC-UA telemetry capture; tool-wear monitoring" },
+    { "id": "QUALITY_VERIFY",    "label": "Quality verify",         "desc": "CMM measurement, FAI, SPC, Cpk; first-article gate; ongoing-production sampling" },
+    { "id": "LEARNING_LOOP",     "label": "Closed-loop learning",   "desc": "Outcomes → tribal corpus → SF refinement → material-band update → strategy weights" }
+  ],
+
+  "domains": {
+    "mill": {
+      "slot": "alpha",
+      "scope": "FULL_PIPELINE",
+      "color": "#ef4444",
+      "stages": {
+        "PRINT_INTAKE":       { "engine": "BlueprintIntakeEngine",         "status": "partial" },
+        "GEOMETRY_PARSE":     { "engine": "STEPGeometryParserEngine",      "status": "built" },
+        "PRINT_OCR":          { "engine": "BlueprintOCREngine",            "status": "partial", "adaptive": "missing-OCR-defaults to operator-typed dims" },
+        "FEATURE_RECOG":      { "engine": "MillFeatureRecognitionEngine",  "status": "built" },
+        "MATERIAL_SELECT":    { "engine": "MaterialBandResolverEngine",    "status": "partial", "adaptive": "missing-material→default to most-common JM-DIE stock + WARN" },
+        "MACHINE_SELECT":     { "engine": "ShopConfigurationEngine",       "status": "built",   "adaptive": "missing-machine→pick cheapest with envelope fit" },
+        "TOOLING_SELECT":     { "engine": "ToolCatalogEngine",             "status": "partial", "adaptive": "missing-tool→propose closest geometry + flag mid-build" },
+        "FIXTURE_DESIGN":     { "engine": "FixtureSelectionEngine",        "status": "missing", "adaptive": "missing-fixture→default vise-with-stop + force gate" },
+        "OPERATION_SEQUENCE": { "engine": "MillOperationSequencerEngine",  "status": "partial" },
+        "SPEED_FEED":         { "engine": "SpeedFeedCalculatorEngine",     "status": "built",   "adaptive": "missing-fields→Kienzle defaults from ISO group" },
+        "TOOLPATH_GEN":       { "engine": "MillCAMBridgeRouter",           "status": "partial", "adaptive": "missing-CAM→use cheapest licensed bridge in shop" },
+        "SAFETY_VALIDATE":    { "engine": "SafetyValidatorEngine",         "status": "built" },
+        "POST_PROCESS":       { "engine": "MasterPostFineTuningEngine",    "status": "partial" },
+        "SIMULATE":           { "engine": "VirtualMachiningEngine",        "status": "missing" },
+        "OPERATOR_GATE":      { "engine": "OperatorApprovalGateEngine",    "status": "partial", "note": "engine built but unwired (15KB) — see U-WIRE-BACKLOG-TRIBAL" },
+        "MACHINE_RUN":        { "engine": "MachineExecutionDispatcher",    "status": "missing" },
+        "QUALITY_VERIFY":     { "engine": "QualityVerificationEngine",     "status": "missing" },
+        "LEARNING_LOOP":      { "engine": "MillMetaLearningEngine",        "status": "partial", "note": "engine built but unwired" }
+      }
+    },
+    "lathe": {
+      "slot": "bravo",
+      "scope": "FULL_PIPELINE",
+      "color": "#f97316",
+      "stages": {
+        "PRINT_INTAKE":       { "engine": "BlueprintIntakeEngine",          "status": "partial" },
+        "GEOMETRY_PARSE":     { "engine": "STEPGeometryParserEngine",       "status": "built" },
+        "PRINT_OCR":          { "engine": "BlueprintOCREngine",             "status": "partial" },
+        "FEATURE_RECOG":      { "engine": "LatheFeatureRecognitionEngine",  "status": "built" },
+        "MATERIAL_SELECT":    { "engine": "MaterialBandResolverEngine",     "status": "partial" },
+        "MACHINE_SELECT":     { "engine": "ShopConfigurationEngine",        "status": "built" },
+        "TOOLING_SELECT":     { "engine": "LatheTurningInsertSelectorEngine", "status": "partial", "adaptive": "missing-insert→pick closest ISO geometry with nose-radius match" },
+        "FIXTURE_DESIGN":     { "engine": "ChuckSelectionEngine",           "status": "missing" },
+        "OPERATION_SEQUENCE": { "engine": "LatheOperationSequencerEngine",  "status": "partial" },
+        "SPEED_FEED":         { "engine": "SpeedFeedCalculatorEngine",      "status": "built" },
+        "TOOLPATH_GEN":       { "engine": "LatheToolpathEngine",            "status": "partial", "note": "monolith has LatheToolpathEngine — see U-GAP-LATHE-NOSE-RADIUS-COMP" },
+        "SAFETY_VALIDATE":    { "engine": "SafetyValidatorEngine",          "status": "built" },
+        "POST_PROCESS":       { "engine": "OkumaPostProcessorEngine",       "status": "partial", "adaptive": "Okuma multus is primary; fallback Mazak/Fanuc lathe" },
+        "SIMULATE":           { "engine": "VirtualMachiningEngine",         "status": "missing" },
+        "OPERATOR_GATE":      { "engine": "OperatorApprovalGateEngine",     "status": "partial" },
+        "MACHINE_RUN":        { "engine": "MachineExecutionDispatcher",     "status": "missing" },
+        "QUALITY_VERIFY":     { "engine": "QualityVerificationEngine",      "status": "missing" },
+        "LEARNING_LOOP":      { "engine": "LatheMetaLearningEngine",        "status": "partial", "note": "91KB engine unwired — see U-WIRE-BACKLOG-LATHE" }
+      }
+    },
+    "wire": {
+      "slot": "charlie",
+      "scope": "FULL_PIPELINE",
+      "color": "#eab308",
+      "stages": {
+        "PRINT_INTAKE":       { "engine": "BlueprintIntakeEngine",         "status": "partial" },
+        "GEOMETRY_PARSE":     { "engine": "STEPGeometryParserEngine",      "status": "built" },
+        "PRINT_OCR":          { "engine": "BlueprintOCREngine",            "status": "partial" },
+        "FEATURE_RECOG":      { "engine": "WEDMFeatureRecognitionEngine",  "status": "built" },
+        "MATERIAL_SELECT":    { "engine": "MaterialBandResolverEngine",    "status": "partial", "adaptive": "wire-EDM material params from WEDMSettingsEngine" },
+        "MACHINE_SELECT":     { "engine": "ShopConfigurationEngine",       "status": "built", "adaptive": "Mitsubishi/Sodick/Makino/Agie/Fanuc 5 controller dialects" },
+        "TOOLING_SELECT":     { "engine": "WireSelectionEngine",           "status": "missing", "note": "wire diameter + brass/coated/stratified; no current engine" },
+        "FIXTURE_DESIGN":     { "engine": "ThreeRFixtureSelectionEngine",  "status": "missing", "adaptive": "default to 3R clamp; flag if part requires custom" },
+        "OPERATION_SEQUENCE": { "engine": "WEDMOperationSequencerEngine",  "status": "built", "note": "rough → skim → finish, multi-pass" },
+        "SPEED_FEED":         { "engine": "WEDMSettingsEngine",            "status": "built", "adaptive": "Kunieda/Toenshoff coefficients in EDM_PHYSICS" },
+        "TOOLPATH_GEN":       { "engine": "WEDMProgramOptimizerEngine",    "status": "partial", "note": "42KB engine unwired — see U-WIRE-BACKLOG-WIRE" },
+        "SAFETY_VALIDATE":    { "engine": "SafetyValidatorEngine",         "status": "built" },
+        "POST_PROCESS":       { "engine": "WEDMControllerPostEngine",      "status": "partial" },
+        "SIMULATE":           { "engine": "VirtualMachiningEngine",        "status": "missing" },
+        "OPERATOR_GATE":      { "engine": "OperatorApprovalGateEngine",    "status": "partial" },
+        "MACHINE_RUN":        { "engine": "MachineExecutionDispatcher",    "status": "missing" },
+        "QUALITY_VERIFY":     { "engine": "QualityVerificationEngine",     "status": "missing" },
+        "LEARNING_LOOP":      { "engine": "WEDMNeuralTrainingEngine",      "status": "partial", "note": "86KB engine unwired — see U-WIRE-BACKLOG-WIRE" }
+      }
+    },
+    "cad": {
+      "slot": "delta",
+      "scope": "INPUT_HALF",
+      "color": "#84cc16",
+      "stages": {
+        "PRINT_INTAKE":       { "engine": "BlueprintIntakeEngine",          "status": "partial" },
+        "GEOMETRY_PARSE":     { "engine": "STEPGeometryParserEngine",       "status": "built" },
+        "PRINT_OCR":          { "engine": "BlueprintOCREngine",             "status": "partial", "adaptive": "missing-OCR→operator-typed dims; vision-LLM fallback" },
+        "FEATURE_RECOG":      { "engine": "CADFeatureRecognitionEngine",    "status": "built" }
+      }
+    },
+    "cam": {
+      "slot": "echo",
+      "scope": "MIDDLE",
+      "color": "#06b6d4",
+      "stages": {
+        "TOOLING_SELECT":     { "engine": "ToolCatalogEngine",              "status": "partial" },
+        "FIXTURE_DESIGN":     { "engine": "FixtureSelectionEngine",         "status": "missing" },
+        "OPERATION_SEQUENCE": { "engine": "CAMStrategySelectorEngine",      "status": "built" },
+        "SPEED_FEED":         { "engine": "SpeedFeedCalculatorEngine",      "status": "built" },
+        "TOOLPATH_GEN":       { "engine": "CAMBridgeRouter",                "status": "partial", "adaptive": "pick the cheapest licensed CAM with required strategy" },
+        "SAFETY_VALIDATE":    { "engine": "SafetyValidatorEngine",          "status": "built" },
+        "POST_PROCESS":       { "engine": "MasterPostFineTuningEngine",     "status": "partial" },
+        "SIMULATE":           { "engine": "VirtualMachiningEngine",         "status": "missing" }
+      }
+    },
+    "tribal": {
+      "slot": "foxtrot",
+      "scope": "SUPPORT_ALL_STAGES",
+      "color": "#a855f7",
+      "stages": {
+        "ALL": { "engine": "PlaybookRulesEngine", "status": "partial", "note": "133KB engine unwired — largest single unwired engine; covers operator-wisdom injection at every stage" }
+      }
+    },
+    "erp": {
+      "slot": "hotel",
+      "scope": "BUSINESS_WRAPPER",
+      "color": "#ec4899",
+      "stages": {
+        "QUOTE":     { "engine": "QuotingEngine",              "status": "missing", "note": "see U-GAP-ERP-QUOTING-JOBCOST" },
+        "COST":      { "engine": "JobCostingEngine",           "status": "missing" },
+        "SCHEDULE":  { "engine": "JobShopSchedulingEngine",    "status": "missing" },
+        "BILL":      { "engine": "SubscriptionSystemEngine",   "status": "missing" },
+        "HR":        { "engine": "EmployeeSkillsMatrixEngine", "status": "missing" }
+      }
+    },
+    "post": {
+      "slot": "india",
+      "scope": "STAGE_SPECIALIST",
+      "color": "#f59e0b",
+      "stages": {
+        "POST_PROCESS": { "engine": "MasterPostFineTuningEngine", "status": "partial", "adaptive": "controller-dialect routing across 7 dialects" }
+      }
+    },
+    "speedfeed": {
+      "slot": "juliett",
+      "scope": "STAGE_SPECIALIST",
+      "color": "#22c55e",
+      "stages": {
+        "SPEED_FEED": { "engine": "SpeedFeedCalculatorEngine", "status": "built", "adaptive": "Kienzle/Taylor/Deflection chained; SF-AI L1-L3 (built unwired)" }
+      }
+    },
+    "print2prog": {
+      "slot": "kilo",
+      "scope": "ORCHESTRATOR",
+      "color": "#14b8a6",
+      "stages": {
+        "ORCHESTRATE_FULL": { "engine": "PrintToProgramPipelineEngine", "status": "wired-partial", "realized_capability": ["safety-gating"], "missing_capability": ["intelligent-defaults", "cost-optimal-path-selection", "machine-tool-fixture-adaptation"], "wired_to": ["camDispatcher:print_to_program_full", "camDispatcher:print_to_program_enhanced", "camDispatcher:print_to_program_plan", "camDispatcher:print_to_program_validate", "camDispatcher:auto_print_to_program"], "note": "Corrected 2026-05-23 (slot:kilo): the existing PrintToProgramPipelineEngine ships 1 of 4 adaptive_orchestrator capabilities (safety-gating). 3 remain (intelligent defaults, cost-optimal pick, machine/tool/fixture adaptation). See reference_kilo_queue_revisit_2026_05_23. Build is XL cross-domain (kilo orchestrates, echo implements CAM stages)." }
+      }
+    },
+    "academy": {
+      "slot": "lima",
+      "scope": "TRAINING_OVERLAY",
+      "color": "#8b5cf6",
+      "stages": {
+        "TUTOR":   { "engine": "TutorialProgressionEngine",   "status": "missing" },
+        "VIDEO":   { "engine": "VideoTrainingEngine",         "status": "missing" },
+        "BLUEPRINT": { "engine": "BlueprintTrainingEngine",   "status": "missing" }
+      }
+    },
+    "database": {
+      "slot": "golf",
+      "scope": "DATA_LAYER",
+      "color": "#64748b",
+      "stages": {
+        "MATERIAL_DB":  { "engine": "MaterialDBEngine",          "status": "partial" },
+        "TOOL_DB":      { "engine": "ToolCatalogEngine",         "status": "partial" },
+        "MACHINE_DB":   { "engine": "ShopConfigurationEngine",   "status": "built" },
+        "FIXTURE_DB":   { "engine": "WorkholdingCatalogEngine",  "status": "missing" },
+        "ALARM_DB":     { "engine": "ControllerAlarmDBEngine",   "status": "missing", "note": "v8.89 MASTER_ALARM_DATABASE 2500 alarms — see U-GAP-DB-MASTER-ALARM" }
+      }
+    },
+    "misc": {
+      "slot": "mike",
+      "scope": "INFRA_CROSS_CUTTING",
+      "color": "#94a3b8",
+      "stages": {
+        "OBSERVABILITY": { "engine": "MTConnectIngesterEngine", "status": "missing" },
+        "TELEMETRY":     { "engine": "ShopFloorTelemetryBus",   "status": "missing" },
+        "DEVTOOLS":      { "engine": "VariousDevToolEngines",   "status": "built", "note": "1491 misc/devtools units already in mike's queue" }
+      }
+    }
+  },
+
+  "adaptive_orchestrator": {
+    "engine": "PrintToProgramOrchestratorEngine",
+    "status": "missing-critical",
+    "purpose": "The connective tissue that runs the canonical pipeline for any incoming part with: (a) intelligent defaults when user input is missing, (b) cost-optimal path selection (cheapest machine/tool/strategy that meets the constraint), (c) machine/tooling/fixture adaptation based on shop inventory, (d) safety-gated proceed/halt at every stage (Ω≥0.95, S(x)≥0.98). Single highest-leverage missing engine — without it the per-domain stage engines don't compose into a real print-to-part pipeline.",
+    "missing_data_policy": {
+      "material": "default to most-common JM-DIE stock for the part envelope + flag operator with confidence score",
+      "machine": "pick cheapest machine with envelope fit AND required kinematics AND adequate spindle HP",
+      "tooling": "prefer existing tool-crib geometry-compatible tool; propose closest match if exact unavailable; flag if substitution > 10% deviation",
+      "fixture": "default vise-with-stop for mill, 3-jaw chuck for lathe, 3R clamp for wire — with workholding-force adequacy gate",
+      "tolerance": "default to ISO 2768 medium grade when print-OCR fails to extract; flag operator",
+      "feature_recog_low_confidence": "fall back to operator-confirm dialog with feature-tree visualization",
+      "speed_feed": "Kienzle defaults from ISO material group when published k-c missing"
+    },
+    "cost_pick_policy": "GilbertEconomicSpeedEngine triad (min-cost / max-prod / max-profit) ranks alternatives; default to max-profit unless operator overrides; never pick a configuration that fails safety gate even if it's the cheapest",
+    "safety_invariant": "NO stage transitions to MACHINE_RUN without OPERATOR_GATE explicit approval; SAFETY_VALIDATE failures hard-block — never auto-override"
+  },
+
+  "summary": {
+    "total_domains": 13,
+    "domains_with_full_pipeline": ["mill", "lathe", "wire"],
+    "stages_with_majority_built": ["GEOMETRY_PARSE", "FEATURE_RECOG", "MACHINE_SELECT", "SPEED_FEED", "SAFETY_VALIDATE"],
+    "stages_with_majority_gaps":  ["FIXTURE_DESIGN", "SIMULATE", "MACHINE_RUN", "QUALITY_VERIFY", "LEARNING_LOOP"],
+    "highest_leverage_gap":       "PrintToProgramOrchestratorEngine — the adaptive orchestrator that wires per-stage engines into a real print-to-part flow"
+  }
+}

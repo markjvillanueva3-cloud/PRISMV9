@@ -1,3 +1,8 @@
+// WIRE-EXEMPT: internal universal decision-wrapper invoked at every decision point in all 7
+// production pipelines — consumed via direct import by 9 engines incl. UnifiedCAMPipelineEngine
+// (wired in camDispatcher) + the CAM strategy adapters (CoatingSelection/IntelligentSequencing/
+// EntryExit/EngagementOptimizer/CoolantStrategy/SmartToolSelector). Transitively reachable; not a
+// standalone dispatcher action. (Orphan-flag resolved 2026-06-01 slot:bravo, U-ORPHAN-EXEMPT-AUDIT.)
 /**
  * PipelineDecisionOrchestratorEngine — CAMX-MS0.3/U01 (E1080)
  *

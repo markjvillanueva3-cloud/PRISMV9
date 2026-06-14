@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Running the AC in a Server</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Running the AC in a Server</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/hyperMILL/31.0/addins project/hmAutoColor/doc/documents/Running the AC in a Server.pdf</code></dd>
+<dt>Pages</dt><dd>10</dd>
+<dt>Text chars</dt><dd>2292</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>1
+Running the AC in a Server
+We can easily run the AC in a server.
+The script must be adapted to have no user interaction, otherwise the application will fall.
+It is very important to know that the application is just watching a folder and running a script that was
+previously defined.
+Every action like (Save file, log message, errors) must be manage in the script).
+The application will just run what you asked for.
+All files can be found on C:\Program Files\OPEN MIND\hyperMILL\#version#\addins\hmAutoColor
+PW server configuration (PWserver.exe)
+There is one executable file where we can define:
+• Watch folder
+• Project number (script to be executed)
+• Priority
+• File type
+The watch folder must be a folder accessibly by all clients and server
+
+-- 1 of 10 --
+
+2
+PW Monitor configuration (PWMonitor.exe)
+We can use the monitor to show some information to the client during the process.
+The log file must have the extension (.PWlog)
+The monitor will be started by the client
+The script will manage what will be populated in the monitor and when it will be populated
+
+-- 2 of 10 --
+
+3
+Starting the application in the server (PWserverStart.exe)
+We can keep the application running in the server.
+We must execute the file PWserverStart.exe in the server to have it running
+Following the sequence below we can start the application
+1.
+2.
+
+-- 3 of 10 --
+
+4
+3. This window will be started now.
+
+-- 4 of 10 --
+
+5
+4. The application now is running
+If a client copies some file in the watch folder, the application will be executed.
+
+-- 5 of 10 --
+
+6
+Starting the application from the client (PWserverStart.exe)
+We can start the server application directly by the client.
+In this case we can use the function “Start script on server” exactly where we want to start the server.
+
+-- 6 of 10 --
+
+7
+Batch mode
+In case of some message box appears during the process, the application will be stopped.
+To avoid this problem, we can use the function “Batch mode”.
+It will skip all message boxes.
+
+-- 7 of 10 --
+
+8
+Define server mode
+We can manage the status of the PW Server Monitor.
+The status we want to show here can be defined in the function “Define server mode”.
+
+-- 8 of 10 --
+
+9
+You can use this function in the script all the time you want to change the status
+
+-- 9 of 10 --
+
+10
+
+-- 10 of 10 --
+
+</pre>
+</body></html>

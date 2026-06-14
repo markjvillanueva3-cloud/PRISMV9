@@ -39,6 +39,33 @@ import { checkA11y } from "../../scripts/check-spec-html-a11y.mjs";
 // repo-relative paths look like  state/shared/specs/foo.html  or  state\shared\research\bar.md
 const SPEC_FILE_RE = /(?:^|[\\/])state[\\/]shared[\\/](?:specs|research)[\\/].*\.(?:md|html)$/i;
 
+// 2026-05-18 (slot kilo, U-HTML-GUARD-EXTEND): broadened companion target set.
+// Original scope covered only state/shared/{specs,research} — added the
+// patch-sibling pattern state/shared/dashboards/patches/ (peer-locked surface
+// convention from JULIETT-12CHAT-ALLOCATION-MS0). Patch-siblings are a NET-NEW
+// surface so there is no pre-existing untracked-twin landmine.
+//
+// 2026-05-18 (slot lima, adopt — Arm B P1#1 fix): kilo's original change ALSO
+// targeted root CLAUDE.md / MEMORY.md, but their committed twins are currently
+// drifted (CLAUDE.html stale hash; MEMORY.html predates the source-hash meta)
+// AND CLAUDE.md is peer-dirty — so shipping ROOT_DOC targeting now would emit a
+// guaranteed false-DRIFT advisory on the fleet's hottest file, and regenerating
+// the twins in-commit would bake uncommitted peer prose. ROOT_DOC targeting is
+// therefore DEFERRED to follow-up unit U-HTML-GUARD-ROOTDOC, which must land
+// the regenerated non-drifted CLAUDE.html/MEMORY.html + a checkTwin() root-doc
+// integration test in the SAME commit. Do not re-add ROOT_DOC_RE here without
+// that baseline. See state/shared/handoffs (lima HTML adopt) for the unit spec.
+const PATCH_FILE_RE = /(?:^|[\\/])state[\\/]shared[\\/]dashboards[\\/]patches[\\/][^\\/]+\.(?:md|html)$/i;
+export function isCompanionTarget(rel) {
+  // 2026-05-18 (slot kilo, Reviewer A P2 fix): explicit non-string guard so
+  // the contract is enforced rather than accidentally satisfied by RegExp's
+  // implicit coercion of `undefined` → the string "undefined" (which happens
+  // to fail both patterns). A future regex widening could let `"undefined"`
+  // match — the guard short-circuits that class of regression.
+  if (typeof rel !== "string") return false;
+  return SPEC_FILE_RE.test(rel) || PATCH_FILE_RE.test(rel);
+}
+
 function git(args, cwd) {
   try {
     return execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 10000 }).trim();
@@ -95,7 +122,7 @@ function main() {
 
   const stems = new Set();
   for (const rel of staged.split("\n").map((s) => s.trim()).filter(Boolean)) {
-    if (SPEC_FILE_RE.test(rel)) stems.add(rel.replace(/\.(?:md|html)$/i, ""));
+    if (isCompanionTarget(rel)) stems.add(rel.replace(/\.(?:md|html)$/i, ""));
   }
   if (stems.size === 0) { process.stdout.write(JSON.stringify({ continue: true })); return; }
 
@@ -114,7 +141,13 @@ function main() {
     lines.push("", "DRIFT (HTML out of sync with its Markdown):");
     for (const d of drifted.slice(0, 10)) lines.push(`  • ${d}`);
     if (drifted.length > 10) lines.push(`  … and ${drifted.length - 10} more`);
-    lines.push("  fix: node --import tsx H:/prism/scripts/emit-all-spec-html.ts --force   (then re-stage the .html)");
+    // 2026-05-18 (slot kilo, Reviewer B P2 fix; slot lima adopt): branch the
+    // fix-instruction by stem path — emit-all-spec-html.ts only handles
+    // state/shared/{specs,research}; state/shared/dashboards/patches/*.md need
+    // md-to-html.mjs per-file. (Root CLAUDE.md/MEMORY.md targeting is deferred
+    // to U-HTML-GUARD-ROOTDOC — not a target, so not in the fix list either.)
+    lines.push("  fix (specs/research): node H:/prism/mcp-server/node_modules/.bin/tsx H:/prism/scripts/emit-all-spec-html.ts --force");
+    lines.push("  fix (patches): node H:/prism/scripts/md-to-html.mjs <input.md>   (re-stage the .html)");
   }
   if (a11yBad.length) {
     lines.push("", "A11Y (WAI-ARIA — scripts/check-spec-html-a11y.mjs):");

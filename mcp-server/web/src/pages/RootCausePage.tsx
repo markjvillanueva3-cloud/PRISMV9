@@ -58,25 +58,25 @@ interface ActionItem {
 const SEED_ANALYSES: RootCauseAnalysis[] = [
   {
     id: 'rca-001',
-    problem: 'Part scrapped due to chatter',
+    problem: 'Header-die cavity scrapped due to chatter',
     whys: [
-      { question: 'Why was the part scrapped?', answer: 'Surface finish exceeded tolerance due to chatter marks' },
-      { question: 'Why did chatter occur?', answer: 'Tool deflection exceeded 0.05 mm during roughing pass' },
+      { question: 'Why was the part scrapped?', answer: 'Cavity wall finish exceeded tolerance due to chatter marks' },
+      { question: 'Why did chatter occur?', answer: 'Tool deflection exceeded 0.002 in during the roughing pass' },
       { question: 'Why was tool deflection excessive?', answer: 'Stick-out length was 6xD instead of the recommended 4xD' },
       { question: 'Why was a longer stick-out used?', answer: 'Operator used the available holder which required extra extension' },
       { question: 'Why was the correct holder unavailable?', answer: 'Tool crib inventory was depleted and reorder was not triggered' },
     ],
-    rootCause: 'Tool crib reorder point not set for ER32 collet holders, causing operators to improvise with longer stick-outs that introduce chatter.',
+    rootCause: 'Tool crib reorder point not set for ER32 collet holders, causing operators to improvise with longer stick-outs that introduce chatter when cutting D2 die steel.',
     date: '2026-03-28',
-    machine: 'VMC-04 (Haas VF-2SS)',
+    machine: 'VMC-03 (Haas VF-2)',
     department: 'Milling',
     status: 'in_progress',
   },
   {
     id: 'rca-002',
-    problem: 'Recurring dimensional drift on turned shafts',
+    problem: 'Recurring dimensional drift on turned die buttons',
     whys: [
-      { question: 'Why are shafts out of tolerance?', answer: 'Diameter grows by 0.02 mm over a 50-part run' },
+      { question: 'Why are die buttons out of tolerance?', answer: 'OD grows by 0.0008 in over a 50-part run' },
       { question: 'Why does the diameter grow?', answer: 'Thermal expansion of the chuck and spindle nose' },
       { question: 'Why is thermal expansion not compensated?', answer: 'No thermal offset macro is active on this machine' },
       { question: 'Why is the macro not active?', answer: 'It was disabled after a false-trigger incident 6 months ago' },
@@ -84,7 +84,7 @@ const SEED_ANALYSES: RootCauseAnalysis[] = [
     ],
     rootCause: 'Thermal compensation macro disabled after incident with no tracking task to re-enable after root fix was applied.',
     date: '2026-03-15',
-    machine: 'CNC-L02 (Okuma LB3000)',
+    machine: 'LTH-06 (Okuma LB 3000EX)',
     department: 'Turning',
     status: 'resolved',
   },
@@ -94,14 +94,14 @@ const SEED_FISHBONE_CAUSES: FishboneCause[] = [
   { id: 'fb-1', category: 'man', text: 'Operator chose incorrect stick-out length' },
   { id: 'fb-2', category: 'man', text: 'Setup sheet not followed completely' },
   { id: 'fb-3', category: 'machine', text: 'Spindle bearing wear increasing vibration baseline' },
-  { id: 'fb-4', category: 'machine', text: 'Axis backlash at 0.012 mm on Y-axis' },
-  { id: 'fb-5', category: 'material', text: 'Hardness variation 28-34 HRC across bar stock lot' },
-  { id: 'fb-6', category: 'material', text: 'Inclusions in recycled alloy batch' },
+  { id: 'fb-4', category: 'machine', text: 'Axis backlash at 0.0005 in on Y-axis' },
+  { id: 'fb-5', category: 'material', text: 'Hardness variation 28-34 HRC across pre-hard A2 tool-steel lot' },
+  { id: 'fb-6', category: 'material', text: 'Carbide inclusions / banding in D2 die-steel bar batch' },
   { id: 'fb-7', category: 'method', text: 'Roughing DOC too aggressive for tool diameter' },
-  { id: 'fb-8', category: 'method', text: 'Climb milling in unsupported thin wall section' },
+  { id: 'fb-8', category: 'method', text: 'Climb milling in unsupported thin die-section wall' },
   { id: 'fb-9', category: 'measurement', text: 'CMM probe tip worn beyond calibration window' },
   { id: 'fb-10', category: 'measurement', text: 'In-process gage not zeroed between shifts' },
-  { id: 'fb-11', category: 'environment', text: 'Ambient temp swing 18-26 C during night shift' },
+  { id: 'fb-11', category: 'environment', text: 'Ambient temp swing 65-80 F during night shift' },
   { id: 'fb-12', category: 'environment', text: 'Coolant concentration dropped below 6%' },
 ];
 
@@ -125,7 +125,7 @@ const SEED_ACTIONS: ActionItem[] = [
   {
     id: 'act-003',
     analysisId: 'rca-002',
-    description: 'Re-enable thermal compensation macro on CNC-L02',
+    description: 'Re-enable thermal compensation macro on LTH-06',
     assignedTo: 'Dave K.',
     dueDate: '2026-03-20',
     status: 'verified',
@@ -195,7 +195,7 @@ export function RootCausePage() {
             severity: d.severity ?? 'medium',
             status: d.status ?? 'open',
             assignedTo: d.assigned_to ?? '',
-          })));
+          })) as unknown as RootCauseAnalysis[]);
         }
       })
       .catch(() => { /* keep seed data */ });
@@ -633,7 +633,7 @@ export function RootCausePage() {
                   <Input
                     value={historyFilter.machine}
                     onChange={e => setHistoryFilter(prev => ({ ...prev, machine: e.target.value }))}
-                    placeholder="e.g. VMC-04..."
+                    placeholder="e.g. VMC-03..."
                   />
                 </Field>
                 <Field label="Filter by Department">

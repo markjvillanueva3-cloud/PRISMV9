@@ -1,0 +1,122 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-22T20:18:18.066Z",
+  "scanned": {
+    "dir": "mcp-server/src",
+    "tsFiles": 8410
+  },
+  "summary": {
+    "totalIntersections": 14,
+    "siloed": 11,
+    "thinWiring": 3,
+    "wired": 0,
+    "invention_opportunities": 14
+  },
+  "intersections": {
+    "rl_x_adaptive_control": {
+      "math_files": 11,
+      "surface_files": 4,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "causal_x_scrap_root_cause": {
+      "math_files": 13,
+      "surface_files": 146,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "active_x_taylor_kienzle": {
+      "math_files": 10,
+      "surface_files": 57,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "variational_x_toolpath": {
+      "math_files": 3,
+      "surface_files": 24,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "gcode_compiler_pass": {
+      "math_files": 1,
+      "surface_files": 33,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "persistent_homology_x_removal": {
+      "math_files": 2,
+      "surface_files": 49,
+      "both_files": 1,
+      "status": "thin_wiring",
+      "sample_both": [
+        "/mcp-server/src/tools/dispatchers/calcDispatcher.ts"
+      ]
+    },
+    "controller_lookahead_model": {
+      "math_files": 3,
+      "surface_files": 88,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "coupled_pde_adjoint": {
+      "math_files": 1,
+      "surface_files": 4,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "precision_thermal_x_post_inject": {
+      "math_files": 3,
+      "surface_files": 1,
+      "both_files": 1,
+      "status": "thin_wiring",
+      "sample_both": [
+        "/mcp-server/src/tools/dispatchers/camDispatcher.ts"
+      ]
+    },
+    "precision_machine_cap_x_capability_lookup": {
+      "math_files": 1,
+      "surface_files": 3,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "diamond_turning_x_cam_strategy": {
+      "math_files": 1,
+      "surface_files": 67,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "laser_interferometer_x_machine_setup": {
+      "math_files": 1,
+      "surface_files": 5,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "spm_monitoring_x_quality": {
+      "math_files": 2,
+      "surface_files": 12,
+      "both_files": 0,
+      "status": "siloed",
+      "sample_both": []
+    },
+    "probe_drift_x_probing": {
+      "math_files": 1,
+      "surface_files": 4,
+      "both_files": 1,
+      "status": "thin_wiring",
+      "sample_both": [
+        "/mcp-server/src/tools/dispatchers/cadDispatcher.ts"
+      ]
+    }
+  },
+  "note": "Advisory. siloed = math primitive widely present + target surface present + ZERO co-occurring files = highest-leverage invention opportunity."
+}

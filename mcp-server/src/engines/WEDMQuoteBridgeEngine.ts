@@ -88,6 +88,14 @@ export interface WEDMQuantityBreakResult {
 // ENGINE
 // ============================================================================
 
+// WIRE-EXEMPT: pure adapter (WEDM-ERP-MS0 U-WEDM-ERP01), intentionally NOT a
+// direct MCP dispatcher action. Consumed by: the WEDM-ERP quote REST routes
+// (src/routes/wedm-erp.ts, U-WEDM-ERP04/05), the QuoteBuilderPage WEDM section
+// (U-WEDM-ERP08), and transitively AutoPrintToProgramBridgeEngine (wired to
+// camDispatcher). Tested in __tests__/WEDMQuoteBridgeEngine.test.ts +
+// wedm-erp-routes.test.ts. The WEDM↔quoting synergy is reachable via these paths;
+// a direct dispatcher action would duplicate the route surface. (Verified
+// 2026-06-09, slot:charlie — the dispatcher-only orphan audit false-flags it.)
 export class WEDMQuoteBridgeEngine {
   /**
    * Convert a CostEstimate into a structured list of WEDMQuoteLineItems.

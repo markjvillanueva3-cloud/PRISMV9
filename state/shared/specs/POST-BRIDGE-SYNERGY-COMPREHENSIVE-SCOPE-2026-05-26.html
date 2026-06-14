@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="50f64314518c2a42d8a84b0b3e98e6f70e0994b1cce3d516fe98ffa6d7685d13">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POST-BRIDGE-SYNERGY-MS0 Comprehensive Scope</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>POST-BRIDGE-SYNERGY-MS0 Comprehensive Scope</h1>
+<div class="meta">rendered from state/shared/specs/POST-BRIDGE-SYNERGY-COMPREHENSIVE-SCOPE-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-27T01:28:25.866Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">POST-BRIDGE-SYNERGY-MS0 — Comprehensive Scope</li><li class="prism-toc-l2">Part 1 — Ground truth from <code class="prism-inline-code">JM DIE/HURCO CNC PROGRAMS/v11 test.hnc</code></li><li class="prism-toc-l3">v11 wins (working as designed)</li><li class="prism-toc-l3">v11 P0 bugs (live evidence)</li><li class="prism-toc-l2">Part 2 — Capability inventory (5-agent synthesis)</li><li class="prism-toc-l3">What&#39;s already wired into Hurco v11 (5 engines)</li><li class="prism-toc-l3">What&#39;s BUILT and READY but NOT wired (~50+ engines + ~110 cataloged extracted modules + 23 databases)</li><li class="prism-toc-l3">Part 3 — Bridge architecture (the operator&#39;s anchor insight)</li><li class="prism-toc-l3">Synergy node wiring (operator&#39;s 4 named nodes)</li><li class="prism-toc-l2">Part 4 — Full milestone scope: <code class="prism-inline-code">POST-BRIDGE-SYNERGY-MS0</code></li><li class="prism-toc-l3">Phase 0 — v11 bug-fix + tedium-kill (operator-blocking, ≤3 days total)</li><li class="prism-toc-l3">Phase 1 — Bridge parity (build the 3 missing Add-Ins)</li><li class="prism-toc-l3">Phase 2 — Synergy node wiring (operator&#39;s 4 nodes)</li><li class="prism-toc-l3">Phase 3 — Extracted-modules absorption (the 1,259 WIRE_CANDIDATE shelf)</li><li class="prism-toc-l3">Phase 4 — Engine pool wiring (the Tier-B 20 items)</li><li class="prism-toc-l3">Phase 5 — Closed-loop self-learning (the operator&#39;s earlier question)</li><li class="prism-toc-l2">Part 5 — Total scope: 51 units across 6 phases</li><li class="prism-toc-l2">Part 6 — Recommendation + immediate next move</li></ul></nav><h1 class="prism-h1">POST-BRIDGE-SYNERGY-MS0 — Comprehensive Scope</h1>
+<p><strong>Slot:</strong> echo · <strong>Date:</strong> 2026-05-26 · <strong>Operator directive thread:</strong></p>
+<ol class="prism-md-list"><li>&quot;/yolo-mode&quot; — continue building</li><li>&quot;thousands of engines and extracted data and extracted modules from the monolith in the prism folder so scope those too&quot;</li><li>&quot;we built a bridge into fusion to utilize all our advance prism stuff since the post size started to get too big to use in fusion, so build around that. going to need the same feature for mastercam and hypermill&quot;</li><li>&quot;bridging databases nodes, mill, lathe and wire wizard nodes and speed feed calculator node so they all synergize with post processor features within the apps and for the post processor generator and master post processor&quot;</li><li>&quot;I tested v11, sample program is call v11 test … I didn&#39;t fill out any tool pocket data since its so tedious&quot;</li></ol>
+<h2 class="prism-h2">Part 1 — Ground truth from <code class="prism-inline-code">JM DIE/HURCO CNC PROGRAMS/v11 test.hnc</code></h2>
+<p>Live-tested v11 actual output (first 120 lines forensic):</p>
+<h3 class="prism-h3">v11 wins (working as designed)</h3>
+<ul class="prism-md-list"><li><strong>Setup sheet header</strong> (lines 13-29) — 11 ops with T-number / diameter / per-op cycle time / total 18.8 min / WCS — first-piece operator brief ready</li><li><strong>Tool list</strong> (lines 4-11) — T-number, dia, taper, ZMIN, tool type per tool</li><li><strong>Safe start block</strong> (G40 G80 G49 G20 G90 G17) + M16 (buffer on) + M59</li><li><strong>PRISM analysis blocks</strong> per op — strategy name, est time, chip thinning, dynamic depth, axial DOC ratio, feed-factor breakdown</li><li><strong>Sister tool injection</strong> (line 68: <code class="prism-inline-code">T19 → T39 life=45min</code>) — tool-life tracking</li><li><strong>G05.3 P35 ADAPTIVE ROUGH SMOOTHING</strong> + UltiMotion variables (#1, #4, #5 cutting/entry/exit) injected</li><li><strong>Prove-out mode banner</strong> (line 71: <code class="prism-inline-code">Speed 80%, Feed 50% - disable after first good part</code>) — safety</li></ul>
+<h3 class="prism-h3">v11 P0 bugs (live evidence)</h3>
+<ul class="prism-md-list"><li><strong>Line 70: <code class="prism-inline-code">(PRISM: Calculation error holderFactor is not defined - using Fusion defaults)</code></strong> — runtime exception caught + emitted as comment, falls back to Fusion defaults. This is exactly the silent-failure class that R12 demands we surface. The <code class="prism-inline-code">holderFactor</code> variable is referenced but never assigned because the operator did NOT fill out tool pocket data (the iter12-agent-3-confirmed tedium).</li><li><strong>No pocket data in the output</strong> — descriptors (lines 4-11) carry only what Fusion knows, not what PRISM&#39;s <code class="prism-inline-code">UserToolLibraryEngine.magazine_position</code> already has on file.</li><li><strong>Default-mode is prove-out</strong> — meaning even the &quot;live test&quot; wasn&#39;t full-speed; we don&#39;t yet know whether v11 runs cleanly at production speed/feed.</li><li><strong>Constant feed F289.5 per block</strong> — adaptive feed modulation per agent-2 report is BUILT but never invoked; v11 emits the Fusion-computed feed unchanged for each block.</li></ul>
+<h2 class="prism-h2">Part 2 — Capability inventory (5-agent synthesis)</h2>
+<h3 class="prism-h3">What&#39;s already wired into Hurco v11 (5 engines)</h3>
+<p><code class="prism-inline-code">AutoSpeedFeed</code>, <code class="prism-inline-code">MachineStrategyConstraint</code>, <code class="prism-inline-code">GCodeRuntimePredictor</code>, <code class="prism-inline-code">GCodeBidirectionalOptimizer</code>, <code class="prism-inline-code">PRISMSelfAwareness</code>. Plus Kienzle (resolveKienzle) + Taylor (scalar) via direct constant imports.</p>
+<h3 class="prism-h3">What&#39;s BUILT and READY but NOT wired (~50+ engines + ~110 cataloged extracted modules + 23 databases)</h3>
+<p><strong>Tier-A — bug-fix + immediate ROI (≤2 days each, fixes shipped v11 bug + zero-touch operator UX)</strong></p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Capability</th><th>Source</th><th>Wires what</th></tr></thead><tbody><tr><td>A1</td><td><strong><code class="prism-inline-code">holderFactor</code> undefined fix</strong></td><td><code class="prism-inline-code">ToolAssemblyEngine</code> + <code class="prism-inline-code">ToolHolderRegistryEngine</code></td><td>Eliminates line-70 silent runtime error</td></tr>
+<tr><td>A2</td><td><strong>Auto-pocket from UserToolLibrary</strong></td><td><code class="prism-inline-code">UserTool.magazine_position</code> field</td><td>Eliminates v10/v11 tool-pocket tedium completely</td></tr>
+<tr><td>A3</td><td><strong>Auto-magazine integrity gate</strong></td><td><code class="prism-inline-code">ToolMagazineIntegrityEngine</code></td><td>Pre-emit gate: refuse-emit on wrong_pocket/missing_tool/offset_drift</td></tr>
+<tr><td>A4</td><td><strong>Sister-tool auto-resolve</strong></td><td><code class="prism-inline-code">ToolMagazineOptimizationEngine.sister_tool_enabled</code> + remaining-life lookup</td><td>Already partially working (line 68); expand to all tools</td></tr>
+<tr><td>A5</td><td><strong>Coolant sequence validator</strong></td><td><code class="prism-inline-code">PPCoolantSequenceValidatorEngine</code></td><td>M7/M8/M9 typo prevention; spindle-at-speed gate</td></tr>
+<tr><td>A6</td><td><strong>Collision hazard scanner</strong></td><td><code class="prism-inline-code">CollisionHazardDetectorEngine</code> (pattern-rejects bad rapids)</td><td>Catches &quot;G0 into stock&quot; class</td></tr>
+<tr><td>A7</td><td><strong>HSM dwell-at-corner</strong></td><td><code class="prism-inline-code">HSMDwellAtCornerEngine</code></td><td>Burr reduction</td></tr>
+<tr><td>A8</td><td><strong>Surface finish Ra predictor</strong></td><td><code class="prism-inline-code">BrammertzEngine</code> + <code class="prism-inline-code">SurfaceFinishPredictionEngine</code></td><td>Setup sheet line &quot;will hit Ra 0.8 ±0.2&quot;</td></tr>
+<tr><td>A9</td><td><strong>Tribal cited-tip injector</strong></td><td>iter13&#39;s 63 cited tips per controller (mazak 38 / siemens 14 / okuma 6 / fanuc 3 / haas 1 / hurco 1)</td><td>Comment-inject &quot;Per Sandvik tip #42&quot; justifications</td></tr>
+<tr><td>A10</td><td><strong>Probe macro injector</strong></td><td><code class="prism-inline-code">ProbeRoutineGeneratorEngine</code> + <code class="prism-inline-code">UnifiedProbingDialectEngine</code></td><td>Auto-inject WCS + tool-setter blocks</td></tr></tbody></table>
+<p><strong>Tier-B — engine pool currently in PRISM but unwired to Hurco post (~MED effort each)</strong></p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Capability</th><th>Engine path</th></tr></thead><tbody><tr><td>B1</td><td>Chatter SLD RPM rewrite</td><td><code class="prism-inline-code">ChatterStabilityLobeEngine</code>, <code class="prism-inline-code">MDOFStabilityEngine</code>, <code class="prism-inline-code">ChatterNeuralClassifier</code> (7 actions, zero post wiring)</td></tr>
+<tr><td>B2</td><td>Adaptive feed modulation</td><td><code class="prism-inline-code">AdaptiveFeedModulationEngine</code>, <code class="prism-inline-code">EngagementAdaptiveFeedEngine</code>, <code class="prism-inline-code">AdaptiveOverrideEngine</code></td></tr>
+<tr><td>B3</td><td>Tool deflection (Timoshenko)</td><td><code class="prism-inline-code">BoringBarDeflectionEngine</code>, <code class="prism-inline-code">DeflectionOverlayEngine</code> (L/D-derate fz)</td></tr>
+<tr><td>B4</td><td>Coating selection kc1.1 modifier</td><td><code class="prism-inline-code">CoatingSelectionEngine</code> (25K) + adapter</td></tr>
+<tr><td>B5</td><td>Wear physics</td><td><code class="prism-inline-code">AdvancedWearPhysicsEngine</code>, <code class="prism-inline-code">ArchardAdhesiveWearEngine</code>, <code class="prism-inline-code">AdaptiveWearEngine</code></td></tr>
+<tr><td>B6</td><td>Gilbert economic speed</td><td><code class="prism-inline-code">GilbertEconomicSpeedEngine</code> (3 actions)</td></tr>
+<tr><td>B7</td><td>Machine-aware SF + Smart Defaults</td><td><code class="prism-inline-code">MachineAwareSpeedFeedEngine</code>, smart-defaults bundle (7 actions)</td></tr>
+<tr><td>B8</td><td><strong>SFC 9-axis orchestrator</strong></td><td><code class="prism-inline-code">sfc_nine_axis_run</code> — built, not routed; replaces flat autoSpeedFeed</td></tr>
+<tr><td>B9</td><td>Heat-treat aware SF</td><td><code class="prism-inline-code">HeatTreatmentAwareSpeedFeedEngine</code></td></tr>
+<tr><td>B10</td><td>Anisotropic material model</td><td><code class="prism-inline-code">AnisotropicMaterialModelEngine</code></td></tr>
+<tr><td>B11</td><td>Material physics bridges</td><td><code class="prism-inline-code">HyperMillMaterialPhysicsBridge</code>, <code class="prism-inline-code">MastercamMaterialPhysicsBridge</code>, <code class="prism-inline-code">Fusion*MaterialBridge</code>, <code class="prism-inline-code">BatchCAMMaterialBridgeEngines</code></td></tr>
+<tr><td>B12</td><td>Chip thinning compensation</td><td><code class="prism-inline-code">ChipThinningCompensationEngine</code> (calc:chip_thinning)</td></tr>
+<tr><td>B13</td><td>RTAC + Adaptive Physics Bridge</td><td><code class="prism-inline-code">AdaptiveControlEngine</code>, <code class="prism-inline-code">AdaptiveFeedControlEngine</code> (7 RTAC actions)</td></tr>
+<tr><td>B14</td><td>Digital twin EKF sync</td><td><code class="prism-inline-code">DigitalTwinEngine</code>, <code class="prism-inline-code">DigitalTwinSyncEngine</code>, <code class="prism-inline-code">DigitalTwinFormulasEngine</code></td></tr>
+<tr><td>B15</td><td>In-process stock model</td><td><code class="prism-inline-code">InProcessStockModelEngine</code>, <code class="prism-inline-code">IntegratedVerificationEngine</code> (voxel verify)</td></tr>
+<tr><td>B16</td><td>Full collision certify</td><td><code class="prism-inline-code">CollisionPreventionEngine</code> + <code class="prism-inline-code">SweptVolumeEngine</code> + <code class="prism-inline-code">ToolAssemblyModelEngine</code></td></tr>
+<tr><td>B17</td><td>Per-controller LoRA fine-tune</td><td><code class="prism-inline-code">master_post_fine_tune_*</code> (12 actions)</td></tr>
+<tr><td>B18</td><td>Cross-CAM ontology translate</td><td><code class="prism-inline-code">cam_ontology_translate</code></td></tr>
+<tr><td>B19</td><td>Knowledge graph query</td><td><code class="prism-inline-code">prism_knowledge:kg_query</code></td></tr>
+<tr><td>B20</td><td>Outcome / closed-loop</td><td><code class="prism-inline-code">xproc_outcome_publish</code> + predLog + LoRA retrain</td></tr></tbody></table>
+<p><strong>Tier-C — <code class="prism-inline-code">extracted_modules/</code> (1,788 modules classified, 1,259 WIRE_CANDIDATE, 208 DATABASE, 134 PARTIAL_OVERLAP, 111 DUP_KEEP, 57 STUB, 19 META — ~70% unwired)</strong></p>
+<p>Sub-tier C1 — directly post-relevant (top 20 from agent-5):</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Module</th><th>Path</th><th>Size</th><th>Why P0</th></tr></thead><tbody><tr><td>C1</td><td><strong>PRISM_VERIFIED_POST_DATABASE_V2</strong></td><td><code class="prism-inline-code">GIANT/</code></td><td>114K</td><td>Verified per-controller post template table</td></tr>
+<tr><td>C2</td><td><strong>PRISM_CONTROLLER_DATABASE</strong></td><td><code class="prism-inline-code">priority_extraction/</code></td><td>19.5K</td><td>G/M/macro per controller — dialect verifier source</td></tr>
+<tr><td>C3</td><td><strong>PRISM_POST_PROCESSOR_GENERATOR</strong></td><td><code class="prism-inline-code">GIANT/</code></td><td>—</td><td>Novel post-bring-up generator</td></tr>
+<tr><td>C4</td><td><strong>PRISM_TAYLOR_COMPLETE</strong> + <code class="prism-inline-code">TAYLOR_ADVANCED</code></td><td><code class="prism-inline-code">ULTRA/</code> + <code class="prism-inline-code">physics_engines/</code></td><td>91K + 2K</td><td>Full Taylor C/n per material-tool</td></tr>
+<tr><td>C5</td><td><strong>PRISM_CUTTING_THERMAL_ENGINE</strong></td><td><code class="prism-inline-code">physics_engines/</code></td><td><strong>101K</strong></td><td>Komanduri/Jaeger heat partition</td></tr>
+<tr><td>C6</td><td><strong>PRISM_CHATTER_PREDICTION_ENGINE</strong></td><td><code class="prism-inline-code">priority_extraction/</code></td><td>15.3K</td><td>Closes stability_rpm_rewrite gap</td></tr>
+<tr><td>C7</td><td><strong>PRISM_MACHINE_KINEMATICS_ENGINE</strong></td><td><code class="prism-inline-code">priority_extraction/</code></td><td>13.4K</td><td>DH params + rotary chain (5-axis post)</td></tr>
+<tr><td>C8</td><td><strong>PRISM_CUTTING_TOOL_DATABASE_V2</strong> + <code class="prism-inline-code">STEEL_ENDMILL_DB_V2</code> + <code class="prism-inline-code">CUTTING_TOOL_EXPANSION_V3</code> + <code class="prism-inline-code">MANUFACTURER_CATALOG_DB</code></td><td>various</td><td>54.6K + 33K + 59K + 73K</td><td>~220K tool catalog absorption</td></tr>
+<tr><td>C9</td><td><strong>PRISM_TOOL_HOLDER_INTERFACES_COMPLETE</strong></td><td><code class="prism-inline-code">databases/</code></td><td>19.6K</td><td>HSK/CAT/BT/Capto specs (fixes A1 holderFactor)</td></tr>
+<tr><td>C10</td><td><strong>PRISM_JOHNSON_COOK_DATABASE</strong></td><td><code class="prism-inline-code">priority_extraction/</code></td><td>7.7K</td><td>Plasticity params</td></tr>
+<tr><td>C11</td><td><strong>PRISM_HYBRID_TOOLPATH_SYNTHESIZER</strong></td><td><code class="prism-inline-code">priority_extraction/</code></td><td>62K</td><td>Cross-strategy toolpath fusion</td></tr>
+<tr><td>C12</td><td><strong>PRISM_FIXTURE_DATABASE</strong> + <code class="prism-inline-code">HYPERMILL_FIXTURE_DATABASE</code></td><td><code class="prism-inline-code">ULTRA/</code> + <code class="prism-inline-code">databases/</code></td><td>63K + 3.4K</td><td>Fixture catalog</td></tr>
+<tr><td>C13</td><td><strong>PRISM_THERMAL_COMPENSATION</strong></td><td><code class="prism-inline-code">priority_extraction/</code></td><td>6.8K</td><td>Spindle/axis thermal growth tables</td></tr>
+<tr><td>C14</td><td><strong>PRISM_AIRCUT_ELIMINATION_ENGINE</strong></td><td><code class="prism-inline-code">COMPLETE/</code></td><td>—</td><td>Aircut removal (<code class="prism-inline-code">post_optimize_rapids</code>)</td></tr>
+<tr><td>C15</td><td><strong>PRISM_CYCLE_TIME_PREDICTION_ENGINE</strong></td><td><code class="prism-inline-code">COMPLETE/</code></td><td>—</td><td>Accel/jerk-aware timing</td></tr>
+<tr><td>C16</td><td><strong>PRISM_COLLISION_MOTION</strong></td><td><code class="prism-inline-code">MEGA/</code></td><td>53.5K</td><td>Motion-aware collision (5-axis)</td></tr>
+<tr><td>C17</td><td><strong>PRISM_EKF / EKF_ENGINE</strong></td><td><code class="prism-inline-code">ULTRA/</code></td><td>101K + 115K</td><td>Thermal+wear digital twin</td></tr>
+<tr><td>C18</td><td><strong>PRISM_EXPANDED_POST_PROCESSORS</strong> + <code class="prism-inline-code">FUSION_POST_DATABASE</code></td><td><code class="prism-inline-code">priority_extraction/</code> + <code class="prism-inline-code">databases/</code></td><td>7.5K + 8K</td><td>Vendor post coverage</td></tr>
+<tr><td>C19</td><td><strong>{FANUC,HAAS,SIEMENS,MAZAK,MITSUBISHI,OKUMA,HEIDENHAIN}_ALARMS_MASTER</strong></td><td>sister <code class="prism-inline-code">extracted/controllers/alarms/</code></td><td>28K-58K each</td><td>Per-controller alarm decode</td></tr>
+<tr><td>C20</td><td><strong>PRISM_ROUGHING_LOGIC</strong> + <code class="prism-inline-code">ROUGHING_MACHINE_CONFIGS_V2</code></td><td><code class="prism-inline-code">ULTRA/</code> + <code class="prism-inline-code">databases/</code></td><td>74K + 7K</td><td>Per-machine roughing defaults</td></tr></tbody></table>
+<p>Sub-tier C2 — database catalog (23 DBs, only 2 wired so far via juliett 2026-05-25/26):</p>
+<p>23 databases enumerated by agent-5: <code class="prism-inline-code">VERIFIED_POST_DB_V2</code> (114K, NONE), <code class="prism-inline-code">MANUFACTURER_CATALOG</code> (73K, NONE), <code class="prism-inline-code">FIXTURE_DB</code> (63K, NONE), <code class="prism-inline-code">CUTTING_TOOL_DB_V2</code> (54.6K, partial), <code class="prism-inline-code">STEEL_ENDMILL_DB_V2</code> (33K, partial), <code class="prism-inline-code">CONTROLLER_DB</code> (19.5K, partial), <code class="prism-inline-code">TOOL_HOLDER_INTERFACES_COMPLETE</code> (19.6K, partial), <code class="prism-inline-code">FUSION_POST_DB</code> (8K, NONE), <code class="prism-inline-code">JOHNSON_COOK_DB</code> (7.7K, partial), <code class="prism-inline-code">ROUGHING_MACHINE_CONFIGS_V2</code> (7K, NONE), <code class="prism-inline-code">THERMAL_COMPENSATION</code> (6.8K, NONE), <code class="prism-inline-code">TOLERANCE_ANALYSIS_ENHANCED</code> (6K, partial), <strong><code class="prism-inline-code">SURFACE_FINISH_DB</code> (5.5K, WIRED juliett)</strong>, <code class="prism-inline-code">TOOL_GENERATOR</code> (5.4K, partial), <code class="prism-inline-code">MASTER_DB</code> (4.8K, unclear), <code class="prism-inline-code">MACRO_DATABASE_SCHEMA</code> (4.4K, NONE), <code class="prism-inline-code">HYPERMILL_FIXTURE_DB</code> (3.4K, NONE), <code class="prism-inline-code">SURFACE_FINISH_LOOKUP</code> (2.7K, partial), <code class="prism-inline-code">MACHINING_PROCESS_DB</code> (2.6K, NONE), <strong><code class="prism-inline-code">STOCK_POSITIONS_DB</code> (2.2K, WIRED juliett)</strong>, <code class="prism-inline-code">THREADING_LOOKUP</code> (1.8K, partial), <code class="prism-inline-code">CONSOLIDATED_MATERIALS</code> (1.7K, partial), <code class="prism-inline-code">MATERIAL_ALIASES</code> (534B, partial).</p>
+<p>At juliett&#39;s current wire-cadence (~1/week), full DB wiring is years out. <strong>POST-BRIDGE-SYNERGY-MS0 should absorb this entire DB shelf as a single phase.</strong></p>
+<h3 class="prism-h3">Part 3 — Bridge architecture (the operator&#39;s anchor insight)</h3>
+<p>Already exist in PRISM (all 4 in-host runners, total 2341 lines):</p>
+<table class="prism-md-table"><thead><tr><th>In-host runner</th><th>Transport</th><th>Status</th><th>Add-In resource dir</th></tr></thead><tbody><tr><td><strong>Fusion 360</strong></td><td>JSON-RPC 2.0 / WebSocket</td><td><strong>LIVE</strong></td><td><code class="prism-inline-code">resources/fusion360/prism-test-runner/index.js</code> ✓</td></tr>
+<tr><td><strong>hyperMILL</strong></td><td>XML-RPC</td><td>Engine 508 LOC</td><td><strong>MISSING</strong> — needs <code class="prism-inline-code">resources/hypermill/prism-bridge/</code></td></tr>
+<tr><td><strong>Mastercam</strong></td><td>(C# Add-In / stdio pipe)</td><td>Engine 470 LOC</td><td><strong>MISSING</strong> — needs <code class="prism-inline-code">resources/mastercam/prism-bridge/</code></td></tr>
+<tr><td><strong>Inventor HSM</strong></td><td>(Inventor API)</td><td>Engine 472 LOC</td><td><strong>MISSING</strong> — needs <code class="prism-inline-code">resources/inventor-hsm/prism-bridge/</code></td></tr>
+<tr><td>Unification</td><td>253-line <code class="prism-inline-code">CAMInHostResultsBridgeEngine</code> — common 7-family assertion contract</td></tr></tbody></table>
+<p>The post file shouldn&#39;t carry intelligence. It should be a thin emitter that delegates to PRISM via the bridge. v11&#39;s 19,265-line .cps grew because we inlined intelligence that the bridge should serve.</p>
+<h3 class="prism-h3">Synergy node wiring (operator&#39;s 4 named nodes)</h3>
+<pre class="prism-codeblock"><code>DB node   ──┐
+Wizard node ┤
+SFC node   ─┼──→  CAMInHostBridge  ──→  Fusion / Mastercam / hyperMILL / Inventor HSM
+PostGen    ─┤
+           ─┘
+         (same bridge serves: in-CAM-app live use AND post-processor generation)</code></pre>
+<p>Each node exposes ONE contract; bridge fan-outs to consumers. Today every consumer reaches into engines directly — N×M coupling.</p>
+<h2 class="prism-h2">Part 4 — Full milestone scope: <code class="prism-inline-code">POST-BRIDGE-SYNERGY-MS0</code></h2>
+<p>Enumerate ALL identified units (comprehensive-build enforcement). Phased for dependency.</p>
+<h3 class="prism-h3">Phase 0 — v11 bug-fix + tedium-kill (operator-blocking, ≤3 days total)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Deps</th><th>Blocks</th></tr></thead><tbody><tr><td><strong>U-V11-HOLDERFACTOR-FIX</strong> — wire <code class="prism-inline-code">ToolAssemblyEngine</code>+<code class="prism-inline-code">ToolHolderRegistry</code> so <code class="prism-inline-code">holderFactor</code> resolves; eliminates line-70 silent runtime error</td><td>A1 + C9</td><td>All future v11 emits</td></tr>
+<tr><td><strong>U-V11-AUTO-POCKET-FROM-LIBRARY</strong> — read <code class="prism-inline-code">UserTool.magazine_position</code> at emit; skip manual prompt entirely when library has the data</td><td>A2</td><td>Operator UX</td></tr>
+<tr><td><strong>U-V11-MAGAZINE-INTEGRITY-GATE</strong> — pre-emit <code class="prism-inline-code">ToolMagazineIntegrityEngine</code> check; refuse-emit on offset drift / wrong-pocket / missing-tool / insufficient-life</td><td>A3</td><td>A2</td></tr>
+<tr><td><strong>U-V11-PROVE-OUT-FLAG-EXPLICIT</strong> — make prove-out opt-in not default; emit at 100% when operator says &quot;production ready&quot;</td><td>(none)</td><td>Production speed v11</td></tr>
+<tr><td><strong>U-V11-WINMAX-COMMENT-RESTORE</strong> — regression from v8.9 (agent-1 finding)</td><td>(none)</td><td>v8.9 backcompat</td></tr>
+<tr><td><strong>U-V11-AGGRESSIVENESS-RENAME-SHIM</strong> — <code class="prism-inline-code">prismAggressivenessLevel</code> ⇆ <code class="prism-inline-code">prismOptimizationMode</code> compat (agent-1 finding)</td><td>(none)</td><td>v8.9 backcompat</td></tr></tbody></table>
+<h3 class="prism-h3">Phase 1 — Bridge parity (build the 3 missing Add-Ins)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Deps</th><th>Blocks</th></tr></thead><tbody><tr><td><strong>U-MASTERCAM-ADDIN-RESOURCES</strong> — <code class="prism-inline-code">resources/mastercam/prism-bridge/</code> C# Add-In; mirror Fusion JS contract; wire to <code class="prism-inline-code">MastercamInHostRunnerEngine</code></td><td>(none)</td><td>Mastercam intelligence-offload</td></tr>
+<tr><td><strong>U-HYPERMILL-ADDIN-RESOURCES</strong> — <code class="prism-inline-code">resources/hypermill/prism-bridge/</code> AC automation; wire to <code class="prism-inline-code">HyperMillInHostRunnerEngine</code></td><td>(none)</td><td>hyperMILL intelligence-offload</td></tr>
+<tr><td><strong>U-INVENTOR-ADDIN-RESOURCES</strong> — <code class="prism-inline-code">resources/inventor-hsm/prism-bridge/</code> Inventor API; wire to <code class="prism-inline-code">InventorHSMInHostRunnerEngine</code></td><td>(none)</td><td>Inventor HSM intelligence-offload</td></tr>
+<tr><td><strong>U-BRIDGE-CONTRACT-VERIFY</strong> — cross-host parity tests; same scenario → structurally-equivalent results across all 4 hosts</td><td>all of above</td><td>Confidence guarantee</td></tr></tbody></table>
+<h3 class="prism-h3">Phase 2 — Synergy node wiring (operator&#39;s 4 nodes)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Deps</th><th>Blocks</th></tr></thead><tbody><tr><td><strong>U-DB-NODE-BRIDGE</strong> — single <code class="prism-inline-code">prism_bridge:db_query</code> contract; consumes all 23 databases via uniform schema</td><td>C2 catalog</td><td>Replaces N×M direct catalog reads</td></tr>
+<tr><td><strong>U-DB-NODE-ABSORB-21</strong> — wire the 21 currently-unwired databases from C2 catalog (juliett&#39;s wire cadence absorbed in one milestone)</td><td>U-DB-NODE-BRIDGE</td><td>Closes the years-out cadence</td></tr>
+<tr><td><strong>U-WIZARD-NODE-BRIDGE</strong> — mill / lathe / wire wizards expose <code class="prism-inline-code">wizard_run(domain, intent, context)</code>; master post calls in for strategy decisions</td><td>(none)</td><td>Strategy-rule duplication</td></tr>
+<tr><td><strong>U-SFC-NODE-BRIDGE</strong> — <code class="prism-inline-code">sfc_nine_axis_run</code> becomes ONLY SF surface; Hurco/Okuma/Haas/Fanuc/Mastercam all route through</td><td>B8</td><td>Kills 5+ duplicate SF code paths</td></tr>
+<tr><td><strong>U-POST-GEN-BRIDGE</strong> — <code class="prism-inline-code">PPG</code> engines + <code class="prism-inline-code">MasterPostProcessor</code> consume same bridge as in-host runners; single contract, two clients</td><td>Phase 1 complete</td><td>Post-generation parity</td></tr></tbody></table>
+<h3 class="prism-h3">Phase 3 — Extracted-modules absorption (the 1,259 WIRE_CANDIDATE shelf)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Deps</th><th>Blocks</th></tr></thead><tbody><tr><td><strong>U-EXTRACT-VERIFIED-POST-DB</strong> — absorb <code class="prism-inline-code">PRISM_VERIFIED_POST_DATABASE_V2</code> (114K, C1)</td><td>U-DB-NODE-BRIDGE</td><td>Per-controller post template lookups</td></tr>
+<tr><td><strong>U-EXTRACT-CONTROLLER-DB</strong> — absorb <code class="prism-inline-code">PRISM_CONTROLLER_DATABASE</code> (C2)</td><td>U-DB-NODE-BRIDGE</td><td>Dialect translator + cross-controller alignment</td></tr>
+<tr><td><strong>U-EXTRACT-POST-GENERATOR</strong> — absorb <code class="prism-inline-code">PRISM_POST_PROCESSOR_GENERATOR</code> (C3)</td><td>U-EXTRACT-CONTROLLER-DB</td><td>Novel controller bring-up</td></tr>
+<tr><td><strong>U-EXTRACT-TAYLOR-COMPLETE</strong> — absorb <code class="prism-inline-code">TAYLOR_COMPLETE</code> (91K, C4) + <code class="prism-inline-code">TAYLOR_ADVANCED</code></td><td>(none)</td><td>Tool-life accuracy across system</td></tr>
+<tr><td><strong>U-EXTRACT-CUTTING-THERMAL</strong> — absorb <code class="prism-inline-code">CUTTING_THERMAL_ENGINE</code> (101K, C5)</td><td>(none)</td><td>Thermal-comp + dwell + burn-risk</td></tr>
+<tr><td><strong>U-EXTRACT-CHATTER-PREDICT</strong> — absorb <code class="prism-inline-code">CHATTER_PREDICTION_ENGINE</code> (15.3K, C6)</td><td>(none)</td><td>Stability_rpm_rewrite</td></tr>
+<tr><td><strong>U-EXTRACT-KINEMATICS</strong> — absorb <code class="prism-inline-code">MACHINE_KINEMATICS_ENGINE</code> (13.4K, C7)</td><td>(none)</td><td>5-axis RTCP/G68.2/G43.4</td></tr>
+<tr><td><strong>U-EXTRACT-TOOL-CATALOG-220K</strong> — absorb <code class="prism-inline-code">CUTTING_TOOL_DB_V2 + STEEL_ENDMILL_DB_V2 + EXPANSION_V3 + MANUFACTURER_CATALOG_DB</code> (~220K, C8)</td><td>U-DB-NODE-BRIDGE</td><td>Tool catalog depth</td></tr>
+<tr><td><strong>U-EXTRACT-HOLDER-INTERFACES</strong> — absorb <code class="prism-inline-code">TOOL_HOLDER_INTERFACES_COMPLETE</code> (19.6K, C9)</td><td>(none)</td><td>Resolves A1 / U-V11-HOLDERFACTOR-FIX</td></tr>
+<tr><td><strong>U-EXTRACT-JOHNSON-COOK-DB</strong> — absorb <code class="prism-inline-code">JOHNSON_COOK_DATABASE</code> (C10)</td><td>(none)</td><td>Force/temp accuracy upgrade</td></tr>
+<tr><td><strong>U-EXTRACT-HYBRID-TOOLPATH</strong> — absorb <code class="prism-inline-code">HYBRID_TOOLPATH_SYNTHESIZER</code> (62K, C11)</td><td>(none)</td><td>Adaptive/HSM/trochoidal fusion</td></tr>
+<tr><td><strong>U-EXTRACT-FIXTURE-DBs</strong> — absorb <code class="prism-inline-code">FIXTURE_DATABASE</code> (63K) + <code class="prism-inline-code">HYPERMILL_FIXTURE_DATABASE</code> (3.4K) (C12)</td><td>U-DB-NODE-BRIDGE</td><td>Fixture-aware emission</td></tr>
+<tr><td><strong>U-EXTRACT-THERMAL-COMP</strong> — absorb <code class="prism-inline-code">THERMAL_COMPENSATION</code> (6.8K, C13)</td><td>U-EXTRACT-CUTTING-THERMAL</td><td>Spindle/axis growth tables</td></tr>
+<tr><td><strong>U-EXTRACT-AIRCUT-ELIM</strong> — absorb <code class="prism-inline-code">AIRCUT_ELIMINATION_ENGINE</code> (C14)</td><td>(none)</td><td>post_optimize_rapids</td></tr>
+<tr><td><strong>U-EXTRACT-CYCLE-TIME</strong> — absorb <code class="prism-inline-code">CYCLE_TIME_PREDICTION_ENGINE</code> (C15)</td><td>(none)</td><td>Accel/jerk-aware timing</td></tr>
+<tr><td><strong>U-EXTRACT-COLLISION-MOTION</strong> — absorb <code class="prism-inline-code">COLLISION_MOTION</code> (53.5K, C16)</td><td>(none)</td><td>5-axis collision</td></tr>
+<tr><td><strong>U-EXTRACT-EKF-DIGITAL-TWIN</strong> — absorb <code class="prism-inline-code">EKF + EKF_ENGINE</code> (216K, C17)</td><td>(none)</td><td>Thermal+wear closed-loop</td></tr>
+<tr><td><strong>U-EXTRACT-EXPANDED-POSTS</strong> — absorb <code class="prism-inline-code">EXPANDED_POST_PROCESSORS</code> + <code class="prism-inline-code">FUSION_POST_DATABASE</code> (C18)</td><td>U-EXTRACT-VERIFIED-POST-DB</td><td>Vendor post variant coverage</td></tr>
+<tr><td><strong>U-EXTRACT-ALARMS-MASTER</strong> — absorb 7 <code class="prism-inline-code">*_ALARMS_MASTER</code> (28K-58K each, C19) from sister <code class="prism-inline-code">extracted/</code></td><td>(none)</td><td>alarm_decode coverage gap</td></tr>
+<tr><td><strong>U-EXTRACT-ROUGHING-LOGIC</strong> — absorb <code class="prism-inline-code">ROUGHING_LOGIC</code> (74K) + <code class="prism-inline-code">ROUGHING_MACHINE_CONFIGS_V2</code> (7K, C20)</td><td>(none)</td><td>Roughing strategy emission</td></tr>
+<tr><td><strong>U-EXTRACT-SEMANTIC-MATCHER</strong> — meta unit: replace lexical Jaccard matcher with semantic-similarity matcher to detect WIRE_CANDIDATEs that are real duplicates of existing engines under different names (agent-5 gap-diagnosis #1)</td><td>(none)</td><td>Accurate classification of remaining 1,239 WIRE_CANDIDATEs</td></tr>
+<tr><td><strong>U-EXTRACT-NOT-FOUND-CHASE</strong> — chase the per-bucket EXTRACTION_SUMMARY <code class="prism-inline-code">NOT_FOUND</code> rows (databases=14, physics=11) — these are real abandoned features (agent-5 gap #2)</td><td>(none)</td><td>True extraction completeness</td></tr>
+<tr><td><strong>U-EXTRACT-MATERIAL-AGGREGATORS</strong> — re-route P_STEELS_complete (157K), M_STAINLESS_complete (62K), tool_steels_hardness_conditions (31K), carbon_alloy_steel_conditions (30K), stainless_steels_001_050 ×4 from heuristic-misrouted <code class="prism-inline-code">ai_ml</code> to <code class="prism-inline-code">prism_data</code> (agent-5 gap #4)</td><td>(none)</td><td>Material catalog completeness</td></tr></tbody></table>
+<h3 class="prism-h3">Phase 4 — Engine pool wiring (the Tier-B 20 items)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Source</th></tr></thead><tbody><tr><td>U-WIRE-CHATTER-SLD</td><td>B1</td></tr>
+<tr><td>U-WIRE-ADAPTIVE-FEED-MOD</td><td>B2</td></tr>
+<tr><td>U-WIRE-TOOL-DEFLECTION</td><td>B3</td></tr>
+<tr><td>U-WIRE-COATING-KC11-MODIFIER</td><td>B4</td></tr>
+<tr><td>U-WIRE-WEAR-PHYSICS</td><td>B5</td></tr>
+<tr><td>U-WIRE-GILBERT-ECON</td><td>B6</td></tr>
+<tr><td>U-WIRE-MACHINE-AWARE-SF</td><td>B7</td></tr>
+<tr><td>U-WIRE-SFC-9AXIS-AS-ONLY-SF</td><td>B8</td></tr>
+<tr><td>U-WIRE-HEAT-TREAT-SF</td><td>B9</td></tr>
+<tr><td>U-WIRE-ANISOTROPIC-MAT</td><td>B10</td></tr>
+<tr><td>U-WIRE-MATERIAL-PHYSICS-BRIDGES</td><td>B11</td></tr>
+<tr><td>U-WIRE-CHIP-THINNING-COMP</td><td>B12</td></tr>
+<tr><td>U-WIRE-RTAC + ADAPTIVE-PHYSICS-BRIDGE</td><td>B13</td></tr>
+<tr><td>U-WIRE-DIGITAL-TWIN-EKF</td><td>B14</td></tr>
+<tr><td>U-WIRE-INPROCESS-STOCK-VOXEL</td><td>B15</td></tr>
+<tr><td>U-WIRE-COLLISION-CERTIFY</td><td>B16</td></tr>
+<tr><td>U-WIRE-PER-CONTROLLER-LORA</td><td>B17</td></tr>
+<tr><td>U-WIRE-CROSS-CAM-ONTOLOGY</td><td>B18</td></tr>
+<tr><td>U-WIRE-KG-QUERY</td><td>B19</td></tr>
+<tr><td>U-WIRE-OUTCOME-CLOSED-LOOP</td><td>B20</td></tr></tbody></table>
+<h3 class="prism-h3">Phase 5 — Closed-loop self-learning (the operator&#39;s earlier question)</h3>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Deps</th><th>Outcome</th></tr></thead><tbody><tr><td><strong>U-OUTCOME-CAPTURE-ADDINS</strong> — every CAM host Add-In streams emit-result outcomes back via the bridge</td><td>Phase 1 + B20</td><td>Real outcome data flows to PRISM</td></tr>
+<tr><td><strong>U-OUTCOME-TO-PREDLOG-PAIR</strong> — outcomes pair with original emit&#39;s prediction in predLog</td><td>U-OUTCOME-CAPTURE-ADDINS</td><td>Score adjustment ground truth</td></tr>
+<tr><td><strong>U-PER-CONTROLLER-LORA-AUTO-RETRAIN</strong> — scheduled retrain when outcome batch hits threshold</td><td>B17 + U-OUTCOME-TO-PREDLOG-PAIR</td><td>Compounding accuracy</td></tr>
+<tr><td><strong>U-A/B-SHADOW-PROMOTE</strong> — new post version → <code class="prism-inline-code">cam_serve_deploy_shadow</code> (already exists, unused) → A/B vs baseline → promote on win</td><td>(none — engine exists)</td><td>Safe rollout</td></tr>
+<tr><td><strong>U-DRIFT-DETECT-ALERT</strong> — outcome distribution shift on a tip → flag for re-extraction or override</td><td>U-PER-CONTROLLER-LORA-AUTO-RETRAIN</td><td>Quality maintenance</td></tr></tbody></table>
+<h2 class="prism-h2">Part 5 — Total scope: 51 units across 6 phases</h2>
+<table class="prism-md-table"><thead><tr><th>Phase</th><th>Units</th><th>Focus</th></tr></thead><tbody><tr><td>0 — v11 bug-fix + tedium kill</td><td>6</td><td>Operator-blocking; ships v11.x today</td></tr>
+<tr><td>1 — Bridge parity (3 Add-Ins)</td><td>4</td><td>Mastercam / hyperMILL / Inventor HSM Add-In resource dirs</td></tr>
+<tr><td>2 — Synergy nodes (DB / wizard / SFC / postgen)</td><td>5</td><td>Operator&#39;s 4-node directive</td></tr>
+<tr><td>3 — Extracted-modules absorption</td><td>23</td><td>The 1,788-module shelf (~220K tool catalog + 23 DBs + 7 alarm masters + …)</td></tr>
+<tr><td>4 — Engine pool wiring (Tier-B)</td><td>20</td><td>20 built-but-unwired engines</td></tr>
+<tr><td>5 — Closed-loop self-learning</td><td>5</td><td>The earlier-asked closed-loop system</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>63 units</strong></td><td>(51 unique + ~12 shared dependencies counted once)</td></tr></tbody></table>
+<h2 class="prism-h2">Part 6 — Recommendation + immediate next move</h2>
+<p><strong>Start with Phase 0 immediately</strong> — 6 units fix v11&#39;s live-test bug + kill the tool-pocket tedium. These are small, atomic, and unblock everything downstream. None require the bridge or new engines.</p>
+<p><strong>Then Phase 1 in parallel</strong> — 3 missing Add-In resource dirs are independent of Phase 0; can ship via separate slots (foxtrot/mike/lima or similar).</p>
+<p><strong>Phase 2-3 are the big payoff</strong> — single milestone absorbs 23 DBs + 1,000+ extracted modules + wires the synergy contracts. This is multi-week work, best owned by a dedicated slot (proposed: echo continues, or split across echo/charlie/papa).</p>
+<p><strong>Phase 4 is operator-driven</strong> — each Tier-B engine wiring is a small unit but operator should rank by perceived sales value (which capabilities do customers ask about?).</p>
+<p><strong>Phase 5 closes the loop</strong> — depends on Phase 1 (Add-Ins are where outcome data originates). Real closed-loop self-learning ships at the end of this chain, not at the start. Building it earlier would be premature without outcome data flowing.</p>
+<p><strong>Ship-readiness gate (operator question &quot;do you have confidence in writing posts now?&quot;):</strong> Phase 0 + Phase 4 partial (U-WIRE-SFC-9AXIS, U-WIRE-CHATTER-SLD, U-WIRE-COATING) = ~9 units. That&#39;s the minimum bar to confidently emit non-shop-tested posts. Phase 5 (closed-loop) is what eventually makes posts self-improving without operator review.</p>
+<p><strong>Cron status</strong>: <code class="prism-inline-code">142b76f4</code> cancelled at iter20. This scope replaces the prior loop. Operator green-lights → start as fresh <code class="prism-inline-code">/loop POST-BRIDGE-SYNERGY-MS0</code>.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

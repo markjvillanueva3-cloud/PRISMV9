@@ -162,10 +162,12 @@ fix_outline:
 leverage: "CLAUDE.md is in every chat's system prompt — every byte costs context budget × number-of-prompts × number-of-chats. 115KB × 13 chats × ~30 prompts/day = nontrivial."
 ```
 
-### [P1] F8 — Cache reader-path is **systemically dead** across all 3 caches (write-only fleet-wide)
+### [CORRECTED — was P1, now P2] F8 — cache dedup liveness (the "reader-path dead" finding was a MISDIAGNOSIS)
+
+> **2026-05-17 correction (post-ship verification):** The original F8 below claimed the cache reader-path was "systemically dead — 0 hits across 100 keys." That was **wrong** — a probe bug in `token-savings-rank.mjs`. `file-read-cache.mjs` IS the reader: a `PreToolUse:Read` deny-dedup hook wired via `read-bundle.mjs` (siblings: `read-once-cache`, `read-already-have`, `read-optimizer`). It saves tokens by **DENYING** a redundant re-read — the saving is the denial, there is no `.hits` counter. Entry shape is `{ts, path}`. The META probe summed a non-existent `.hits` field → always 0 → false "dead." `file-read-cache` has 64–86 fresh entries (newest <1h old) — it is actively working. This is the exact bug class CLAUDE.md's 2026-05-16 regression names ("assuming a schema without reading the file first"). **Fix shipped:** the probe now measures newest-entry freshness; F8 is downgraded to P2 and only fires when a dedup cache holds entries but its newest is >48h stale (hook stopped running). The peer reviewer's "missed finding" upgrade was based on the same bad probe output and is also retracted.
 
 ```yaml
-finding: "Three separate caches under .claude/cache/ — bash-result-cache.json (1 key / 0 hits), grep-result-cache.json (3 keys / 0 hits), file-read-cache.json (96 keys / 0 hits). 100 cache entries total — 0 hits across all of them. Writer hooks populate the caches; **no reader hook ever checks them** before re-issuing the underlying call. This is the same systemic shape as F1 (writer exists, reader is unwired) — promoted from P2 to P1 because the file-read-cache 96-key surface proves the gap is fleet-wide, not isolated."
+finding: "[RETRACTED] Three separate caches under .claude/cache/ — bash-result-cache.json (1 key / 0 hits), grep-result-cache.json (3 keys / 0 hits), file-read-cache.json (96 keys / 0 hits). 100 cache entries total — 0 hits across all of them. Writer hooks populate the caches; **no reader hook ever checks them** before re-issuing the underlying call. This is the same systemic shape as F1 (writer exists, reader is unwired) — promoted from P2 to P1 because the file-read-cache 96-key surface proves the gap is fleet-wide, not isolated."
 verifies_via:
   tool: "node -e \"['bash-result-cache','grep-result-cache','file-read-cache'].forEach(n=>{const c=JSON.parse(require('fs').readFileSync('.claude/cache/'+n+'.json','utf8'));console.log(n,Object.keys(c).length,'keys',Object.values(c).reduce((a,v)=>a+(v.hits||0),0),'hits')})\""
   expected_signal: "ANY cache shows hits > 0 over a day of normal use"

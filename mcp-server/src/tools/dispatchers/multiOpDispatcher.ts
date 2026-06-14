@@ -33,6 +33,9 @@ const ACTIONS = [
   "transition_plan", "transition_batch",
   "adaptive_refine",
   "multi_setup_plan",
+  // WIRE-MULTIOP-DIRECT-MS0/U-VICTOR-MULTIOP-DIRECT (slot:victor, 2026-05-26)
+  // SwissPartTransferSequenceEngine.generate + ActionSequenceExtractorEngine.extractFromTip
+  "swiss_part_transfer_sequence", "action_sequence_extract",
 ] as const;
 
 /** Registers multi-operation orchestration dispatcher.
@@ -115,6 +118,22 @@ Params vary by action — pass relevant fields in params object.`,
           case "multi_setup_plan": {
             const eng = await getEngine("setup");
             result = eng.plan(params);
+            break;
+          }
+          // ─── WIRE-MULTIOP-DIRECT-MS0/U-VICTOR-MULTIOP-DIRECT (2026-05-26) ───
+          case "swiss_part_transfer_sequence": {
+            const { swissPartTransferSequenceEngine } = await import("../../engines/SwissPartTransferSequenceEngine.js");
+            result = swissPartTransferSequenceEngine.generate(params as any);
+            break;
+          }
+          case "action_sequence_extract": {
+            const { ActionSequenceExtractorEngine } = await import("../../engines/ActionSequenceExtractorEngine.js");
+            const p = params as any;
+            if (Array.isArray(p?.tips)) {
+              result = ActionSequenceExtractorEngine.extractBatch(p.tips, p?.options);
+            } else {
+              result = ActionSequenceExtractorEngine.extractFromTip(p?.tip ?? p, p?.options);
+            }
             break;
           }
           default:

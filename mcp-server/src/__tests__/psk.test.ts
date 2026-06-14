@@ -107,29 +107,33 @@ describe("psk.mjs direct API — COMMAND-KERNEL-MS0/U-CK01", () => {
     }
   });
 
-  it("dispatch('manifest') returns the 4 hardcoded source paths + availability flags", async () => {
+  it("dispatch('manifest') returns live inventory counts + a 10-key top projection", async () => {
+    // U-CK02 replaced U-CK01's placeholder manifest (which returned
+    // {shell_only, sources, available}) with live counts parsed from
+    // PRISM-INVENTORY-LATEST.md. Assert the real U-CK02 contract.
     const r = await psk.dispatch("manifest", {});
     expect(r.ok).toBe(true);
     expect(r.syscall).toBe("manifest");
-    expect(r.shell_only).toBe(true);
     expect(typeof r.result).toBe("object");
-    // The 4 declared sources MUST be present by name
-    const sourceKeys = Object.keys(r.result.sources).sort();
-    expect(sourceKeys).toEqual(["buildState", "dispatcherDigest", "engineDigest", "inventory"]);
-    // Path content invariants
-    expect(r.result.sources.inventory.endsWith("PRISM-INVENTORY-LATEST.md")).toBe(true);
-    expect(r.result.sources.buildState.endsWith("BUILD_STATE.json")).toBe(true);
-    // availability map has a boolean for every source
-    for (const k of sourceKeys) {
-      expect(typeof r.result.available[k]).toBe("boolean");
-    }
+    // counts: parsed inventory-label -> count map.
+    expect(typeof r.result.counts).toBe("object");
+    expect(r.result.counts).not.toBeNull();
+    // top: a fixed 10-key projection (MANIFEST_TOP_KEYS).
+    expect(typeof r.result.top).toBe("object");
+    expect(Object.keys(r.result.top).length).toBe(10);
+    // engines is always present in the inventory — concrete numeric check.
+    expect(typeof r.result.top.engines).toBe("number");
+    expect(r.result.top.engines).toBeGreaterThan(0);
+    // origin names the inventory file the counts were parsed from.
+    expect(typeof r.result.origin).toBe("object");
+    expect(String(r.result.origin.file).endsWith("PRISM-INVENTORY-LATEST.md")).toBe(true);
   });
 
   it("dispatch('whoami') resolves repoRoot + helpersDir to existing directories", async () => {
     const r = await psk.dispatch("whoami", {});
     expect(r.ok).toBe(true);
     expect(r.syscall).toBe("whoami");
-    expect(r.shell_only).toBe(true);
+    // U-CK02's whoami is a real implementation — no shell_only placeholder.
     // repoRoot must resolve to a real on-disk directory
     expect(typeof r.result.repoRoot).toBe("string");
     expect(fs.existsSync(r.result.repoRoot)).toBe(true);
@@ -327,9 +331,10 @@ describe("prism_session:psk MCP wiring round-trip — U-CK01", () => {
     }));
     expect(out.ok).toBe(true);
     expect(out.syscall).toBe("manifest");
-    // The 4 declared sources survive the round-trip
-    const sourceKeys = Object.keys(out.result.sources).sort();
-    expect(sourceKeys).toEqual(["buildState", "dispatcherDigest", "engineDigest", "inventory"]);
+    // U-CK02 manifest shape (counts/top/origin) survives the MCP round-trip.
+    expect(typeof out.result.counts).toBe("object");
+    expect(Object.keys(out.result.top).length).toBe(10);
+    expect(String(out.result.origin.file).endsWith("PRISM-INVENTORY-LATEST.md")).toBe(true);
   });
 
   it("action:'psk' with FLAT params (normalizeParams convention) merges into syscallParams", async () => {

@@ -52,7 +52,7 @@ export function getRequestHeaders(): Record<string, string> {
 async function request<T>(
   method: 'GET' | 'POST' | 'PATCH',
   path: string,
-  body?: Record<string, unknown>,
+  body?: unknown,
 ): Promise<PrismResponse<T>> {
   return fetchJson<PrismResponse<T>>(`${API_BASE}${path}`, {
     method,
@@ -65,7 +65,7 @@ async function request<T>(
 async function requestData<T>(
   method: 'GET' | 'POST' | 'PATCH',
   path: string,
-  body?: Record<string, unknown>,
+  body?: unknown,
 ): Promise<DataResponse<T>> {
   return fetchJson<DataResponse<T>>(`${API_BASE}${path}`, {
     method,
@@ -2243,4 +2243,35 @@ export async function notifyMarkRead(employeeId: string, notificationId: string)
 }
 export async function notifyUnreadCount(employeeId: string): Promise<PrismResponse> {
   return request('GET', `/erp/notify-unread-count/${encodeURIComponent(employeeId)}`);
+}
+
+// 2026-05-26 (slot golf, tsc-fix): wedmRequestApproval is called by WireEdmWizardPage:426
+// (production code) and mocked by WireEdmPages.test.tsx. The real backend route was never
+// wired. Per R12 fail-loud — production try/catch at WireEdmWizardPage:432 already routes
+// failure to setErpError('Failed to request approval'), so user-visible failure is honest.
+// Tests bypass via vi.fn(). Future U-WEB-WEDM-REQUEST-APPROVAL implements the real route.
+export async function wedmRequestApproval(_params: { reason: string }): Promise<PrismResponse<{ status: string; ticketId?: string }>> {
+  throw new Error('NOT_IMPLEMENTED: wedmRequestApproval was never wired — see U-WEB-WEDM-REQUEST-APPROVAL');
+}
+
+// 2026-05-27 (slot golf, GOAL-TSC-FIX iter6): wedmApprovalStatus + WedmApprovalStatus
+// referenced by WireEdmWizardPage but never landed. Same fail-loud pattern.
+// Future U-WEB-WEDM-APPROVAL-STATUS wires the real route.
+export interface WedmApprovalStatus {
+  status: 'pending' | 'approved' | 'rejected' | string;
+  ticketId?: string;
+  // camelCase + snake_case both accepted — backend returns snake_case but some
+  // frontend call sites use camelCase. Future U-WEB-API-CASE-NORMALIZE picks one.
+  approvedBy?: string;
+  approvedAt?: string;
+  approver?: string;
+  approved_at?: string;
+  approved?: boolean;
+  requires_approval?: boolean;
+  reason?: string;
+  [key: string]: unknown;
+}
+
+export async function wedmApprovalStatus(_ticketId?: string): Promise<PrismResponse<WedmApprovalStatus>> {
+  throw new Error('NOT_IMPLEMENTED: wedmApprovalStatus was never wired — see U-WEB-WEDM-APPROVAL-STATUS');
 }

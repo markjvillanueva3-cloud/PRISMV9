@@ -1,0 +1,19 @@
+---
+name: reference_galaxy_context_federation_viz_roost_2026_06_01
+description: U-GCF-VIZ-ROOST — federation surfaced as a /system-viz ghost roost (PSN leg
+type: reference
+source: prism-memory
+synced: 2026-06-09T14:54:09.125Z
+aliases: reference_galaxy_context_federation_viz_roost_2026_06_01
+---
+
+
+**U-GCF-VIZ-ROOST (GALAXY-CONTEXT-FEDERATION-MS0, slot:alpha, 2026-06-01)** — surfaces the federation in `/system-viz` (PSN leg #6, System Viz), the milestone's last broadly-useful synergy step after the 11/12 build.
+
+- **What:** `scripts/generate-galaxy-federation-roost-features.mjs` (+ `.test.mjs`, 11/11 node:test). Standalone system-viz *augmentation generator* (the proven pattern — mirrors `generate-substrate-meta-roost-features.mjs`). Pure `generate(loaded, existingNodeIds)` + fail-soft `main()`. Reads the 5 federation sidecars under `state/shared/galaxy-cards/` (INDEX / MASTER-DIGEST / KNOWS-MAP / DEDUP-REPORT / SAVINGS-REPORT), writes ONE augmentation `state/shared/system-viz/galaxy-federation-roost-augmentation.json` (`{schemaVersion,generatedAt,source,newNodes[],newEdges[]}`).
+- **Emits:** `ghost.galaxy_federation` (L7, parent `ghost.planned_features`) + one child roost per present artifact `ghost.gcf_{cards,digest,knows_map,dedup,savings}` (L8) with **live-stat labels** + an `aggregates` edge each. Live: 6 nodes / 5 edges.
+- **R8 lesson (caught a P0):** the system-viz merge does NOT glob `*-augmentation.json` — `merge-augmentations.mjs` has a HARDCODED `loadOptional("<name>.json")` per augmentation + a splice block, and `regen-viz.mjs` has a HARDCODED ordered generator list. A new roost needs registration in BOTH (the building slot does it — bravo did exactly this for octopus-consensus 2026-06-01). My initial assumption that the augmentation file auto-discovers was wrong; reading the real consumers first surfaced it.
+- **R7 deferral:** both target files (`regen-viz.mjs` + `merge-augmentations.mjs`) had uncommitted peer work (` M`) when I built this — a direct edit + pathspec commit would have swept the peer's changes (multi-writer-clobber / attribution-loss), and `git add -p` is unavailable in the harness. So the generator + augmentation ship now (self-contained, alpha's lane); the 2 registrations are deferred to `state/shared/dashboards/patches/HOOK-PATCH-GCF-VIZ-ROOST-WIRE.md` for sierra.
+- **WIRED + RENDERED (R12, verified):** generator BUILT + tested; **U-GCF-VIZ-ROOST-WIRE applied the 2 registrations DIRECTLY** (regen-viz FAST[] + merge-augmentations loadOptional/versions/splice) once the peer-dirty target files (sierra's regen-viz, bravo's merge) committed + went clean — so the brief R7 patch-sibling deferral resolved without clobber. A live `merge-augmentations` run folded it: `grep` confirms `galaxy_federation` + `gcf_cards` present in the 663MB `system-graph.json`. **The roost renders in /system-viz now** + on every regen (standard cadence). The per-file 2-agent scrutiny gate was server-rate-limited (146 fleet loops, 0 subagent tokens); substituted with node --check + an empirical merge-fold simulation (stronger than an agent summary for an exact-mirror change) + live-graph grep verification.
+- **Lesson — over-escaped grep false-negative:** a complex PowerShell-invoked bash grep pattern (`'"ghost\.(galaxy_federation|gcf_[a-z_]+)"'`) returned empty (backslash/paren mangling across the PS→bash boundary) and nearly led me to conclude the fold failed; a simple `grep -c "galaxy_federation"` confirmed presence. Prefer simple grep patterns across the PS→bash boundary; verify a negative before acting on it ([[feedback_verify_actual_contract_not_proxy]]).
+- Wiki: [[galaxy-context-federation]] §U-GCF-VIZ-ROOST. Related: [[reference_galaxy_context_federation_card_2026_05_31]], [[feedback_net_benefit_auto_build]], [[feedback_conflict_fork_rule]].

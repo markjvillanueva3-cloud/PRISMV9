@@ -373,7 +373,7 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
     cost_budget_usd: z.number().nonnegative().optional().describe("Hard cost budget in USD"),
     needs_tools: z.boolean().optional().describe("Tool-use required for this task"),
     require_safety: z.boolean().optional().describe("Safety-critical pathway required"),
-    hardware: z.enum(["home_4080", "work_3080", "cloud_only"]).describe("Live hardware profile for routing"),
+    hardware: z.enum(["home_blackwell", "home_4080", "work_3080", "cloud_only"]).describe("Live hardware profile for routing"),
     backend_up: z.record(z.string(), z.boolean()).optional().describe("Backend availability snapshot keyed by backend name; missing keys treated as available"),
     force_backend: z.enum(["ollama", "anthropic", "openai"]).optional().describe("Override backend selection"),
     force_model: z.string().optional().describe("Override model id"),
@@ -393,4 +393,59 @@ export const ACTION_ORCHESTRATION_SCHEMAS: ActionSchemaMap = {
     registryFile: z.string().optional().describe("Optional absolute path to an agent registry JSON file"),
     limit: z.number().int().positive().max(50).optional().describe("Max matches to return (default 3)"),
   }).passthrough().describe("Recommend Task-tool agents for a prompt by keyword-trigger match"),
+
+  // ── U-BRIDGE-WIRE-AGENT (slot:mike, 2026-05-23) ──────────────────────────────
+  agent_hardened_validate: z.object({
+    output: z.record(z.string(), z.unknown()).describe("Agent output object to verify"),
+    groundings: z.array(z.object({
+      formula_id: z.string().min(1),
+      formula_name: z.string().min(1),
+      formula_latex: z.string(),
+      input_values: z.record(z.string(), z.number()),
+      output_value: z.number(),
+      output_unit: z.string(),
+      uncertainty: z.number(),
+      source: z.string().min(1),
+    }).passthrough()).min(1).describe("PhysicsGrounding[] — formulas + values backing the output"),
+  }).passthrough().describe("HardenedAgentCapabilities — verify an agent output is physics-grounded"),
+
+  agent_auto_update_snapshot: z.object({}).passthrough()
+    .describe("AgentAutoUpdate — snapshot engine/dispatcher/hook/skill counts (read-only)"),
+
+  agent_workflow_list: z.object({
+    workflow_id: z.string().optional().describe("Optional — return a specific workflow by id"),
+  }).passthrough().describe("AgentWorkflow — list registered workflows or fetch one by id"),
+
+  // ── U-BRIDGE-WIRE-EDIT-PLAN (slot:mike, 2026-05-23) ─────────────────────────
+  edit_plan_suggest_tool: z.object({
+    fileSize: z.number().nonnegative().optional().describe("Full file size in bytes (camelCase form)"),
+    file_size: z.number().nonnegative().optional().describe("Full file size in bytes (snake_case form)"),
+    changeSize: z.number().nonnegative().optional().describe("Change size in bytes (camelCase form)"),
+    change_size: z.number().nonnegative().optional().describe("Change size in bytes (snake_case form)"),
+  }).passthrough().describe("EditPlanner — recommend Edit vs Write for a change based on size ratio"),
+
+  // ── U-BRIDGE-WIRE-REPETITION (slot:mike, 2026-05-23) ────────────────────────
+  repetition_detect: z.object({
+    text: z.string().min(1).describe("Input text to analyze for repetition patterns"),
+    maxTopRepeats: z.number().int().positive().optional().describe("Max top-repeated tokens to return (default 5)"),
+  }).passthrough().describe("RepetitionDetector — analyze repetition + compression opportunity in text"),
+
+  // ── U-BRIDGE-WIRE-TOSUM (slot:mike, 2026-05-23) ─────────────────────────────
+  tool_output_summarize: z.object({
+    output: z.string().min(1).describe("Tool output to compress"),
+    maxLines: z.number().int().positive().optional().describe("Max output lines (default 10)"),
+  }).passthrough().describe("ToolOutputSummarizer — compress noisy tool output (tests/builds/git/etc) to N lines"),
+
+  // ── U-BRIDGE-WIRE-INCREAD (slot:mike, 2026-05-23) ───────────────────────────
+  incremental_read_state: z.object({
+    file: z.string().min(1).describe("Absolute or relative file path whose read-history is queried"),
+  }).passthrough().describe("IncrementalRead — return offset/limit + read-progress state for a file"),
+
+  // ── U-BRIDGE-WIRE-CTX-UTIL (slot:mike, 2026-05-23) ──────────────────────────
+  conversation_classify_segment: z.object({
+    content: z.string().min(1).describe("Conversation content segment to classify"),
+  }).passthrough().describe("ConversationTrimmer — classify a content segment by retention priority"),
+  prefetch_extract_imports: z.object({
+    content: z.string().min(1).describe("Source file content to scan for imports"),
+  }).passthrough().describe("SmartPrefetch — extract import paths from a TS/JS source string"),
 };

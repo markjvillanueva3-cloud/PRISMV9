@@ -1,0 +1,157 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-05-26T17:17:03.141Z",
+  "totalSources": 8,
+  "present": 7,
+  "missing": 1,
+  "sources": [
+    {
+      "id": "psn-corpus-manifest",
+      "kind": "aggregate-manifest",
+      "path": "H:/prism/state/shared/training/psn-corpus-manifest.json",
+      "description": "PSN 11-leg training corpus manifest (obsidian/wiki/memories/tribal/system-viz/engines/algorithms/formulas/prism-ai).",
+      "domains": [
+        "general"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/training/psn-corpus-manifest.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 786,
+        "mtime": "2026-05-25T06:00:50.706Z"
+      },
+      "rows": 369734
+    },
+    {
+      "id": "cad-cam-pdf-resources-index",
+      "kind": "pdf-classification-manifest",
+      "path": "H:/prism/mcp-server/data/state/cad-cam-resources-pdf-index.json",
+      "description": "CAD/CAM resources PDF classification — 4008 PDFs across resources/ + JM DIE/ keyed by (domain, software).",
+      "domains": [
+        "cad",
+        "cam",
+        "blueprint",
+        "machine",
+        "training",
+        "catalog"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/mcp-server/data/state/cad-cam-resources-pdf-index.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 1097726,
+        "mtime": "2026-05-26T16:08:45.050Z"
+      },
+      "rows": 4008
+    },
+    {
+      "id": "cad-cam-pdf-nodes",
+      "kind": "pdf-extracted-text",
+      "rootDir": "H:/prism/state/shared/cad-cam-pdf-nodes",
+      "description": "Per-PDF extracted text+HTML nodes. JSON+HTML pair per PDF, sha8-keyed.",
+      "domains": [
+        "cad",
+        "cam",
+        "blueprint"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/cad-cam-pdf-nodes",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": null,
+        "mtime": "2026-05-26T16:13:09.085Z"
+      },
+      "fileCount": 766
+    },
+    {
+      "id": "cad-cam-pdf-tribal-seeds",
+      "kind": "tribal-seed-pointers",
+      "path": "H:/prism/state/shared/cad-cam-pdf-tribal-seeds.json",
+      "description": "Pointer-style tribal tips per CAD/CAM software (semantic AI promotion deferred — needs Ollama).",
+      "domains": [
+        "cad",
+        "cam",
+        "blueprint"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/cad-cam-pdf-tribal-seeds.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 4194,
+        "mtime": "2026-05-26T16:23:59.887Z"
+      },
+      "rows": 4
+    },
+    {
+      "id": "cam-master-training-set",
+      "kind": "lora-training-jsonl",
+      "path": "H:/prism/state/shared/corpus/cam-master-training-set.jsonl",
+      "description": "CAM-AI-TRAINING-MS0 3766-tuple LoRA training set, 8 tracks (template/physics/param/cross-system/iso286/finish/coolant/operator-gate).",
+      "domains": [
+        "cam"
+      ],
+      "status": "missing",
+      "resolvedPath": "H:/prism/mcp-server/data/state/cam-master-training-set.jsonl",
+      "fileStat": null
+    },
+    {
+      "id": "cad-software-master-index",
+      "kind": "extraction-master-index",
+      "path": "H:/prism/mcp-server/data/extracted-knowledge/CAD_SOFTWARE_MASTER_INDEX.json",
+      "description": "Master index of CAD-software extraction batches (freecad/fusion360/inventor/etc).",
+      "domains": [
+        "cad"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/mcp-server/data/extracted-knowledge/CAD_SOFTWARE_MASTER_INDEX.json",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": 13135,
+        "mtime": "2026-04-19T05:06:59.750Z"
+      },
+      "rows": null
+    },
+    {
+      "id": "academy-course-definitions",
+      "kind": "curriculum-modules",
+      "rootDir": "H:/prism/mcp-server/src/data/academy",
+      "description": "PRISM Academy curriculum — TS course modules per topic (lima PRISM-ACADEMY-FEATURES-MS0).",
+      "domains": [
+        "general",
+        "cad",
+        "cam",
+        "cnc",
+        "shop-basics",
+        "erp"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/mcp-server/src/data/academy",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": null,
+        "mtime": "2026-05-25T08:03:29.158Z"
+      },
+      "fileCount": 29
+    },
+    {
+      "id": "tribal-graph-corpus",
+      "kind": "tribal-embed-corpus",
+      "rootDir": "H:/prism/state/shared/tribal-graph",
+      "description": "Tribal embedding corpus (course-tribal-nodes + content candidates).",
+      "domains": [
+        "general",
+        "mill",
+        "lathe",
+        "wedm"
+      ],
+      "status": "present",
+      "resolvedPath": "H:/prism/state/shared/tribal-graph",
+      "fileStat": {
+        "exists": true,
+        "sizeBytes": null,
+        "mtime": "2026-05-16T05:47:40.864Z"
+      },
+      "fileCount": 8
+    }
+  ]
+}

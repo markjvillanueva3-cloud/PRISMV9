@@ -1810,6 +1810,19 @@ export function QuoteBuilderPage() {
                   <SummaryTile label="Margin stack" value={formatCurrency(estimate.margin)} hint="Margin currently carried in the recommended shop price." />
                 </div>
 
+                {estimate.pricing?.below_margin_floor ? (
+                  <div
+                    role="alert"
+                    className="mt-5 rounded-[22px] border border-amber-400/40 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                  >
+                    <span className="font-semibold text-amber-200">Margin floor alert.</span>{' '}
+                    This quote&apos;s margin
+                    {typeof estimate.pricing.margin_pct === 'number' ? ` (${estimate.pricing.margin_pct.toFixed(1)}%)` : ''}{' '}
+                    is below the {estimate.pricing.margin_floor_pct ?? 20}% floor -- discount stacking has eroded
+                    contribution margin. Review before sending this quote.
+                  </div>
+                ) : null}
+
                 <div className="mt-5 rounded-[22px] border border-white/8 bg-black/15 p-4">
                   <div className="text-sm font-semibold text-slate-50">Base cost ladder</div>
                   <div className="mt-4 space-y-2">
@@ -2099,7 +2112,7 @@ export function QuoteBuilderPage() {
                             <div>
                               <span className="font-semibold text-slate-100">History entries:</span>{' '}
                               {quoteGenerateWorkspace.history
-                                ? `${quoteGenerateWorkspace.history.revisions.length} revision(s) · ${quoteGenerateWorkspace.history.status_history.length} status change(s)`
+                                ? `${quoteGenerateWorkspace.history.revisions?.length ?? 0} revision(s) · ${quoteGenerateWorkspace.history.status_history?.length ?? 0} status change(s)`
                                 : 'Mounted history surface did not return revisions yet.'}
                             </div>
                             <div>
@@ -2112,7 +2125,7 @@ export function QuoteBuilderPage() {
                             </div>
                             <div>
                               <span className="font-semibold text-slate-100">Recent status trail:</span>{' '}
-                              {quoteGenerateWorkspace.history?.status_history.length
+                              {quoteGenerateWorkspace.history?.status_history?.length
                                 ? quoteGenerateWorkspace.history.status_history
                                   .slice(0, 3)
                                   .map((entry) => `${entry.from_status} → ${entry.to_status}`)

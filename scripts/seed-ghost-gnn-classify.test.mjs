@@ -28,6 +28,9 @@ import {
   partitionGhosts,
   buildGhostSubgraph,
   voteDispatcher,
+  fitIsotonic,
+  applyIsotonic,
+  fitDirectConfidenceCalibrator,
   classifyUnknownGhosts,
   gnnClassifyUnknowns,
   applyGnnClassifications,
@@ -440,6 +443,84 @@ test("classifyUnknownGhosts skips embed-failed when the checkpoint feature dim m
   assert.match(r.reason, /^embed-failed:/);
 });
 
+// U-NN-PREDICTOR-EMBED-WIRE follow-up (2026-05-24, slot papa): the
+// 768-d-checkpoint regression that defeated tier-5 promotion was that a
+// model trained on a non-projected feature source had its inputDim baked into
+// the checkpoint, but the seed-ghost classifier called embedGraph WITHOUT
+// passing the source forward — so the predictor fell back to the 8-d projected
+// features and the inputDim guard threw. The fix forwards predictor.metadata
+// .embeddingSource so the predictor uses the SAME layout the trainer did.
+test("classifyUnknownGhosts forwards predictor.metadata.embeddingSource to embedGraph (U-NN-PREDICTOR-EMBED-WIRE)", () => {
+  // Build a tiny embedding-source JSONL the predictor will pick up. Header
+  // line declares dim, body rows quantize int8 vectors. Predictor's
+  // loadEmbeddingFeatures expects rows keyed by node id `n`.
+  const FAKE_DIM = 4; // small enough to keep the test fast + obviously not 8
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "embedwire-"));
+  const embedPath = path.join(tmpdir, "embeddings.jsonl");
+  const lines = [JSON.stringify({ __meta: true, dim: FAKE_DIM })];
+  const graph = makeGraph({ unknownN: 1 });
+  for (const node of graph.nodes) {
+    // Deterministic int8 quantization of a constant vector so every node gets
+    // a non-zero embedding (predictor sets miss when the row is absent).
+    lines.push(JSON.stringify({ n: node.id, q: new Array(FAKE_DIM).fill(7) }));
+  }
+  fs.writeFileSync(embedPath, lines.join("\n") + "\n", "utf8");
+
+  // Predictor whose model was "trained" on FAKE_DIM features + whose metadata
+  // names the source. Without the fix, embedGraph would default to projected
+  // 8-d features and throw the inputDim guard.
+  const predictor = {
+    model: createModel({ inputDim: FAKE_DIM, hiddenDim: 12, embedDim: 8, seed: 7 }),
+    calibrator: null,
+    metadata: { embeddingSource: embedPath },
+  };
+  const r = classifyUnknownGhosts(graph, { env: {}, predictor, minConf: 0 });
+  assert.equal(r.skipped, false, "with embeddingSource forwarded, eval must not skip");
+  assert.equal(r.classifications.length, 1, "the 1 UNKNOWN target should be classified");
+  for (const c of r.classifications) {
+    assert.ok(isValidDispatcher(c.dispatcher), c.dispatcher);
+    assert.match(c.reason, /GNN tier-5/);
+  }
+
+  // Regression preserved: when metadata.embeddingSource is absent, the same
+  // 768-d-style mismatch must still embed-fail (not silently pass).
+  const blindPredictor = {
+    model: createModel({ inputDim: FAKE_DIM, hiddenDim: 12, embedDim: 8, seed: 7 }),
+    calibrator: null,
+    metadata: null,
+  };
+  const rBlind = classifyUnknownGhosts(graph, { env: {}, predictor: blindPredictor });
+  assert.equal(rBlind.skipped, true, "without source, mismatch must still surface");
+  assert.match(rBlind.reason, /^embed-failed:/);
+
+  fs.rmSync(tmpdir, { recursive: true, force: true });
+});
+
+test("classifyUnknownGhosts opts.embeddingSource overrides predictor.metadata.embeddingSource (test seam)", () => {
+  const FAKE_DIM = 4;
+  const tmpdir = fs.mkdtempSync(path.join(os.tmpdir(), "embedwire-override-"));
+  const goodPath = path.join(tmpdir, "good.jsonl");
+  const badPath = "/nonexistent/path/bad.jsonl";
+  const lines = [JSON.stringify({ __meta: true, dim: FAKE_DIM })];
+  const graph = makeGraph({ unknownN: 1 });
+  for (const node of graph.nodes) {
+    lines.push(JSON.stringify({ n: node.id, q: new Array(FAKE_DIM).fill(5) }));
+  }
+  fs.writeFileSync(goodPath, lines.join("\n") + "\n", "utf8");
+
+  const predictor = {
+    model: createModel({ inputDim: FAKE_DIM, hiddenDim: 12, embedDim: 8, seed: 7 }),
+    calibrator: null,
+    metadata: { embeddingSource: badPath }, // would fail
+  };
+  // Caller override wins — the bad metadata path is ignored.
+  const r = classifyUnknownGhosts(graph, {
+    env: {}, predictor, minConf: 0, embeddingSource: goodPath,
+  });
+  assert.equal(r.skipped, false, "caller-override embeddingSource must win over metadata");
+  fs.rmSync(tmpdir, { recursive: true, force: true });
+});
+
 test("classifyUnknownGhosts classifies UNKNOWN targets with a valid predictor", () => {
   const r = classifyUnknownGhosts(makeGraph({ unknownN: 2 }), {
     env: {}, predictor: makePredictor(), minConf: 0, // gate open — assert mechanics
@@ -552,8 +633,10 @@ test("applyGnnClassifications updates a ghost node + appends a proposed-wire edg
   assert.equal(node.confidence, 0.78);
   assert.equal(node.reason, "GNN tier-5 test");
   assert.match(node.info, /prism_cam/);
+  // U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra): canonical disp node id, not the dead
+  // dispatcher.prism_cam — prism_cam resolves to the file-derived camdispatcher.
   assert.deepEqual(graph.edges[0], {
-    from: "g.x", to: "dispatcher.prism_cam", type: "ghost-wire",
+    from: "g.x", to: "disp.camdispatcher", type: "ghost-wire",
     relation: "proposed-wire", status: "proposed", intensity: 0.78,
   });
 });
@@ -561,7 +644,8 @@ test("applyGnnClassifications updates a ghost node + appends a proposed-wire edg
 test("applyGnnClassifications does not duplicate an existing edge", () => {
   const graph = {
     nodes: [makeGhost("g.x", "XEngine", "UNKNOWN")],
-    edges: [{ from: "g.x", to: "dispatcher.prism_cam", type: "ghost-wire" }],
+    // Pre-seed the canonical target so the dedup guard is exercised correctly.
+    edges: [{ from: "g.x", to: "disp.camdispatcher", type: "ghost-wire" }],
   };
   const res = applyGnnClassifications(graph, [
     { engine: "XEngine", dispatcher: "prism_cam", confidence: 0.8, reason: "r" },
@@ -626,4 +710,132 @@ test("parseArgs sets help and rejects a garbage --limit gracefully", () => {
 test("main returns 0 for --help and 2 for an unknown argument", () => {
   assert.equal(main(["--help"]), 0);
   assert.equal(main(["--nope"]), 2);
+});
+
+// GNN-F0/2d: direct-embed path (raw nomic cosine k-NN, bypasses the model).
+import { loadDirectEmbeddings } from "./seed-ghost-gnn-classify.mjs";
+test("loadDirectEmbeddings dequantizes q*s and filters by neededIds (fail-soft on missing)", () => {
+  const file = '{"__meta":true}\n' +
+    JSON.stringify({ id: "a", q: [127, 0], s: 0.5 }) + "\n" +
+    JSON.stringify({ id: "b", q: [0, 127], s: 0.25 }) + "\n";
+  const m = loadDirectEmbeddings("x", new Set(["a"]), { readFileImpl: () => file });
+  assert.deepEqual(m.get("a"), [63.5, 0], "a dequantized to q*s");
+  assert.equal(m.has("b"), false, "b filtered out by neededIds");
+  const all = loadDirectEmbeddings("x", null, { readFileImpl: () => file });
+  assert.equal(all.size, 2, "null neededIds → all records");
+  assert.equal(loadDirectEmbeddings("x", null, { readFileImpl: () => { throw new Error("ENOENT"); } }).size, 0, "missing file → empty (fail-soft)");
+});
+
+test("direct-embed breaks the constant-vote: distinct targets get distinct dispatchers", () => {
+  const g = (id, label, pw) => ({ id, label, kind: "ghost.unwired-engine", proposed_wiring: pw, confidence: 0.9 });
+  const graph = { nodes: [
+    g("c1", "C1", "prism_cam"), g("c2", "C2", "prism_cam"),
+    g("k1", "K1", "prism_calc"), g("k2", "K2", "prism_calc"),
+    g("t1", "T1", "prism_cam"), g("t2", "T2", "prism_calc"), // truth labels (held out as targets)
+  ], edges: [] };
+  // Embeddings: UNIT vectors (like real nomic q*s) so sigmoid(dot) stays in its
+  // discriminating range — T1 near the cam axis, T2 near the calc axis. (Magnitude-
+  // 127 vectors would saturate sigmoid to 1.0 and erase the ranking — a test bug,
+  // not a code bug: real nomic vectors are L2-unit.)
+  const emb = [
+    { id: "c1", q: [1, 0], s: 1 }, { id: "c2", q: [0.98, 0.2], s: 1 },
+    { id: "k1", q: [0, 1], s: 1 }, { id: "k2", q: [0.2, 0.98], s: 1 },
+    { id: "t1", q: [0.97, 0.24], s: 1 }, { id: "t2", q: [0.24, 0.97], s: 1 },
+  ].map((r) => JSON.stringify(r)).join("\n");
+  const res = classifyUnknownGhosts(graph, {
+    directEmbed: true,
+    readFileImpl: () => emb,
+    targetNames: new Set(["T1", "T2"]),
+    minConf: 0,
+    env: {},
+  });
+  assert.equal(res.skipped, false, "direct-embed ran without a checkpoint");
+  assert.equal(res.stats.mode, "direct-embed");
+  const byEngine = new Map(res.classifications.map((c) => [c.engine, c.dispatcher]));
+  assert.equal(byEngine.get("T1"), "prism_cam", "T1 (near cam) → prism_cam");
+  assert.equal(byEngine.get("T2"), "prism_calc", "T2 (near calc) → prism_calc");
+  // The crux: NOT a constant vote — two targets, two different dispatchers.
+  assert.equal(new Set([...byEngine.values()]).size, 2, "distinct predictions (degeneracy broken)");
+});
+
+// GNN-F0: leak-free confidence calibration (isotonic + leave-one-out). Richer
+// source-signal embeddings lifted the argmax but left voteShare UNDERconfident
+// (Brier/AUROC regressed); this realigns confidence to empirical P(correct).
+test("fitIsotonic: null on empty/invalid input", () => {
+  assert.equal(fitIsotonic([]), null);
+  assert.equal(fitIsotonic(null), null);
+  assert.equal(fitIsotonic([{ x: NaN, y: 1 }, { x: 1, y: Infinity }]), null);
+});
+
+test("fitIsotonic: PAV produces a non-decreasing fit (pools violators)", () => {
+  const m = fitIsotonic([{ x: 0.1, y: 0 }, { x: 0.2, y: 1 }, { x: 0.3, y: 0 }, { x: 0.4, y: 1 }, { x: 0.5, y: 1 }]);
+  assert.ok(m && m.ys.length > 0);
+  for (let i = 1; i < m.ys.length; i++) assert.ok(m.ys[i] >= m.ys[i - 1] - 1e-9, "ys non-decreasing");
+});
+
+test("fitIsotonic: single point → constant map", () => {
+  const m = fitIsotonic([{ x: 0.5, y: 1 }]);
+  assert.equal(applyIsotonic(m, 0.1), 1);
+  assert.equal(applyIsotonic(m, 0.9), 1);
+});
+
+test("applyIsotonic: null model is identity; interpolates; flat-extrapolates", () => {
+  assert.equal(applyIsotonic(null, 0.42), 0.42, "null model → identity (fail-soft)");
+  const m = { xs: [0.2, 0.8], ys: [0.0, 1.0] };
+  assert.ok(Math.abs(applyIsotonic(m, 0.5) - 0.5) < 1e-9, "midpoint interpolation");
+  assert.equal(applyIsotonic(m, 0.0), 0.0, "below range → first y");
+  assert.equal(applyIsotonic(m, 1.0), 1.0, "above range → last y");
+});
+
+test("fitDirectConfidenceCalibrator: null on a tiny pool (fail-soft)", () => {
+  assert.equal(fitDirectConfidenceCalibrator([], new Map()), null);
+  assert.equal(fitDirectConfidenceCalibrator([{ id: "a" }, { id: "b" }], new Map()), null, "<3 refs");
+});
+
+test("fitDirectConfidenceCalibrator: fits a leak-free LOO map from references only", () => {
+  // 12 references in two clean clusters (cam on x-axis, calc on y-axis) → ≥10 LOO votes.
+  const refs = [];
+  const emb = new Map();
+  for (let i = 0; i < 6; i++) { const id = `c${i}`; refs.push({ id, label: id, proposed_wiring: "prism_cam", confidence: 0.9 }); emb.set(id, [1, i * 0.01, 0, 0]); }
+  for (let i = 0; i < 6; i++) { const id = `k${i}`; refs.push({ id, label: id, proposed_wiring: "prism_calc", confidence: 0.9 }); emb.set(id, [i * 0.01, 1, 0, 0]); }
+  const m = fitDirectConfidenceCalibrator(refs, emb, {});
+  assert.ok(m && Array.isArray(m.xs) && m.xs.length > 0, "fits a model from the reference pool");
+  const p = applyIsotonic(m, 0.5);
+  assert.ok(p >= 0 && p <= 1, "calibrated output is a valid probability");
+});
+
+test("fitDirectConfidenceCalibrator: a MIXED-correctness pool stays a valid monotone map (non-degenerate)", () => {
+  // Clean cam/calc clusters PLUS 'confusable' refs on the 45° line whose LOO votes
+  // are sometimes wrong → the fit is NOT the trivial constant-1 map of clean data.
+  const refs = [];
+  const emb = new Map();
+  const add = (id, pw, v) => { refs.push({ id, label: id, proposed_wiring: pw, confidence: 0.9 }); emb.set(id, v); };
+  for (let i = 0; i < 5; i++) add(`c${i}`, "prism_cam", [1, 0.02 * i, 0, 0]);
+  for (let i = 0; i < 5; i++) add(`k${i}`, "prism_calc", [0.02 * i, 1, 0, 0]);
+  for (let i = 0; i < 4; i++) add(`x${i}`, i % 2 ? "prism_cam" : "prism_calc", [0.7, 0.7, 0, 0]);
+  const m = fitDirectConfidenceCalibrator(refs, emb, {});
+  assert.ok(m && m.xs.length > 0, "fits a model from the mixed pool");
+  for (const y of m.ys) assert.ok(y >= 0 && y <= 1, "all calibrated values are valid probabilities");
+  for (let i = 1; i < m.ys.length; i++) assert.ok(m.ys[i] >= m.ys[i - 1] - 1e-9, "calibrated map is monotone non-decreasing");
+  for (const x of [0, 0.25, 0.5, 0.75, 1]) { const p = applyIsotonic(m, x); assert.ok(p >= 0 && p <= 1, `applyIsotonic(${x}) in range`); }
+});
+
+test("calibration preserves the argmax (only confidence moves) and plumbs the flag", () => {
+  const g = (id, label, pw) => ({ id, label, kind: "ghost.unwired-engine", proposed_wiring: pw, confidence: 0.9 });
+  const nodes = [];
+  const recs = [];
+  for (let i = 0; i < 6; i++) { nodes.push(g(`c${i}`, `C${i}`, "prism_cam")); recs.push({ id: `c${i}`, q: [1, i * 0.01], s: 1 }); }
+  for (let i = 0; i < 6; i++) { nodes.push(g(`k${i}`, `K${i}`, "prism_calc")); recs.push({ id: `k${i}`, q: [i * 0.01, 1], s: 1 }); }
+  nodes.push(g("t1", "T1", "prism_cam")); recs.push({ id: "t1", q: [0.97, 0.2], s: 1 });
+  nodes.push(g("t2", "T2", "prism_calc")); recs.push({ id: "t2", q: [0.2, 0.97], s: 1 });
+  const graph = { nodes, edges: [] };
+  const emb = recs.map((r) => JSON.stringify(r)).join("\n");
+  const run = (cal) => classifyUnknownGhosts(graph, { directEmbed: true, calibrateDirect: cal, readFileImpl: () => emb, targetNames: new Set(["T1", "T2"]), minConf: 0, env: {} });
+  const on = run(true);
+  const off = run(false);
+  assert.equal(on.stats.confidenceCalibrated, true, "calibrated run sets the flag");
+  assert.equal(off.stats.confidenceCalibrated, false, "uncalibrated run clears the flag");
+  const dispOn = on.classifications.map((c) => [c.engine, c.dispatcher]).sort();
+  const dispOff = off.classifications.map((c) => [c.engine, c.dispatcher]).sort();
+  assert.deepEqual(dispOn, dispOff, "argmax identical with/without calibration (calibration must not change predictions)");
 });

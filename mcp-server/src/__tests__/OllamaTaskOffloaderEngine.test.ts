@@ -188,4 +188,49 @@ describe("OllamaTaskOffloaderEngine", () => {
       expect(freshEngine.getInstalledModels()).toEqual([]);
     });
   });
+
+  // BLACKWELL-MODEL-INTEGRATION-MS0 P2 (2026-06-06): selectModel() install-gates on
+  // this.installedModels, so a catalogued-but-not-pulled model is never selected. These
+  // seed the private installed-set directly (the same bracket-access pattern the existing
+  // "invalid model selection" case uses) to assert the gate + the speed/quality ordering.
+  describe("selectModel install-gate + new gpt-oss/gemma4 catalog (P2)", () => {
+    const seedInstalled = (e: OllamaTaskOffloaderEngine, names: string[]): void => {
+      (e as unknown as { installedModels: string[] }).installedModels = [...names];
+    };
+
+    it("prefers gpt-oss:120b for search_synthesis when it is installed (lowest-latency capable)", () => {
+      seedInstalled(engine, ["gpt-oss:120b", "qwen2.5-coder:32b"]);
+      const m = engine["selectModel"]("search_synthesis");
+      // 120b avgLatency 2200ms < 32b 15000ms → the latency-sorted winner.
+      expect(m?.name).toBe("gpt-oss:120b");
+    });
+
+    it("skips the not-yet-pulled gpt-oss:120b and picks the installed 32b for search_synthesis", () => {
+      // gpt-oss:120b catalogued but ABSENT from the live install set (still pulling).
+      seedInstalled(engine, ["qwen2.5-coder:32b"]);
+      const m = engine["selectModel"]("search_synthesis");
+      expect(m?.name).toBe("qwen2.5-coder:32b");
+      expect(m?.name).not.toBe("gpt-oss:120b");
+    });
+
+    it("picks gpt-oss:20b for a light offload category when it is the fastest installed capable model", () => {
+      // 20b (800ms) beats 120b (2200ms) and 32b (15000ms) on summary by latency sort.
+      seedInstalled(engine, ["gpt-oss:120b", "gpt-oss:20b", "qwen2.5-coder:32b"]);
+      const m = engine["selectModel"]("summary");
+      expect(m?.name).toBe("gpt-oss:20b");
+    });
+
+    it("selects gemma4:31b for reasoning when it is the only installed capable model", () => {
+      // reasoning is in gpt-oss:120b + gemma4:31b capability sets; with only gemma4
+      // installed it is the pick (32b lacks "reasoning" in its capability list).
+      seedInstalled(engine, ["gemma4:31b", "qwen2.5-coder:32b"]);
+      const m = engine["selectModel"]("reasoning");
+      expect(m?.name).toBe("gemma4:31b");
+    });
+
+    it("returns null when none of the catalogued models are installed (gate holds, no phantom select)", () => {
+      seedInstalled(engine, ["some-unrelated-model:1b"]);
+      expect(engine["selectModel"]("search_synthesis")).toBeNull();
+    });
+  });
 });

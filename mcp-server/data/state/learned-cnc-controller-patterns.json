@@ -1,0 +1,2159 @@
+{
+  "schemaVersion": "1.0.0-DRAFT-no-consumer",
+  "schemaNote": "DRAFT marker: CNCControllerDeepLearningEngine.ingestLearnedPatterns() consumer ships in next AI-TRAINING-FIRST-MS0 sub-unit; bump to 1.0.0 on consumer landing.",
+  "generatedAt": "2026-05-19T15:45:38.777Z",
+  "sourceCorpus": "H:/prism/JM DIE/MACRO PROGRAMS",
+  "fileCount": 4,
+  "controllerCounts": {
+    "okuma_osp": 4
+  },
+  "ledger": {
+    "tool_slot_conventions": [
+      {
+        "controller": "okuma_osp",
+        "tool_number": "030303",
+        "digits": 6,
+        "operation": "SPOT DRILL",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min",
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 4
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "010101",
+        "digits": 6,
+        "operation": "OD ROUGH TURNING",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min",
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 3
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "020202",
+        "digits": 6,
+        "operation": "OD FINISH TURNING",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min",
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 3
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "050505",
+        "digits": 6,
+        "operation": "STEP DRILL 1",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "060606",
+        "digits": 6,
+        "operation": "STEP DRILL 2",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "070707",
+        "digits": 6,
+        "operation": "COUNTERBORE DRILL",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "080808",
+        "digits": 6,
+        "operation": "ID ROUGH BORING",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "090909",
+        "digits": 6,
+        "operation": "ID FINISH BORING",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "010101",
+        "digits": 6,
+        "operation": "GENERAL TURNING",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "020202",
+        "digits": 6,
+        "operation": "GENERAL TURNING",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "050505",
+        "digits": 6,
+        "operation": "DRILL",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "060606",
+        "digits": 6,
+        "operation": "THRU DRILL",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "070707",
+        "digits": 6,
+        "operation": "BORING TURNING",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "080808",
+        "digits": 6,
+        "operation": "BORING TURNING",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "090909",
+        "digits": 6,
+        "operation": "ID ROUGH BORING",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "101010",
+        "digits": 6,
+        "operation": "ID FINISH BORING",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "tool_number": "111111",
+        "digits": 6,
+        "operation": "GROOVE TURNING",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      }
+    ],
+    "v_variable_idioms": [
+      {
+        "controller": "okuma_osp",
+        "name": "VC100",
+        "expression": "1.32",
+        "description": "STOCK DIAMETER",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min",
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 3
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC102",
+        "expression": "0.7188",
+        "description": "SMALLEST DRILL / START BORE DIA",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC103",
+        "expression": "1.233",
+        "description": "FINISH ID - LARGE BORE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC105",
+        "expression": "1.0",
+        "description": "LARGE BORE DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC110",
+        "expression": "0.03",
+        "description": "OD FEATURE SIZE - 0 FOR NONE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC111",
+        "expression": "1",
+        "description": "OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC113",
+        "expression": "0",
+        "description": "ID LARGE FEATURE SIZE - 0 FOR NONE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC114",
+        "expression": "1",
+        "description": "ID LARGE FEATURE TYPE: 1=CHAMFER, 2=RADIUS",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC120",
+        "expression": "1.0",
+        "description": "SPOT DRILL DIAMETER",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC121",
+        "expression": "300",
+        "description": "SPOT DRILL SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC122",
+        "expression": "90",
+        "description": "SPOT DRILL POINT ANGLE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC123",
+        "expression": "0.1",
+        "description": "SPOT DRILL DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC125",
+        "expression": "1.22",
+        "description": "STEP DRILL 1 DIAMETER",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC126",
+        "expression": "90",
+        "description": "STEP DRILL 1 SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC127",
+        "expression": "0.008",
+        "description": "STEP DRILL 1 FEED/REV",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC128",
+        "expression": "130",
+        "description": "STEP DRILL 1 POINT ANGLE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC130",
+        "expression": "0.7188",
+        "description": "STEP DRILL 2 DIAMETER",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC131",
+        "expression": "90",
+        "description": "STEP DRILL 2 SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC132",
+        "expression": "0.007",
+        "description": "STEP DRILL 2 FEED/REV",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC133",
+        "expression": "130",
+        "description": "STEP DRILL 2 POINT ANGLE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC134",
+        "expression": "1",
+        "description": "COUNTERBORE ENABLE: 0=SKIP, 1=RUN",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC135",
+        "expression": "1.2188",
+        "description": "COUNTERBORE DRILL DIAMETER",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC136",
+        "expression": "95",
+        "description": "COUNTERBORE DRILL SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC137",
+        "expression": "0.003",
+        "description": "COUNTERBORE DRILL FEED/REV",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC138",
+        "expression": "180",
+        "description": "COUNTERBORE POINT ANGLE - 180 FOR FLAT",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC150",
+        "expression": "[VC121 * 3.82] / VC120",
+        "description": "SPOT DRILL RPM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC151",
+        "expression": "[VC126 * 3.82] / VC125",
+        "description": "STEP DRILL 1 RPM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC152",
+        "expression": "[VC131 * 3.82] / VC130",
+        "description": "STEP DRILL 2 RPM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC153",
+        "expression": "[VC136 * 3.82] / VC135",
+        "description": "COUNTERBORE DRILL RPM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC154",
+        "expression": "VC125 / 2 / TAN[VC128 / 2]",
+        "description": "STEP DRILL 1 POINT DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC155",
+        "expression": "VC130 / 2 / TAN[VC133 / 2]",
+        "description": "STEP DRILL 2 POINT DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC156",
+        "expression": "VC105 + [[VC125 - VC130] / 2 / TAN[VC128 / 2]]",
+        "description": "STEP DRILL 1 TOTAL DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC157",
+        "expression": "VC106 + 0.1 + VC155",
+        "description": "STEP DRILL 2 TOTAL DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC158",
+        "expression": "VC105",
+        "description": "COUNTERBORE DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC159",
+        "expression": "VC105 - [[VC125 - VC130] / 2 / TAN[VC128 / 2]] + 0.1",
+        "description": "STEP DRILL 2 RAPID START",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC160",
+        "expression": "VC101 - [VC110 * 2]",
+        "description": "OD FEATURE START DIA",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC161",
+        "expression": "VC103 + [VC113 * 2]",
+        "description": "ID FEATURE START DIA",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC162",
+        "expression": "VC104 + 0.01",
+        "description": "OD ROUGH DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC163",
+        "expression": "VC100 + VC201",
+        "description": "OD APPROACH DIA",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC164",
+        "expression": "VC102 - VC201",
+        "description": "ID APPROACH DIA",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC167",
+        "expression": "VC105 - [[VC125 - VC135] / 2 / TAN[VC128 / 2]] + 0.1",
+        "description": "COUNTERBORE RAPID START",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC170",
+        "expression": "0.01",
+        "description": "OD FINISH STOCK - RADIAL",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC171",
+        "expression": "0.002",
+        "description": "OD FINISH STOCK - AXIAL",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC172",
+        "expression": "0.006",
+        "description": "ID FINISH STOCK - RADIAL",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC173",
+        "expression": "0.0",
+        "description": "ID FINISH STOCK - AXIAL",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC175",
+        "expression": "0.2",
+        "description": "OD DEPTH OF CUT",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC176",
+        "expression": "0.06",
+        "description": "ID DEPTH OF CUT",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC180",
+        "expression": "755",
+        "description": "OD ROUGH SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC181",
+        "expression": "825",
+        "description": "OD FINISH SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC182",
+        "expression": "400",
+        "description": "ID ROUGH SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC183",
+        "expression": "500",
+        "description": "ID FINISH SFM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC190",
+        "expression": "0.008",
+        "description": "FACE ROUGH FEED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC191",
+        "expression": "0.003",
+        "description": "FACE FINISH FEED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC192",
+        "expression": "0.008",
+        "description": "OD ROUGH FEED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC193",
+        "expression": "0.003",
+        "description": "OD FINISH FEED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC194",
+        "expression": "0.007",
+        "description": "ID ROUGH FEED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC195",
+        "expression": "0.003",
+        "description": "ID FINISH FEED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC198",
+        "expression": "2500",
+        "description": "ROUGH MAX RPM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC199",
+        "expression": "3500",
+        "description": "FINISH MAX RPM",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V1",
+        "expression": "1.9",
+        "description": "STOCK DIAMETER",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V10",
+        "expression": "1",
+        "description": "ID FEATURE TYPE: 1=CHAMFER, 2=RADIUS",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V100",
+        "expression": "0.3",
+        "description": "STOCK FACE OFFSET - MATERIAL IN FRONT OF Z0",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V11",
+        "expression": "45",
+        "description": "ID CHAMFER ANGLE - ONLY IF V10=1",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V12",
+        "expression": "0",
+        "description": "ID ROUGHING ENABLE: 0=SKIP, 1=RUN",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V13",
+        "expression": "0",
+        "description": "CUTOFF FEATURE TYPE: 0=NONE, 1=CHAMFER, 2=RADIUS",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V14",
+        "expression": "0.03",
+        "description": "CUTOFF CHAMFER/RADIUS SIZE",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V15",
+        "expression": "45",
+        "description": "CUTOFF CHAMFER ANGLE - ONLY IF V13=1",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V16",
+        "expression": "0.001",
+        "description": "CUTOFF CHAMFER/RADIUS FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V17",
+        "expression": "0.118",
+        "description": "CUTOFF INSERT WIDTH",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V2",
+        "expression": "1.751",
+        "description": "FINISH OD",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V20",
+        "expression": "0.5",
+        "description": "SPOT DRILL DIAMETER",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V21",
+        "expression": "100",
+        "description": "SPOT DRILL SFM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V22",
+        "expression": "0.08",
+        "description": "SPOT DRILL DEPTH",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V23",
+        "expression": "0",
+        "description": "SPOT DRILL PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V25",
+        "expression": "0.968",
+        "description": "DRILL DIAMETER",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V26",
+        "expression": "95",
+        "description": "DRILL SFM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V27",
+        "expression": "0.007",
+        "description": "DRILL FEED PER REV",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V28",
+        "expression": "0.2",
+        "description": "DRILL PECK DEPTH - WHEN ENABLED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V29",
+        "expression": "130",
+        "description": "DRILL POINT ANGLE",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V3",
+        "expression": "0.968",
+        "description": "DRILL SIZE / START HOLE DIA",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V30",
+        "expression": "1",
+        "description": "DRILL PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V35",
+        "expression": "0.015",
+        "description": "OD FINISH STOCK - RADIAL",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V36",
+        "expression": "0.002",
+        "description": "OD FINISH STOCK - AXIAL",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V37",
+        "expression": "0.006",
+        "description": "ID FINISH STOCK - RADIAL",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V38",
+        "expression": "0.0",
+        "description": "ID FINISH STOCK - AXIAL",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V4",
+        "expression": "0.978",
+        "description": "FINISH ID",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V40",
+        "expression": "0.15",
+        "description": "OD DEPTH OF CUT",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V41",
+        "expression": "0.06",
+        "description": "ID DEPTH OF CUT",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V45",
+        "expression": "755",
+        "description": "OD ROUGH SFM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V46",
+        "expression": "825",
+        "description": "OD FINISH SFM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V47",
+        "expression": "400",
+        "description": "ID ROUGH/FINISH SFM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V48",
+        "expression": "500",
+        "description": "PART OFF SFM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V5",
+        "expression": "3.015",
+        "description": "PART LENGTH",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V50",
+        "expression": "0.008",
+        "description": "FACE ROUGH FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V51",
+        "expression": "0.0045",
+        "description": "FACE FINISH FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V52",
+        "expression": "0.01",
+        "description": "OD ROUGH FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V53",
+        "expression": "0.0045",
+        "description": "OD FINISH FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V54",
+        "expression": "0.007",
+        "description": "ID ROUGH FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V55",
+        "expression": "0.0045",
+        "description": "ID FINISH FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V56",
+        "expression": "0.004",
+        "description": "PART OFF FEED",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V6",
+        "expression": "0.06",
+        "description": "OD FEATURE SIZE - 0 FOR NONE",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V60",
+        "expression": "0.25",
+        "description": "Z CLEARANCE",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V61",
+        "expression": "0.1",
+        "description": "X CLEARANCE - DIAMETER",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V65",
+        "expression": "2500",
+        "description": "ROUGH MAX RPM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V66",
+        "expression": "2500",
+        "description": "FINISH MAX RPM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V7",
+        "expression": "1",
+        "description": "OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V70",
+        "expression": "[V21 * 3.82] / V20",
+        "description": "SPOT DRILL RPM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V71",
+        "expression": "[V26 * 3.82] / V25",
+        "description": "DRILL RPM",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V72",
+        "expression": "V25 / 2 / TAN[V29 / 2]",
+        "description": "DRILL POINT DEPTH",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V73",
+        "expression": "V5 + V17 + V72 + 0.03",
+        "description": "DRILL TOTAL DEPTH",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V75",
+        "expression": "V2 - [V6 * 2]",
+        "description": "OD FEATURE START DIA",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V76",
+        "expression": "V4 + [V9 * 2]",
+        "description": "ID FEATURE START DIA",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V77",
+        "expression": "V5 + 0.01",
+        "description": "ROUGH DEPTH - EXTRA FOR CLEANUP",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V78",
+        "expression": "V1 + V61",
+        "description": "APPROACH DIA",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V79",
+        "expression": "V3 - V61",
+        "description": "BORE APPROACH DIA",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V8",
+        "expression": "45",
+        "description": "OD CHAMFER ANGLE - ONLY IF V7=1",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V80",
+        "expression": "V1 - [V2 + [V35 * 2]]",
+        "description": "OD STOCK TO REMOVE - DIA",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V81",
+        "expression": "V60 + V100",
+        "description": "Z CLEARANCE FROM STOCK FACE",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "V9",
+        "expression": "0",
+        "description": "ID FEATURE SIZE - 0 FOR NONE",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC101",
+        "expression": "2.005",
+        "description": "FINISH OD",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC101",
+        "expression": "2.005",
+        "description": "FINISH OD - SMALL DIA",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC101",
+        "expression": "1.215",
+        "description": "FINISH OD AT FACE",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC102",
+        "expression": "1.1473",
+        "description": "OD TAPER END DIA",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC103",
+        "expression": "0.4",
+        "description": "OD TAPER START Z DEPTH",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC104",
+        "expression": "0.787",
+        "description": "PART LENGTH",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC104",
+        "expression": "2.56",
+        "description": "PART LENGTH - OD",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC104",
+        "expression": "2.685",
+        "description": "PART LENGTH - OD TOTAL",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC105",
+        "expression": "0.005",
+        "description": "OD FEATURE SIZE - 0 FOR NONE",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC106",
+        "expression": "2",
+        "description": "OD FEATURE TYPE: 1=CHAMFER, 2=RADIUS",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC106",
+        "expression": "2.52",
+        "description": "SMALL BORE DEPTH",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC106",
+        "expression": "2.68",
+        "description": "SMALL BORE DEPTH - THRU",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC107",
+        "expression": "45",
+        "description": "OD CHAMFER ANGLE - ONLY IF VC106=1",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC107",
+        "expression": "2.75",
+        "description": "STEP OD - LARGE DIA",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC108",
+        "expression": "2.015",
+        "description": "STEP Z DEPTH",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC109",
+        "expression": "0.03",
+        "description": "STEP CHAMFER SIZE",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC110",
+        "expression": "0.5",
+        "description": "SPOT DRILL DIAMETER",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC111",
+        "expression": "130",
+        "description": "SPOT DRILL SFM",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC112",
+        "expression": "45",
+        "description": "OD CHAMFER ANGLE - ONLY IF VC111=1",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC112",
+        "expression": "45",
+        "description": "OD CHAMFER ANGLE - ONLY USED IF VC111=1",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC112",
+        "expression": "0.05",
+        "description": "SPOT DRILL DEPTH",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC113",
+        "expression": "0",
+        "description": "SPOT DRILL PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC115",
+        "expression": "0.171",
+        "description": "DRILL DIAMETER",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC115",
+        "expression": "45",
+        "description": "ID LARGE CHAMFER ANGLE - ONLY IF VC114=1",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC115",
+        "expression": "45",
+        "description": "ID LARGE CHAMFER ANGLE - ONLY USED IF VC114=1",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC116",
+        "expression": "50",
+        "description": "DRILL SFM",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC116",
+        "expression": "1",
+        "description": "UNDERCUT ENABLE: 0=SKIP, 1=RUN",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC117",
+        "expression": "0.0022",
+        "description": "DRILL FEED/REV",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC117",
+        "expression": "0.03",
+        "description": "UNDERCUT LENGTH",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC118",
+        "expression": "118",
+        "description": "DRILL POINT ANGLE",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC118",
+        "expression": "4",
+        "description": "UNDERCUT LEAD-IN ANGLE",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC119",
+        "expression": "1",
+        "description": "DRILL PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC119",
+        "expression": "0.02",
+        "description": "UNDERCUT DEPTH BEYOND FINISH DIA",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC120",
+        "expression": "0.13",
+        "description": "PECK DEPTH - WHEN ENABLED",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC124",
+        "expression": "0",
+        "description": "SPOT DRILL PECK: 0=NO PECK, 1=PECK",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC124",
+        "expression": "0",
+        "description": "SPOT DRILL PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC125",
+        "expression": "0.25",
+        "description": "Z CLEARANCE",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC126",
+        "expression": "0.1",
+        "description": "X CLEARANCE - DIAMETER",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC129",
+        "expression": "1",
+        "description": "STEP DRILL 1 PECK: 0=NO PECK, 1=PECK",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC129",
+        "expression": "1",
+        "description": "STEP DRILL 1 PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC130",
+        "expression": "[VC111 * 3.82] / VC110",
+        "description": "SPOT DRILL RPM",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC131",
+        "expression": "[VC116 * 3.82] / VC115",
+        "description": "DRILL RPM",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC132",
+        "expression": "VC115 / 2 / TAN[VC118 / 2]",
+        "description": "DRILL POINT DEPTH",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC133",
+        "expression": "VC104 + 0.05 + VC132",
+        "description": "DRILL TOTAL DEPTH",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC134",
+        "expression": "VC101 - [VC105 * 2]",
+        "description": "OD FEATURE START DIA",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC135",
+        "expression": "VC100 + VC126",
+        "description": "OD APPROACH DIA",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC139",
+        "expression": "1",
+        "description": "STEP DRILL 2 PECK: 0=NO PECK, 1=PECK",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC139",
+        "expression": "1",
+        "description": "STEP DRILL 2 PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC140",
+        "expression": "0",
+        "description": "COUNTERBORE PECK: 0=NO PECK, 1=PECK",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC140",
+        "expression": "0",
+        "description": "COUNTERBORE PECK: 0=NO, 1=YES",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC140",
+        "expression": "0.25",
+        "description": "ID MAJOR DIA - WHERE FEATURE STARTS",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC141",
+        "expression": "0.13",
+        "description": "DRILL PECK DEPTH - USED WHEN PECK ENABLED",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC141",
+        "expression": "20",
+        "description": "ID TAPER ANGLE - OKUMA FORMAT: 270=0DEG, 260=10DEG, 250=20DEG",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC141",
+        "expression": "0.13",
+        "description": "PECK DEPTH - WHEN ENABLED",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC142",
+        "expression": "0.",
+        "description": "ID FINISH X DIA - DEFAULT 0 FOR CENTER",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC143",
+        "expression": "[VC140 - VC142] / 2 / TAN[VC144]",
+        "description": "ID TAPER Z DEPTH",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC144",
+        "expression": "270 - VC141",
+        "description": "CONVERTED TAPER ANGLE",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC145",
+        "expression": "VC135 / 2 / TAN[VC138 / 2]",
+        "description": "COUNTERBORE POINT DEPTH",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC165",
+        "expression": "VC103 + [VC119 * 2]",
+        "description": "UNDERCUT DIA",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC166",
+        "expression": "VC105 - VC117",
+        "description": "UNDERCUT Z START",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC168",
+        "expression": "VC105 - [[VC125 - VC103] / 2 / TAN[VC128 / 2]] - 0.06",
+        "description": "ID BORE RAPID START",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC169",
+        "expression": "1",
+        "description": "ID BORE RAPID START ENABLE: 0=START FROM Z CLEARANCE, 1=RAPID INTO HOLE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC200",
+        "expression": "0.25",
+        "description": "Z CLEARANCE",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC200",
+        "expression": "0.25",
+        "description": "Z CLEARANCE IN FRONT OF STOCK",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC201",
+        "expression": "0.1",
+        "description": "X CLEARANCE - DIAMETER",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "name": "VC201",
+        "expression": "0.1",
+        "description": "X CLEARANCE ABOVE STOCK - DIAMETER",
+        "source_files": [
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 1
+      }
+    ],
+    "macro_labels": [
+      {
+        "controller": "okuma_osp",
+        "label": "NAT1",
+        "following_token": "G81",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min",
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 6
+      },
+      {
+        "controller": "okuma_osp",
+        "label": "NAT2",
+        "following_token": "G81",
+        "source_files": [
+          "BASIC CASING WITH SINGLE COUNTERBORE.min",
+          "BASIC TOP HAT CASING WITH SINGLE COUNTERBORE.min"
+        ],
+        "frequency": 4
+      },
+      {
+        "controller": "okuma_osp",
+        "label": "NAT6",
+        "following_token": "G81",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 2
+      },
+      {
+        "controller": "okuma_osp",
+        "label": "NAT6",
+        "following_token": "G82",
+        "source_files": [
+          "BASE WAFER INSERT MACRO.min"
+        ],
+        "frequency": 1
+      },
+      {
+        "controller": "okuma_osp",
+        "label": "NSTRT",
+        "following_token": "M1",
+        "source_files": [
+          "BASIC-CASING.MIN"
+        ],
+        "frequency": 1
+      }
+    ]
+  }
+}

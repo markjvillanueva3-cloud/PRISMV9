@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="086b9ca00726c872819f0a3de26832d2e7964d5fcf39351bd3d6978b0fb7bcb5">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HERMES + PSN + RAG — deep-synergy research deliverable</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>HERMES + PSN + RAG — deep-synergy research deliverable</h1>
+<div class="meta">rendered from state/shared/specs/HERMES-PSN-RAG-SYNERGY-RESEARCH-2026-05-23.md</div>
+<div class="meta">Generated 2026-05-23T19:48:17.443Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">HERMES + PSN + RAG — deep-synergy research deliverable</li><li class="prism-toc-l2">0. The current state as a 1-line ASCII</li><li class="prism-toc-l2">1. The thesis in one sentence</li><li class="prism-toc-l2">2. The 3D synergy matrix</li><li class="prism-toc-l2">3. The seven concrete synergy units</li><li class="prism-toc-l3">U-HRP01 — Semantic cluster (P0, biggest false-positive killer)</li><li class="prism-toc-l3">U-HRP02 — Tribal-grounded propose (P0, body-quality compounding)</li><li class="prism-toc-l3">U-HRP03 — Semantic dedup (P0, closes G6 leak properly)</li><li class="prism-toc-l3">U-HRP04 — Awareness-RAG decision (P1, finishes G13 NN-scoring scope)</li><li class="prism-toc-l3">U-HRP05 — Soul evolves from observed feedback (P1)</li><li class="prism-toc-l3">U-HRP06 — Memory → wiki promotion uses RAG (P2)</li><li class="prism-toc-l3">U-HRP07 — Skill draft body uses PRISM-AI generation (P3)</li><li class="prism-toc-l2">4. The closed loop with PSN+RAG synergy — diagram</li><li class="prism-toc-l2">5. What changes operationally when the matrix fills</li><li class="prism-toc-l2">6. Cost model + risk + mitigation</li><li class="prism-toc-l2">7. Adoption order + dependency graph</li><li class="prism-toc-l2">8. What&#39;s out of scope (decided here so it doesn&#39;t drift into another spec)</li><li class="prism-toc-l2">9. Validation gates before any U-HRP unit ships</li><li class="prism-toc-l2">10. Memory + wiki output for this spec (auto-feed targets)</li><li class="prism-toc-l2">11. One-line summary for the next bravo session</li><li class="prism-toc-l2">12. See also</li></ul></nav><h1 class="prism-h1">HERMES + PSN + RAG — deep-synergy research deliverable</h1>
+<p><strong>Date:</strong> 2026-05-23 · <strong>Slot:</strong> bravo (<code class="prism-inline-code">claude-ea80ce2f</code>) · <strong>Triggers prior:</strong> <a href="HERMES-EVOLVING-SKILLS-RESEARCH-2026-05-17.md" class="prism-link">HERMES-EVOLVING-SKILLS-RESEARCH-2026-05-17.md</a> + <a href="HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20.md" class="prism-link">HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20.md</a> + <a href="HERMES-ADOPTION-PATTERN-MATRIX-2026-05-20.md" class="prism-link">HERMES-ADOPTION-PATTERN-MATRIX-2026-05-20.md</a> + <a href="RAG-UPGRADE-MS0.md" class="prism-link">RAG-UPGRADE-MS0.md</a>.</p>
+<p>Operator directive (2026-05-23, post-/checkin-bravo zebra-activation): <em>&quot;do more deep research on hermes synergizing with PSN + RAG&quot;</em>.</p>
+<p>The prior Hermes deliverable (HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20) framed Obsidian-as-OS. The two RAG-PSN wires (U-RAG-PSN-AI-WIRE 2026-05-22 + U-RAG-PSN-OS-WIRE 2026-05-23) closed RAG-leg coverage 10/11 → 11/11 — every PSN-leg dispatcher can now call <code class="prism-inline-code">rag_rerank</code>. <strong>That&#39;s the vertical wiring.</strong> This spec is the <strong>horizontal wiring</strong> — when Hermes (the runtime: observe → cluster → propose → dedup → promote → dispatch → learn) operates ON PSN, <em>which steps route through RAG, and which don&#39;t?</em> Today: nearly none. That&#39;s the compounding-gap this deliverable measures and proposes adoption units for.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">0. The current state as a 1-line ASCII</h2>
+<pre class="prism-codeblock"><code>Hermes runtime ── calls ──▶ PSN dispatchers ── exposes ──▶ rag_rerank (3 surfaces: prism_ml | prism_ai | prism_operating_system)
+   ▲                                                                  │
+   └───────────────── DOES NOT USE INTERNALLY ───────────────────────┘</code></pre>
+<p>Hermes&#39; closed-loop pipeline (<code class="prism-inline-code">scripts/lib/skill-loop-pipeline.mjs</code>) uses:</p>
+<ul class="prism-md-list"><li><strong>clustering:</strong> signature-substring of tool-call sequences (<code class="prism-inline-code">Read|Edit|Bash:vitest|Bash:git</code>).</li><li><strong>dedup:</strong> Jaccard over keyword tokens of frontmatter (G6 fix).</li><li><strong>promotion gate:</strong> median callCount ≥ 6 ∧ ≥ 2 slots.</li><li><strong>shipDraft body:</strong> static stub template (<code class="prism-inline-code">buildStubBody</code>).</li></ul>
+<p>None of those four stages query the reranker against the existing PSN substrate. The substrate is queried by the operator (via <code class="prism-inline-code">/wiki-query</code>, <code class="prism-inline-code">/memory-search</code>, <code class="prism-inline-code">/master-index</code>) and by auto-injectors (<code class="prism-inline-code">memory-relevance-inject</code>, <code class="prism-inline-code">wiki-precheck-inject</code>, <code class="prism-inline-code">tribal-by-domain-inject</code>, <code class="prism-inline-code">master-index-precheck-inject</code>). <strong>Not by Hermes itself when it&#39;s deciding what to ship.</strong> That&#39;s the gap.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. The thesis in one sentence</h2>
+<p>**Hermes is the runtime; PSN is the substrate; RAG is the retrieval layer between them. The MS0+MS1 work wired Hermes vertically — it can WRITE to PSN (publish skills to <code class="prism-inline-code">.claude/commands/</code>) and READ from PSN (observe skill use). RAG-UPGRADE-MS0 + the two PSN-leg wires made <code class="prism-inline-code">rag_rerank</code> callable from every PSN dispatcher. The remaining compounding-capability lever is HORIZONTAL: rewire Hermes&#39; four pipeline stages (cluster / dedup / promote / draft) to route through RAG against the 11 PSN legs, so every closed-loop decision is grounded in the <em>full</em> knowledge substrate, not in tool-call substrings.**</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. The 3D synergy matrix</h2>
+<p><strong>Rows</strong> = Hermes closed-loop stages (7 stages from observation to re-observation). <strong>Cols</strong> = PSN legs (1–11 per [<code class="prism-inline-code">feedback_psn_definition</code>]). <strong>Cell</strong> = Does Hermes use RAG to query <em>this leg</em> at <em>this stage</em>?</p>
+<p>Legend: ✅ wired · ⚠️ partial · ❌ empty · — not applicable</p>
+<table class="prism-md-table"><thead><tr><th>Hermes stage ↓ \ PSN leg →</th><th>1 Obsidian</th><th>2 PRISM-OS</th><th>3 Wiki</th><th>4 Memories</th><th>5 Tribal</th><th>6 SysViz</th><th>7 Engines</th><th>8 Algos</th><th>9 Formulas</th><th>10 NN/GNN</th><th>11 PRISM AI</th></tr></thead><tbody><tr><td><strong>S1 observe</strong> (<code class="prism-inline-code">skill-candidate-observe.mjs</code> Stop hook)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><strong>S2 cluster</strong> (<code class="prism-inline-code">clusterCandidates</code>)</td><td>❌</td><td>—</td><td>❌</td><td>❌</td><td>❌</td><td>⚠️*</td><td>—</td><td>—</td><td>—</td><td>❌</td><td>❌</td></tr>
+<tr><td><strong>S3 propose</strong> (<code class="prism-inline-code">buildStubBody</code>)</td><td>❌</td><td>—</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>—</td><td>❌</td><td>❌</td></tr>
+<tr><td><strong>S4 dedup</strong> (<code class="prism-inline-code">gateCandidate</code>)</td><td>❌</td><td>—</td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>—</td><td>—</td><td>—</td><td>❌</td><td>❌</td></tr>
+<tr><td><strong>S5 promote</strong> (callCount + slot threshold)</td><td>—</td><td>—</td><td>—</td><td>❌</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>❌</td><td>—</td></tr>
+<tr><td><strong>S6 dispatch</strong> (<code class="prism-inline-code">/skc-xxxx</code> invocation)</td><td>—</td><td>✅†</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✅</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
+<tr><td><strong>S7 learn</strong> (re-observe + memory promotion)</td><td>⚠️‡</td><td>—</td><td>❌</td><td>⚠️‡</td><td>❌</td><td>❌</td><td>—</td><td>—</td><td>—</td><td>❌</td><td>❌</td></tr></tbody></table>
+<p>\<em> Cluster stage </em>reads* one PSN-leg signal (<code class="prism-inline-code">recentActivity</code> in <code class="prism-inline-code">chatPressure</code>), but doesn&#39;t RAG-search the graph. † Live skills naturally dispatch to PRISM-OS / Engines / Algos / Formulas / PRISM-AI as they execute — that&#39;s downstream of Hermes, not Hermes&#39; own substrate use. ‡ Memory + obsidian get auto-fed BY Stop hooks, but Hermes doesn&#39;t QUERY them for its own decisioning.</p>
+<p><strong>Net:</strong> of 77 cells (7 stages × 11 legs), <strong>only 5 are filled</strong> — and 4 of those are downstream-dispatch artifacts, not Hermes-runtime synergy. <strong>0 of the 4 decision-making stages (S2-S5) use RAG against ANY PSN leg today.</strong> Every empty cell with a <code class="prism-inline-code">❌</code> is a potential adoption unit; every cell with <code class="prism-inline-code">⚠️</code> is an existing surface that could be tightened to RAG.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. The seven concrete synergy units</h2>
+<p>Numbered in <strong>adoption-order priority</strong> (P0 first), not in cell-grid order. Each unit names its target cells.</p>
+<h3 class="prism-h3">U-HRP01 — Semantic cluster (P0, biggest false-positive killer)</h3>
+<p><strong>Target cells:</strong> S2 × legs 3 (Wiki), 4 (Memories), 5 (Tribal). <strong>Problem today:</strong> <code class="prism-inline-code">clusterCandidates</code> hashes tool-call signatures (<code class="prism-inline-code">Read|Edit|Bash:vitest|Bash:git</code>). Two observations with the same signature cluster together regardless of the actual <em>task</em> the operator was doing. A <code class="prism-inline-code">Read+Edit+Bash:git</code> signature could be &quot;refactor a test file&quot; OR &quot;rename a CLAUDE.md section&quot; OR &quot;fix a wiki link&quot; — three completely different candidate skills, but Hermes thinks they&#39;re one. <strong>Fix:</strong> add a <code class="prism-inline-code">semanticSummary</code> field to each candidate (the first 200 chars of the prompt that led to the observation, lightly normalised). On cluster, RAG-rerank the candidate set&#39;s <code class="prism-inline-code">semanticSummary</code> fields against each other PLUS against the existing wiki + memory + tribal corpora. Two candidates cluster only if they&#39;re within both signature-distance AND semantic-distance of each other. Drops false-cluster rate; the cluster that remains is now grounded in a verifiable PSN substrate signal. <strong>Surface:</strong> <code class="prism-inline-code">scripts/lib/skill-loop-pipeline.mjs::clusterCandidates</code> calls <code class="prism-inline-code">reRankerEngine.rerank</code> against PSN-leg corpora; the existing 3 RAG surfaces (<code class="prism-inline-code">prism_ml</code> / <code class="prism-inline-code">prism_ai</code> / <code class="prism-inline-code">prism_operating_system</code>) are all equivalent — pick <code class="prism-inline-code">prism_ai:rag_rerank</code> (Hermes operates AT the AI tier). <strong>Test floor:</strong> ≥3 spanning signature classes × ≥2 semantic clusters per signature class = 6+ test cases. <strong>Closes:</strong> G6 leak from HERMES-OBSIDIAN-OS §3 <em>properly</em> — current G6 fix is Jaccard over frontmatter keywords; this upgrades to semantic rerank against the actual skill bodies + tribal + wiki + memory.</p>
+<h3 class="prism-h3">U-HRP02 — Tribal-grounded propose (P0, body-quality compounding)</h3>
+<p><strong>Target cells:</strong> S3 × leg 5 (Tribal) + leg 3 (Wiki). <strong>Problem today:</strong> <code class="prism-inline-code">buildStubBody</code> writes a static template (&quot;# /skc-xxxx — generated stub...&quot;). The template has no tribal-knowledge grounding — the operator has to author the real body from scratch. Hermes proposes; it does not draft. <strong>Fix:</strong> before <code class="prism-inline-code">shipDraft</code> writes the staging-area markdown (G5 destination), RAG-rerank the candidate&#39;s <code class="prism-inline-code">semanticSummary</code> against the tribal corpus (3919 tips) AND the existing skill library (700 skills) for top-3 nearest exemplars. Render the staged spec with a &quot;## Closest existing references&quot; section that surfaces those 3+3 exemplars. The operator promotes from the staged spec to a real skill 5-10× faster because the relevant tribal grounding is already adjacent. <strong>Surface:</strong> <code class="prism-inline-code">skill-loop-pipeline.mjs::shipDraft</code> calls <code class="prism-inline-code">prism_ai:rag_rerank</code> twice (tribal + skill catalog) and concatenates the results into the staged spec body. <strong>Doctrine alignment:</strong> matches Karpathy LLM-wiki pattern — every staged proposal cites its tribal + wiki ancestry, so the operator can verify provenance. <strong>Test floor:</strong> ≥3 tribal-rich domains (mill, lathe, wedm) × ≥2 candidate types per domain.</p>
+<h3 class="prism-h3">U-HRP03 — Semantic dedup (P0, closes G6 leak properly)</h3>
+<p><strong>Target cells:</strong> S4 × legs 3 (Wiki) + 4 (Memories). <strong>Problem today:</strong> the G6 patch from the gap audit moved dedup from <code class="prism-inline-code">signature.includes(skillName)</code> to Jaccard over frontmatter trigger keywords. Better, but keyword Jaccard misses paraphrased duplicates (skill A&#39;s description says &quot;rebuild engine index&quot;; skill B says &quot;regenerate ENGINE_DIGEST&quot; — same intent, no token overlap). <strong>Fix:</strong> for every candidate, after gateCandidate&#39;s existing Jaccard pre-filter, call <code class="prism-inline-code">prism_ai:rag_rerank</code> against:</p>
+<ul class="prism-md-list"><li>(a) the full skill catalog (~700 frontmatter descriptions)</li><li>(b) the wiki entries tagged <code class="prism-inline-code">type: pattern</code> (existing reusable knowledge)</li><li>(c) the memory namespace <code class="prism-inline-code">feedback</code> (operating doctrine that might <em>already</em> dictate the proposed behaviour)</li></ul>
+<p>If the top-3 rerank score crosses a threshold (<code class="prism-inline-code">KEYWORD_OVERLAP_THRESHOLD</code> analog, <code class="prism-inline-code">SEMANTIC_OVERLAP_THRESHOLD=0.75</code>), mark <code class="prism-inline-code">AUTO-FAIL: conflict:semantic-overlap=&lt;score&gt;:&lt;name&gt;</code>. Operator override remains. <strong>Test floor:</strong> ≥3 known-duplicate pairs from the existing skill catalog (paraphrased descriptions) + ≥3 known-novel pairs that must NOT trigger.</p>
+<h3 class="prism-h3">U-HRP04 — Awareness-RAG decision (P1, finishes G13 NN-scoring scope)</h3>
+<p><strong>Target cells:</strong> S5 × legs 6 (SysViz) + 10 (NN/GNN). <strong>Problem today:</strong> G13 closed <code class="prism-inline-code">awarenessLookupSlot(slot).queueLength</code> into the orchestrator decision, but the awareness fingerprint has 8+ dimensions (<code class="prism-inline-code">pressureSignals</code>, <code class="prism-inline-code">recentActivity</code>, <code class="prism-inline-code">domainAffinity</code>, etc.). Today only <code class="prism-inline-code">queueLength</code> matters. <strong>Fix:</strong> before <code class="prism-inline-code">planSlotAction</code> picks an action, RAG-rerank the current slot&#39;s fingerprint against the ZEBRA-AWARENESS historical fingerprint corpus (already on disk from the training pass). The rerank returns the top-K most-similar prior-decisions; the orchestrator picks the action most-similar prior-decisions took. <strong>This is RAG-as-policy</strong> — Hermes&#39; decision-making routes through the prior-decision substrate, with PSN leg #10 (the NN/GNN tier-5) as the scoring backbone. <strong>Test floor:</strong> ≥3 spanning fingerprint classes × ≥2 decisions per class.</p>
+<h3 class="prism-h3">U-HRP05 — Soul evolves from observed feedback (P1)</h3>
+<p><strong>Target cells:</strong> S7 × legs 1 (Obsidian) + 4 (Memories). <strong>Problem today:</strong> slot souls (3 shipped) are STATIC files. The voice/tone/refuse_list never updates from observed operator interactions. If bravo gets corrected 10 times for inlining a constant, the soul&#39;s <code class="prism-inline-code">refuse_list</code> doesn&#39;t grow. <strong>Fix:</strong> on every Stop, RAG-rerank the session&#39;s correction signal (any <code class="prism-inline-code">feedback_*</code> memory written during the session) against the slot&#39;s current soul <code class="prism-inline-code">refuse_list</code>. If the correction is semantically novel (rerank score &lt; 0.5 vs every existing refuse-rule), append a candidate rule to a <code class="prism-inline-code">state/shared/slot-souls/&lt;slot&gt;.draft.md</code> companion file. Operator promotes from draft to live. Closed loop, same shape as the skill-candidate one. <strong>Test floor:</strong> ≥3 spanning slots × ≥2 correction-classes per slot. Requires the prior <code class="prism-inline-code">slot-soul-inject</code> hook to be live (which it is, U-HERMES02).</p>
+<h3 class="prism-h3">U-HRP06 — Memory → wiki promotion uses RAG (P2)</h3>
+<p><strong>Target cells:</strong> S7 × leg 3 (Wiki). <strong>Problem today:</strong> PRISM&#39;s promotion path (feedback memory → reference memory → wiki entry) is <em>manual</em>. A feedback memory&#39;s relevance to existing wiki entries is operator-judged. <strong>Fix:</strong> for any new <code class="prism-inline-code">feedback_<em>.md</code> memory written in a session, run RAG-rerank against the wiki&#39;s <code class="prism-inline-code">lessons/</code> + <code class="prism-inline-code">architecture/</code> + <code class="prism-inline-code">patterns/</code> corpora. If top-3 score &gt; 0.6, surface a Stop-hook advisory: &quot;this feedback memory is semantically near <code class="prism-inline-code">wiki/architecture/X.md</code> — consider promoting / merging&quot;. Operator decides. This makes the wiki </em>self-organizing* — RAG knows which wiki entry a new lesson belongs near. <strong>Surface:</strong> new <code class="prism-inline-code">.claude/hooks/stop-memory-to-wiki-suggest.mjs</code> (T3 advisory; pattern matches <code class="prism-inline-code">stop-bug-finding-wiki-gate.mjs</code>). <strong>Test floor:</strong> ≥3 known feedback→wiki pairs.</p>
+<h3 class="prism-h3">U-HRP07 — Skill draft body uses PRISM-AI generation (P3)</h3>
+<p><strong>Target cells:</strong> S3 × leg 11 (PRISM-AI). <strong>Problem today:</strong> the <code class="prism-inline-code">buildStubBody</code> template is static. U-HRP02 above adds tribal/wiki exemplars but the <em>body</em> the operator writes from scratch. <strong>Fix:</strong> for a staged candidate whose top-3 RAG matches from U-HRP02 are all above a quality threshold (e.g. ≥0.8 rerank score), call <code class="prism-inline-code">prism_ai</code> with the matched exemplars as few-shot context and request a draft body. Operator still gates promotion — Hermes&#39; draft is a <em>starting point</em>, never a published skill. <strong>Why P3 not P0:</strong> depends on U-HRP02 + U-HRP03 landing first; depends on the AI generation budget being acceptable; LOW-token wins from U-HRP01/02/03 should be measured before adding a generation cost. <strong>Test floor:</strong> ≥3 spanning skill-classes × manual quality review.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. The closed loop with PSN+RAG synergy — diagram</h2>
+<pre class="prism-codeblock"><code>                            ┌─────────────────────────────────────────────────┐
+                            │  PSN substrate (11 legs)                        │
+                            │                                                 │
+                            │  1 Obsidian   2 PRISM-OS    3 Wiki              │
+                            │  4 Memories   5 Tribal      6 SysViz            │
+                            │  7 Engines    8 Algos       9 Formulas          │
+                            │  10 NN/GNN   11 PRISM AI                        │
+                            └────────────┬────────────────────────────────────┘
+                                         │
+                              ┌──────────┴──────────┐
+                              │  rag_rerank surface │   (3 dispatchers:
+                              │  (ReRankerEngine)   │    prism_ml = canon
+                              └──────────┬──────────┘    prism_ai
+                                         │              prism_operating_system)
+                                         │
+   ┌──────────────────────────────────────┴──────────────────────────────────────┐
+   │                                                                             │
+   │  ╔══════════════════════════════════════════════════════════════════════╗   │
+   │  ║  Hermes closed loop (per session, every Stop)                        ║   │
+   │  ║                                                                      ║   │
+   │  ║   S1 observe ──▶ S2 cluster ──▶ S3 propose ──▶ S4 dedup ──▶ S5 ship  ║   │
+   │  ║      │             │ U-HRP01      │ U-HRP02      │ U-HRP03           ║   │
+   │  ║      │             ▼              ▼              ▼                   ║   │
+   │  ║      │           wiki+memory    tribal+wiki    skills+wiki+mem       ║   │
+   │  ║      │           rerank         rerank         rerank                ║   │
+   │  ║      │                                                               ║   │
+   │  ║      │           ┌──────────────────────────────┐                    ║   │
+   │  ║      │           ▼                              ▼                    ║   │
+   │  ║      │   S7 learn ◀── S6 dispatch ◀── operator promote               ║   │
+   │  ║      │      │ U-HRP05 (soul)                                         ║   │
+   │  ║      │      │ U-HRP06 (mem→wiki)                                     ║   │
+   │  ║      │      ▼                                                        ║   │
+   │  ║      └──── observation feed-back ◀────────                           ║   │
+   │  ║                                                                      ║   │
+   │  ║   Decision-policy (per Stop / per /compact):                         ║   │
+   │  ║   awarenessLookup ──▶ planSlotAction (U-HRP04: RAG-as-policy)        ║   │
+   │  ╚══════════════════════════════════════════════════════════════════════╝   │
+   │                                                                             │
+   └─────────────────────────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>Reading the diagram:</strong> every arrow inside the Hermes loop that today goes &quot;straight&quot; (without consulting the substrate) gets a RAG-rerank step inserted (the labelled U-HRP units). The substrate isn&#39;t just <em>available</em> to Hermes — every Hermes decision <em>passes through</em> it. That&#39;s the synergy that turns each closed loop iteration into a compounding-capability instead of an isolated learn-and-publish.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. What changes operationally when the matrix fills</h2>
+<table class="prism-md-table"><thead><tr><th>Stage</th><th>Before (today)</th><th>After (U-HRP01..07 shipped)</th></tr></thead><tbody><tr><td>Cluster</td><td>Tool-call substring → false clusters across unrelated tasks</td><td>Tool-call substring AND semantic-distance against wiki/memory/tribal → cluster only when intent + tools both match</td></tr>
+<tr><td>Dedup</td><td>Jaccard over frontmatter keywords → misses paraphrased duplicates</td><td>Jaccard pre-filter PLUS semantic rerank against skill bodies + patterns + feedback memories → paraphrased dup caught</td></tr>
+<tr><td>Propose</td><td>Static stub template</td><td>Stub PLUS adjacent tribal exemplars + adjacent wiki entries → operator promotes 5-10× faster</td></tr>
+<tr><td>Promote</td><td>Pure call-count threshold</td><td>Threshold AND awareness-fingerprint rerank against historical successful-promotion fingerprints</td></tr>
+<tr><td>Slot souls</td><td>Static</td><td>Self-revising via session-correction signal × rerank vs current refuse-rules</td></tr>
+<tr><td>Memory → wiki</td><td>Manual</td><td>Stop-hook advisory naming the nearest wiki target</td></tr>
+<tr><td>Skill body</td><td>Operator-authored</td><td>First-pass AI-generated from RAG-retrieved exemplars (P3 — only after lower stages prove out)</td></tr></tbody></table>
+<p><strong>The compounding gain:</strong> every step&#39;s quality improves the next step&#39;s input. Better clusters → better dedup → better proposals → better-shipped skills → better observed signal next session. None of these compound today because each stage decides in isolation.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. Cost model + risk + mitigation</h2>
+<p><strong>Cost (in tokens / latency / disk):</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">rag_rerank</code> on the 3 surfaces is <strong>already deployed</strong> and benchmarked (~5-20ms per call for ≤100 candidates). Adding a rerank call per Hermes stage adds ≤4 calls per Stop. Net Stop-hook overhead: ~80ms worst case. PRISM Stop hooks routinely run 1-2s — this is below noise.</li><li>Embedding cache: <code class="prism-inline-code">tribal-embed-index.json</code> (existing, ~3919 entries) and the wiki vector index (existing) are reused. <strong>No new embedding compute required for U-HRP01-03.</strong></li><li><strong>U-HRP07</strong> is the only token-meaningful unit (calling PRISM-AI for body generation, ~500-1500 tokens per draft). That&#39;s why it&#39;s P3 — defer until lower stages prove the proposal pipeline produces enough drafts to justify the cost.</li></ul>
+<p><strong>Risk:</strong></p>
+<ol class="prism-md-list"><li><strong>Vector staleness when skills are deleted.</strong> Mitigation: tie the skill catalog&#39;s embedding refresh to <code class="prism-inline-code">/dedup</code> / skill-list rebuild; emit a Stop-hook warning if the embedding index is more than 24h stale and Hermes is about to rerank against it.</li><li><strong>Hallucinated &quot;similar matches&quot; at the cluster stage.</strong> Mitigation: AUTO-FAIL the rerank if the top-1 score is below 0.3 (config knob: <code class="prism-inline-code">PRISM_HERMES_RERANK_FLOOR=0.3</code>); fall back to the existing tool-call-signature path. R12: never silently degrade — log every fallback in the Hermes JSONL.</li><li><strong>Skill body AI-generation cost spike</strong> (U-HRP07 only). Mitigation: per-day budget cap (<code class="prism-inline-code">PRISM_HERMES_DRAFT_AI_BUDGET=20</code> skills/day); operator-gated dial.</li><li><strong>Soul over-fitting on a noisy session.</strong> Mitigation: a soul-rule candidate needs the same <code class="prism-inline-code">medianCallCount ≥ 6 ∧ ≥ 2 slots</code> threshold the skill-loop already uses — a one-off correction in one session is not enough to mutate a soul.</li></ol>
+<p><strong>Operator overrides:</strong> every new rerank call accepts an <code class="prism-inline-code">--ack-stale</code> / <code class="prism-inline-code">--bypass-rag</code> flag (mirrors the prior <code class="prism-inline-code">--ack-stale</code> knob pattern from <code class="prism-inline-code">feedback_task_freshness_pre_build</code>). When in doubt, the operator gets the manual escape hatch.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">7. Adoption order + dependency graph</h2>
+<pre class="prism-codeblock"><code>P0 wave (parallel, ~2-3 chats / 1 session):
+  U-HRP01 (cluster RAG)  ─┐
+  U-HRP02 (propose RAG)  ─┼─── all 3 land in skill-loop-pipeline.mjs in one PR;
+  U-HRP03 (dedup RAG)    ─┘    tests + dispatcher coverage + 3-of-3 scrutiny.
+
+P1 wave (depends on P0):
+  U-HRP04 (RAG-as-policy in zebra orchestrator)
+  U-HRP05 (souls evolve from session corrections)
+
+P2 wave:
+  U-HRP06 (memory → wiki RAG advisory hook)
+
+P3 wave (depends on P0 + budget approval):
+  U-HRP07 (AI-generated skill body drafts)</code></pre>
+<p><strong>Estimated effort per unit:</strong> U-HRP01-03 = ~150-200 LOC each in <code class="prism-inline-code">skill-loop-pipeline.mjs</code> + ~80-100 LOC of tests = one focused session per unit (or all three in a bravo /loop). U-HRP04 = ~80 LOC in <code class="prism-inline-code">zebra-orchestrator-sweep.mjs</code> + the lib. U-HRP05-06 = new hooks, ~200 LOC each. U-HRP07 = ~150 LOC + budget guard.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">8. What&#39;s out of scope (decided here so it doesn&#39;t drift into another spec)</h2>
+<ul class="prism-md-list"><li><strong>Multi-language embedding</strong> — current <code class="prism-inline-code">rag_rerank</code> is English-only; not a blocker for PRISM (English-only doctrine).</li><li><strong>Vector store migration</strong> — the existing tribal-embed-index + wiki vector index are JSON-backed; sufficient for ≤10K entries. Migration to a real vector DB (qdrant, etc.) is RAG-UPGRADE-MS1 territory.</li><li><strong>Cross-session reranker training</strong> — making the reranker learn from operator promote/reject choices is a tier-2 RL loop, out of scope here (links to RGS / NN-GRAPH territory).</li><li><strong>Inline RAG at observation time</strong> (S1) — observation is &quot;fire and forget&quot; by design; adding RAG to S1 would slow every Stop hook. Keep S1 minimal; do the RAG work at S2-S7 when the operator has already paid the Stop cost.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">9. Validation gates before any U-HRP unit ships</h2>
+<p>Every U-HRP unit must satisfy:</p>
+<ol class="prism-md-list"><li><strong>Variability floor (≥3 spanning configurations)</strong> — for cluster/dedup/propose, that means ≥3 distinct domains (mill / lathe / wedm). For soul evolution, that&#39;s ≥3 slots. Comprehensive-build-enforce already requires this.</li><li><strong>R12 fail-loud</strong> — every RAG call has a fallback path; every fallback is logged in <code class="prism-inline-code">state/shared/zebra-orchestrator-log.jsonl</code> (or the Hermes equivalent) with <code class="prism-inline-code">gateReason: &quot;rag-{below-floor,index-stale,call-failed}&quot;</code>.</li><li><strong>PSN-leg attribution</strong> — every RAG rerank logs WHICH leg it queried (corpus name), so the <code class="prism-inline-code">prism_session:psn_attribution</code> action (planned) can audit which PSN legs Hermes actually consulted per session.</li><li><strong>3-of-3 scrutiny gate</strong> — per CLAUDE.md, every multi-file commit goes through Agent A + Agent B + Codex/code-analyzer.</li><li><strong>Doc reflection</strong> — every U-HRP that ships updates CLAUDE.md pointer + MEMORY.md pointer + wiki entry + Obsidian memory (per <code class="prism-inline-code">feedback_reflect_all_changes_post_update</code>).</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">10. Memory + wiki output for this spec (auto-feed targets)</h2>
+<ul class="prism-md-list"><li><strong>Obsidian memory:</strong> <code class="prism-inline-code">reference_hermes_psn_rag_synergy_research_2026_05_23.md</code> — captures the matrix + adoption order.</li><li><strong>Wiki entry:</strong> <code class="prism-inline-code">knowledge/wiki/architecture/hermes-psn-rag-synergy.md</code> — operator-facing summary + matrix table + diagram (regenerated by <code class="prism-inline-code">generate-misc-l8-wiki.mjs</code>).</li><li><strong>CLAUDE.md pointer:</strong> <code class="prism-inline-code">## RAG-PSN-HERMES-MS0</code> section once any U-HRP unit ships; for now stays in this spec only.</li><li><strong>System-viz roost:</strong> spec auto-renders as L8 ghost via <code class="prism-inline-code">generate-misc-l8-wiki.mjs</code> next regen; root node <code class="prism-inline-code">ghost.spec.hermes-psn-rag-synergy-research-2026-05-23</code>.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">11. One-line summary for the next bravo session</h2>
+<blockquote class="prism-quote">RAG-UPGRADE-MS0 wired RAG vertically (every PSN-leg dispatcher can call rerank). HERMES-MS0+MS1 wired Hermes vertically (closed loop observation → ship). The horizontal wiring — Hermes&#39; four decision stages each consulting RAG against the 11 PSN legs — is the next compounding lever. 7 candidate units (U-HRP01..07); P0 wave is 3 units in <code class="prism-inline-code">skill-loop-pipeline.mjs</code>; ship those before P1.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">12. See also</h2>
+<ul class="prism-md-list"><li><a href="HERMES-EVOLVING-SKILLS-RESEARCH-2026-05-17.md" class="prism-link">HERMES-EVOLVING-SKILLS-RESEARCH-2026-05-17.md</a> — original gap research</li><li><a href="HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20.md" class="prism-link">HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20.md</a> — Obsidian-as-OS framing</li><li><a href="HERMES-ADOPTION-PATTERN-MATRIX-2026-05-20.md" class="prism-link">HERMES-ADOPTION-PATTERN-MATRIX-2026-05-20.md</a> — 9-pattern adoption matrix</li><li><a href="ZEBRA-HERMES-GAP-AUDIT-2026-05-20.md" class="prism-link">ZEBRA-HERMES-GAP-AUDIT-2026-05-20.md</a> — G5/G6/G13 leaks that this spec finishes closing</li><li><a href="RAG-UPGRADE-MS0.md" class="prism-link">RAG-UPGRADE-MS0.md</a> — RAG vertical wiring (5 units shipped + 2 PSN-leg cross-wires)</li><li><a href="../../knowledge/memories/reference/reference_u_rag_psn_ai_wire_2026_05_22.md" class="prism-link"><code class="prism-inline-code">reference_u_rag_psn_ai_wire_2026_05_22.md</code></a> — 11th PSN leg RAG wire</li><li><a href="../../knowledge/memories/reference/reference_u_rag_psn_os_wire_2026_05_23.md" class="prism-link"><code class="prism-inline-code">reference_u_rag_psn_os_wire_2026_05_23.md</code></a> — 2nd PSN leg RAG wire (this morning, golf)</li><li><a href="../../knowledge/memories/feedback/feedback_psn_definition.md" class="prism-link"><code class="prism-inline-code">feedback_psn_definition.md</code></a> — canonical 11-leg PSN</li><li><a href="../../knowledge/wiki/architecture/hermes-zebra-integration.md" class="prism-link"><code class="prism-inline-code">hermes-zebra-integration.md</code></a> — architecture diagram</li><li><code class="prism-inline-code">scripts/lib/skill-loop-pipeline.mjs</code> — the file U-HRP01-03 edit</li><li><code class="prism-inline-code">scripts/lib/chat-orchestrator-decisions.mjs</code> — the file U-HRP04 edits</li></ul>
+<hr class="prism-hr">
+<p><em>End of deep-research deliverable. Operator-reviewable; nothing in here is shipped. The matrix is the deliverable — pick units to enqueue against the slot queue when ready.</em></p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

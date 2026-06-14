@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "staged": true,
+  "setId": "set:ensemble_consensus:1780596665074:8",
+  "bundleId": "bundle:local-lora:set:ensemble_consensus:1780596665074:8:2026-06-04T18:11:05.090Z",
+  "provider": "local-lora",
+  "pairCount": 8,
+  "confidenceTier": "ensemble_consensus",
+  "anonymizationApplied": true,
+  "outputPath": "mcp-server/data/training/lora/staging/blueprint-ocr-2026-06-04T18-11-05-009Z.jsonl",
+  "sourceTrainset": "H:\\PRISM\\state\\shared\\ocr-training-loop\\trainset.jsonl",
+  "stagedAt": "2026-06-04T18-11-05-009Z",
+  "handoff": "state/shared/ocr-training-loop/INDIA-HANDOFF-blueprint-lora.md",
+  "caveats": [
+    "TEXT/PATH bundle — pdfPath is an image PATH string, NOT pixels. A real vision LoRA needs india to load the image into a VLM.",
+    "corpus is 8 pair(s) from 1 print(s) — proves the wiring, NOT a trainable corpus (<<50-sample floor).",
+    "labels are ensemble-distilled pseudo-labels (synthetic→real OOD); the eval gate MUST score against operator_verified data, which xray does NOT yet have.",
+    "NO fine-tune can run until india lands a Blackwell(sm_120)-compatible torch + peft/datasets/trl + a real VL trainer. See INDIA-HANDOFF-blueprint-lora.md."
+  ],
+  "mustHumanVerify": true
+}

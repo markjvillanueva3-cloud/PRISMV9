@@ -36,6 +36,29 @@ import {
 } from "./QuoteEstimatorEngine.js";
 import { dfmFeedbackEngine } from "./DFMFeedbackEngine.js";
 import { speedFeedOrchestratorEngine } from "./SpeedFeedOrchestratorEngine.js";
+import { cycleTimeEstimatorEngine, type ControllerType } from "./CycleTimeEstimatorEngine.js";
+import { shopConfigurationEngine } from "./ShopConfigurationEngine.js";
+import { vendorCostIndexEngine } from "./VendorCostIndexEngine.js";
+import { adaptiveShopRateEngine } from "./AdaptiveShopRateEngine.js";
+
+// U-QP-DOCUSTRATA-MATERIAL: mm^3 -> in^3 (1 in = 25.4 mm; 25.4^3 = 16387.064).
+const MM3_PER_IN3 = 16387.064;
+
+// U-QP-RATE-WIRE: bridge the quote machine-type taxonomy (both the QuoteEstimator
+// form cnc_mill_3axis/cnc_lathe/... and the SpeedFeed form vertical_mill/lathe/...)
+// to the ShopConfigurationEngine machine `type` labels, so the quote can read THIS
+// shop's actual per-machine $/hr. A type with no shop machine falls back to the
+// quote engine's planning default (silent, never blocks a quote).
+const MACHINE_TYPE_TO_SHOP_TYPE: Record<string, string> = {
+  // QuoteEstimator taxonomy
+  cnc_mill_3axis: "VMC", manual_mill: "VMC",
+  cnc_mill_5axis: "5-axis",
+  cnc_lathe: "Lathe", swiss_lathe: "Lathe", cnc_lathe_live: "Lathe", multi_spindle: "Lathe",
+  wire_edm: "Wire EDM", sinker_edm: "EDM",
+  surface_grinder: "Grinder", cylindrical_grinder: "Grinder", centerless_grinder: "Grinder",
+  // SpeedFeed taxonomy (inferMachineType / input.machine_type alternate form)
+  vertical_mill: "VMC", horizontal_mill: "VMC", lathe: "Lathe", "5axis": "5-axis",
+};
 import { partSimilarityEngine, type PartSpec } from "./PartSimilarityEngine.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
 
@@ -79,6 +102,14 @@ export interface InstantQuoteInput {
   // Tool context (optional — SpeedFeedOrchestrator resolves defaults)
   tool_diameter_mm?: number;
   flutes?: number;
+
+  // ── G-code program (U-QP-GCODE-TIME-WIRE): when a real NC program is
+  // available it is the MOST accurate cycle-time source (deterministic, from
+  // actual toolpaths + this machine's kinematics), used ahead of the MRR
+  // estimate. controller/profile select the machine kinematics. ──
+  gcode_program?: string;
+  gcode_controller?: ControllerType;
+  gcode_machine_profile?: string;
 
   // Secondary operations
   secondary_ops?: Array<{
@@ -316,43 +347,131 @@ class InstantQuoteEngine {
       }
     }
 
-    // ── Step 3: Physics-based cycle time via SpeedFeedOrchestrator ──
+    // -- Step 3: Cycle time. Priority: real G-code (deterministic) > physics
+    // MRR estimate > parametric complexity estimate. --
     let cycleTimeMin = 0;
     let cycleTimeSource = "parametric_estimate";
-    try {
-      const sfResult = speedFeedOrchestratorEngine.compute({
-        material: input.material,
-        iso_group: input.iso_group,
-        hardness_hb: input.hardness_hb,
-        machine_type: machineType as "vertical_mill" | "horizontal_mill" | "lathe" | "5axis",
-        tool_diameter_mm: input.tool_diameter_mm ?? 12,
-        flutes: input.flutes ?? 4,
-        operation: machineType.includes("lathe") ? "turning" : "milling",
-        cut_type: "roughing",
-        axial_depth_mm: input.tool_diameter_mm ? input.tool_diameter_mm * 0.5 : 6,
-        radial_depth_pct: 40,
-      });
 
-      if (sfResult?.value?.mrr_cm3min && sfResult.value.mrr_cm3min > 0) {
-        // Estimate volume to remove from bounding box vs part volume
-        const volumeToRemove = this.estimateVolumeToRemove(input);
-        if (volumeToRemove > 0) {
-          // Roughing time + finishing time (finishing ≈ 30% of roughing time)
-          const roughingMin = volumeToRemove / sfResult.value.mrr_cm3min;
-          const finishingMin = roughingMin * 0.3;
-          cycleTimeMin = roughingMin + finishingMin;
-          cycleTimeSource = "physics_calculated";
-          enginesUsed.push("SpeedFeedOrchestratorEngine");
+    // Step 3a: G-code program (U-QP-GCODE-TIME-WIRE) -- the most accurate source.
+    // Runs the full line-by-line S-curve parser (rapid/cut/canned-cycle/tool-change)
+    // against this machine's kinematics instead of a single-tool MRR assumption.
+    if (input.gcode_program && input.gcode_program.trim().length > 0) {
+      try {
+        const gc = cycleTimeEstimatorEngine.estimateFromGCode(input.gcode_program, {
+          controller: (input.gcode_controller ?? "fanuc") as ControllerType,
+          machine_profile: input.gcode_machine_profile,
+        });
+        if (gc && Number.isFinite(gc.total_seconds) && gc.total_seconds > 0) {
+          cycleTimeMin = gc.total_seconds / 60;
+          cycleTimeSource = "gcode_precise";
+          enginesUsed.push("CycleTimeEstimatorEngine");
         }
+      } catch (err: unknown) {
+        log.warn("G-code cycle-time estimate failed, falling back to MRR/parametric", { error: String(err) });
       }
-    } catch (err: unknown) {
-      log.warn("SpeedFeedOrchestrator failed, using parametric estimate", { error: String(err) });
+    }
+
+    // Step 3b: Physics-based cycle time via SpeedFeedOrchestrator (only when no
+    // G-code program produced a time).
+    if (cycleTimeMin <= 0) {
+      try {
+        const sfResult = speedFeedOrchestratorEngine.compute({
+          material: input.material,
+          iso_group: input.iso_group,
+          hardness_hb: input.hardness_hb,
+          machine_type: machineType as "vertical_mill" | "horizontal_mill" | "lathe" | "5axis",
+          tool_diameter_mm: input.tool_diameter_mm ?? 12,
+          flutes: input.flutes ?? 4,
+          operation: machineType.includes("lathe") ? "turning" : "milling",
+          cut_type: "roughing",
+          axial_depth_mm: input.tool_diameter_mm ? input.tool_diameter_mm * 0.5 : 6,
+          radial_depth_pct: 40,
+        });
+
+        if (sfResult?.value?.mrr_cm3min && sfResult.value.mrr_cm3min > 0) {
+          // Estimate volume to remove from bounding box vs part volume
+          const volumeToRemove = this.estimateVolumeToRemove(input);
+          if (volumeToRemove > 0) {
+            // Roughing time + finishing time (finishing ~30% of roughing time)
+            const roughingMin = volumeToRemove / sfResult.value.mrr_cm3min;
+            const finishingMin = roughingMin * 0.3;
+            cycleTimeMin = roughingMin + finishingMin;
+            cycleTimeSource = "physics_calculated";
+            enginesUsed.push("SpeedFeedOrchestratorEngine");
+          }
+        }
+      } catch (err: unknown) {
+        log.warn("SpeedFeedOrchestrator failed, using parametric estimate", { error: String(err) });
+      }
     }
 
     // Fallback: parametric estimate based on complexity
     if (cycleTimeMin <= 0) {
       cycleTimeMin = this.parametricCycleTime(input, complexity);
       cycleTimeSource = "parametric_estimate";
+    }
+
+    // Step 3c: Per-shop rates from ShopConfigurationEngine (U-QP-RATE-WIRE) --
+    // the active shop's actual machine/setup/programming $/hr replace the quote
+    // engine's inline planning defaults, killing the silent rate divergence.
+    let shopMachineRateHr: number | undefined;
+    let shopSetupRateHr: number | undefined;
+    let shopProgrammingRateHr: number | undefined;
+    try {
+      const shopType = MACHINE_TYPE_TO_SHOP_TYPE[machineType];
+      if (shopType) {
+        const machine = shopConfigurationEngine.getMachines().find(
+          m => m.type.toLowerCase() === shopType.toLowerCase(),
+        );
+        if (machine && machine.hourly_rate > 0) {
+          shopMachineRateHr = machine.hourly_rate;
+          // U-QP-ADAPTIVE-PERSIST: when the adaptive engine has folded in REAL
+          // actual-vs-predicted outcomes for this machine, its self-tuned
+          // posterior mean (the learned rate) beats the static catalog rate.
+          // Dormant until outcomes are recorded (n_observations == 0 today).
+          try {
+            const prior = adaptiveShopRateEngine.getPrior(machine.id);
+            if (prior && prior.n_observations > 0 && prior.mu > 0) {
+              shopMachineRateHr = prior.mu;
+              enginesUsed.push("AdaptiveShopRateEngine");
+            }
+          } catch { /* no learned prior -> keep the catalog rate */ }
+        }
+      }
+      const rates = shopConfigurationEngine.getRates();
+      if (rates.setup_per_hr > 0) shopSetupRateHr = rates.setup_per_hr;
+      if (rates.programming_per_hr > 0) shopProgrammingRateHr = rates.programming_per_hr;
+      // Honest traceability: record the engine when ANY shop rate (machine OR
+      // setup OR programming) was actually applied to this quote.
+      if (shopMachineRateHr !== undefined || shopSetupRateHr !== undefined || shopProgrammingRateHr !== undefined) {
+        enginesUsed.push("ShopConfigurationEngine");
+      }
+    } catch (err: unknown) {
+      log.warn("ShopConfig rate lookup failed, using quote-engine planning defaults", { error: String(err) });
+    }
+
+    // Step 3d: Units-correct REAL material cost (U-QP-DOCUSTRATA-MATERIAL) --
+    // when stock dims + a JM tool-steel grade are known, cost the material from
+    // the AP-ledger $/in3 consumable basis (density-free, real spend) instead of
+    // the density x $/kg planning estimate. Only the 10 JM grades resolve; other
+    // materials (aluminum/stainless) return null -> fall back silently.
+    let materialCostPerPartOverride: number | undefined;
+    try {
+      if (input.stock_dimensions_mm) {
+        const d = input.stock_dimensions_mm;
+        const stockVolIn3 = (d.length * d.width * d.height) / MM3_PER_IN3;
+        // U-QP-CONSUME-FMV-DEDUP: route through the canonical confidence-gated
+        // primitive instead of re-gating inline. minConfidence:"high" REFUSES low-n
+        // AP-ledger outliers (e.g. D2 block_n=2 -> $251/in3, ~40x other tool steels)
+        // for customer-facing quotes; none/below-floor -> ok:false -> parametric fallback.
+        const mc = vendorCostIndexEngine.materialCostForVolume(input.material, stockVolIn3, undefined, { minConfidence: "high" });
+        if (mc.ok && mc.material_cost_usd != null && mc.material_cost_usd > 0) {
+          materialCostPerPartOverride = mc.material_cost_usd;
+          enginesUsed.push("VendorCostIndexEngine");
+        }
+      }
+    } catch (err: unknown) {
+      log.warn("Material $/in3 basis lookup failed, using parametric material cost", { error: String(err) });
     }
 
     // ── Step 4: Build QuoteEstimator input and get cost breakdown ──
@@ -374,6 +493,10 @@ class InstantQuoteEngine {
       })),
       num_setups: numSetups,
       machine_type: machineType,
+      machine_rate_hr: shopMachineRateHr,
+      setup_rate_hr: shopSetupRateHr,
+      programming_rate_hr: shopProgrammingRateHr,
+      material_cost_per_part_override: materialCostPerPartOverride,
       tightest_tolerance_mm: this.tightestTolerance(input),
       tightest_surface_finish_ra: this.tightestFinish(input),
       operations: [{
@@ -961,6 +1084,95 @@ class InstantQuoteEngine {
         cost_impact_usd: Math.round(unitPrice * impactPct * 100) / 100,
       };
     });
+  }
+
+  /**
+   * JULIETT-DB-BRIDGE-MS0/U-DB-MACHINE-QUALITY-CONSUMERS — Phase 5 wire (quoting consumer).
+   *
+   * Wrapper over quote() that consumes machineQualityForConsumer('sfc')
+   * + machineQualityForConsumer('post') and applies:
+   *   - Cycle-time inflation: lower-tier machine → derate the implied feed/speed,
+   *     pushes cycle_time_min UP (cycle = volume / mrr; mrr scales with feed×speed)
+   *   - CI95 widening: post payload safety_pad_pct widens the price uncertainty band
+   *     (low-quality machine → wider quote band reflects scrap-rate uncertainty)
+   *
+   * Additive — when no machine_id provided, behavior identical to quote().
+   *
+   * @param input Standard InstantQuoteInput + optional machine_id / machine
+   */
+  async quoteWithMachineQuality(
+    input: InstantQuoteInput & {
+      machine_id?: string;
+      machine?: Record<string, unknown>;
+    },
+  ): Promise<InstantQuoteResult & {
+    machine_quality_adjustment: {
+      derate_factor: number;
+      cycle_time_uplift_pct: number;
+      ci95_widen_pct: number;
+      tier: string;
+      source: string;
+    };
+  }> {
+    const base = this.quote(input);
+
+    let derate = 1.0;
+    let safetyPadPct = 5;
+    let tier = "UNKNOWN";
+    let source = "none";
+
+    if (input.machine_id || input.machine) {
+      // Lazy import to keep engine-layer pure (no circular dep with dispatcher)
+      const { machineQualityForConsumer } = await import("./MachineQualityScoreEngine.js");
+
+      // Pull both sfc derate (for cycle time) AND post payload (for safety pad / quote band)
+      const [sfcQ, postQ] = await Promise.all([
+        machineQualityForConsumer({ consumer: "sfc",  machine_id: input.machine_id, machine: input.machine }),
+        machineQualityForConsumer({ consumer: "post", machine_id: input.machine_id, machine: input.machine }),
+      ]);
+
+      if (sfcQ.ok) {
+        const p = sfcQ.payload as { derate_factor: number; recommend_safety_pad_pct: number };
+        if (typeof p.derate_factor === "number" && isFinite(p.derate_factor)) {
+          derate = Math.max(0.5, Math.min(1.0, p.derate_factor));
+        }
+        if (typeof p.recommend_safety_pad_pct === "number" && isFinite(p.recommend_safety_pad_pct)) {
+          safetyPadPct = p.recommend_safety_pad_pct;
+        }
+        tier = sfcQ.tier;
+        source = `machine_quality_score[${sfcQ.tier}]`;
+      }
+      // post payload reserved for future controller-family override; kept for symmetry / future expansion
+      void postQ;
+    }
+
+    // Cycle-time uplift: derate < 1.0 means slower machine → longer cycle.
+    // Uplift factor = 1/derate. e.g. derate=0.65 → cycle * 1.538 (54% longer)
+    const cycleUpliftFactor = derate > 0 ? 1.0 / derate : 1.0;
+    const cycleUpliftPct = Math.round((cycleUpliftFactor - 1.0) * 1000) / 10; // 1dp
+
+    // CI95 widen: safetyPadPct (5/10/20) extends the price band as a fractional widening.
+    // High-tier (5%) → narrow band. Hobby (20%) → wide band.
+    const padFraction = safetyPadPct / 100;
+    const ci95WidenPct = Math.round(padFraction * 1000) / 10;
+
+    const adjustedUnitPrice = Math.round(base.unit_price * cycleUpliftFactor * 100) / 100;
+    const adjustedCi95Low  = Math.round(base.ci95_low  * (1 - padFraction) * 100) / 100;
+    const adjustedCi95High = Math.round(base.ci95_high * (1 + padFraction) * 100) / 100;
+
+    return {
+      ...base,
+      unit_price: adjustedUnitPrice,
+      ci95_low: adjustedCi95Low,
+      ci95_high: adjustedCi95High,
+      machine_quality_adjustment: {
+        derate_factor: derate,
+        cycle_time_uplift_pct: cycleUpliftPct,
+        ci95_widen_pct: ci95WidenPct,
+        tier,
+        source,
+      },
+    };
   }
 }
 

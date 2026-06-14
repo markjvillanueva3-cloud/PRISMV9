@@ -28,7 +28,7 @@ related:
 | Course ID | `course-0c-blueprint-reading` |
 | Source | `mcp-server/src/data/academy/course-0c-blueprint-reading.ts` |
 | Level | Novice |
-| Modules (declared / counted) | 12 / 13 |
+| Modules (declared / counted) | 12 / 14 |
 | Lessons (counted) | ? |
 | Est. hours | 10 |
 

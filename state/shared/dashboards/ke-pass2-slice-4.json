@@ -1,0 +1,2111 @@
+[
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL13",
+  "title": "InventorSolidCAMIdiomLearnerEngine — joined idiom mining",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+    "knowledge/wiki/architecture/engines/solid/solidcamalgorithmsengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadcorpusfeatureprevalencelearnerengine.md",
+    "knowledge/wiki/architecture/engines/cad/camfeaturelearningengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadtrialerrorlearningengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "frequent-itemset / association-rule mining (Apriori box-pattern detection)",
+    "n-gram tokenization of CAD operation sequences",
+    "TF-IDF style idiom-frequency ranking across joined corpora"
+   ],
+   "buildNote": "Mine idioms from BOTH Inventor and SolidCAM corpora jointly — joined frequency must outvote single-source noise, and dedup idioms by canonical operation signature."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL15",
+  "title": "CADActionValidationEngine — verify every action succeeded",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/groundtruthvalidationengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md",
+    "knowledge/wiki/architecture/engines/validation/predictionvalidationengine.md",
+    "knowledge/wiki/architecture/engines/fusion/crossprocessvisiontabularfusionengine.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "post-condition / assertion verification per action",
+    "result-receipt chaining (verify each step's actual output, not its return code)",
+    "idempotent re-verification of a completed action"
+   ],
+   "buildNote": "Verify each CAD action by reading its ACTUAL produced geometry/state, never the call's return code — fail loud and name which action failed (R12)."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS1::U-DASAL16",
+  "title": "MS1 Dispatcher Wiring + Feature Cascade",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/dispatcher/cadautomationrouter.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Zod discriminated-union action enum validation",
+    "dispatcher action-table registration (round-trip E2E assertion)",
+    "feature-cascade fan-out wiring to every consuming dispatcher"
+   ],
+   "buildNote": "Wire every MS1 engine to ALL dispatchers that would naturally consume it (not just one) in the same commit; the z.enum(ACTIONS) gate must list every new action or production breaks while tests false-pass."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS01",
+  "title": "AdvancedSweepEngine — multi-rail guided sweeps",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/nurbs/nurbsengine.md",
+    "knowledge/wiki/architecture/engines/nurbs/bsplineengine.md",
+    "knowledge/wiki/architecture/engines/surface/surfacemeasureengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "NURBS surface lofting along multiple rail curves",
+    "knot-vector reparameterization for rail synchronization",
+    "bidirectional spline interpolation across guide rails"
+   ],
+   "buildNote": "Multi-rail sweeps must keep the section curve perpendicular to ALL rails simultaneously — verify continuity (G1/G2) at every rail intersection with a known analytical surface."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS02",
+  "title": "AdvancedLoftEngine — multi-profile loft with rails",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/loftedwingengine.md",
+    "knowledge/wiki/architecture/engines/nurbs/nurbsengine.md",
+    "knowledge/wiki/architecture/engines/nurbs/bsplineengine.md",
+    "knowledge/wiki/architecture/engines/surface/surfacemeasureengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "multi-profile skinned-surface (loft) construction",
+    "profile-to-profile correspondence point matching",
+    "rail-constrained NURBS lofting"
+   ],
+   "buildNote": "Loft across N profiles must resolve point-correspondence consistently — mismatched profile point counts twist the surface; verify against the single-profile wing-loft baseline."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS03",
+  "title": "BoundarySurfaceEngine — N-boundary surface construction",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/nurbs/nurbsengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md",
+    "knowledge/wiki/architecture/engines/geometry/topologyengine.md",
+    "knowledge/wiki/architecture/engines/surface/surfacemeasureengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Coons / Gordon patch construction from N boundary curves",
+    "boundary curve closure and tangency continuity checks",
+    "parametric surface fitting to bounding edge loop"
+   ],
+   "buildNote": "An N-boundary surface requires a closed, non-self-intersecting edge loop — validate boundary closure and edge-to-edge tangency before fitting; a non-watertight boundary silently produces a degenerate patch."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS04",
+  "title": "FreeformSurfaceSculptEngine — T-spline/SubD synthesis",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/nurbs/splinejointengine.md",
+    "knowledge/wiki/architecture/engines/nurbs/bsplineengine.md",
+    "knowledge/wiki/architecture/engines/calc/meshdecimationengine.md",
+    "knowledge/wiki/architecture/engines/geometry/topologyengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "T-spline / subdivision-surface (Catmull-Clark) refinement",
+    "control-cage editing with star-point handling",
+    "spline interpolation with C2 continuity"
+   ],
+   "buildNote": "T-spline/SubD synthesis must handle extraordinary (star) vertices without surface creasing — verify limit-surface continuity with a known control cage."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS07",
+  "title": "ParametricDriverEngine — iLogic-style rule orchestration",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadaistatemachineengine.md",
+    "knowledge/wiki/architecture/engines/cad/sketchconstraintengine.md",
+    "knowledge/wiki/architecture/engines/cad/parametricpartlibraryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "rule-engine / forward-chaining inference (iLogic-style)",
+    "directed-acyclic dependency graph of parametric rules",
+    "topological-sort rule evaluation order"
+   ],
+   "buildNote": "Parametric rules form a dependency DAG — topologically sort before evaluation and fail loud on cycles; a circular driver rule must not silently loop."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS08",
+  "title": "MultiBodyManagementEngine — multi-body part design",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/assemblyengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md",
+    "knowledge/wiki/architecture/engines/geometry/topologyengine.md",
+    "knowledge/wiki/architecture/engines/multi/multibodyvibrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "boolean solid operations (union/subtract/intersect) on multi-body parts",
+    "body-graph adjacency tracking",
+    "shared-face / coincidence detection between bodies"
+   ],
+   "buildNote": "Multi-body management must track each body's solid topology independently and detect shared faces — boolean ops between bodies must preserve manifold validity."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS09",
+  "title": "AssemblyConstraintEngine — mates, joints, motion",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/assemblyengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md",
+    "knowledge/wiki/architecture/engines/calc/kinematicsengine.md",
+    "knowledge/wiki/architecture/engines/calc/linearmotionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "constraint solver for assembly mates (DOF reduction)",
+    "degrees-of-freedom counting per joint type",
+    "kinematic chain motion solving (forward kinematics)"
+   ],
+   "buildNote": "Each mate/joint removes specific DOFs — over-constrained assemblies must be detected (DOF < 0), and motion joints must produce kinematically valid travel envelopes."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS10",
+  "title": "WeldmentFrameGeneratorEngine — structural weldments",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/physics/vibrationanalysisengine.md",
+    "knowledge/wiki/architecture/engines/calc/columnbucklingengine.md",
+    "knowledge/wiki/architecture/engines/calc/boltedjointengine.md",
+    "knowledge/wiki/architecture/engines/weldingjoining/weldstrengthengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "structural frame member generation along skeleton edges",
+    "miter / coped joint trim geometry at frame intersections",
+    "cross-section sweep along structural members"
+   ],
+   "buildNote": "Weldment frames sweep a profile along a skeleton — joint trimming (miter/cope) at member intersections must produce no gaps or interference; never inline structural-steel constants."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS12",
+  "title": "TechnicalDrawingSynthesisEngine — ASME Y14.5 drawings",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/print/drawing2dextractionengine.md",
+    "knowledge/wiki/architecture/engines/print/nxopenassemblydrawingengine.md",
+    "knowledge/wiki/architecture/engines/cad/gdtstackupengine.md",
+    "knowledge/wiki/architecture/engines/print/caddrawingknowledgeengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "orthographic projection of 3D model to 2D views",
+    "hidden-line removal for drawing views",
+    "ASME Y14.5 GD&T symbol/datum placement rules"
+   ],
+   "buildNote": "Technical drawing synthesis must place GD&T feature-control frames and datums per ASME Y14.5 grammar — verify projection consistency across all generated views."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS13",
+  "title": "BOMiPropertySynthesisEngine — BOM + metadata generation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md",
+    "knowledge/wiki/architecture/engines/cad/assemblyengine.md",
+    "knowledge/wiki/architecture/engines/inventor/erptoolinventoryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadrevisiondetectorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "recursive assembly-tree traversal (BOM flattening)",
+    "component quantity roll-up and de-duplication",
+    "iProperty metadata extraction and normalization"
+   ],
+   "buildNote": "BOM generation must recursively walk the assembly graph, roll up quantities of identical components, and emit a stable schema-versioned record."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS2::U-DACFS14",
+  "title": "MS2 Dispatcher Wiring + Feature Cascade",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/dispatcher/cadautomationrouter.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Zod discriminated-union action enum validation",
+    "dispatcher action-table registration",
+    "feature-cascade fan-out across consuming dispatchers"
+   ],
+   "buildNote": "Every MS2 surface engine must be wired to all consuming dispatchers in one commit; the action enum must include each new action or production is broken while MockMCPServer tests false-pass."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS3::U-DACAV01",
+  "title": "BRepTopologyValidatorEngine — manifold/watertight check",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/geometry/breptessellatorengine.md",
+    "knowledge/wiki/architecture/engines/geometry/topologyengine.md",
+    "knowledge/wiki/architecture/engines/cad/stltovoxelgridengine.md",
+    "knowledge/wiki/architecture/engines/validation/predictionvalidationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "Euler-Poincaré characteristic check for manifold validity",
+    "watertight / non-manifold edge detection (each edge bounds exactly 2 faces)",
+    "B-rep topology graph traversal"
+   ],
+   "buildNote": "Manifold/watertight validation checks every edge bounds exactly two faces and the Euler characteristic holds — fail loud naming the offending edge/vertex, never return a soft pass."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS3::U-DACAV02",
+  "title": "DimensionalValidatorEngine — spec vs actual",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/gdtstackupengine.md",
+    "knowledge/wiki/architecture/engines/cad/pdfblueprintdimensionextractorengine.md",
+    "knowledge/wiki/architecture/engines/quality/dimensionalanalysisengine.md",
+    "knowledge/wiki/architecture/engines/validation/predictionvalidationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "dimension tolerance-band comparison (nominal ± tol)",
+    "spec-vs-actual measurement diffing",
+    "GD&T datum-referenced feature measurement"
+   ],
+   "buildNote": "Dimensional validation compares actual geometry against spec tolerance bands — every out-of-band feature must be reported individually with its measured value and limit."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS3::U-DACAV04",
+  "title": "ManufacturabilityValidatorEngine — full DFM sweep",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md",
+    "knowledge/wiki/architecture/engines/cam/cpkpredictiongateengine.md",
+    "knowledge/wiki/architecture/engines/validation/predictionvalidationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "rule-based DFM checking (wall thickness, draft angle, undercut detection)",
+    "feature accessibility / tool-reach analysis",
+    "geometric heuristic scoring per manufacturability rule"
+   ],
+   "buildNote": "A full DFM sweep runs every manufacturability rule and aggregates findings — each rule must fire independently and report concrete violations, not a single rolled-up score."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS3::U-DACAV06",
+  "title": "AssemblyInterferenceValidatorEngine — collision checks",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/collisiondetectionengine.md",
+    "knowledge/wiki/architecture/engines/cam/collisionpreventionengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadassemblygraphengine.md",
+    "knowledge/wiki/architecture/engines/calc/bvhengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "bounding-volume hierarchy (BVH) broad-phase collision pruning",
+    "triangle-triangle / solid-solid intersection narrow-phase test",
+    "swept-volume interference detection"
+   ],
+   "buildNote": "Assembly interference uses BVH broad-phase then exact narrow-phase intersection — every colliding body pair must be reported; a missed collision is a P0 safety defect."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS3::U-DACAV09",
+  "title": "CADValidationGateHook — blocks CAM without PASS",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/engine/",
+    "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "PreToolUse hard-block hook gate (exit-via-stdout-JSON)",
+    "validation-receipt state lookup before allowing CAM",
+    "fail-closed gate semantics"
+   ],
+   "buildNote": "A blocking hook must signal via stdout JSON, never exit-2 (Windows pipe truncation silently bypasses it); block CAM unless a fresh CAD-validation PASS receipt exists, and fail loud on a missing receipt."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS3::U-DACAV10",
+  "title": "MS3 Dispatcher Wiring + Feature Cascade",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/dispatcher/cadautomationrouter.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Zod discriminated-union action enum validation",
+    "dispatcher action registration with round-trip E2E",
+    "validation-engine fan-out wiring"
+   ],
+   "buildNote": "Wire every MS3 validator engine to all consuming dispatchers in one commit; the action enum must list each new action — MockMCPServer bypasses the enum gate so verify against the real SDK boundary."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI02",
+  "title": "StrategyMomentSelectorEngine — Strategy Per Moment",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyrouterengine.md",
+    "knowledge/wiki/architecture/engines/cam/contextualstrategyoverrideengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategysequencingengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "per-moment strategy selection (decision policy over machining state)",
+    "feature-context-keyed strategy lookup",
+    "greedy vs lookahead strategy choice at each toolpath moment"
+   ],
+   "buildNote": "StrategyPerMoment selects the optimal strategy for each instant of cut given live context — the selector must be deterministic for identical state and verifiable against known reference scenarios."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI03",
+  "title": "OptimalToolpathAtMomentEngine — Core Orchestration",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/toolpath/toolpathstrategyengine.md",
+    "knowledge/wiki/architecture/engines/cam/productiontoolpathengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "orchestration pipeline staging (sub-engine fan-out and merge)",
+    "optimal-toolpath search over candidate strategies",
+    "cost-function minimization at each path segment"
+   ],
+   "buildNote": "The core orchestrator composes sub-engines and picks the optimal toolpath per moment — verify the orchestration order and that every sub-engine result is consumed, not silently dropped."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI04",
+  "title": "RealtimeVariabilityIntegratorEngine — Live Drift Compensation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md",
+    "knowledge/wiki/architecture/engines/cam/anomalydetectionengine.md",
+    "knowledge/wiki/architecture/engines/physics/inversethermalcompensationengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategyevolutionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "live drift estimation (Kalman filter / EWMA state tracking)",
+    "closed-loop feedback compensation",
+    "real-time sensor signal integration"
+   ],
+   "buildNote": "Realtime variability integration tracks live machining drift and compensates — the estimator must converge and never amplify noise; verify with a known synthetic drift profile."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI05",
+  "title": "LOCDynamicParameterEngine — LOC → Params Realtime",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategyevolutionengine.md",
+    "knowledge/wiki/architecture/engines/calc/feedoptimizationengine.md",
+    "knowledge/wiki/architecture/engines/force/forceneuralpredictorengine.md",
+    "knowledge/wiki/architecture/engines/calc/advancedchipthicknessengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "length-of-cut to parameter mapping (interpolation table / regression)",
+    "realtime parameter recomputation per LOC change",
+    "engagement-angle to feed/speed transfer function"
+   ],
+   "buildNote": "LOC-driven dynamic parameters recompute feeds/speeds per length-of-cut change — import physics constants from constants.ts, never inline kc/Taylor values."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI06",
+  "title": "VariabilityAdaptiveOrchestratorEngine — Full Adaptive Loop",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategyevolutionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "closed-loop control loop (sense-decide-act-verify cycle)",
+    "adaptive orchestration over sub-engine outputs",
+    "convergence/stability guarantee for the adaptive loop"
+   ],
+   "buildNote": "The full adaptive loop must terminate — bound iterations and verify the loop converges; an unbounded adaptive loop is a hang risk."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI07",
+  "title": "MultiObjectiveStrategyOptimizerEngine — Pareto Optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/multi/multiobjectiveparetoengine.md",
+    "knowledge/wiki/architecture/engines/calc/optimizationformulasengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+    "knowledge/wiki/architecture/engines/calc/geneticalgorithmengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "Pareto-front computation (non-dominated sorting, NSGA-II)",
+    "Pareto-dominance test between candidate strategies",
+    "multi-objective weighted-sum vs epsilon-constraint scalarization"
+   ],
+   "buildNote": "Pareto optimization returns the non-dominated set — verify dominance relation correctness; a candidate dominated on all objectives must never enter the front."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI08",
+  "title": "CycleTimeOptimizerEngine — Time Minimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/calc/cycletimeengine.md",
+    "knowledge/wiki/architecture/engines/tool/cycletimeaccuracyengine.md",
+    "knowledge/wiki/architecture/engines/cam/ppgreedytoolpathoptimizerengine.md",
+    "knowledge/wiki/architecture/engines/calc/feedoptimizationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "cycle-time decomposition (cutting + rapid + tool-change + dwell)",
+    "rapid-move minimization (TSP-like air-cut reduction)",
+    "feed-rate constrained time minimization"
+   ],
+   "buildNote": "Cycle-time optimization minimizes total machining time within physics limits — sum cutting/rapid/dwell time components and verify against a measured baseline part."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI09",
+  "title": "ToolLifeAwareStrategyEngine — Wear-Conscious CAM",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tool/toolbreakagepredictionengine.md",
+    "knowledge/wiki/architecture/engines/tool/toollifegnnengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/engines/force/wearforcecompensationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Taylor tool-life equation (VcT^n = C) wear modeling",
+    "remaining-useful-life estimation",
+    "wear-rate integration along toolpath"
+   ],
+   "buildNote": "Wear-conscious CAM uses the canonical Taylor model — import the Taylor exponent/constant from constants.ts; an inline exponent is the exact CALC-HARDEN bug class."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI10",
+  "title": "CostOptimizedStrategyEngine — Total Cost Optimization",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategycostoptimalengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolcostperpartengine.md",
+    "knowledge/wiki/architecture/engines/calc/sustainabilityformulasengine.md",
+    "knowledge/wiki/architecture/engines/calc/cycletimeengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "total-cost-of-ownership model (machine + tool + labor + energy)",
+    "cost-per-part roll-up across operations",
+    "constrained cost minimization"
+   ],
+   "buildNote": "Total-cost optimization sums machine-time, tooling, labor and energy cost — every cost term must be a real engine output, not a hardcoded rate; import sustainability constants."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI11",
+  "title": "CrossCAMStrategyTransferEngine — Best-Of-All-CAMs Synthesis",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md",
+    "knowledge/wiki/architecture/engines/multi/multicamknowledgeengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/ai/transferlearningbridgeengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "cross-source best-of-N selection / ensembling",
+    "strategy normalization to a common taxonomy across CAMs",
+    "transfer-learning of strategy knowledge between CAM systems"
+   ],
+   "buildNote": "Cross-CAM transfer synthesizes the best strategy across all CAM systems — strategies must be normalized to one taxonomy before comparison, else apples-to-oranges selection."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI12",
+  "title": "TribalKnowledgeApplicatorEngine — Wisdom Synthesis",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/tribal/tribalknowledgemaximizerengine.md",
+    "knowledge/wiki/architecture/engines/ai/camtribalragengine.md",
+    "knowledge/wiki/architecture/engines/ai/manufacturingreasoningengine.md",
+    "knowledge/wiki/architecture/engines/cam/featurestrategyknowledgebaseengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "memory-curation-discipline"
+   ],
+   "csKnowledge": [
+    "RAG retrieval over tribal-knowledge corpus (embedding similarity)",
+    "context-keyed wisdom rule matching",
+    "BM25 / vector similarity ranking of tribal tips"
+   ],
+   "buildNote": "Tribal-knowledge application retrieves and applies shop-floor wisdom by machining context — verify retrieved tips actually match the query feature, not just keyword overlap."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI13",
+  "title": "ReinforcementLearningCAMFeedbackEngine — Continuous Learning",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ml/prioritizedreplaybufferengine.md",
+    "knowledge/wiki/architecture/engines/calc/qlearningengine.md",
+    "knowledge/wiki/architecture/engines/calc/markovdecisionengine.md",
+    "knowledge/wiki/architecture/engines/cam/fleetlearningstrategyengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "reinforcement learning (Q-learning / policy-gradient) with reward shaping",
+    "prioritized experience replay buffer",
+    "Markov decision process state-action-reward modeling"
+   ],
+   "buildNote": "RL CAM feedback updates a policy from machining outcomes — the reward signal must encode true machining success; a policy that converges on a hardcoded reward is worthless (R9)."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI14",
+  "title": "CAMAGIOrchestratorEngine — Top-Level Orchestrator",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/ai/camagireasoningengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "top-level orchestrator (composes all CAM-AGI sub-engines)",
+    "pipeline staging with fail-loud error propagation",
+    "sub-engine result aggregation and conflict resolution"
+   ],
+   "buildNote": "The top-level CAM-AGI orchestrator chains every sub-engine — surface every sub-engine failure (R12), never average two contradicting sub-engine verdicts (R7)."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS4::U-CAMAGI15",
+  "title": "JMDieRegressionTestSuite — 100 Real Parts",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/engines/cam/productiontoolpathengine.md",
+    "knowledge/wiki/architecture/jmdie/",
+    "knowledge/wiki/architecture/tests/cam/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "regression test harness over a real-part corpus",
+    "golden-file / reference-output comparison per part",
+    "pass-rate gate (100% acceptance threshold)"
+   ],
+   "buildNote": "The 100-real-part regression suite must assert real reference values per part — a test that passes on a hardcoded output is worthless; never .skip a failing part."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS5::U-DAAE04",
+  "title": "AdaptiveRPMSolverEngine — dynamic RPM command",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/chatter/stabilityrpmrewriterengine.md",
+    "knowledge/wiki/architecture/engines/calc/pidcontrollerengine.md",
+    "knowledge/wiki/architecture/engines/chatter/chatterstabilitylobeengine.md",
+    "knowledge/wiki/architecture/engines/force/spindleloadmonitorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "dynamic RPM command generation (closed-loop control)",
+    "stability-lobe-aware RPM selection",
+    "PID / feedback control of spindle speed"
+   ],
+   "buildNote": "Adaptive RPM solver issues live RPM commands within stability lobes — clamp to machine spindle limits and verify the command never leaves the stable lobe band."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS5::U-DAAE07",
+  "title": "AdaptiveSafetyEnvelopeEngine — hard bounds + S(x) gate",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/force/spindletorquegateengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategysafetydecisionengine.md",
+    "knowledge/wiki/architecture/engines/physics/feasibilityorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/force/forcecapabilityengine.md"
+   ],
+   "seWiki": [
+    "safety-tier-discipline",
+    "physics-constants-discipline",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "hard-bound clamping (parameter never exceeds physics envelope)",
+    "S(x) safety-gate evaluation",
+    "fail-closed safety envelope semantics"
+   ],
+   "buildNote": "The adaptive safety envelope enforces hard bounds — the S(x) gate must fail closed on any envelope breach; route safety-relevant physics through prism_safety, never soften the gate."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS5::U-DAAE09",
+  "title": "AdaptiveExecutionOrchestratorEngine — master closed loop",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/ai/ppgsfcclosedlooporchestratorengine.md",
+    "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "master closed-loop orchestration (sense-plan-act-verify)",
+    "convergence-bounded adaptive control loop",
+    "sub-engine fan-out with safety-gated merge"
+   ],
+   "buildNote": "The master closed loop must terminate and respect the S(x) safety gate at every iteration — bound the loop and verify convergence on a known scenario."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS5::U-DAAE10",
+  "title": "MS5 Dispatcher Wiring + Feature Cascade",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/dispatcher/cadautomationrouter.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Zod discriminated-union action enum validation",
+    "dispatcher action registration with round-trip E2E",
+    "adaptive-engine fan-out wiring"
+   ],
+   "buildNote": "Wire every MS5 adaptive engine to all consuming dispatchers in one commit; the action enum must list each new action — verify against the real SDK enum gate, not MockMCPServer."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS6::U-DAMPP04",
+  "title": "RedundantMoveEliminatorEngine — remove dead code",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/ppgcodeminimizerengine.md",
+    "knowledge/wiki/architecture/engines/cam/gcodeoptimizationengine.md",
+    "knowledge/wiki/architecture/engines/cam/ppgreedytoolpathoptimizerengine.md",
+    "knowledge/wiki/architecture/engines/pp/ppzeromotionvalidatorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "dead-code / redundant-move elimination (zero-distance and no-op moves)",
+    "FSM modal G/M-code state tracking to detect redundant modal words",
+    "G-code AST simplification preserving semantics"
+   ],
+   "buildNote": "Redundant-move elimination must preserve exact toolpath semantics — track modal state with an FSM; removing a move that changed a modal group silently corrupts the program."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS6::U-DAMPP06",
+  "title": "GCodeCompressionEngine — master compression pipeline",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/gcodeintelligencepipelineengine.md",
+    "knowledge/wiki/architecture/engines/cam/ppgcodeminimizerengine.md",
+    "knowledge/wiki/architecture/engines/cam/gcodetranspilerengine.md",
+    "knowledge/wiki/architecture/engines/cam/gcodeunderstandingtransformerengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "G-code compression pipeline (arc-fitting, subprogram extraction, modal trimming)",
+    "FSM modal-state-aware token compression",
+    "lossless transform composition (semantic-preserving pipeline)"
+   ],
+   "buildNote": "The master compression pipeline composes multiple lossless transforms — each stage must verify toolpath equivalence; compression that alters geometry is a P0 safety defect."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS6::U-DAMPP07",
+  "title": "SubProgramMacroLibraryEngine — reusable macro library",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/subprogramengine.md",
+    "knowledge/wiki/architecture/engines/program/programstructureengine.md",
+    "knowledge/wiki/architecture/engines/cam/gcodesnippetengine.md",
+    "knowledge/wiki/architecture/engines/cam/okumaparametricprogramengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "subprogram / macro extraction (common-subsequence detection)",
+    "parameterized macro template with argument substitution",
+    "macro-family clustering by structural similarity"
+   ],
+   "buildNote": "A reusable macro library extracts repeated G-code subsequences into parameterized subprograms — the parameterization must be exact; a wrong argument mapping produces a different cut."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS6::U-DAMPP08",
+  "title": "MS6 Dispatcher Wiring + Feature Cascade",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/dispatcher/cadautomationrouter.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "Zod discriminated-union action enum validation",
+    "dispatcher action registration with round-trip E2E",
+    "post-processing-engine fan-out wiring"
+   ],
+   "buildNote": "Wire every MS6 post-processing engine to all consuming dispatchers in one commit; the action enum must list each new action — verify against the real SDK enum gate."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS7::U-DAE2E02",
+  "title": "PrintIngestEngine — PDF/DWG/STEP/text parser",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/stepap242pmiextractorengine.md",
+    "knowledge/wiki/architecture/engines/geometry/stepgeometryparserengine.md",
+    "knowledge/wiki/architecture/engines/geometry/dxfgeometryparserengine.md",
+    "knowledge/wiki/architecture/engines/cad/pdfblueprintdimensionextractorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "multi-format parser dispatch (PDF/DWG/STEP/text format detection)",
+    "STEP AP242 entity / PMI parsing",
+    "recursive-descent parsing of structured CAD formats"
+   ],
+   "buildNote": "PrintIngest must detect format then route to the correct parser — schema-read each format before parsing; fail loud on an unrecognized or malformed file, never return empty silently."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS7::U-DAE2E03",
+  "title": "CADCAMHandoffEngine — enforce validation receipt chain",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadphysicsconsistencygateengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/engines/force/outputbudgetenforcerengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "validation receipt chain (each stage emits a signed pass receipt)",
+    "hash-chained provenance of validation steps",
+    "fail-closed handoff gate semantics"
+   ],
+   "buildNote": "The CAD-CAM handoff enforces a validation receipt chain — every stage must produce and the next stage must verify a receipt; a missing receipt fails the handoff loud."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS7::U-DAE2E04",
+  "title": "OptimalMachineSelectorEngine — shop-floor-aware routing",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/dispatcher/costawarerouterengine.md",
+    "knowledge/wiki/architecture/engines/multi/multisetupplannerengine.md",
+    "knowledge/wiki/architecture/engines/cam/fixtureawarestrategyengine.md",
+    "knowledge/wiki/architecture/engines/shop/"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "machine-selection scoring (capability match + shop-floor availability)",
+    "constraint-satisfaction routing over machine pool",
+    "shop-floor-state-aware assignment"
+   ],
+   "buildNote": "Optimal machine selection scores each machine by capability fit AND live shop-floor availability — read real machine specs from ShopConfigurationEngine, never hardcode capabilities."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS7::U-DAE2E06",
+  "title": "AGIvsHumanBenchmarkEngine — beat-humans scorecard",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/validation/benchmarksuiteengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/engines/validation/continuousimprovementengine.md",
+    "knowledge/wiki/architecture/engines/quality/qualityscoreengine.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "benchmark scorecard aggregation (AGI vs human metric comparison)",
+    "paired-comparison statistical test",
+    "per-metric win/loss tallying"
+   ],
+   "buildNote": "The beat-humans scorecard must compare against real human-baseline data per metric — a scorecard built on fabricated human baselines proves nothing (R12)."
+  }
+ },
+ {
+  "id": "CADCAM-DAGI-MS7::U-DAE2E08",
+  "title": "MS7 Master Dispatcher + Full System Cascade",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "master dispatcher with full system cascade",
+    "Zod discriminated-union action enum validation",
+    "end-to-end pipeline integration across all milestones"
+   ],
+   "buildNote": "The MS7 master dispatcher cascades every CADCAM-DAGI surface — verify the full chain end-to-end; every action enum across all milestones must be registered or the cascade silently breaks."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH01",
+  "title": "Fix Taylor exponent in MonteCarloEngine, AdaptiveCalibrationEngine, CryogenicCuttingEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-extendedtaylorexponents.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-taylor-defaults.md",
+    "knowledge/wiki/architecture/engines/calc/edmparameterengine.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "regression-prevention-doctrine",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "Taylor tool-life equation VcT^n=C (exponent n placement)",
+    "dimensional consistency check across engine equations",
+    "numerical correctness regression oracle"
+   ],
+   "buildNote": "Fix the Taylor exponent placement in MonteCarlo/AdaptiveCalibration/Cryogenic engines — verify against the canonical Taylor constant and a known analytical tool-life value."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH02",
+  "title": "Fix unit errors: CuttingForceEngine MRR /60, SpecificCuttingEnergy power *1000 + ae vs D",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/force/cuttingforceengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-mrr.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-cuttingpower.md",
+    "knowledge/wiki/architecture/engines/calc/empiricalcorrelationengine.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "regression-prevention-doctrine",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "unit-conversion correctness (MRR /60 mm3/min vs mm3/s)",
+    "dimensional analysis (power *1000 W vs kW)",
+    "ae-vs-D radial-engagement parameter distinction"
+   ],
+   "buildNote": "Fix the MRR /60 and power *1000 unit errors and the ae-vs-D confusion — every fix needs a dimensional-analysis test asserting the corrected unit against a hand-computed value."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH05",
+  "title": "Fix RegenerativeChatter 1000x unit error + MachineVibration ae→ap",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/chatter/regenerativechatterpredictor.md",
+    "knowledge/wiki/architecture/engines/physics/vibrationanalysisengine.md",
+    "knowledge/wiki/architecture/engines/chatter/chatterstabilitylobeengine.md",
+    "knowledge/wiki/architecture/engines/calc/advancedchipthicknessengine.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "regression-prevention-doctrine",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "regenerative chatter stability equation (unit scaling 1000x error)",
+    "ae-vs-ap (radial vs axial depth) parameter distinction",
+    "stability-lobe analytical solution"
+   ],
+   "buildNote": "Fix the RegenerativeChatter 1000x scaling and the MachineVibration ae→ap mix-up — verify each against a known analytical stability-lobe solution."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH06",
+  "title": "Write chatter physics regression tests with known analytical solutions",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/chatter/chatterstabilitylobeengine.md",
+    "knowledge/wiki/architecture/engines/chatter/regenerativechatterpredictor.md",
+    "knowledge/wiki/architecture/engines/physics/vibrationanalysisengine.md",
+    "knowledge/wiki/architecture/tests/ch/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "analytical chatter stability lobe diagram (known closed-form solution)",
+    "regression oracle that fails on a reverted physics bug",
+    "algebraic-invariant test design"
+   ],
+   "buildNote": "Chatter physics regression tests must assert against known analytical solutions — a toBeDefined() stub is hook-rejected; each test must fail if the physics equation regresses."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH10",
+  "title": "Fix SurfaceFinishPredictor nose radius + SurfaceIntegrity Rz/Ra ratio",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/formulas/formula-constants-predictedra.md",
+    "knowledge/wiki/architecture/engines/physics/residualstresspredictionengine.md",
+    "knowledge/wiki/architecture/engines/tool/toolnoseradiuscompensationengine.md",
+    "knowledge/wiki/architecture/engines/cad/surfacefinishcnnengine.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "regression-prevention-doctrine",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "theoretical surface-finish Ra = f^2/(32*r) nose-radius model",
+    "Rz/Ra ratio for surface integrity",
+    "feed-rate to roughness transfer function"
+   ],
+   "buildNote": "Fix the SurfaceFinishPredictor nose-radius formula and the Rz/Ra ratio — verify Ra against the f^2/(32r) closed form with known feed and nose radius."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH14",
+  "title": "Migrate chatter/vibration engines to canonical imports (ChatterSLD, StochasticChatter, MachineVibration, ConstraintSatisfaction)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/chatter/chatterstabilitylobeengine.md",
+    "knowledge/wiki/architecture/engines/stochastic/stochasticprocessengine.md",
+    "knowledge/wiki/architecture/engines/physics/vibrationanalysisengine.md",
+    "knowledge/wiki/architecture/engines/calc/constraintsatisfactionengine.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "regression-prevention-doctrine",
+    "schema-read-discipline",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "canonical-constant import migration (remove inline kc/Taylor)",
+    "behavior-preserving refactor (byte-identical output verification)",
+    "import-graph dependency rewrite"
+   ],
+   "buildNote": "Migrate chatter/vibration engines to canonical imports — output must be byte-identical before and after; any value change means a hidden constant differed."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH15",
+  "title": "Migrate thermal/surface/chip/drilling engines to canonical imports (8+ engines)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/physics/cuttingthermalengine.md",
+    "knowledge/wiki/architecture/engines/calc/heattransferengine.md",
+    "knowledge/wiki/architecture/engines/cad/surfacefinishcnnengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-material-db.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "regression-prevention-doctrine",
+    "schema-read-discipline",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "canonical-constant import migration across 8+ engines",
+    "behavior-preserving refactor with regression oracle",
+    "material-property lookup centralization"
+   ],
+   "buildNote": "Migrate thermal/surface/chip/drilling engines to canonical imports — run affected tests after each engine; output must not change unless a constant was genuinely wrong."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH16",
+  "title": "Create canonical-constants-enforcer hook blocking inline kc1_1/mc/Taylor values",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/noinlinephysicsconstantsengine.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-kienzle.md",
+    "knowledge/wiki/architecture/formulas/formula-constants-canonical-taylor.md",
+    "knowledge/wiki/architecture/hooks/engine/"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "AST / regex scan for inline numeric literals (kc1_1, mc, Taylor)",
+    "comment/string-region stripping before pattern match",
+    "PreToolUse hard-block hook (stdout-JSON signaling)"
+   ],
+   "buildNote": "The canonical-constants-enforcer hook must strip comments and string literals before scanning for inline constants (false-positive class), and block via stdout JSON not exit-2."
+  }
+ },
+ {
+  "id": "CALC-HARDEN-MS0::U-CH17",
+  "title": "Create cross-engine physics invariant test suite (30+ tests)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/physics/feasibilityorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/calc/dimensionalanalysiscrossvalidationengine.md",
+    "knowledge/wiki/architecture/engines/force/cuttingforceengine.md",
+    "knowledge/wiki/architecture/tests/ch/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "cross-engine physical invariant testing (energy conservation, dimensional consistency)",
+    "algebraic-invariant assertion design",
+    "30+ test cross-validation matrix"
+   ],
+   "buildNote": "The cross-engine physics invariant suite asserts physical invariants (energy/force consistency) across engines — every test must fail if any coupled engine regresses (R9)."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM81",
+  "title": "Integration Tests â€” Cross-CAM Translation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/crosscampostengine.md",
+    "knowledge/wiki/architecture/engines/cam/gcodetranspilerengine.md",
+    "knowledge/wiki/architecture/engines/cam/crosscamrecommenderengine.md",
+    "knowledge/wiki/architecture/tests/cam/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "cross-CAM translation round-trip equivalence testing",
+    "G-code semantic diff (toolpath equivalence, not text equality)",
+    "integration test fixture design"
+   ],
+   "buildNote": "Cross-CAM translation integration tests must assert toolpath SEMANTIC equivalence (geometry preserved), not byte equality — a round-trip that loses a move is a P0."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM108",
+  "title": "hyperMILL LoRA Adapter â€” System-Specific Training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/hyper/",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/ai/inferenceloragateengine.md",
+    "knowledge/wiki/architecture/engines/cam/fleetlearningstrategyengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "LoRA (low-rank adaptation) fine-tuning of a base model",
+    "training-dataset construction from system-specific CAM examples",
+    "adapter weight serialization / versioning"
+   ],
+   "buildNote": "The hyperMILL LoRA adapter trains on hyperMILL-specific patterns — the training set must be real hyperMILL examples; a LoRA trained on fabricated data degrades the base model."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM109",
+  "title": "Mastercam LoRA Adapter â€” X8 Specific Training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/ai/inferenceloragateengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "LoRA low-rank adaptation fine-tuning",
+    "version-specific (Mastercam X8) training-data curation",
+    "adapter weight serialization"
+   ],
+   "buildNote": "The Mastercam X8 LoRA adapter must be trained on X8-version-specific examples — verify the dataset version matches; cross-version training data poisons the adapter."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM110",
+  "title": "Fusion 360 LoRA Adapter â€” Cloud CAM Training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusion360aiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/ai/inferenceloragateengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "LoRA low-rank adaptation fine-tuning",
+    "cloud-CAM training-dataset assembly",
+    "adapter weight serialization / versioning"
+   ],
+   "buildNote": "The Fusion 360 cloud-CAM LoRA adapter trains on Fusion-specific tribal tips — use real Fusion CAM examples and verify the adapter improves a held-out test set."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM111",
+  "title": "Inventor HSM LoRA Adapter â€” HSM Express/Pro Training",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/ai/inferenceloragateengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "LoRA low-rank adaptation fine-tuning",
+    "HSM Express vs Pro feature-tier training split",
+    "adapter weight serialization"
+   ],
+   "buildNote": "The Inventor HSM LoRA adapter must distinguish HSM Express vs Pro capability tiers in training — a tier-blind adapter recommends unavailable features."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM114",
+  "title": "Docker Physics Agent â€” Containerized Simulation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/physics/physicsawaresimulationengine.md",
+    "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md",
+    "knowledge/wiki/architecture/engines/physics/feasibilityorchestratorengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "containerized worker process (Docker isolation)",
+    "job-queue dispatch to a headless physics agent",
+    "IPC / HTTP boundary between host and container"
+   ],
+   "buildNote": "The Docker physics agent runs simulation in an isolated container — handle container-unreachable failure loud (R12); a silent fallback to no-physics is a safety hole."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM115",
+  "title": "Docker Batch Processor â€” Bulk CAM Analysis",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/batchcamengine.md",
+    "knowledge/wiki/architecture/engines/batch/",
+    "knowledge/wiki/architecture/engines/cam/camanalyzeengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "atomic-write-idempotency-patterns",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "batch job partitioning and parallel worker dispatch",
+    "work-queue with idempotent retry per item",
+    "bulk-result aggregation"
+   ],
+   "buildNote": "The Docker batch processor partitions bulk CAM jobs across workers — each item must be idempotently retryable and a partial-batch failure must be reported, never silently dropped."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM116",
+  "title": "Docker Simulation Runner â€” Headless Verification",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/ncsimulbridgeengine.md",
+    "knowledge/wiki/architecture/engines/cam/vericutbridgeengine.md",
+    "knowledge/wiki/architecture/engines/cnc/cncsimulationpipelineengine.md",
+    "knowledge/wiki/architecture/engines/cam/predictivesimulationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "headless simulation runner (no-GUI verification)",
+    "containerized simulation job execution",
+    "simulation-result pass/fail extraction"
+   ],
+   "buildNote": "The headless simulation runner verifies toolpaths without a GUI — a SIGKILL/container crash must surface as a failure; silent exit looks identical to a clean pass (R12)."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM125",
+  "title": "CAD-CAM Coordination â€” Unified Pipeline",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/engines/cad/partgeometrypipelineengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "unified CAD-to-CAM pipeline orchestration",
+    "feature-extraction handoff between CAD and CAM stages",
+    "pipeline staging with state propagation"
+   ],
+   "buildNote": "CAD-CAM coordination unifies the pipeline — each stage's output must be the next stage's verified input; a feature lost at the CAD-CAM seam silently produces a wrong toolpath."
+  }
+ },
+ {
+  "id": "CAM-EXHAUST-MS0::U-CAM128",
+  "title": "Final Integration â€” Complete CAM-EXHAUST System",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-cam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "full-system integration assembly",
+    "end-to-end pipeline cascade verification",
+    "dispatcher action-table completeness check"
+   ],
+   "buildNote": "Final CAM-EXHAUST integration wires every engine end-to-end — run a full E2E cascade and verify every dispatcher action is registered; an unwired engine is a silent orphan."
+  }
+ },
+ {
+  "id": "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL05",
+  "title": "SinkerEDMLoRADatasetBuilderEngine + SinkerEDMLoRACadenceEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/edm/edmcuttingparamflushengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/engines/edm/edmqualityorchestratorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "LoRA training-dataset builder (example curation + labeling)",
+    "training cadence scheduler (when-to-retrain trigger)",
+    "schema-versioned dataset serialization"
+   ],
+   "buildNote": "Sinker-EDM LoRA dataset builder + cadence engine — the dataset must hold real sinker-EDM examples and the cadence trigger must fire on genuine drift, not a timer; write the dataset atomically."
+  }
+ },
+ {
+  "id": "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL06",
+  "title": "LaserLoRADatasetBuilderEngine + LaserLoRACadenceEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/edm/lasercuttingengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/engines/cam/camxenergyoptimizationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "LoRA training-dataset builder (example curation + labeling)",
+    "retrain-cadence drift trigger",
+    "schema-versioned dataset serialization"
+   ],
+   "buildNote": "Laser LoRA dataset builder + cadence engine — generalize the sinker-EDM pattern; the dataset must be real laser-cutting examples and the cadence trigger fires on measured drift."
+  }
+ },
+ {
+  "id": "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL07",
+  "title": "WaterjetLoRADatasetBuilderEngine + WaterjetLoRACadenceEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/calc/waterjetcuttingengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md",
+    "knowledge/wiki/architecture/engines/calc/waterjettaperengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "LoRA training-dataset builder (example curation + labeling)",
+    "retrain-cadence drift trigger",
+    "schema-versioned dataset serialization"
+   ],
+   "buildNote": "Waterjet LoRA dataset builder + cadence engine — reuse the sinker/laser pattern; real waterjet examples only, cadence on measured drift, atomic dataset writes."
+  }
+ },
+ {
+  "id": "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL08",
+  "title": "GrindingLoRADatasetBuilderEngine + GrindingLoRACadenceEngine",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/calc/grindingwheelengine.md",
+    "knowledge/wiki/architecture/engines/stochastic/stochasticgrindingengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "LoRA training-dataset builder (example curation + labeling)",
+    "retrain-cadence drift trigger",
+    "schema-versioned dataset serialization"
+   ],
+   "buildNote": "Grinding LoRA dataset builder + cadence engine — reuse the established pattern; real grinding examples, cadence on measured drift, atomic schema-versioned dataset writes."
+  }
+ },
+ {
+  "id": "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL09",
+  "title": "MasterAITrainingLedgerEngine — generalized from LathePerformanceSLORegistry + U-LPR-TRAINING-LEDGER",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/strategyperformancetrackerengine.md",
+    "knowledge/wiki/architecture/engines/cam/fleetlearningstrategyengine.md",
+    "knowledge/wiki/architecture/engines/ml/regressionbaselineengine.md",
+    "knowledge/wiki/architecture/engines/cam/camtrainingextractionaggregatorengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "append-only training-run ledger (JSONL)",
+    "run lifecycle state machine (open→close→drift-report)",
+    "generalization of a domain-specific registry to a shared abstraction"
+   ],
+   "buildNote": "Generalize the LathePerformanceSLORegistry into a master training ledger — the ledger must be append-only with atomic writes and a schemaVersion; never re-implement, abstract the existing pattern (R8)."
+  }
+ },
+ {
+  "id": "CAM-ML-CLOSEDLOOP-MS0::U-CMCCL11",
+  "title": "TrainingLedger dispatcher wiring — prism_ai.ledger_* actions",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/engines/cam/strategyperformancetrackerengine.md",
+    "knowledge/wiki/architecture/engines/cam/fleetlearningstrategyengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "dispatcher action wiring (prism_ai.ledger_* actions)",
+    "Zod discriminated-union action enum validation",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Wire the TrainingLedger to prism_ai ledger_* actions — every action must appear in the z.enum(ACTIONS) gate; MockMCPServer bypasses the enum so verify against the real SDK boundary."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP02",
+  "title": "Mastercam 5-Axis + Multi-Axis + Mill-Turn",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/mastercam5axisengine.md",
+    "knowledge/wiki/architecture/engines/cam/mastercammultiaxisengine.md",
+    "knowledge/wiki/architecture/engines/multi/multiaxiskinematicengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercammillturnbridge.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "5-axis kinematic transformation (rotary-tilt machine model)",
+    "tool-axis vector orientation control",
+    "mill-turn multi-channel synchronization"
+   ],
+   "buildNote": "Mastercam 5-axis/multi-axis/mill-turn parity must model the rotary kinematics correctly — verify tool-axis vectors against a known 5-axis reference toolpath."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP03",
+  "title": "Mastercam Cycle + Controller Catalogs",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/mastercamcontrollercatalogengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercammoldcycleengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "canned-cycle catalog modeling (drill/tap/bore cycle parameter sets)",
+    "controller-capability matrix lookup",
+    "catalog schema design"
+   ],
+   "buildNote": "Mastercam cycle + controller catalogs — model each canned cycle's exact parameter set and controller compatibility; a wrong cycle parameter produces a different hole."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP04",
+  "title": "Mastercam Quality Bridges (SPC, FAI, Probing)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamspcbridge.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfaibridge.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamprobingbridge.md",
+    "knowledge/wiki/architecture/engines/quality/spcchartingengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "SPC control-chart computation (Xbar-R, control limits)",
+    "first-article-inspection (FAI) measurement bridging",
+    "probing-cycle data extraction"
+   ],
+   "buildNote": "Mastercam quality bridges (SPC/FAI/probing) must compute real control limits and FAI measurements — verify SPC limits against a known dataset, never fabricate measurement data."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP05",
+  "title": "Mastercam Data Extraction + Strategy Knowledge",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md",
+    "knowledge/wiki/architecture/engines/cam/cuttingdataexportengine.md",
+    "knowledge/wiki/architecture/engines/cam/featurestrategyknowledgebaseengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "CAM data extraction (operation/parameter mining)",
+    "strategy-knowledge indexing (OptiRough, Dynamic Motion taxonomy)",
+    "structured catalog parsing"
+   ],
+   "buildNote": "Mastercam data extraction + strategy knowledge must capture real Mastercam strategy semantics (OptiRough, Dynamic Motion) — verify each extracted strategy against the function index."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP06",
+  "title": "Fusion Deep Learning + Material Bridge",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusion360materialbridgeengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusionmaterialphysicsbridge.md",
+    "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusion360aiorchestrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "material-property bridge (Fusion material library → PRISM canonical DB)",
+    "ISO material-group mapping",
+    "deep-learning material-parameter inference"
+   ],
+   "buildNote": "The Fusion material bridge maps Fusion materials to PRISM's canonical material DB by ISO group — verify the mapping; a wrong ISO group selects wrong kc/feed values."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP07",
+  "title": "Fusion 5-Axis + Multi-Axis + Strategy Knowledge",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusion360multiaxisengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusion360millturnbridgeengine.md",
+    "knowledge/wiki/architecture/engines/multi/multiaxiskinematicengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusion360aiorchestrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "5-axis kinematic transformation (Fusion machine model)",
+    "tool-axis orientation control",
+    "multi-axis strategy knowledge encoding"
+   ],
+   "buildNote": "Fusion 5-axis/multi-axis parity must model Fusion's kinematics — verify tool-axis vectors and the strategy catalog against a known Fusion 5-axis reference."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP08",
+  "title": "Fusion Cycle + Controller Catalogs",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusion360controllercatalogengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusionlathepostdeltaregistryengine.md",
+    "knowledge/wiki/architecture/engines/fusion/fusion360functionindexengine.md",
+    "knowledge/wiki/architecture/engines/cam/postprocessorcapabilitymatrixengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "canned-cycle catalog modeling",
+    "controller-capability matrix lookup",
+    "post-processor delta registry (per-controller variations)"
+   ],
+   "buildNote": "Fusion cycle + controller catalogs — model each cycle and controller exactly; the lathe-post delta registry must capture per-controller variations or posts emit wrong code."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP09",
+  "title": "Fusion Quality Bridges (SPC, FAI, Probing)",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/fusion/fusion360probingbridgeengine.md",
+    "knowledge/wiki/architecture/engines/quality/spcchartingengine.md",
+    "knowledge/wiki/architecture/engines/quality/firstarticleinspectionpipelineengine.md",
+    "knowledge/wiki/architecture/engines/quality/qualitydashboardengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "SPC control-chart computation (Xbar-R, control limits)",
+    "FAI measurement pipeline",
+    "probing-cycle data bridging"
+   ],
+   "buildNote": "Fusion quality bridges (SPC/FAI/probing) must compute real control limits — verify SPC limits and FAI results against a known dataset, never stub the measurement layer."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP10",
+  "title": "InventorCAM Core Engine Suite",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/engines/cam/strategytaxonomyengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "core engine suite composition (multiple coordinated engines)",
+    "InventorCAM strategy modeling",
+    "engine-orchestration wiring"
+   ],
+   "buildNote": "The InventorCAM core engine suite is a coordinated set — each engine must be independently tested and the suite verified together; check ENGINE_DIGEST before adding any new engine (R8)."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP11",
+  "title": "InventorCAM Material + Multi-Axis Suite",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+    "knowledge/wiki/architecture/engines/multi/multiaxiskinematicengine.md",
+    "knowledge/wiki/architecture/engines/material/",
+    "knowledge/wiki/architecture/engines/cam/inventorcamaiorchestrationengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "material-property lookup and ISO-group mapping",
+    "5-axis kinematic transformation",
+    "multi-axis strategy encoding"
+   ],
+   "buildNote": "InventorCAM material + multi-axis suite — material lookup must use the canonical material DB; multi-axis must model rotary kinematics; verify against known references."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP12",
+  "title": "InventorCAM Catalog + Quality Suite",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/inventor/inventorcamstrategyengine.md",
+    "knowledge/wiki/architecture/engines/calc/crosscatalogvalidationengine.md",
+    "knowledge/wiki/architecture/engines/quality/qualitymanagementengine.md",
+    "knowledge/wiki/architecture/engines/cam/camcatalogsplitterengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "catalog completeness / cross-catalog validation",
+    "schema-versioned catalog parsing",
+    "quality-suite engine composition"
+   ],
+   "buildNote": "InventorCAM catalog + quality suite — cross-catalog validation must catch missing/inconsistent entries; schema-read each catalog before consuming it."
+  }
+ },
+ {
+  "id": "CAM-PARITY-AGI-MS0::U-CAMP16",
+  "title": "Full Suite Integration Test",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/camintegrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelvalidationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camkernelorchestratorengine.md",
+    "knowledge/wiki/architecture/tests/cam/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "full-suite integration testing",
+    "end-to-end pipeline cascade verification",
+    "cross-engine integration fixture design"
+   ],
+   "buildNote": "The full-suite integration test exercises every CAM-PARITY engine end-to-end — assert real reference values; never .skip a failing path to make the suite green (R12)."
+  }
+ },
+ {
+  "id": "CAMK-MS0::U01",
+  "title": "FeatureToZoneEngine — Geometric feature → machining zone mapper",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/featuretozoneengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadfeaturerecognitionengine.md",
+    "knowledge/wiki/architecture/engines/cad/featureinteractionengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "geometric feature recognition (pocket/slot/hole classification)",
+    "feature-to-machining-zone spatial mapping",
+    "geometric-element clustering"
+   ],
+   "buildNote": "FeatureToZone maps recognized geometric features to machining zones — verify each feature type maps to the correct zone with known geometry; a misclassified feature picks a wrong strategy."
+  }
+ },
+ {
+  "id": "CAMK-MS0::U03",
+  "title": "CutterContactEngine — Analytical cutter-contact point computation",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/geometry/engagementgeometryengine.md",
+    "knowledge/wiki/architecture/engines/cam/phcurvetoolpathengine.md",
+    "knowledge/wiki/architecture/engines/cnc/keyseatcutterengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "analytical cutter-contact (CC) point computation",
+    "tool-surface tangency / offset geometry",
+    "cutter-location to cutter-contact transformation"
+   ],
+   "buildNote": "Cutter-contact computation is analytical (tool offset / tangency) — verify CC points against a closed-form solution for a known tool and surface, not a numerical approximation."
+  }
+ },
+ {
+  "id": "CAMK-MS2::U01",
+  "title": "NovelToolpathSimulator — Force/temp/deflection along path",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cam/noveltoolpathsimulatorengine.md",
+    "knowledge/wiki/architecture/engines/force/forceneuralpredictorengine.md",
+    "knowledge/wiki/architecture/engines/physics/cuttingthermalengine.md",
+    "knowledge/wiki/architecture/engines/physics/partdeflectionengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "physics-constants-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "per-segment force/temperature/deflection simulation along a toolpath",
+    "engagement-driven cutting-force integration",
+    "numerical integration of physics state along the path"
+   ],
+   "buildNote": "The novel-toolpath simulator computes force/temp/deflection per path segment — import physics constants from constants.ts; verify each against a known analytical cut."
+  }
+ },
+ {
+  "id": "CAMK-MS2::U02",
+  "title": "VoxelStockIntegration — Material removal tracking",
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/stltovoxelgridengine.md",
+    "knowledge/wiki/architecture/engines/cad/stockmodelengine.md",
+    "knowledge/wiki/architecture/engines/calc/isosurfaceengine.md",
+    "knowledge/wiki/architecture/engines/geometry/geometryalgorithmsengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "voxel grid material-removal tracking (boolean subtraction per move)",
+    "swept-volume voxelization",
+    "3D occupancy-grid update per toolpath segment"
+   ],
+   "buildNote": "Voxel stock integration subtracts the swept tool volume per move — verify removed-material volume against analytical MRR; voxel resolution must be fine enough to not miss thin cuts."
+  }
+ }
+]

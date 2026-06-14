@@ -1,0 +1,335 @@
+{
+  "schemaVersion": 4,
+  "id": "GRAPH-OCTOPUS-AUTOWIRE-MS0",
+  "title": "Graph-aware tool hooks + master-index autoupdate + octopus auto-invoke repair",
+  "track": "GRAPH-OCTOPUS",
+  "priority": "P0",
+  "owner": "echo/claude-5f7fec47",
+  "created_at": "2026-05-22T00:00:00.000Z",
+  "updated_at": "2026-05-23T01:45:00.000Z",
+  "status": "completed",
+  "total_units": 17,
+  "completed_units": 17,
+  "dependencies": [],
+  "rationale": "Three connected under-utilization gaps in PRISM's own AI/awareness infrastructure. (1) Only the Read tool consults the system-viz master graph; Grep/Write/Bash do not, and key derivation is a crude basename. (2) system-graph.json (412MB) is 9.5h stale -- its post-commit autoupdate spawns in background with exit code ignored and fails silently; the graph exceeds master-index-search-lib's 200MB load cap so search depends entirely on the 109MB sidecar, which when stale degrades search fleet-wide to a 20K-node fallback. (3) Octopus 5-LLM consensus is fully built (5 client engines, MultiModelConsensusEngine, 4 hooks) but consensus-model-performance.json is frozen at 2026-05-05 n=1 ema=0 -- it has never meaningfully run; a 72-entry consensus-queue.jsonl is not draining. Goal: fill all gaps, build and wire everything.",
+  "spec": "H:/.claude/plans/sleepy-booping-avalanche.md",
+  "origin": "user-directed session 2026-05-22 (slot echo)",
+  "intent": "do everything in logical ROI order; all gaps filled, all tasks completed and wired",
+  "units": [
+    {
+      "id": "U-GO-B1",
+      "title": "Root-cause failing post-commit graph regen",
+      "status": "completed",
+      "description": "Diagnose why the .git/hooks/post-commit -> system-viz-on-commit.mjs background regen leaves system-graph.json 9.5h stale.",
+      "depends_on": [],
+      "steps": [
+        "Run node scripts/system-viz-on-commit.mjs in the foreground, capture stdout+stderr",
+        "Inspect .newly-built-fold-debt.json for a stuck fold (pendingCount, age)",
+        "Identify the failure: timeout, OOM on the 412MB graph, merge-guard abort, or git contention"
+      ],
+      "deliverables": ["root-cause finding documented in the envelope close_out_log"],
+      "exit_criteria": ["The failure mode is named with evidence", "A fix path is identified for U-GO-B2/B3"]
+    },
+    {
+      "id": "U-GO-B2",
+      "title": "Make post-commit regen reliable + observable (fail-loud)",
+      "status": "completed",
+      "description": "The post-commit background spawn ignores its exit code (R12 fail-loud violation). Add a last-successful-regen sentinel + failure logging.",
+      "depends_on": ["U-GO-B1"],
+      "steps": [
+        "Add a regen sentinel file (last-successful-regen timestamp + exit status) written by system-viz-on-commit.mjs",
+        "Route regen failures to a log instead of >/dev/null 2>&1",
+        "Add tests for the sentinel write + failure path"
+      ],
+      "deliverables": ["scripts/system-viz-on-commit.mjs (modified)", ".git/hooks/post-commit (modified)", "sentinel + test"],
+      "exit_criteria": ["A failed regen is visible, not silent", "Tests pass"]
+    },
+    {
+      "id": "U-GO-B3",
+      "title": "Guarantee sidecar system-graph-index.json rebuild on every regen",
+      "status": "completed",
+      "description": "The 109MB sidecar is the load-bearing fast-path (412MB graph > 200MB cap). It must be rebuilt whenever the graph regenerates.",
+      "depends_on": ["U-GO-B1"],
+      "steps": [
+        "Confirm whether regen-viz.mjs / system-viz-on-commit.mjs already chains the sidecar build",
+        "Wire sidecar regeneration into the regen pipeline if missing",
+        "E2E: regen -> sidecar mtime advances -> master-index search uses full graph not architecture fallback"
+      ],
+      "deliverables": ["regen pipeline (modified)", "E2E test"],
+      "exit_criteria": ["Sidecar is always rebuilt with the graph", "Search returns full-graph hits"]
+    },
+    {
+      "id": "U-GO-B4",
+      "title": "Autoupdate backstop — scheduled/triggered staleness regen",
+      "status": "completed",
+      "description": "Post-commit alone is best-effort. Add a backstop: scheduled task or SessionStart/Stop staleness trigger.",
+      "depends_on": ["U-GO-B2", "U-GO-B3"],
+      "steps": [
+        "Choose mechanism (scheduled task via install-*-task.ps1 pattern, or Stop/SessionStart hook)",
+        "Trigger regen when graph age exceeds a threshold",
+        "Test the staleness-threshold logic"
+      ],
+      "deliverables": ["backstop installer or hook", "tests"],
+      "exit_criteria": ["Graph cannot stay stale beyond the threshold unobserved"]
+    },
+    {
+      "id": "U-GO-B5",
+      "title": "Staleness visibility SessionStart inject",
+      "status": "completed",
+      "description": "Surface a warning at SessionStart when graph/sidecar is stale so degradation is never silent.",
+      "depends_on": ["U-GO-B3"],
+      "steps": [
+        "Add or extend a SessionStart inject that compares graph/sidecar mtime vs threshold",
+        "Emit a concise advisory line",
+        "Tests + knob to disable"
+      ],
+      "deliverables": ["SessionStart hook (new or modified)", "tests"],
+      "exit_criteria": ["Stale graph surfaces an advisory", "Disable knob works"]
+    },
+    {
+      "id": "U-GO-C1",
+      "title": "Fix octopus consensus drain",
+      "status": "completed",
+      "description": "The 72-entry consensus-queue.jsonl is not draining. consensus-queue-drain.mjs / stop-consensus-drain.mjs need repair.",
+      "depends_on": [],
+      "steps": [
+        "Audit .claude/scripts/consensus-queue-drain.mjs + .claude/hooks/stop-consensus-drain.mjs",
+        "Fix the loader (dist/engines/*.js now exists) and any other blocker",
+        "E2E: enqueue -> drain -> result persisted; clear the backlog"
+      ],
+      "deliverables": ["drain scripts (fixed)", "E2E test"],
+      "exit_criteria": ["The queue actually drains", "A consensus result is persisted and recallable"]
+    },
+    {
+      "id": "U-GO-C2",
+      "title": "Synchronous octopus auto-invoke at decision points",
+      "status": "completed",
+      "description": "Build/extend auto-consensus-critical-edit.mjs into a real synchronous decision-point trigger (safety-critical output, irreversible/architectural decisions, scrutiny gates, ambiguous routing).",
+      "depends_on": ["U-GO-C1"],
+      "steps": [
+        "Read auto-consensus-critical-edit.mjs; define the decision-point trigger set",
+        "Implement a synchronous consensus call at those points",
+        "Tests for each trigger class"
+      ],
+      "deliverables": ["auto-consensus trigger hook (modified/new)", "tests"],
+      "exit_criteria": ["Octopus fires at high-stakes decision points", "Tests cover each trigger class"]
+    },
+    {
+      "id": "U-GO-C3",
+      "title": "Surface consensus result in-context",
+      "status": "completed",
+      "description": "A consensus result must inject back as additionalContext so it influences the live decision, not the next session.",
+      "depends_on": ["U-GO-C2"],
+      "steps": [
+        "Render the consensus verdict (accept/review/escalate + disagreement) as a compact additionalContext block",
+        "Wire it into the trigger hook output",
+        "Tests"
+      ],
+      "deliverables": ["in-context surfacing (modified hook)", "tests"],
+      "exit_criteria": ["Consensus result is visible in the live turn"]
+    },
+    {
+      "id": "U-GO-C4",
+      "title": "Smart stakes-gated octopus triggering",
+      "status": "completed",
+      "description": "Replace the blanket auto-consensus-userprompt.mjs every-prompt enqueue with a stakes classifier.",
+      "depends_on": ["U-GO-C2"],
+      "steps": [
+        "Build a stakes classifier (irreversible? safety-relevant? would models meaningfully disagree?)",
+        "Gate auto-consensus-userprompt.mjs on the classifier",
+        "Tests for high-stakes and low-stakes inputs"
+      ],
+      "deliverables": ["stakes classifier", "auto-consensus-userprompt.mjs (modified)", "tests"],
+      "exit_criteria": ["Octopus fires when needed, not on every prompt"]
+    },
+    {
+      "id": "U-GO-C5",
+      "title": "Octopus 5-voice config enablement script",
+      "status": "completed",
+      "description": "Setup script + doc for the credential part (codex login, XAI_API_KEY, GEMINI_API_KEY); verify via octopus-provider-probe.mjs.",
+      "depends_on": [],
+      "steps": [
+        "Write a setup/verify script that checks each voice and prints the exact enable action",
+        "Document the credential steps",
+        "Tests for the probe-parsing logic"
+      ],
+      "deliverables": ["octopus setup/verify script", "doc", "tests"],
+      "exit_criteria": ["Operator can enable all 5 voices from one script + see live status"]
+    },
+    {
+      "id": "U-GO-C6",
+      "title": "Fix PRISMContextInjector + ConsensusModelPerformance stub engines",
+      "status": "completed",
+      "description": "Two stub engines cause 3 tsc errors in MultiModelConsensusEngine.ts; context-injection + perf-weighting are silently dead. Implement or formally WIRE-EXEMPT.",
+      "depends_on": [],
+      "steps": [
+        "Read MultiModelConsensusEngine.ts ctx.text / rec.ranked / implicit-any errors",
+        "Implement buildContext + loadState for the two engines (real, not stub)",
+        "Confirm npm run build is clean; tests for both engines"
+      ],
+      "deliverables": ["PRISMContextInjectorEngine.ts", "ConsensusModelPerformanceEngine.ts", "tests"],
+      "exit_criteria": ["npm run build clean", "Both engines have real behavior + tests"]
+    },
+    {
+      "id": "U-GO-A1",
+      "title": "Shared high-ROI graph-key-derive lib",
+      "status": "completed",
+      "description": "scripts/lib/graph-key-derive.mjs — per-tool key strategies with a generic-term stoplist (the high-ROI filter). Reuses master-index-search-lib STOPWORDS + tokenize.",
+      "depends_on": [],
+      "steps": [
+        "Read scripts/lib/master-index-search-lib.mjs STOPWORDS + tokenize exports",
+        "Implement deriveGraphKeys(input,{tool}): read/write=basename stem; grep=strip regex metachars; bash=parse file-search commands only",
+        "Add a generic-term stoplist filter; unit tests covering each tool + edge cases (empty/NaN/oversize/all-metachars)"
+      ],
+      "deliverables": ["scripts/lib/graph-key-derive.mjs", "scripts/lib/graph-key-derive.test.mjs"],
+      "exit_criteria": ["Per-tool key derivation works", "Generic terms filtered", "Edge cases covered"]
+    },
+    {
+      "id": "U-GO-A2",
+      "title": "pre-grep-graph-inject hook",
+      "status": "completed",
+      "description": "PreToolUse:Grep hook injecting graph nodes that already answer the grep pattern.",
+      "depends_on": ["U-GO-A1"],
+      "steps": [
+        "Mirror pre-read-graph-inject.mjs structure using graph-key-derive + runMasterIndexSearch",
+        "Fail-open on every error path",
+        "Test mirroring pre-read-graph-inject.test.mjs (node:test)"
+      ],
+      "deliverables": [".claude/hooks/pre-grep-graph-inject.mjs", ".claude/hooks/pre-grep-graph-inject.test.mjs"],
+      "exit_criteria": ["Hook injects graph context for grep patterns", "Tests pass"]
+    },
+    {
+      "id": "U-GO-A3",
+      "title": "pre-write-graph-inject hook",
+      "status": "completed",
+      "description": "PreToolUse:Write hook injecting related/duplicate graph nodes for the file name (advisory, never blocks).",
+      "depends_on": ["U-GO-A1"],
+      "steps": [
+        "Mirror the pattern; key = file basename stem",
+        "Render an advisory duplicate/related-node block",
+        "Tests"
+      ],
+      "deliverables": [".claude/hooks/pre-write-graph-inject.mjs", ".claude/hooks/pre-write-graph-inject.test.mjs"],
+      "exit_criteria": ["Hook surfaces related nodes before a Write", "Never blocks", "Tests pass"]
+    },
+    {
+      "id": "U-GO-A4",
+      "title": "pre-bash-graph-inject hook",
+      "status": "completed",
+      "description": "PreToolUse:Bash hook, narrow — fires only on file-search commands (grep/find/rg/cat/ls/head/tail).",
+      "depends_on": ["U-GO-A1"],
+      "steps": [
+        "Use graph-key-derive bash strategy to detect file-search commands + extract the key",
+        "Quiet on non-file-search commands (git/npm/build)",
+        "Tests for both fires and no-fires"
+      ],
+      "deliverables": [".claude/hooks/pre-bash-graph-inject.mjs", ".claude/hooks/pre-bash-graph-inject.test.mjs"],
+      "exit_criteria": ["Fires only on file-search bash commands", "Tests pass"]
+    },
+    {
+      "id": "U-GO-A5",
+      "title": "Refactor pre-read-graph-inject to shared lib",
+      "status": "completed",
+      "description": "Point pre-read-graph-inject.mjs key derivation at the shared graph-key-derive lib — single source of truth.",
+      "depends_on": ["U-GO-A1"],
+      "steps": [
+        "Replace deriveQueryKey internals with deriveGraphKeys({tool:'read'})",
+        "Keep behavior identical; preserve existing tests",
+        "Run pre-read-graph-inject.test.mjs"
+      ],
+      "deliverables": [".claude/hooks/pre-read-graph-inject.mjs (refactored)"],
+      "exit_criteria": ["Existing tests still pass", "Key derivation unified"]
+    },
+    {
+      "id": "U-GO-A6",
+      "title": "Wire 3 new graph hooks into settings.json",
+      "status": "completed",
+      "description": "Wire pre-grep/write/bash-graph-inject into H:/.claude/settings.json PreToolUse chains (mirrored to C:).",
+      "depends_on": ["U-GO-A2", "U-GO-A3", "U-GO-A4"],
+      "steps": [
+        "Add pre-grep-graph-inject to the Grep matcher chain",
+        "Add pre-bash/write hooks (standalone or into bash-bundle/edit-bundle)",
+        "Verify each hook fires: echo JSON stdin -> expect additionalContext"
+      ],
+      "deliverables": ["H:/.claude/settings.json (modified)"],
+      "exit_criteria": ["All 3 hooks wired + verified firing", "c-to-h mirror replicated"]
+    }
+  ],
+  "close_out_log": [
+    {
+      "unit": "U-GO-B1",
+      "ts": "2026-05-22",
+      "finding": "The graph autoupdate stalls from a cluster of structural flaws. (1) Crashed regen runs leave stale lock files: .system-viz-on-commit.pid AND .system-graph-write.pid both held pid 24784, a dead process. (2) Windows PID-reuse phantom: process.kill(pid,0) returns 'alive' when an unrelated process inherits a recycled pid number, so a stale lock reads as live and every run skips forever. (3) Silent skip: the post-commit hook runs `node ... >/dev/null 2>&1 &` — a skip exits 0 and the hook discards it, so 9.5h of staleness was invisible. (4) No completion sentinel. (5) SECOND finding: a backgrounded regen-viz run orphaned (parent shell exited) ran all ~40 augmentation generators then died before the merge stage — likely OOM (host runs 80-96% memory pressure) or fleet-reaper reap of the orphan; the graph was never written."
+    },
+    {
+      "unit": "U-GO-B2",
+      "ts": "2026-05-22",
+      "finding": "Fix shipped: (a) scripts/lib/system-graph-write-lock.mjs — TTL backstop (DEFAULT_LOCK_TTL_MS 30min, knob PRISM_SYSTEM_GRAPH_WRITE_LOCK_TTL_MS): decideAcquire/decideActive reclaim any lock whose file mtime exceeds the TTL regardless of the pid probe, defeating the phantom; additive (lockAgeMs=null when mtime unavailable preserves all pre-existing fake-fs tests). 35/35 tests (24 original + 11 new TTL). (b) scripts/system-viz-on-commit.mjs — pidFileGuard given the same mtime-TTL backstop; writeRegenSentinel stamps .last-successful-regen.json on every successful chain so staleness is observable despite the hook discarding stdout. NOT YET DONE in B2: post-commit hook fail-loud routing (managed-marker file — deferred to B4); inline pidFileGuard could be further DRYed against the shared lib. Orphan-OOM mitigation is a B4 concern (backstop)."
+    },
+    {
+      "unit": "U-GO-B3",
+      "ts": "2026-05-22",
+      "finding": "regen-viz.mjs ALREADY chained build-graph-index.mjs (the sidecar builder) at its lines 346-352 — but system-viz-on-commit.mjs (the git post-commit chain, the DOMINANT graph writer, fires every commit) did NOT. So every post-commit regen advanced system-graph.json and left system-graph-index.json stale; loadGraph's staleness gate (sidecar.sourceMtimeMs >= graph.mtimeMs) then rejected the stale sidecar and master-index search degraded fleet-wide to the 20K-node architecture-graph fallback. Observed: sidecar 2 days stale (2026-05-20) behind a fresh 431MB graph (2026-05-22 16:23). Fix: (a) rebuilt the sidecar immediately — 258,874 nodes / 111.9MB / 16.5s — un-degrading fleet search now; (b) added rebuildMasterIndexSidecar(node,runFn), an exported dependency-injected helper that spawns build-graph-index.mjs with an explicit raised V8 heap, into system-viz-on-commit.mjs main() after the refresh chain succeeds (graph fresh, shared write-lock still held), threading a sidecarOk boolean into the .last-successful-regen.json sentinel and logging fail-loud on failure. Non-fatal: a sidecar miss degrades search to the legacy path, never the graph. 4 new tests (2 unit DI + 2 real-subprocess E2E: build->sidecar->runMasterIndexSearch hit, and the stale-sidecar fail-loud rejection); 20/20 green. 2-of-2 scrutiny PASS, 0 P0/P1."
+    },
+    {
+      "unit": "U-GO-B4",
+      "ts": "2026-05-22",
+      "finding": "Two halves, both shipped. (1) FAIL-LOUD: the post-commit hook discards stderr (>/dev/null 2>&1), so a graceful chain failure left no trace — only success was observable (B2's sentinel). Added a script-managed companion marker .last-regen-failure.json: system-viz-on-commit.mjs's run() now captures the failed stage / exit code / signal / stderr-tail into a module-level lastRunFailure; main()'s if(!ok) block writes it via the new exported writeRegenFailure() before process.exit(1). Atomic, structured, captures the stderr, works in ALL clones immediately (chose this over editing the post-commit redirect — the installer skips when the marker block exists so a redirect change would only help future clones). Success + failure markers never delete each other; B5 will compare their ts. (2) AUTOUPDATE BACKSTOP: new .claude/hooks/stop-graph-staleness-backstop.mjs (T3 Stop hook). On every chat Stop it stats the graph; if age > PRISM_GRAPH_STALENESS_BACKSTOP_HRS (default 3) AND a fleet-shared throttle marker .graph-backstop-spawn.json was not touched in PRISM_GRAPH_STALENESS_BACKSTOP_THROTTLE_MIN (default 30) min, it detached-spawns scripts/system-viz-on-commit.mjs and emits {continue:true, systemMessage:'graph stale Xh — triggered background regen'}. Pure decideBackstop({graphMtimeMs,lastSpawnMs,nowMs,thresholdMs,throttleMs}) core is fully tested (11 cases — fresh, threshold-boundary, stale, throttled, missing graph, clock-skew, NaN). Throttle is best-effort dedup (last-write-wins); the on-commit pid guard + shared graph-write lock are the hard mutex (worst case: N detached spawns of which N-1 self-skip immediately). With 26 chats the graph cannot stay stale unnoticed. Wired at Stop[0].hooks[52] in C:/Users/wompu/.claude/settings.json (c-to-h-mirror replicated to H:/.claude/settings.json). Smoke-tested live: returns SILENCE on the fresh production graph. Tests: 1 new on-commit (writeRegenFailure schema pin for B5) + 14 backstop (11 pure + 3 hermetic subprocess E2E with mkdtemp fixtures — none can spawn a real regen). 21/21 + 14/14 green. 2-of-2 scrutiny PASS, 0 P0; Arm A flagged 4 P1s — all are convention misunderstandings (cross-tree-collision template uses the same hard-coded H:/prism ROOT; the 30-100-line guideline is for .sh hooks not .mjs; the throttle race is documented and the pid guard is the documented hard mutex; knob docs live in the hook header per convention)."
+    },
+    {
+      "unit": "U-GO-B5",
+      "ts": "2026-05-22",
+      "finding": "New T2 SessionStart hook .claude/hooks/sessionstart-graph-staleness-inject.mjs reads the four B2/B3/B4 artifacts (graph + sidecar mtimes + .last-successful-regen.json + .last-regen-failure.json) and emits ONE concise advisory in priority order: (1) last regen FAILED (failure ts > sentinel ts) — surfaces stage / exit / stderr tail; (2) graph missing; (3) graph older than PRISM_GRAPH_STALENESS_INJECT_HRS (default 6h — lenient vs B4's 3h spawn threshold so a backstop-spawned fresh regen does not re-surface the warning); (4) sidecar missing OR built from an older graph (loadGraph staleness gate rejects → search degrades to the architecture fallback); else silent. Pure decideStalenessAdvisory({graphMtimeMs,sidecarMtimeMs,sentinelTs,failureTs,failure,nowMs,staleHrs}) is the testable core — 12 cases (every branch + boundaries + clock skew + adversarial NaN + missing-stage failure object). Plus 3 subprocess E2E (silence on fresh, sidecar-stale advisory rendered as SessionStart additionalContext markdown, disable knob). 15/15 green. Wired at SessionStart[0].hooks tail in C:/Users/wompu/.claude/settings.json (c-to-h-mirror replicated). Smoke-tested live: SILENCE on fresh production graph + freshly-rebuilt sidecar. 2-of-2 scrutiny PASS, 0 P0; both reviewers flagged the strict-`>` staleness boundary as documented-in-tests-but-not-in-source — fixed with an in-line comment pinning the contract. Track B (B1-B5) is now complete — graph freshness + sidecar guarantee + autoupdate backstop + fail-loud + staleness visibility all shipped, scrutinized, and live in the fleet."
+    },
+    {
+      "unit": "U-GO-C5",
+      "ts": "2026-05-22",
+      "finding": "Investigation reframed Track C scope: octopus is NOT dead, it's graceful-degraded. The PRISMContextInjectorEngine + ConsensusModelPerformanceEngine stubs throw with clear messages — but every call site in MultiModelConsensusEngine.ts is wrapped in try/catch (lines 198-203, 221-227), so the throws fail-OPEN: consensus runs without context injection and without perf-weighted vendor selection, just degraded. So C6's '3 tsc errors' premise is stale (current tsc shows 12 errors in unrelated CAD/Adaptive/Agentic files — pre-existing peer debt, not blocking octopus). C5 ship: new scripts/octopus-setup.mjs — operator-callable CLI that probes the 5 voices (anthropic implicit, codex via 'codex login status', ollama via 11434, xai+google via env vars) and prints a per-voice remediation checklist with the exact next-step command. Pure decideVoiceStatus + summarizeFleet + renderChecklist testable core (19 cases covering every status × remediation combo). Plus 2 subprocess E2E (--json shape, exit-code binary range, forced-blank xai+google for host-hermetic assertions). 21/21 green. Live smoke on this PC: 3/5 ready (anthropic + ollama-8models + google) — real cross-vendor consensus IS already possible; the 2 missing are codex auth (run `codex login`) + xai (set XAI_API_KEY). Exit 0 if ≥3 ready, 1 otherwise — usable in CI gating. 2-of-2 scrutiny PASS, 0 P0/P1."
+    },
+    {
+      "unit": "U-GO-A1",
+      "ts": "2026-05-22",
+      "finding": "New pure lib scripts/lib/graph-key-derive.mjs — the shared key-derivation core for the 4 PreToolUse graph-injection hooks (A2-A5). deriveGraphKeys({input,tool,maxKeys}) with per-tool strategies: read/write → basename stem, dash+underscore split, tokenize; grep → tokenize the pattern directly (tokenize already strips ALL regex metachars via [^\\p{L}\\p{N}_\\s] + drops STOPWORDS + dedups + caps — no manual metachar stripping needed); bash → NARROW, only fires on file-search verbs (grep/rg/find/cat/head/tail/ls), walks past env-var prefixes + the rtk wrapper, returns [] for git/npm/node/cargo/etc. Reuses tokenize from master-index-search-lib.mjs so the STOPWORDS set + MIN_TOKEN_LEN=3 + length caps are a single source of truth (the 'high-ROI filter' the plan called for — STOPWORDS already drops generic noise like 'system'/'engine'/'the'). 27 tests covering every tool branch + edge cases (empty/null/non-string input, NaN/0/negative maxKeys, all-metachar pattern, all-stopword pattern, oversize DoS, multi-command bash, find -name globs). 27/27 green. 2-of-2 scrutiny PASS, 0 P0/P1 (Arm B's one P1 — untested multi-command/find-name bash paths — closed with 2 added tests before commit). A1 unblocks A2 (pre-grep), A3 (pre-write), A4 (pre-bash), A5 (refactor pre-read to the shared lib)."
+    },
+    {
+      "unit": "U-GO-A2",
+      "ts": "2026-05-22",
+      "finding": "New .claude/hooks/pre-grep-graph-inject.mjs — PreToolUse:Grep graph-context injector mirroring the proven pre-read-graph-inject.mjs. Before a Grep runs: reads tool_input.pattern, derives keys via the shared deriveGraphKeys({tool:'grep'}) lib (the A1 high-ROI gate — an all-metachar/all-stopword pattern yields [] → no search, no inject), runs runMasterIndexSearch on the joined keys, injects the top-3 matching graph nodes as PreToolUse additionalContext ('the graph already knows these N nodes for your pattern — consider it before a full Grep'). Fail-open on every path (missing pattern, both lazy-imports, deriveGraphKeys throw, search throw, null render). Knobs: PRISM_PRE_GREP_GRAPH_INJECT=0, PRISM_PRE_GREP_GRAPH_TOPK. 10 tests — 6 pure renderInject (empty/non-array/cap-5/byte-truncation/key-fallback) + 4 subprocess E2E (disable knob, missing pattern, all-metachar gate, AND a high-certainty 'kienzle cutting' injection-firing test that hard-asserts hookSpecificOutput fires — a regression guard against a silent no-op if the runMasterIndexSearch .hits field is ever renamed). 10/10 green. 2-of-2 scrutiny PASS, 0 P0; Arm B's P1 #1 (untested injection-firing path) closed with the kienzle hard-assert before commit; P1 #2 (no explicit search timeout) is not actionable here — bounded by the sidecar fast-path + the harness timeout A6 wires, same as the pre-read template. Hook is built + tested; settings.json wiring is U-GO-A6."
+    },
+    {
+      "unit": "U-GO-A3",
+      "ts": "2026-05-22",
+      "finding": "New .claude/hooks/pre-write-graph-inject.mjs — PreToolUse:Write graph-context injector mirroring pre-grep (A2). Before a Write: reads tool_input.file_path, derives keys via deriveGraphKeys({tool:'write'}) (basename stem, dash/underscore split), runs master-index search, injects 'N related/duplicate node(s) for this name' as ADVISORY additionalContext — a soft duplicate-detection nudge complementing the hard duplication-hard-block hook. Structurally cannot block (every path emits {continue:true}); content blob is never read (only file_path). Fail-open everywhere. Knobs: PRISM_PRE_WRITE_GRAPH_INJECT=0, PRISM_PRE_WRITE_GRAPH_TOPK. 10 tests — 6 pure renderInject + 4 subprocess E2E (disable knob, missing file_path, stem-less .gitignore empty-keys gate, AND a system-viz-on-commit.mjs injection-firing hard-assert regression guard). 10/10 green. 2-of-2 scrutiny PASS, 0 P0/P1 (camelCase filenames yield a single broad token — acceptable degradation, still finds near-exact matches, noted P3-only). Hook built + tested; settings.json wiring is U-GO-A6."
+    },
+    {
+      "unit": "U-GO-C2-C3-C4",
+      "ts": "2026-05-22",
+      "finding": "Three connected units shipped in one disciplined hook: .claude/hooks/auto-consensus-sync-bash.mjs — PreToolUse:Bash sync octopus trigger gated by an irreversibility-class classifier. C2 (sync auto-invoke at decision points) + C3 (surface consensus result in-context) + C4 (stakes-gated triggering) are subsumed by the same hook because the classifier IS the stakes gate, the sync ask() IS the decision-point trigger, and the verdict-as-permissionDecisionReason IS the in-context surface. CLASSIFIER (pure, 5 irreversibility classes — each tested): git-force-push (-f / --force / --force-with-lease), git-hard-reset (--hard), git-branch-force-delete (-D / --delete-force), rm-recursive-force (-rf / -fr / --recursive --force, deliberately NOT -f alone so `rm -f .git/index.lock` stays a no-op), git-clean-force (-f without -n dry-run). Walks past env-var prefixes (FOO=bar VERB) + the rtk wrapper; multi-command chains classify on the FIRST sub-command (conservative under-trigger — zero false positives). SAFETY INVARIANT: a classified destructive command can ONLY reach permissionDecision='allow' via a real consensus rec='accept'. Every other branch (no-env default, disable-knob, opt-in + engine-missing / timeout / throw / escalate / review / unknown rec, classifier-throw) → permissionDecision='ask'. DEFAULT BEHAVIOR (no env): match → ASK with class-naming reason (zero-cost, predictable latency). OPT-IN (PRISM_AUTO_CONSENSUS_SYNC_BASH=1): match → spawn MultiModelConsensusEngine.ask() with a 10s Promise.race timeout → translate rec to ask|allow. PRISM_AUTO_CONSENSUS_SYNC_DISABLE=1 only SUPPRESSES the LLM call on match; the ASK still fires (closes Arm A P0 from first-pass scrutiny where the disable knob short-circuited to silent allow before classification). PRISM_AUTO_CONSENSUS_SYNC_ENGINE_PATH overrides the engine candidates list (single path) — used by tests to deterministically force engine-unreachable OR inject a stub engine. clearTimeout in finally (closes Arm A P1 timer leak). 26 tests: 9 classifier (5 classes × ≥2 variants + null/non-destructive/env-prefix/rtk/multi-cmd-chain), 5 renderVerdict pure (icon-by-rec hard-asserted), 12 E2E (disable+non-match silent-allow, disable+MATCH still-asks safety lock, missing command, non-Bash, non-destructive, default-ask, opt-in+engine-unreachable hard-assert ask, stub-engine accept→allow, stub-engine escalate→ask, stub-engine throw→ask, stub-engine hang→timeout→ask). 26/26 green. 2-of-2 scrutiny PASS after one retry — both reviewers FAILED first pass (Arm A on safety-invariant breach via disable knob; Arm B on tautological ask||allow assertion), both PASSED retry after the classify-first reorder + deterministic engine-path env knob + stub-engine pattern. Wired in C:/Users/wompu/.claude/settings.json PreToolUse:Bash with 15000ms timeout (c-to-h-mirror replicated). Octopus is now LIVE on the irreversibility class: every rm -rf / git push --force / git reset --hard / git branch -D / git clean -f triggers operator visibility, and (when opt-in is set) actual 5-LLM consensus."
+    },
+    {
+      "unit": "U-GO-C6",
+      "ts": "2026-05-22",
+      "finding": "Both WIRE-EXEMPT stub engines replaced with real implementations. The stubs threw on every call; MultiModelConsensusEngine.ts wrapped both call sites in try/catch (lines 199 + 222-227) and fell back to a degraded path — confirmed in C1's audit (agreement_score=0, voters=null on every drained run). REAL IMPLEMENTATIONS: (1) PRISMContextInjectorEngine.ts — lazy-imports scripts/lib/master-index-search-lib.mjs, tokenizes the consensus prompt, runs BM25 over PRISM's 258K-node master graph, composes a markdown '### Relevant PRISM context' blob from the top hits (layer/status/label/info), capped at modelBudget chars (default 2000, clamped [200, 8000]). Returns the contract-correct { text, facts, budget, prompt } shape (fixing the old stub's prompt/facts/budget mismatch with the consumer at line 200 which uses ctx.text). Fail-open on every path. (2) ConsensusModelPerformanceEngine.ts — loadState(path?) reads a JSON state file at the given path with shape { schemaVersion, vendors: { [vendor]: { [taskType]: {ema, n, lastUpdate} } } }; missing file / invalid JSON / wrong shape → empty state (cold-start), NEVER throws. recommendVendors(state, taskType, available, {floor}) returns the contract-correct { ranked: RankedVendor[], rationale } shape (consumer at line 224 uses rec.ranked.map(r=>r.vendor) — old stub's { vendors:string[] } shape was the 'rec.ranked' tsc error). 3-branch keep-set ladder: cold-start (all-zero ema → keep ALL); signal mode (nonZero >= floor → keep nonZero); partial signal (nonZero < floor → pad scored.slice(0,floor)). Hard floor clamped to available.length so consensus can NEVER collapse below floor. Bonus: new pure recordOutcome(state, vendor, taskType, reward, alpha=0.2) with canonical EMA update (newEma = prev.ema + alpha * (clampedReward - prev.ema)), reward clamped to [0,1], alpha clamped to (0,1] — caller persists. TSC: previously-reported '3 tsc errors in MultiModelConsensusEngine.ts' are now CLEAN — the consumer call sites compile against the real engines without complaint. TESTS: 32/32 vitest tests in mcp-server/src/__tests__/ConsensusEngines.test.ts covering composeContext (pure: 6 cases incl. byte-truncation + head-anchor + defensive null/non-object hits), buildContext (5 cases incl. clamp-up MIN_BUDGET + lib-integration regression guard with hard XOR populated-vs-fail-open assert + R12 fail-loud anti-regression on a healthy graph), loadState (4 cases incl. missing-file / invalid-JSON / 5 wrong-shape variants / valid parse), recommendVendors (8 cases covering all 3 keep-set branches + task-typed scoring divergence + NaN ema + degenerate floor + non-array available), recordOutcome (5 cases incl. EMA math hard-asserted at 0.6 = 0.5 + 0.2*(1.0-0.5), reward-clamp [0,1], semantic-immutability assertions on rejection paths, degenerate alpha normalization). 2-of-2 scrutiny PASS — Arm A 0 P0/P1; Arm B 4 P1s all closed in the same session (P1-A semantic-immutability instead of reference-equality; P1-B head-anchor on truncation test; P1-C real-graph hard-assert with R12 fail-loud; P1-D MIN_BUDGET clamp-up branch). Octopus consensus is no longer running degraded — context injection + perf-weighted voter selection are now live and load-bearing."
+    },
+    {
+      "unit": "U-GO-C1",
+      "ts": "2026-05-22",
+      "finding": "Drain mechanism investigated end-to-end. CURRENT STATE: drainer + Stop hook are correctly wired and the loader works. `.claude/scripts/consensus-queue-drain.mjs` finds and loads `mcp-server/dist/engines/MultiModelConsensusEngine.js` (the dist build that was missing when the unit was written now exists — root cause of the 72-entry backlog was the missing dist; the unit description even notes this: 'Fix the loader (dist/engines/*.js now exists)'). Live verification across 2 invocations: --once drained 1/54 in ~30s; --max=3 drained 3 more in ~1s (warm-cache fast-path through the degraded consensus). Queue went 54 → 50 with 4 entries persisted to consensus-queue-processed.jsonl, each with {drain_ok:true, drain_error:null, has_recommendation:true}. The Stop hook `stop-consensus-drain.mjs` is the natural drain mechanism — spawns the drainer detached with --max=1 on every chat Stop; with ~11 concurrent chats in the fleet each Stop spawns a drain, so the 50-entry backlog drains naturally within the next ~50 chat-stops. SEPARATE CONCERN (NOT C1, maps to C6): the persisted audit entries show `agreement_score: 0` and `voters: null` — confirms the C5 close_out_log finding that consensus runs DEGRADED because the PRISMContextInjectorEngine + ConsensusModelPerformanceEngine stubs throw and the try/catch sites fail-open without context injection / perf-weighted voter selection. C1's exit criteria are about whether the DRAIN works (it does, end-to-end, result persisted + recallable); QUALITY of the consensus is C6's scope. No code change required for C1 — the system shipped working once the dist was built; this close-out documents the verified end-to-end path so future audits don't redundantly re-investigate. The 50-entry backlog is left to drain naturally (forcing a synchronous full-drain would consume 25-50 minutes of cross-vendor LLM API calls with no incremental engineering signal — the mechanism is proven on the 4-entry sample)."
+    },
+    {
+      "unit": "U-GO-A6",
+      "ts": "2026-05-22",
+      "finding": "All 3 new graph-context PreToolUse hooks wired into C:/Users/wompu/.claude/settings.json — c-to-h-mirror auto-replicated to H:/.claude/settings.json (verified: 3 occurrences in each, mirror in sync). Wiring added at the tail of the PreToolUse chain (after engine-digest-precheck), as 3 standalone matcher entries with 4000ms timeout each: 'Grep' → pre-grep-graph-inject.mjs; 'Write' → pre-write-graph-inject.mjs (Write only, not Edit/MultiEdit — dup-detection only relevant for new-asset creation, not edits to existing files); 'Bash' → pre-bash-graph-inject.mjs (the hook itself gates internally to file-search verbs via deriveGraphKeys, so the Bash matcher is broad but the actual injection is narrow). Chose standalone entries over bundle integration — bundles are peer-claimed real estate, standalone entries are independently disable-able per knob (PRISM_PRE_{GREP,WRITE,BASH}_GRAPH_INJECT=0). LIVE FIRING CONFIRMED via real subprocess invocation: pre-grep on 'kienzle cutting' pattern → additionalContext injected; pre-write on 'system-viz-on-commit.mjs' → additionalContext injected; pre-bash on 'grep -rn kienzle mcp-server/src' → additionalContext injected. EXTRA-LIVE CONFIRMATION: the pre-grep hook fired on this session's own Grep for 'pre-grep-graph-inject|pre-write-graph-inject|pre-bash-graph-inject' verifying mirror sync — the hook surfaced 3 pre-read-graph-inject nodes from the live master graph as additionalContext, proving the inject is live in this very chat. Track A (A1-A6) is now COMPLETE: shared graph-key-derive lib + 3 new tool hooks (grep/write/bash) + pre-read refactored to the shared lib + all 3 new hooks wired into settings. The original gap — 'only Read consults the master graph, Grep/Write/Bash do not' — is closed."
+    },
+    {
+      "unit": "U-GO-A5",
+      "ts": "2026-05-22",
+      "finding": "pre-read-graph-inject.mjs refactored onto the shared scripts/lib/graph-key-derive.mjs — all four PreToolUse graph hooks (read/grep/write/bash) now share ONE derivation core. The bespoke deriveQueryKey() (string|null, with extension-strip + MIN_LEN=4 + index/main/dotfile skip) is REMOVED entirely; main() now calls deriveGraphKeys({input:filePath,tool:'read'}) returning a string[] array, structurally identical to the 3 siblings. renderInject signature changed string → array (header uses keys.join(', '), fallback 'this file'). The PRISM_PRE_READ_GRAPH_MIN_LEN env knob is gone — the shared lib's tokenize MIN_TOKEN_LEN=3 + the search lib's >=2-token floor naturally cover every noisy-file case the old gate handled (index.ts/main.ts → 1 token → no hits → no inject; .gitignore → '' before first dot → [] → no inject; a.ts → too short → []). DELIBERATE R7 DEVIATION: the unit spec said 'preserve existing tests' but the shared lib's array+lowercase contract is structurally incompatible with deriveQueryKey's case-preserving string contract (deriveQueryKey('KienzleForceEngine.ts')='KienzleForceEngine'; deriveGraphKeys=['kienzleforceengine']). True single-source-of-truth required the contract change — surfaced via this close_out_log per CLAUDE.md R7 (surface conflicts, don't average them) + R9 (tests verify intent, not surface shape). The 16 deriveQueryKey unit tests are gone; key-derivation behavior is now tested ONCE in graph-key-derive.test.mjs (single source of truth). The new pre-read-graph-inject.test.mjs has 11 tests covering renderInject array-keys rendering (6 cases incl. byte-cap + bullet-cap + missing-keys fallback + partial-field tolerance) + E2E fail-open (disable knob + missing file_path + stem-less .gitignore gating) + injection-firing hard-assert regression guard ('system-viz-on-commit.mjs' MUST fire — null = U-GO-A5 refactor broke). Behavior-equivalence end-to-end through the live shared lib was both reviewers' explicit endorsement of the R7 deviation. 11/11 green. Sibling regression check ran graph-key-derive + pre-grep + pre-write + pre-bash test suites: 58/58 green, no regression. 2-of-2 scrutiny PASS, 0 P0/P1 (one P2 each: a redundant Math.min in renderInject header — slice already caps; absent 'tool_name !== Read' bypass test — matcher-gated by settings). Hook refactored + tests rewritten honestly; settings.json wiring stays as-is (the read-bundle.mjs subprocess invocation contract is unchanged)."
+    },
+    {
+      "unit": "U-GO-A4",
+      "ts": "2026-05-22",
+      "finding": "New .claude/hooks/pre-bash-graph-inject.mjs — PreToolUse:Bash graph-context injector, the NARROW sibling of pre-grep/pre-write. Before a Bash command runs: reads tool_input.command, derives keys via deriveGraphKeys({tool:'bash'}) — which is the high-ROI gate: it returns [] for any verb not in FILE_SEARCH_CMDS (grep/rg/find/cat/head/tail/ls), so ~95% of bash invocations (git/npm/node/build) skip the search entirely and the hook stays silent. Only when the shell is about to do a file-search does it run runMasterIndexSearch on the derived keys and inject the top-3 matching graph nodes as additionalContext ('the graph already knows these N nodes — consider it before the shell search'). The narrow-gate logic lives ENTIRELY in the shared lib (the hook adds no verb logic), so it cannot drift from the lib gate. Fail-open on every path (missing command, both lazy-imports, deriveGraphKeys throw, search throw, null render). Knobs: PRISM_PRE_BASH_GRAPH_INJECT=0, PRISM_PRE_BASH_GRAPH_TOPK. 11 tests — 6 pure renderInject + 5 subprocess E2E (disable knob, missing command, non-file-search 'git status' gated out, file-search 'ls -la' with no non-flag args gated out, AND a 'grep -rn kienzle cutting' injection-firing hard-assert regression guard against a silent .hits-contract no-op). 11/11 green. 2-of-2 scrutiny PASS, 0 P0/P1 (both reviewers flagged only a P2 inherited from the siblings — MAX_INJECT_BYTES truncates by UTF-16 code units not bytes — not introduced here, not changed to keep the 4 hooks consistent). Hook built + tested; settings.json wiring is U-GO-A6."
+    }
+  ]
+}

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Introduction_to_WCS</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Introduction_to_WCS</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/tutorialx8-wcs-intro/Introduction_to_WCS.pdf</code></dd>
+<dt>Pages</dt><dd>64</dd>
+<dt>Text chars</dt><dd>40895</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Introduction to the
+Work Coordinate
+System (WCS)
+July 2014
+
+-- 1 of 64 --
+
+Mastercam® X8 Introduction to WCS
+Date: July 2014
+Copyright © 2014 CNC Software, Inc.— All rights reserved.
+Software: Mastercam X8
+TERMS OF USE 	Use of this document is subject to the Mastercam End User License Agreement. A
+copy of the Mastercam End User License Agreement is included with the
+Mastercam product package of which this document is part. The Mastercam End
+User License Agreement can also be found at:
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+Be sure you
+have the latest
+information!
+Information might have been changed or added since this document was
+published. The latest version of this document is installed with Mastercam or can
+be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)—installed
+with each release—includes the latest information about Mastercam features and
+enhancements.
+
+-- 2 of 64 --
+
+iii
+Contents
+Introduction....................................................................................................... 1
+ Tutorial Goals................................................................................................. 1
+Working With Views and Planes ............................................................. 3
+ Views and Planes.......................................................................................... 3
+1. Changing the TPlane vs Changing the WCS ......................... 7
+ Lesson Goals ................................................................................................. 7
+ Exercise 1: Selecting the TPlane ........................................................... 7
+ Exercise 2: Cutting the Slot................................................................. 10
+ Exercise 3: Backplotting the Toolpath................................................. 13
+ Exercise 4: Reviewing the NC Code.................................................... 15
+ Exercise 5: Changing the WCS to Machine the Slot Lying Flat ........... 15
+ Exercise 6: Using the New WCS for a Toolpath .................................. 17
+ Exercise 7: Reviewing the NC Code.................................................... 19
+2. Machining Two Parts on Different Fixtures....................... 21
+ Lesson Goals ............................................................................................... 21
+ Exercise 1: Creating the First Plane .................................................... 21
+ Exercise 2: Creating the Second Plane................................................ 23
+ Exercise 3: Using the First Plane......................................................... 24
+ Exercise 4: Creating the First Toolpath ............................................... 25
+ Exercise 5: Using the Second Plane to Create a Toolpath ................... 28
+ Exercise 6: Reviewing the NC Code.................................................... 31
+3. Updating Previously Created Toolpaths ............................. 35
+ Lesson Goals ............................................................................................... 35
+ Exercise 1: Rotating the Part............................................................... 35
+
+-- 3 of 64 --
+
+iv MASTERCAM X8
+ Exercise 2: Placing the Part on the Fixture .......................................... 39
+ Exercise 3: Creating New WCS Planes ............................................... 44
+ Exercise 4: Updating the Contour (Ramp) Toolpath............................. 47
+ Exercise 5: Updating the Dynamic Mill Toolpath ................................. 50
+ Exercise 6: Updating the Contour (2D) Toolpath.................................. 52
+ Exercise 7: Backplotting the Toolpaths ............................................... 55
+Conclusion......................................................................................................... 56
+ Mastercam Resources ............................................................................... 56
+ Mastercam Documentation....................................................................... 57
+
+-- 4 of 64 --
+
+Introduction
+Welcome to the
+Introduction to the Work Coordinate System (WCS) tutorial. Before
+you begin the lessons, it is recommended you first complete the
+Introduction to
+Mastercam tutorial, which gives an introduction to Mastercam’s views and planes.
+Tutorial Goals
+ 	Learn about views and planes, specifically WCS.
+ 	Understand the difference between tool planes (Tplanes) and WCS.
+ 	Machine two parts on different fixtures using one setup.
+ 	Create and change the WCS for previously created toolpaths.
+IMPORTANT: Screen colors in the tutorial pictures were modified to
+enhance image quality; they may not match your Mastercam settings or
+the tutorial results. These color differences do not affect the lesson or
+the exercise results.
+General Tutorial Requirements
+All Mastercam tutorials have the following general requirements:
+ 	You must be comfortable using the Windows® operating system.
+ 	The tutorials cannot be used with Mastercam Demo/Home Learning Edition
+(HLE). The Demo/HLE file format (EMCX-8) is different from Mastercam (MCX-
+8), and basic Mastercam functions, such as file conversions and posting, are
+unavailable.
+ 	Each lesson in the tutorial builds on the mastery of preceding lesson’s skills.
+We recommend that you complete them in order.
+ 	Additional files may accompany a tutorial. Unless the tutorial provides specific
+instructions on where to place these files, store them in a folder that can be
+accessed from the Mastercam workstation, either with the tutorial or in any
+location that you prefer.
+ 	You will need an internet connection to view videos that are referenced in the
+tutorials. All videos can be found on our YouTube channel:
+www.youtube.com/user/MastercamTechDocs.
+
+-- 5 of 64 --
+
+2 MASTERCAM X8/ Introduction
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+ 	All Mastercam tutorials require you to configure Mastercam to work in a
+default metric or English configuration. The tutorial provides instructions for
+loading the appropriate configuration file.
+
+-- 6 of 64 --
+
+Working With Views and Planes
+Mastercam uses a 3D Cartesian coordinate system to locate your work in three-dimen-
+sional space. This means that geometry and toolpath positions are expressed in terms
+of three coordinate axes: X, Y, and Z. Each axis is signed, which means it has a positive
+and negative direction.
+The focus of this tutorial is the Work Coordinate System, or WCS. The WCS refers to
+the alignment of the coordinate system itself. You can choose to align the coordinate
+system axes with any view you wish.
+When you create a new WCS the following happens:
+ 	You map the XY plane to the plane of the view.
+ 	The origin of the view becomes your new (0,0,0) point.
+ 	The plane becomes the Top plane in the new working coordinate system.
+ 	Gviews, Cplanes, and Tplanes are all measured relative to the WCS and its
+origin.
+Views and planes are used frequently in Mastercam for many drawing and machining
+purposes. However, you select a new WCS much less often, and only for specific
+machining purposes.
+Views and Planes
+This section introduces ways to access and use planes. You use planes for three main
+functions.
+ 	Graphic views (Gviews) - A Gview determines the angle from which you look
+at your part in the graphics window.
+ 	Construction planes (Cplanes) - When you draw geometry, the Cplane is
+where geometry is created. This doesn’t have to be the same as the Gview. For
+
+-- 7 of 64 --
+
+4 MASTERCAM X8/ Working With Views and Planes
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+example, you can look at your part in Isometric Gview, while drawing
+geometry in the Front Cplane.
+ 	Tool planes (Tplanes) - This plane is typically normal to the tool axis. Tplanes
+are only used when creating toolpaths. They determine the tool orientation. In
+most cases, your Cplane is the same as your Tplane (the most common
+exceptions are Mill/Turn operations).
+In addition, you can create a new WCS by mapping the entire coordinate system to a
+different plane.
+Most of the tools for working with planes are
+located on the Status Bar at the bottom of
+the Mastercam window. The Gview menu,
+the Planes menu, and the WCS menu bring
+up similar sets of options. The WCS menu is
+shown to the right.
+Mastercam displays the current WCS and T/
+Cplane in the left side of the Status Bar.
+The current Gview is displayed in the
+bottom-left hand corner of the graphics
+window.
+
+-- 8 of 64 --
+
+VIEWS AND PLANES 5
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+Use the Plane Manager to look at your planes and set their properties. Display the
+Plane Manager from the Planes, WCS, or Gview menu.
+In the first lesson, you create a toolpath to machine a part in two ways, one by using a
+Tplane and one by changing the WCS.
+
+-- 9 of 64 --
+
+6 MASTERCAM X8/ Working With Views and Planes
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+
+-- 10 of 64 --
+
+LESSON 1
+1Changing the TPlane vs Changing the
+WCS
+In this lesson, you create a Dynamic toolpath to cut the slanted slot face of the part.
+You create toolpaths to machine it in two ways:
+ 	First, you machine the part as if it were mounted on a table. You use a
+machine with rotary axis capability so that the tool axis is rotated to the
+proper orientation. To do this, you select a Tplane aligned with the slanted
+face.
+ 	Second, you machine the part as if it were mounted in a fixture. You create a
+toolpath that machines the part as if it were lying flat, without moving or
+transforming geometry. To do this, you change the WCS so that it aligns with
+the slanted faces of the part.
+Lesson Goals
+ 	Create a Dynamic Contour toolpath with the selected Tplane.
+ 	Change the WCS on the Dynamic Contour toolpath.
+ 	Review both NC files to see rotary position commands.
+Exercise 1: Selecting the TPlane
+The Tplane determines the orientation of the XY plane in which the toolpath is calcu-
+lated. In a simple 3-axis toolpath, the tool axis is typically normal to the Tplane. To set
+
+-- 11 of 64 --
+
+8 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+the Tplane, you must align it with a view. You must also keep in mind the following
+when setting a view:
+ 	The XY plane of your toolpath is parallel to the selected view.
+ 	The origin of the selected view determines the zero point of your part
+program.
+Unless the Tplane is parallel to the default XY plane, selecting a Tplane typically results
+in A- and/or B-axis codes when you post your toolpaths.
+NOTE: To post A- and B-axis code results, your machine definition must
+be configured with the proper rotary axis components, and your post
+must be properly configured for rotary output.
+In this exercise, you align the Tplane with the slanted face of the part.
+1 	Start Mastercam using your
+preferred method:
+ 	Double-click Mastercam’s
+desktop icon.
+Or
+ 	Launch Mastercam from the
+Windows Start menu.
+2 	Select the default metric configuration file:
+a 	Select Settings, Configuration
+from Mastercam’s menu.
+b Choose ...\mcamxm.config &lt;Metric&gt; from the Current drop-down list.
+c 	Click OK.
+
+-- 12 of 64 --
+
+SELECTING THE TPLANE 9
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+3 	Open the part file, BRACE W-VIEW.MCX-8, which was provided with the
+tutorial.
+4 	If necessary, fit the geometry to the screen using [Alt+F1] or the Fit button.
+5 	Click Planes, Named planes, Plane
+List on the Status Bar.
+The Plane Selection dialog box
+displays.
+
+-- 13 of 64 --
+
+10 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Select FACE OF PART and click OK.
+The status display updates with the
+new Tplane. The FACE OF PART
+plane contains the slanted slot.
+7 	Choose File, Save As, and save the part file under a different file name. This
+protects the original tutorial file from being overwritten.
+Exercise 2: Cutting the Slot
+In this exercise, you create a Dynamic Contour toolpath to cut out the slot in the face
+of the part.
+1 	Select 2D High Speed, Dynamic
+Contour from the Toolpaths menu.
+2 	Click OK if prompted to enter a new
+NC file name.
+The Chain Options dialog box
+displays.
+
+-- 14 of 64 --
+
+CUTTING THE SLOT 11
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+3 	Click Select under Machining
+regions.
+The Chaining dialog box displays.
+4 	Chain the contour. The chaining
+arrow should point
+counterclockwise.
+5 	Click OK in the Chaining dialog box and in the Chain Options dialog box.
+The 2D High Speed Toolpath - Dynamic Contour dialog box displays.
+6 	Select the Tool page.
+7 	Select the 10mm bullnose endmill
+showing in the tool list.
+8 	Select the Cut Parameters page.
+
+-- 15 of 64 --
+
+12 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+9 	Verify that the settings match what
+is shown to the right.
+10 	Select the Linking Parameters
+page.
+11 	Set the following parameters:
+ 	Enter 8.0 for Retract.
+ 	Enter 2.0 for Feed plane.
+ 	Enter 0.0 for Top of stock.
+ 	Enter -9.0 for Depth.
+ 	Set all parameters except Top
+of stock to Incremental.
+
+-- 16 of 64 --
+
+BACKPLOTTING THE TOOLPATH 13
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+12 	Click OK to generate the Dynamic Contour toolpath.
+13 	Save your file.
+Exercise 3: Backplotting the Toolpath
+In this exercise, you backplot the toolpath to see how the tool is oriented relative to
+the part.
+1 	Select the 2D Dynamic Contour Mill
+toolpath in the Toolpaths Manager.
+
+-- 17 of 64 --
+
+14 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+2 	Click Backplot selected operations
+in the Toolpaths Manager.
+The Backplot dialog box displays.
+3 	Select Display tool and Display
+holder.
+4 	Click Play to see the tool machine
+the toolpath.
+The tool is rotated to stay normal to the slanted face of the part. The face
+defines the Tplane FACE OF PART.
+
+-- 18 of 64 --
+
+REVIEWING THE NC CODE 15
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+5 	Click OK in the Backplot dialog box when you have finished reviewing the tool
+motion.
+Exercise 4: Reviewing the NC Code
+Since the Tplane (and the tool axis) is tilted about the X axis, you should see an A-axis
+rotation code when you post this toolpath.
+1 	Select the 2D Dynamic Contour Mill
+toolpath in the Toolpaths Manager
+and click Post selected operations.
+The Post processing dialog box
+displays.
+2 	Set the options as shown and click
+OK.
+3 	Click Save if prompted to save the NC file. Mastercam Code Expert opens.
+4 	Review the NC code when it
+appears.
+You should see the A-axis rotation
+code before the tool plunges into
+the part.
+5 	Close Mastercam Code Expert.
+Exercise 5: Changing the WCS to Machine the Slot Lying Flat
+In this exercise, you machine the slot using a different approach, as if it were laying
+flat. Instead of rotating the tool, you rotate the coordinate system so that it is parallel
+with the desired face of the part. To do this, you align the WCS with the FACE OF
+PART plane.
+
+-- 19 of 64 --
+
+16 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+In this example, the part is fixtured so that you can cut it on a 3-axis mill that does not
+have a rotary axis. Moving the coordinate system so that it aligns with the selected
+part geometry means that you do not have to transform the part. This is often easier
+and more efficient.
+1 	Select WCS, Named planes, FACE
+OF PART from the Status Bar.
+2 	Select Gview, Right (WCS) from the
+Status Bar.
+You can see that the part looks like it has been rotated. When you look at the gnomon
+in the lower-left corner, however, you can see that the axes have been rotated, not the
+part.
+
+-- 20 of 64 --
+
+USING THE NEW WCS FOR A TOOLPATH 17
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+Exercise 6: Using the New WCS for a Toolpath
+Normally, to create the new toolpath you would follow the same steps as for the
+previous toolpath. For this exercise, you edit the existing toolpath to use the new WCS
+and compare the results.
+1 	Select Gview, Isometric (WCS) from
+the Status Bar.
+2 	In the Toolpaths Manager, click
+Parameters under the 2D Dynamic
+Contour Mill toolpath.
+3 	Select the Planes (WCS) page.
+4 	Click the Select WCS plane button
+in the Working coordinate system
+section.
+The Plane Selection dialog box
+displays.
+
+-- 21 of 64 --
+
+18 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+5 	Select FACE OF PART and click OK
+to return to the 2D High Speed
+Toolpath - Dynamic Contour dialog
+box.
+6 	Select the Display relative to WCS
+option.
+This option displays the names of
+the tool and construction planes
+relative to the WCS.
+7 	Verify that your Planes (WCS) page matches what is shown below:
+8 	Click OK to accept the parameter changes.
+9 	Click Regenerate all dirty
+operations in the Toolpaths
+Manager.
+
+-- 22 of 64 --
+
+REVIEWING THE NC CODE 19
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+10 	Backplot this toolpath like the previous one. You can see that the tool axis is
+not rotated at all. This means that the part is lying flat when machined, so the
+tool does not need to rotate around to machine the slanted face.
+Exercise 7: Reviewing the NC Code
+After posting this toolpath, you should find no rotary output in your NC Code.
+1 	Select the Dynamic Contour
+toolpath in the Toolpaths Manager
+and click Post selected operations.
+The Post processing dialog box
+displays.
+2 	Set the options as shown and click
+OK.
+
+-- 23 of 64 --
+
+20 MASTERCAM X8/ Changing the TPlane vs Changing the WCS
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+3 	If prompted, click Save to save the NC file.
+4 	If prompted to overwrite an existing file, click Yes. Mastercam Code Expert
+opens.
+5 	Review the NC code when it
+appears.
+You should see no A-axis rotation
+code.
+NOTE: A0 only appears because you posted this toolpath with the same
+post used in the previous toolpath. Because you used the WCS to elimi-
+nate rotary output, you could safely use a 3-axis post and machine defi-
+nition.
+You have now successfully changed the Tplane and the WCS of a toolpath. In the next
+lesson, you will machine two parts with the same NC file.
+
+-- 24 of 64 --
+
+LESSON 2
+2Machining Two Parts on Different
+Fixtures
+In this lesson, you machine two parts with the same NC file. Each part is mounted on a
+different vise on your table.
+To machine the parts, you assign a different work offset to each vise. Then, create two
+different toolpaths and include the offset number in each. By basing each toolpath on
+an offset number of a coordinate position, your operator can run the job without
+knowing how the vises are positioned. All they need to do is touch off the parts prop-
+erly before running the job to set each position in the control.
+Lesson Goals
+ 	Create a new plane for each vise and define its origin.
+ 	Create a toolpath for each created plane.
+ 	Review both NC files to see the correct offset codes.
+Exercise 1: Creating the First Plane
+Since both parts will be machined in the top plane, you create the new planes by
+copying the system Top plane. You then change the origin and work offset for each
+new plane.
+1 	Open the part file, Multiple-Fixtures.MCX-8, which was provided with the
+tutorial.
+
+-- 25 of 64 --
+
+22 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+2 	Fit the geometry to the screen using [Alt+F1] or the Fit button, if necessary.
+3 	Select WCS, Plane Manager from
+the Status Bar.
+The Plane Manager dialog box
+displays.
+4 	Make sure TOP is selected and click
+Copy.
+Mastercam creates a plane, TOP-1,
+and automatically selects it.
+5 	Enter 3 for the Work Offset #.
+A work offset number is used to tell
+the machine the location of the part
+on the fixture in relation to the
+machine origin. By using the number
+3, the offset is identified by the
+Gcode 57 for this machine.
+6 	Enter Offset for fixture 1 in the
+Comment area.
+7 	Double-click TOP-1 and rename the
+plane to G57 PLANE.
+
+-- 26 of 64 --
+
+CREATING THE SECOND PLANE 23
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+8 	Click the Select button in the Origin
+group box to return to the graphics
+window.
+9 	Select the point on the right side of the left vise.
+Do not close the Plane Manager.
+Exercise 2: Creating the Second Plane
+While the Plane Manager is still open, you will repeat the previous process for the
+second vise.
+1 	Select TOP and click Copy.
+
+-- 27 of 64 --
+
+24 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+2 	Enter 4 for the Work Offset #.
+3 	Enter Offset for fixture 2 in the Comment area.
+4 	Rename the plane to G58 PLANE.
+You will use this plane for the vice
+on the right side of the table.
+5 	Click the Select button in the Origin group box.
+6 	Select the point on the right side of the right vise.
+7 	Click OK to close the Plane Manager.
+8 	Choose File, Save As, and save the part file under a different file name. This
+protects the original tutorial file from being overwritten.
+Exercise 3: Using the First Plane
+In this exercise, you set the Tplane to the G57 PLANE to set the part zero and work
+offset to the values you associated with the plane when you created it.
+1 	Click Planes, Named planes, G57
+PLANE on the Status Bar.
+
+-- 28 of 64 --
+
+CREATING THE FIRST TOOLPATH 25
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+2 	Press [F9] to display the new Tplane/Cplane axes in blue.
+NOTE: The fixture table has been hidden to make the axes easier to see.
+3 	Press [F9] again to hide the axes.
+Exercise 4: Creating the First Toolpath
+In this exercise, you create a Dynamic Mill toolpath for the part in the G57 vise.
+1 	Select 2D High Speed, Dynamic
+Mill from the Toolpaths menu.
+
+-- 29 of 64 --
+
+26 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+2 	Click OK to confirm the default NC
+filename.
+The Chain Options dialog box
+displays.
+3 	Click Select under Machining
+regions.
+The Chaining dialog box displays.
+4 	Chain the contour at the top of the pocket in the G57 vise. Chain direction
+does not matter for this operation.
+5 	Click OK in the Chaining dialog box and in the Chain Options dialog box.
+The 2D High Speed Toolpaths - Dynamic Mill dialog box displays.
+6 	Select the Tool page.
+
+-- 30 of 64 --
+
+CREATING THE FIRST TOOLPATH 27
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+7 	Select the 10mm flat endmill
+showing in the tool list.
+8 	Enter G57 - vise #1 in the Comment
+box.
+9 	Select the Cut Parameters page.
+10 	Enter 75.0 for the Stepover
+percentage.
+11 	Select the Depth Cuts page.
+12 	Select the Depth cuts checkbox to
+enable the page, and set the
+following parameters:
+ 	Enter 1 for # Finish cuts.
+ 	Enter 2.5 for Finish step.
+13 	Select the Entry Motion page.
+14 	Enter 1.0 for the Z clearance.
+
+-- 31 of 64 --
+
+28 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+15 	Select the Linking Parameters
+page.
+16 	Enter the following parameters:
+ 	Enter 10.0 for Retract.
+ 	Enter 2.0 for Feed plane.
+ 	Enter 0.0 for Top of stock.
+ 	Enter -12.0 for Depth.
+ 	Set all parameters to
+Incremental.
+17 	Click OK to generate the toolpath.
+18 	Save your file.
+Exercise 5: Using the Second Plane to Create a Toolpath
+In this exercise, you set the Tplane to G58 PLANE, and create a Dynamic Contour tool-
+path on the second vise.
+
+-- 32 of 64 --
+
+USING THE SECOND PLANE TO CREATE A TOOLPATH 29
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+1 	Click Planes, Named planes, G58
+PLANE on the Status Bar.
+2 	Press [F9] to display the new Tplane/Cplane axes in blue.
+NOTE: The fixture table has been hidden to make the axes easier to see.
+3 	Press [F9] again to hide the axes.
+4 	Select 2D High Speed, Dynamic
+Contour from the Toolpaths menu.
+The Chain Options dialog box
+displays.
+5 	Click Select under Machining
+regions.
+The Chaining dialog box displays.
+
+-- 33 of 64 --
+
+30 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Chain the contour at the top of the pocket in the G58 vise. The chain direction
+should be clockwise for this operation.
+7 	Click OK to close to Chaining dialog box and again in the Chain Options
+dialog box.
+The 2D High Speed Toolpath - Dynamic Contour dialog box displays.
+8 	Select the Tool page.
+9 	Select the 6mm flat endmill
+showing in the tool list.
+10 	Enter G58 - vise #2 in the Comment
+box.
+11 	Select the Linking Parameters
+page.
+
+-- 34 of 64 --
+
+REVIEWING THE NC CODE 31
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+12 	Enter the following parameters:
+ 	Enter 10.0 for Retract.
+ 	Enter 2.0 for Feed plane.
+ 	Enter 0.0 for Top of stock.
+ 	Enter -9.0 for Depth.
+ 	Set all parameters to
+Incremental.
+13 	Click OK to generate the toolpath.
+14 	Save your file.
+Exercise 6: Reviewing the NC Code
+In this exercise, you post and review the NC code for both toolpaths.
+
+-- 35 of 64 --
+
+32 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+1 	In the Toolpaths Manager, click
+Toolpath Group 1 to select all
+operations.
+2 	Click the Post selected operations
+button on the Toolpaths Manager.
+3 	The Post processing dialog box
+displays.
+4 	Set the options as shown and click
+OK.
+5 	Click OK if prompted to save the NC file. Mastercam Code Expert opens.
+
+-- 36 of 64 --
+
+REVIEWING THE NC CODE 33
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Review the NC code when it displays.
+For each operation, Mastercam has reset the part zero (0,0,0) and output the proper
+work offset.
+In the next lesson, you rotate and position a part and update previously created tool-
+paths with a new WCS.
+
+-- 37 of 64 --
+
+34 MASTERCAM X8/ Machining Two Parts on Different Fixtures
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+
+-- 38 of 64 --
+
+LESSON 3
+3Updating Previously Created Toolpaths
+In this lesson, you rotate a part and create two new WCS planes. You then update each
+toolpath with one of the new WCS planes.
+The part must be rotated, because the machine it was meant to be cut on is unavail-
+able. To cut the part on a different machine, the toolpaths must also be reoriented.
+You can do this by utilizing the WCS, allowing you to continue producing parts with an
+available machine.
+Lesson Goals
+ 	Rotate the part and place it on the fixture.
+ 	Create two new WCS planes for the toolpaths.
+ 	Update each toolpath to use the new WCS planes.
+Exercise 1: Rotating the Part
+In this exercise, you rotate the part so that it is on the same angle as the fixture.
+1 	Open the part file, Heart-lock.mcx-8, that was provided with this tutorial.
+
+-- 39 of 64 --
+
+36 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+2 	Fit the geometry to the screen using [Alt+F1] or the Fit button, if necessary.
+3 	In the Toolpaths Manager, select the
+Contour (Ramp) toolpath.
+4 	Click the Toggle display on
+selected operations button.
+5 	The graphics window now displays the Contour (Ramp) toolpath. Notice how
+the toolpath looks.
+
+-- 40 of 64 --
+
+ROTATING THE PART 37
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Display the toolpath motion for the Dynamic Mill toolpath and the Contour
+(2D) toolpath. When you finish viewing the toolpaths, turn them all off.
+7 	Select Xform, Dynamic Xform from
+the Mastercam menu.
+The Dynamic Xform Ribbon bar
+displays.
+8 	Window select the solid body and wireframe and press [Enter]. The Dynamic
+Gnomon displays.
+9 	Select the midpoint of the arc as the gnomon origin position.
+You may need to zoom in to find the correct position.
+
+-- 41 of 64 --
+
+38 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+10 	Select the top segment of the curved control for 3D rotation.
+11 	Type 10.0 degrees and press
+[Enter].
+12 	Press [Enter] again to accept the changes. Click OK in the Dynamic Xform
+Ribbon bar.
+
+-- 42 of 64 --
+
+PLACING THE PART ON THE FIXTURE 39
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+The part has now been rotated 10 degrees around the X axis.
+TIP: Select the Clear Colors button to
+remove group and result colors from affected
+entities.
+13 	Choose File, Save As, and save the part file under a different file name. This
+protects the original tutorial file from being overwritten.
+Exercise 2: Placing the Part on the Fixture
+In this exercise, you place the rotated part onto the fixture.
+1 	Select Level in the Status Bar.
+The Level Manager dialog box
+displays.
+2 	In the Level Manager dialog box,
+select the Visible column for level
+10: Fixture.
+The graphics window will now
+display the Fixture level.
+
+-- 43 of 64 --
+
+40 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+3 	Click OK to exit the Level Manager dialog box.
+4 	Select Xform, Translate from the
+Mastercam menu bar.
+5 	Window select the solid body and wireframe, then press [Enter].
+The Translate dialog box displays.
+
+-- 44 of 64 --
+
+PLACING THE PART ON THE FIXTURE 41
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Set the Translate option to Move.
+7 	Click the Select FROM Point button
+to return to the graphics window.
+You will now select the point to
+translate from.
+8 	Select Gview, Bottom (WCS) from
+the Status Bar.
+This sets your Gview to Bottom and
+helps to select the point to translate
+from.
+9 	Select the circle center point indicated below on the solid part. Be sure that
+you select the center point of the circle on the bottom of the part.
+10 	Right-click in the graphics window
+and select Isometric (WCS). This
+rotates your view back to Isometric.
+
+-- 45 of 64 --
+
+42 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+11 	Select the circle center point indicated below on the fixture. Be sure that you
+select the center point of the circle on the top of the fixture.
+12 	Click OK in the Translate dialog box to exit the dialog box and move the part
+onto the fixture.
+Notice that after moving the solid body and geometry, the toolpaths are
+marked dirty.
+
+-- 46 of 64 --
+
+PLACING THE PART ON THE FIXTURE 43
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+13 	In the Toolpaths Manager, click the
+Regenerate all dirty operations
+button.
+14 	Select the Lock Body toolpath
+group.
+15 	Click the Toggle display on
+selected operations button.
+16 	Notice where the toolpaths are located.
+The toolpaths are no longer dirty, but they are not machining the part
+correctly.
+17 	Click the Toggle display on selected operations button again to hide the
+toolpaths.
+18 	Save your file.
+
+-- 47 of 64 --
+
+44 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+Exercise 3: Creating New WCS Planes
+In this exercise, you create two new WCS planes corresponding to the geometry to be
+machined, one plane for the Contour (Ramp) toolpath and one plane for both the
+Dynamic Mill and Contour (2D) toolpath.
+1 	Select Level in the Status Bar.
+The Level Manager dialog box
+displays.
+2 	In the Level Manager dialog box,
+click in the Number column for level
+3: WF to change it to the main level.
+3 	Select the Visible column for 10:
+Fixture, 1: Lock Back, and 3: WF.
+The graphics window no longer
+displays the Fixture level or the Lock
+Back level.
+4 	Click OK to exit the Level Manager dialog box.
+You will first create a WCS plane for the Contour (Ramp) toolpath.
+5 	Select WCS, WCS by geometry
+from the Status Bar.
+
+-- 48 of 64 --
+
+CREATING NEW WCS PLANES 45
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Select the arc shown below. The Select plane dialog box displays, along with
+the XYZ Gnomon.
+7 	Cycle through the potential planes
+until the one shown in the image is
+displayed and click OK.
+The New Plane dialog box displays.
+8 	Enter Ramp for the plane name.
+9 	Click OK to close the New Plane dialog box and create the new plane.
+Now you create the plane for the Dynamic Mill and Contour (2D) toolpath.
+
+-- 49 of 64 --
+
+46 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+10 	Select WCS, WCS by geometry
+from the Status Bar.
+11 	Select the lines shown below, in the order they are numbered. The Select
+plane dialog box displays, along with the XYZ Gnomon.
+You may need to zoom in to select the second line.
+12 	Cycle through the potential planes
+until the one shown in the image is
+displayed and click OK.
+The New Plane dialog box displays.
+
+-- 50 of 64 --
+
+UPDATING THE CONTOUR (RAMP) TOOLPATH 47
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+13 	Enter 2D Mill for the plane name.
+14 	Click OK to close the New Plane dialog box and create the new plane.
+Exercise 4: Updating the Contour (Ramp) Toolpath
+In this exercise, you update the three toolpaths to use the WCS planes created in the
+previous exercise.
+1 	Select Level in the Status Bar.
+The Level Manager dialog box
+displays.
+2 	Select the Visible column for 1:Lock
+Back.
+3 	Click OK to exit the Level Manager dialog box.
+4 	In the Toolpaths Manager, select
+Parameters under the Contour
+(Ramp) toolpath.
+The 2D Toolpaths - Contour dialog
+box displays.
+5 	Select the Planes (WCS) page.
+
+-- 51 of 64 --
+
+48 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Click the Select WCS plane button
+under the Working coordinate
+system group.
+The Plane Selection dialog box
+displays.
+7 	Select Ramp from the plane list.
+8 	Click OK.
+
+-- 52 of 64 --
+
+UPDATING THE CONTOUR (RAMP) TOOLPATH 49
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+9 	Click the Copy to tool plane and Copy to construction plane buttons,
+shown below.
+By setting the Tool plane and Comp/construction plane to the WCS, you will
+see tool motion commands dimensioned from the part origin, as if it was lying
+flat.
+10 	Click OK to save your changes and exit the 2D Toolpaths - Contour dialog
+box.
+11 	In the Toolpaths Manager, click the
+Regenerate all dirty operations
+button.
+This regenerates the Contour
+toolpath.
+12 	Select the Contour (Ramp) toolpath.
+13 	With the toolpath selected, click the
+Toggle display on selected
+operations button.
+
+-- 53 of 64 --
+
+50 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+14 	Notice how the toolpath is now correctly machining the part.
+15 	Click the Toggle display on selected operations button again to hide the
+toolpath.
+16 	Save your file.
+Exercise 5: Updating the Dynamic Mill Toolpath
+1 	In the Toolpaths Manager, select
+Parameters under the 2D High
+Speed (2D Dynamic Mill) toolpath.
+The 2D High Speed Toolpath -
+Dynamic Mill dialog box displays.
+2 	Select the Planes (WCS) page.
+
+-- 54 of 64 --
+
+UPDATING THE DYNAMIC MILL TOOLPATH 51
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+3 	Click the Select WCS plane button
+under the Working coordinate
+system group.
+The Plane Selection dialog box
+displays.
+4 	Select 2D Mill from the plane list
+and click OK.
+5 	Click the Copy to tool plane and Copy to construction plane buttons.
+6 	Click OK to save your changes and exit the 2D High Speed Toolpath -
+Dynamic Mill dialog box.
+7 	In the Toolpaths Manager, click the
+Regenerate all dirty operations
+button.
+This regenerates the Dynamic Mill
+toolpath.
+
+-- 55 of 64 --
+
+52 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+8 	Select the 2D Dynamic Mill toolpath.
+9 	With the toolpath selected, click the
+Toggle display on selected
+operations button.
+10 	Notice how the toolpath is now correctly machining the part.
+11 	Click the Toggle display on selected operations button again to hide the
+toolpath.
+12 	Save your file.
+Exercise 6: Updating the Contour (2D) Toolpath
+Now you assign the second plane to the Contour (2D) toolpath.
+
+-- 56 of 64 --
+
+UPDATING THE CONTOUR (2D) TOOLPATH 53
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+1 	In the Toolpaths Manager, select
+Parameters under the Contour (2D)
+toolpath.
+The 2D Toolpaths - Contour dialog
+box displays.
+2 	Select the Planes (WCS) page.
+3 	Click the Select WCS plane button
+under the Working coordinate
+system group.
+The Plane Selection dialog box
+displays.
+4 	Select 2D Mill from the plane list
+and click OK.
+5 	Click the Copy to tool plane and Copy to construction plane buttons.
+
+-- 57 of 64 --
+
+54 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+6 	Click OK to save your changes and exit the 2D Toolpaths - Contour dialog
+box.
+7 	In the Toolpaths Manager, click the
+Regenerate all dirty operations
+button.
+8 	Select the Contour (2D) toolpath.
+9 	With the toolpath selected, click the
+Toggle display on selected
+operations button.
+10 	Notice how the toolpath is now correctly machining the part.
+
+-- 58 of 64 --
+
+BACKPLOTTING THE TOOLPATHS 55
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+11 	Click the Toggle display on selected operations button again to hide the
+toolpath.
+12 	Save your file.
+Exercise 7: Backplotting the Toolpaths
+In this exercise, you will backplot the toolpaths to see the tool motion.
+1 	Select the Lock Body toolpath
+group in the Toolpaths Manager to
+select all of the toolpaths.
+2 	Click Backplot selected operations
+in the Toolpaths Manager.
+The Backplot dialog box displays.
+3 	Select Display tool and Display
+holder, if necessary.
+4 	Click Play to see the tool machine
+the toolpath.
+
+-- 59 of 64 --
+
+56 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+The tool axis does not rotate.
+5 	Click OK in the Backplot dialog box when you have finished reviewing the tool
+motion.
+6 	Save your file.
+Conclusion
+Congratulations! You have completed the
+Introduction to the Work Coordinate
+System (WCS) tutorial. Now that you have mastered the skills in this tutorial, explore
+Mastercam’s other features and functions.
+You may be interested in other tutorials that we offer. The Mastercam tutorial series is
+in continual development, and we will add modules as we complete them. For infor-
+mation and availability, please visit our website.
+Mastercam Resources
+Enhance your Mastercam experience by using the following resources:
+	
+Mastercam Help—Access Mastercam Help by selecting Help, Contents from
+Mastercam’s menu bar or by pressing [Alt+H] on your keyboard.Also, most
+dialog boxes and ribbon bars feature a Help button that opens Mastercam
+Help directly to related information.
+	
+Mastercam Reseller—Your local Mastercam Reseller can help with most
+questions about Mastercam.
+
+-- 60 of 64 --
+
+MASTERCAM DOCUMENTATION 57
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+	
+Technical Support—CNC Software’s Technical Support department (860-875-
+5006 or support@mastercam.com) is open Monday through Friday from 8:00
+a.m. to 5:30 p.m. USA Eastern Standard Time.
+	
+Mastercam University—CNC Software sponsors Mastercam University, an
+affordable online learning platform that gives you 24/7 access to Mastercam
+training materials. Take advantage of more than 180 videos to master your
+skills at your own pace and help prepare yourself for Mastercam Certification.
+For more information on Mastercam University, please contact your
+Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+training@mastercam.com.
+	
+Online communities— You can find a wealth of information, including many
+videos, at www.mastercam.com.
+For tech tips and the latest Mastercam news, you can join us on Facebook
+(www.facebook.com/mastercam), follow us on Twitter (www.twitter.com/
+mastercam), and subscribe to our blog,
+Mastercam Xtras (http://
+blog.mastercam.com). Visit our YouTube channel to see Mastercam in action
+(www.youtube.com/user/MastercamCadCam)!
+Registered users can search for information or ask questions on the
+Mastercam Web forum, forum.mastercam.com, or use the knowledge base at
+kb.mastercam.com. To register, select Help, Link on Mastercam.com from
+the Mastercam menu and follow the instructions.
+Mastercam Documentation
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+	
+What’s New in Mastercam X8
+	
+Mastercam X8 Installation Guide
+	
+Mastercam X8 Administrator Guide
+	
+Mastercam X8 Transition Guide
+	
+Mastercam X8 Quick Reference Card
+	
+Mastercam X8 Post Debugger User’s Guide
+	
+Getting Started with Renishaw Productivity+™
+	
+Mastercam X8 ReadMe
+
+-- 61 of 64 --
+
+58 MASTERCAM X8/ Updating Previously Created Toolpaths
+INTRODUCTION TO THE WORK COORDINATE SYSTEM (WCS)
+Contact Us
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+
+-- 62 of 64 --
+
+
+
+-- 63 of 64 --
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+Attention! Updates may be available.
+Go to Mastercam.com/Support for the latest downloads.
+
+-- 64 of 64 --
+
+</pre>
+</body></html>

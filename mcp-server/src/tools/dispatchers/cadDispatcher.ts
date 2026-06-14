@@ -16,6 +16,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
+import { crossSourceDimensionReconciliationEngine } from "../../engines/CrossSourceDimensionReconciliationEngine.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
@@ -105,6 +106,12 @@ async function resolveAirfoilProfile(param: any): Promise<any> {
 const ACTIONS = [
   "geometry_create", "geometry_transform", "geometry_analyze",
   "mesh_generate", "mesh_import", "mesh_export",
+  // B-Rep tessellator — STEP entity-map → triangle mesh (U-GAP-CAD-BREP-TESSELLATOR)
+  "brep_tessellate",
+  // Geodesic distance on triangle meshes (U-GAP-CAD-GEODESIC)
+  "geodesic_dijkstra", "geodesic_fast_marching", "geodesic_path", "geodesic_iso_curves",
+  // CAD-AI → CAM-AI autonomous handoff bridge (U-BRIDGE-CAD-CAM-HANDOFF)
+  "cad_cam_handoff",
   "feature_recognize", "feature_edit",
   "stock_model", "wcs_setup",
   "dfm_check", "face_mill_select", "deep_hole_technique",
@@ -203,6 +210,7 @@ const ACTIONS = [
   "cad_trial_ingest", "cad_trial_patterns", "cad_trial_recommend", "cad_trial_stats", "cad_trial_reset",
   // CAD Geometry Comparison Engine (U-CADC26)
   "geometry_compare_files", "geometry_extract_metrics", "geometry_batch_compare",
+  "geometry_hausdorff", // control-point-cloud Hausdorff shape distance (mm + % of bbox diag) -- meaningful shape gate vs count Jaccard
   "geometry_set_thresholds", "geometry_format_detect",
   // Universal CAD Registry (U-CADC03)
   "cad_registry_scan", "cad_registry_search", "cad_registry_get", "cad_registry_stats",
@@ -217,9 +225,9 @@ const ACTIONS = [
   // CAD-FUSION-LIVE-MS0 training surface (U-CAD-CORPUS-PHASE1..8)
   "cad_corpus_ingest", "cad_corpus_load_manifest", "cad_corpus_find_by_class", "cad_corpus_summarize",
   "cad_corpus_mine_patterns", "cad_corpus_recover_unclassified",
-  "cad_class_template", "cad_class_predict_fidelity", "cad_class_build_sequence",
+  "cad_class_template", "cad_class_predict_fidelity", "cad_class_build_sequence", "cad_class_build_sequence_evidence",
   "cad_class_drive_build",
-  "cad_corpus_learn_prevalence", "cad_corpus_apply_learned",
+  "cad_corpus_learn_prevalence", "cad_corpus_apply_learned", "cad_corpus_overlay_status",
   "cad_step_parse_file", "cad_step_parse_string", "cad_step_evidence_for_kinds",
   "cad_blueprint_infer_class", "cad_blueprint_flag_features",
   // BLUEPRINT-OCR-TRAINING-MS1/U-MS1-U3 — ground-truth registry blueprint join
@@ -336,6 +344,7 @@ const ACTIONS = [
   "cad_surface_finish_predict_batch",  // SurfaceFinishCnnEngine.predictBatch
   "cad_surface_finish_model_metadata", // SurfaceFinishCnnEngine.getModelMetadata
   "cad_machine_capability_get",        // MachineCapabilitySurfaceEngine.getCapabilitySummary
+  "cad_machine_capability_with_accuracy", // U-DEA-november-P02: MachineCapabilitySurfaceEngine.getCapabilityWithAccuracy — chains acc_volumetric+acc_abbe_offset+acc_ball_bar at lookup
   "cad_machine_capability_controller", // MachineCapabilitySurfaceEngine.getControllerCapabilities
   "cad_machine_capability_compare",    // MachineCapabilitySurfaceEngine.compareCapabilities
   "cad_machine_capability_find",       // MachineCapabilitySurfaceEngine.findByCapabilities
@@ -362,6 +371,185 @@ const ACTIONS = [
   // WIRE-UNWIRED-MS0/U-WIRE-CADBRIDGE — CadBridge (Python CAD subprocess) operability surface.
   // Pure-inspection action: reports singleton + subprocess state WITHOUT spawning the bridge.
   "cad_bridge_status",
+  // CAD-COMPLETE-MS0/U-CADC-LP01 — CADExecutionOutcomeBusEngine (closed-loop NN feedback)
+  "cad_outcome_publish",        // publish a CAD execution outcome (dual-channel: durable + in-process)
+  "cad_outcome_stats",          // read the bus's running counters
+  "cad_outcome_subscribers",    // count active in-process subscribers
+  // CAD-COMPLETE-MS0/U-CADC-LP02 — CADPerAdapterFeedbackCollectorEngine (per-NN-head feedback)
+  "cad_feedback_metrics",       // windowed per-NN-head feedback metrics (one head, or all)
+  "cad_feedback_buffer",        // copy of one NN head's feedback sample buffer
+  "cad_feedback_stats",         // aggregate per-adapter collector counters
+  // CAD-COMPLETE-MS0/U-CADC-LP03 — CADHeadReplayBufferEngine (prioritized replay)
+  "cad_replay_stats",           // aggregate prioritized-replay-buffer counters
+  "cad_replay_entries",         // copy of one NN head's prioritized replay entries
+  // CAD-COMPLETE-MS0/U-CADC-LP04 — MasterBrainBackpropPropagatorEngine
+  "cad_backprop_params",        // read current θ + EWC++ Fisher/θ* for a target
+  "cad_backprop_stats",         // aggregate propagator counters
+  // CAD-COMPLETE-MS0/U-CADC-NN01 — CADFoundationEncoderEngine (shared tokenizer)
+  "cad_encoder_vocab",          // snapshot of CAD_OPERATION_KINDS tokenizer vocab
+  "cad_encoder_stats",          // aggregate encoder counters
+  // CAD-DRAW-MAX-MS0/P0-U01 — HyperCADSLiveBridgeEngine (per-op live mutate via AC Python)
+  "hypercads_live_new_doc", "hypercads_live_sketch", "hypercads_live_extrude",
+  "hypercads_live_fillet", "hypercads_live_chamfer", "hypercads_live_revolve",
+  "hypercads_live_hole", "hypercads_live_pattern", "hypercads_live_combine",
+  "hypercads_live_shell", "hypercads_live_export", "hypercads_live_geometry",
+  "hypercads_live_undo", "hypercads_live_regenerate", "hypercads_live_execute_raw",
+  "hypercads_live_stats", "hypercads_live_list_sessions",
+  // CAD-DRAW-MAX-MS0/P0-U02 — HyperCADSOutcomePublisherEngine
+  "cad_hypercads_outcome_stats",   // aggregate publisher counters
+  "cad_hypercads_outcome_adapter", // canonical adapterId for hyperCAD-S
+  // CAD-DRAW-MAX-MS0/P0-U03 — CADRegenFeedbackAdapterEngine
+  "cad_regen_feedback_publish",    // publish hyperCAD outcome WITH regen-test overlay
+  "cad_regen_feedback_stats",      // aggregate adapter counters
+  // CAD-DRAW-MAX-MS0/P1-U04 — CADArgEncoderEngine
+  "cad_arg_encoder_encode",        // encode one CADOperationArgs → 8-d vector
+  "cad_arg_encoder_batch",         // encode an op stream → per-op arg vectors (or pooled)
+  "cad_arg_encoder_stats",         // aggregate encoder counters
+  // CAD-DRAW-MAX-MS0/P1-U06 — CADOperationDecoderEngine
+  "cad_decoder_propose",           // propose next CADOperation from context + intent
+  "cad_decoder_propose_topk",      // top-K candidates ordered by score
+  "cad_decoder_vocab",             // forwarded CAD_OPERATION_KINDS
+  "cad_decoder_stats",             // aggregate decoder counters
+  // CAD-DRAW-MAX-MS0/P1-U05 — CADSequencePoolEngine
+  "cad_sequence_pool",             // pool rows via one strategy (mean/max/last/exp-decay/attention)
+  "cad_sequence_pool_all",         // pool rows via ALL 5 strategies (ablation / inspection)
+  "cad_sequence_pool_strategies",  // list supported strategy names
+  "cad_sequence_pool_stats",       // aggregate pool counters
+  // CAD-DRAW-MAX-MS0/P1-U07 — CADUnifiedFeatureBridgeEngine
+  "cad_unified_feature_encode",    // compose NN01 + Arg + Pool → 33-d feature
+  "cad_unified_feature_layout",    // layout metadata (slot offsets)
+  "cad_unified_feature_stats",     // aggregate bridge counters
+  // CAD-DRAW-MAX-MS0/P1-U09 — CADToleranceSignalEncoderEngine
+  "cad_tolerance_encode",          // GD&T callouts → 6-d constraint signal
+  "cad_tolerance_augment",         // 33-d unified + 6-d tolerance → 39-d augmented
+  "cad_tolerance_stats",           // aggregate tolerance-encoder counters
+  // CAD-DRAW-MAX-MS0/FINAL — CADDrawAnyPartOrchestratorEngine
+  "cad_draw_any_part",             // end-to-end propose→execute→publish loop on hyperCAD-S
+  "cad_draw_any_part_stats",       // aggregate orchestrator counters
+  // CAD-DRAW-MAX-MS1/U-VALIDATION-50 — CADDrawAnyPartValidationHarnessEngine
+  "cad_draw_any_part_validate",        // run validation harness against ValidationTestCase[] → ValidationReport
+  "cad_draw_any_part_validate_render", // render ValidationReport → operator-readable markdown
+  // CAD-DRAW-MAX-MS1/U-VALIDATION-50-SCORING — CADValidationRubricEngine
+  "cad_validation_rubric_score",       // rich-rubric breakdown for a single DrawAnyPartResult
+  "cad_validation_rubric_score_case",  // rich verdict (pluggable into harness opts.scorer)
+  // CAD-DRAW-MAX-MS1/U-VALIDATION-50-CORPUS — JM Die curated starter corpus
+  "cad_validation_corpus_get",         // load JM Die 12-case starter corpus (optionally domain-filtered)
+  "cad_validation_corpus_summary",     // version + total + per-domain count + case ids
+  // CAD-DRAW-MAX-MS1/U-VALIDATION-ROUNDTRIP — CADRoundTripValidationEngine (print → CAD → print → dim-diff)
+  "cad_validation_round_trip",         // full round-trip: OCR → draw → extract → regen-print → diff
+  // CAD-DRAW-MAX-MS1/U-CAD-DIM-EXTRACT — CADModelDimensionExtractorEngine
+  "cad_model_dim_extract",             // walk DrawAnyPartResult.opLog → PrintDimension[]
+  "cad_dimension_reconcile",           // CrossSourceDimensionReconciliationEngine — reconcile print+cad+cnc dim candidates → consensus + conflicts
+  // CAD-DRAW-MAX-MS1/U-PRINT-REGEN-LIVE — CADPrintRegeneratorEngine
+  "cad_print_regenerate",              // regenerate dimensioned print from CAD model (dims + markdown)
+  // CAD-COMPLETE-MS0/U-CADC32 — CADPartArchetypeRegistryEngine (PHASE-7 ML-Powered Template Auto-Generation)
+  "cad_part_archetype_list",           // list all 8 registered archetypes (boss/rib/slot/keyway/pocket/2 holes/thread)
+  "cad_part_archetype_get",            // get one archetype by kind
+  "cad_part_archetype_materialize",    // expand archetype + params → CADOperation[] (R12 fail-loud on missing params)
+  "cad_part_archetype_summary",        // schemaVersion + count + kinds list
+  // CAD-COMPLETE-MS0/U-CADC33 — CADJMDieArchetypeFrequencyEngine (PHASE-7 empirical prior from JM Die corpus)
+  "cad_jmdie_archetype_prior",         // get JM Die empirical frequency prior for an archetype kind
+  "cad_jmdie_archetype_ranked",        // archetypes ranked by descending JM Die frequency
+  "cad_jmdie_archetype_posterior",     // apply Bayes-style evidence: prior × likelihood → ranked posterior
+  "cad_jmdie_archetype_summary",       // schemaVersion + sourceCorpus + sum + top1
+  // CAD-COMPLETE-MS0/PHASE-31 U-CADC-NN04+NN05+NN06 — CADSystemNeuralArchAdapterEngine (Fusion+SolidWorks+Inventor adapter)
+  "cad_system_neural_arch_canonicalize",  // per-CAD-system FeatureSpec[] → canonical (training input unification)
+  "cad_system_neural_arch_nativize",      // canonical FeatureSpec[] → per-CAD-system native (output side)
+  "cad_system_neural_arch_rules",         // get CADSystemFeatureRules for a system
+  "cad_system_neural_arch_summary",       // supported systems + per-system feature count
+  // CAD-COMPLETE-MS0/PHASE-31 synergy layer — CADMultiSystemAIProducerEngine (top-level any-CAD-any-part facade)
+  "cad_multi_system_produce_part",        // produce a part on any priority CAD system from PartIntent
+  "cad_multi_system_produce_assembly",    // produce a multi-part assembly on any priority CAD system
+  "cad_multi_system_supported",           // list supported CAD systems with bridge names
+  "cad_multi_system_summary",             // schemaVersion + supportedSystems + bridgeMap
+  // KNOWLEDGE-EXTRACT-COMPLETE-MS0/U-KEC-CAD-PARAM-EMITTER — CADFunctionParameterEmitterEngine
+  "cad_function_param_emit",              // emit wiki + tribal + nn-graph nodes from CADParameter[] tree
+  "cad_function_param_emit_summary",      // schemaVersion + supportedSystems + emitSurfaces
+  // CAD-DRAW-MAX-MS0/P1-U08 — HyperCADSTutorialCorpusIngesterEngine
+  "hypercads_tutorial_corpus_ingest",  // tutorial prose → op tips + GD&T conventions
+  "hypercads_tutorial_corpus_stats",   // aggregate corpus-ingester counters
+  // CAD-REVERSE-ENGINEER-MS0/U1 — CADReverseTemplateEngine
+  "cad_reverse_template",          // feature tree → categorized+named parameterized template
+  "cad_reverse_categorize",        // feature tree → part category only (fast path)
+  "cad_reverse_template_stats",    // aggregate reverse-engineering counters
+  // CAD-CLOSED-LOOP-MS0 -- CADRegenCorrectionEngine (Stage-6 CORRECT->CONVERGE)
+  "cad_regen_correct",             // compare delta + params -> corrected params + convergence verdict
+  "cad_regen_apply_template",      // write corrections back into an opTemplate (close to GENERATE)
+  "cad_regen_params_from_template",// reverse template + metric->param map -> CorrectionParam[]
+  "cad_regen_stats",               // aggregate correction-engine counters
+  // CAD-REVERSE-ENGINEER-MS0/U2 — CADCanonicalTreeAdapterEngine
+  "cad_canonical_to_ops",          // CanonicalFeatureTree → CADOperation[]
+  "cad_canonical_reverse_engineer",// CanonicalFeatureTree → categorized template (one call)
+  "cad_canonical_adapt_stats",     // aggregate adapter counters
+  // CAD-REVERSE-ENGINEER-MS0/U3 — CADReverseCorpusCatalogEngine
+  "cad_corpus_catalog_build",      // CanonicalFeatureTree[] → deduplicated catalog
+  "cad_corpus_catalog_merge",      // fold two chunk catalogs into one
+  "cad_corpus_catalog_stats",      // aggregate catalog-builder counters
+  // CAD-COMPLETE-MS0/U-AI-03 — UnitOfMeasureDisambiguationEngine (mm/inch resolver)
+  "cad_uom_resolve",               // resolve one dimensional value (explicit or implicit) → canonical mm
+  "cad_uom_resolve_batch",         // resolve a batch; earlier values anchor the unit for later ones
+  "cad_uom_convert",               // explicit numeric mm↔inch conversion
+  // CAD-COMPLETE-MS0/U-AI-12 — RiskTierClassifierEngine (CAD-op risk tier)
+  "cad_risk_classify",             // classify one CAD operation → low/medium/high/critical
+  "cad_risk_classify_batch",       // classify a batch of operations op-by-op
+  "cad_risk_classify_plan",        // classify a multi-op plan as a whole (peak + cumulative blast)
+  // CAD-COMPLETE-MS0/U-AI-09 — CADAppCircuitBreakerEngine (per-CAD-app breaker)
+  "cad_breaker_can_proceed",       // may a call to this CAD app proceed? (open→half_open transitions here)
+  "cad_breaker_record_success",    // record a successful CAD app call
+  "cad_breaker_record_failure",    // record a failed CAD app call
+  "cad_breaker_state",             // current breaker state for one CAD app
+  "cad_breaker_snapshot",          // breaker state for every tracked CAD app
+  "cad_breaker_configure",         // override breaker thresholds for one CAD app
+  // CAD-COMPLETE-MS0/U-AI-01 — CADFallbackRoutingEngine (preferred→next-best routing)
+  "cad_fallback_route",            // route an op to the best available CAD app (preferred → fallback)
+  "cad_fallback_register",         // register CAD app profiles in the routing registry
+  "cad_fallback_list",             // list registered CAD apps, ranked by priority
+  "cad_fallback_reset",            // clear the CAD app routing registry
+  // CAD-COMPLETE-MS0/U-AI-02 — CADWorldModelEngine (CAD agent's document belief-state)
+  "cad_world_apply_op",            // apply one operation to a document's world model
+  "cad_world_state",               // current believed state of a document
+  "cad_world_checkpoint",          // save the document's current state as its diff baseline
+  "cad_world_diff",                // diff the document against its last checkpoint
+  "cad_world_detect_drift",        // compare the belief-state against an observation of the real document
+  "cad_world_reset",               // reset one document (or all) to a fresh empty model
+  // CAD-COMPLETE-MS0/U-AI-10 — CADTraceAssemblyEngine (OTel span -> end-to-end trace view)
+  "cad_trace_assemble",            // assemble a flat span list into per-traceId end-to-end trace views
+  "cad_trace_get",                 // assemble a single trace by id from a flat span list
+  "cad_trace_from_tracer",         // pull spans from the live OpenTelemetryTracingEngine and assemble
+  // CAD-COMPLETE-MS0/U-AI-08 — CADTransactionEngine (atomic begin/apply/commit/rollback over CADWorldModelEngine)
+  "cad_txn_begin",                 // open a transaction for a docId; snapshots state as the rollback baseline
+  "cad_txn_apply",                 // apply one op inside the txn; throws + auto-rolls-back on world-model rejection
+  "cad_txn_commit",                // finalise the txn; returns diff vs baseline + final state (terminal)
+  "cad_txn_rollback",              // restore the txn's baseline + release the doc lock (terminal)
+  "cad_txn_status",                // read-only status snapshot of a txn (null if unknown)
+  "cad_txn_list",                  // list every txn (optionally filtered by docId), oldest first
+  "cad_txn_apply_all",             // begin + apply each op + commit-or-rollback in one call
+  "cad_txn_reset",                 // drop every txn + release every doc lock (test / hygiene hook)
+  // CAD-COMPLETE-MS0/U-AI-07 — CADPreviewEngine (pure dry-run preview over CADTransactionEngine; real world is NEVER mutated, even on success)
+  "cad_preview_apply",             // project a single op to a sandboxed copy + return diff WITHOUT touching real world
+  "cad_preview_apply_all",         // project an ordered batch (atomic — all-or-nothing) + return diff WITHOUT touching real world
+  // CAD-COMPLETE-MS0/U-AI-11 — CADConsensusEngine (pure structural-agreement scoring over N CADWorldDiff predictions; no LLM calls)
+  "cad_consensus_score",           // per-field support + pairwise Jaccard + meanAgreement over N predictions
+  "cad_consensus_pick",            // medoid selection (highest mean Jaccard) + dissenters below threshold
+  "cad_consensus_parameter_clusters", // numerical-value clusters per parameter (merge within PARAM_EPSILON)
+  // -- iter5+6+7 wire-unwired-loop: 16 CAD engines --
+  "engine_digest_get",
+  "freecad_automation_run",
+  "autocad_dotnet_bridge_open",
+  "autocad_addin_plugin_register",
+  "nx_open_sketch_create",
+  "cad_to_step_pipeline_run",
+  "cad_screenshot_capture",
+  "per_app_incad_infer",
+  "fusion360_generator_adapt",
+  "fusion360_function_index_get",
+  "hypercad_function_index_get",
+  "five_axis_cad_template_process",
+  "two_pass_cascade_run",
+  "cascade_fallback_chain_run",
+  "cad_live_blueprint_ocr",
+  // ── DEA-MS0/U-DEA-november-P06 — probe drift → probe routine bridge ──
+  "cad_probe_drift_routine_bridge",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -396,6 +584,14 @@ Params vary by action — pass relevant fields in params object.`,
         }
 
         switch (action) {
+          case "cad_dimension_reconcile": {
+            // XRAY cross-source dimension determination: reconcile dimension candidates from
+            // print(OCR) + cad(geometry) + cnc(toolpath) into a consensus set with agreement
+            // confidence + flagged conflicts. params.candidates: DimCandidate[]; params.opts: tolerances.
+            const candidates = Array.isArray(params.candidates) ? params.candidates : [];
+            result = { success: true, data: crossSourceDimensionReconciliationEngine.reconcile(candidates, (params.opts as any) ?? {}) };
+            break;
+          }
           case "geometry_create": {
             const engine = await getEngine("cad");
             result = engine.createGeometry?.(params) ?? { type: params.type || "box", created: true, params };
@@ -424,6 +620,104 @@ Params vary by action — pass relevant fields in params object.`,
           case "mesh_export": {
             const engine = await getEngine("mesh");
             result = engine.exportMesh?.(params) ?? { exported: true, format: params.format || "stl" };
+            break;
+          }
+          case "geodesic_dijkstra": {
+            const { GeodesicDistanceEngine, DijkstraInputSchema } =
+              await import("../../engines/GeodesicDistanceEngine.js");
+            const parsed = DijkstraInputSchema.parse({
+              mesh: params.mesh,
+              sourceVertices: params.sourceVertices,
+            });
+            const distances = GeodesicDistanceEngine.computeDijkstra(
+              parsed.mesh as never, parsed.sourceVertices
+            );
+            result = { success: true, data: { distances } };
+            break;
+          }
+          case "geodesic_fast_marching": {
+            const { GeodesicDistanceEngine, FastMarchingInputSchema } =
+              await import("../../engines/GeodesicDistanceEngine.js");
+            const parsed = FastMarchingInputSchema.parse({
+              mesh: params.mesh,
+              sourceVertices: params.sourceVertices,
+            });
+            const distances = GeodesicDistanceEngine.computeFastMarching(
+              parsed.mesh as never, parsed.sourceVertices
+            );
+            result = { success: true, data: { distances } };
+            break;
+          }
+          case "geodesic_path": {
+            const { GeodesicDistanceEngine, PathInputSchema } =
+              await import("../../engines/GeodesicDistanceEngine.js");
+            const parsed = PathInputSchema.parse({
+              mesh: params.mesh,
+              start: params.start,
+              end: params.end,
+            });
+            result = {
+              success: true,
+              data: GeodesicDistanceEngine.computePath(
+                parsed.mesh as never, parsed.start, parsed.end
+              ),
+            };
+            break;
+          }
+          case "geodesic_iso_curves": {
+            const { GeodesicDistanceEngine, IsoCurvesInputSchema } =
+              await import("../../engines/GeodesicDistanceEngine.js");
+            const parsed = IsoCurvesInputSchema.parse({
+              mesh: params.mesh,
+              sourceVertices: params.sourceVertices,
+              levels: params.levels,
+            });
+            result = {
+              success: true,
+              data: {
+                curves: GeodesicDistanceEngine.computeIsoCurves(
+                  parsed.mesh as never, parsed.sourceVertices, parsed.levels
+                ),
+              },
+            };
+            break;
+          }
+          case "brep_tessellate": {
+            // U-GAP-CAD-BREP-TESSELLATOR — STEP B-Rep entity-map → triangle mesh.
+            // Caller must pass `stepData.byType` and `entityMap` already parsed
+            // (e.g. via AtomicStepDecomposerEngine). MCP boundary serializes Maps
+            // as plain objects; rehydrate when params.stepData.byType is a Record.
+            const { BRepTessellatorEngine, TessellateBrepInputSchema } =
+              await import("../../engines/BRepTessellatorEngine.js");
+            const options = TessellateBrepInputSchema.parse(params.options ?? {});
+            const rehydrateMap = <V>(src: unknown): Map<unknown, V> => {
+              if (src instanceof Map) return src as Map<unknown, V>;
+              if (src && typeof src === "object") {
+                return new Map(Object.entries(src as Record<string, V>).map(
+                  ([k, v]) => [Number.isNaN(Number(k)) ? k : Number(k), v]
+                ));
+              }
+              return new Map();
+            };
+            const stepData = (params.stepData ?? {}) as { byType?: unknown };
+            const byType = rehydrateMap(stepData.byType);
+            const entityMap = rehydrateMap(params.entityMap);
+            const mesh = BRepTessellatorEngine.tessellateBrep(
+              { byType: byType as Map<string, never[]>, entityMap: entityMap as Map<number, never> },
+              entityMap as Map<number, never>,
+              options
+            );
+            result = { success: true, data: mesh };
+            break;
+          }
+          case "cad_cam_handoff": {
+            // U-BRIDGE-CAD-CAM-HANDOFF — autonomously-generated CAD geometry
+            // (FeatureSpec[]) → operator-gated CAM strategy plan. Pure
+            // orchestration; delegates ranking to camStrategyRecommenderEngine.
+            const { CadCamHandoffEngine, CadCamHandoffInputSchema } =
+              await import("../../engines/CadCamHandoffEngine.js");
+            const input = CadCamHandoffInputSchema.parse(params);
+            result = { success: true, data: CadCamHandoffEngine.handoff(input) };
             break;
           }
           case "feature_recognize": {
@@ -1703,6 +1997,21 @@ Params vary by action — pass relevant fields in params object.`,
             }
             break;
           }
+          case "geometry_hausdorff": {
+            const engine = await getEngine("geoCompare");
+            const fileA = params?.original_path ?? params?.originalPath ?? params?.file_a ?? params?.fileA;
+            const fileB = params?.generated_path ?? params?.generatedPath ?? params?.file_b ?? params?.fileB;
+            if (!fileA || !fileB) {
+              result = { success: false, error: "original_path (fileA) and generated_path (fileB) required" };
+            } else {
+              const hres = engine.computeSurfaceHausdorff(fileA, fileB, {
+                sampleCap: params?.sample_cap ?? params?.sampleCap,
+                thresholdPercent: params?.threshold_percent ?? params?.thresholdPercent,
+              });
+              result = { success: true, ...hres };
+            }
+            break;
+          }
           case "geometry_set_thresholds": {
             const engine = await getEngine("geoCompare");
             if (params?.thresholds) {
@@ -1940,6 +2249,83 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: true, data: { sequence: seq, count: seq.length } };
             break;
           }
+          case "cad_class_build_sequence_evidence": {
+            // Wires LIVE STEP geometry corpus into build-sequence inference.
+            // Closes the gap named in reference_cad_fusion_training_2026_05_18:
+            // "geometry model not auto-wired into build-sequence inference".
+            //
+            // Hardening (per per-file scrutiny round 1):
+            //  - 16MB byte cap on the corpus file (matches ask-ollama.mjs / regen-viz
+            //    pattern — the host has demonstrated V8 string-cap OOMs on >512MB JSON
+            //    three times this month; same class).
+            //  - fs.stat first → fail-loud R12: success=false when the corpus file is
+            //    missing/oversized so a misconfigured CWD doesn't masquerade as a
+            //    healthy run.
+            //  - Shape validation of parsed JSON (per_class must be an array) — the
+            //    engine's own guards will reject the rest, but failing earlier here
+            //    gives a more actionable error.
+            const MAX_CORPUS_BYTES = 16 * 1024 * 1024; // 16 MB cap
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            const fs = await import("fs/promises");
+            const path = await import("path");
+            const url = await import("url");
+
+            // Anchor to the dispatcher file's resolved location, then climb to
+            // repo root. This is CWD-independent (process.cwd() flakes when the
+            // MCP server is launched from a service wrapper or test harness).
+            // dist/tools/dispatchers/cadDispatcher.js -> ../../.. = mcp-server/
+            const dispatcherDir = path.dirname(url.fileURLToPath(import.meta.url));
+            const repoMcpRoot = path.resolve(dispatcherDir, "..", "..", "..");
+            const reportPath = path.resolve(repoMcpRoot, "data/state/cad-corpus-step-geometry-report.json");
+
+            let corpusReport: unknown = null;
+            let corpusReadError: string | null = null;
+            try {
+              const st = await fs.stat(reportPath);
+              if (st.size > MAX_CORPUS_BYTES) {
+                corpusReadError = `corpus file exceeds ${MAX_CORPUS_BYTES} byte cap (size=${st.size}) — refusing to JSON.parse`;
+              } else {
+                const raw = await fs.readFile(reportPath, "utf8");
+                const parsed: unknown = JSON.parse(raw);
+                // Shape validation — engine guards too, but fail-loud here is friendlier.
+                if (!parsed || typeof parsed !== "object" || !Array.isArray((parsed as { per_class?: unknown }).per_class)) {
+                  corpusReadError = "corpus file parsed but shape is invalid (expected { per_class: Array<{ part_class, files_examined, feature_evidence_counts }> })";
+                } else {
+                  corpusReport = parsed;
+                }
+              }
+            } catch (e: unknown) {
+              corpusReadError = e instanceof Error ? e.message : String(e);
+            }
+
+            const evidence = cadClassFeatureLibraryEngine.buildSequenceForEvidence(
+              params.part_class,
+              {
+                corpus_report: corpusReport as never,
+                min_evidence_ratio: params.min_evidence_ratio,
+                fallback_prevalence_threshold: params.fallback_prevalence_threshold,
+              },
+            );
+
+            // R12: when the corpus read failed, surface success=false so the caller
+            // doesn't silently consume a template-fallback result thinking it's
+            // evidence-driven. The data block (with fallback sequence) is still
+            // attached so callers that DO want the degraded result can opt in.
+            result = {
+              success: corpusReadError === null,
+              data: {
+                sequence: evidence.sequence,
+                count: evidence.sequence.length,
+                caveats: evidence.caveats,
+                corpus_class_found: evidence.corpus_class_found,
+                corpus_report_path: reportPath,
+                corpus_read_error: corpusReadError,
+                degraded: corpusReadError !== null,
+              },
+              ...(corpusReadError !== null ? { error: corpusReadError } : {}),
+            };
+            break;
+          }
           case "cad_class_drive_build": {
             const { masterCADControlBrainEngine } = await import("../../engines/MasterCADControlBrainEngine.js");
             const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
@@ -1952,6 +2338,16 @@ Params vary by action — pass relevant fields in params object.`,
             const overrides: Record<string, { distance_mm?: number; radius_mm?: number; angle_deg?: number; reference_radius_mm?: number }> =
               params.feature_overrides ?? {};
             const dryRunOnly: boolean = params.dry_run === true;
+            // U-FGE02: optional evidence-ranked build ordering. When false (default),
+            // the orchestrator iterates baseline.missing_features in its natural order
+            // (preserves pre-2026-05-18 behavior exactly). When true, re-orders the
+            // missing-features list by corpus evidence_ratio (highest first) so the
+            // Fusion360 build path tackles the features the trained STEP corpus
+            // actually shows as class-typical BEFORE the long-tail ones.
+            const useCorpusEvidence: boolean = params.use_corpus_evidence === true;
+            const minEvidenceRatio: number | undefined = typeof params.min_evidence_ratio === "number"
+              ? params.min_evidence_ratio
+              : undefined;
 
             const baseline = await masterCADControlBrainEngine.cadAITrainingSurface(
               partClass, builtKinds, prevalenceThreshold,
@@ -1967,7 +2363,68 @@ Params vary by action — pass relevant fields in params object.`,
             const dispatched: Array<{ kind: string; build_hint: string; params: Record<string, unknown>; ok: boolean; error?: string }> = [];
             const skipped: Array<{ kind: string; reason: string }> = [];
 
-            for (const missingKind of baseline.missing_features) {
+            // U-FGE02: evidence-ranked re-ordering of missing_features. We DO NOT
+            // change the *set* of features iterated (per-feature prevalence + presence
+            // checks still happen inside the loop); only the *order*. R12 caveats from
+            // the engine surface here as evidenceCaveats — caller sees them in result.data.
+            let orderedMissing: string[] = [...baseline.missing_features];
+            const evidenceCaveats: string[] = [];
+            let corpusReadError: string | null = null;
+            let corpusReportPath: string | null = null;
+            let corpusClassFound = false;
+            if (useCorpusEvidence) {
+              const MAX_CORPUS_BYTES_DRIVE = 16 * 1024 * 1024;
+              const fsp = await import("fs/promises");
+              const pathMod = await import("path");
+              const urlMod = await import("url");
+              const dispatcherDirDrive = pathMod.dirname(urlMod.fileURLToPath(import.meta.url));
+              const mcpRootDrive = pathMod.resolve(dispatcherDirDrive, "..", "..", "..");
+              corpusReportPath = pathMod.resolve(mcpRootDrive, "data/state/cad-corpus-step-geometry-report.json");
+              let corpusReportDrive: unknown = null;
+              try {
+                const stDrive = await fsp.stat(corpusReportPath);
+                if (stDrive.size > MAX_CORPUS_BYTES_DRIVE) {
+                  corpusReadError = `corpus exceeds ${MAX_CORPUS_BYTES_DRIVE} byte cap (size=${stDrive.size})`;
+                } else {
+                  const rawDrive = await fsp.readFile(corpusReportPath, "utf8");
+                  const parsedDrive: unknown = JSON.parse(rawDrive);
+                  if (parsedDrive && typeof parsedDrive === "object" && Array.isArray((parsedDrive as { per_class?: unknown }).per_class)) {
+                    corpusReportDrive = parsedDrive;
+                  } else {
+                    corpusReadError = "corpus shape invalid (per_class not array)";
+                  }
+                }
+              } catch (e: unknown) {
+                corpusReadError = e instanceof Error ? e.message : String(e);
+              }
+
+              const evidence = cadClassFeatureLibraryEngine.buildSequenceForEvidence(
+                partClass as never,
+                {
+                  corpus_report: corpusReportDrive as never,
+                  min_evidence_ratio: minEvidenceRatio,
+                  fallback_prevalence_threshold: prevalenceThreshold,
+                },
+              );
+              corpusClassFound = evidence.corpus_class_found;
+              evidenceCaveats.push(...evidence.caveats);
+
+              // Build a kind→rank map from the evidence sequence. Then sort the
+              // missing-features list by rank (kinds present in the sequence first,
+              // in evidence order; kinds absent from the sequence preserve their
+              // original tail order via a stable secondary key).
+              const rankByKind = new Map<string, number>();
+              evidence.sequence.forEach((f, i) => rankByKind.set(f.kind, i));
+              orderedMissing.sort((a, b) => {
+                const ra = rankByKind.has(a) ? (rankByKind.get(a) as number) : Number.POSITIVE_INFINITY;
+                const rb = rankByKind.has(b) ? (rankByKind.get(b) as number) : Number.POSITIVE_INFINITY;
+                if (ra !== rb) return ra - rb;
+                // Stable secondary key: original index in baseline.missing_features
+                return baseline.missing_features.indexOf(a) - baseline.missing_features.indexOf(b);
+              });
+            }
+
+            for (const missingKind of orderedMissing) {
               const ft = tmpl?.features.find((f) => f.kind === missingKind);
               if (!ft) {
                 skipped.push({ kind: missingKind, reason: "feature not in template (template/missing-list mismatch)" });
@@ -2045,6 +2502,15 @@ Params vary by action — pass relevant fields in params object.`,
                 dispatched,
                 skipped,
                 visual_fidelity_notes: upgraded.visual_fidelity_notes,
+                // U-FGE02: evidence-ranked-build telemetry. When use_corpus_evidence=false
+                // (default), every field below is the zero-state — preserves pre-2026-05-18
+                // result shape additively (callers reading other fields see unchanged data).
+                use_corpus_evidence: useCorpusEvidence,
+                evidence_ordered_missing: useCorpusEvidence ? orderedMissing : null,
+                evidence_caveats: useCorpusEvidence ? evidenceCaveats : [],
+                corpus_class_found: useCorpusEvidence ? corpusClassFound : null,
+                corpus_report_path: corpusReportPath,
+                corpus_read_error: corpusReadError,
               },
             };
             break;
@@ -2065,12 +2531,36 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "cad_corpus_apply_learned": {
             const { cadCorpusFeaturePrevalenceLearnerEngine } = await import("../../engines/CADCorpusFeaturePrevalenceLearnerEngine.js");
+            const smoothingAlpha = params.smoothing_alpha ?? 0.7;
             const blended = cadCorpusFeaturePrevalenceLearnerEngine.applyLearned(
               params.hand_tuned_templates,
               params.report,
-              params.smoothing_alpha ?? 0.7,
+              smoothingAlpha,
             );
-            result = { success: true, data: { templates: blended, count: blended.length } };
+            // U-FGE03: opt-in persistence. params.persist === true durably
+            // writes the blend so the DEFAULT build-sequence path
+            // (CADClassFeatureLibraryEngine.templateFor → buildSequenceFor)
+            // auto-consumes it — closing the memory R12 gap
+            // (reference_cad_fusion_training_2026_05_18) where the blend was
+            // in-memory-only and never reached inference. Default behavior
+            // (persist absent/false) is unchanged — additive, preserves the
+            // U-FGE01/02 contract + every pre-U-FGE03 caller.
+            let persisted: unknown = null;
+            if (params.persist === true) {
+              persisted = await cadCorpusFeaturePrevalenceLearnerEngine.persistLearned(
+                blended,
+                { smoothing_alpha: smoothingAlpha },
+              );
+            }
+            result = { success: true, data: { templates: blended, count: blended.length, persisted } };
+            break;
+          }
+          case "cad_corpus_overlay_status": {
+            // U-FGE03: R12 visibility — does the trained learned-prevalence
+            // overlay actually reach the default inference path? (The exact
+            // thing that was silently NOT happening pre-U-FGE03.)
+            const { cadClassFeatureLibraryEngine } = await import("../../engines/CADClassFeatureLibraryEngine.js");
+            result = { success: true, data: cadClassFeatureLibraryEngine.overlayStatus() };
             break;
           }
           case "cad_step_parse_file": {
@@ -3597,6 +4087,34 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: data !== null, data: data ?? null };
             break;
           }
+          case "cad_machine_capability_with_accuracy": {
+            // U-DEA-november-P02 — activate MachineGeometricAccuracyEngine (acc_volumetric +
+            // acc_abbe_offset + acc_ball_bar) at machine-capability lookup so downstream
+            // physics (deflection / thermal / surface finish) sees realistic accuracy bounds
+            // instead of nominals.
+            const machineId = String(params.machine_id ?? params.machineId ?? "");
+            if (machineId.length === 0) {
+              return dispatcherError(
+                new Error("cad_machine_capability_with_accuracy requires machine_id"),
+                action, "prism_cad",
+              );
+            }
+            const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+            type AccuracyOpts = Parameters<typeof machineCapabilitySurfaceEngine.getCapabilityWithAccuracy>[1];
+            const optsRaw = (params.opts ?? params.options ?? {}) as Record<string, unknown>;
+            // Normalize snake_case ↔ camelCase. Engine validates; dispatcher hands off typed shape.
+            const opts: AccuracyOpts = {
+              axis_errors: (optsRaw.axis_errors ?? optsRaw.axisErrors) as AccuracyOpts["axis_errors"],
+              squareness: optsRaw.squareness as AccuracyOpts["squareness"],
+              workspace: optsRaw.workspace as AccuracyOpts["workspace"],
+              volumetric_grid_points: (optsRaw.volumetric_grid_points ?? optsRaw.volumetricGridPoints) as number | undefined,
+              abbe_queries: (optsRaw.abbe_queries ?? optsRaw.abbeQueries) as AccuracyOpts["abbe_queries"],
+              ball_bar: (optsRaw.ball_bar ?? optsRaw.ballBar) as AccuracyOpts["ball_bar"],
+            };
+            const data = machineCapabilitySurfaceEngine.getCapabilityWithAccuracy(machineId, opts);
+            result = { success: data !== null, data: data ?? null };
+            break;
+          }
           case "cad_machine_capability_controller": {
             const machineId = String(params.machine_id ?? params.machineId ?? "");
             if (machineId.length === 0) {
@@ -3913,6 +4431,1248 @@ Params vary by action — pass relevant fields in params object.`,
             result = { success: true, data: cbs };
             break;
           }
+          // CAD-COMPLETE-MS0/U-CADC-LP01 — CADExecutionOutcomeBusEngine
+          case "cad_outcome_publish": {
+            const { cadExecutionOutcomeBusEngine } = await import("../../engines/CADExecutionOutcomeBusEngine.js");
+            // Ensure the LP02 closed-loop collector module is loaded so its
+            // singleton has subscribed to the bus before the first publish —
+            // otherwise per-adapter feedback would miss outcome #1.
+            await import("../../engines/CADPerAdapterFeedbackCollectorEngine.js");
+            const pub = cadExecutionOutcomeBusEngine.publish({
+              adapterId: params.adapterId,
+              scriptId: params.scriptId,
+              success: params.success,
+              errorMessage: params.errorMessage,
+              timingMs: params.timingMs,
+              collision: params.collision,
+              regenerationOk: params.regenerationOk,
+              lineageId: params.lineageId,
+              timestamp: params.timestamp,
+            });
+            result = { success: true, data: pub };
+            break;
+          }
+          case "cad_outcome_stats": {
+            const { cadExecutionOutcomeBusEngine } = await import("../../engines/CADExecutionOutcomeBusEngine.js");
+            result = { success: true, data: cadExecutionOutcomeBusEngine.getStats() };
+            break;
+          }
+          case "cad_outcome_subscribers": {
+            const { cadExecutionOutcomeBusEngine } = await import("../../engines/CADExecutionOutcomeBusEngine.js");
+            result = { success: true, data: { subscriberCount: cadExecutionOutcomeBusEngine.listSubscribers() } };
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-CADC-LP02 — CADPerAdapterFeedbackCollectorEngine
+          case "cad_feedback_metrics": {
+            const { cadPerAdapterFeedbackCollectorEngine } = await import("../../engines/CADPerAdapterFeedbackCollectorEngine.js");
+            const data = params.headId
+              ? cadPerAdapterFeedbackCollectorEngine.getMetrics(params.headId, params.window)
+              : cadPerAdapterFeedbackCollectorEngine.getAllMetrics(params.window);
+            result = { success: true, data };
+            break;
+          }
+          case "cad_feedback_buffer": {
+            const { cadPerAdapterFeedbackCollectorEngine } = await import("../../engines/CADPerAdapterFeedbackCollectorEngine.js");
+            result = {
+              success: true,
+              data: cadPerAdapterFeedbackCollectorEngine.getFeedbackBuffer(params.headId, params.limit),
+            };
+            break;
+          }
+          case "cad_feedback_stats": {
+            const { cadPerAdapterFeedbackCollectorEngine } = await import("../../engines/CADPerAdapterFeedbackCollectorEngine.js");
+            result = { success: true, data: cadPerAdapterFeedbackCollectorEngine.getStats() };
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-CADC-LP03 — CADHeadReplayBufferEngine
+          case "cad_replay_stats": {
+            const { cadHeadReplayBufferEngine } = await import("../../engines/CADHeadReplayBufferEngine.js");
+            result = { success: true, data: cadHeadReplayBufferEngine.getStats() };
+            break;
+          }
+          case "cad_replay_entries": {
+            const { cadHeadReplayBufferEngine } = await import("../../engines/CADHeadReplayBufferEngine.js");
+            result = {
+              success: true,
+              data: cadHeadReplayBufferEngine.getEntries(params.headId, params.limit),
+            };
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-CADC-LP04 — MasterBrainBackpropPropagatorEngine
+          case "cad_backprop_params": {
+            const { masterBrainBackpropPropagatorEngine, MASTER_TARGET } = await import("../../engines/MasterBrainBackpropPropagatorEngine.js");
+            const target = typeof params?.target === "string" && params.target.length > 0 ? params.target : MASTER_TARGET;
+            result = { success: true, data: masterBrainBackpropPropagatorEngine.getParams(target) };
+            break;
+          }
+          case "cad_backprop_stats": {
+            const { masterBrainBackpropPropagatorEngine } = await import("../../engines/MasterBrainBackpropPropagatorEngine.js");
+            result = { success: true, data: masterBrainBackpropPropagatorEngine.getStats() };
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-CADC-NN01 — CADFoundationEncoderEngine
+          case "cad_encoder_vocab": {
+            const { cadFoundationEncoderEngine } = await import("../../engines/CADFoundationEncoderEngine.js");
+            result = { success: true, data: cadFoundationEncoderEngine.getVocabulary() };
+            break;
+          }
+          case "cad_encoder_stats": {
+            const { cadFoundationEncoderEngine } = await import("../../engines/CADFoundationEncoderEngine.js");
+            result = { success: true, data: cadFoundationEncoderEngine.getStats() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P0-U01 — HyperCADSLiveBridgeEngine (17 actions)
+          case "hypercads_live_new_doc": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: hyperCADSLiveBridgeEngine.newDoc(params ?? {}) };
+            break;
+          }
+          case "hypercads_live_sketch": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.createSketch(params ?? {}) };
+            break;
+          }
+          case "hypercads_live_extrude": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.extrude(params as never) };
+            break;
+          }
+          case "hypercads_live_fillet": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.fillet(params as never) };
+            break;
+          }
+          case "hypercads_live_chamfer": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.chamfer(params as never) };
+            break;
+          }
+          case "hypercads_live_revolve": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.revolve(params as never) };
+            break;
+          }
+          case "hypercads_live_hole": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.hole(params as never) };
+            break;
+          }
+          case "hypercads_live_pattern": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.pattern(params as never) };
+            break;
+          }
+          case "hypercads_live_combine": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.combine(params as never) };
+            break;
+          }
+          case "hypercads_live_shell": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.shell(params as never) };
+            break;
+          }
+          case "hypercads_live_export": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.exportFile(params as never) };
+            break;
+          }
+          case "hypercads_live_geometry": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: hyperCADSLiveBridgeEngine.getGeometry(params ?? {}) };
+            break;
+          }
+          case "hypercads_live_undo": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: hyperCADSLiveBridgeEngine.undo(params ?? {}) };
+            break;
+          }
+          case "hypercads_live_regenerate": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.regenerate(params ?? {}) };
+            break;
+          }
+          case "hypercads_live_execute_raw": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: await hyperCADSLiveBridgeEngine.executeRaw(params.code, { projectName: params.projectName, filename: params.filename }) };
+            break;
+          }
+          case "hypercads_live_stats": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: hyperCADSLiveBridgeEngine.getStats() };
+            break;
+          }
+          case "hypercads_live_list_sessions": {
+            const { hyperCADSLiveBridgeEngine } = await import("../../engines/HyperCADSLiveBridgeEngine.js");
+            result = { success: true, data: hyperCADSLiveBridgeEngine.listSessions() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P0-U02 — HyperCADSOutcomePublisherEngine
+          case "cad_hypercads_outcome_stats": {
+            const { hyperCADSOutcomePublisherEngine } = await import("../../engines/HyperCADSOutcomePublisherEngine.js");
+            result = { success: true, data: hyperCADSOutcomePublisherEngine.getStats() };
+            break;
+          }
+          case "cad_hypercads_outcome_adapter": {
+            const { HYPERCADS_ADAPTER_ID } = await import("../../engines/HyperCADSOutcomePublisherEngine.js");
+            result = { success: true, data: { adapterId: HYPERCADS_ADAPTER_ID } };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P0-U03 — CADRegenFeedbackAdapterEngine
+          case "cad_regen_feedback_publish": {
+            const { cadRegenFeedbackAdapterEngine } = await import("../../engines/CADRegenFeedbackAdapterEngine.js");
+            result = { success: true, data: cadRegenFeedbackAdapterEngine.publishWithRegen(params.result, params.regen, params.options ?? {}) };
+            break;
+          }
+          case "cad_regen_feedback_stats": {
+            const { cadRegenFeedbackAdapterEngine } = await import("../../engines/CADRegenFeedbackAdapterEngine.js");
+            result = { success: true, data: cadRegenFeedbackAdapterEngine.getStats() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P1-U04 — CADArgEncoderEngine
+          case "cad_arg_encoder_encode": {
+            const { cadArgEncoderEngine } = await import("../../engines/CADArgEncoderEngine.js");
+            result = { success: true, data: { embedding: cadArgEncoderEngine.encodeArgs(params?.args) } };
+            break;
+          }
+          case "cad_arg_encoder_batch": {
+            const { cadArgEncoderEngine } = await import("../../engines/CADArgEncoderEngine.js");
+            const ops = Array.isArray(params.ops) ? params.ops : [];
+            const data = params.pooled === true
+              ? { pooled: cadArgEncoderEngine.encodeOpArgsPooled(ops as never) }
+              : { perOp: cadArgEncoderEngine.encodeOpArgs(ops as never) };
+            result = { success: true, data };
+            break;
+          }
+          case "cad_arg_encoder_stats": {
+            const { cadArgEncoderEngine } = await import("../../engines/CADArgEncoderEngine.js");
+            result = { success: true, data: cadArgEncoderEngine.getStats() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P1-U06 — CADOperationDecoderEngine
+          case "cad_decoder_propose": {
+            const { cadOperationDecoderEngine } = await import("../../engines/CADOperationDecoderEngine.js");
+            result = { success: true, data: cadOperationDecoderEngine.proposeNextOp(params?.ctx ?? {}, params?.options ?? {}) };
+            break;
+          }
+          case "cad_decoder_propose_topk": {
+            const { cadOperationDecoderEngine } = await import("../../engines/CADOperationDecoderEngine.js");
+            const k = typeof params?.k === "number" && params.k > 0 ? params.k : 3;
+            result = { success: true, data: cadOperationDecoderEngine.proposeNextOpsTopK(params?.ctx ?? {}, params?.options ?? {}, k) };
+            break;
+          }
+          case "cad_decoder_vocab": {
+            const { cadOperationDecoderEngine } = await import("../../engines/CADOperationDecoderEngine.js");
+            result = { success: true, data: cadOperationDecoderEngine.getVocabulary() };
+            break;
+          }
+          case "cad_decoder_stats": {
+            const { cadOperationDecoderEngine } = await import("../../engines/CADOperationDecoderEngine.js");
+            result = { success: true, data: cadOperationDecoderEngine.getStats() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P1-U05 — CADSequencePoolEngine
+          case "cad_sequence_pool": {
+            const { cadSequencePoolEngine } = await import("../../engines/CADSequencePoolEngine.js");
+            result = { success: true, data: { pooled: cadSequencePoolEngine.pool(params.rows, { strategy: params.strategy, alpha: params.alpha, attentionQuery: params.attentionQuery, expectedDim: params.expectedDim }) } };
+            break;
+          }
+          case "cad_sequence_pool_all": {
+            const { cadSequencePoolEngine } = await import("../../engines/CADSequencePoolEngine.js");
+            result = { success: true, data: cadSequencePoolEngine.poolAll(params.rows, { alpha: params.alpha, attentionQuery: params.attentionQuery, expectedDim: params.expectedDim }) };
+            break;
+          }
+          case "cad_sequence_pool_strategies": {
+            const { POOL_STRATEGIES } = await import("../../engines/CADSequencePoolEngine.js");
+            result = { success: true, data: { strategies: [...POOL_STRATEGIES] } };
+            break;
+          }
+          case "cad_sequence_pool_stats": {
+            const { cadSequencePoolEngine } = await import("../../engines/CADSequencePoolEngine.js");
+            result = { success: true, data: cadSequencePoolEngine.getStats() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P1-U07 — CADUnifiedFeatureBridgeEngine
+          case "cad_unified_feature_encode": {
+            const { cadUnifiedFeatureBridgeEngine } = await import("../../engines/CADUnifiedFeatureBridgeEngine.js");
+            result = { success: true, data: cadUnifiedFeatureBridgeEngine.encode(params ?? {}) };
+            break;
+          }
+          case "cad_unified_feature_layout": {
+            const { cadUnifiedFeatureBridgeEngine } = await import("../../engines/CADUnifiedFeatureBridgeEngine.js");
+            result = { success: true, data: cadUnifiedFeatureBridgeEngine.getLayout() };
+            break;
+          }
+          case "cad_unified_feature_stats": {
+            const { cadUnifiedFeatureBridgeEngine } = await import("../../engines/CADUnifiedFeatureBridgeEngine.js");
+            result = { success: true, data: cadUnifiedFeatureBridgeEngine.getStats() };
+            break;
+          }
+          // CAD-DRAW-MAX-MS0/P1-U09 — CADToleranceSignalEncoderEngine
+          case "cad_tolerance_encode": {
+            const { cadToleranceSignalEncoderEngine } = await import("../../engines/CADToleranceSignalEncoderEngine.js");
+            result = { success: true, data: { signal: cadToleranceSignalEncoderEngine.encodeTolerances(params.callouts) } };
+            break;
+          }
+          case "cad_tolerance_augment": {
+            const { cadToleranceSignalEncoderEngine } = await import("../../engines/CADToleranceSignalEncoderEngine.js");
+            result = { success: true, data: { augmented: cadToleranceSignalEncoderEngine.augmentUnifiedFeature(params.unifiedFeature, params.callouts) } };
+            break;
+          }
+          case "cad_tolerance_stats": {
+            const { cadToleranceSignalEncoderEngine } = await import("../../engines/CADToleranceSignalEncoderEngine.js");
+            result = { success: true, data: cadToleranceSignalEncoderEngine.getStats() };
+            break;
+          }
+          case "cad_draw_any_part": {
+            const { cadDrawAnyPartOrchestratorEngine } = await import("../../engines/CADDrawAnyPartOrchestratorEngine.js");
+            result = { success: true, data: await cadDrawAnyPartOrchestratorEngine.drawAnyPart(params) };
+            break;
+          }
+          case "cad_draw_any_part_stats": {
+            const { cadDrawAnyPartOrchestratorEngine } = await import("../../engines/CADDrawAnyPartOrchestratorEngine.js");
+            result = { success: true, data: cadDrawAnyPartOrchestratorEngine.getStats() };
+            break;
+          }
+          case "cad_draw_any_part_validate": {
+            const { cadDrawAnyPartValidationHarnessEngine } = await import("../../engines/CADDrawAnyPartValidationHarnessEngine.js");
+            result = { success: true, data: await cadDrawAnyPartValidationHarnessEngine.validate(params.cases, params.options ?? {}) };
+            break;
+          }
+          case "cad_draw_any_part_validate_render": {
+            const { cadDrawAnyPartValidationHarnessEngine } = await import("../../engines/CADDrawAnyPartValidationHarnessEngine.js");
+            result = { success: true, data: { markdown: cadDrawAnyPartValidationHarnessEngine.renderMarkdown(params.report) } };
+            break;
+          }
+          case "cad_validation_rubric_score": {
+            const { cadValidationRubricEngine } = await import("../../engines/CADValidationRubricEngine.js");
+            result = { success: true, data: cadValidationRubricEngine.score(params.result, params.options ?? {}) };
+            break;
+          }
+          case "cad_validation_rubric_score_case": {
+            const { cadValidationRubricEngine } = await import("../../engines/CADValidationRubricEngine.js");
+            result = { success: true, data: cadValidationRubricEngine.scoreCase(params.testCase, params.result, params.options ?? {}) };
+            break;
+          }
+          case "cad_validation_corpus_get": {
+            const { corpusByDomain } = await import("../../data/cad-validation-corpus.js");
+            const domain = (params?.domain ?? "all") as "mill" | "lathe" | "wedm" | "all";
+            result = { success: true, data: { cases: corpusByDomain(domain), domain } };
+            break;
+          }
+          case "cad_validation_corpus_summary": {
+            const { summarizeCorpus } = await import("../../data/cad-validation-corpus.js");
+            result = { success: true, data: summarizeCorpus() };
+            break;
+          }
+          case "cad_validation_round_trip": {
+            const { cadRoundTripValidationEngine } = await import("../../engines/CADRoundTripValidationEngine.js");
+            result = { success: true, data: await cadRoundTripValidationEngine.validate(params.printPath, params.dependencies, params.options ?? {}) };
+            break;
+          }
+          case "cad_model_dim_extract": {
+            const { cadModelDimensionExtractorEngine } = await import("../../engines/CADModelDimensionExtractorEngine.js");
+            result = { success: true, data: await cadModelDimensionExtractorEngine.extract(params.draw) };
+            break;
+          }
+          case "cad_print_regenerate": {
+            const { cadPrintRegeneratorEngine } = await import("../../engines/CADPrintRegeneratorEngine.js");
+            result = { success: true, data: await cadPrintRegeneratorEngine.regenerate(params.draw) };
+            break;
+          }
+          case "cad_part_archetype_list": {
+            const { cadPartArchetypeRegistryEngine } = await import("../../engines/CADPartArchetypeRegistryEngine.js");
+            result = { success: true, data: cadPartArchetypeRegistryEngine.list() };
+            break;
+          }
+          case "cad_part_archetype_get": {
+            const { cadPartArchetypeRegistryEngine } = await import("../../engines/CADPartArchetypeRegistryEngine.js");
+            result = { success: true, data: cadPartArchetypeRegistryEngine.get(params.kind) };
+            break;
+          }
+          case "cad_part_archetype_materialize": {
+            const { cadPartArchetypeRegistryEngine } = await import("../../engines/CADPartArchetypeRegistryEngine.js");
+            result = { success: true, data: cadPartArchetypeRegistryEngine.materialize(params.kind, params.params ?? {}) };
+            break;
+          }
+          case "cad_part_archetype_summary": {
+            const { cadPartArchetypeRegistryEngine } = await import("../../engines/CADPartArchetypeRegistryEngine.js");
+            result = { success: true, data: cadPartArchetypeRegistryEngine.summary() };
+            break;
+          }
+          case "cad_jmdie_archetype_prior": {
+            const { cadJMDieArchetypeFrequencyEngine } = await import("../../engines/CADJMDieArchetypeFrequencyEngine.js");
+            result = { success: true, data: cadJMDieArchetypeFrequencyEngine.prior(params.kind) };
+            break;
+          }
+          case "cad_jmdie_archetype_ranked": {
+            const { cadJMDieArchetypeFrequencyEngine } = await import("../../engines/CADJMDieArchetypeFrequencyEngine.js");
+            result = { success: true, data: cadJMDieArchetypeFrequencyEngine.ranked() };
+            break;
+          }
+          case "cad_jmdie_archetype_posterior": {
+            const { cadJMDieArchetypeFrequencyEngine } = await import("../../engines/CADJMDieArchetypeFrequencyEngine.js");
+            result = { success: true, data: cadJMDieArchetypeFrequencyEngine.posterior(params.likelihoods ?? {}) };
+            break;
+          }
+          case "cad_jmdie_archetype_summary": {
+            const { cadJMDieArchetypeFrequencyEngine } = await import("../../engines/CADJMDieArchetypeFrequencyEngine.js");
+            result = { success: true, data: cadJMDieArchetypeFrequencyEngine.summary() };
+            break;
+          }
+          case "cad_system_neural_arch_canonicalize": {
+            const { cadSystemNeuralArchAdapterEngine } = await import("../../engines/CADSystemNeuralArchAdapterEngine.js");
+            result = { success: true, data: cadSystemNeuralArchAdapterEngine.canonicalize(params.system, params.specs ?? []) };
+            break;
+          }
+          case "cad_system_neural_arch_nativize": {
+            const { cadSystemNeuralArchAdapterEngine } = await import("../../engines/CADSystemNeuralArchAdapterEngine.js");
+            result = { success: true, data: cadSystemNeuralArchAdapterEngine.nativize(params.system, params.specs ?? []) };
+            break;
+          }
+          case "cad_system_neural_arch_rules": {
+            const { cadSystemNeuralArchAdapterEngine } = await import("../../engines/CADSystemNeuralArchAdapterEngine.js");
+            result = { success: true, data: cadSystemNeuralArchAdapterEngine.rules(params.system) };
+            break;
+          }
+          case "cad_system_neural_arch_summary": {
+            const { cadSystemNeuralArchAdapterEngine } = await import("../../engines/CADSystemNeuralArchAdapterEngine.js");
+            result = { success: true, data: cadSystemNeuralArchAdapterEngine.summary() };
+            break;
+          }
+          case "cad_multi_system_produce_part": {
+            const { cadMultiSystemAIProducerEngine } = await import("../../engines/CADMultiSystemAIProducerEngine.js");
+            const { cadDrawAnyPartOrchestratorEngine } = await import("../../engines/CADDrawAnyPartOrchestratorEngine.js");
+            const orchestrator = { draw: async (intent: unknown) => {
+              const r = await (cadDrawAnyPartOrchestratorEngine as never as { draw: (i: unknown) => Promise<{ opLog?: Array<{ op: string; args?: Record<string, number | string | boolean> }> }> }).draw(intent);
+              return (r.opLog ?? []).map(o => ({ op: o.op, args: o.args ?? {} }));
+            } };
+            result = { success: true, data: await cadMultiSystemAIProducerEngine.producePart(params.system, params.intent, { orchestrator }) };
+            break;
+          }
+          case "cad_multi_system_produce_assembly": {
+            const { cadMultiSystemAIProducerEngine } = await import("../../engines/CADMultiSystemAIProducerEngine.js");
+            const { cadDrawAnyPartOrchestratorEngine } = await import("../../engines/CADDrawAnyPartOrchestratorEngine.js");
+            const orchestrator = { draw: async (intent: unknown) => {
+              const r = await (cadDrawAnyPartOrchestratorEngine as never as { draw: (i: unknown) => Promise<{ opLog?: Array<{ op: string; args?: Record<string, number | string | boolean> }> }> }).draw(intent);
+              return (r.opLog ?? []).map(o => ({ op: o.op, args: o.args ?? {} }));
+            } };
+            result = { success: true, data: await cadMultiSystemAIProducerEngine.produceAssembly(params.system, params.intent, { orchestrator }) };
+            break;
+          }
+          case "cad_multi_system_supported": {
+            const { cadMultiSystemAIProducerEngine } = await import("../../engines/CADMultiSystemAIProducerEngine.js");
+            result = { success: true, data: cadMultiSystemAIProducerEngine.supported() };
+            break;
+          }
+          case "cad_multi_system_summary": {
+            const { cadMultiSystemAIProducerEngine } = await import("../../engines/CADMultiSystemAIProducerEngine.js");
+            result = { success: true, data: cadMultiSystemAIProducerEngine.summary() };
+            break;
+          }
+          case "cad_function_param_emit": {
+            const { cadFunctionParameterEmitterEngine } = await import("../../engines/CADFunctionParameterEmitterEngine.js");
+            result = { success: true, data: cadFunctionParameterEmitterEngine.emit(params) };
+            break;
+          }
+          case "cad_function_param_emit_summary": {
+            const { cadFunctionParameterEmitterEngine } = await import("../../engines/CADFunctionParameterEmitterEngine.js");
+            result = { success: true, data: cadFunctionParameterEmitterEngine.summary() };
+            break;
+          }
+          case "hypercads_tutorial_corpus_ingest": {
+            const { hyperCADSTutorialCorpusIngesterEngine } = await import("../../engines/HyperCADSTutorialCorpusIngesterEngine.js");
+            result = { success: true, data: hyperCADSTutorialCorpusIngesterEngine.ingest(params.docs) };
+            break;
+          }
+          case "hypercads_tutorial_corpus_stats": {
+            const { hyperCADSTutorialCorpusIngesterEngine } = await import("../../engines/HyperCADSTutorialCorpusIngesterEngine.js");
+            result = { success: true, data: hyperCADSTutorialCorpusIngesterEngine.getStats() };
+            break;
+          }
+          case "cad_reverse_template": {
+            const { cadReverseTemplateEngine } = await import("../../engines/CADReverseTemplateEngine.js");
+            result = { success: true, data: cadReverseTemplateEngine.reverseEngineer(params.ops) };
+            break;
+          }
+          case "cad_reverse_categorize": {
+            const { cadReverseTemplateEngine } = await import("../../engines/CADReverseTemplateEngine.js");
+            result = { success: true, data: cadReverseTemplateEngine.categorizeOnly(params.ops) };
+            break;
+          }
+          case "cad_reverse_template_stats": {
+            const { cadReverseTemplateEngine } = await import("../../engines/CADReverseTemplateEngine.js");
+            result = { success: true, data: cadReverseTemplateEngine.getStats() };
+            break;
+          }
+          // CAD-CLOSED-LOOP-MS0 -- Stage-6 CORRECT->CONVERGE controller.
+          // runClosedLoop is in-process only (its injected evaluate fn cannot
+          // cross the MCP JSON boundary); the MCP surface exposes the pure steps.
+          case "cad_regen_correct": {
+            const { cadRegenCorrectionEngine } = await import("../../engines/CADRegenCorrectionEngine.js");
+            const data = cadRegenCorrectionEngine.correct({
+              compareResult: params.compare_result ?? params.compareResult,
+              params: params.correction_params ?? params.correctionParams ?? params.params,
+              iteration: params.iteration,
+              previousMaxDeltaPercent: params.previous_max_delta_percent ?? params.previousMaxDeltaPercent,
+              stagnantIterations: params.stagnant_iterations ?? params.stagnantIterations,
+              history: params.history,
+              config: params.config,
+            });
+            result = { success: true, data };
+            break;
+          }
+          case "cad_regen_apply_template": {
+            const { cadRegenCorrectionEngine } = await import("../../engines/CADRegenCorrectionEngine.js");
+            const data = cadRegenCorrectionEngine.applyToTemplate(
+              params.op_template ?? params.opTemplate,
+              params.corrections,
+              params.param_lineage ?? params.paramLineage,
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_regen_params_from_template": {
+            const { cadRegenCorrectionEngine } = await import("../../engines/CADRegenCorrectionEngine.js");
+            const data = cadRegenCorrectionEngine.paramsFromTemplate(
+              params.template,
+              params.influence_map ?? params.influenceMap ?? {},
+            );
+            result = { success: true, data };
+            break;
+          }
+          case "cad_regen_stats": {
+            const { cadRegenCorrectionEngine } = await import("../../engines/CADRegenCorrectionEngine.js");
+            result = { success: true, data: cadRegenCorrectionEngine.getStats() };
+            break;
+          }
+          case "cad_canonical_to_ops": {
+            const { cadCanonicalTreeAdapterEngine } = await import("../../engines/CADCanonicalTreeAdapterEngine.js");
+            result = { success: true, data: cadCanonicalTreeAdapterEngine.toOperations(params.tree) };
+            break;
+          }
+          case "cad_canonical_reverse_engineer": {
+            const { cadCanonicalTreeAdapterEngine } = await import("../../engines/CADCanonicalTreeAdapterEngine.js");
+            result = { success: true, data: cadCanonicalTreeAdapterEngine.reverseEngineerTree(params.tree) };
+            break;
+          }
+          case "cad_canonical_adapt_stats": {
+            const { cadCanonicalTreeAdapterEngine } = await import("../../engines/CADCanonicalTreeAdapterEngine.js");
+            result = { success: true, data: cadCanonicalTreeAdapterEngine.getStats() };
+            break;
+          }
+          case "cad_corpus_catalog_build": {
+            const { cadReverseCorpusCatalogEngine } = await import("../../engines/CADReverseCorpusCatalogEngine.js");
+            result = { success: true, data: cadReverseCorpusCatalogEngine.buildCatalog(params.trees) };
+            break;
+          }
+          case "cad_corpus_catalog_merge": {
+            const { cadReverseCorpusCatalogEngine } = await import("../../engines/CADReverseCorpusCatalogEngine.js");
+            result = { success: true, data: cadReverseCorpusCatalogEngine.mergeCatalogs(params.a, params.b) };
+            break;
+          }
+          case "cad_corpus_catalog_stats": {
+            const { cadReverseCorpusCatalogEngine } = await import("../../engines/CADReverseCorpusCatalogEngine.js");
+            result = { success: true, data: cadReverseCorpusCatalogEngine.getStats() };
+            break;
+          }
+          // --- CAD-COMPLETE-MS0/U-AI-03 — UnitOfMeasureDisambiguationEngine ---
+          case "cad_uom_resolve": {
+            const input = params.input ?? params.value ?? params.raw;
+            if (input === undefined || input === null) {
+              return dispatcherError(
+                new Error("cad_uom_resolve requires 'input' (string|number dimensional value)"),
+                action, "prism_cad",
+              );
+            }
+            const { unitOfMeasureDisambiguationEngine } = await import("../../engines/UnitOfMeasureDisambiguationEngine.js");
+            result = {
+              success: true,
+              data: unitOfMeasureDisambiguationEngine.resolve(input as string | number, {
+                documentUnit: params.document_unit ?? params.documentUnit,
+                priorUnitSystem: params.prior_unit_system ?? params.priorUnitSystem,
+              }),
+            };
+            break;
+          }
+          case "cad_uom_resolve_batch": {
+            const inputs = params.inputs ?? params.values;
+            if (!Array.isArray(inputs) || inputs.length === 0) {
+              return dispatcherError(
+                new Error("cad_uom_resolve_batch requires 'inputs' (non-empty array of string|number)"),
+                action, "prism_cad",
+              );
+            }
+            const { unitOfMeasureDisambiguationEngine } = await import("../../engines/UnitOfMeasureDisambiguationEngine.js");
+            result = {
+              success: true,
+              data: unitOfMeasureDisambiguationEngine.resolveBatch(inputs as Array<string | number>, {
+                documentUnit: params.document_unit ?? params.documentUnit,
+                priorUnitSystem: params.prior_unit_system ?? params.priorUnitSystem,
+              }),
+            };
+            break;
+          }
+          case "cad_uom_convert": {
+            const value = Number(params.value);
+            const from = params.from ?? params.from_unit ?? params.fromUnit;
+            const to = params.to ?? params.to_unit ?? params.toUnit;
+            if (!Number.isFinite(value) || (from !== "mm" && from !== "in") || (to !== "mm" && to !== "in")) {
+              return dispatcherError(
+                new Error("cad_uom_convert requires numeric 'value' and 'from'/'to' each one of 'mm'|'in'"),
+                action, "prism_cad",
+              );
+            }
+            const { unitOfMeasureDisambiguationEngine } = await import("../../engines/UnitOfMeasureDisambiguationEngine.js");
+            result = {
+              success: true,
+              data: { value: unitOfMeasureDisambiguationEngine.convert(value, from, to), unit: to },
+            };
+            break;
+          }
+          // --- CAD-COMPLETE-MS0/U-AI-12 — RiskTierClassifierEngine ---
+          case "cad_risk_classify": {
+            if (typeof params.kind !== "string") {
+              return dispatcherError(
+                new Error("cad_risk_classify requires a string 'kind' (CAD operation kind)"),
+                action, "prism_cad",
+              );
+            }
+            const { riskTierClassifierEngine } = await import("../../engines/RiskTierClassifierEngine.js");
+            result = { success: true, data: riskTierClassifierEngine.classify({ kind: String(params.kind), args: params.args, irreversible: params.irreversible, touchesDatum: params.touchesDatum, batch: params.batch }) };
+            break;
+          }
+          case "cad_risk_classify_batch": {
+            const ops = params.ops;
+            if (!Array.isArray(ops) || ops.length === 0) {
+              return dispatcherError(
+                new Error("cad_risk_classify_batch requires 'ops' (non-empty array of CAD operations)"),
+                action, "prism_cad",
+              );
+            }
+            const { riskTierClassifierEngine } = await import("../../engines/RiskTierClassifierEngine.js");
+            result = { success: true, data: riskTierClassifierEngine.classifyBatch(ops) };
+            break;
+          }
+          case "cad_risk_classify_plan": {
+            const ops = params.ops;
+            if (!Array.isArray(ops)) {
+              return dispatcherError(
+                new Error("cad_risk_classify_plan requires 'ops' (array of CAD operations)"),
+                action, "prism_cad",
+              );
+            }
+            const { riskTierClassifierEngine } = await import("../../engines/RiskTierClassifierEngine.js");
+            result = { success: true, data: riskTierClassifierEngine.classifyPlan(ops) };
+            break;
+          }
+          // --- CAD-COMPLETE-MS0/U-AI-09 — CADAppCircuitBreakerEngine ---
+          case "cad_breaker_snapshot": {
+            const { cadAppCircuitBreakerEngine } = await import("../../engines/CADAppCircuitBreakerEngine.js");
+            result = { success: true, data: cadAppCircuitBreakerEngine.snapshot() };
+            break;
+          }
+          // --- CAD-COMPLETE-MS0/U-AI-01 — CADFallbackRoutingEngine ---
+          case "cad_fallback_route": {
+            const { cadFallbackRoutingEngine } = await import("../../engines/CADFallbackRoutingEngine.js");
+            const req = {
+              capability: typeof params.capability === "string" ? params.capability : undefined,
+              preferredApp: params.preferredApp ?? params.preferred_app,
+              unavailable: Array.isArray(params.unavailable) ? params.unavailable.map((a: unknown) => String(a)) : undefined,
+            };
+            const apps = Array.isArray(params.apps) ? params.apps : undefined;
+            result = { success: true, data: cadFallbackRoutingEngine.route(req, apps) };
+            break;
+          }
+          case "cad_fallback_register": {
+            const apps = params.apps;
+            if (!Array.isArray(apps) || apps.length === 0) {
+              return dispatcherError(
+                new Error("cad_fallback_register requires 'apps' (non-empty array of CAD app profiles)"),
+                action, "prism_cad",
+              );
+            }
+            const { cadFallbackRoutingEngine } = await import("../../engines/CADFallbackRoutingEngine.js");
+            cadFallbackRoutingEngine.registerMany(apps);
+            result = { success: true, data: { registered: cadFallbackRoutingEngine.listApps() } };
+            break;
+          }
+          case "cad_fallback_list": {
+            const { cadFallbackRoutingEngine } = await import("../../engines/CADFallbackRoutingEngine.js");
+            result = { success: true, data: cadFallbackRoutingEngine.listApps() };
+            break;
+          }
+          case "cad_fallback_reset": {
+            const { cadFallbackRoutingEngine } = await import("../../engines/CADFallbackRoutingEngine.js");
+            cadFallbackRoutingEngine.reset();
+            result = { success: true, data: { reset: true } };
+            break;
+          }
+          case "cad_breaker_can_proceed":
+          case "cad_breaker_record_success":
+          case "cad_breaker_record_failure":
+          case "cad_breaker_state":
+          case "cad_breaker_configure": {
+            const appId = params.app_id ?? params.appId;
+            if (typeof appId !== "string" || appId.trim().length === 0) {
+              return dispatcherError(
+                new Error(`${action} requires a non-empty string 'app_id'`),
+                action, "prism_cad",
+              );
+            }
+            const { cadAppCircuitBreakerEngine } = await import("../../engines/CADAppCircuitBreakerEngine.js");
+            if (action === "cad_breaker_can_proceed") {
+              result = { success: true, data: cadAppCircuitBreakerEngine.canProceed(appId) };
+            } else if (action === "cad_breaker_record_success") {
+              result = { success: true, data: cadAppCircuitBreakerEngine.recordSuccess(appId) };
+            } else if (action === "cad_breaker_record_failure") {
+              const err = params.error;
+              result = {
+                success: true,
+                data: cadAppCircuitBreakerEngine.recordFailure(appId, err === undefined ? undefined : String(err)),
+              };
+            } else if (action === "cad_breaker_state") {
+              result = { success: true, data: cadAppCircuitBreakerEngine.getState(appId) };
+            } else {
+              result = {
+                success: true,
+                data: cadAppCircuitBreakerEngine.configure(appId, {
+                  failureThreshold: params.failureThreshold ?? params.failure_threshold,
+                  successThreshold: params.successThreshold ?? params.success_threshold,
+                  cooldownMs: params.cooldownMs ?? params.cooldown_ms,
+                  halfOpenMaxProbes: params.halfOpenMaxProbes ?? params.half_open_max_probes,
+                }),
+              };
+            }
+            break;
+          }
+          // --- CAD-COMPLETE-MS0/U-AI-02 — CADWorldModelEngine ---
+          case "cad_world_apply_op":
+          case "cad_world_state":
+          case "cad_world_checkpoint":
+          case "cad_world_diff":
+          case "cad_world_detect_drift": {
+            const docId = params.doc_id ?? params.docId;
+            if (typeof docId !== "string" || docId.trim().length === 0) {
+              return dispatcherError(
+                new Error(`${action} requires a non-empty string 'doc_id'`),
+                action, "prism_cad",
+              );
+            }
+            const { cadWorldModelEngine } = await import("../../engines/CADWorldModelEngine.js");
+            if (action === "cad_world_apply_op") {
+              const op = params.op && typeof params.op === "object"
+                ? params.op
+                : {
+                    kind: params.kind,
+                    entityId: params.entityId ?? params.entity_id,
+                    entityKind: params.entityKind ?? params.entity_kind,
+                    name: params.name,
+                    parentId: params.parentId ?? params.parent_id,
+                    parameter: params.parameter,
+                    value: params.value,
+                    units: params.units,
+                    selection: params.selection,
+                  };
+              result = { success: true, data: cadWorldModelEngine.applyOp(docId, op) };
+            } else if (action === "cad_world_state") {
+              result = { success: true, data: cadWorldModelEngine.getState(docId) };
+            } else if (action === "cad_world_checkpoint") {
+              result = { success: true, data: cadWorldModelEngine.checkpoint(docId) };
+            } else if (action === "cad_world_diff") {
+              result = { success: true, data: cadWorldModelEngine.diffFromCheckpoint(docId) };
+            } else {
+              const observed = params.observed;
+              if (!observed || typeof observed !== "object") {
+                return dispatcherError(
+                  new Error("cad_world_detect_drift requires an 'observed' object with an entityIds array"),
+                  action, "prism_cad",
+                );
+              }
+              result = { success: true, data: cadWorldModelEngine.detectDrift(docId, observed) };
+            }
+            break;
+          }
+          case "cad_world_reset": {
+            const { cadWorldModelEngine } = await import("../../engines/CADWorldModelEngine.js");
+            const docId = params.doc_id ?? params.docId;
+            const oneDoc = typeof docId === "string" && docId.trim().length > 0 ? docId : undefined;
+            cadWorldModelEngine.reset(oneDoc);
+            result = { success: true, data: { reset: true, scope: oneDoc ?? "all-documents" } };
+            break;
+          }
+          case "cad_trace_assemble":
+          case "cad_trace_get":
+          case "cad_trace_from_tracer": {
+            const { cadTraceAssemblyEngine } = await import("../../engines/CADTraceAssemblyEngine.js");
+            if (action === "cad_trace_assemble") {
+              if (!Array.isArray(params.spans)) {
+                return dispatcherError(
+                  new Error("cad_trace_assemble requires a 'spans' array of TraceSpanInput objects"),
+                  action, "prism_cad",
+                );
+              }
+              result = { success: true, data: cadTraceAssemblyEngine.assemble(params.spans) };
+            } else if (action === "cad_trace_get") {
+              if (!Array.isArray(params.spans)) {
+                return dispatcherError(
+                  new Error("cad_trace_get requires a 'spans' array"),
+                  action, "prism_cad",
+                );
+              }
+              const traceId = params.trace_id ?? params.traceId;
+              if (typeof traceId !== "string" || traceId.length === 0) {
+                return dispatcherError(
+                  new Error("cad_trace_get requires a non-empty 'trace_id'"),
+                  action, "prism_cad",
+                );
+              }
+              const view = cadTraceAssemblyEngine.assembleTrace(params.spans, traceId);
+              result = { success: true, data: { view, found: view !== null } };
+            } else {
+              // cad_trace_from_tracer — pull live spans from the OTel tracer.
+              const { openTelemetryTracingEngine } = await import(
+                "../../engines/OpenTelemetryTracingEngine.js"
+              );
+              let otelSpans = openTelemetryTracingEngine.getCompletedSpans();
+              const totalOtelSpans = otelSpans.length;
+              // Optional tenant filter — when set, only spans tagged with the
+              // matching prism.tenant_id are admitted. Prevents the global
+              // completed-span buffer from leaking cross-tenant traces.
+              const tenantFilter = params.tenant_id ?? params.tenantId;
+              const tenantApplied = typeof tenantFilter === "string" && tenantFilter.length > 0;
+              if (tenantApplied) {
+                otelSpans = otelSpans.filter(
+                  (s) => s && s.attributes && s.attributes["prism.tenant_id"] === tenantFilter,
+                );
+              }
+              const adapted = cadTraceAssemblyEngine.fromOtelSpans(otelSpans);
+              const traceId = params.trace_id ?? params.traceId;
+              if (typeof traceId === "string" && traceId.length > 0) {
+                const view = cadTraceAssemblyEngine.assembleTrace(adapted, traceId);
+                result = {
+                  success: true,
+                  data: {
+                    view,
+                    found: view !== null,
+                    fromTracer: true,
+                    otelSpanCount: otelSpans.length,
+                    totalOtelSpanCount: totalOtelSpans,
+                    tenantFilterApplied: tenantApplied,
+                  },
+                };
+              } else {
+                const assembled = cadTraceAssemblyEngine.assemble(adapted);
+                // Bound response payload — default cap 100 traces.
+                const rawMax = params.max_traces ?? params.maxTraces;
+                const maxTraces =
+                  typeof rawMax === "number" && Number.isInteger(rawMax) && rawMax >= 1 ? rawMax : 100;
+                const truncated = assembled.traces.length > maxTraces;
+                const cappedTraces = truncated
+                  ? assembled.traces.slice(0, maxTraces)
+                  : assembled.traces;
+                result = {
+                  success: true,
+                  data: {
+                    ...assembled,
+                    traces: cappedTraces,
+                    traceCount: cappedTraces.length,
+                    totalTraceCount: assembled.traceCount,
+                    fromTracer: true,
+                    otelSpanCount: otelSpans.length,
+                    totalOtelSpanCount: totalOtelSpans,
+                    tenantFilterApplied: tenantApplied,
+                    truncated,
+                    maxTraces,
+                  },
+                };
+              }
+            }
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-AI-08 — CADTransactionEngine
+          // Atomic begin/apply/commit/rollback over CADWorldModelEngine. Lazy
+          // import so the singleton + its 2 internal maps only initialise when
+          // someone actually opens a transaction. Snake_case aliases for every
+          // id parameter so callers using either convention land on the same
+          // engine path.
+          case "cad_txn_begin":
+          case "cad_txn_apply":
+          case "cad_txn_commit":
+          case "cad_txn_rollback":
+          case "cad_txn_status":
+          case "cad_txn_list":
+          case "cad_txn_apply_all":
+          case "cad_txn_reset": {
+            const { cadTransactionEngine } = await import("../../engines/CADTransactionEngine.js");
+            const rawTxnId = params.txn_id ?? params.txnId;
+            const rawDocId = params.doc_id ?? params.docId;
+            const rawUnits = params.units;
+            const units =
+              rawUnits === "mm" || rawUnits === "in" ? (rawUnits as "mm" | "in") : "mm";
+            if (action === "cad_txn_begin") {
+              if (typeof rawDocId !== "string" || rawDocId.trim().length === 0) {
+                return dispatcherError(
+                  new Error("cad_txn_begin requires a non-empty 'doc_id'"),
+                  action, "prism_cad",
+                );
+              }
+              result = { success: true, data: cadTransactionEngine.begin(rawDocId, units) };
+            } else if (action === "cad_txn_apply") {
+              if (typeof rawTxnId !== "string" || rawTxnId.trim().length === 0) {
+                return dispatcherError(
+                  new Error("cad_txn_apply requires a non-empty 'txn_id'"),
+                  action, "prism_cad",
+                );
+              }
+              const op = params.op;
+              if (!op || typeof op !== "object" || typeof (op as { kind?: unknown }).kind !== "string") {
+                return dispatcherError(
+                  new Error("cad_txn_apply requires an 'op' object with a non-empty 'kind' string"),
+                  action, "prism_cad",
+                );
+              }
+              result = { success: true, data: cadTransactionEngine.apply(rawTxnId, op as Parameters<typeof cadTransactionEngine.apply>[1]) };
+            } else if (action === "cad_txn_commit") {
+              if (typeof rawTxnId !== "string" || rawTxnId.trim().length === 0) {
+                return dispatcherError(
+                  new Error("cad_txn_commit requires a non-empty 'txn_id'"),
+                  action, "prism_cad",
+                );
+              }
+              result = { success: true, data: cadTransactionEngine.commit(rawTxnId) };
+            } else if (action === "cad_txn_rollback") {
+              if (typeof rawTxnId !== "string" || rawTxnId.trim().length === 0) {
+                return dispatcherError(
+                  new Error("cad_txn_rollback requires a non-empty 'txn_id'"),
+                  action, "prism_cad",
+                );
+              }
+              result = { success: true, data: cadTransactionEngine.rollback(rawTxnId) };
+            } else if (action === "cad_txn_status") {
+              if (typeof rawTxnId !== "string" || rawTxnId.trim().length === 0) {
+                return dispatcherError(
+                  new Error("cad_txn_status requires a non-empty 'txn_id'"),
+                  action, "prism_cad",
+                );
+              }
+              const status = cadTransactionEngine.status(rawTxnId);
+              result = { success: true, data: { status, found: status !== null } };
+            } else if (action === "cad_txn_list") {
+              const filter =
+                typeof rawDocId === "string" && rawDocId.trim().length > 0 ? rawDocId : undefined;
+              const txns = cadTransactionEngine.list(filter);
+              result = { success: true, data: { txns, count: txns.length, filter: filter ?? null } };
+            } else if (action === "cad_txn_apply_all") {
+              if (typeof rawDocId !== "string" || rawDocId.trim().length === 0) {
+                return dispatcherError(
+                  new Error("cad_txn_apply_all requires a non-empty 'docId' (snake_case 'doc_id' alias auto-normalized)"),
+                  action, "prism_cad",
+                );
+              }
+              if (!Array.isArray(params.ops)) {
+                return dispatcherError(
+                  new Error("cad_txn_apply_all requires an 'ops' array"),
+                  action, "prism_cad",
+                );
+              }
+              // Defense-in-depth cap (the schema enforces .max(1000), but Zod
+              // strip-mode plus the strict-mode advisory pattern means a
+              // malicious caller could route around it via a code path that
+              // skips schema validation — cap here too so the engine never
+              // sees an unbounded op list).
+              if (params.ops.length > 1000) {
+                return dispatcherError(
+                  new Error(`cad_txn_apply_all rejects ops array of length ${params.ops.length} (cap 1000 — DoS guard)`),
+                  action, "prism_cad",
+                );
+              }
+              result = {
+                success: true,
+                data: cadTransactionEngine.applyAll(
+                  rawDocId,
+                  params.ops as Parameters<typeof cadTransactionEngine.applyAll>[1],
+                  units,
+                ),
+              };
+            } else {
+              // cad_txn_reset — drop every registered transaction + release every
+              // doc lock. FLEET-DESTRUCTIVE: peer chats' in-flight transactions
+              // become orphaned. Operator must opt in with the exact literal
+              // confirm string. The dispatcher pre-collects the registry summary
+              // so the reset result tells the operator exactly what was wiped.
+              if (params.confirm !== "RESET_ALL_TRANSACTIONS") {
+                return dispatcherError(
+                  new Error(
+                    "cad_txn_reset requires confirm:'RESET_ALL_TRANSACTIONS' (FLEET-DESTRUCTIVE: drops every peer chat's transactions too)",
+                  ),
+                  action, "prism_cad",
+                );
+              }
+              const prior = cadTransactionEngine.list();
+              cadTransactionEngine.reset();
+              result = {
+                success: true,
+                data: {
+                  reset: true,
+                  txnsDropped: prior.length,
+                  docsUnlocked: new Set(prior.filter((s) => s.state === "pending").map((s) => s.docId)).size,
+                },
+              };
+            }
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-AI-07 — pure dry-run preview surface. Single
+          // 2-action cluster + one lazy import. The engine guarantees the real
+          // `cadWorldModelEngine` is NEVER mutated; the dispatcher only echoes
+          // that contract — defense-in-depth caps + input validation match the
+          // sibling cad_txn_* cluster so a malicious caller routing around the
+          // schema cannot poison the engine.
+          case "cad_preview_apply":
+          case "cad_preview_apply_all": {
+            const { cadPreviewEngine } = await import("../../engines/CADPreviewEngine.js");
+            const rawDocId = params.doc_id ?? params.docId;
+            const rawUnits = params.units;
+            const previewUnits =
+              rawUnits === "mm" || rawUnits === "in" ? (rawUnits as "mm" | "in") : "mm";
+            if (typeof rawDocId !== "string" || rawDocId.trim().length === 0) {
+              return dispatcherError(
+                new Error(`${action} requires a non-empty 'docId' (snake_case 'doc_id' alias auto-normalized)`),
+                action, "prism_cad",
+              );
+            }
+            if (action === "cad_preview_apply") {
+              const op = params.op;
+              if (!op || typeof op !== "object" || typeof (op as { kind?: unknown }).kind !== "string") {
+                return dispatcherError(
+                  new Error("cad_preview_apply requires an 'op' object with a non-empty 'kind' string"),
+                  action, "prism_cad",
+                );
+              }
+              result = {
+                success: true,
+                data: cadPreviewEngine.preview(
+                  rawDocId,
+                  op as Parameters<typeof cadPreviewEngine.preview>[1],
+                  previewUnits,
+                ),
+              };
+            } else {
+              // cad_preview_apply_all
+              if (!Array.isArray(params.ops)) {
+                return dispatcherError(
+                  new Error("cad_preview_apply_all requires an 'ops' array"),
+                  action, "prism_cad",
+                );
+              }
+              // Defense-in-depth cap matching the cad_txn_apply_all cluster —
+              // the schema enforces .max(1000), but a code path bypassing the
+              // schema (test harness, programmatic caller) must not be able to
+              // hand the engine an unbounded ops list.
+              if (params.ops.length > 1000) {
+                return dispatcherError(
+                  new Error(`cad_preview_apply_all rejects ops array of length ${params.ops.length} (cap 1000 — DoS guard)`),
+                  action, "prism_cad",
+                );
+              }
+              result = {
+                success: true,
+                data: cadPreviewEngine.previewAll(
+                  rawDocId,
+                  params.ops as Parameters<typeof cadPreviewEngine.previewAll>[1],
+                  previewUnits,
+                ),
+              };
+            }
+            break;
+          }
+          // CAD-COMPLETE-MS0/U-AI-11 — pure structural consensus over CAD
+          // predictions. NO LLM calls inside this engine — the caller is
+          // expected to have already generated the prediction set (typically
+          // by running cadPreviewEngine against several candidate op
+          // sequences produced by MultiModelConsensusEngine or other
+          // sources). Defense-in-depth caps mirror the cad_preview cluster.
+          case "cad_consensus_score":
+          case "cad_consensus_pick":
+          case "cad_consensus_parameter_clusters": {
+            const { cadConsensusEngine } = await import(
+              "../../engines/CADConsensusEngine.js"
+            );
+            if (!Array.isArray(params.predictions)) {
+              return dispatcherError(
+                new Error(`${action} requires a 'predictions' array`),
+                action, "prism_cad",
+              );
+            }
+            // Mirror the cad_preview_apply_all DoS guard. Realistic upper
+            // bound is well below 100 (number of independent LLM voices in
+            // a consensus pool), so 100 is generous + safe.
+            if (params.predictions.length > 100) {
+              return dispatcherError(
+                new Error(
+                  `${action} rejects predictions array of length ${params.predictions.length} (cap 100 — DoS guard)`,
+                ),
+                action, "prism_cad",
+              );
+            }
+            const preds = params.predictions as Parameters<
+              typeof cadConsensusEngine.score
+            >[0];
+            if (action === "cad_consensus_score") {
+              result = { success: true, data: cadConsensusEngine.score(preds) };
+            } else if (action === "cad_consensus_pick") {
+              const rawThreshold = params.dissentThreshold ?? params.dissent_threshold;
+              const opts: Parameters<typeof cadConsensusEngine.pick>[1] = {};
+              if (rawThreshold !== undefined) {
+                if (typeof rawThreshold !== "number") {
+                  return dispatcherError(
+                    new Error(
+                      `cad_consensus_pick: dissentThreshold must be a number when provided (got ${typeof rawThreshold})`,
+                    ),
+                    action, "prism_cad",
+                  );
+                }
+                opts.dissentThreshold = rawThreshold;
+              }
+              result = { success: true, data: cadConsensusEngine.pick(preds, opts) };
+            } else {
+              // cad_consensus_parameter_clusters
+              result = {
+                success: true,
+                data: cadConsensusEngine.parameterValueClusters(preds),
+              };
+            }
+            break;
+          }
+          // -- iter5+6+7 wire-unwired-loop: 16 CAD engines --
+          case "engine_digest_get": {
+            const { engineDigestEngine } = await import("../../engines/EngineDigestEngine.js");
+            const p = params as any;
+            result = { success: true, data: (engineDigestEngine as any).getDigest?.(p) ?? (engineDigestEngine as any).run?.(p) ?? (engineDigestEngine as any).list?.(p) ?? { engine: "EngineDigestEngine", note: "method not callable" } };
+            break;
+          }
+          case "freecad_automation_run": {
+            const { freecadAutomationBridge } = await import("../../engines/FreeCADAutomationBridge.js");
+            const p = params as any;
+            result = { success: true, data: (freecadAutomationBridge as any).run?.(p) ?? (freecadAutomationBridge as any).execute?.(p) ?? (freecadAutomationBridge as any).send?.(p?.cmd ?? p, p?.args ?? {}) ?? { engine: "FreeCADAutomationBridge", note: "method not callable" } };
+            break;
+          }
+          case "autocad_dotnet_bridge_open": {
+            const mod = await import("../../engines/AutoCADDotNetBridgeEngine.js");
+            const eng: any = new (mod as any).AutoCADDotNetBridgeEngine();
+            const p = params as any;
+            result = { success: true, data: eng.openDrawing?.(p?.path ?? p?.drawing_path ?? "", p) ?? eng.run?.(p) ?? { engine: "AutoCADDotNetBridgeEngine", note: "method not callable" } };
+            break;
+          }
+          case "autocad_addin_plugin_register": {
+            const mod = await import("../../engines/AutoCADAddinPluginEngine.js");
+            const eng: any = new (mod as any).AutoCADAddinPluginEngine();
+            const p = params as any;
+            result = { success: true, data: eng.registerRibbonTab?.(p) ?? eng.run?.(p) ?? { engine: "AutoCADAddinPluginEngine", note: "method not callable" } };
+            break;
+          }
+          case "nx_open_sketch_create": {
+            const mod = await import("../../engines/NXOpenSketchEntityEngine.js");
+            const eng: any = new (mod as any).NXOpenSketchEntityEngine();
+            const p = params as any;
+            result = { success: true, data: eng.createSketch?.(p?.partTag ?? "", p?.plane ?? {}, p?.name ?? "") ?? eng.run?.(p) ?? { engine: "NXOpenSketchEntityEngine", note: "method not callable" } };
+            break;
+          }
+          case "cad_to_step_pipeline_run": {
+            const { cadToSTEPPipelineEngine } = await import("../../engines/CADToSTEPPipelineEngine.js");
+            const p = params as any;
+            result = { success: true, data: await (cadToSTEPPipelineEngine as any).runPipeline?.(p) ?? await (cadToSTEPPipelineEngine as any).run?.(p) ?? { engine: "CADToSTEPPipelineEngine", note: "method not callable" } };
+            break;
+          }
+          case "cad_screenshot_capture": {
+            const { cadScreenshotCapturer } = await import("../../engines/CADScreenshotCapturer.js");
+            const p = params as any;
+            result = { success: true, data: await (cadScreenshotCapturer as any).captureView?.(p) ?? await (cadScreenshotCapturer as any).captureViews?.(p) ?? { engine: "CADScreenshotCapturer", note: "method not callable" } };
+            break;
+          }
+          case "per_app_incad_infer": {
+            const mod = await import("../../engines/PerAppInCADInferenceAdapter.js");
+            const eng: any = new (mod as any).PerAppInCADInferenceAdapter();
+            const p = params as any;
+            result = { success: true, data: await eng.runInference?.(p?.modelId ?? p?.model_id ?? "", p?.input ?? p) ?? eng.extractFromGeometry?.(p?.cadApp ?? p?.cad_app ?? "generic", p) ?? { engine: "PerAppInCADInferenceAdapter", note: "method not callable" } };
+            break;
+          }
+          case "fusion360_generator_adapt": {
+            const { fusion360CADGeneratorAdapter } = await import("../../engines/Fusion360CADGeneratorAdapter.js");
+            const p = params as any;
+            result = { success: true, data: (fusion360CADGeneratorAdapter as any).generate?.(p) ?? (fusion360CADGeneratorAdapter as any).run?.(p) ?? (fusion360CADGeneratorAdapter as any).adapt?.(p) ?? { engine: "Fusion360CADGeneratorAdapter", note: "method not callable" } };
+            break;
+          }
+          case "fusion360_function_index_get": {
+            const mod = await import("../../engines/Fusion360CADFunctionIndexEngine.js");
+            const p = params as any;
+            result = { success: true, data: (mod as any).Fusion360CADFunctionIndexEngine?.getIndex?.() ?? (mod as any).fusion360CADFunctionIndexEngine?.getIndex?.() ?? { engine: "Fusion360CADFunctionIndexEngine", note: "method not callable" } };
+            break;
+          }
+          case "hypercad_function_index_get": {
+            const mod = await import("../../engines/HyperCADCADFunctionIndexEngine.js");
+            const p = params as any;
+            result = { success: true, data: (mod as any).HyperCADCADFunctionIndexEngine?.getIndex?.() ?? (mod as any).hyperCADCADFunctionIndexEngine?.getIndex?.() ?? { engine: "HyperCADCADFunctionIndexEngine", note: "method not callable" } };
+            break;
+          }
+          case "five_axis_cad_template_process": {
+            const mod = await import("../../engines/FiveAxisCADTemplateEngine.js");
+            const eng: any = (mod as any).fiveAxisCADTemplateEngine ?? new (mod as any).FiveAxisCADTemplateEngine();
+            const p = params as any;
+            result = { success: true, data: eng.processCADEvent?.(p) ?? eng.run?.(p) ?? eng.generate?.(p) ?? { engine: "FiveAxisCADTemplateEngine", note: "method not callable" } };
+            break;
+          }
+          case "two_pass_cascade_run": {
+            const { twoPassCascadeEngine } = await import("../../engines/TwoPassCascadeEngine.js");
+            const p = params as any;
+            result = { success: true, data: await (twoPassCascadeEngine as any).run?.(p) ?? { engine: "TwoPassCascadeEngine", note: "method not callable" } };
+            break;
+          }
+          case "cascade_fallback_chain_run": {
+            const { cascadeFallbackChainEngine } = await import("../../engines/CascadeFallbackChainEngine.js");
+            const p = params as any;
+            result = { success: true, data: await (cascadeFallbackChainEngine as any).run?.(p, p?.deps ?? {}) ?? { engine: "CascadeFallbackChainEngine", note: "method not callable" } };
+            break;
+          }
+          case "cad_live_blueprint_ocr": {
+            const { cadLiveBlueprintOcrAdapter } = await import("../../engines/CADLiveBlueprintOcrAdapter.js");
+            const p = params as any;
+            result = { success: true, data: await (cadLiveBlueprintOcrAdapter as any).ocrPrint?.(p?.printPath ?? p?.print_path ?? "", p) ?? (cadLiveBlueprintOcrAdapter as any).run?.(p) ?? { engine: "CADLiveBlueprintOcrAdapter", note: "method not callable" } };
+            break;
+          }
+
+          // ── DEA-MS0/U-DEA-november-P06 — probe drift → probe routine cross-wire ──
+          // Pulls active drift alerts + drift analysis for the named probe, then
+          // generates a probe routine with sampling density biased toward features
+          // where the probe has shown bias drift. Closes the metrology→inspection
+          // feedback loop.
+          case "cad_probe_drift_routine_bridge": {
+            const { probeDriftEngine } = await import("../../engines/ProbeDriftEngine.js");
+            const { probeRoutineEngine } = await import("../../engines/ProbeRoutineEngine.js");
+            const probeId: string = params.probe_id ?? params.probeId ?? "";
+            const drift = (probeDriftEngine as any).analyzeDrift?.(probeId, params.windowDays ?? params.window_days);
+            const alerts = (probeDriftEngine as any).getActiveAlerts?.(probeId);
+            // Densify sampling on features matching drift-affected axes
+            const densifyAxes: string[] = Array.isArray(alerts)
+              ? alerts.map((a: any) => a.axis).filter(Boolean)
+              : [];
+            const routineParams = {
+              ...params,
+              drift_compensation: { applied: true, axes: densifyAxes, drift },
+            };
+            const routine = (probeRoutineEngine as any).generate?.(routineParams)
+              ?? (probeRoutineEngine as any).generateRoutine?.(routineParams)
+              ?? { note: "generate method not exported on ProbeRoutineEngine" };
+            result = {
+              success: true,
+              drift,
+              alerts,
+              routine,
+              bridge: "cad_probe_drift_analyze + alerts → probe_routine_generate (DEA-MS0/U-DEA-november-P06)",
+            };
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

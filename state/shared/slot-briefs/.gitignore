@@ -1,0 +1,6 @@
+# Transient orchestrator→slot work orders. The orchestrator writes <slot>.md;
+# slot-brief-inject.mjs consumes them to _delivered/. Both are runtime state,
+# not source — only README.md (+ this .gitignore) are tracked.
+*.md
+!README.md
+_delivered/

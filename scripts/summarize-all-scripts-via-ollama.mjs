@@ -6,7 +6,7 @@
  *
  * Walks every executable script under H:/prism/scripts/ and
  * H:/prism/mcp-server/scripts/, asks the local Ollama
- * qwen2.5-coder:7b model for a single-sentence summary, and writes
+ * qwen2.5-coder:32b model for a single-sentence summary, and writes
  * the result to H:/prism/knowledge/scripts/INDEX.md so the
  * script-summary-inject hook can answer "what does this script do?"
  * without re-reading the source file.
@@ -34,6 +34,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { resolveSynthesisModel } from "./lib/host-aware-synthesis-model.mjs";
 
 const SCRIPT_DIRS = [
   "H:/prism/scripts",
@@ -42,8 +43,14 @@ const SCRIPT_DIRS = [
 const VAULT_INDEX = "H:/prism/knowledge/scripts/INDEX.md";
 const STATE_FILE = "H:/prism/mcp-server/data/state/SCRIPTS_INDEX.json";
 const OLLAMA_URL = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434/api/generate";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL ?? "qwen2.5-coder:7b";
-const OLLAMA_TIMEOUT_MS = 8_000;
+// FALLBACK only — the host-aware resolver routes this to the best local model
+// for the host (Blackwell → qwen2.5-coder:32b; weak host → same small model;
+// Ollama down → this fallback). Env OLLAMA_MODEL still pins it explicitly.
+const DEFAULT_MODEL = process.env.OLLAMA_MODEL ?? "qwen2.5-coder:32b";
+// 32b is a ~20GB model — its FIRST request triggers a cold GPU load that can
+// exceed two minutes. The old 8s cap aborted every cold-load summary; raise to
+// 120s so the resolved (possibly large) model has time to warm up.
+const OLLAMA_TIMEOUT_MS = 120_000;
 const MAX_SUMMARY_CHARS = 240;
 const SCRIPT_EXTS = [".mjs", ".js", ".ts", ".cjs", ".mts"];
 
@@ -126,7 +133,7 @@ function extractDocstringSummary(content) {
   return null;
 }
 
-async function ollamaSummarize(filename, content) {
+async function ollamaSummarize(filename, content, model = DEFAULT_MODEL) {
   const prompt = [
     "You are a concise code summarizer. Summarize what this script does in EXACTLY ONE sentence (under 200 chars).",
     "No filenames, no markdown, no fluff — just a sentence describing the action.",
@@ -139,7 +146,7 @@ async function ollamaSummarize(filename, content) {
     const res = await fetch(OLLAMA_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: OLLAMA_MODEL, prompt, stream: false, options: { num_predict: 80 } }),
+      body: JSON.stringify({ model, prompt, stream: false, options: { num_predict: 80 } }),
       signal: ctrl.signal,
     });
     clearTimeout(timer);
@@ -181,11 +188,43 @@ function renderIndexMd(entries) {
   return lines.join("\n");
 }
 
+/**
+ * Pull an explicit `--model <value>` (or `--model=<value>`) from the RAW argv.
+ * We read the raw process args — NOT parseArgs — because parseArgs would bake in
+ * a default, making an explicit `--model qwen2.5-coder:7b` indistinguishable from
+ * no flag. Only an operator-supplied flag should override the host-aware resolver.
+ * Returns the value string, or null if no explicit flag is present.
+ */
+export function explicitModelArg(argv) {
+  const args = argv.slice(2);
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === "--model") {
+      const v = args[i + 1];
+      return typeof v === "string" && v.trim() ? v.trim() : null;
+    }
+    if (a.startsWith("--model=")) {
+      const v = a.slice("--model=".length);
+      return v.trim() ? v.trim() : null;
+    }
+  }
+  return null;
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   let scripts = listScripts();
   if (scripts.length === 0) { process.stderr.write("No scripts found\n"); process.exit(1); }
   if (args.limit > 0) scripts = scripts.slice(0, args.limit);
+
+  // Resolve the synthesis model ONCE for this run. Fail-soft: on a weak host or
+  // with Ollama down the resolver returns DEFAULT_MODEL; on the Blackwell host it
+  // upgrades to qwen2.5-coder:32b. The resolved `model` is threaded into every
+  // summarize call so preflight and generation share one model identity.
+  const { model: resolvedModel } = await resolveSynthesisModel({
+    fallback: DEFAULT_MODEL,
+    override: explicitModelArg(process.argv),
+  });
 
   const state = loadState();
   const stats = {
@@ -198,6 +237,7 @@ async function main() {
     failed: 0,
     dryRun: args.dryRun,
     noOllama: args.noOllama,
+    model: resolvedModel,
   };
 
   for (const file of scripts) {
@@ -213,7 +253,7 @@ async function main() {
     if (summary) {
       stats.summarizedDocstring++;
     } else if (!args.noOllama && !args.dryRun) {
-      summary = await ollamaSummarize(path.basename(file), content);
+      summary = await ollamaSummarize(path.basename(file), content, resolvedModel);
       if (summary) stats.summarizedOllama++;
     }
     if (!summary) {
@@ -236,7 +276,15 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((e) => {
-  process.stderr.write(`uncaught: ${e?.message ?? e}\n`);
-  process.exit(1);
-});
+// Only auto-run when invoked directly as a script (node ...summarize-all-scripts-via-ollama.mjs).
+// Importing this module (e.g. from the sibling .test.mjs) must NOT trigger main()
+// — main() calls process.exit() and would tear down the test runner.
+import { fileURLToPath } from "node:url";
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (invokedDirectly) {
+  main().catch((e) => {
+    process.stderr.write(`uncaught: ${e?.message ?? e}\n`);
+    process.exit(1);
+  });
+}

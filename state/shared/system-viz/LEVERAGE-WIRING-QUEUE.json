@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "H:/prism/state/shared/system-viz/architecture-graph.json",
+  "graphGeneratedAt": "2026-05-29T16:03:03.558Z",
+  "totals": {
+    "domains": 13,
+    "unwiredEngines": 118,
+    "needInference": 3
+  },
+  "note": "Domain-granularity leverage queue from architecture-graph L5 eng.<domain> nodes (OOM-safe). Per-engine ranking needs the 548MB merged graph. leverageScore is graph-computed (unlocks.leverageScore) or derived (unwired×dispatchersGain×downstreamHops).",
+  "queue": [
+    {
+      "domain": "MiscDomains",
+      "id": "eng.miscdomains",
+      "unwired": 69,
+      "coverage_pct": 96,
+      "leverageScore": 138,
+      "downstreamHops": 2,
+      "dispatchersGain": 0,
+      "suggestedDispatchers": [],
+      "needsDispatcherInference": true,
+      "scoreSource": "derived"
+    },
+    {
+      "domain": "Other",
+      "id": "eng.other",
+      "unwired": 22,
+      "coverage_pct": 97,
+      "leverageScore": 66,
+      "downstreamHops": 2,
+      "dispatchersGain": 3,
+      "suggestedDispatchers": [
+        "disp.algorithmdispatcher",
+        "disp.intelligencedispatcher",
+        "disp.contextdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Monolith",
+      "id": "eng.monolith",
+      "unwired": 5,
+      "coverage_pct": 71,
+      "leverageScore": 10,
+      "downstreamHops": 2,
+      "dispatchersGain": 0,
+      "suggestedDispatchers": [],
+      "needsDispatcherInference": true,
+      "scoreSource": "derived"
+    },
+    {
+      "domain": "Hyper",
+      "id": "eng.hyper",
+      "unwired": 3,
+      "coverage_pct": 96,
+      "leverageScore": 6,
+      "downstreamHops": 2,
+      "dispatchersGain": 2,
+      "suggestedDispatchers": [
+        "disp.camdispatcher",
+        "disp.camfunctiondispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Wet",
+      "id": "eng.wet",
+      "unwired": 3,
+      "coverage_pct": 80,
+      "leverageScore": 6,
+      "downstreamHops": 2,
+      "dispatchersGain": 2,
+      "suggestedDispatchers": [
+        "disp.diagnosisdispatcher",
+        "disp.feasibilitydispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Shop",
+      "id": "eng.shop",
+      "unwired": 2,
+      "coverage_pct": 90,
+      "leverageScore": 6,
+      "downstreamHops": 2,
+      "dispatchersGain": 3,
+      "suggestedDispatchers": [
+        "disp.shopdispatcher",
+        "disp.shoppracticedispatcher",
+        "disp.businessdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Speed",
+      "id": "eng.speed",
+      "unwired": 5,
+      "coverage_pct": 74,
+      "leverageScore": 5,
+      "downstreamHops": 2,
+      "dispatchersGain": 1,
+      "suggestedDispatchers": [
+        "disp.spdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Mill",
+      "id": "eng.mill",
+      "unwired": 2,
+      "coverage_pct": 97,
+      "leverageScore": 2,
+      "downstreamHops": 2,
+      "dispatchersGain": 1,
+      "suggestedDispatchers": [
+        "disp.milldispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Quoting",
+      "id": "eng.quoting",
+      "unwired": 2,
+      "coverage_pct": 85,
+      "leverageScore": 2,
+      "downstreamHops": 2,
+      "dispatchersGain": 1,
+      "suggestedDispatchers": [
+        "disp.quotingdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Tool",
+      "id": "eng.tool",
+      "unwired": 2,
+      "coverage_pct": 97,
+      "leverageScore": 2,
+      "downstreamHops": 2,
+      "dispatchersGain": 1,
+      "suggestedDispatchers": [
+        "disp.toolpathdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Fusion",
+      "id": "eng.fusion",
+      "unwired": 1,
+      "coverage_pct": 97,
+      "leverageScore": 2,
+      "downstreamHops": 2,
+      "dispatchersGain": 2,
+      "suggestedDispatchers": [
+        "disp.cadautomationdispatcher",
+        "disp.caddispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    },
+    {
+      "domain": "Post",
+      "id": "eng.post",
+      "unwired": 1,
+      "coverage_pct": 98,
+      "leverageScore": 2,
+      "downstreamHops": 2,
+      "dispatchersGain": 0,
+      "suggestedDispatchers": [],
+      "needsDispatcherInference": true,
+      "scoreSource": "derived"
+    },
+    {
+      "domain": "Mastercam",
+      "id": "eng.mastercam",
+      "unwired": 1,
+      "coverage_pct": 96,
+      "leverageScore": 1,
+      "downstreamHops": 2,
+      "dispatchersGain": 1,
+      "suggestedDispatchers": [
+        "disp.camdispatcher"
+      ],
+      "needsDispatcherInference": false,
+      "scoreSource": "graph"
+    }
+  ]
+}

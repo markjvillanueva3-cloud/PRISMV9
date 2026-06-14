@@ -1,0 +1,224 @@
+/**
+ * prism-paths-feed.cps — PRISM Paths unified adaptive-feed core (ES5, Fusion-includable)
+ * ============================================================================
+ * SHARED feed engine for BOTH base posts (Tier-1 standalone .cps + Tier-2 add-in .cps).
+ * Fusion posts pull this in with  include("prism-paths-feed.cps");  — it then exposes the
+ * functions in post scope. The trailing CommonJS guard lets the equivalence test require()
+ * it in node (typeof module is "undefined" inside Fusion, so the guard is a no-op there).
+ *
+ * SINGLE SOURCE OF TRUTH: this is a faithful ES5 mirror of scripts/prism-paths-feed.mjs
+ * (25 node:tests). Drift is forbidden and CAUGHT by scripts/prism-paths-cps-equivalence.test.mjs,
+ * which runs the SAME input battery through both and asserts identical numeric output, and
+ * asserts the baked CANONICAL_KIENZLE below equals src/physics/constants.ts.
+ *
+ * kc1.1 / mc are baked here (a .cps cannot read constants.ts at post time) but are NOT
+ * hand-authored doctrine constants — they are a test-verified copy of CANONICAL_KIENZLE
+ * (Sandvik Coromant; ISO P/M/K/N/S/H). Never edit by hand — change constants.ts, then the
+ * equivalence test will demand this be regenerated to match.
+ */
+
+(function (root) {
+  "use strict";
+
+  // ── canonical cutting data (test-verified mirror of constants.ts CANONICAL_KIENZLE) ──
+  var CANONICAL_KIENZLE = {
+    P: { kc1_1: 1800, mc: 0.25 }, M: { kc1_1: 2100, mc: 0.25 }, K: { kc1_1: 1100, mc: 0.28 },
+    N: { kc1_1: 700, mc: 0.22 }, S: { kc1_1: 2800, mc: 0.27 }, H: { kc1_1: 3200, mc: 0.30 }
+  };
+
+  // ── unit + tuning constants (mirror of the .mjs) ──
+  var IN_TO_MM = 25.4, KW_TO_HP = 1.341022, NM_TO_FTLB = 0.7375621;
+  var SEC_PER_MIN = 60, POWER_DENOM = 60e6, MIN_HM = 1e-4, DEFAULT_EFFICIENCY = 0.85;
+  var DEF_MAX_CHIP_THINNING_MULT = 1.5, DEF_MAX_STICKOUT_RATIO = 4.0, DEF_FINISH_STICKOUT_TOL = 6.0;
+  var DEF_STICKOUT_SAFETY = 1.0, DEF_AGGRESSIVENESS = 5, AGGRESSIVENESS_MAX_LEVEL = 8, AGGRESSIVENESS_MIN_FACTOR = 0.5;
+  var CHIP_THIN_ENGAGEMENT_CUTOFF_PCT = 50, STICKOUT_MAX_REDUCTION_PCT = 50, STICKOUT_REDUCTION_COEFF = 5, CHIP_THIN_SUGGEST_THRESHOLD = 1.2;
+  var HARDNESS_DERATE = [[20, 1.10], [28, 1.00], [32, 0.90], [36, 0.80], [40, 0.70], [45, 0.55], [50, 0.45], [55, 0.35]];
+  var EXTREME_HARDNESS_FACTOR = 0.30;
+  var AXIAL_LOC_OVERRIDE = [[0.85, 0.45], [0.75, 0.55], [0.65, 0.70], [0.55, 0.85]];
+  var OPTIMAL_DEPTH_RATIO_FINISH = 0.5, OPTIMAL_DEPTH_RATIO_ROUGH = 2.0, LIGHT_DOC_MAX_INCREASE = 0.3;
+  var ROUGH_MAX_SAFE_DEPTH_RATIO_FALLBACK = 2.5, ROUGH_FLUTE_SAFE_FRACTION = 0.9;
+  var DEF_ROUGHING_OPTIMAL_WOC = 15, DEF_FINISHING_MAX_WOC = 35, ADAPTIVE3D_LIGHT_FRACTION = 0.75;
+  var AE_MAX_K = 0.35, AE_MAX_N = 1.5, AE_LOC_NOLIMIT = 0.20, AE_RATIO_FLOOR = 0.03, AE_LOC_CAP = 0.95;
+
+  // ── helpers ──
+  function num(x, d) { d = (d === undefined) ? 0 : d; return (typeof x === "number" && isFinite(x)) ? x : d; }
+  function toMM(x, units) { return units === "mm" ? x : x * IN_TO_MM; }
+  function clampFactor(f) { return (!isFinite(f) || f <= 0) ? 1 : f; }
+
+  // ── Kienzle power/torque guard (SAFETY; exact sublinear-feed clamp) ──
+  function kienzlePowerTorqueGuard(ctx) {
+    var units = ctx.units || "in";
+    var D = toMM(num(ctx.toolDia), units), ae = toMM(num(ctx.ae), units), ap = toMM(num(ctx.ap), units);
+    var vf = toMM(num(ctx.feed), units), rpm = num(ctx.rpm);
+    var flutes = Math.max(1, Math.round(num(ctx.flutes, 1)));
+    var iso = String(ctx.isoGroup || "P").toUpperCase();
+    var hp = num(ctx.spindleHP), torqueFtLb = num(ctx.spindleTorqueFtLb), eff = num(ctx.spindleEfficiency, DEFAULT_EFFICIENCY);
+    var availHP = hp > 0 ? hp * eff : Infinity, availTq = torqueFtLb > 0 ? torqueFtLb * eff : Infinity;
+    if (D <= 0 || ae <= 0 || ap <= 0 || vf <= 0 || rpm <= 0) {
+      return { factor: 1, powerHP: 0, torqueFtLb: 0, availPowerHP: availHP, availTorqueFtLb: availTq, note: "guard skipped - incomplete cut params" };
+    }
+    var k = CANONICAL_KIENZLE[iso] || CANONICAL_KIENZLE.P;
+    var fz = vf / (rpm * flutes);
+    var aeRatio = Math.min(Math.max(ae / D, 0), 1);
+    var hm = Math.max(fz * Math.sqrt(aeRatio), MIN_HM);
+    var kc = k.kc1_1 * Math.pow(hm, -k.mc);
+    var mrr = ae * ap * vf;
+    var pcKW = (mrr * kc) / POWER_DENOM;
+    var pcHP = pcKW * KW_TO_HP;
+    var mcNm = (pcKW * 1000 * SEC_PER_MIN) / (2 * Math.PI * rpm);
+    var torqueOut = mcNm * NM_TO_FTLB;
+    var fpExp = 1 / (1 - k.mc);
+    var powerFactor = pcHP > availHP ? Math.pow(availHP / pcHP, fpExp) : 1;
+    var torqueFactor = torqueOut > availTq ? Math.pow(availTq / torqueOut, fpExp) : 1;
+    var factor = Math.min(powerFactor, torqueFactor, 1);
+    var note = "";
+    if (factor < 1) {
+      note = (powerFactor <= torqueFactor)
+        ? "feed clamped " + factor.toFixed(3) + "x - power " + pcHP.toFixed(1) + "/" + availHP.toFixed(1) + " HP (ISO " + iso + ")"
+        : "feed clamped " + factor.toFixed(3) + "x - torque " + torqueOut.toFixed(0) + "/" + availTq.toFixed(0) + " ft-lb (ISO " + iso + ")";
+    }
+    return { factor: factor, powerHP: pcHP, torqueFtLb: torqueOut, availPowerHP: availHP, availTorqueFtLb: availTq, note: note };
+  }
+
+  // ── ported op-level factors (exact mirror of the .mjs) ──
+  function chipThinningFactor(ctx) {
+    var D = num(ctx.toolDia), ae = num(ctx.ae), maxMult = num(ctx.maxChipThinMult, DEF_MAX_CHIP_THINNING_MULT);
+    if (ae <= 0 || D <= 0) return { factor: 1, note: "" };
+    var engagementPct = (ae / D) * 100;
+    if (engagementPct >= CHIP_THIN_ENGAGEMENT_CUTOFF_PCT) return { factor: 1, note: "high engagement - standard feed" };
+    var chipRatio = Math.sqrt(ae / D);
+    var factor = Math.min(1 / chipRatio, maxMult);
+    return { factor: factor, note: factor > CHIP_THIN_SUGGEST_THRESHOLD ? "chip thinning +" + Math.round((factor - 1) * 100) + "% feed" : "light chip-thinning comp" };
+  }
+  function hardnessSpeedFactor(ctx) {
+    var hrc = num(ctx.hrc);
+    if (hrc <= 0) return { factor: 1, note: "" };
+    for (var i = 0; i < HARDNESS_DERATE.length; i++) { if (hrc <= HARDNESS_DERATE[i][0]) return { factor: HARDNESS_DERATE[i][1], note: "HRC " + hrc + " -> " + HARDNESS_DERATE[i][1] + "x" }; }
+    return { factor: EXTREME_HARDNESS_FACTOR, note: "HRC " + hrc + " extreme -> " + EXTREME_HARDNESS_FACTOR + "x" };
+  }
+  function aggressivenessFactor(ctx) {
+    var level = num(ctx.aggressivenessLevel, DEF_AGGRESSIVENESS);
+    level = Math.min(Math.max(level, 1), AGGRESSIVENESS_MAX_LEVEL);
+    var factor = AGGRESSIVENESS_MIN_FACTOR + (level - 1) * (AGGRESSIVENESS_MIN_FACTOR / (AGGRESSIVENESS_MAX_LEVEL - 1));
+    return { factor: factor, note: "aggressiveness L" + level + " -> " + factor.toFixed(3) + "x" };
+  }
+  function stickoutDeflectionFactor(ctx) {
+    var D = num(ctx.toolDia), len = num(ctx.toolLength != null ? ctx.toolLength : ctx.stickout);
+    var isFinish = ctx.isFinishing === true;
+    var threshold = isFinish ? num(ctx.finishStickoutTol, DEF_FINISH_STICKOUT_TOL) : num(ctx.maxStickoutRatio, DEF_MAX_STICKOUT_RATIO);
+    var safety = num(ctx.stickoutSafety, DEF_STICKOUT_SAFETY);
+    if (D <= 0 || len <= 0) return { factor: 1, note: "" };
+    var ratio = len / D;
+    if (ratio <= threshold) return { factor: 1, note: "stickout OK" };
+    var excess = ratio - threshold;
+    var reductionPct = Math.min(STICKOUT_MAX_REDUCTION_PCT, excess * excess * STICKOUT_REDUCTION_COEFF * safety);
+    var factor = 1 - reductionPct / 100;
+    return { factor: factor, note: (ratio > threshold * 1.5 ? "HIGH STICKOUT L/D " + ratio.toFixed(1) + " - feed -" : "stickout feed -") + Math.round(reductionPct) + "%" };
+  }
+  function axialDepthFactor(ctx) {
+    var ap = num(ctx.ap), D = num(ctx.toolDia), fluteLength = num(ctx.fluteLength);
+    var isFinish = ctx.isFinishing === true, isAdaptive = ctx.isAdaptive === true || ctx.is3D === true;
+    var maxMult = num(ctx.maxChipThinMult, DEF_MAX_CHIP_THINNING_MULT);
+    if (ap <= 0 || D <= 0) return { factor: 1, note: "" };
+    var depthRatio = ap / D, effLOC = fluteLength > 0 ? fluteLength : D * 3, locRatio = ap / effLOC;
+    var extremeFactor = 1, extremeWarn = "";
+    for (var i = 0; i < AXIAL_LOC_OVERRIDE.length; i++) {
+      if (locRatio > AXIAL_LOC_OVERRIDE[i][0]) { extremeFactor = AXIAL_LOC_OVERRIDE[i][1]; extremeWarn = "LOC " + Math.round(locRatio * 100) + "% - feed -" + Math.round((1 - extremeFactor) * 100) + "%"; break; }
+    }
+    var optimalDepthRatio = isFinish ? OPTIMAL_DEPTH_RATIO_FINISH : OPTIMAL_DEPTH_RATIO_ROUGH;
+    var factor = 1, note = "";
+    if (isAdaptive) {
+      if (depthRatio < optimalDepthRatio * 0.5) { factor = Math.min(1 / Math.sqrt(depthRatio / optimalDepthRatio), maxMult); note = "shallow DOC +" + Math.round((factor - 1) * 100) + "%"; }
+      else if (depthRatio < optimalDepthRatio) { factor = 1 + (1 - depthRatio / optimalDepthRatio) * LIGHT_DOC_MAX_INCREASE; note = "light DOC +" + Math.round((factor - 1) * 100) + "%"; }
+      else { factor = 1; note = "good DOC " + depthRatio.toFixed(2) + "xD"; }
+      if (extremeFactor < 1) { factor *= extremeFactor; note = extremeWarn; }
+    } else if (!isFinish) {
+      var maxSafeDepthRatio = fluteLength > 0 ? (fluteLength / D) * ROUGH_FLUTE_SAFE_FRACTION : ROUGH_MAX_SAFE_DEPTH_RATIO_FALLBACK;
+      if (depthRatio < optimalDepthRatio * 0.5) { factor = Math.min(1 / Math.sqrt(depthRatio / optimalDepthRatio), maxMult); note = "shallow DOC +" + Math.round((factor - 1) * 100) + "%"; }
+      else if (depthRatio <= maxSafeDepthRatio) { factor = 1; note = "good DOC " + depthRatio.toFixed(2) + "xD"; }
+      else { factor = maxSafeDepthRatio / depthRatio; note = "deep cut - feed -" + Math.round((1 - factor) * 100) + "%"; }
+    } else {
+      if (depthRatio <= optimalDepthRatio) factor = 1;
+      else { factor = optimalDepthRatio / depthRatio; note = "deep finish - feed reduced"; }
+    }
+    return { factor: factor, note: note };
+  }
+  function adaptive3DFactor(ctx) {
+    var D = num(ctx.toolDia), radialStepover = num(ctx.ae), axialStepover = num(ctx.ap);
+    var isRoughing = ctx.isRoughing !== false, maxMult = num(ctx.maxChipThinMult, DEF_MAX_CHIP_THINNING_MULT);
+    var roughWOC = num(ctx.roughingOptimalWOC, DEF_ROUGHING_OPTIMAL_WOC), finishWOC = num(ctx.finishingMaxWOC, DEF_FINISHING_MAX_WOC);
+    if (D <= 0) return { factor: 1, note: "" };
+    if (radialStepover <= 0 && axialStepover <= 0) return { factor: 1, note: "no stepover data" };
+    var radialPercent = (radialStepover / D) * 100;
+    var effectiveRadial = radialPercent > 0 ? radialPercent : roughWOC;
+    var targetEngagement = isRoughing ? roughWOC : finishWOC;
+    if (effectiveRadial < targetEngagement * ADAPTIVE3D_LIGHT_FRACTION) {
+      var factor = Math.min(Math.sqrt(targetEngagement / Math.max(effectiveRadial, 1)), maxMult);
+      return { factor: factor, note: "light engagement " + Math.round(effectiveRadial) + "% +" + Math.round((factor - 1) * 100) + "%" };
+    }
+    return { factor: 1, note: "normal engagement " + Math.round(effectiveRadial) + "%" };
+  }
+  function aeMaxSafeFactor(ctx) {
+    var ap = num(ctx.ap), D = num(ctx.toolDia), fluteLength = num(ctx.fluteLength);
+    if (ap <= 0 || D <= 0) return { factor: 1, note: "" };
+    var ae = num(ctx.ae), currentAeRatio = ae > 0 ? ae / D : 0;
+    if (currentAeRatio <= 0) return { factor: 1, note: "" };
+    var effLOC = fluteLength > 0 ? fluteLength : D * 3, locRatio = ap / effLOC;
+    if (locRatio < AE_LOC_NOLIMIT) return { factor: 1, note: "low LOC " + Math.round(locRatio * 100) + "% - no ae limit" };
+    var baseMaxAeRatio = AE_MAX_K * Math.pow(1 - Math.min(locRatio, AE_LOC_CAP), AE_MAX_N);
+    var maxAeRatio = Math.max(baseMaxAeRatio, AE_RATIO_FLOOR);
+    if (currentAeRatio > maxAeRatio) {
+      var derate = maxAeRatio / currentAeRatio;
+      return { factor: derate, note: "ae " + Math.round(currentAeRatio * 100) + "% > " + Math.round(maxAeRatio * 100) + "% safe - derate " + Math.round(derate * 100) + "%" };
+    }
+    return { factor: 1, note: "ae OK " + Math.round(currentAeRatio * 100) + "%" };
+  }
+
+  // ── the unified per-op pipeline (mirror of the .mjs PRISM_PATHS_STAGES + prismPaths) ──
+  var PRISM_PATHS_STAGES = [
+    { id: "hardnessSpeed", kind: "global", fn: hardnessSpeedFactor },
+    { id: "chipThinning", kind: "geometry", fn: chipThinningFactor },
+    { id: "axialDepth", kind: "geometry", fn: axialDepthFactor },
+    { id: "adaptive3D", kind: "geometry", fn: adaptive3DFactor },
+    { id: "stickoutDeflection", kind: "safety", fn: stickoutDeflectionFactor },
+    { id: "aeMaxSafe", kind: "safety", fn: aeMaxSafeFactor },
+    { id: "aggressiveness", kind: "global", fn: aggressivenessFactor },
+    { id: "powerTorqueGuard", kind: "safety", fn: function (ctx) { var g = kienzlePowerTorqueGuard(ctx); return { factor: g.factor, note: g.note, detail: g }; } }
+  ];
+  var PRISM_PATHS_MOTION_FACTORS = ["arcFeed", "cornerGForce", "feedRamp"]; // per-move layer (Tier-1 onMovement), not op-level
+
+  function setHas(set, id) { if (!set) return false; if (typeof set.indexOf === "function") return set.indexOf(id) >= 0; return !!set[id]; }
+
+  function prismPaths(baseFeed, ctx, opts) {
+    ctx = ctx || {}; opts = opts || {};
+    var base = Math.max(0, num(baseFeed));
+    var disabled = opts.disabled || [];
+    var proveOut = ctx.proveOut === true;
+    var factors = [], notes = [], warnings = [], combined = 1, i;
+    for (i = 0; i < PRISM_PATHS_STAGES.length; i++) {
+      var stage = PRISM_PATHS_STAGES[i], isSafety = stage.kind === "safety";
+      if (setHas(disabled, stage.id) && !(isSafety && !proveOut)) { factors.push({ id: stage.id, kind: stage.kind, factor: 1, note: "disabled", skipped: true }); continue; }
+      var r; try { r = stage.fn(ctx) || {}; } catch (e) { r = { factor: 1, note: stage.id + ": error" }; }
+      var f = clampFactor(num(r.factor, 1));
+      if (isSafety && f > 1) f = 1;
+      combined *= f;
+      factors.push({ id: stage.id, kind: stage.kind, factor: f, note: r.note, detail: r.detail });
+      if (r.note) { if (isSafety && f < 1) warnings.push(r.note); else notes.push(r.note); }
+    }
+    var feed = base * combined;
+    if (typeof opts.minFeed === "number" && isFinite(opts.minFeed)) feed = Math.max(feed, opts.minFeed);
+    if (typeof opts.maxFeed === "number" && isFinite(opts.maxFeed)) feed = Math.min(feed, opts.maxFeed);
+    return { feed: Math.round(feed * 1e4) / 1e4, baseFeed: base, combinedFactor: Math.round(combined * 1e6) / 1e6, factors: factors, notes: notes, warnings: warnings };
+  }
+
+  var api = {
+    CANONICAL_KIENZLE: CANONICAL_KIENZLE, kienzlePowerTorqueGuard: kienzlePowerTorqueGuard,
+    chipThinningFactor: chipThinningFactor, hardnessSpeedFactor: hardnessSpeedFactor,
+    aggressivenessFactor: aggressivenessFactor, stickoutDeflectionFactor: stickoutDeflectionFactor,
+    axialDepthFactor: axialDepthFactor, adaptive3DFactor: adaptive3DFactor, aeMaxSafeFactor: aeMaxSafeFactor,
+    prismPaths: prismPaths, PRISM_PATHS_STAGES: PRISM_PATHS_STAGES, PRISM_PATHS_MOTION_FACTORS: PRISM_PATHS_MOTION_FACTORS
+  };
+  // Fusion: attach to post scope (root === global). Node test: export via CommonJS.
+  for (var key in api) { if (api.hasOwnProperty(key)) root[key] = api[key]; }
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);

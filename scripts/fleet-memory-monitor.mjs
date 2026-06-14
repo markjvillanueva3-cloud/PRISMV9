@@ -83,8 +83,29 @@ const LEDGER_PATH = join(SHARED_DIR, "fleet-memory-monitor-state.json");
 const CHAT_BUS_PATH = join(SHARED_DIR, "AGENT_CHAT.jsonl");
 const SLOTS_PATH = join(REPO_ROOT, ".claude", "state", "chat-slots.json");
 const SLOTS_PATH_FALLBACK = join(SHARED_DIR, "chat-slots.json");
+const PS_WINDOW_PINS_PATH = join(SHARED_DIR, "ps-window-pins.json");
 const LOG_ROTATE_BYTES = 512 * 1024;   // 512 KB — ~ a week at 5-min cadence
 const TELEMETRY_BACKUP = TELEMETRY_PATH + ".1";
+
+// ─── FLEET-REAPER-MS3/U-FR-MS3-C — per-chat-tree advisory paths + defaults ──
+// New advisory layer that fires BEFORE system-wide critical, naming WHICH
+// chat tree is bloating. Complementary to the existing decideAdvisory layer
+// (which fires on physical/commit system pressure), not redundant.
+const CHAT_ADVISORY_LEDGER_PATH = join(SHARED_DIR, ".fleet-memory-chat-advisories.jsonl");
+const CHAT_ADVISORY_LEDGER_BACKUP = CHAT_ADVISORY_LEDGER_PATH + ".1";
+const CHAT_ADVISORY_LEDGER_ROTATE_BYTES = 1024 * 1024;   // 1 MB cap, then .1 rotation
+export const CHAT_ADVISORY_DEFAULT_THRESHOLD_MB = 2048;  // 2 GB default per-chat threshold
+export const CHAT_ADVISORY_DEFAULT_COOLDOWN_SEC = 1800;  // 30-min default cooldown
+const CHAT_ADVISORY_THRESHOLD_MB_MIN = 256;              // floor — clamp range
+const CHAT_ADVISORY_THRESHOLD_MB_MAX = 16384;            // ceiling — 16 GB max threshold
+const CHAT_ADVISORY_COOLDOWN_SEC_MIN = 60;               // 1 min floor (sane noise floor)
+const CHAT_ADVISORY_COOLDOWN_SEC_MAX = 86400;            // 24 h ceiling (longer = silent)
+
+function _clampIntInRange(v, def, lo, hi) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return def;
+  return Math.max(lo, Math.min(hi, Math.floor(n)));
+}
 
 export const LEDGER_SCHEMA_VERSION = 1;
 export const DEFAULT_WARN_PCT = 80;
@@ -246,6 +267,48 @@ export function readSlotsForAttribution(_io = {}) {
 }
 
 /**
+ * Read the PowerShell-window → slot pin map written by chat-slots.mjs U-SDF21
+ * via .claude/helpers/ps-window-pin.mjs. The pin keys on the PowerShell ancestor
+ * PID — STABLE for the window's life — so it survives the /compact + /clear +
+ * crash-respawn boundaries that make slot.pid useless for attribution
+ * (slot.pid is the ephemeral subshell that called the claim, which exits
+ * seconds later; terminalWindowId tier is similarly per-chat-ephemeral on
+ * standalone PowerShell where WT_SESSION is empty).
+ *
+ * Returns Map<psPidString, slotName>. Empty map when the file is missing /
+ * unparseable / has no pins — graceful degradation back to the slot.pid
+ * heuristic in attributeProcesses (which keeps the historic tree-PID label
+ * for trees the pin map cannot resolve).
+ *
+ * Pure-ish: takes optional _io for test injection mirroring readSlots-
+ * ForAttribution.
+ */
+export function readPinsForAttribution(_io = {}) {
+  const readFile = _io.readFileSync || readFileSync;
+  const exists = _io.existsSync || existsSync;
+  const path = _io.path || PS_WINDOW_PINS_PATH;
+  const out = new Map();
+  try {
+    if (!exists(path)) return out;
+    const text = readFile(path, "utf8");
+    if (!text) return out;
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== "object" || !parsed.pins || typeof parsed.pins !== "object") return out;
+    for (const [psPid, pin] of Object.entries(parsed.pins)) {
+      if (!pin || typeof pin !== "object") continue;
+      if (typeof pin.slot !== "string" || !pin.slot) continue;
+      // Key as string so caller can pass numeric PIDs without coercion mismatch.
+      out.set(String(psPid), pin.slot);
+    }
+  } catch {
+    // Fail-soft: a corrupt pins file MUST NOT stall the monitor sweep. The
+    // worst case is graceful degradation to the slot.pid heuristic, i.e.
+    // today's behavior. Operator sees stale labels, not a crashed monitor.
+  }
+  return out;
+}
+
+/**
  * Walk parent-pid ancestry. Given a process pid + the proc table, return the
  * first ancestor pid that matches any anchorPid in `anchors`. Returns null if
  * the chain exits (orphaned to System) or cycles (defensive: > 32 hops).
@@ -269,6 +332,40 @@ export function findAnchorAncestor(pid, procIndex, anchors) {
 }
 
 /**
+ * Walk parent-pid ancestry from startPid looking for the first ancestor whose
+ * name matches a shell (powershell.exe / pwsh.exe / cmd.exe). Returns that
+ * shell ancestor's PID, or null if none found within `maxHops` (or if the
+ * chain cycles / exits to System).
+ *
+ * Pure function — mirrors findAnchorAncestor's walking shape but with a
+ * name-match predicate instead of an anchor-set membership test. Used to
+ * bridge each claude.exe (anchor) to its PowerShell window for ps-window-pin
+ * lookup. maxHops defaults to 8, matching ps-window-pin.mjs MAX_HOPS so the
+ * two walkers cover the same depth.
+ */
+export function findPsAncestor(startPid, procIndex, maxHops = 8) {
+  const SHELLS = new Set(["powershell.exe", "pwsh.exe", "cmd.exe"]);
+  let cur = startPid, hops = 0;
+  const seen = new Set();
+  while (cur && hops++ < maxHops) {
+    if (seen.has(cur)) return null;   // cycle — defensive
+    seen.add(cur);
+    const p = procIndex.get(cur);
+    if (!p) return null;
+    if (p.ppid && p.ppid > 0) {
+      const parent = procIndex.get(p.ppid);
+      if (parent && parent.name && SHELLS.has(String(parent.name).toLowerCase())) {
+        return p.ppid;
+      }
+      cur = p.ppid;
+    } else {
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
  * Build chat-tree attribution: each claude.exe is an anchor; every node/git/
  * bash/powershell descendant rolls up into that tree. Procs whose ancestry
  * never reaches a claude.exe are "unowned" (system processes that happened
@@ -287,8 +384,14 @@ export function findAnchorAncestor(pid, procIndex, anchors) {
  *
  * @param {Array<{pid:number,ppid:number,name:string,rssBytes:number}>} procs
  * @param {Record<string,{pid:number}>=} slots  optional — when a slot.pid matches a claude.exe pid, the tree carries its name
+ * @param {Map<string,string>=} pins  optional — PowerShell-PID → slot map from
+ *   ps-window-pins.json (written by chat-slots.mjs U-SDF21 via ps-window-pin.mjs).
+ *   Resolves slot → claude.exe via the STABLE PS-window ancestry — the only
+ *   anchor that survives /compact + /clear + crash-respawn. Empty Map (default)
+ *   is graceful degradation to the slot.pid heuristic — the historic
+ *   tree-<PID> label pattern.
  */
-export function attributeProcesses(procs, slots = {}) {
+export function attributeProcesses(procs, slots = {}, pins = new Map()) {
   // Anchor set: every live claude.exe.
   const anchorByPid = new Map();
   for (const p of procs) {
@@ -299,12 +402,34 @@ export function attributeProcesses(procs, slots = {}) {
   const anchorSet = new Set(anchorByPid.keys());
   const procIndex = new Map(procs.map(p => [p.pid, p]));
 
-  // Slot label overlay — best-effort. The slot.pid is usually stale, but when
-  // it happens to land on a live claude.exe we use the slot's name.
+  // PASS 1 — slot label overlay via slot.pid heuristic (legacy + cheap).
+  // The slot.pid is USUALLY stale (it's the ephemeral subshell that called
+  // chat-slots.claim, which exits seconds later), but when it happens to land
+  // on a live claude.exe we use the slot's name. Kept for back-compat and as
+  // a fast-path that doesn't need the pins file.
   const slotLabelByPid = new Map();
   for (const [name, s] of Object.entries(slots || {})) {
     if (Number.isFinite(s.pid) && anchorByPid.has(s.pid)) {
       slotLabelByPid.set(s.pid, name);
+    }
+  }
+
+  // PASS 2 — slotLabel:null deep-fix via ps-window-pin map. This is the
+  // primary path that finally makes attribution reliable across /compact /
+  // /clear / crash-respawn — each claude.exe walks UP to its PowerShell
+  // window ancestor (stable for the window's life), the pin map says which
+  // slot owns that window. Closes the bug surfaced 2026-05-17 by golf
+  // claude-339c8ff7 (the 16h of "tree-<PID>" advisories that meant Build B
+  // of FLEET-TASK-HEALTH-MS0 was silently no-op fleet-wide). Pass 1 wins on
+  // ties so a slot that just claimed and HAPPENED to land on a live claude.
+  // exe pid keeps that label (newest signal wins over the persistent pin).
+  if (pins && pins.size > 0) {
+    for (const claudePid of anchorSet) {
+      if (slotLabelByPid.has(claudePid)) continue;  // pass-1 already labeled
+      const psPid = findPsAncestor(claudePid, procIndex);
+      if (psPid === null) continue;
+      const slot = pins.get(String(psPid));
+      if (slot) slotLabelByPid.set(claudePid, slot);
     }
   }
 
@@ -339,6 +464,150 @@ export function attributeProcesses(procs, slots = {}) {
     }
   }
   return { perTree, unowned };
+}
+
+// ─── FLEET-REAPER-MS3/U-FR-MS3-C — per-chat advisory ledger & evaluator ────
+
+/**
+ * Read the per-chat advisory ledger (JSONL, one sweep record per line).
+ * Returns array of `{tsMs, ts, keysOver[], emitted[]}` — fail-soft on missing
+ * file or malformed lines (skipped, valid lines kept).
+ */
+export function readChatAdvisoryLedger(path = CHAT_ADVISORY_LEDGER_PATH, _io = {}) {
+  const exists = _io.existsSync || existsSync;
+  const read = _io.readFileSync || readFileSync;
+  if (!exists(path)) return [];
+  try {
+    const text = read(path, "utf8");
+    return text.split(/\r?\n/).filter(Boolean).map(l => {
+      try { return JSON.parse(l); } catch { return null; }
+    }).filter(Boolean);
+  } catch { return []; }
+}
+
+/**
+ * Append a sweep record to the per-chat advisory ledger. Rotates at
+ * `CHAT_ADVISORY_LEDGER_ROTATE_BYTES` (1 MB) by renaming the active file to
+ * `.1`. Best-effort — any I/O failure is swallowed (the monitor must never
+ * crash because its audit log can't be written).
+ */
+export function appendChatAdvisorySweepRecord(record, path = CHAT_ADVISORY_LEDGER_PATH) {
+  try {
+    mkdirSync(dirname(path), { recursive: true });
+    if (existsSync(path)) {
+      const sz = statSync(path).size;
+      if (sz > CHAT_ADVISORY_LEDGER_ROTATE_BYTES) {
+        // Rotate: rename active → .1; next append starts a fresh file.
+        try { renameSync(path, CHAT_ADVISORY_LEDGER_BACKUP); } catch { /* best-effort */ }
+      }
+    }
+    appendFileSync(path, JSON.stringify(record) + "\n", "utf8");
+  } catch { /* best-effort — never throw out of the audit-log writer */ }
+}
+
+/**
+ * Pure decision: which chat trees should receive a per-chat advisory right now?
+ *
+ * Cooldown rule: at most one advisory per (key, "per-chat-threshold") per
+ * cooldownSec. Key = `slotLabel` if known, else `tree-<anchorPid>` (matches
+ * MS1 graceful degradation).
+ *
+ * Cooldown CLEARS on drop+resume: if a key was emitted, then dropped below
+ * threshold (an intermediate sweep's `keysOver` did NOT contain the key),
+ * then bloated again, a fresh advisory fires immediately (no cooldown).
+ * Encoded in `reason: "drop-clear"` on the emitted advisory.
+ *
+ * @param {Record<string, {anchorPid:number, rssBytes:number, slotLabel:string|null}>} perTree
+ * @param {object} [opts]
+ * @param {number} [opts.nowMs]
+ * @param {Record<string,string>} [opts.env]
+ * @param {Array<object>} [opts.ledger]   prior sweep records (see readChatAdvisoryLedger)
+ * @returns {{advisories:Array<object>, sweepRecord:object, disabled:boolean, thresholdMb:number, cooldownSec:number}}
+ */
+export function evaluateChatTreeAdvisories(perTree, opts = {}) {
+  const nowMs = Number.isFinite(opts.nowMs) ? opts.nowMs : Date.now();
+  const env = opts.env || process.env;
+  const disabled = env.PRISM_FM_CHAT_ADVISORY_DISABLE === "1";
+  const thresholdMb = _clampIntInRange(
+    env.PRISM_FM_CHAT_THRESHOLD_MB,
+    CHAT_ADVISORY_DEFAULT_THRESHOLD_MB,
+    CHAT_ADVISORY_THRESHOLD_MB_MIN,
+    CHAT_ADVISORY_THRESHOLD_MB_MAX,
+  );
+  const cooldownSec = _clampIntInRange(
+    env.PRISM_FM_CHAT_ADVISORY_COOLDOWN_SEC,
+    CHAT_ADVISORY_DEFAULT_COOLDOWN_SEC,
+    CHAT_ADVISORY_COOLDOWN_SEC_MIN,
+    CHAT_ADVISORY_COOLDOWN_SEC_MAX,
+  );
+  const cooldownMs = cooldownSec * 1000;
+  const thresholdBytes = thresholdMb * 1024 * 1024;
+  const ledger = Array.isArray(opts.ledger) ? opts.ledger : [];
+
+  // Identify the trees currently over threshold.
+  const currentOverKeys = [];
+  const treesByKey = new Map();
+  for (const [treeKey, tree] of Object.entries(perTree || {})) {
+    if (!tree || !Number.isFinite(tree.rssBytes)) continue;
+    if (tree.rssBytes <= thresholdBytes) continue;
+    const key = tree.slotLabel || treeKey;
+    currentOverKeys.push(key);
+    treesByKey.set(key, { treeKey, tree });
+  }
+
+  const advisories = [];
+  if (!disabled) {
+    for (const key of currentOverKeys) {
+      // Walk the ledger forward to find the most recent advise for this key
+      // AND whether any intermediate sweep registered a drop (key not in
+      // keysOver after the most-recent emission). This is the "clear on drop"
+      // semantic from the spec — re-bloat fires a fresh advisory even within
+      // the cooldown window.
+      let lastAdviseMs = -Infinity;
+      let droppedSinceLastAdvise = false;
+      for (const e of ledger) {
+        if (!e || !Number.isFinite(e.tsMs)) continue;
+        const emitted = Array.isArray(e.emitted) ? e.emitted : [];
+        const keysOver = Array.isArray(e.keysOver) ? e.keysOver : [];
+        if (emitted.includes(key)) {
+          lastAdviseMs = e.tsMs;
+          droppedSinceLastAdvise = false; // reset after each fresh emission
+        } else if (lastAdviseMs > -Infinity && !keysOver.includes(key)) {
+          droppedSinceLastAdvise = true;
+        }
+      }
+      const inCooldown = lastAdviseMs > -Infinity && (nowMs - lastAdviseMs) < cooldownMs;
+      const shouldEmit = !inCooldown || droppedSinceLastAdvise;
+      if (!shouldEmit) continue;
+
+      const { treeKey, tree } = treesByKey.get(key);
+      const rssBytes = tree.rssBytes;
+      const rssGb = (rssBytes / 1024 / 1024 / 1024).toFixed(2);
+      const thresholdGb = (thresholdMb / 1024).toFixed(2);
+      advisories.push({
+        key,
+        slot: tree.slotLabel || null,
+        treeKey,
+        anchorPid: tree.anchorPid,
+        rssBytes,
+        rssMb: Math.round(rssBytes / 1024 / 1024),
+        thresholdMb,
+        tsMs: nowMs,
+        ts: new Date(nowMs).toISOString(),
+        body: `This chat's claude.exe tree is at ${rssGb} GB (threshold ${thresholdGb} GB). Consider /compact to reclaim RAM before fleet-wide critical.`,
+        reason: (droppedSinceLastAdvise && inCooldown) ? "drop-clear" : "fresh",
+      });
+    }
+  }
+
+  const sweepRecord = {
+    tsMs: nowMs,
+    ts: new Date(nowMs).toISOString(),
+    keysOver: currentOverKeys,
+    emitted: advisories.map(a => a.key),
+  };
+
+  return { advisories, sweepRecord, disabled, thresholdMb, cooldownSec };
 }
 
 // ─── Decision logic ─────────────────────────────────────────────────────────
@@ -510,7 +779,8 @@ export function runOnce(opts = {}) {
 
   const sample = (opts.sampler || samplePowerShell)({ timeoutMs: opts.timeoutMs });
   const slots = (opts.readSlots || readSlotsForAttribution)();
-  const attribution = attributeProcesses(sample.procs, slots);
+  const pins = (opts.readPins || readPinsForAttribution)();
+  const attribution = attributeProcesses(sample.procs, slots, pins);
   const liveTrees = Object.keys(attribution.perTree).length;
 
   const physTotalBytes = sample.os.physTotalKb * 1024;
@@ -549,7 +819,18 @@ export function runOnce(opts = {}) {
   const nowMs = Date.parse(ts);
   const adv = decideAdvisory(level, ledger, nowMs, cfg);
 
-  let writes = { telemetry: false, ledger: false, advisory: false };
+  // FLEET-REAPER-MS3/U-FR-MS3-C — per-chat-tree advisory (complementary to
+  // the system-wide advisory above). Fires when a SINGLE chat's tree exceeds
+  // the per-chat threshold (default 2 GB) BEFORE system-wide critical,
+  // naming WHICH slot to /compact. Pure-injected for testing.
+  const chatAdvLedger = (opts.readChatAdvLedger || readChatAdvisoryLedger)();
+  const chatAdv = evaluateChatTreeAdvisories(attribution.perTree, {
+    ledger: chatAdvLedger,
+    nowMs,
+    env: process.env,
+  });
+
+  let writes = { telemetry: false, ledger: false, advisory: false, chatAdvisories: 0 };
   if (!dryRun) {
     appendTelemetry(row);
     writes.telemetry = true;
@@ -573,10 +854,40 @@ export function runOnce(opts = {}) {
       });
       writes.advisory = true;
     }
+
+    // FLEET-REAPER-MS3/U-FR-MS3-C — emit per-chat advisories (independent of
+    // system-wide advisory above). Always append the sweep record when there
+    // is any over-threshold activity now OR in history — needed so the next
+    // sweep's drop-detection sees the transitions. The audit log is bounded
+    // by `CHAT_ADVISORY_LEDGER_ROTATE_BYTES`.
+    const hasChatActivity = chatAdv.sweepRecord.keysOver.length > 0
+      || chatAdv.sweepRecord.emitted.length > 0
+      || chatAdvLedger.length > 0;
+    if (hasChatActivity && !noAdvisory) {
+      appendChatAdvisorySweepRecord(chatAdv.sweepRecord);
+    }
+    for (const a of chatAdv.advisories) {
+      if (noAdvisory) break;
+      appendChatBus({
+        ts: a.ts,
+        from: "fleet-memory-monitor",
+        to: a.slot || a.treeKey,
+        kind: "per-chat-advisory",
+        subject: "per-chat memory threshold",
+        body: a.body,
+        slot: a.slot,
+        treeKey: a.treeKey,
+        anchorPid: a.anchorPid,
+        rssBytes: a.rssBytes,
+        thresholdMb: a.thresholdMb,
+        reason: a.reason,
+      });
+      writes.chatAdvisories += 1;
+    }
   }
 
   const exitCode = level === "critical" ? 2 : level === "warn" ? 1 : 0;
-  return { row, level, advisory: adv, writes, exitCode, cfg, dryRun, disabled };
+  return { row, level, advisory: adv, chatAdv, writes, exitCode, cfg, dryRun, disabled };
 }
 
 function fmtSummary(r) {

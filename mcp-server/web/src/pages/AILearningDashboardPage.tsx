@@ -6,7 +6,8 @@
  * apiFeedback() from the external integration API.
  */
 import { useCallback, useState } from 'react';
-import { apiMachineLearning, apiFeedback, type PrismResponse } from '../api/client';
+import { apiMachineLearning, apiFeedback } from '../api/client';
+import type { PrismResponse } from '../api/types';
 
 const CONTROLLERS = ['fanuc', 'haas', 'siemens', 'heidenhain', 'mazak', 'okuma'] as const;
 const OUTCOMES = ['ran_great', 'too_slow', 'surface_rough', 'tool_broke', 'crashed'] as const;
@@ -36,13 +37,17 @@ type FeedbackEntry = {
   timestamp: string;
 };
 
+// JM Die Company's real machines (ids match jm-die-profile.ts JM_DIE_CONTROLLER_MAP so the
+// per-machine RL learning state keys to the same machine_id the backend tracks). Six chosen to
+// cover all five JM controller families (hurco / okuma / haas / mitsubishi / fanuc). Unknown
+// machines return an empty learning state (total_experiences: 0) until programs are optimized.
 const DEMO_MACHINES: MachineEntry[] = [
-  { id: 'haas-vf2', name: 'Haas VF-2', controller: 'haas' },
-  { id: 'haas-umc750', name: 'Haas UMC-750', controller: 'haas' },
-  { id: 'dmg-dmu50', name: 'DMG DMU 50', controller: 'siemens' },
-  { id: 'mazak-integrex', name: 'Mazak INTEGREX', controller: 'mazak' },
-  { id: 'okuma-mu5000', name: 'Okuma MU-5000', controller: 'okuma' },
-  { id: 'fanuc-robodrill', name: 'Fanuc Robodrill', controller: 'fanuc' },
+  { id: 'VMC-01', name: 'Hurco VM30i', controller: 'hurco' },
+  { id: 'VMC-02', name: 'Okuma M460V-5AX', controller: 'okuma' },
+  { id: 'VMC-03', name: 'Haas VF-2', controller: 'haas' },
+  { id: 'LTH-01', name: 'Okuma GENOS L300-M', controller: 'okuma' },
+  { id: 'VMC-05', name: 'Roku-Roku HC 658-II', controller: 'fanuc' },
+  { id: 'WEDM-01', name: 'Mitsubishi FA10S', controller: 'mitsubishi' },
 ];
 
 function ScoreRing({ score, size = 64 }: { score: number; size?: number }) {
@@ -233,8 +238,8 @@ export function AILearningDashboardPage() {
     setError(null);
     try {
       const resp: PrismResponse = await apiMachineLearning(machine.id, machine.controller);
-      if (resp.ok && resp.data) {
-        setLearningState(resp.data as LearningState);
+      if (resp?.result) {
+        setLearningState(resp.result as unknown as LearningState);
       } else {
         setError('Failed to load learning state');
       }

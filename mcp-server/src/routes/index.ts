@@ -24,6 +24,7 @@ import { auditLog } from "../middleware/auditLog.js";
 import { errorHandler } from "../middleware/errorHandler.js";
 import { createSfcRouter } from "./sfc.js";
 import { createSpeedFeedRouter } from "./speedfeed.js";
+import { createQuotingRouter } from "./quoting.js";
 import { createCadRouter } from "./cad.js";
 import { createCadRegressionRouter } from "./cadRegression.js";
 import { createCamRouter } from "./cam.js";
@@ -36,10 +37,12 @@ import { createSafetyRouter } from "./safety.js";
 import { createAuthRouter } from "./auth.js";
 import { createAgentRouter } from "./agent.js";
 import { createAdminRouter } from "./admin.js";
+import { createHotelPortalRouter } from "./hotel-portal.js";
 import { createOpenApiRouter } from "./openapi.js";
 import { createPpgRouter } from "./ppg.js";
 import { createLearningRouter } from "./learning.js";
 import { createErpRouter } from "./erp.js";
+import { createBusinessRouter } from "./business.js";
 import { createEdmRouter } from "./edm.js";
 import { createTurningRouter } from "./turning.js";
 import { createThreadRouter } from "./threads.js";
@@ -114,6 +117,9 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   // Mount route modules under /api/v1/
   app.use("/api/v1/sfc", createSfcRouter(callTool));
   app.use("/api/v1/speed-feed", createSpeedFeedRouter(callTool));
+  // QUOTING-PIPELINE-MS0/U-QP08-HTTP — camera-intake quoting bridge (also mounted at /api/mcp/quoting for the mobile-quote page client)
+  app.use("/api/v1/quoting", createQuotingRouter(callTool));
+  app.use("/api/mcp/quoting", createQuotingRouter(callTool));
   app.use("/api/v1/cad", createCadRouter(callTool));
   // CAD-INFRA-MS0/U-CINF08: CADRegressionDashboard read-only progress API
   app.use("/api/v1/cad-regression", createCadRegressionRouter(callTool));
@@ -127,11 +133,15 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/auth", createAuthRouter(callTool));
   app.use("/api/v1/agent", createAgentRouter(callTool));
   app.use("/api/v1/admin", createAdminRouter(callTool));
+  app.use("/api/v1/hotel-portal", createHotelPortalRouter(callTool));
   app.use("/api/v1/ppg", createPpgRouter(callTool));
   // Alias: PRISM.cps and web UI use /api/ppg/ (no v1 prefix)
   app.use("/api/ppg", createPpgRouter(callTool));
   app.use("/api/v1/learning", createLearningRouter(callTool));
   app.use("/api/v1/erp", createErpRouter(callTool));
+  // HOTEL-NETPLAT-UI/U-VNET-ROUTE: generic business dispatch surface (deny-by-default allowlist) —
+  // the route web/src/api/businessDispatch.ts targets; makes charlie's vendor corpus reachable in the UI.
+  app.use("/api/v1/business", createBusinessRouter(callTool));
   app.use("/api/v1/edm", createEdmRouter(callTool));
   app.use("/api/v1/turning", createTurningRouter(callTool));
   app.use("/api/v1/lathe", createLatheTurningRouter(callTool));
@@ -185,6 +195,19 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
       const result = await callTool("prism_data", "alarm_decode", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) { res.status(500).json({ ok: false, error: e.message }); }
+  });
+
+  // COST-CASCADE-MS0/U-COST-DASHBOARD — top-level aliases for spec
+  // (`/cost-dashboard` per HOTEL-PUNCH-LIST). Canonical URLs remain
+  // /api/v1/cost/dashboard + /api/v1/cost/aggregate.
+  app.get("/cost-dashboard", (_req, res) => res.redirect(302, "/api/v1/cost/dashboard"));
+  app.get("/api/cost-aggregate", (req, res) => {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(req.query)) {
+      if (typeof v === "string") qs.set(k, v);
+    }
+    const qstr = qs.toString();
+    res.redirect(302, "/api/v1/cost/aggregate" + (qstr ? "?" + qstr : ""));
   });
 
   app.use("/api", createOpenApiRouter());

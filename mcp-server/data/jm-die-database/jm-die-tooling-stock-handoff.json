@@ -1,0 +1,267 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "DocuStrata: H:/PRISM/Docustrata/Report_from_J.M._Tool__Die_LLC.pdf (QuickBooks Purchases by Vendor Detail, 2014-05-01..2026-05-29)",
+  "generated": "2026-05-29",
+  "shop": "J.M. Tool & Die, LLC",
+  "builtBy": "scripts/compile-jm-tooling-stock.mjs (slot:juliett, database-expansion)",
+  "reconciliation": {
+    "vendorCount": 174,
+    "itemLineTotal": 20731,
+    "note": "vendorCount aligns with hotel's jm-die-vendor-registry.json (174 vendors). itemLineTotal counts DISTINCT item rows (incl. each vendor-block's first row + bare-date continuation rows that the prior /^Bill/ pass dropped) and is therefore HIGHER than hotel's ~20,550 QuickBooks Bill-transaction count — finer granularity, not a discrepancy."
+  },
+  "costCaveat": "costSamplesRaw are RAW observed unit-cost tokens from column-flattened text — UNRELIABLE, never summed, NOT authoritative spend. Per hotel financial-invariant doctrine, authoritative $ must come from QuickBooks.",
+  "kind": "jm-die-tooling-stock-handoff",
+  "forSlot": "hotel (business/ERP)",
+  "purpose": "ERP inventory + reorder-point seed: what JM Die buys (tooling) and stocks (material grades/forms/sizes), by vendor + frequency + date-range.",
+  "consumes": {
+    "vendorRegistry": "mcp-server/data/state/jm-die-vendor-registry.json (hotel — 174 vendors)",
+    "canonicalStore": "mcp-server/data/jm-die-database/ (juliett)"
+  },
+  "artifacts": {
+    "toolingCatalog": "mcp-server/data/jm-die-database/jm-die-tooling-catalog.json",
+    "stockMaterialCatalog": "mcp-server/data/jm-die-database/jm-die-stock-material-catalog.json"
+  },
+  "summary": {
+    "stock_distinctGradeForms": 60,
+    "stock_totalLines": 2212,
+    "tooling_vendorCount": 59,
+    "tooling_totalLines": 8028,
+    "topStock": [
+      {
+        "grade": "H13",
+        "form": "unknown",
+        "occurrences": 400,
+        "vendors": 4
+      },
+      {
+        "grade": "H13",
+        "form": "round",
+        "occurrences": 388,
+        "vendors": 3
+      },
+      {
+        "grade": "M2",
+        "form": "unknown",
+        "occurrences": 329,
+        "vendors": 7
+      },
+      {
+        "grade": "D2",
+        "form": "unknown",
+        "occurrences": 142,
+        "vendors": 3
+      },
+      {
+        "grade": "S7",
+        "form": "unknown",
+        "occurrences": 139,
+        "vendors": 2
+      },
+      {
+        "grade": "D2",
+        "form": "round",
+        "occurrences": 127,
+        "vendors": 3
+      },
+      {
+        "grade": "S7",
+        "form": "round",
+        "occurrences": 88,
+        "vendors": 3
+      },
+      {
+        "grade": "M4",
+        "form": "unknown",
+        "occurrences": 81,
+        "vendors": 5
+      },
+      {
+        "grade": "A2",
+        "form": "unknown",
+        "occurrences": 53,
+        "vendors": 5
+      },
+      {
+        "grade": "H13",
+        "form": "flat",
+        "occurrences": 43,
+        "vendors": 3
+      }
+    ],
+    "topToolingVendors": [
+      {
+        "vendor": "MICHIGAN CARBIDE",
+        "occurrences": 2890
+      },
+      {
+        "vendor": "ROC FORM CARBIDE MANUFACTURING, INC.",
+        "occurrences": 1900
+      },
+      {
+        "vendor": "TS TOOLING SUPPLY",
+        "occurrences": 803
+      },
+      {
+        "vendor": "CREATIVE CARBIDE",
+        "occurrences": 491
+      },
+      {
+        "vendor": "PTS-TOOLS",
+        "occurrences": 456
+      },
+      {
+        "vendor": "STAR TOOLS",
+        "occurrences": 241
+      },
+      {
+        "vendor": "ELECTRODES",
+        "occurrences": 158
+      },
+      {
+        "vendor": "WORLD DIAMOND TOOL",
+        "occurrences": 145
+      },
+      {
+        "vendor": "GENERAL CARBIDE",
+        "occurrences": 121
+      },
+      {
+        "vendor": "MOLD SHOP TOOLS.COM",
+        "occurrences": 116
+      }
+    ],
+    "vendorRoles": [
+      {
+        "vendor": "MICHIGAN CARBIDE",
+        "dominantRole": "tooling",
+        "total": 2890
+      },
+      {
+        "vendor": "CINCINNATI TOOL STEEL",
+        "dominantRole": "stock_material",
+        "total": 2050
+      },
+      {
+        "vendor": "ROC FORM CARBIDE MANUFACTURING, INC.",
+        "dominantRole": "tooling",
+        "total": 1963
+      },
+      {
+        "vendor": "ALRO STEEL",
+        "dominantRole": "stock_material",
+        "total": 1474
+      },
+      {
+        "vendor": "SCIENTIFIC METAL TREATING",
+        "dominantRole": "service_subcontract",
+        "total": 1238
+      },
+      {
+        "vendor": "ARMOR COATED TECHNOLOGY",
+        "dominantRole": "service_subcontract",
+        "total": 1077
+      },
+      {
+        "vendor": "GRIGGS STEEL",
+        "dominantRole": "stock_material",
+        "total": 901
+      },
+      {
+        "vendor": "SB SPECIALTY METALS",
+        "dominantRole": "stock_material",
+        "total": 868
+      },
+      {
+        "vendor": "SUNNEN PRODUCTS COMPANY",
+        "dominantRole": "other",
+        "total": 842
+      },
+      {
+        "vendor": "TS TOOLING SUPPLY",
+        "dominantRole": "tooling",
+        "total": 818
+      },
+      {
+        "vendor": "MCMASTER-CARR SUPPLY",
+        "dominantRole": "other",
+        "total": 654
+      },
+      {
+        "vendor": "MSC INDUSTRIAL SUPPLY",
+        "dominantRole": "other",
+        "total": 593
+      },
+      {
+        "vendor": "CREATIVE CARBIDE",
+        "dominantRole": "tooling",
+        "total": 493
+      },
+      {
+        "vendor": "PTS-TOOLS",
+        "dominantRole": "tooling",
+        "total": 461
+      },
+      {
+        "vendor": "VALLEY HEADER DIE, INC.",
+        "dominantRole": "other",
+        "total": 243
+      },
+      {
+        "vendor": "STAR TOOLS",
+        "dominantRole": "tooling",
+        "total": 241
+      },
+      {
+        "vendor": "BOTE",
+        "dominantRole": "other",
+        "total": 183
+      },
+      {
+        "vendor": "ELECTRODES",
+        "dominantRole": "tooling",
+        "total": 181
+      },
+      {
+        "vendor": "ZENITOOLS, INC.",
+        "dominantRole": "other",
+        "total": 154
+      },
+      {
+        "vendor": "ULINE",
+        "dominantRole": "other",
+        "total": 152
+      },
+      {
+        "vendor": "MILLER INDUSTRIAL",
+        "dominantRole": "other",
+        "total": 149
+      },
+      {
+        "vendor": "WORLD DIAMOND TOOL",
+        "dominantRole": "tooling",
+        "total": 149
+      },
+      {
+        "vendor": "BELMONT E UIPMENT",
+        "dominantRole": "other",
+        "total": 140
+      },
+      {
+        "vendor": "ENGIS",
+        "dominantRole": "other",
+        "total": 138
+      },
+      {
+        "vendor": "INNOVATE TECHNOLOGIES",
+        "dominantRole": "other",
+        "total": 125
+      }
+    ]
+  },
+  "erpRecommendations": [
+    "Seed an ERP material-master from gradesForms (grade × form) — each is a stockable SKU; sizeSamples seed the variant dimensions.",
+    "Seed a tooling/consumable vendor-preference list from tooling vendors (who supplies carbide/inserts/etc.).",
+    "Reorder-point: use occurrences + firstDate/lastDate cadence as a purchase-frequency signal (NOT $; reconcile cost from QuickBooks).",
+    "Vendor roles classify the 174 vendors into material-supplier / tooling-supplier / service-subcontract / shop-supply for AP routing."
+  ]
+}

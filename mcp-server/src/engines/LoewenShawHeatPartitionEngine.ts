@@ -614,18 +614,18 @@ export class LoewenShawHeatPartitionEngine {
       return DEFAULT_MATERIALS[lowerName];
     }
 
-    // Try canonical material database
-    try {
-      const canonical = resolveMaterial(lowerName);
-      return {
-        density: canonical.density_kg_m3,
-        specificHeat: canonical.cp_J_kgK,
-        thermalConductivity: canonical.k_thermal,
-        name: canonical.name,
-      };
-    } catch {
+    // Try canonical material database. resolveMaterial returns
+    // MaterialEntry | undefined; unknown material -> null (caller handles).
+    const canonical = resolveMaterial(lowerName);
+    if (!canonical) {
       return null;
     }
+    return {
+      density: canonical.density_kg_m3,
+      specificHeat: canonical.cp_J_kgK,
+      thermalConductivity: canonical.k_thermal,
+      name: canonical.name,
+    };
   }
 
   /**

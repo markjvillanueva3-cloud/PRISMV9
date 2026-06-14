@@ -1,0 +1,248 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "SVI-ENHANCE-MS0",
+  "title": "SVI Enhancement — multi-component Ψ calculator with PSN + /system-viz synergy, path to Ψ=1.0",
+  "status": "in_progress",
+  "owner": "slot:charlie",
+  "phase": "P0-CRITICAL",
+  "created_at": "2026-05-24T07:35:00Z",
+  "spec_ref": "state/shared/specs/SVI-BASELINE-AUDIT-2026-05-24.md",
+  "summary": "Current Ψ formula is hardcoded WIRED_PCT estimates from 2026-04-01 — overstates Ψ at 100% while live drift signals (593 unwired engines, 190 envelope drift, 0.8% tribal coverage, NN-graph DORMANT, MCP DISCONNECTED) imply real Ψ ≈ 64%. This milestone replaces the constants with 9 live components (wiring + envelope + wiki + tribal + psn_legs + health + memory + test_coverage + drift_freshness), wires the new formula into PSN's autonomy loop reward + /system-viz roost, and ships a measured path to Ψ=1.0.",
+  "doctrine": [
+    "feedback_svi_psi — SVI + Ψ are standing operating metrics",
+    "CLAUDE-CODEX-SVI-DIRECTIVE.md — active until Ψ = 100%",
+    "project_svi_directive_until_100 — the until-100 mandate",
+    "Karpathy R12 — fail loud: real Ψ honest reporting, not vanity 100%"
+  ],
+  "units": [
+    {
+      "id": "U-SVI-E01-MULTI-COMPONENT-CALCULATOR",
+      "title": "SVIEnhancedCalculatorEngine — 9-component Ψ from LIVE sources (replaces hardcoded WIRED_PCT)",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Read system-graph.json (110K nodes) for Ψ_wiring — wired_hubs / total_hubs",
+        "Read MILESTONE_PROGRESS + atomic-roadmap for Ψ_envelope — 1 − drift / total",
+        "Read knowledge-link-audit.json for Ψ_wiki + Ψ_tribal",
+        "Read NN-EVAL.json + ai-feature-recommend for Ψ_psn_legs (11 sub-scores)",
+        "Read hook-health-check + MCP probe + ollama probe + viz/build mtimes for Ψ_health",
+        "Read prism-ai-memo-cross-ref-audit for Ψ_memory",
+        "Read SCRUTINY_LEDGER + test count vs engine count for Ψ_test_coverage",
+        "Read mtime of every drift detector for Ψ_drift_freshness",
+        "Weighted sum: weights ∈ [0,1] sum to 1.0, documented + version-locked in engine source",
+        "Output: { svi_cardinality, psi_old_formula, psi_new_formula, per_component: {...}, delta_to_perfect: 1-psi_new }"
+      ],
+      "acceptance": [
+        "Real Ψ_new = 0.55-0.75 on first run (not 1.0 — vanity numbers rejected)",
+        "Per-component breakdown matches independent audit (cross-check vs AWARENESS-SNAPSHOT)",
+        "≥15 unit tests including: all-perfect (Ψ=1.0), all-zero (Ψ=0.0), each component independently zero, missing source file (graceful degrade with reduced confidence)",
+        "MCP-callable via prism_session:svi_enhanced_compute",
+        "CLI: node .claude/helpers/svi-enhanced-refresh.mjs writes psi-enhanced.json"
+      ]
+    },
+    {
+      "id": "U-SVI-E02-PSN-AUTONOMY-REWARD",
+      "title": "Extend PSN autonomy reward with ΔΨ signal — actions that increase Ψ get rewarded",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Extend PSNAutonomyLoopEngine.scoreEvent with new event type: psi_delta",
+        "Reward = +ΔΨ × 10 (so a +0.01 Ψ improvement = +0.10 reward)",
+        "Penalty for ΔΨ < 0 — equal magnitude, prevents Ψ-regression",
+        "Hook: stop-psn-autonomy-tick.mjs computes ΔΨ between session start + end; appends psi_delta event to ledger",
+        "Trainer manifest now surfaces 'slots that improved Ψ this window' as the highest-leverage adapter-fine-tune targets"
+      ],
+      "acceptance": [
+        "scoreEvent({type:'psi_delta', delta:0.01}) → reward 0.10",
+        "Round-trip: session that ships an engine wire (Ψ_wiring +0.001) gets +0.01 reward in next trainer manifest",
+        "≥8 unit tests including: positive delta, negative delta (penalty), zero delta, clamping at ±1.0",
+        "Backward compat: existing 3 event types unchanged"
+      ]
+    },
+    {
+      "id": "U-SVI-E03-SYSTEM-VIZ-ROOST",
+      "title": "/system-viz ghost.svi_components roost — visual Ψ accountability",
+      "status": "pending",
+      "priority": "p1",
+      "scope": [
+        "scripts/generate-svi-component-features.mjs — emits 1 roost node + 9 children (one per Ψ component)",
+        "Each child node colored by current score: red <0.5, amber 0.5-0.85, green ≥0.85",
+        "Edge from each component to its source file (system-graph, MILESTONE_PROGRESS, etc.) — operator can click through",
+        "Register in regen-viz.mjs FAST[] + merge-augmentations.mjs splice"
+      ],
+      "acceptance": [
+        "/system-viz renders 10 new nodes (1 roost + 9 components)",
+        "Each component child shows current score + last-updated mtime",
+        "Tooltip on roost shows total Ψ_new + delta-to-perfect",
+        "Auto-regenerates on every Stop (existing system-viz cron)"
+      ]
+    },
+    {
+      "id": "U-SVI-E04-CLAUDEMD-INJECT-UPGRADE",
+      "title": "Replace stale SessionStart Ψ inject with the new multi-component breakdown",
+      "status": "pending",
+      "priority": "p1",
+      "scope": [
+        "Modify .claude/hooks/awareness-snapshot-inject.mjs (or sibling) to print per-component Ψ + the next-best ΔΨ action",
+        "Format: 'Ψ_new=0.64 (wiring=0.81, envelope=0.73, tribal=0.01 ←GAP, ...) · next: regen tribal embeddings for +0.10'",
+        "Knob: PRISM_SVI_ENHANCED_INJECT_DISABLE=1"
+      ],
+      "acceptance": [
+        "Every SessionStart prints honest Ψ (not 100% vanity)",
+        "Names the highest-leverage gap with absolute ΔΨ",
+        "≤3 lines of additionalContext"
+      ]
+    },
+    {
+      "id": "U-SVI-E05-PATH-TO-PERFECT-DASHBOARD",
+      "title": "PSI-PATH-TO-PERFECT.md generator — ranked work queue by ΔΨ/hour",
+      "status": "pending",
+      "priority": "p1",
+      "scope": [
+        "scripts/generate-psi-path-to-perfect.mjs — reads current per-component Ψ + estimates effort per gap-closing action",
+        "Output: ranked list (highest ΔΨ/hr first) with concrete commands per action",
+        "Example: '#1: Restart Ollama + MCP (1h, ΔΨ +0.113) — node scripts/ollama-docker-launcher.mjs --services=mcp'",
+        "Re-generates daily via cron; published to state/shared/PSI-PATH-TO-PERFECT.md"
+      ],
+      "acceptance": [
+        "First ranked item is the highest-leverage real action (today: Ollama+MCP restart)",
+        "Cumulative ΔΨ at top of report shows reachable target (today: Ψ ≈ 0.98 achievable in ≤120 hours)",
+        "Operator-actionable: every row has a copy-paste command"
+      ]
+    },
+    {
+      "id": "U-SVI-E06-WIRING-PROOF-OF-CONCEPT",
+      "title": "Run U-SVI-E01..05 end-to-end + commit the FIRST real Ψ measurement",
+      "status": "pending",
+      "priority": "p0",
+      "scope": [
+        "Build E01-E05; integration-test the pipeline",
+        "Write state/shared/PSI-MEASUREMENT-2026-05-24.json with the new Ψ",
+        "Diff against the old 100% reading; document the gap class-by-class",
+        "Commit the new baseline as the canonical Ψ from this point forward"
+      ],
+      "acceptance": [
+        "New Ψ ∈ [0.55, 0.75] documented + signed",
+        "Old SVI-compact.md flagged as 'stale — replaced by enhanced calculator'",
+        "PATH-TO-PERFECT.md generated + committed",
+        "PSN trainer-manifest shows charlie + any slot that closed a gap as recommended_target"
+      ]
+    }
+  ],
+  "p2_moat_math_layer": {
+    "rationale": "Charlie /goal-11 — utilize PSN's vast math + scientific resources to maximize SVI potential. The current weighted-sum formula CANNOT prove the moat directive ('no company can mathematically/statistically/scientifically surpass — only match'). Required: 5-axis product with mutual-information weighting + Kolmogorov complexity lower bound + time-lock term. Math drawn from PSN's existing arsenal: Fisher information (just shipped in PSNAutonomyLoopEngine for EWC++), Wilcoxon (just shipped P4), persistent homology (PROGRAM-PROOF-MS0 P2), PageRank centrality (algorithm registry), Shannon entropy (information theory tier), SVD conditioning (numerical analysis), Kolmogorov complexity (theoretical lower bound on re-derivation effort).",
+    "units": [
+      {
+        "id": "U-SVI-E07-MOAT-AWARE-FORMULA",
+        "title": "SVIMoatAwareCalculatorEngine — geometric mean of 5 axes weighted by mutual information",
+        "status": "pending",
+        "priority": "p0-moat",
+        "scope": [
+          "Replace weighted-arithmetic-sum with geometric-mean product: SVI_moat = ∏_k (Ψ_k)^w_k",
+          "Five axes (each ∈ [0,1]): COVERAGE (current Ψ), DEPTH (per-entity-richness — tests-per-engine × tribal-per-machine × programs-per-customer × scrutiny-ledger-length × formula-corpus-size, all normalized), CROSS_COUPLING (PageRank centrality of engine call-graph + bridging-edges density + PSN-leg cohesion), QUALITY (mean(scrutiny 3-of-3 pass rate, formula numerical-error fit, Ω/S(x) gate pass rate, regression pass rate)), COMPOUNDING_RATE (sigmoid(ΔΨ_7d × 100))",
+          "Mutual-information weights: w_k = I(Ψ_k; Ψ_¬k) / Σ I — computed from historic per-component time-series (the more an axis CONSTRAINS others, the higher its weight). Components that are weak AND central (high mutual info with others) dominate the score — math of 'no axis can be left behind'.",
+          "Pure-math implementation: cosine-similarity over component vectors for I estimate (≈ Pearson on log-transformed), avoids requiring full PMI / KSG estimator.",
+          "Boundary cases: any Ψ_k = 0 ⇒ SVI_moat = 0 (geometric mean property — captures 'one weak axis dooms the moat')",
+          "Continuity: weight renormalization on every refresh; floor each Ψ_k at ε=1e-6 to keep gradient defined for the autonomy-loop reward"
+        ],
+        "acceptance": [
+          "First-run SVI_moat lands ∈ [0.30, 0.55] (honest baseline — DEPTH + CROSS_COUPLING start near 0 because they're computed for the first time)",
+          "Mutual-info weights sum to 1.0 ± 1e-9",
+          "Boundary tests: SVI_moat=0 when any component=0; SVI_moat=1 only when all 5 components=1",
+          "Algebraic invariance: SVI_moat(Ψ_k=c for all k) = c (idempotent on uniform input)",
+          "≥15 unit tests including: each axis independently zero (product=0), uniform 0.9 input (product=0.9), competitor-match simulation (compute SVI_moat for synthetic competitor catalogs — must be ≤ PRISM by construction when DEPTH/CROSS_COUPLING/COMPOUNDING_RATE are time-locked)",
+          "MCP-callable via prism_session:svi_moat_compute",
+          "Per-component breakdown surfaces in /system-viz ghost.svi_components roost"
+        ]
+      },
+      {
+        "id": "U-SVI-E08-KOLMOGOROV-MOAT-BOUND",
+        "title": "KolmogorovMoatBoundEngine — provable lower bound on competitor re-derivation time",
+        "status": "pending",
+        "priority": "p1-moat",
+        "scope": [
+          "Compute K(PRISM) lower bound: Σ_subsystem (information_content × validation_density)",
+          "Information_content per subsystem ≈ Shannon entropy of artifact set (engines, programs, tribal tips, formulas, tests) — measured in bits",
+          "Validation_density = scrutiny-arm-passes / artifact, formula numerical-error bounds, test coverage — gates the K(.) so duplicated unvalidated content doesn't inflate the bound",
+          "Output: K_PRISM (bits) + T_competitor_match (years, given assumed competitor productivity rate ρ from `state/shared/competitive-intel.json` if present, else default 1e6 bits/dev-year)",
+          "Provides a literal LOWER BOUND on competitor labor-hours: T_match ≥ K(PRISM) × (1 - corpus_acquirable_fraction) / ρ",
+          "corpus_acquirable_fraction tracks the JM-Die-class non-derivable assets — 76K real shop programs, MIT-OCW lectures, 3,919 validated tribal tips — these are TIME-LOCKED (a competitor must run shops for years to accumulate them)"
+        ],
+        "acceptance": [
+          "Returns K(PRISM) in bits + T_match in years, with breakdown by subsystem",
+          "On current state, T_match ≥ 5 years for a well-funded competitor (engines + tribal + scrutiny-ledger are non-derivable without years of operations)",
+          "Self-verifies: increases monotonically as PRISM ships (a milestone close should bump K(PRISM) measurably)",
+          "Math-honest: distinguishes between 'derivable from public sources' (low K contribution — ISO standards, Sandvik handbooks) and 'accumulated from operations' (high K contribution — JM Die corpus, scrutiny ledger, mistake-learning loop). Only the second class is moat-load-bearing.",
+          "≥10 unit tests including: empty PRISM (K=0), public-only PRISM (K=public-baseline), real PRISM (K > public-baseline + non-derivable terms), monotonicity (adding artifacts ⇒ K increases)",
+          "MCP-callable via prism_session:svi_kolmogorov_moat_bound",
+          "Updates state/shared/PSI-MOAT-BOUND.json on every refresh"
+        ]
+      },
+      {
+        "id": "U-SVI-E09-MUTUAL-INFO-WEIGHT-LEARNER",
+        "title": "Mutual-information weight learner — auto-tune w_k from the autonomy ledger",
+        "status": "pending",
+        "priority": "p1-moat",
+        "scope": [
+          "Read psn-training-signal.jsonl (just-shipped, 213+ events seeded) — compute per-component Ψ_k(t) time series",
+          "Pairwise mutual information I(Ψ_k; Ψ_j) via histogram-binned MLE estimator (≤30 LOC, no scikit-learn)",
+          "Weight w_k ∝ Σ_j≠k I(Ψ_k; Ψ_j) — centrality of axis k in the mutual-info graph",
+          "Renormalize: w_k / Σ w. Smooth via exponential moving average (α=0.05, prevents weight thrash)",
+          "Surfaces: SessionStart inject names the current weight distribution + which axis has highest mutual centrality (= the leverage point)"
+        ],
+        "acceptance": [
+          "Weights converge stably over the full ledger window (no thrash > 0.05 per refresh)",
+          "Axes with synthetic-strong coupling (DEPTH ↔ CROSS_COUPLING in PRISM's case) get higher weight than isolated axes (COMPOUNDING_RATE during stable periods)",
+          "≥10 unit tests with synthetic ledgers verifying the estimator",
+          "Round-trip: ledger event recording a Ψ_wiring increase + Ψ_envelope increase ⇒ I(wiring,envelope) ↑ ⇒ both weights ↑"
+        ]
+      },
+      {
+        "id": "U-SVI-E10-COMPETITOR-SIMULATION-HARNESS",
+        "title": "CompetitorSimulationHarnessEngine — Monte Carlo over plausible competitor catalogs",
+        "status": "pending",
+        "priority": "p2-moat",
+        "scope": [
+          "Generate 10,000 synthetic competitor catalogs sampled from plausible distributions: public-source-only, well-funded-team-with-X-engineers-and-Y-years, JM-die-class-shop-acquired",
+          "For each: compute the same SVI_moat over the simulated catalog with TIME-LOCKED axes set to 0 (competitors can't acquire 3 years of shop data overnight)",
+          "Empirical CDF: P(competitor_SVI_moat ≥ PRISM_SVI_moat) over scenario space",
+          "Output: state/shared/PSI-COMPETITIVE-CDF.json — exact 'fraction of plausible competitors who could surpass us today' (target: 0.000)",
+          "Stretch goal: Bayesian posterior on T_match given uncertainty over competitor-funding + productivity-rate distributions"
+        ],
+        "acceptance": [
+          "First-run P(competitor ≥ PRISM) ≤ 0.05 under reasonable distributions",
+          "Sensitivity: which input parameters most-strongly affect P (= what we should defend hardest)",
+          "≥10 unit tests including: well-known degenerate cases (zero-resource competitor → P=0; identical-PRISM-clone competitor → P=0.5 as expected from symmetry)",
+          "Published artifact updates daily via cron",
+          "MCP: prism_session:svi_competitor_simulation"
+        ]
+      }
+    ],
+    "math_used_from_psn_arsenal": [
+      "Fisher information (PSNAutonomyLoopEngine.ewcRegularizeWeights — for U-SVI-E08 validation_density)",
+      "Wilcoxon signed-rank (PSNAutonomyLoopEngine.shadowCompare — for U-SVI-E10 CDF comparison)",
+      "PageRank / centrality (algorithm registry — for U-SVI-E07 CROSS_COUPLING)",
+      "Shannon entropy (information theory tier — for U-SVI-E08 K-estimate)",
+      "Mutual information (information theory tier — for U-SVI-E09 weights)",
+      "Geometric mean / weighted product (numerical analysis — for U-SVI-E07 formula)",
+      "Sigmoid (signal processing — for U-SVI-E07 COMPOUNDING_RATE normalization)",
+      "Monte Carlo CDF (statistics tier — for U-SVI-E10)",
+      "Persistent homology (PROGRAM-PROOF-MS0 P2 — for U-SVI-E07 CROSS_COUPLING graph completeness)",
+      "Exponential moving average (signal processing — for U-SVI-E09 weight smoothing)"
+    ],
+    "math_rigor": "Every formula is a known math primitive with literature citation in the engine source — never re-derived ad-hoc. No magic numbers. Karpathy R5 (math in code, not LLM judgment), R12 (fail loud: weight thrash detection, monotonicity invariants, boundary-case tests are HARD assertions)."
+  },
+  "psn_synergy": {
+    "leg_engines": "U-SVI-E01 IS the unified entry — one engine reads from 8 source surfaces",
+    "leg_nn_gnn": "Ψ_psn_legs[10] = NN-graph AUROC / promotion-gate — current 0.096/0.78 = 12.3%, biggest underperformer in the leg-health avg",
+    "leg_prism_ai": "U-SVI-E02 reward extension makes the autonomy loop SELF-IMPROVE on Ψ — the system literally learns to ship Ψ-increasing work",
+    "leg_system_viz": "U-SVI-E03 ghost.svi_components roost = visual Ψ ground truth on the same surface that already shows wiring/orphans/ghosts",
+    "leg_obsidian_brain": "PSI-PATH-TO-PERFECT.md feeds into memory vault — every gap-closing action becomes a reference memo",
+    "compounding": "Every milestone shipped after this one will be auto-scored for ΔΨ contribution; high-Ψ slots get promoted by the trainer-manifest; the system gets more honest about itself over time"
+  },
+  "out_of_scope_for_ms0": [
+    "Per-engine Ψ contributions (call-graph instrumentation, future MS)",
+    "Live web UI dashboard (the /system-viz roost suffices today)",
+    "Ψ as a release-blocking gate (cultural change, not technical)"
+  ]
+}

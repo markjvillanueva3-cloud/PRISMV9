@@ -1,0 +1,185 @@
+{
+  "id": "MF-MS3",
+  "version": "6.2.0",
+  "title": "Setup Transitions + Predictive Failure + Force Capability",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "Build SetupTransitionEngine (flip/re-fixture verification, datum chain tolerance stack, pallet layout collision), PredictiveFailureEngine (Monte Carlo success probability, sensitivity analysis, risk maps), and ForceCapabilityEngine (machine power/torque limits, cumulative thermal growth, tool wear force impact).",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Setup Transitions",
+      "units": [
+        {
+          "id": "U-MF01",
+          "title": "SetupTransitionEngine: flip feasibility, datum chain, pallet collision, fixture changeover",
+          "status": "shipped",
+          "steps": [
+            "Verify parallel datum surfaces exist for each flip orientation",
+            "Tolerance stack through datum chain: RSS + Monte Carlo (reuse MultiSetupPlanner logic)",
+            "Pallet/tombstone layout: check for part-to-part and part-to-fixture collision",
+            "Fixture changeover compatibility: vise→chuck→plate→collet transitions",
+            "Clamping strategy suggestion per setup based on available surfaces",
+            "Wire WorkholdingViabilityEngine for per-setup clamping verification"
+          ],
+          "exit_conditions": [
+            "Flip feasibility correctly verified",
+            "Tolerance stack matches analytical RSS",
+            "Pallet collision detected for overlapping layouts",
+            "10+ tests"
+          ],
+          "legacy_id": "U01",
+          "description": "SetupTransitionEngine: flip feasibility, datum chain, pallet collision, fixture changeover — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "auto_close_out_at": "2026-05-24T00:59:31.274Z",
+          "auto_close_out_reason": "dispatcher-wired engine SetupTransitionEngine found in corpus"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Predictive Failure + Force Capability",
+      "units": [
+        {
+          "id": "U-MF02",
+          "title": "PredictiveFailureEngine: Monte Carlo risk assessment, sensitivity analysis, risk maps",
+          "status": "shipped",
+          "steps": [
+            "Material property variation (±8%) → force distribution → deflection → tolerance compliance",
+            "Tool wear uncertainty → remaining life probability (Weibull distribution)",
+            "Thermal drift → dimensional accuracy probability",
+            "Combined P(success) = product of per-operation probabilities",
+            "Sensitivity: which parameter variation kills feasibility first?",
+            "Risk map: color-code operations by failure probability"
+          ],
+          "exit_conditions": [
+            "P(success) produces realistic probabilities",
+            "Sensitivity identifies dominant risk factors",
+            "Risk map correctly ranks operations by danger",
+            "15+ tests"
+          ],
+          "legacy_id": "U02",
+          "description": "PredictiveFailureEngine: Monte Carlo risk assessment, sensitivity analysis, risk maps — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "auto_close_out_at": "2026-05-24T00:59:31.274Z",
+          "auto_close_out_reason": "dispatcher-wired engine PredictiveFailureEngine found in corpus"
+        },
+        {
+          "id": "U-MF03",
+          "title": "ForceCapabilityEngine: machine limits, thermal growth, tool wear force impact",
+          "status": "shipped",
+          "steps": [
+            "Machine force/power/torque check: Fc vs F_max, P vs P_max, T vs T_max from machine catalog",
+            "Cumulative thermal growth: α × ΔT × L accumulates through program",
+            "Tool wear → force increase: worn tool requires more force (Taylor + Takeyama-Murata)",
+            "Flag operations where force exceeds 80% of machine capacity (warning) or 100% (critical)"
+          ],
+          "exit_conditions": [
+            "Machine capacity exceeded correctly flagged",
+            "Thermal growth accumulation tracked",
+            "Worn tool force increase modeled",
+            "10+ tests"
+          ],
+          "legacy_id": "U03",
+          "description": "ForceCapabilityEngine: machine limits, thermal growth, tool wear force impact — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ],
+          "auto_close_out_at": "2026-05-24T00:59:31.274Z",
+          "auto_close_out_reason": "dispatcher-wired engine ForceCapabilityEngine found in corpus"
+        }
+      ]
+    }
+  ],
+  "status": "not_started",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "mf-ms3-gate",
+    "mcp_action": "prism_mf:mf_ms3_run",
+    "skill_command": "/mf-ms3",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "mf-ms3-gate"
+    ],
+    "new_actions": [
+      "mf_ms3_run"
+    ],
+    "new_skills": [
+      "/mf-ms3"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build SetupTransitionEngine (flip/re-fixture verification, datum chain tolerance stack, pallet layout collision), PredictiveFailureEngine (Monte Carlo success probability, sensitivity analysis, risk maps), and ForceCapabilityEngine (machine power/torque limits, cumulative thermal growth, tool wear force impact).",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "units": {},
+  "updated_at": "2026-05-24"
+}

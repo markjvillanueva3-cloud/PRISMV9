@@ -98,10 +98,10 @@ describe("MINBatchExtractorEngine", () => {
   });
 
   // 2
-  it("defaultConcurrency returns at least 1 and at most 8", () => {
+  it("defaultConcurrency returns at least 1 and at most 16", () => {
     const c = defaultConcurrency();
     expect(c).toBeGreaterThanOrEqual(1);
-    expect(c).toBeLessThanOrEqual(8);
+    expect(c).toBeLessThanOrEqual(16); // ceiling 8→16 for 9950X3D2 (16C); HARDWARE-DRIVE-SYNC-AUDIT-2026-06-08 §3.3
   });
 
   // 3

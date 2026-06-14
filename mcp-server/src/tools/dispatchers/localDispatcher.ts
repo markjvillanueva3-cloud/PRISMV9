@@ -36,6 +36,7 @@ import {
   AggregateHooksInputSchema,
   AwarenessInputSchema,
   CommitInputSchema,
+  LocalGenerateInputSchema,
   // DeepSeek V4 hybrid backend schemas
   ExecuteDeepseekInputSchema,
   DeepseekHealthInputSchema,
@@ -59,6 +60,7 @@ const INPUT_SCHEMAS: Record<string, import("zod").ZodTypeAny> = {
   aggregate_hooks: AggregateHooksInputSchema,
   awareness_route: AwarenessInputSchema,
   suggest_commit: CommitInputSchema,
+  local_generate: LocalGenerateInputSchema,
 };
 
 // Lazy-loaded engine references
@@ -391,6 +393,49 @@ export async function localDispatcher(
         });
       }
 
+      case "local_generate": {
+        const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
+        if (!validated.valid) {
+          return dispatcherError(validated.errorMessage || "Validation failed", action, "prism_local");
+        }
+        const p = validated.data as {
+          prompt: string; model: string; system: string;
+          temperature: number; maxTokens: number; timeoutMs: number; numCtx?: number;
+        };
+
+        const engine = await getEngine("offloader") as typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine;
+        const result = await engine.executeOffloaded(p.prompt, p.system, p.model, {
+          temperature: p.temperature,
+          maxTokens: p.maxTokens,
+          timeoutMs: p.timeoutMs,
+          numCtx: p.numCtx,
+        });
+        const ok = result.success;
+        // Approx Claude tokens saved by serving this generation locally (~4 chars/token, prompt + output).
+        const tokensSaved = ok ? Math.round((p.prompt.length + result.result.length) / 4) : 0;
+
+        return slimResponse({
+          success: ok,
+          action: validAction,
+          data: {
+            success: ok,
+            // On failure, the cause goes in `error` (NOT `content`) so an Ollama HTTP/network
+            // error is never mistaken for model output (R12 -- fail loud in the right field).
+            content: ok ? result.result : "",
+            error: ok ? undefined : result.result,
+            model: result.model,
+            latencyMs: result.latencyMs,
+            ollamaUsed: ok,
+            tokensSaved,
+          },
+          metadata: {
+            latencyMs: result.latencyMs,
+            tokensSaved,
+            ollamaUsed: ok,
+          },
+        });
+      }
+
       // DeepSeek V4 hybrid backend actions
       case "execute_deepseek": {
         const validated = validateActionParams(validAction, params as Record<string, unknown>, INPUT_SCHEMAS);
@@ -454,7 +499,8 @@ export function registerLocalDispatcher(server: any): void {
     `validate_code: Validate code via local Ollama. local_health: Check Ollama/Docker. ` +
     `offload_classify: Classify offloadable tasks. learn_pattern: Store error→fix patterns. ` +
     `search_patterns: Find relevant patterns. trajectory_*: SONA reinforcement learning. ` +
-    `learning_stats: Get learning statistics.`,
+    `learning_stats: Get learning statistics. ` +
+    `local_generate: Run an arbitrary prompt through a local Ollama model (route any local-LLM call through MCP).`,
     {
       action: z.enum(LOCAL_ACTIONS).describe("Local LLM action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),

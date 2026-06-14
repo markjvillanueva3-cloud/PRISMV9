@@ -185,3 +185,62 @@ class IntelligenceAmplificationEngine {
 }
 
 export const intelligenceAmplificationEngine = new IntelligenceAmplificationEngine();
+
+/**
+ * Canonical depth values for amplification scoring.
+ * Single source of truth shared by dispatcher input validation
+ * and the action schema (intelligenceActionSchemas.ts `ia_amplify`).
+ */
+export const IA_DEPTH_VALUES = ["shallow", "medium", "deep"] as const;
+export type IADepth = (typeof IA_DEPTH_VALUES)[number];
+
+/**
+ * Dispatcher function for MCP action routing (WIRE-INTAMP-MS0/U-WIRE-INTAMP).
+ * Maps action names to IntelligenceAmplificationEngine methods.
+ *
+ * Surfaces tribal-knowledge amplification (formula + tribal + MIT + JM Die corpora)
+ * through `prism_intelligence` so foxtrot-domain consumers can query without a
+ * direct engine import.
+ *
+ * @param action one of "ia_amplify" | "ia_get_source" | "ia_list_sources"
+ * @param params action-specific parameter bag (validated by intelligenceActionSchemas)
+ * @returns engine result — AmplifiedResponse | KnowledgeSource | KnowledgeSource[]
+ * @throws {Error} when `action` is not one of the three known values
+ * @throws {Error} on `ia_amplify` when `params.query` is missing or not a non-empty string
+ * @throws {Error} on `ia_get_source` when `params.id` is missing or not a non-empty string
+ */
+export async function intelligenceAmplificationDispatch(
+  action: string,
+  params: Record<string, unknown>,
+): Promise<unknown> {
+  switch (action) {
+    case "ia_amplify": {
+      const query = params.query as string | undefined;
+      if (!query || typeof query !== "string") {
+        throw new Error("ia_amplify: 'query' (non-empty string) is required");
+      }
+      const depthRaw = params.depth;
+      const depth: IADepth | undefined =
+        typeof depthRaw === "string" && (IA_DEPTH_VALUES as readonly string[]).includes(depthRaw)
+          ? (depthRaw as IADepth)
+          : undefined;
+      return intelligenceAmplificationEngine.amplify({
+        query,
+        domain: params.domain as string | undefined,
+        depth,
+        includeAssetTypes: params.includeAssetTypes as string[] | undefined,
+      });
+    }
+    case "ia_get_source": {
+      const id = params.id as string | undefined;
+      if (!id || typeof id !== "string") {
+        throw new Error("ia_get_source: 'id' (non-empty string) is required");
+      }
+      return intelligenceAmplificationEngine.getSource(id);
+    }
+    case "ia_list_sources":
+      return intelligenceAmplificationEngine.listSources();
+    default:
+      throw new Error(`intelligenceAmplificationDispatch: unknown action '${action}'`);
+  }
+}

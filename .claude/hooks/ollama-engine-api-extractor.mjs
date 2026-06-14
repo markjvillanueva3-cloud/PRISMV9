@@ -105,7 +105,7 @@ function readEngineHead(filePath) {
 
 const OLLAMA_BASE_URL =
   process.env.OLLAMA_BASE_URL ?? "http://localhost:11434";
-const OLLAMA_MODEL = process.env.OLLAMA_HOOK_MODEL ?? "qwen2.5-coder:7b";
+const OLLAMA_MODEL = process.env.OLLAMA_HOOK_MODEL ?? "qwen2.5-coder:32b";
 
 /**
  * Call Ollama's /api/generate endpoint directly. Mirrors what

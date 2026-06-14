@@ -67,6 +67,9 @@ const ReportsPage = lazyNamed(() => import('./pages/ReportsPage'), 'ReportsPage'
 const ViewerPage = lazyNamed(() => import('./pages/ViewerPage'), 'ViewerPage');
 const ShopFloorClockPage = lazyNamed(() => import('./pages/ShopFloorClockPage'), 'ShopFloorClockPage');
 const ShopFloorLivePage = lazyNamed(() => import('./pages/ShopFloorLivePage'), 'default');
+const EmployeePhonePortalPage = lazy(() => import('./pages/EmployeePhonePortalPage'));
+const HotelEmployeeHubPage = lazy(() => import('./pages/HotelEmployeeHubPage'));
+const BusinessSuitePage = lazy(() => import('./pages/BusinessSuitePage'));
 const TimecardPage = lazyNamed(() => import('./pages/TimecardPage'), 'TimecardPage');
 const PayrollPage = lazyNamed(() => import('./pages/PayrollPage'), 'PayrollPage');
 const InvoicesPage = lazyNamed(() => import('./pages/InvoicesPage'), 'InvoicesPage');
@@ -84,9 +87,12 @@ const InventoryPage = lazyNamed(() => import('./pages/InventoryPage'), 'Inventor
 const PartsLibraryPage = lazyNamed(() => import('./pages/PartsLibraryPage'), 'PartsLibraryPage');
 const SchedulingPage = lazyNamed(() => import('./pages/SchedulingPage'), 'SchedulingPage');
 const QuoteBuilderPage = lazyNamed(() => import('./pages/QuoteBuilderPage'), 'QuoteBuilderPage');
+const MobileCameraQuotePage = lazyNamed(() => import('./pages/MobileCameraQuotePage'), 'MobileCameraQuotePage');
 const SecondaryOpsPage = lazyNamed(() => import('./pages/SecondaryOpsPage'), 'SecondaryOpsPage');
 const QuoteAnalyticsPage = lazyNamed(() => import('./pages/QuoteAnalyticsPage'), 'QuoteAnalyticsPage');
 const BlueprintQuotePage = lazyNamed(() => import('./pages/BlueprintQuotePage'), 'BlueprintQuotePage');
+const QuotingCalibrationHealthPage = lazyNamed(() => import('./pages/QuotingCalibrationHealthPage'), 'QuotingCalibrationHealthPage');
+const QuotingWorkbenchPage = lazyNamed(() => import('./pages/QuotingWorkbenchPage'), 'QuotingWorkbenchPage');
 const SheetMetalQuotePage = lazyNamed(() => import('./pages/SheetMetalQuotePage'), 'SheetMetalQuotePage');
 const AdditiveQuotePage = lazyNamed(() => import('./pages/AdditiveQuotePage'), 'AdditiveQuotePage');
 const InjectionMoldPage = lazyNamed(() => import('./pages/InjectionMoldPage'), 'InjectionMoldPage');
@@ -116,6 +122,7 @@ const ToolWizard = lazyNamed(() => import('./components/learning/ToolWizard'), '
 const MachineWizard = lazyNamed(() => import('./components/learning/MachineWizard'), 'MachineWizard');
 const DigitalTwin = lazyNamed(() => import('./components/learning/DigitalTwin'), 'DigitalTwin');
 const CourseCatalog = lazyNamed(() => import('./components/learning/CourseCatalog'), 'CourseCatalog');
+const AcademyHub = lazyNamed(() => import('./components/learning/AcademyHub'), 'AcademyHub');
 const CourseDetail = lazyNamed(() => import('./components/learning/CourseDetail'), 'CourseDetail');
 const LessonView = lazyNamed(() => import('./components/learning/LessonView'), 'LessonView');
 const KnowledgeIngestionPage = lazyNamed(() => import('./pages/KnowledgeIngestionPage'), 'KnowledgeIngestionPage');
@@ -150,6 +157,7 @@ const SalesPipelinePage = lazy(() => import('./pages/SalesPipelinePage'));
 const CommissionTrackerPage = lazy(() => import('./pages/CommissionTrackerPage'));
 const CreditManagementPage = lazy(() => import('./pages/CreditManagementPage'));
 const VendorScorecardPage = lazy(() => import('./pages/VendorScorecardPage'));
+const VendorCatalogPage = lazy(() => import('./pages/VendorCatalogPage'));
 const ReceivingInspectionPage = lazy(() => import('./pages/ReceivingInspectionPage'));
 const ShippingPackingPage = lazy(() => import('./pages/ShippingPackingPage'));
 // BIZ-MS5: Maintenance, Assets, Compliance & Integrations
@@ -209,6 +217,9 @@ export function App() {
               <Route path="capture" element={lazyElement(<CaptureOpsPage />)} />
               <Route path="shop-clock" element={lazyElement(<ShopFloorClockPage />)} />
               <Route path="shop-live" element={lazyElement(<ShopFloorLivePage />)} />
+              <Route path="phone-portal" element={lazyElement(<EmployeePhonePortalPage />)} />
+              <Route path="hotel-hub" element={lazyElement(<HotelEmployeeHubPage />)} />
+              <Route path="business-suite" element={lazyElement(<BusinessSuitePage />)} />
               <Route path="quality" element={lazyElement(<QualityManagementPage />)} />
               <Route path="scheduling" element={lazyElement(<SchedulingPage />)} />
               <Route path="orders" element={lazyElement(<OrderTrackingPage />)} />
@@ -222,7 +233,8 @@ export function App() {
                 <Route path="tool-wizard" element={lazyElement(<ToolWizard />)} />
                 <Route path="machine-wizard" element={lazyElement(<MachineWizard />)} />
                 <Route path="twin" element={lazyElement(<DigitalTwin />)} />
-                <Route path="academy" element={lazyElement(<CourseCatalog />)} />
+                <Route path="academy" element={lazyElement(<AcademyHub />)} />
+                <Route path="academy/all" element={lazyElement(<CourseCatalog />)} />
                 <Route path="academy/:courseId" element={lazyElement(<CourseDetail />)} />
                 <Route path="academy/:courseId/:lessonId" element={lazyElement(<LessonView />)} />
               </Route>
@@ -271,9 +283,13 @@ export function App() {
               <Route path="parts-library" element={lazyElement(<PartsLibraryPage />)} />
               <Route path="scheduling" element={lazyElement(secure(<SchedulingPage />, 'lead'))} />
               <Route path="quote-builder" element={lazyElement(<QuoteBuilderPage />)} />
+              {/* QUOTING-PIPELINE-MS0/U-QP09 — customer-facing mobile camera→quote capture */}
+              <Route path="mobile-capture-quote" element={lazyElement(<MobileCameraQuotePage />)} />
               <Route path="secondary-ops" element={lazyElement(<SecondaryOpsPage />)} />
               <Route path="quote-analytics" element={lazyElement(<QuoteAnalyticsPage />)} />
               <Route path="blueprint-quote" element={lazyElement(<BlueprintQuotePage />)} />
+              <Route path="quoting-calibration-health" element={lazyElement(<QuotingCalibrationHealthPage />)} />
+              <Route path="quoting-workbench" element={lazyElement(<QuotingWorkbenchPage />)} />
               <Route path="sheet-metal" element={lazyElement(<SheetMetalQuotePage />)} />
               <Route path="additive" element={lazyElement(<AdditiveQuotePage />)} />
               <Route path="injection-mold" element={lazyElement(<InjectionMoldPage />)} />
@@ -310,6 +326,7 @@ export function App() {
               <Route path="commissions" element={lazyElement(secure(<CommissionTrackerPage />, 'hr_manager'))} />
               <Route path="credit-management" element={lazyElement(secure(<CreditManagementPage />, 'hr_manager'))} />
               <Route path="vendor-scorecard" element={lazyElement(secure(<VendorScorecardPage />, 'lead'))} />
+              <Route path="vendor-catalog" element={lazyElement(secure(<VendorCatalogPage />, 'lead'))} />
               <Route path="receiving" element={lazyElement(secure(<ReceivingInspectionPage />, 'lead'))} />
               <Route path="shipping" element={lazyElement(secure(<ShippingPackingPage />, 'lead'))} />
               {/* BIZ-MS5: Maintenance, Assets, Compliance & Integrations */}
@@ -381,7 +398,8 @@ export function App() {
                 <Route path="tool-wizard" element={lazyElement(<ToolWizard />)} />
                 <Route path="machine-wizard" element={lazyElement(<MachineWizard />)} />
                 <Route path="twin" element={lazyElement(<DigitalTwin />)} />
-                <Route path="academy" element={lazyElement(<CourseCatalog />)} />
+                <Route path="academy" element={lazyElement(<AcademyHub />)} />
+                <Route path="academy/all" element={lazyElement(<CourseCatalog />)} />
                 <Route path="academy/:courseId" element={lazyElement(<CourseDetail />)} />
                 <Route path="academy/:courseId/:lessonId" element={lazyElement(<LessonView />)} />
               </Route>

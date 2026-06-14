@@ -7,6 +7,7 @@ chat: claude-77971357
 shipped-with: U-REGEN-VIZ-MERGE-FAILLOUD
 sibling-memory: reference_u_regen_viz_merge_faillod_2026_05_17
 commit: f9dc218d78
+domain: backend-dev
 ---
 
 # Lesson: orchestrators must not continue past a failed sub-stage

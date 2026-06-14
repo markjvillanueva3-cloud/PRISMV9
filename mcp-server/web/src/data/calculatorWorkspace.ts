@@ -1,4 +1,6 @@
-export type ExperienceLevel = 'beginner' | 'journeyman' | 'master';
+// 2026-05-27 (slot golf, GOAL-TSC-FIX iter7): + 'expert' for useCalculatorBridge.test.tsx
+// (5 sites pass "expert"). Semantic alias of 'master' — both denote highest tier.
+export type ExperienceLevel = 'beginner' | 'journeyman' | 'master' | 'expert';
 export type MachineMode = 'mill' | 'lathe' | 'edm' | 'wire_edm' | 'laser' | 'waterjet';
 export type CoolantOptionId = 'flood' | 'tsc' | 'through_air' | 'mist' | 'air' | 'dielectric';
 export type MachinePackageSource = 'registry' | 'registry-merged' | 'fallback';
@@ -96,6 +98,14 @@ export interface MachineCatalogItem {
   coolant: string;
   coolantOptionIds: CoolantOptionId[];
   controllerOptions: SelectionOption[];
+  // 2026-05-27 (slot golf, iter8 — re-add after peer revert): resolved single
+  // controller name (sister to controllerOptions[]). Used by CalculatorPage at
+  // L3941/3962 for fast access without iterating the array. Optional —
+  // call sites should default to controllerOptions[0]?.id when absent.
+  controller?: string;
+  // 2026-05-27 iter27: resolved single spindle name (sister to spindleOptions[]).
+  // calculatorToolpathUniverseCoverage L185 reads this to seed the setup preview.
+  spindleLabel?: string;
   spindleOptions: SelectionOption[];
   controllerCapabilityOptions?: MachineControllerCapabilityOption[];
   configurationOptions?: MachineConfigurationOption[];
@@ -135,6 +145,8 @@ export interface ToolCatalogItem {
   id: string;
   mode: MachineMode;
   family: string;
+  // 2026-05-26 (slot golf, tsc-fix): augmentation — some catalog rows ship a distinct `name` separate from `label`.
+  name?: string;
   label: string;
   description: string;
   holder: string;
@@ -166,6 +178,7 @@ export interface ToolCatalogItem {
   toolpathKeywords?: string[];
   toolMaterialClass?: 'carbide' | 'cermet' | 'pcd' | 'ceramic' | 'wire' | 'graphite' | 'electrode' | 'abrasive';
   geometryClass?:
+    | 'endmill'
     | 'face-mill'
     | 'variable-helix-endmill'
     | 'square-endmill'
@@ -250,7 +263,9 @@ export interface ProgrammingToolpathOption {
   id: string;
   label: string;
   path: string;
-  summary: string;
+  // 2026-05-27 iter28: producer at CalculatorPage L13099 builds these from a
+  // selection where some sources lack a summary (e.g. quick-pick links).
+  summary?: string;
   operationId: string;
 }
 

@@ -33,7 +33,7 @@ import { ACTION_TELEMETRY_SCHEMAS } from "../../schemas/telemetryActionSchemas.j
 export function registerTelemetryDispatcher(server: McpServer): void {
   server.tool(
     "prism_telemetry",
-    "Dispatcher telemetry & self-optimization. Actions: get_dashboard, get_detail, get_anomalies, get_optimization, acknowledge, freeze_weights, unfreeze_weights",
+    "Dispatcher telemetry & self-optimization. Actions: get_dashboard, get_detail, get_anomalies, get_optimization, acknowledge, freeze_weights, unfreeze_weights, automation_chain_record, automation_chain_chain_health, automation_chain_summary, automation_chain_session_health, automation_chain_record_budget",
     {
       action: z.enum([
         "get_dashboard",
@@ -43,6 +43,12 @@ export function registerTelemetryDispatcher(server: McpServer): void {
         "acknowledge",
         "freeze_weights",
         "unfreeze_weights",
+        // ACP-MS6: AutomationChainTelemetry actions (P1-U01 + P1-U02 + P1-U03)
+        "automation_chain_record",
+        "automation_chain_chain_health",
+        "automation_chain_summary",
+        "automation_chain_session_health",
+        "automation_chain_record_budget",
       ]).describe("Telemetry action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
@@ -220,8 +226,55 @@ export function registerTelemetryDispatcher(server: McpServer): void {
             break;
           }
 
+          // ================================================================
+          // ACP-MS6: AutomationChainTelemetry — P1-U01 collection (record)
+          // ================================================================
+          case "automation_chain_record": {
+            const { automationChainTelemetryEngine } = await import("../../engines/AutomationChainTelemetryEngine.js");
+            automationChainTelemetryEngine.ingest({
+              timestamp: params.timestamp ?? new Date().toISOString(),
+              chain_id: params.chain_id,
+              step_id: params.step_id,
+              status: params.status,
+              token_cost: params.token_cost,
+              latency_ms: params.latency_ms,
+              error: params.error,
+            });
+            result = { success: true, chain_id: params.chain_id, status: params.status };
+            break;
+          }
+
+          // ACP-MS6 / P1-U03: per-chain health snapshot
+          case "automation_chain_chain_health": {
+            const { automationChainTelemetryEngine } = await import("../../engines/AutomationChainTelemetryEngine.js");
+            result = automationChainTelemetryEngine.chainHealth(params.chain_id) ?? { error: "chain not seen", chain_id: params.chain_id };
+            break;
+          }
+
+          // ACP-MS6 / P1-U03: all chains summary (sorted by fires desc)
+          case "automation_chain_summary": {
+            const { automationChainTelemetryEngine } = await import("../../engines/AutomationChainTelemetryEngine.js");
+            result = { chains: automationChainTelemetryEngine.summary() };
+            break;
+          }
+
+          // ACP-MS6 / P1-U03: session roll-up (per-session automation health report)
+          case "automation_chain_session_health": {
+            const { automationChainTelemetryEngine } = await import("../../engines/AutomationChainTelemetryEngine.js");
+            result = automationChainTelemetryEngine.sessionHealth();
+            break;
+          }
+
+          // ACP-MS6: register a chain's token_budget so utilization can be reported
+          case "automation_chain_record_budget": {
+            const { automationChainTelemetryEngine } = await import("../../engines/AutomationChainTelemetryEngine.js");
+            automationChainTelemetryEngine.recordChainBudget(params.chain_id, params.task_class, params.token_budget);
+            result = { success: true, chain_id: params.chain_id, task_class: params.task_class, token_budget: params.token_budget };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_dashboard', 'get_detail', 'get_anomalies', 'get_optimization', 'acknowledge', 'freeze_weights', 'unfreeze_weights'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_dashboard', 'get_detail', 'get_anomalies', 'get_optimization', 'acknowledge', 'freeze_weights', 'unfreeze_weights', 'automation_chain_record', 'automation_chain_chain_health', 'automation_chain_summary', 'automation_chain_session_health', 'automation_chain_record_budget'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);

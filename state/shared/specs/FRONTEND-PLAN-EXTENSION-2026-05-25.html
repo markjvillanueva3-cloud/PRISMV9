@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="716cc2b77930e400b7bd54fe336d84ef1c939156872f948b8fc94bc0ee3c9eea">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FRONTEND-PLAN-EXTENSION 2026-05-25 (quebec iter6)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>FRONTEND-PLAN-EXTENSION 2026-05-25 (quebec iter6)</h1>
+<div class="meta">rendered from state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md</div>
+<div class="meta">Generated 2026-05-26T03:22:21.700Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">Frontend Plan EXTENSION — 2026-05-25 (slot:quebec /loop)</li><li class="prism-toc-l2">1. Delta vs the morning plan</li><li class="prism-toc-l2">2. Updated page-density inventory (119 pages, concrete sizes 2026-05-25)</li><li class="prism-toc-l2">3. Better-than-Playwright research synthesis</li><li class="prism-toc-l2">4. Mobile design — 2026 specifics</li><li class="prism-toc-l3">4.1 Liquid Glass shipped iOS 26, NOT iOS 18</li><li class="prism-toc-l3">4.2 Material 3 Expressive (late 2025) for industrial dark</li><li class="prism-toc-l3">4.3 Capacitor 6 + React parity gotchas (top 5)</li><li class="prism-toc-l3">4.4 Accessibility — the rules that actually bite (additive to web/CLAUDE.md WCAG 2.2 AA block)</li><li class="prism-toc-l3">4.5 Production references that match the aesthetic (NEW)</li><li class="prism-toc-l3">4.6 Anti-patterns specific to this stack (additive to web/CLAUDE.md bans)</li><li class="prism-toc-l2">5. Tooling already installed — re-verified</li><li class="prism-toc-l2">6. Atomic units — proposed for <code class="prism-inline-code">atomic-roadmap.json</code></li><li class="prism-toc-l2">7. Operator decisions still open</li><li class="prism-toc-l2">8. Sources</li><li class="prism-toc-l2">9. ADDENDUM — operator&#39;s second 2026-05-25 /goal (self-learning UI/UX + repos to download)</li><li class="prism-toc-l3">9.1 Self-learning UI/UX — the 2026 honest answer</li><li class="prism-toc-l3">9.2 Architecture for 200+ React pages — DON&#39;T jump to micro-frontends yet</li><li class="prism-toc-l3">9.3 SE practices — 2026 LLM-assisted frontend gates</li><li class="prism-toc-l3">9.4 Downloadable repos / plugins / Claude-Code helpers (NEW — not already installed)</li><li class="prism-toc-l3">9.5 The &quot;vibe-coded vs professional&quot; gap — 3 concrete patterns</li><li class="prism-toc-l3">9.6 §9 unit summary</li><li class="prism-toc-l3">9.7 §9 sources</li></ul></nav><h1 class="prism-h1">Frontend Plan EXTENSION — 2026-05-25 (slot:quebec /loop)</h1>
+<blockquote class="prism-quote"><strong>Why this exists.</strong> Operator issued a new <code class="prism-inline-code">/goal</code> on 2026-05-25 asking for deep UI/UX research + Codex frontend assessment + better-than-Playwright research + a plan. Two prior specs already cover most of the surface (<code class="prism-inline-code">FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25.md</code> shipped this morning by slot:romeo iter35; <code class="prism-inline-code">claude-cli-app-design-capabilities-2026-05-21.md</code> shipped 4 days ago by slot:juliett). This document <strong>extends them with the gaps</strong> the operator&#39;s new ask uncovers — it does NOT duplicate them.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote">Read order: those two docs first, then this one as a delta. Per R8 (read before you write) + R7 (surface conflicts, don&#39;t average them).</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. Delta vs the morning plan</h2>
+<p>The morning audit was correct in shape (Phase A/B/C/D/E, mobile-via-Capacitor, no new MCP installs needed). This delta closes four open gaps in it:</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Gap in morning plan</th><th>This delta adds</th></tr></thead><tbody><tr><td>Δ1</td><td>§7 page-density table missed several mega-pages</td><td>Full re-inventory across all 119 pages; 12 violators ≥30 KB, 9 ≥50 KB (3× the morning count)</td></tr>
+<tr><td>Δ2</td><td>&quot;Better than Playwright?&quot; — operator-asked, never answered</td><td>Empirical comparison of 9 candidates; verdict + concrete augmentation list</td></tr>
+<tr><td>Δ3</td><td>Mobile §Phase-E generic — said &quot;iOS HIG / Material 3&quot; without naming 2026 specifics</td><td>Liquid Glass (iOS 26+) traps, M3 Expressive role mapping for industrial dark, Capacitor 6 Android-15 keyboard bug</td></tr>
+<tr><td>Δ4</td><td>No atomic-roadmap unit list</td><td>§6 below — 14 concrete units in milestone-envelope format ready for <code class="prism-inline-code">atomic-roadmap.json</code></td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. Updated page-density inventory (119 pages, concrete sizes 2026-05-25)</h2>
+<blockquote class="prism-quote"><strong>Count delta vs iter34 (149 pages):</strong> iter34 enumerated route entries + subdirectory pages including <code class="prism-inline-code">recovery/</code>; this count is only top-level <code class="prism-inline-code">*.tsx</code> files in <code class="prism-inline-code">mcp-server/web/src/pages/</code>. Neither count is wrong — they measure different things. The mega-page violations below are the same regardless of method.</blockquote>
+<p>The morning §7 named 8 mega-pages. Full re-<code class="prism-inline-code">ls</code> finds <strong>15 pages ≥30 KB</strong>, <strong>9 ≥50 KB</strong>, <strong>4 ≥100 KB</strong>. Sorted:</p>
+<table class="prism-md-table"><thead><tr><th>Page</th><th>Size</th><th>Status</th></tr></thead><tbody><tr><td><strong>CalculatorPage.tsx</strong></td><td>659.9 KB</td><td>known — §7 of morning plan</td></tr>
+<tr><td><strong>PostProcessorGeneratorPage.tsx</strong></td><td>184.9 KB</td><td><strong>NEW — missed in morning plan</strong></td></tr>
+<tr><td><strong>QuoteBuilderPage.tsx</strong></td><td>117.4 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>JobsPage.tsx</strong></td><td>92.7 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>ProgramReleasePage.tsx</strong></td><td>78.4 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>ShopFloorClockPage.tsx</strong></td><td>70.7 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>CustomerPortalPage.tsx</strong></td><td>64.7 KB</td><td>known</td></tr>
+<tr><td><strong>WireEdmWizardPage.tsx</strong></td><td>64.8 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>PostProcessorPage.tsx</strong></td><td>60.7 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>InventoryPage.tsx</strong></td><td>56.6 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>DashboardPage.tsx</strong></td><td>50.6 KB</td><td>known</td></tr>
+<tr><td><strong>ShopProfilePage.tsx</strong></td><td>50.4 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>LatheResultsPage.tsx</strong></td><td>47.0 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>MessagesPage.tsx</strong></td><td>46.5 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>CaptureOpsPage.tsx</strong></td><td>43.0 KB</td><td>known</td></tr>
+<tr><td><strong>QuoteFollowUpPage.tsx</strong></td><td>42.3 KB</td><td><strong>NEW</strong></td></tr>
+<tr><td><strong>ToolpathAdvisorPage.tsx</strong></td><td>39.9 KB</td><td>NEW</td></tr>
+<tr><td><strong>CustomersPage.tsx</strong></td><td>39.8 KB</td><td>known</td></tr>
+<tr><td><strong>SchedulingPage.tsx</strong></td><td>38.6 KB</td><td>NEW</td></tr>
+<tr><td><strong>A3ReportPage.tsx</strong></td><td>38.3 KB</td><td>known</td></tr>
+<tr><td><strong>PurchaseOrdersPage.tsx</strong></td><td>38.1 KB</td><td>NEW</td></tr>
+<tr><td><strong>EmployeeDirectoryPage.tsx</strong></td><td>37.5 KB</td><td>NEW</td></tr>
+<tr><td><strong>MachineRatesPage.tsx</strong></td><td>37.5 KB</td><td>NEW</td></tr>
+<tr><td><strong>TimecardPage.tsx</strong></td><td>37.4 KB</td><td>NEW</td></tr>
+<tr><td><strong>SpeedFeedPage.tsx</strong></td><td>37.3 KB</td><td>NEW</td></tr>
+<tr><td><strong>GeneralLedgerPage.tsx</strong></td><td>36.7 KB</td><td>NEW</td></tr>
+<tr><td><strong>DepartmentDashboardPage.tsx</strong></td><td>35.6 KB</td><td>NEW</td></tr>
+<tr><td><strong>QualityManagementPage.tsx</strong></td><td>34.8 KB</td><td>NEW</td></tr></tbody></table>
+<p><strong>12 new violators beyond the morning plan.</strong> The morning&#39;s &quot;operator-gated, per-page&quot; recommendation still holds (§Phase F is operator-approval per page) but the queue is 3× the size.</p>
+<p><strong>Correction (round-2 scrutiny):</strong> an earlier draft of this section claimed Vite ships everything in one chunk and asserted a 2-4-second FCP win from route-level code-splitting. That was <strong>wrong</strong>. Verified: <code class="prism-inline-code">mcp-server/web/src/App.tsx</code> ALREADY wraps all 9 mega-pages (CalculatorPage line 48, ProgramReleasePage 49, PostProcessorGeneratorPage 54, PostProcessorPage 55, ShopFloorClockPage 68, CustomerPortalPage 83, QuoteBuilderPage 88, JobsPage 100, WireEdmWizardPage 139) in <code class="prism-inline-code">lazyNamed()</code> with <code class="prism-inline-code">lazyElement</code> route wrappers, AND <code class="prism-inline-code">mcp-server/web/vite.config.ts</code> already defines <code class="prism-inline-code">manualChunks()</code> for vendor split. <strong>Code-splitting is shipped.</strong> The remaining win on these mega-pages is <em>intra-page</em> — per-section dynamic imports inside CalculatorPage itself (tab-level code-splitting), which is true work but a different, smaller-ROI unit than the spec originally claimed.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. Better-than-Playwright research synthesis</h2>
+<p>Operator asked: <em>&quot;look into more efficient web-surface reading if there is one better than playwright relative to ui building and design with an llm.&quot;</em></p>
+<p><strong>Verdict: stay on Playwright MCP, but augment.</strong> No tool is materially better for THIS use case (LLM iterating on React/Tailwind localhost pages). The 2026 design-loop literature canonizes the Playwright pattern. Three concrete wins are available today:</p>
+<table class="prism-md-table"><thead><tr><th>Action</th><th>Cost</th><th>Token win</th><th>Already installed?</th></tr></thead><tbody><tr><td><strong>Add <code class="prism-inline-code">chrome-devtools-mcp</code> to active design-loop</strong> (Lighthouse, LCP/CLS, live-DevTools handoff Playwright can&#39;t do)</td><td>zero — already installed</td><td>adds capability rather than reduces tokens</td><td>✅ INSTALLED (per system reminder)</td></tr>
+<tr><td><strong>Switch to <code class="prism-inline-code">@playwright/mcp --cli</code> mode</strong> when agent has fs access — writes snapshots to disk instead of streaming back into context</td><td>one-time config</td><td><strong>4× token reduction</strong> (114k→27k per session per Morph benchmark)</td><td>uses <code class="prism-inline-code">--cli</code> <em>flag</em> on the already-installed <code class="prism-inline-code">@playwright/mcp</code> — NOT a separate <code class="prism-inline-code">@playwright/cli</code> package (which exists but is an unrelated abandoned project from a different author)</td></tr>
+<tr><td><strong>Install <code class="prism-inline-code">shadcn-react</code> MCP</strong> (Jpisnice) IF the codebase moves toward shadcn primitives — eliminates the &quot;Claude invents non-existent shadcn props&quot; failure class</td><td>one-time install</td><td>reduces screenshot iterations needed</td><td>✗ not installed; PRISM uses Radix UI directly (shadcn-style), so impact is moderate</td></tr></tbody></table>
+<p><strong>Other candidates evaluated and rejected for this use case:</strong> Stagehand (great for production scrapers, not first-pass design iteration), Browser-use (overkill — LLM-decides-every-click is slow + expensive for &quot;look at my page&quot;), Skyvern (vision-first, redundant when you control the React source), Steel/Browserbase (cloud round-trip latency, no benefit for <code class="prism-inline-code">localhost:5173</code>).</p>
+<p><strong>Different axis worth surfacing:</strong> a Radix-aware component-registry MCP would solve the &quot;Claude invents non-existent Radix props&quot; class entirely so screenshot iterations are needed less often. None exists today as far as the research found — could be PRISM-built if the design loop becomes a bottleneck.</p>
+<p><strong>Sources cited inline below §6.</strong></p>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. Mobile design — 2026 specifics</h2>
+<p>The morning Phase E mentioned &quot;iOS HIG / Material 3&quot; generically. The 2026 specifics that change concrete implementation:</p>
+<h3 class="prism-h3">4.1 Liquid Glass shipped iOS 26, NOT iOS 18</h3>
+<p>A common drift. iOS 26 (mid-2025) introduced Liquid Glass; iOS 26.2 (early 2026) reacted to legibility complaints by making dark mode darker when &quot;Reduce Transparency&quot; + &quot;Increase Contrast&quot; are on.</p>
+<p><strong>Load-bearing rules for industrial HUD:</strong></p>
+<ul class="prism-md-list"><li><strong>Do NOT adopt translucent tab bars/toolbars on dense data screens.</strong> Glass on top of dense numerics destroys plane separation. Keep solid <code class="prism-inline-code">surface</code> tokens behind chrome; respect <code class="prism-inline-code">UIAccessibilityReduceTransparencyEnabled</code> and fall through to opaque.</li><li><strong>Honor <code class="prism-inline-code">UIAccessibilityDarkerSystemColorsEnabled</code></strong> — composes with Liquid Glass to produce a new &quot;Ultra Dark&quot; tier. In React this is a <strong>third theme variant</strong> beyond <code class="prism-inline-code">light</code>/<code class="prism-inline-code">dark</code>: <code class="prism-inline-code">dark-high-contrast</code>.</li><li><strong>App icon variants are now table-stakes</strong> — ship <code class="prism-inline-code">light</code>, <code class="prism-inline-code">dark</code>, AND <code class="prism-inline-code">tinted</code> assets.</li><li><strong>Lock Screen Live Activity for &quot;active job + spindle load&quot;</strong> is the most valuable underutilized iOS surface for a manufacturing app in 2026.</li></ul>
+<h3 class="prism-h3">4.2 Material 3 Expressive (late 2025) for industrial dark</h3>
+<ul class="prism-md-list"><li><strong>Do NOT use Material You dynamic color</strong> (the default Capacitor + Android scaffolds wire in). That pulls accent from wallpaper. Use <strong>Material Theme Builder with a fixed seed</strong> = PRISM accent, <code class="prism-inline-code">contrast: high</code>, export only <code class="prism-inline-code">dark</code> scheme.</li><li><strong>Role mapping for the Calculator Studio palette:</strong></li><li>Primary = action buttons (CTA)</li><li><strong>Secondary-Dim = passive numerics</strong> in dense areas</li><li><strong>Secondary-Container = card grouping</strong></li><li><strong>Tertiary = threshold-crossing alerts ONLY</strong> (chatter alarm, tool-life critical)</li><li>**Use <code class="prism-inline-code">surface-container-<em></code> tonal elevation, not shadows.</em>* 5 elevation tiers via tone, scales correctly on AMOLED without shadow bloom.</li><li><strong>Motion tokens — spatial vs effects, three speeds each.</strong> Chart re-render = <code class="prism-inline-code">spatial.fast</code>, value-change pulse = <code class="prism-inline-code">effects.fast</code>. Don&#39;t use default M3 spring durations (too playful for industrial).</li></ul>
+<h3 class="prism-h3">4.3 Capacitor 6 + React parity gotchas (top 5)</h3>
+<ol class="prism-md-list"><li><strong>Android 15+ edge-to-edge keyboard overlap</strong> — confirmed open bug <code class="prism-inline-code">capacitor#8166</code>. Install <code class="prism-inline-code">@capawesome/capacitor-android-edge-to-edge-support</code>, gate by OS version, set <code class="prism-inline-code">android.captureInput: true</code> + <code class="prism-inline-code">Keyboard.resizeOnFullScreen: false</code>. Without this, every bottom-anchored form is invisible on every Pixel.</li><li><strong>Safe-area insets return 0 on Android with stock Capacitor 6.</strong> Required: <code class="prism-inline-code">capacitor-plugin-safe-area</code>, write insets to CSS vars on mount.</li><li><strong><code class="prism-inline-code">ios.contentInset: &#39;always&#39;</code> paints status-bar zone white in dark mode</strong> — remove it. Use proper safe-area CSS + <code class="prism-inline-code">@capacitor/status-bar</code> <code class="prism-inline-code">setStyle({ style: &#39;DARK&#39; })</code>.</li><li><strong>Touch-target minimums differ</strong> — iOS HIG 44×44pt, Material 48×48dp. Tailwind: <code class="prism-inline-code">min-h-[44px]</code> baseline, bump to <code class="prism-inline-code">min-h-12</code> (48px) on <code class="prism-inline-code">[data-platform=&quot;android&quot;]</code>.</li><li><strong>Modal presentation differs by OS</strong> — iOS expects sheet-style with grab handle + dismiss-by-drag; Android expects full-screen with system back button. A single <code class="prism-inline-code">&lt;Dialog&gt;</code> rendering identically on both is wrong.</li></ol>
+<h3 class="prism-h3">4.4 Accessibility — the rules that actually bite (additive to web/CLAUDE.md WCAG 2.2 AA block)</h3>
+<ul class="prism-md-list"><li><strong>Never <code class="prism-inline-code">#000</code>.</strong> Use <code class="prism-inline-code">#0f1115</code>–<code class="prism-inline-code">#1a1a1a</code> for canvas. Pure black + white = 21:1 but halation/bloom for dyslexia/astigmatism users. Target body text 13–17:1, <strong>not</strong> 21:1.</li><li><strong>Re-verify every accent on the dark surface.</strong> A <code class="prism-inline-code">#2563eb</code> button that&#39;s 5.9:1 on white drops to <strong>2.7:1</strong> on <code class="prism-inline-code">#0f172a</code> — below the 3:1 floor.</li><li><strong>APCA Lc≥75</strong> for body text as a design-review gate above WCAG (perceptual sanity-check; WCAG passes don&#39;t always read right).</li><li><strong>iOS 16px input-zoom trick</strong> is still required in 2026 — set <code class="prism-inline-code">text-base</code> (16px) on every form input. Do NOT use <code class="prism-inline-code">maximum-scale=1</code> to suppress it (a11y violation).</li><li><strong>WCAG 2.2 SC 2.4.11 (focus not obscured)</strong> — your sticky bottom action bar must NOT hide focused inputs. Real risk in Capacitor where keyboard-shown events fight bottom-pinned UI.</li></ul>
+<h3 class="prism-h3">4.5 Production references that match the aesthetic (NEW)</h3>
+<p>Beyond Stripe/Linear/GitHub/Wise (already named):</p>
+<ul class="prism-md-list"><li><strong><a href="https://linear.app" class="prism-link">Linear mobile</a></strong> — custom shaders, variable scroll-boundary blur, signed-distance-field icons. The benchmark.</li><li><strong><a href="https://raycast.com/ios" class="prism-link">Raycast iOS</a></strong> — dark-first, monospace numerics, single-accent restraint.</li><li><strong><a href="https://warp.dev" class="prism-link">Warp</a></strong> — terminal-rooted, the definitive Bloomberg-feel.</li><li><strong><a href="https://tremor.so" class="prism-link">Tremor</a></strong> (React LIBRARY, not an app) — closest production-grade React/Tailwind primitives for dense numeric cards + charts, already dark-mode tuned. <strong>Worth evaluating as a component baseline for new PRISM pages.</strong></li></ul>
+<h3 class="prism-h3">4.6 Anti-patterns specific to this stack (additive to web/CLAUDE.md bans)</h3>
+<ul class="prism-md-list"><li><strong>Liquid-Glass-everywhere.</strong> AI defaults to it because Apple&#39;s gallery shows it. On dense numerics it destroys plane separation.</li><li><strong>Material You dynamic color.</strong> AI scaffolds wire <code class="prism-inline-code">dynamicColor: true</code> by default; Android 12+ overrides accent with wallpaper hue.</li><li><strong><code class="prism-inline-code">100vh</code> for full-screen.</strong> Broken on iOS Safari + Android edge-to-edge. Use <code class="prism-inline-code">100dvh</code> + safe-area padding.</li><li><strong>Single 8pt grid copied from web.</strong> iOS HIG = 4pt baseline, Material = 4dp/8dp dual grid. 8px-only spacing breaks list-item rhythm on iOS.</li><li><strong>Shadow-based elevation in dark mode.</strong> Shadows on <code class="prism-inline-code">#0f1115</code> look like dirt smudges. Use M3 tonal elevation (lighter surface tier) and 1px hairline borders instead.</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">5. Tooling already installed — re-verified</h2>
+<p>Per system reminder this session, every relevant tool is installed:</p>
+<table class="prism-md-table"><thead><tr><th>Tool</th><th>Confirmed</th></tr></thead><tbody><tr><td><code class="prism-inline-code">frontend-design</code> skill</td><td>✅</td></tr>
+<tr><td><code class="prism-inline-code">verify</code> + <code class="prism-inline-code">run</code> skills</td><td>✅</td></tr>
+<tr><td><code class="prism-inline-code">skill-creator</code> + <code class="prism-inline-code">playground</code></td><td>✅</td></tr>
+<tr><td><code class="prism-inline-code">figma:*</code> family</td><td>✅ (still needs OAuth — operator action)</td></tr>
+<tr><td><code class="prism-inline-code">chrome-devtools-mcp:*</code> family</td><td>✅</td></tr>
+<tr><td><code class="prism-inline-code">playwright:*</code> MCP</td><td>✅</td></tr>
+<tr><td><code class="prism-inline-code">supabase</code>, <code class="prism-inline-code">linear</code>, <code class="prism-inline-code">greptile</code> MCPs</td><td>✅ (incidental)</td></tr></tbody></table>
+<p><strong>No new install required for the core design loop.</strong> The optional adds (§3) are <code class="prism-inline-code">@playwright/cli</code> (4× token cut) and a Radix-aware component-registry MCP (not yet existing).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">6. Atomic units — proposed for <code class="prism-inline-code">atomic-roadmap.json</code></h2>
+<p><strong>Preamble (per scrutiny rounds 1+2 findings — operator must validate before insertion):</strong></p>
+<ol class="prism-md-list"><li><strong>Insertion target is the milestone-envelope file</strong>, NOT <code class="prism-inline-code">roadmap-index.json</code> directly. Verified round-2: <code class="prism-inline-code">roadmap-index.json</code> schema does NOT carry <code class="prism-inline-code">evidence_required</code>, <code class="prism-inline-code">deliverable</code>, <code class="prism-inline-code">estimate_h</code>, <code class="prism-inline-code">operator_gate</code>, <code class="prism-inline-code">depends_on</code> fields — those live in per-milestone envelopes under <code class="prism-inline-code">state/shared/specs/UNITS/U-*.md</code> (per the FMERGE-MS0 close-out memory). Create envelope file <code class="prism-inline-code">state/shared/specs/UNITS/UI-UX-IMPROVEMENT-MS0.md</code> (or equivalent path) and embed the JSONC there. Per recent commit subjects (e.g. <code class="prism-inline-code">[QUOTING-PIPELINE-MS0]/U-QT10</code>) the canonical commit prefix is <code class="prism-inline-code">[MILESTONE]/U-&lt;shortId&gt;</code>. Unit-IDs below are short-form (<code class="prism-inline-code">U-A1-…</code>).</li><li><strong>External-dep verification (per scrutiny round 1 P1-3 / P1-4 / P1-5)</strong> — three claimed surfaces do NOT exist today: (a) <code class="prism-inline-code">@playwright/cli</code> is NOT a real package; the 4× token win uses <code class="prism-inline-code">@playwright/mcp --cli</code> <em>flag</em> on the existing MCP install. (b) <code class="prism-inline-code">mcp-server/web/playwright.config.ts</code> has only <code class="prism-inline-code">chromium / Desktop Chrome</code> active — iPhone 14 / Pixel 7 / iPad projects must be added FIRST (unit <code class="prism-inline-code">U-A0-PLAYWRIGHT-MOBILE-PROJECTS</code> below). (c) <code class="prism-inline-code">/ui-audit</code> skill does not exist; <code class="prism-inline-code">U-A2</code> ships it, every later unit that references it MUST <code class="prism-inline-code">depends_on: [&quot;U-A2-CHROME-DEVTOOLS-INTEGRATION&quot;]</code>.</li><li><strong>Operator-gated</strong> — all sequencing, the starting page in §7, and the per-Codex-page touches in <code class="prism-inline-code">U-B1</code> are operator-confirm. See §7 for the open decisions.</li></ol>
+<p>The morning plan defined Phase A/B/C/D/E. This delta materializes 16 concrete units against it, sorted by ROI:</p>
+<pre class="prism-codeblock" data-lang="jsonc"><code>// Proposed insert to atomic-roadmap.json under milestone UI-UX-IMPROVEMENT-MS0
+// Schema validation REQUIRED before insertion — see Preamble §6.1
+[
+  {
+    &quot;id&quot;: &quot;U-A0-PLAYWRIGHT-MOBILE-PROJECTS&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 0,
+    &quot;title&quot;: &quot;Add iPhone14 + Pixel7 + iPad Playwright projects (prereq for B2/B3/D1)&quot;,
+    &quot;estimate_h&quot;: 1,
+    &quot;deliverable&quot;: &quot;mcp-server/web/playwright.config.ts extends projects[] with devices[&#39;iPhone 14&#39;], devices[&#39;Pixel 7&#39;], devices[&#39;iPhone SE&#39;], devices[&#39;iPad Pro 11&#39;]; no test code change required at this step&quot;,
+    &quot;evidence_required&quot;: &quot;`npx playwright test --list` enumerates each new project; existing tests still green&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-CAPACITOR-SCAFFOLD-INIT&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 0,
+    &quot;title&quot;: &quot;Initialize Capacitor 6 scaffold (prereq for B2/B4/B5)&quot;,
+    &quot;estimate_h&quot;: 3,
+    &quot;deliverable&quot;: &quot;npx @capacitor/cli init prism-shop com.prism.shop at mcp-server/web/; commits ios/ + android/ directories; capacitor.config.ts; smoke-test first-boot in iOS simulator + Android emulator&quot;,
+    &quot;evidence_required&quot;: &quot;screenshots of empty Capacitor shell loading vite dev server on both simulators&quot;,
+    &quot;operator_gate&quot;: &quot;FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25 Phase E item 1 — operator decides mobile-pilot timing&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-A1-PLAYWRIGHT-CLI-MODE&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 0,
+    &quot;title&quot;: &quot;Switch design-loop to `@playwright/mcp --cli` mode (4× token win)&quot;,
+    &quot;estimate_h&quot;: 1,
+    &quot;deliverable&quot;: &quot;Configure existing @playwright/mcp install with --cli flag in .mcp.json / settings.json so snapshots write to disk instead of streaming into context. NO new npm package — `@playwright/cli` (the wrong-author package) is NOT what we want. Add scripts/playwright-snapshot-helper.mjs to emit path digest.&quot;,
+    &quot;evidence_required&quot;: &quot;before/after token count on a 5-iteration design loop on CalculatorPage; cite Morph baseline (114k→27k)&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-A2-CHROME-DEVTOOLS-INTEGRATION&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 0,
+    &quot;title&quot;: &quot;Wire chrome-devtools-mcp into design-loop sibling to Playwright&quot;,
+    &quot;estimate_h&quot;: 1,
+    &quot;deliverable&quot;: &quot;/ui-audit skill at .claude/commands/ui-audit.md that chains: playwright screenshot (via U-A1 cli mode) → chrome-devtools lighthouse_audit → chrome-devtools performance_start_trace (LCP/CLS/INP) → markdown report. Note: chrome-devtools-mcp is streaming-MCP (no --cli equivalent), so its token profile is similar to MCP-mode Playwright; pair with U-A1 not as a replacement.&quot;,
+    &quot;evidence_required&quot;: &quot;single /ui-audit invocation produces all three artifacts for one page&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-B1-LAZY-SPLIT-AUDIT&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 2,
+    &quot;title&quot;: &quot;Audit existing App.tsx lazy splits + flag unwrapped pages + propose tab-level intra-page splits for the ≥100KB monoliths&quot;,
+    &quot;estimate_h&quot;: 2,
+    &quot;deliverable&quot;: &quot;scripts/audit-route-lazy-coverage.mjs — read App.tsx, list every &lt;Route element=...&gt; wrapper, classify into lazy-wrapped vs eager, emit report. Then identify pages where intra-page tab-level dynamic-import would give a real win (CalculatorPage 660KB has Mill/Lathe/WEDM tabs; PostProcessorGeneratorPage 185KB has per-controller sections; QuoteBuilderPage 117KB has wizard-step partitions). NOT a code-split implementation unit — that&#39;s per-page operator-gated follow-on work.&quot;,
+    &quot;evidence_required&quot;: &quot;audit report exists at state/shared/dashboards/route-lazy-coverage.json; operator reviews + decides which (if any) intra-page splits to schedule&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-B2-MOBILE-SAFE-AREA-COMPONENT&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 1,
+    &quot;title&quot;: &quot;Ship &lt;MobileSafeArea&gt; shared component&quot;,
+    &quot;estimate_h&quot;: 2,
+    &quot;deliverable&quot;: &quot;web/src/components/mobile/MobileSafeArea.tsx wrapping env(safe-area-inset-*) on all 4 sides; useSafeArea() hook; integration with capacitor-plugin-safe-area (fixes Capacitor 6 Android safe-area-zero bug); unit tests verifying CSS var injection. Web-only behavior also works (env() variables resolve to 0 on web — no regression).&quot;,
+    &quot;evidence_required&quot;: &quot;Playwright iPhone 14 + Pixel 7 projects screenshot a wrapped page — content not clipped by notch/Dynamic-Island/gesture-nav&quot;,
+    &quot;depends_on&quot;: [&quot;U-A0-PLAYWRIGHT-MOBILE-PROJECTS&quot;, &quot;U-CAPACITOR-SCAFFOLD-INIT&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-B3-FORM-INPUT-TEXTBASE&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 1,
+    &quot;title&quot;: &quot;16px-minimum form-input rule (iOS zoom prevention)&quot;,
+    &quot;estimate_h&quot;: 2,
+    &quot;deliverable&quot;: &quot;Step 1 (audit): `grep -E &#39;text-(xs|sm)&#39; web/src/**/*.tsx | grep -E &#39;&lt;(input|select|textarea)&#39;` to enumerate intentionally-dense form fields that would collide; emit collision list. Step 2 (rule): src/styles/globals.css adds `input, select, textarea { font-size: max(1rem, 16px) }` rule, with case-by-case override classes for documented collisions from Step 1. Step 3 (lint): ESLint rule or just-build script flags any NEW tailwind class that would override below text-base on form elements.&quot;,
+    &quot;evidence_required&quot;: &quot;Playwright iOS test focuses a form input — viewport scale stays 1.0 (no auto-zoom); collision list reviewed by operator before global rule lands&quot;,
+    &quot;depends_on&quot;: [&quot;U-A0-PLAYWRIGHT-MOBILE-PROJECTS&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-B4-PLATFORM-DATA-ATTR&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 1,
+    &quot;title&quot;: &quot;data-platform attribute on document root for OS-aware Tailwind variants&quot;,
+    &quot;estimate_h&quot;: 2,
+    &quot;deliverable&quot;: &quot;App.tsx useEffect: `document.documentElement.setAttribute(&#39;data-platform&#39;, Capacitor.getPlatform())`; tailwind.config.js adds variants `data-[platform=ios]:` and `data-[platform=android]:`; DESIGN.md updated with usage examples for the 44pt vs 48dp touch-target rule. PRE-CHECK: grep for existing `[data-platform=` selectors in index.css to verify no collision with prior usage.&quot;,
+    &quot;evidence_required&quot;: &quot;buttons rendered on iOS show min-h-11, on Android show min-h-12, on web show their base; pre-existing CSS selectors not affected&quot;,
+    &quot;depends_on&quot;: [&quot;U-CAPACITOR-SCAFFOLD-INIT&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-B5-CAPACITOR-ANDROID15-KEYBOARD&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 1,
+    &quot;title&quot;: &quot;Fix Android 15 keyboard overlap (capacitor#8166)&quot;,
+    &quot;estimate_h&quot;: 4,
+    &quot;deliverable&quot;: &quot;install @capawesome/capacitor-android-edge-to-edge-support; capacitor.config.ts gated by Device.getInfo().osVersion &gt;= 35; Keyboard.resizeOnFullScreen: false; integration test in e2e/ android emulator. Estimate assumes Android 15 AVD pre-provisioned; add 2h if cold-setup of SDK 35 image required.&quot;,
+    &quot;evidence_required&quot;: &quot;Pixel 7 + Android 15 emulator: focus a bottom-pinned input → keyboard appears → input stays visible&quot;,
+    &quot;depends_on&quot;: [&quot;U-CAPACITOR-SCAFFOLD-INIT&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-B6-PREFERS-CONTRAST-MORE&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 2,
+    &quot;title&quot;: &quot;prefers-contrast: more — third theme variant for Ultra Dark / high-contrast&quot;,
+    &quot;estimate_h&quot;: 3,
+    &quot;deliverable&quot;: &quot;src/index.css adds `@media (prefers-contrast: more)` block — thickens focus outlines to 4px, borders to --surface-fg, link underlines to .14em; DESIGN.md documents the third variant; Playwright project asserts prefers-contrast:more changes visual output&quot;,
+    &quot;evidence_required&quot;: &quot;Playwright run with prefers-contrast:more emulation produces a measurably different snapshot from baseline&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-C1-APCA-DESIGN-REVIEW-GATE&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 2,
+    &quot;title&quot;: &quot;APCA Lc≥75 gate in /ui-audit skill&quot;,
+    &quot;estimate_h&quot;: 2,
+    &quot;deliverable&quot;: &quot;/ui-audit invokes apca-w3 (npm package) on extracted color-pair list; fails when body-text pair &lt; Lc75; report cites pairs that need fixing&quot;,
+    &quot;evidence_required&quot;: &quot;running /ui-audit on CalculatorPage produces APCA report; one known-good pair passes, one known-bad pair fails&quot;,
+    &quot;depends_on&quot;: [&quot;U-A2-CHROME-DEVTOOLS-INTEGRATION&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-C2-WCAG-CONTRAST-RE-VERIFY&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 2,
+    &quot;title&quot;: &quot;Re-verify every accent color in DESIGN.md against dark surface (not white)&quot;,
+    &quot;estimate_h&quot;: 4,
+    &quot;deliverable&quot;: &quot;scripts/audit-dark-contrast.mjs reads DESIGN.md status-spectrum table, computes contrast vs near-black surface (canonical contrast ratios per WCAG 2.2 SC 1.4.3), flags any &lt;3:1 (UI element) or &lt;4.5:1 (body text); CI gate; failures listed for operator review&quot;,
+    &quot;evidence_required&quot;: &quot;first-run report shows which (if any) of cyan/violet/emerald/amber/red drop below WCAG floor on the canonical near-black surface (rgba(2,6,23,.78) per DESIGN.md)&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-D1-MOBILE-VIEWPORT-SWEEP&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 1,
+    &quot;title&quot;: &quot;Playwright multi-viewport sweep — 5 viewports × every page&quot;,
+    &quot;estimate_h&quot;: 4,
+    &quot;deliverable&quot;: &quot;e2e/mobile-viewport-sweep.spec.ts iterates {iPhone SE, iPhone 14, Pixel 7, iPad, iPad Pro} × all routes from web/src/routes/; flags overflow / clipped-modal / unreachable-CTA / contrast-fail; report to state/shared/dashboards/mobile-viewport-sweep.json&quot;,
+    &quot;evidence_required&quot;: &quot;report exists with per-page pass/fail; CI badge&quot;,
+    &quot;depends_on&quot;: [&quot;U-A0-PLAYWRIGHT-MOBILE-PROJECTS&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-D2-RESPONSIVE-TABLE-CARDS&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 2,
+    &quot;title&quot;: &quot;&lt;ResponsiveTable&gt; primitive — table desktop / card-list &lt;600px&quot;,
+    &quot;estimate_h&quot;: 4,
+    &quot;deliverable&quot;: &quot;web/src/components/ResponsiveTable.tsx — desktop renders @tanstack/react-table; under 600px width auto-renders card list; same props; docs in DESIGN.md&quot;,
+    &quot;evidence_required&quot;: &quot;Playwright iPhone 14 snapshot of a wrapped table page shows card list; Playwright desktop snapshot shows table; same data renders both&quot;,
+    &quot;depends_on&quot;: [&quot;U-A0-PLAYWRIGHT-MOBILE-PROJECTS&quot;]
+  },
+  {
+    &quot;id&quot;: &quot;U-E1-FMERGE-CADQUERY-PORT&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 1,
+    &quot;title&quot;: &quot;Atomic-roadmap encoding of FRONTEND-MERGE-AUDIT Phase B (CadQuery port)&quot;,
+    &quot;estimate_h&quot;: 8,
+    &quot;deliverable&quot;: &quot;exec FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25.md Phase B steps 1-5 verbatim; Calculator Studio chrome wrapping; api at mcp-server/web/src/api/cadquery.ts&quot;,
+    &quot;evidence_required&quot;: &quot;Playwright screenshot of /cadquery route renders CadQuery editor + Three.js viewer + log viewer in PRISM dark theme&quot;,
+    &quot;source_spec&quot;: &quot;FRONTEND-MERGE-AUDIT-AND-PLAN Phase B — this unit is the atomic-roadmap encoding of that phase, not new work&quot;
+  },
+  {
+    &quot;id&quot;: &quot;U-E2-FMERGE-CQASK-PORT&quot;,
+    &quot;milestone&quot;: &quot;UI-UX-IMPROVEMENT-MS0&quot;,
+    &quot;domain&quot;: &quot;frontend&quot;,
+    &quot;priority&quot;: 2,
+    &quot;title&quot;: &quot;Atomic-roadmap encoding of FRONTEND-MERGE-AUDIT Phase C (cqask NL-to-CAD)&quot;,
+    &quot;estimate_h&quot;: 16,
+    &quot;deliverable&quot;: &quot;exec FRONTEND-MERGE-AUDIT-AND-PLAN-2026-05-25.md Phase C steps 1-5; AntDesign→Radix per-component swap; reuses RenderOutput from E1&quot;,
+    &quot;evidence_required&quot;: &quot;Playwright screenshot of /cad-from-text route shows NL input + generated CAD + 3D viewer; cqask/ tree deprecated&quot;,
+    &quot;source_spec&quot;: &quot;FRONTEND-MERGE-AUDIT-AND-PLAN Phase C — this unit is the atomic-roadmap encoding of that phase, not new work&quot;,
+    &quot;depends_on&quot;: [&quot;U-E1-FMERGE-CADQUERY-PORT&quot;]
+  }
+]</code></pre>
+<p><strong>Total: 16 units, estimated 59 hours.</strong> Priority 0 = 4 units / 6 h (start here — U-A0 / U-CAPACITOR-SCAFFOLD-INIT / U-A1 / U-A2). Priority 1 = 6 units / 22 h. Priority 2 = 6 units / 31 h (B1 was demoted from P0 to P2 after round-2 verification confirmed App.tsx already ships lazy-wrapping — audit-only unit now).</p>
+<p><strong>Proposed (operator-confirm) sequencing:</strong> A0 first (no deps, unblocks B2/B3/D1/D2). Capacitor-scaffold next (operator-gated, unblocks B2/B4/B5). A1 + A2 + B1 in parallel after schema validation. B2 + B3 + B4 after their prereqs land. B5 + B6 + C1 + C2 + D1 + D2 follow. E1 → E2 last (depends on backend Phase B from the morning plan). <strong>All sequencing is advisory</strong> — operator owns the actual ordering.</p>
+<p><strong>Not in this unit list</strong> (explicitly operator-gated per <code class="prism-inline-code">feedback_frontend_codex</code>):</p>
+<ul class="prism-md-list"><li>Per-page text-density refactor of the 12+ mega-pages (operator must approve each split per <code class="prism-inline-code">feedback_frontend_codex</code>)</li><li>Figma OAuth (operator action)</li><li>Capacitor scaffold init (operator decides timing of mobile-app pilot)</li><li>App Store / Play Store provisioning (operator capital + paperwork)</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">7. Operator decisions still open</h2>
+<p>These need a human call before any of the units above can ship:</p>
+<ol class="prism-md-list"><li><strong>Senior-doctrine conflict — <code class="prism-inline-code">feedback_backend_before_frontend</code>.</strong> Standing operator memo says <em>&quot;backend EDM physics and optimization perfected before any frontend work&quot;</em>. This spec ships 16 frontend units. The framing this spec adopts: these are <strong>design-loop tooling</strong> (Playwright <code class="prism-inline-code">--cli</code> mode, mobile Playwright projects, chrome-devtools-mcp wiring) and <strong>shared infrastructure</strong> (MobileSafeArea, data-platform attribute, contrast audit script) — they compound future frontend work without taking developer hours from backend. The two CAD-merge units (E1/E2) ARE feature work and inherit iter35&#39;s deferral. <strong>Operator must explicitly approve</strong> that this interpretation honors the backend-first directive before ANY unit ships.</li><li><strong>Add <code class="prism-inline-code">chrome-devtools-mcp</code> to active design-loop?</strong> Already installed; existing skills <code class="prism-inline-code">chrome-devtools-mcp:a11y-debugging</code>, <code class="prism-inline-code">:debug-optimize-lcp</code>, <code class="prism-inline-code">:memory-leak-debugging</code> overlap U-A2&#39;s deliverable. Decision: (a) ship U-A2 as a thin <code class="prism-inline-code">/ui-audit</code> skill that chains the 3 existing plugin skills (small surface, no new logic), or (b) skip U-A2 and standardize on the 3 plugin skills directly. Recommendation: (a) — single entry point is operator-friendly.</li><li><strong>U-B1 reframing (post-round-2)</strong> — the original &quot;code-split mega-pages&quot; unit was a no-op (already shipped). The new U-B1 is an audit unit; downstream &quot;tab-level intra-page split of CalculatorPage&quot; is operator-gated per-page work, not scheduled here.</li><li><strong>Tremor evaluation</strong> — should new dense-numeric pages use Tremor primitives instead of hand-rolled Radix + Tailwind? Reduces hand-roll error class; commits PRISM to a third-party design dependency. Out of scope for this delta — flag for future operator decision.</li><li><strong>Capacitor scaffold timing</strong> — Phase E in the morning plan reads as &quot;do this any time&quot;; mobile units B2-B5 above are no-ops without the Capacitor scaffold existing. Recommend operator schedule the <code class="prism-inline-code">npx @capacitor/cli init</code> step first.</li><li><strong>Figma OAuth</strong> — same as morning plan G4, still pending. Recommend operator authenticates in a 5-minute /run session.</li><li><strong>Wiki promotion</strong> — neither the Morph 114k→27k benchmark nor the iOS-26 Liquid-Glass design-implication is recorded anywhere in <code class="prism-inline-code">knowledge/wiki/</code>. Recommend creating <code class="prism-inline-code">knowledge/wiki/architecture/playwright-mcp-cli-token-economics.md</code> and <code class="prism-inline-code">knowledge/wiki/architecture/specs/ios-26-liquid-glass-implications-for-industrial-dark.md</code> to anchor the citations for future PRISM use (per R8 + wiki-bootstrap discipline).</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">8. Sources</h2>
+<p><strong>Better-than-Playwright research:</strong></p>
+<ul class="prism-md-list"><li><a href="https://stevekinney.com/writing/driving-vs-debugging-the-browser" class="prism-link">Playwright vs Chrome DevTools MCP — Steve Kinney</a></li><li><a href="https://www.test-lab.ai/blog/chrome-devtools-mcp-vs-playwright-mcp-cli" class="prism-link">Chrome DevTools MCP vs Playwright MCP vs CLI — Test-Lab.ai</a></li><li><a href="https://www.morphllm.com/playwright-mcp" class="prism-link">Playwright MCP Setup and Cost: Why the CLI Is 4× Cheaper — Morph</a></li><li><a href="https://dev.to/kuroko1t/how-accessibility-tree-formatting-affects-token-cost-in-browser-mcps-n2a" class="prism-link">How Accessibility Tree Formatting Affects Token Cost — DEV</a></li><li><a href="https://github.com/browserbase/mcp-server-browserbase" class="prism-link">Browserbase MCP Server (Stagehand)</a></li><li><a href="https://ui.shadcn.com/docs/mcp" class="prism-link">shadcn/ui MCP docs</a></li><li><a href="https://dev.to/stevengonsalvez/browser-tools-for-ai-agents-part-2-the-framework-wars-browser-use-stagehand-skyvern-4gn" class="prism-link">Skyvern vs Stagehand vs Playwright — DEV</a></li></ul>
+<p><strong>Mobile UI/UX 2026:</strong></p>
+<ul class="prism-md-list"><li><a href="https://www.macrumors.com/2026/04/06/apple-liquid-glass-design-gallery-update/" class="prism-link">iOS Liquid Glass design gallery (Apple) — MacRumors</a></li><li><a href="https://www.anotherapple.com/2026/04/the-correct-way-to-use-dark-mode-with-liquid-glass/" class="prism-link">Correct way to use dark mode with Liquid Glass — anotherapple.com</a></li><li><a href="https://www.geeky-gadgets.com/enable-iphone-ultra-dark-mode/" class="prism-link">Ultra dark mode (Reduce-Transparency + Increase-Contrast composition)</a></li><li><a href="https://supercharge.design/blog/material-3-expressive" class="prism-link">Material 3 Expressive deep-dive — Supercharge</a></li><li><a href="https://designdroid.in/adark-mode-android-material-3-2026/" class="prism-link">Material 3 dark mode 2026 — designdroid.in</a></li><li><a href="https://developer.android.com/design/ui/wear/guides/styles/color/roles-tokens" class="prism-link">Wear OS color roles + tokens (cleanest M3 role taxonomy reference)</a></li><li><a href="https://github.com/ionic-team/capacitor/issues/8166" class="prism-link">Capacitor 6 Android 15 edge-to-edge keyboard bug</a></li><li><a href="https://forum.ionicframework.com/t/safe-area-values-always-zero-on-android-with-ionic-capacitor-version-6/243003" class="prism-link">Capacitor 6 safe-area-inset returns 0 on Android</a></li><li><a href="https://www.makethingsaccessible.com/guides/contrast-requirements-for-wcag-2-2-level-aa/" class="prism-link">WCAG 2.2 dark-mode contrast — Make Things Accessible</a></li><li><a href="https://blog.greeden.me/en/2026/02/23/complete-accessibility-guide-for-dark-mode-and-high-contrast-color-design-contrast-validation-respecting-os-settings-icons-images-and-focus-visibility-wcag-2-1-aa/" class="prism-link">Dark mode + high-contrast complete a11y guide 2026 — Greeden</a></li><li><a href="https://rgblind.com/blog/wcag-color-contrast-requirements" class="prism-link">Dark-surface contrast pitfalls (accent re-verification)</a></li></ul>
+<hr class="prism-hr">
+<p><strong>Status:</strong> This spec is the <strong>plan</strong> deliverable for the operator&#39;s 2026-05-25 <code class="prism-inline-code">/goal</code>. Units are advisory until added to <code class="prism-inline-code">atomic-roadmap.json</code>; operator owns scheduling. Companion HTML render available via <code class="prism-inline-code">node H:/prism/scripts/md-to-html.mjs state/shared/specs/FRONTEND-PLAN-EXTENSION-2026-05-25.md --toc</code>.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">9. ADDENDUM — operator&#39;s second 2026-05-25 /goal (self-learning UI/UX + repos to download)</h2>
+<blockquote class="prism-quote">Operator re-issued /goal mid-loop adding: deep research on UI/UX + software-engineering + system-architecture + <strong>self-learning + self-improving systems applied to UI/UX</strong>; make the apps look professional, not vibe-coded; <strong>download repos / plugins / Claude-Code helpers</strong> that improve UI/UX design capability. Below is the delta over §1-8.</blockquote>
+<h3 class="prism-h3">9.1 Self-learning UI/UX — the 2026 honest answer</h3>
+<p>The state-of-art for <strong>autonomous UI iteration</strong> in 2026 centers on <strong>LLM-agents-as-synthetic-users</strong>, NOT on direct production-behavior learning loops. Citable refs: <a href="https://dl.acm.org/doi/10.1145/3706599.3719729" class="prism-link">UXAgent CHI 2026</a>, <a href="https://arxiv.org/html/2604.09581" class="prism-link">Avenir-UX</a> (GUI-grounded perception), <a href="https://arxiv.org/pdf/2504.09723" class="prism-link">AgentA/B</a> (persona-driven A/B on live interfaces), <a href="https://arxiv.org/html/2505.05026v4" class="prism-link">WiserUI-Bench</a> (real A/B-grounded evaluation). The 2026 candor: <a href="https://jakobnielsenphd.substack.com/p/2026-predictions" class="prism-link">Nielsen&#39;s predictions</a> state AI WILL NOT reliably diagnose usability from behavior by year-end. Closed-loop AUTONOMOUS UI evolution remains aspirational; deploy ALL of it behind feature flags + consent prompts.</p>
+<p><strong>Applied to PRISM (concrete units):</strong></p>
+<ul class="prism-md-list"><li><strong>U-F1-SYNTHETIC-USER-HARNESS</strong> — every preview-deploy runs 3 Playwright-MCP-driven persona loops (machinist on shop-floor tablet, sales engineer quoting, owner reviewing margins) + captures CLS/INP/LCP/click-friction + files an auto-<code class="prism-inline-code">feedback_ux_*</code> memory. P1, 4h. Reuses already-installed Playwright MCP.</li><li><strong>U-F2-FEATURE-FLAG-GUARD</strong> — any AI-proposed visual mutation routes through the existing <code class="prism-inline-code">/feature-matrix</code> system; NEVER auto-deploys. P0, 1h documentation-only.</li></ul>
+<h3 class="prism-h3">9.2 Architecture for 200+ React pages — DON&#39;T jump to micro-frontends yet</h3>
+<p>2026 consensus (<a href="https://blog.weskill.org/2026/03/micro-frontends-2026-module-federation_0688468676.html" class="prism-link">Module Federation 3.0</a>, <a href="https://www.iloveblogs.blog/post/micro-frontends-architecture-guide-2026" class="prism-link">iloveblogs guide</a>) is that MFEs unlock past ~200 pages with multiple teams. PRISM at 119 pages with single-team development is <strong>pre-threshold</strong>. Production refs that do operate at MFE scale: Amazon retail (search/recommendations/checkout), Spotify (playlists/profiles), Vercel Next.js 17 Multizone, Nx Module Federation. Premature MFE = self-inflicted Notion-grade chaos.</p>
+<p><strong>Applied to PRISM:</strong></p>
+<ul class="prism-md-list"><li><strong>U-F3-TAB-LEVEL-DYNAMIC-IMPORTS</strong> — inside the 9 mega-pages (CalculatorPage 660KB has Mill/Lathe/WEDM tabs; PostProcessorGeneratorPage 185KB has per-controller sections; QuoteBuilderPage 117KB has wizard-step partitions), split tabs/sections via <code class="prism-inline-code">React.lazy(() =&gt; import(&#39;./CalculatorPageMillTab&#39;))</code>. Operator-gated per page (<code class="prism-inline-code">feedback_frontend_codex</code>). P1, 4-8h per page, in sequence not parallel.</li><li><strong>U-F4-DESIGN-TOKENS-WORKSPACE-PACKAGE</strong> — extract <code class="prism-inline-code">@prism/design-tokens</code> as a workspace package NOW so when natural MFE split arrives (Quote / Shop-Floor / CAD-CAM as 3 federated remotes is the seam), the contract pre-exists. P2, 6h.</li><li><strong>U-F5-ROLLUP-CHUNK-AUDIT</strong> — read existing <code class="prism-inline-code">vite.config.ts manualChunks()</code> (confirmed present), generate per-chunk size report, identify pages that should chunk together vs separately. P1, 2h. Pure audit.</li></ul>
+<h3 class="prism-h3">9.3 SE practices — 2026 LLM-assisted frontend gates</h3>
+<p>Beyond TDD: <strong>change-only visual regression</strong> (<a href="https://www.chromatic.com/compare/percy" class="prism-link">Chromatic TurboSnap</a> — 85% snapshot reduction), <strong>perceptual AI diffing</strong> (<a href="https://percy.io/blog/visual-regression-testing-tools" class="prism-link">Applitools Eyes 10.22</a> — Figma plugin compares prod against design), <strong>token-drift gates</strong> (Style Dictionary vs Figma Variables API), <strong>render-budget gates</strong> (<a href="https://github.com/aidenybai/react-scan" class="prism-link">react-scan</a>), <strong>Lighthouse CI</strong> (<code class="prism-inline-code">@lhci/cli</code>) as PR gate with budget JSON.</p>
+<p><strong>Applied to PRISM:</strong></p>
+<ul class="prism-md-list"><li><strong>U-F6-LIGHTHOUSE-CI-GATE</strong> — add <code class="prism-inline-code">@lhci/cli</code> + <code class="prism-inline-code">.lighthouserc.js</code> with budgets <code class="prism-inline-code">{LCP:2500, INP:200, CLS:0.1, JS:300KB}</code> as GitHub Actions PR gate. Blocks regressions, no SaaS bill (Google-owned, free). P0, 3h. <strong>Highest single ROI</strong> in the entire spec.</li><li><strong>U-F7-REACT-SCAN-DEV-OVERLAY</strong> — <code class="prism-inline-code">&lt;script crossorigin src=&quot;//unpkg.com/react-scan/dist/auto.global.js&quot;&gt;&lt;/script&gt;</code> in <code class="prism-inline-code">index.html</code> behind <code class="prism-inline-code">import.meta.env.DEV</code>. Surfaces wasted renders in the 9 monoliths immediately, zero config. P0, 15min.</li><li><strong>U-F8-AXE-CORE-PLAYWRIGHT</strong> — <code class="prism-inline-code">npm i -D @axe-core/playwright</code>; assert WCAG via existing Playwright MCP harness. Enforces shop-floor a11y (tablet, gloves, glare). P1, 2h.</li></ul>
+<h3 class="prism-h3">9.4 Downloadable repos / plugins / Claude-Code helpers (NEW — not already installed)</h3>
+<p>NOT re-recommending already-installed: figma:<em>, chrome-devtools-mcp:</em>, playwright, frontend-design, skill-creator, playground, supabase, linear, greptile.</p>
+<table class="prism-md-table"><thead><tr><th>Tool</th><th>Install command</th><th>Value</th><th>PRISM fit</th><th>Priority</th></tr></thead><tbody><tr><td><strong>shadcn-ui MCP</strong></td><td><code class="prism-inline-code">claude mcp add shadcn -- bunx -y @jpisnice/shadcn-ui-mcp-server</code> + <code class="prism-inline-code">GITHUB_PERSONAL_ACCESS_TOKEN</code> env</td><td>LLM grounded in current shadcn/ui v4 components+blocks — no hallucinated props</td><td>HIGH — <code class="prism-inline-code">web/CLAUDE.md</code> mandates Radix; shadcn = canonical Radix+Tailwind recipe</td><td><strong>P0</strong></td></tr>
+<tr><td><strong>Lighthouse CI</strong></td><td><code class="prism-inline-code">npm i -D @lhci/cli</code> + <code class="prism-inline-code">.github/workflows/lhci.yml</code></td><td>Perf-budget PR gate, Google-owned, free</td><td>HIGH — pairs with existing <code class="prism-inline-code">/forge-perf</code> skill</td><td><strong>P0</strong></td></tr>
+<tr><td><strong>react-scan</strong></td><td><code class="prism-inline-code">&lt;script&gt;</code> in <code class="prism-inline-code">index.html</code> dev-only</td><td>Live render-waste overlay</td><td>HIGH — instantly surfaces re-render thrash in PartProfile + QuoteWizard</td><td><strong>P0</strong></td></tr>
+<tr><td><strong>@axe-core/playwright</strong></td><td><code class="prism-inline-code">npm i -D @axe-core/playwright</code></td><td>WCAG violations as Playwright assertions</td><td>MED-HIGH — pairs with existing Playwright MCP</td><td><strong>P1</strong></td></tr>
+<tr><td><strong>Tremor</strong> (React lib)</td><td><code class="prism-inline-code">npm i @tremor/react</code></td><td>Dashboard primitives (KPI cards, charts) matching shadcn ergonomics</td><td>MED-HIGH — direct fit for shop-floor + cost dashboards</td><td><strong>P1</strong> (operator-eval)</td></tr>
+<tr><td><strong>Storybook 9 + Chromatic</strong></td><td><code class="prism-inline-code">npx storybook@latest init</code> + <code class="prism-inline-code">npx chromatic</code></td><td>Component-isolated visual regression w/ TurboSnap</td><td>MED — meaningful once <code class="prism-inline-code">@prism/design-tokens</code> extracted; premature today</td><td><strong>P2</strong></td></tr>
+<tr><td><strong>million.js</strong></td><td><code class="prism-inline-code">npm i million</code> + Vite plugin</td><td>Compiler-level VDOM auto-memo</td><td>LOW — only after react-scan shows real waste; premature optimization otherwise</td><td><strong>P3</strong></td></tr></tbody></table>
+<p><strong>Top 3 NEW installs (operator-gated):</strong></p>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">claude mcp add shadcn -- bunx -y @jpisnice/shadcn-ui-mcp-server</code></strong> + GitHub PAT — stops Claude hallucinating component APIs. Zero ongoing cost.</li><li><strong><code class="prism-inline-code">@lhci/cli</code> + <code class="prism-inline-code">.lighthouserc.js</code></strong> — blocks regressions on the 9 monoliths ≥50KB. Free. Pairs with <code class="prism-inline-code">/forge-perf</code>.</li><li><strong><code class="prism-inline-code">react-scan</code> + <code class="prism-inline-code">@axe-core/playwright</code></strong> — surfaces wasted renders + WCAG violations during normal dev without workflow change. ~10min combined setup.</li></ol>
+<h3 class="prism-h3">9.5 The &quot;vibe-coded vs professional&quot; gap — 3 concrete patterns</h3>
+<p>Per <a href="https://muz.li/blog/vibe-design-in-2026-what-ai-generated-ui-means-for-your-work/" class="prism-link">Muzli 2026 analysis</a>: <em>&quot;Edge cases are not vibe-designed. The happy path, yes. The empty state when the API returns nothing, the error state when the payment fails, the loading state for a table with 50,000 rows… these are designed by someone who thought about them, or they are absent.&quot;</em></p>
+<p><strong>The 3 patterns that close the gap:</strong></p>
+<ol class="prism-md-list"><li><strong>State-coverage matrix</strong> — every list/table/form ships <strong>5 states</strong>: loading skeleton, empty (with CTA), error (with retry), partial, success. Vibe-coded outputs ship only success. PRISM = 119 pages × 5 states = tractable per-page checklist.</li><li><strong>Token-driven theming</strong> — colors/spacing/radii/typography flow from CSS custom properties; rebrand + dark-mode become free. Already in <code class="prism-inline-code">web/CLAUDE.md</code> doctrine — needs ENFORCEMENT via Stylelint custom rule banning hex literals outside <code class="prism-inline-code">tokens.css</code>.</li><li><strong>Motion + micro-interaction guidelines</strong> — <code class="prism-inline-code">&lt;200ms</code> transitions, <code class="prism-inline-code">prefers-reduced-motion</code> respected, brand-consistent easing curves in a <code class="prism-inline-code">motion.ts</code> token file. Per Muzli: this is what AI averages cannot produce — the explicit human-curated layer that makes PRISM feel like PRISM, not &quot;another shadcn dashboard.&quot;</li></ol>
+<p><strong>Applied to PRISM:</strong></p>
+<ul class="prism-md-list"><li><strong>U-V1-STATE-COVERAGE-LINT</strong> — scan every <code class="prism-inline-code">pages/**/*.tsx</code> for <code class="prism-inline-code">isLoading</code>, <code class="prism-inline-code">isError</code>, <code class="prism-inline-code">isEmpty</code> branches; warn on missing. Don&#39;t auto-block (existing pages would all fail) — surface as report. P1, 3h.</li><li><strong>U-V2-STYLELINT-NO-INLINE-HEX</strong> — Stylelint rule rejects hex/rgba/rgb literals outside <code class="prism-inline-code">src/index.css</code> + <code class="prism-inline-code">tokens.css</code>. P1, 2h.</li><li><strong>U-V3-MOTION-TOKENS</strong> — <code class="prism-inline-code">web/src/design/motion.ts</code> codifies easing curves (<code class="prism-inline-code">ease-industrial</code>, <code class="prism-inline-code">ease-haptic</code>), durations (<code class="prism-inline-code">fast: 120ms</code>, <code class="prism-inline-code">med: 180ms</code>, <code class="prism-inline-code">slow: 240ms</code>), respects <code class="prism-inline-code">prefers-reduced-motion</code>; DESIGN.md documents. P2, 4h.</li></ul>
+<h3 class="prism-h3">9.6 §9 unit summary</h3>
+<p>13 new units (F1-F8 + V1-V3 + 2 install tasks for shadcn-mcp + lhci):</p>
+<table class="prism-md-table"><thead><tr><th>ID</th><th>Priority</th><th>Estimate</th><th>Description</th></tr></thead><tbody><tr><td>U-F1-SYNTHETIC-USER-HARNESS</td><td>P1</td><td>4h</td><td>Playwright persona-loops on preview deploys + auto-memory</td></tr>
+<tr><td>U-F2-FEATURE-FLAG-GUARD</td><td>P0</td><td>1h</td><td>Doctrine: AI mutations behind feature flags</td></tr>
+<tr><td>U-F3-TAB-LEVEL-DYNAMIC-IMPORTS</td><td>P1</td><td>4-8h/page</td><td>Intra-page React.lazy for 9 mega-pages, operator-gated per page</td></tr>
+<tr><td>U-F4-DESIGN-TOKENS-WORKSPACE</td><td>P2</td><td>6h</td><td>Extract <code class="prism-inline-code">@prism/design-tokens</code> workspace package</td></tr>
+<tr><td>U-F5-ROLLUP-CHUNK-AUDIT</td><td>P1</td><td>2h</td><td>Per-chunk size report from existing <code class="prism-inline-code">manualChunks()</code></td></tr>
+<tr><td>U-F6-LIGHTHOUSE-CI-GATE</td><td><strong>P0</strong></td><td>3h</td><td><strong>HIGHEST ROI</strong> — perf-budget PR gate, Google-owned, free</td></tr>
+<tr><td>U-F7-REACT-SCAN-DEV-OVERLAY</td><td><strong>P0</strong></td><td>15min</td><td>Live render-waste overlay, dev-only</td></tr>
+<tr><td>U-F8-AXE-CORE-PLAYWRIGHT</td><td>P1</td><td>2h</td><td>WCAG assertions via existing Playwright MCP</td></tr>
+<tr><td>U-V1-STATE-COVERAGE-LINT</td><td>P1</td><td>3h</td><td>Scan for loading/empty/error branches</td></tr>
+<tr><td>U-V2-STYLELINT-NO-INLINE-HEX</td><td>P1</td><td>2h</td><td>Reject inline hex/rgba</td></tr>
+<tr><td>U-V3-MOTION-TOKENS</td><td>P2</td><td>4h</td><td>motion.ts + DESIGN.md update</td></tr>
+<tr><td>U-INSTALL-SHADCN-MCP</td><td><strong>P0</strong></td><td>30min</td><td><code class="prism-inline-code">claude mcp add shadcn …</code> + GitHub PAT</td></tr>
+<tr><td>U-INSTALL-LHCI</td><td><strong>P0</strong></td><td>1h</td><td>npm install + workflow file</td></tr></tbody></table>
+<p><strong>§9 total: 13 units, 36-44h.</strong> P0 = 5 units / 5.75h (start here, immediate compounding wins). P1 = 6 units / 17-21h. P2 = 2 units / 10h.</p>
+<p><strong>Combined spec total (§6 + §9): 29 atomic units, ~95-103h.</strong></p>
+<h3 class="prism-h3">9.7 §9 sources</h3>
+<ul class="prism-md-list"><li><a href="https://dl.acm.org/doi/10.1145/3706599.3719729" class="prism-link">UXAgent CHI 2026</a> · <a href="https://arxiv.org/html/2604.09581" class="prism-link">Avenir-UX</a> · <a href="https://arxiv.org/pdf/2504.09723" class="prism-link">AgentA/B</a> · <a href="https://arxiv.org/html/2505.05026v4" class="prism-link">WiserUI-Bench</a> · <a href="https://jakobnielsenphd.substack.com/p/2026-predictions" class="prism-link">Nielsen 2026 Predictions</a></li><li><a href="https://blog.weskill.org/2026/03/micro-frontends-2026-module-federation_0688468676.html" class="prism-link">Module Federation 3.0 2026</a> · <a href="https://www.iloveblogs.blog/post/micro-frontends-architecture-guide-2026" class="prism-link">Micro-Frontends 2026 Guide</a> · <a href="https://nx.dev/docs/technologies/module-federation/concepts/micro-frontend-architecture" class="prism-link">Nx MFE</a></li><li><a href="https://percy.io/blog/visual-regression-testing-tools" class="prism-link">Percy Top 10 Visual Regression 2026</a> · <a href="https://www.chromatic.com/compare/percy" class="prism-link">Chromatic vs Percy</a> · <a href="https://saucelabs.com/resources/blog/comparing-the-20-best-visual-testing-tools-of-2026" class="prism-link">Sauce Labs 20 Best 2026</a></li><li><a href="https://github.com/Jpisnice/shadcn-ui-mcp-server" class="prism-link">shadcn-ui MCP server</a> · <a href="https://ui.shadcn.com/docs/mcp" class="prism-link">shadcn MCP docs</a> · <a href="https://github.com/aidenybai/react-scan" class="prism-link">react-scan</a></li><li><a href="https://muz.li/blog/vibe-design-in-2026-what-ai-generated-ui-means-for-your-work/" class="prism-link">Muzli Vibe Design 2026</a> · <a href="https://www.eleken.co/blog-posts/empty-state-ux" class="prism-link">Eleken Empty State UX</a></li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

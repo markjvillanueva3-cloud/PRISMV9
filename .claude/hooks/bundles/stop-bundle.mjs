@@ -38,8 +38,6 @@ const SUB_HOOKS = [
   { path: `${HOOK_BASE}/duplication-guard-stop.mjs`,    timeout: 3000 },
   { path: `${HOOK_BASE}/stop-mark-completed-tasks.mjs`, timeout: 5000 },
   { path: `${HOOK_BASE}/claim-registry-release.mjs`,    timeout: 3000 },
-  { path: `${HOOK_BASE}/linear-roadmap-sync.mjs`,       timeout: 5000 },
-  { path: `${HOOK_BASE}/supabase-state-sync.mjs`,       timeout: 5000 },
   { path: `${HOOK_BASE}/stop-obsidian-memory-extract.mjs`, timeout: 5000 },
   { path: `${HOOK_BASE}/session-consolidate-graph.mjs`, timeout: 5000 },
   { path: `${HOOK_BASE}/stop_close_prism_nodes.mjs`,    timeout: 1000 },

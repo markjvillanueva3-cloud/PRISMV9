@@ -27,8 +27,15 @@ async function getEngine(name: string): Promise<any> {
 }
 
 const ACTIONS = [
-  "rtcp_calc", "singularity_check", "tilt_optimize",
-  "work_envelope", "inverse_kin",
+  "five_axis_decision",
+  "five_axis_deep_learn",
+  "five_axis_ai_ultra_predict",
+  "fusion_5axis_strategy",
+  "inverse_kin",
+  "rtcp_calc", "singularity_check",
+  "so3_kinematics_encode",
+  "tilt_optimize",
+  "work_envelope",
 ] as const;
 
 /** Registers five axis dispatcher.
@@ -102,6 +109,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "inverse_kin": {
             const engine = await getEngine("ik");
             result = engine.solve?.(params) ?? engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "IK method not found" };
+            break;
+          }
+          // ── iter8/bulk-sweep: 5 fiveaxis engines ──
+          case "five_axis_decision": {
+            const mod = await import("../../engines/FiveAxisDecisionEngine.js");
+            const eng = (mod as any).fiveAxisDecisionEngine ?? new ((mod as any).FiveAxisDecisionEngine)();
+            result = (eng as any).decide?.(params) ?? (eng as any).analyze?.(params) ?? (eng as any).run?.(params) ?? { engine: "FiveAxisDecisionEngine", note: "method not callable" };
+            break;
+          }
+          case "so3_kinematics_encode": {
+            const { so3KinematicsEncoderEngine } = await import("../../engines/SO3KinematicsEncoderEngine.js");
+            result = (so3KinematicsEncoderEngine as any).encode?.(params) ?? (so3KinematicsEncoderEngine as any).compute?.(params) ?? (so3KinematicsEncoderEngine as any).calculate?.(params) ?? { engine: "SO3KinematicsEncoderEngine", note: "method not callable" };
+            break;
+          }
+          case "fusion_5axis_strategy": {
+            const { fusion5AxisEngine } = await import("../../engines/Fusion5AxisEngine.js");
+            result = (fusion5AxisEngine as any).recommend?.(params) ?? (fusion5AxisEngine as any).select?.(params) ?? (fusion5AxisEngine as any).run?.(params) ?? { engine: "Fusion5AxisEngine", note: "method not callable" };
+            break;
+          }
+          case "five_axis_deep_learn": {
+            const mod = await import("../../engines/FiveAxisDeepLearningEngine.js");
+            const eng = (mod as any).fiveAxisDeepLearningEngine ?? new ((mod as any).FiveAxisDeepLearningEngine)();
+            result = (eng as any).predict?.(params) ?? (eng as any).analyze?.(params) ?? (eng as any).run?.(params) ?? { engine: "FiveAxisDeepLearningEngine", note: "method not callable" };
+            break;
+          }
+          case "five_axis_ai_ultra_predict": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = (fiveAxisAIUltraIntelligenceEngine as any).predict?.(params) ?? (fiveAxisAIUltraIntelligenceEngine as any).analyze?.(params) ?? (fiveAxisAIUltraIntelligenceEngine as any).run?.(params) ?? { engine: "FiveAxisAIUltraIntelligenceEngine", note: "method not callable" };
             break;
           }
           default:

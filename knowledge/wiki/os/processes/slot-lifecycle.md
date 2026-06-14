@@ -146,7 +146,7 @@ The session-continuity chain (2026-05-15):
 
 ## Doctrine pins
 
-- **Up to 13 concurrent chats** (operator directive 2026-05-15, expanded
+- **Up to 26 concurrent chats** (operator directive 2026-05-15, expanded
   to 13 on 2026-05-16). New code MUST read `SLOT_NAMES` from
   `chat-slots.mjs` — never hard-code count.
 - **alpha is a standard work slot** as of 2026-05-16 (the

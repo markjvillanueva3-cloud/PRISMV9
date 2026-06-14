@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="fb2349b5357af7610be1a362c943d962bb61cdc0ce8d9d8b8600550e3a9dcca8">
+<title>DOMAIN-PIPELINE-MS0 — Per-Domain Print-to-Part Pipeline Design</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">DOMAIN-PIPELINE-MS0 — Per-Domain Print-to-Part Pipeline Design</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.436Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#domain-pipeline-ms0-per-domain-print-to-part-pipeline-design">DOMAIN-PIPELINE-MS0 — Per-Domain Print-to-Part Pipeline Design</a></li>
+<li class="toc-l2"><a href="#the-canonical-18-stage-pipeline">The canonical 18-stage pipeline</a></li>
+<li class="toc-l2"><a href="#per-domain-instantiation-slot-allocation">Per-domain instantiation (slot allocation)</a></li>
+<li class="toc-l2"><a href="#the-adaptive-orchestrator-the-missing-connective-tissue">The adaptive orchestrator (the missing connective tissue)</a></li>
+<li class="toc-l3"><a href="#missing-data-intelligent-defaults">Missing-data intelligent defaults</a></li>
+<li class="toc-l3"><a href="#cost-optimal-path-picking">Cost-optimal path picking</a></li>
+<li class="toc-l3"><a href="#machine-tooling-fixture-adaptation">Machine / tooling / fixture adaptation</a></li>
+<li class="toc-l3"><a href="#safety-invariant-load-bearing">Safety invariant (load-bearing)</a></li>
+<li class="toc-l2"><a href="#coverage-map-whats-built-vs-missing">Coverage map — what&#39;s built vs missing</a></li>
+<li class="toc-l2"><a href="#how-operators-consume-this">How operators consume this</a></li>
+<li class="toc-l2"><a href="#how-system-viz-shows-this">How /system-viz shows this</a></li>
+<li class="toc-l2"><a href="#honest-caveats">Honest caveats</a></li>
+<li class="toc-l2"><a href="#see-also">See also</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="domain-pipeline-ms0-per-domain-print-to-part-pipeline-design"><a class="anchor" href="#domain-pipeline-ms0-per-domain-print-to-part-pipeline-design" aria-label="Permalink to DOMAIN-PIPELINE-MS0 — Per-Domain Print-to-Part Pipeline Design">#</a>DOMAIN-PIPELINE-MS0 — Per-Domain Print-to-Part Pipeline Design</h1>
+<blockquote>
+<p>Slot juliett (claude-9f57075a) /forge-audit-v2 /forge7, 2026-05-17. Advisory. Canonical 18-stage pipeline from print intake → completed part, instantiated per machining domain, with the adaptive orchestrator that handles missing input intelligently and picks cost-optimal paths under safety constraints. Config: <code>DOMAIN-PIPELINE-MS0-CONFIG.json</code>. Visualized in <code>/system-viz</code> via <code>ghost.domain_pipelines</code> roost.</p>
+</blockquote>
+<h2 id="the-canonical-18-stage-pipeline"><a class="anchor" href="#the-canonical-18-stage-pipeline" aria-label="Permalink to The canonical 18-stage pipeline">#</a>The canonical 18-stage pipeline</h2>
+<p>A part flows through these stages from blueprint to delivered, in order:</p>
+<pre><code>1.  PRINT_INTAKE       upload blueprint PDF / CAD STEP/IGES/DXF/IPT/SLDPRT
+2.  GEOMETRY_PARSE     BREP from CAD; build solid model
+3.  PRINT_OCR          PDF blueprint → dims + GD&amp;T + title-block (eDOCr2/vision-LLM)
+4.  FEATURE_RECOG      pockets, holes, threads, slots, ID/OD, grooves
+5.  MATERIAL_SELECT    print spec → material DB → Kienzle/Taylor params
+6.  MACHINE_SELECT     envelope + kinematics + controller match across shop fleet
+7.  TOOLING_SELECT     tool DB lookup, geometry-compatible, prefer existing inventory
+8.  FIXTURE_DESIGN     vise/chuck/3R/custom by geometry; workholding-force gate
+9.  OPERATION_SEQUENCE order of ops, setup count, datum strategy, rough→finish
+10. SPEED_FEED         Kienzle force, Taylor life, deflection, machine HP limits
+11. TOOLPATH_GEN       domain-specific (3-axis/5-axis mill, turn/groove, wire-cut)
+12. SAFETY_VALIDATE    collision, force, thermal, workholding, vibration; Ω/S(x) gates
+13. POST_PROCESS       controller-specific NC (Fanuc/Haas/Okuma/Mitsubishi/...)
+14. SIMULATE           virtual machining, voxel stock removal, cycle-time
+15. OPERATOR_GATE      UNCONDITIONAL human approval — never auto-bypass
+16. MACHINE_RUN        DNC drip, MTConnect/OPC-UA telemetry, tool-wear monitor
+17. QUALITY_VERIFY     CMM, FAI, SPC, Cpk; first-article + ongoing sampling
+18. LEARNING_LOOP      outcomes → tribal corpus → SF refinement → strategy weights
+</code></pre>
+<h2 id="per-domain-instantiation-slot-allocation"><a class="anchor" href="#per-domain-instantiation-slot-allocation" aria-label="Permalink to Per-domain instantiation (slot allocation)">#</a>Per-domain instantiation (slot allocation)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Slot</th><th>Domain</th><th>Scope</th><th>Stages owned</th></tr></thead>
+<tbody>
+<tr><td>alpha</td><td>mill</td><td>FULL_PIPELINE</td><td>all 18</td></tr>
+<tr><td>bravo</td><td>lathe</td><td>FULL_PIPELINE</td><td>all 18</td></tr>
+<tr><td>charlie</td><td>wire (WEDM)</td><td>FULL_PIPELINE</td><td>all 18, with wire-cut toolpath + WEDM-controller posts</td></tr>
+<tr><td>delta</td><td>cad</td><td>INPUT_HALF</td><td>1–4 (intake → feature recognition)</td></tr>
+<tr><td>echo</td><td>cam</td><td>MIDDLE</td><td>7–14 (tooling → simulate)</td></tr>
+<tr><td>foxtrot</td><td>tribal</td><td>SUPPORT_ALL</td><td>injects playbook rules at every stage</td></tr>
+<tr><td>hotel</td><td>erp/business+hr</td><td>BUSINESS_WRAPPER</td><td>wraps with quote → cost → schedule → invoice + HR</td></tr>
+<tr><td>india</td><td>post</td><td>STAGE_SPECIALIST</td><td>13 (post-process across 7 controller dialects)</td></tr>
+<tr><td>juliett</td><td>speed/feed</td><td>STAGE_SPECIALIST</td><td>10 (Kienzle/Taylor/Deflection/Gilbert)</td></tr>
+<tr><td>kilo</td><td>print-to-program</td><td>ORCHESTRATOR</td><td>the adaptive orchestrator that runs the whole pipeline</td></tr>
+<tr><td>lima</td><td>academy+learning</td><td>TRAINING_OVERLAY</td><td>tutorial / video / blueprint training across stages</td></tr>
+<tr><td>mike</td><td>misc</td><td>INFRA_CROSS_CUTTING</td><td>observability, telemetry, devtools</td></tr>
+<tr><td>golf</td><td>database</td><td>DATA_LAYER</td><td>material/tool/machine/fixture/alarm DBs</td></tr>
+</tbody>
+</table></div>
+<h2 id="the-adaptive-orchestrator-the-missing-connective-tissue"><a class="anchor" href="#the-adaptive-orchestrator-the-missing-connective-tissue" aria-label="Permalink to The adaptive orchestrator (the missing connective tissue)">#</a>The adaptive orchestrator (the missing connective tissue)</h2>
+<p>The 18 stages exist as PRISM engines at varying maturity, but <strong>no engine runs the full pipeline adaptively</strong>. The highest-leverage missing piece is <code>PrintToProgramOrchestratorEngine</code> (slot kilo). Its job:</p>
+<h3 id="missing-data-intelligent-defaults"><a class="anchor" href="#missing-data-intelligent-defaults" aria-label="Permalink to Missing-data intelligent defaults">#</a>Missing-data intelligent defaults</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Field missing</th><th>Default action</th></tr></thead>
+<tbody>
+<tr><td>material</td><td>most-common JM-DIE stock for the part envelope + flag + confidence score</td></tr>
+<tr><td>machine</td><td>cheapest machine with envelope fit AND required kinematics AND spindle HP</td></tr>
+<tr><td>tooling</td><td>closest geometry-compatible tool from existing inventory; flag if substitution &gt;10%</td></tr>
+<tr><td>fixture</td><td>vise-with-stop (mill) / 3-jaw chuck (lathe) / 3R clamp (wire) + force gate</td></tr>
+<tr><td>tolerance</td><td>ISO 2768 medium grade when print-OCR fails; flag operator</td></tr>
+<tr><td>feature recog confidence &lt; threshold</td><td>operator-confirm dialog with feature-tree visualization</td></tr>
+<tr><td>Kienzle k-c missing for material</td><td>default from ISO material group; flag</td></tr>
+</tbody>
+</table></div>
+<h3 id="cost-optimal-path-picking"><a class="anchor" href="#cost-optimal-path-picking" aria-label="Permalink to Cost-optimal path picking">#</a>Cost-optimal path picking</h3>
+<p><code>GilbertEconomicSpeedEngine</code> triad ranks alternatives:</p>
+<ul>
+<li><strong>min-cost</strong> — lowest total cost (tooling + cycle time + machine rate)</li>
+<li><strong>max-prod</strong> — fastest cycle time (maximizes throughput)</li>
+<li><strong>max-profit</strong> — best margin (default unless operator overrides)</li>
+</ul>
+<p><strong>Hard invariant:</strong> never pick a configuration that fails the safety gate even if it is the cheapest. Safety wins. Always.</p>
+<h3 id="machine-tooling-fixture-adaptation"><a class="anchor" href="#machine-tooling-fixture-adaptation" aria-label="Permalink to Machine / tooling / fixture adaptation">#</a>Machine / tooling / fixture adaptation</h3>
+<p>The orchestrator reads <code>ShopConfigurationEngine</code> (21-machine JM-DIE fleet), <code>ToolCatalogEngine</code> (287 .tooldb files / 131MB), and the (missing) <code>WorkholdingCatalogEngine</code> at runtime — picks the best fit for THIS part on THIS day given THIS shop&#39;s current inventory. The choice is not pre-baked into the toolpath; it&#39;s selected per-job from live state.</p>
+<h3 id="safety-invariant-load-bearing"><a class="anchor" href="#safety-invariant-load-bearing" aria-label="Permalink to Safety invariant (load-bearing)">#</a>Safety invariant (load-bearing)</h3>
+<pre><code>SAFETY_VALIDATE failure → HARD BLOCK (no operator override at this gate)
+MACHINE_RUN  ←  REQUIRES  OPERATOR_GATE approval (no auto-bypass)
+shop_floor output (G-code, feed/speed → real machine): Ω ≥ 0.95, S(x) ≥ 0.98
+</code></pre>
+<h2 id="coverage-map-whats-built-vs-missing"><a class="anchor" href="#coverage-map-whats-built-vs-missing" aria-label="Permalink to Coverage map — what&#39;s built vs missing">#</a>Coverage map — what&#39;s built vs missing</h2>
+<p>(See <code>DOMAIN-PIPELINE-MS0-CONFIG.json</code> for the per-(domain, stage) status.)</p>
+<p><strong>Majority-built stages</strong> — GEOMETRY_PARSE, FEATURE_RECOG, MACHINE_SELECT, SPEED_FEED, SAFETY_VALIDATE.</p>
+<p><strong>Majority-gap stages</strong> — FIXTURE_DESIGN, SIMULATE, MACHINE_RUN, QUALITY_VERIFY, LEARNING_LOOP. These are systemic gaps across most domains.</p>
+<p><strong>Highest-leverage single missing engine</strong> — <code>PrintToProgramOrchestratorEngine</code>. Without it, the per-stage engines don&#39;t compose into a real print-to-part flow; with it, the existing stage engines start producing value end-to-end.</p>
+<h2 id="how-operators-consume-this"><a class="anchor" href="#how-operators-consume-this" aria-label="Permalink to How operators consume this">#</a>How operators consume this</h2>
+<ol>
+<li>Each chat slot opens onto its domain&#39;s pipeline-stage queue.</li>
+<li>The slot picks the highest-status-gap stage in its domain and works it.</li>
+<li>When a slot ships a stage, it updates the CONFIG (<code>status: built</code>) and the system-viz visualization auto-refreshes on the next regen-viz.</li>
+<li>The orchestrator (kilo) is the consumer — once it exists, the per-stage work composes automatically.</li>
+</ol>
+<h2 id="how-system-viz-shows-this"><a class="anchor" href="#how-system-viz-shows-this" aria-label="Permalink to How /system-viz shows this">#</a>How <code>/system-viz</code> shows this</h2>
+<p><code>scripts/generate-domain-pipeline-features.mjs</code> emits a <code>ghost.domain_pipelines</code> roost (L8) with one <code>domain-pipeline</code> child per domain (L9), and one <code>pipeline-stage</code> grandchild per (domain, stage) pair (L10). Color-coded by domain; status-coded by built/partial/missing (full opacity / dimmed / outline). Edges between consecutive stages show the flow. Operators see the full picture at a glance.</p>
+<h2 id="honest-caveats"><a class="anchor" href="#honest-caveats" aria-label="Permalink to Honest caveats">#</a>Honest caveats</h2>
+<ul>
+<li>Engine mappings in the CONFIG are best-effort initial mappings — many entries are <code>?</code> or <code>partial</code> pending operator refinement. The CONFIG is the editable surface; the viz auto-updates from it.</li>
+<li>The 18-stage canonical pipeline is a strong default but not normative for every part. Re-cuts, repair work, and reverse-engineering paths may skip stages or loop back; the orchestrator should treat the linear flow as the fast-path with explicit branch-out points.</li>
+<li>The adaptive defaults table above is the starting policy — refine from shop-floor telemetry once <code>MTConnectIngesterEngine</code> (also missing) is wired.</li>
+</ul>
+<h2 id="see-also"><a class="anchor" href="#see-also" aria-label="Permalink to See also">#</a>See also</h2>
+<ul>
+<li><code>DOMAIN-PIPELINE-MS0-CONFIG.json</code> — the editable per-domain config</li>
+<li><code>FEATURE-GAP-AUDIT-2026-05-17.md</code> — the gap inventory that fed this</li>
+<li><code>JULIETT-PER-SLOT-RGS-ALLOCATION-2026-05-17.md</code> — slot ↔ domain map</li>
+<li><code>state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md</code> — JM-Die test shop profile</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="DOMAIN-PIPELINE-MS0-DESIGN.md">DOMAIN-PIPELINE-MS0-DESIGN.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

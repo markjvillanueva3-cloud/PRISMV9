@@ -1,0 +1,60 @@
+{
+  "id": "JM-FUSION-TOOLS-MS0",
+  "version": "1.0.0",
+  "title": "JM Die Milling Tool Library — Fusion 360 Importable Export",
+  "brief": "Walks mcp-server/src/data/*-tools-extracted.json + *-tools.json (the brand catalogs JM Die uses in practice), filters to MILLING tool types, and emits a Fusion 360 .tools importable library. Closes user directive 'extract all milling tools from jm tool libraries for fusion'.",
+  "created_at": "2026-05-24T03:00:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "POST",
+  "track_name": "Post-Processor Proving-Out",
+  "status": "complete",
+  "completed_at": "2026-05-24T03:10:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01",
+      "status": "shipped",
+      "note": "scripts/extract-jm-milling-tools-fusion.mjs — pure Node script. Walks 30 brand catalogs in mcp-server/src/data/ (Accupro / AMPC / Camfix / Emuge / Flash / Guhring / Helical / ISCAR / Mitsubishi / OSG / SECO / Sandvik / Walter / YG-1 / etc.), filters for MILLING tool types (endmill / ballmill / facemill / chamfermill / bullnose / slotmill / threadmill / formmill / tapered — excludes drill / tap / bore / ream / countersink / spotting), maps each tool record to the Fusion 360 .tools schema (BMC + description + product-id + type + unit + vendor + post-process + geometry{DC/DCN/NOF/OAL/LF/SFDM/+RE for bull-nose} + holder + start-values), and emits state/shared/jm-fusion-tools/jm-milling-tools.{json,tools,md}. First run: 41137 tools scanned, 19370 milling tools extracted. By brand: ISCAR 5449 / OSG 3598 / unknown 3376 / YG-1 2517 / Sandvik 1286 / Accupro 1224 / Seco 1224 / Guhring 688 / Emuge 8. Operator: drag jm-milling-tools.tools into Fusion 360 Manage tab -> Tool Library -> Import."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Fusion 360 importable JM tool library",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "extract-jm-milling-tools-fusion.mjs + Fusion .tools output + operator MD index",
+          "effort": 25,
+          "dependencies": [],
+          "exit_conditions": [
+            "Walks every mcp-server/src/data/*-tools*.json catalog",
+            "Filters to milling tool types (excludes drill/tap/bore/ream/etc.)",
+            "Maps PRISM canonical tool record to Fusion 360 .tools schema",
+            "Emits jm-milling-tools.json (intermediate manifest with by-brand counts)",
+            "Emits jm-milling-tools.tools (Fusion-importable JSON)",
+            "Emits jm-milling-tools.md (operator-readable index + import instructions)"
+          ],
+          "description": "Operator can now build a Fusion 360 program against the same tool inventory JM Die uses in practice — no manual re-entry of 19K tools. Compounds: every chat re-running the script picks up new brand catalogs as they're extracted.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "scripts/extract-jm-milling-tools-fusion.mjs runs to completion. state/shared/jm-fusion-tools/jm-milling-tools.tools is a Fusion 360 importable library with 19370 milling tools across 8 named brands. Operator drags into Fusion -> Manage -> Tool Library -> Import.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "3376 tools have manufacturer='unknown' — they survived the filter on type alone. Mitigation: filter by manufacturer:!=unknown in MS1 once provenance is added to source catalogs."
+    },
+    {
+      "id": "R2",
+      "description": "Fusion 360 .tools schema is reconstructed from public examples — Fusion may reject a tool entry whose holder block is incomplete. Mitigation: ship default ER32 holder for every tool (engine-side fallback)."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": [],
+  "updated_at": "2026-05-24T03:15:00Z"
+}

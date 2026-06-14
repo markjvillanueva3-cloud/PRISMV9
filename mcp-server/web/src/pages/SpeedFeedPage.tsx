@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Button, Card, Spinner, Badge, Tabs, TabList, Tab, TabPanel } from "../components/ui";
 import { useSpeedFeedOrchestrate, useSpeedFeedOptimize } from "../hooks/useSpeedFeed";
 import type { OrchestratorInput, OrchestratorResult, OptimizeResult } from "../types/speedfeed";
@@ -275,6 +275,16 @@ export default function SpeedFeedPage() {
   const [mode, setMode] = useState<Mode>("quick");
   const calc = useSpeedFeedOrchestrate();
   const opt = useSpeedFeedOptimize();
+
+  // SF Studio compact density (2026-05-21, slot:juliett) — this orchestrator
+  // page packs 46 spinbuttons across 6 sections; the -15% page zoom
+  // (index.css body[data-sf-density="compact"]) brings measurably more
+  // controls above-fold (3/46 -> 5/46 at 1920x1080). Opt in on mount, clear
+  // on unmount so other routes keep the default density.
+  useEffect(() => {
+    document.body.setAttribute("data-sf-density", "compact");
+    return () => document.body.removeAttribute("data-sf-density");
+  }, []);
 
   const result = calc.data as { result: { value: OrchestratorResult } } | null;
   const optResult = opt.data as { result: { value: OptimizeResult } } | null;

@@ -40,6 +40,11 @@ const TIMEOUT_MS = parseInt(process.env.PRISM_REGRESSION_AUTO_WRITE_TIMEOUT_MS |
 const FIX_RX = /\b(fix|restore|repair|regression|wiring-restore|rescue)\b/i;
 const OPT_OUT_RX = /\[no-regression-record\]/i;
 const MAX_CONCURRENT_RETRY = 3;
+// Keep the "## Recent regressions" section bounded so it can't re-bloat the fleet-wide CLAUDE.md
+// token injection (U-ALPHA-CLAUDEMD-SLIM 2026-06-11): keep the most-recent N entries inline, overflow
+// the OLDEST to the archive (no data loss). Knob: PRISM_REGRESSION_CAP.
+const REGR_CAP = parseInt(process.env.PRISM_REGRESSION_CAP ?? "25", 10) || 25;
+const REGR_ARCHIVE = path.join(REPO, "state/shared/RECENT-REGRESSIONS-ARCHIVE.md");
 
 function approve() { process.stdout.write(JSON.stringify({ continue: true })); }
 
@@ -110,6 +115,35 @@ export function insertEntry(claudeMd, entry) {
   const before = claudeMd.slice(0, insertAt);
   const after = claudeMd.slice(insertAt);
   return { ok: true, content: before + entry + "\n" + after };
+}
+
+/**
+ * Cap the "## Recent regressions" section to the most-recent `cap` dated entries.
+ * Entries are stored newest-first (insertEntry prepends), so the OLDEST (bottom) dated
+ * lines beyond `cap` are the overflow. PURE: returns { content, overflow } -- the caller
+ * appends overflow to the archive so nothing is lost. Keeps CLAUDE.md from re-bloating the
+ * fleet-wide injection. Non-dated lines (header, comment, blanks) are always preserved.
+ */
+export function capRegressionsSection(content, cap = REGR_CAP) {
+  if (typeof content !== "string" || !(cap > 0)) return { content, overflow: [] };
+  const headerIdx = content.indexOf(SECTION_HEADER);
+  if (headerIdx < 0) return { content, overflow: [] };
+  const afterHeader = headerIdx + SECTION_HEADER.length;
+  const nextHeader = content.indexOf("\n## ", afterHeader);
+  const secEnd = nextHeader >= 0 ? nextHeader + 1 : content.length;
+  const head = content.slice(0, headerIdx);
+  const section = content.slice(headerIdx, secEnd);
+  const tail = content.slice(secEnd);
+  const datedRe = /^- \d{4}-\d{2}-\d{2} \|/;
+  let seen = 0;
+  const overflow = [];
+  const kept = [];
+  for (const l of section.split(/\r?\n/)) {
+    if (datedRe.test(l)) { seen++; if (seen > cap) { overflow.push(l); continue; } }
+    kept.push(l);
+  }
+  if (!overflow.length) return { content, overflow: [] };
+  return { content: head + kept.join("\n") + tail, overflow };
 }
 
 function readHeadCommit() {
@@ -216,14 +250,28 @@ function main() {
 
   // Concurrency-safe write: re-reads on each retry to handle the 2-chat race
   // where a peer's regression entry overwrites ours between read and rename.
+  let lastOverflow = [];
   try {
-    writeWithConcurrencyGuard(CLAUDE_MD, commit.sha, (current) => {
+    const res = writeWithConcurrencyGuard(CLAUDE_MD, commit.sha, (current) => {
       // Idempotency: if peer wrote our SHA between our reads, the guard skips.
       // Otherwise insert into the current content (peer's entry preserved).
       const r = insertEntry(current, entry);
-      return r.ok ? r.content : null;
+      if (!r.ok) return null;
+      // Self-trim: keep the section bounded so it can't re-bloat the fleet-wide injection.
+      const capped = capRegressionsSection(r.content, REGR_CAP);
+      lastOverflow = capped.overflow;
+      return capped.content;
     });
-  } catch { /* File locked or unwritable — skip silently per non-blocking contract */ }
+    // Archive the overflow ONCE, after a successful (non-skipped) write -- no data loss.
+    if (res?.ok && !res.skipped && lastOverflow.length) {
+      try {
+        const prev = fs.existsSync(REGR_ARCHIVE)
+          ? fs.readFileSync(REGR_ARCHIVE, "utf8") + "\n"
+          : "# CLAUDE.md Recent-regressions archive\n> Auto-overflow from the regression-auto-write cap (U-ALPHA-CLAUDEMD-SLIM). Append-only; lessons also live in the wiki.\n";
+        atomicWrite(REGR_ARCHIVE, prev + lastOverflow.join("\n") + "\n");
+      } catch { /* archive append is best-effort; never block the regression write */ }
+    }
+  } catch { /* File locked or unwritable -- skip silently per non-blocking contract */ }
 
   return approve();
 }

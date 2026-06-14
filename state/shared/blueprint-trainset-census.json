@@ -1,0 +1,28 @@
+{
+  "total_parts": 76205,
+  "clean_trainset": 3941,
+  "excluded": 72264,
+  "clean_rate": 0.0517,
+  "poison_excluded": 236,
+  "by_tier": {
+    "loose": 1958,
+    "exact": 1983
+  },
+  "by_exclusion_reason": {
+    "unlabeled": 72028,
+    "poison-label:ambiguous": 232,
+    "poison-label:garbage": 4
+  },
+  "trainable_subsets": {
+    "roundtrip_b": 350,
+    "print_program": 3941,
+    "triple": 350
+  },
+  "schemaVersion": "1.0.0",
+  "kind": "blueprint-trainset-census",
+  "owner_slot": "xray",
+  "source": "H:/prism/state/shared/blueprint-training-pairs.jsonl",
+  "bad_lines": 0,
+  "note": "ADVISORY — curated supervised trainset profile; clean rows exclude poison (garbage/ambiguous) labels. Human-verify before a training run.",
+  "mustHumanVerify": true
+}

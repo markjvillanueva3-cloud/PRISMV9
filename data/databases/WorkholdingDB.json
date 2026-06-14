@@ -1,0 +1,222 @@
+{
+  "version": "1.1.0",
+  "generated": "2026-02-27",
+  "milestone": "L0-P0-MS2",
+  "description": "PRISM Workholding Database — friction coefficients, safety factors, device specs. SAFETY CRITICAL.",
+  "source_file": "mcp-server/src/engines/WorkholdingEngine.ts",
+  "device_types": [
+    "VICE_SMOOTH",
+    "VICE_SERRATED",
+    "VICE_SOFT_JAWS",
+    "HYDRAULIC_CLAMP",
+    "TOGGLE_CLAMP",
+    "STRAP_CLAMP",
+    "VACUUM_FIXTURE",
+    "MAGNETIC_CHUCK",
+    "COLLET",
+    "THREE_JAW_CHUCK",
+    "FOUR_JAW_CHUCK",
+    "FIXTURE_PLATE",
+    "TOMBSTONE",
+    "CUSTOM"
+  ],
+  "surface_conditions": [
+    "DRY",
+    "OILY",
+    "COOLANT_WET",
+    "RUSTY",
+    "GROUND",
+    "AS_CAST"
+  ],
+  "friction_coefficients": {
+    "_description": "Static friction coefficient μ by device type and surface condition. VACUUM_FIXTURE and MAGNETIC_CHUCK use 0.0 (area/magnetic-based calculations instead).",
+    "VICE_SMOOTH": {
+      "DRY": 0.15,
+      "OILY": 0.08,
+      "COOLANT_WET": 0.1,
+      "RUSTY": 0.2,
+      "GROUND": 0.12,
+      "AS_CAST": 0.18
+    },
+    "VICE_SERRATED": {
+      "DRY": 0.3,
+      "OILY": 0.2,
+      "COOLANT_WET": 0.22,
+      "RUSTY": 0.35,
+      "GROUND": 0.28,
+      "AS_CAST": 0.32
+    },
+    "VICE_SOFT_JAWS": {
+      "DRY": 0.25,
+      "OILY": 0.15,
+      "COOLANT_WET": 0.18,
+      "RUSTY": 0.28,
+      "GROUND": 0.22,
+      "AS_CAST": 0.26
+    },
+    "HYDRAULIC_CLAMP": {
+      "DRY": 0.18,
+      "OILY": 0.1,
+      "COOLANT_WET": 0.12,
+      "RUSTY": 0.22,
+      "GROUND": 0.15,
+      "AS_CAST": 0.2
+    },
+    "TOGGLE_CLAMP": {
+      "DRY": 0.2,
+      "OILY": 0.12,
+      "COOLANT_WET": 0.14,
+      "RUSTY": 0.25,
+      "GROUND": 0.18,
+      "AS_CAST": 0.22
+    },
+    "STRAP_CLAMP": {
+      "DRY": 0.18,
+      "OILY": 0.1,
+      "COOLANT_WET": 0.12,
+      "RUSTY": 0.22,
+      "GROUND": 0.15,
+      "AS_CAST": 0.2
+    },
+    "VACUUM_FIXTURE": {
+      "DRY": 0,
+      "OILY": 0,
+      "COOLANT_WET": 0,
+      "RUSTY": 0,
+      "GROUND": 0,
+      "AS_CAST": 0
+    },
+    "MAGNETIC_CHUCK": {
+      "DRY": 0,
+      "OILY": 0,
+      "COOLANT_WET": 0,
+      "RUSTY": 0,
+      "GROUND": 0,
+      "AS_CAST": 0
+    },
+    "COLLET": {
+      "DRY": 0.35,
+      "OILY": 0.25,
+      "COOLANT_WET": 0.28,
+      "RUSTY": 0.4,
+      "GROUND": 0.32,
+      "AS_CAST": 0.36
+    },
+    "THREE_JAW_CHUCK": {
+      "DRY": 0.3,
+      "OILY": 0.2,
+      "COOLANT_WET": 0.22,
+      "RUSTY": 0.35,
+      "GROUND": 0.28,
+      "AS_CAST": 0.32
+    },
+    "FOUR_JAW_CHUCK": {
+      "DRY": 0.3,
+      "OILY": 0.2,
+      "COOLANT_WET": 0.22,
+      "RUSTY": 0.35,
+      "GROUND": 0.28,
+      "AS_CAST": 0.32
+    },
+    "FIXTURE_PLATE": {
+      "DRY": 0.2,
+      "OILY": 0.12,
+      "COOLANT_WET": 0.14,
+      "RUSTY": 0.25,
+      "GROUND": 0.18,
+      "AS_CAST": 0.22
+    },
+    "TOMBSTONE": {
+      "DRY": 0.2,
+      "OILY": 0.12,
+      "COOLANT_WET": 0.14,
+      "RUSTY": 0.25,
+      "GROUND": 0.18,
+      "AS_CAST": 0.22
+    },
+    "CUSTOM": {
+      "DRY": 0.15,
+      "OILY": 0.08,
+      "COOLANT_WET": 0.1,
+      "RUSTY": 0.18,
+      "GROUND": 0.12,
+      "AS_CAST": 0.16
+    }
+  },
+  "dynamic_force_factors": {
+    "_description": "Dynamic force amplification factors — interrupted cuts and entry/exit create impact loads.",
+    "CONTINUOUS_CUT": 1,
+    "LIGHT_INTERRUPTED": 1.5,
+    "HEAVY_INTERRUPTED": 2,
+    "SLOTTING": 2.5,
+    "PLUNGE_MILLING": 2,
+    "DRILLING_ENTRY": 1.3,
+    "DRILLING_EXIT": 1.8,
+    "TAPPING": 1.5,
+    "HIGH_SPEED_ENTRY": 2.5
+  },
+  "safety_factors": {
+    "_description": "Minimum safety factors by application. SAFETY CRITICAL — never reduce below these values.",
+    "ROUGHING": 3,
+    "SEMI_FINISH": 2.5,
+    "FINISHING": 2,
+    "HIGH_SPEED": 3.5,
+    "HEAVY_INTERRUPTED": 4,
+    "DRILLING": 2.5,
+    "TAPPING": 3
+  },
+  "magnetic_chuck_data": {
+    "typical_friction_steel_on_chuck": 0.25,
+    "holding_force_per_area_n_per_cm2": {
+      "standard": 80,
+      "fine_pole": 120,
+      "electropermanent": 150
+    }
+  },
+  "vacuum_fixture_data": {
+    "atmospheric_pressure_n_per_cm2": 10.13,
+    "typical_efficiency": 0.85,
+    "min_seal_overlap_mm": 5
+  },
+  "_generator": "Engine-shadowed sections GENERATED from WorkholdingEngine.ts by mcp-server/scripts/generate-workholding-db.ts — DO NOT hand-edit those sections; re-run the generator. Single source of truth = WorkholdingEngine. JSON-only blocks (magnetic_chuck_data, vacuum_fixture_data) are preserved.",
+  "vacuum_seal_efficiency": {
+    "_description": "Vacuum seal efficiency (fraction of theoretical holding force) by seal type and machined-surface roughness band Ra. Source: WorkholdingEngine.VACUUM_SEAL_EFFICIENCY.",
+    "O_RING": {
+      "Ra<1.6": 0.95,
+      "Ra1.6-3.2": 0.9,
+      "Ra3.2-6.3": 0.85,
+      "Ra>6.3": 0.75
+    },
+    "GASKET": {
+      "Ra<1.6": 0.9,
+      "Ra1.6-3.2": 0.85,
+      "Ra3.2-6.3": 0.8,
+      "Ra>6.3": 0.7
+    },
+    "FOAM": {
+      "Ra<1.6": 0.85,
+      "Ra1.6-3.2": 0.8,
+      "Ra3.2-6.3": 0.75,
+      "Ra>6.3": 0.65
+    },
+    "MACHINED_CHANNEL": {
+      "Ra<1.6": 0.92,
+      "Ra1.6-3.2": 0.88,
+      "Ra3.2-6.3": 0.82,
+      "Ra>6.3": 0.72
+    }
+  },
+  "magnetic_permeability": {
+    "_description": "Relative magnetic permeability by workpiece material — drives magnetic-chuck holding force. 1.0 = effectively non-magnetic. Source: WorkholdingEngine.MAGNETIC_PERMEABILITY.",
+    "CARBON_STEEL": 100,
+    "LOW_ALLOY_STEEL": 80,
+    "CAST_IRON": 60,
+    "TOOL_STEEL": 50,
+    "STAINLESS_400": 40,
+    "STAINLESS_300": 1,
+    "ALUMINUM": 1,
+    "COPPER": 1,
+    "TITANIUM": 1,
+    "NICKEL_ALLOY": 1.5
+  }
+}

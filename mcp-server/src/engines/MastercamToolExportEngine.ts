@@ -27,6 +27,7 @@
  */
 
 import { toolCatalogEngine } from "./ToolCatalogEngine.js";
+import { holderSelectionEngine } from "./HolderSelectionEngine.js";
 
 // ─── Physics constants (Kienzle / UltimateSpeedFeedEngine baselines) ──────────
 
@@ -130,7 +131,7 @@ export interface McamExportFilter {
   iso_group?: ISOGroup;
   /** Max tools per library partition (default: 2000) */
   max_per_library?: number;
-  /** Overall tool count cap (default: 5000) */
+  /** Overall tool count cap (default: 100000 = full catalog; set lower for a subset) */
   max_tools?: number;
 }
 
@@ -361,8 +362,21 @@ function convertTool(prismTool: any, toolNumber: number, isoGroups: ISOGroup[]):
     ? (phys.point_angle_deg ?? prismTool.point_angle_deg ?? (toolMat === "hss" ? 118 : 140))
     : undefined;
 
-  // Holder — infer standard holder from shank diameter
+  // Holder -- prefer a REAL cataloged holder (HAIMER/GUHRING/BIG DAISHOWA) matched to
+  // spindle taper + shank + type, falling back to size-inference when none fits.
+  // McamHolder has no vendor field, so the brand rides in the description.
+  // (CATALOG-APP-WIRING-MS0/U-HOLDER-WIRE-MASTERCAM, slot:romeo)
   const holder = inferHolder(d, shankD, oal);
+  const realHolder = holderSelectionEngine.select({
+    taper: (prismTool.spindle_taper as string) || "CAT40",
+    shankDiameterMm: shankD,
+    typePreference: shankD <= 12 ? "shrink_fit" : "hydraulic",
+  });
+  if (realHolder) {
+    holder.description = `${realHolder.brand} ${realHolder.designation}`.trim();
+    if (realHolder.gaugeMm != null) holder.gauge_length_mm = realHolder.gaugeMm;
+    if (realHolder.bodyDiaMm != null) holder.body_diameter_mm = realHolder.bodyDiaMm;
+  }
 
   const cutting_data = computeCuttingData(d, flutes, coating, toolMat, isoGroups);
 
@@ -498,7 +512,10 @@ export class MastercamToolExportEngineClass {
     const isoGroups: ISOGroup[] = filter?.iso_group
       ? [filter.iso_group]
       : ALL_ISO_GROUPS;
-    const maxTools = filter?.max_tools ?? 5000;
+    // Default to the FULL catalog (~74K tools) so "export to Mastercam" means the whole
+    // tool DB, not a silent 5000-tool slice. Callers wanting a subset pass filter.max_tools.
+    // (CATALOG-APP-WIRING-MS0/U-CAM-TOOL-FULL-CATALOG, slot:romeo -- mirrors the Fusion U3 cap-lift.)
+    const maxTools = filter?.max_tools ?? 100_000;
     const maxPerLib = filter?.max_per_library ?? 2000;
 
     // Query catalog
@@ -552,6 +569,40 @@ export class MastercamToolExportEngineClass {
         manufacturers,
         tool_types: [...new Set(mcamTools.map(t => t.type))].sort(),
       },
+    };
+  }
+
+  /**
+   * Export a SPECIFIC, already-selected set of PRISM tools as ONE Mastercam library --
+   * NO catalog re-query, NO manufacturer-partition. This is the subset entrypoint the
+   * per-(material,type,brand) library generator needs; it mirrors
+   * HyperMillToolExportEngine.exportToHMT(tools[]): hand it a leaf's tools, get one
+   * .mcam-tools for exactly those tools at FULL geometry fidelity (unlike exportWithCuttingData,
+   * which takes a simplified spec). CATALOG-APP-WIRING-MS0/U-MCAM-EXPORT-FROM-TOOLS (slot:romeo).
+   *
+   * @param prismTools full PRISM catalog tool objects (the leaf subset)
+   * @param libName    library name + .mcam-tools file stem (sanitized to [A-Za-z0-9_])
+   * @param format     output format (default mcam-tools)
+   * @param materials  ISO groups to compute cutting data for (default all 6; pass [iso] for a single-material leaf)
+   */
+  exportFromTools(
+    prismTools: any[],
+    libName = "PRISM_TOOLS",
+    format: McamExportFormat = "mcam-tools",
+    materials: ISOGroup[] = ALL_ISO_GROUPS,
+  ): McamExportResult {
+    // Sanitize to a filesystem-safe stem; an all-special name (e.g. "///") would otherwise become
+    // "___" -- strip edge underscores and fall back to PRISM_TOOLS when no alphanumeric survives.
+    const cleaned = (libName ?? "").replace(/[^a-zA-Z0-9_]/g, "_").replace(/^_+|_+$/g, "");
+    const safeName = cleaned.length > 0 ? cleaned : "PRISM_TOOLS";
+    const isoList = materials.length > 0 ? materials : ALL_ISO_GROUPS;
+    const mcamTools: McamTool[] = (prismTools ?? []).map((t, i) => convertTool(t, i + 1, isoList));
+    const fileExt = format === "mcam-operations" ? "mcam-operations" : "mcam-tools";
+    const lib = buildLibrary(mcamTools, safeName, `${safeName}.${fileExt}`, format);
+    return {
+      library_data: JSON.stringify(lib, null, 2),
+      tool_count: mcamTools.length,
+      file_name: lib.file_name,
     };
   }
 
@@ -776,7 +827,7 @@ export class MastercamToolExportEngineClass {
 
   // ─── Private helpers ──────────────────────────────────────────────────────
 
-  private _queryCatalog(filter?: McamExportFilter, maxTools = 5000): any[] {
+  private _queryCatalog(filter?: McamExportFilter, maxTools = 100_000): any[] {
     try {
       if (!toolCatalogEngine?.search) return [];
       return toolCatalogEngine.search({

@@ -155,9 +155,18 @@ async function checkOllama() {
   }
 }
 
-function buildBanner(probe) {
+// All 5 octopus voices per /octopus skill + scripts/octopus-setup.mjs:
+// anthropic (Claude) + codex + ollama + xai/Grok + google/Gemini.
+// 2026-05-23 (slot:mike, octopus-consolidate): banner previously only
+// reported Codex/Ollama/Claude — Gemini and Grok voices were probed by the
+// CLI but invisible to the SessionStart banner, systematically undercounting
+// fan-out capacity fleet-wide. Now mirrors the CLI probe so the banner and
+// the operator setup checklist agree.
+export function buildBanner(probe) {
   const ready = [];
   const missing = [];
+
+  ready.push("Claude(this session)");
 
   if (probe.codex === "authed" || probe.codex === "ok") ready.push("Codex(gpt-5.5)");
   else missing.push("Codex");
@@ -165,16 +174,35 @@ function buildBanner(probe) {
   if (probe.ollamaUp) ready.push(`Ollama(${probe.ollamaModelCount} models)`);
   else missing.push("Ollama daemon");
 
-  ready.push("Claude(this session)");
+  if (probe.xaiKeyPresent) ready.push("Grok(XAI_API_KEY)");
+  else missing.push("Grok(XAI_API_KEY)");
+
+  if (probe.geminiKeyPresent) ready.push("Gemini(API key)");
+  else missing.push("Gemini(API key)");
 
   const fanOut = ready.length;
+  // 5 voices wired = "FULLY OPERATIONAL"; 3-4 = READY (real consensus);
+  // 2 = partial (cross-vendor degraded); else DEGRADED.
+  if (fanOut >= 5) {
+    return `🐙 Consensus FULLY OPERATIONAL: ${ready.join(" + ")}. All 5 voices live — prism_ai:consensus / TaskInput.consensus=true fans out at maximum cross-vendor coverage.`;
+  }
   if (fanOut >= 3) {
-    return `🐙 Multi-model consensus READY: ${ready.join(" + ")}. Use prism_ai:consensus or set TaskInput.consensus=true to fan out.`;
+    return `🐙 Multi-model consensus READY (${fanOut}/5 voices): ${ready.join(" + ")}. Missing: ${missing.join(", ")}. Use prism_ai:consensus or set TaskInput.consensus=true.`;
   }
   if (fanOut === 2) {
-    return `🐙 Consensus partial: ${ready.join(" + ")}. Missing: ${missing.join(", ")}. Tier-6 routes will work but with reduced cross-vendor coverage.`;
+    return `🐙 Consensus partial (${fanOut}/5): ${ready.join(" + ")}. Missing: ${missing.join(", ")}. Tier-6 routes will work but with reduced cross-vendor coverage.`;
   }
-  return `🐙 Consensus DEGRADED: only ${ready.join(",")} reachable. Missing: ${missing.join(", ")}. Tier-6 will fall back to claude-only.`;
+  return `🐙 Consensus DEGRADED (${fanOut}/5): only ${ready.join(",")} reachable. Missing: ${missing.join(", ")}. Tier-6 will fall back to claude-only.`;
+}
+
+// Env-var presence probe (no external process — fast, deterministic).
+// Mirrors scripts/octopus-setup.mjs probeEnv() semantics.
+export function probeEnvKey(...names) {
+  for (const n of names) {
+    const v = process.env[n];
+    if (typeof v === "string" && v.trim().length > 0) return true;
+  }
+  return false;
 }
 
 async function main() {
@@ -192,11 +220,17 @@ async function main() {
   ]);
 
   const parsed = doctor.ok ? parseDoctor(doctor.stdout + "\n" + doctor.stderr) : {};
+  // U-OCT-PROBE-FULL-FLEET (2026-05-23, slot:mike): probe all 5 voices
+  // including xai (Grok) + google (Gemini) via env-key presence so the
+  // SessionStart banner matches octopus-setup.mjs CLI verdict. Previously
+  // the banner hid Gemini/Grok readiness even when keys were set.
   const probe = {
     ...parsed,
     codex: codexAuth,
     ollamaUp: ollama.up,
     ollamaModelCount: ollama.models,
+    xaiKeyPresent: probeEnvKey("XAI_API_KEY", "GROK_API_KEY"),
+    geminiKeyPresent: probeEnvKey("GEMINI_API_KEY", "GOOGLE_API_KEY"),
   };
 
   const banner = buildBanner(probe);

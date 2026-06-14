@@ -1,0 +1,189 @@
+{
+  "id": "COMBO-EFFICIENCY-MS0",
+  "version": "1.0.0",
+  "title": "Substrate-Combo Efficiency — Obsidian + System-Viz + Master-Index + Ollama",
+  "brief": "Lift the four PSN search/audit/utilization substrates from independently-wired to compositionally-efficient. Closes Ollama-dead blocker (100% skip rate), the 0% take-rate on master-index suggestions (1774 fires/session wasted), the 4,136 broken Wiki↔Memory links (4.2%), and the 593 unwired-engine blast-radius blind spot. Measured via combo-telemetry dashboard so future iters self-tune.",
+  "created_at": "2026-05-25T17:35:00Z",
+  "created_by": "claude-227a8626 (slot:alpha)",
+  "track": "COMBO-EFFICIENCY",
+  "track_name": "Substrate Combo Efficiency",
+  "status": "not_started",
+  "context": {
+    "trigger": "User question 2026-05-25 12:30 CDT: 'can we utilize obsidian, /system-viz 2d graph, master index and ollama combos for better efficiency for search, audit and node utilization tasks?'",
+    "baseline_metrics_at_spec_time": {
+      "psn_savings_hits": 448,
+      "psn_savings_nudges": 129,
+      "psn_savings_tokens_saved": 223000,
+      "route_savings_fires": 1774,
+      "route_savings_take_rate_pct": 0.0,
+      "wiki_memory_broken_links": 4136,
+      "wiki_memory_total_links": 97673,
+      "wiki_memory_break_pct": 4.2,
+      "unwired_engines_built_documented": 593,
+      "ai_memo_coverage_pct": 42.9,
+      "nn_gnn_status": "DORMANT",
+      "nn_gnn_reason": "insufficient-reference-pool",
+      "ollama_chat_status": "DOWN",
+      "ollama_chat_skip_rate_pct": 100.0,
+      "ollama_chat_top_skip_reason": "low-confidence-calibrated"
+    }
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Gate-Opening — Revive Ollama + Baseline Telemetry",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Diagnose + revive Ollama /api/chat (currently 100% skip)",
+          "effort": 30,
+          "dependencies": [],
+          "exit_conditions": [
+            "curl http://localhost:11434/api/chat returns valid response within 5s",
+            ".claude/hooks/prompt-rewriter-ollama.mjs skip-rate < 20% over 50 calls",
+            "Banner '⚠ prompt-rewriter-ollama is silently broken' clears on next SessionStart"
+          ],
+          "description": "Diagnose why /api/chat hangs (likely GPU contention from NIM endpoints or daemon stuck). Steps: (1) check ollama ps + nvidia-smi for VRAM contention, (2) attempt restart `ollama stop && ollama serve`, (3) verify qwen2.5-coder:7b stays resident, (4) probe /api/chat with timeout=10s, (5) update OllamaHookBridgeEngine if endpoint changed. NO PRISM_REWRITER_HEALTH_FLOOR softening — fix the root cause.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "not_started",
+          "blocks": ["P1-U02", "P1-U03"]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Combo-efficiency telemetry baseline collector",
+          "effort": 60,
+          "dependencies": [],
+          "exit_conditions": [
+            "scripts/combo-efficiency-baseline.mjs emits state/shared/dashboards/combo-efficiency-baseline.json",
+            "Captures per-substrate metrics: master_index_hit_rate, system_viz_orphan_pct, wiki_link_density, ollama_offload_rate, route_suggest_take_rate",
+            "Schema versioned + 30+ vitest cases on pure aggregators"
+          ],
+          "description": "Pure aggregator over: psn-savings-aggregate.json + mcp-route-takerate-audit.json + .knowledge-link-audit.json + ollama-offload-stats.json + system-graph.json orphan layer. Becomes the cross-iter delta surface. Wire into /awareness-snapshot inject so chats see combo efficiency every session.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Compositional Wiring — turn nudges into adoptions",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Take-rate-fix on master-index suggestions (0% → ≥30%)",
+          "effort": 120,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": [
+            "When mcp-route-suggest emits '→ Take this route now: prism_X:action_Y', the suggested action runs automatically under shop_floor safety gate",
+            "Take-rate measured by combo-efficiency-baseline rises ≥30% over 100-fire rolling window",
+            "Hard-block PreToolUse mode (PRISM_ROUTE_AUTO_DISPATCH=hard) for verb-trigger matches; soft-nudge for low-confidence"
+          ],
+          "description": "Root cause: hooks search FOR the agent but the agent ignores it. Fix: when a verb-trigger classifier scores ≥0.8 confidence AND the suggested action is read-only (dispatcher_map, action_search, master_index_query, wiki_search), auto-dispatch and surface the RESULT instead of the nudge. Write classifier-confidence into ledger; nudges below 0.8 stay as advisory. Safety: never auto-dispatch destructive actions (delete/shutdown/federation_*); whitelist via dispatcher_introspection.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "not_started"
+        },
+        {
+          "id": "P1-U02",
+          "title": "Wiki↔Memory link densifier (Ollama-driven)",
+          "effort": 90,
+          "dependencies": ["P0-U01"],
+          "exit_conditions": [
+            "scripts/wiki-link-fix-suggester.mjs walks all 4,136 broken `[[name]]` tokens",
+            "Routes each to Ollama (qwen2.5-coder:7b) for nearest-match suggestion against memory/wiki BM25 index",
+            "Emits state/shared/wiki-link-fix-candidates.json with confidence-scored suggestions",
+            "≥50% of broken links resolved (auto-apply gate: confidence ≥0.85)",
+            "Audit JSON `state/shared/.knowledge-link-audit.json` shows break-pct drop from 4.2% to ≤2.0%"
+          ],
+          "description": "Use Ollama for the embedding/semantic-match layer (cheap, batchable). For each broken [[name]], compute cosine vs all known wiki/memory titles + tags + first-paragraph. Confidence ≥0.85 → auto-PR via batch commit. <0.85 → operator-review JSON. Run nightly via PRISM Knowledge Link Healer scheduled task.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "not_started"
+        },
+        {
+          "id": "P1-U03",
+          "title": "Unwired-engine bridge surfacer in /system-viz",
+          "effort": 90,
+          "dependencies": ["P0-U02"],
+          "exit_conditions": [
+            "scripts/unwired-bridge-rank.mjs cross-refs 593 unwired engines × master-index fan-in",
+            "Top-10 highest-fan-in unwired engines emitted to state/shared/UNWIRED-BRIDGES-TOP10.json",
+            "Rendered in /system-viz as `ghost.bridge_priority` roost (orange tint, sorted by fan-in)",
+            "/pick-unit --slot alpha returns one of the top-10 by default"
+          ],
+          "description": "Highest leverage = unwired engines with many downstream consumers IF they were wired. Use master-index node-graph to compute fan-in. Surfaces the 'wire these N engines and unlock M downstream features' opportunities. Color-codes in system-viz so the work is visible. Registers as a pick-unit source so alpha (and any slot) can drain it on next /pick.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "not_started"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Self-tuning — combo telemetry dashboard + cron",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Combo efficiency dashboard (HTML + JSON + /system-viz roost)",
+          "effort": 60,
+          "dependencies": ["P0-U02", "P1-U01", "P1-U02", "P1-U03"],
+          "exit_conditions": [
+            "state/shared/dashboards/combo-efficiency.{json,md,html} updated every 5min via scheduled task",
+            "Surfaces: per-substrate trend (7d), per-combo take-rate, top-10 wasted-nudge classes, top-10 unwired bridges",
+            "/awareness-snapshot inject pulls headline metrics (zone GREEN/YELLOW/RED)",
+            "Combo efficiency improvement % visible week-over-week"
+          ],
+          "description": "Closes the loop — make the efficiency visible so future iters self-tune. Pattern lift from existing dashboards (psn-savings-aggregate, mcp-route-takerate-audit). 5-min scheduled task (phase offset +180s to avoid contention with fleet-reaper + fleet-memory-monitor).",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"],
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "knowledge_sources": [
+    "state/shared/dashboards/psn-savings-aggregate.json (current substrate)",
+    "state/shared/dashboards/mcp-route-takerate-audit.json (take-rate baseline)",
+    "state/shared/.knowledge-link-audit.json (wiki link health)",
+    "state/shared/.prism-ai-memo-cross-ref-audit.json (memo coverage)",
+    "mcp-server/data/state/ollama-offload-stats.json (Ollama route telemetry)",
+    "state/shared/system-viz/system-graph.json (10-layer + 21 roosts)",
+    ".claude/hooks/mcp-route-suggest.mjs (the suggestion engine to upgrade)",
+    ".claude/hooks/master-index-precheck-inject.mjs (per-prompt search injector)",
+    ".claude/hooks/wiki-precheck-inject.mjs (per-prompt wiki injector)",
+    "scripts/lib/master-index-search-lib.mjs (BM25 lib — already extracted, ADR-129)",
+    "knowledge/wiki/architecture/master-index-surface.md (substrate doc)",
+    "knowledge/wiki/architecture/obsidian-memory-feed-hook.md (Obsidian doctrine)",
+    "OllamaHookBridgeEngine + /ollama-* skills (offload surface)"
+  ],
+  "non_goals": [
+    "Building new search engines — all 4 substrates exist + are independently wired",
+    "Replacing master-index — it's BM25-correct, the leverage is in adoption not retrieval",
+    "Replacing Ollama — local-LLM choice is downstream of revival",
+    "Touching the NN-GNN tier-5 — separate milestone (U-NN-PREDICTOR-EMBED-WIRE)"
+  ],
+  "safety_notes": [
+    "P1-U01 auto-dispatch MUST whitelist read-only actions — never auto-dispatch destructive (delete/shutdown/federation_*)",
+    "P1-U02 Ollama suggestions auto-apply gate confidence ≥0.85 — softer threshold leaks bad links into wiki",
+    "Per CLAUDE.md SAFETY RAILS: never inline physics constants in any new engine spawned here (none in scope but flag for builders)"
+  ],
+  "deliverables_summary": {
+    "scripts": [
+      "scripts/combo-efficiency-baseline.mjs (P0-U02)",
+      "scripts/wiki-link-fix-suggester.mjs (P1-U02)",
+      "scripts/unwired-bridge-rank.mjs (P1-U03)"
+    ],
+    "hooks_modified": [
+      ".claude/hooks/mcp-route-suggest.mjs (P1-U01 auto-dispatch)"
+    ],
+    "state_artifacts": [
+      "state/shared/dashboards/combo-efficiency-baseline.json (P0-U02)",
+      "state/shared/wiki-link-fix-candidates.json (P1-U02)",
+      "state/shared/UNWIRED-BRIDGES-TOP10.json (P1-U03)",
+      "state/shared/dashboards/combo-efficiency.{json,md,html} (P2-U01)"
+    ],
+    "scheduled_tasks": [
+      "PRISM Knowledge Link Healer (P1-U02, nightly)",
+      "PRISM Combo Efficiency Refresh (P2-U01, 5min phase +180s)"
+    ]
+  }
+}

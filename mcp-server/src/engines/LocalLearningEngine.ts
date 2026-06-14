@@ -126,7 +126,7 @@ const PATTERN_PATH = "H:/prism/mcp-server/data/state/learning-patterns.json";
 const ERROR_MEMORY_PATH = "H:/prism/mcp-server/data/state/error-memory.json";
 const TRAJECTORY_PATH = "H:/prism/mcp-server/data/state/sona-trajectories.jsonl";
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-const PREFERRED_MODEL = "qwen2.5-coder:7b";
+const PREFERRED_MODEL = "qwen2.5-coder:32b";
 const MAX_PATTERNS = 500;
 const MAX_TRAJECTORIES = 100;
 

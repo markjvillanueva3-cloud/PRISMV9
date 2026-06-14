@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Synchronization_Tool_Database_Manual-en</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Synchronization_Tool_Database_Manual-en</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/doc/31.0/PDF/Synchronization Tool Database/Synchronization_Tool_Database_Manual-en.pdf</code></dd>
+<dt>Pages</dt><dd>7</dd>
+<dt>Text chars</dt><dd>2242</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Import of external tool data into the OPEN
+MIND tool database
+
+-- 1 of 7 --
+
+Table of Contents
+Requirements and set up exchange folder ..................................................................................... 3
+Start the OPEN MIND Tool Database Synchronization Service .......................................................... 6
+Import of external tool data into the OPEN MIND tool database
+2
+
+-- 2 of 7 --
+
+Requirements and set up exchange folder
+NOTE
+The following notes apply to the tool database from version 2021.1.
+When importing external tool data into the
+hyperMILL tool database, synchronization is performed by a local
+Windows service. The following requirements must be met for the service to work without problems:
+1. Service, tool database and exchange folder must be on one Computer.
+2. A
+hyperMILL installation is mandatory because the tool database uses
+hyperCAD-S functions to create tool
+geometries.
+3. The exchange folder must be provided with full access rights for the service.
+4. A
+hyperMILL license must be available during the setup of the service. If the setup is complete, the licence is
+no longer required.
+To give the exchange folder the necessary access rights, proceed as follows:
+1. Switch to the exchange folder.
+2. Right click and choose Properties → Security.
+Import of external tool data into the OPEN MIND tool database
+3
+
+-- 3 of 7 --
+
+3. Click on Edit and then on Add.
+4. Enter Service for object name and click Check names. Now the object name is shown like this: SERVICE.
+Import of external tool data into the OPEN MIND tool database
+4
+
+-- 4 of 7 --
+
+5. Confirm the dialog with OK and then check the box Full control → Allow.
+Import of external tool data into the OPEN MIND tool database
+5
+
+-- 5 of 7 --
+
+Start the OPEN MIND Tool Database Synchronization Service
+1. Switch to the standard installation directory:
+C:\Programs\OPEN MIND\Tool Database\[version number].
+2. Run the omTdbServiceUi.exe2 as administrator.
+3. Select Database and Data exchange folder and start the service.
+Import of external tool data into the OPEN MIND tool database
+6
+
+-- 6 of 7 --
+
+4. The data is now automatically synchronized .
+Import of external tool data into the OPEN MIND tool database
+7
+
+-- 7 of 7 --
+
+</pre>
+</body></html>

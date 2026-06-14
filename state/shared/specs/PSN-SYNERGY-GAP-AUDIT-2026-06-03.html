@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="5f0494b3a6a05e1af186ecacd90482c52c2eccb1690a9c9427485c573134ee4e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PSN Synergy — Gap / Conflict / Inefficiency Audit (2026-06-03)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PSN Synergy — Gap / Conflict / Inefficiency Audit (2026-06-03)</h1>
+<div class="meta">rendered from state/shared/specs/PSN-SYNERGY-GAP-AUDIT-2026-06-03.md</div>
+<div class="meta">Generated 2026-06-03T13:28:53.462Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">PSN Synergy — Gap / Conflict / Inefficiency Audit (2026-06-03)</li><li class="prism-toc-l2">1. BRIDGES TO BUILD (ranked by ROI, dependency-ordered)</li><li class="prism-toc-l2">2. CONFLICTS TO RESOLVE (R7 — pick, don&#39;t average)</li><li class="prism-toc-l2">3. INEFFICIENCIES TO CUT</li><li class="prism-toc-l2">4. HONEST NON-GAPS (leave them — R12)</li><li class="prism-toc-l2">Alpha-shipped this session (PSN-SYNERGY-COLLECT-MS3 + gap-audit)</li><li class="prism-toc-l2">Cross-slot pickup (broadcast to chat bus)</li></ul></nav><h1 class="prism-h1">PSN Synergy — Gap / Conflict / Inefficiency Audit (2026-06-03)</h1>
+<blockquote class="prism-quote"><strong>Source:</strong> <code class="prism-inline-code">psn-synergy-gap-audit</code> Workflow (run <code class="prism-inline-code">wf_16fdc278-f24</code>, 7 agents / 6 audit axes + synthesis, 930K subagent tokens).</blockquote>
+<blockquote class="prism-quote"><strong>Substrate:</strong> the now-honest PSN synergy metric (<code class="prism-inline-code">scripts/psn-synergy-collect.mjs</code> + <code class="prism-inline-code">PSNSynergyInspectorEngine</code>) — MS3 fixed the measurement so these gaps are real, not artifacts. Snapshot: <code class="prism-inline-code">state/shared/psn-synergy-snapshot.{json,md}</code>.</blockquote>
+<blockquote class="prism-quote"><strong>Slot map:</strong> india carries the critical path (6/9 bridges); golf = doc hygiene; sierra = system-viz roost/digest; quebec = frontend; alpha = knowledge-graph + routing.</blockquote>
+<blockquote class="prism-quote"><strong>Doctrine:</strong> lane discipline — each slot ships its own items; this spec is the coordination surface (broadcast to the chat bus). Build the verifiable producer before its consumers (R13 logical order).</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">1. BRIDGES TO BUILD (ranked by ROI, dependency-ordered)</h2>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Bridge</th><th>Owner</th><th>Depends on</th><th>Build (one-line)</th></tr></thead><tbody><tr><td>1</td><td><strong>octopus read-before-ask + <code class="prism-inline-code">consensus_recall</code> action</strong> (KEYSTONE)</td><td>india</td><td><code class="prism-inline-code">ConsensusRecallCacheEngine.ts</code> exists (verified)</td><td>Wire <code class="prism-inline-code">consensus_recall</code> into <code class="prism-inline-code">prism_memory</code>; <code class="prism-inline-code">MultiModelConsensusEngine.ask()</code> (<code class="prism-inline-code">MultiModelConsensusEngine.ts:330</code>) calls <code class="prism-inline-code">consensusRecallCache.recall(promptHash)</code> + short-circuits on hit → flips brain write-only → compounding recall. Every repeat 4-model fan-out is pure waste today.</td></tr>
+<tr><td>2</td><td><strong>algorithms→nn_gnn + algorithms→prism_ai citation bridge</strong> (KEYSTONE)</td><td>india</td><td>none; <code class="prism-inline-code">mcp-server/src/algorithms/{NeuralInference,GradientDescent,MultiHeadAttention,ScaledDotProductAttention,ActivationFunctionsAlgorithm}.ts</code> exist</td><td>Add real import/<code class="prism-inline-code">@see</code> cites from GraphSAGE trainer + <code class="prism-inline-code">prismCreativeReasoningEngine</code>/<code class="prism-inline-code">aiSystemRouter</code> to the ML primitives they execute. Collapses 3 of 4 real zero-ref P0 pairs (the &quot;dark algorithms substrate&quot;).</td></tr>
+<tr><td>3</td><td><strong>AISystemRouter recall pre-check</strong></td><td>india (alpha co: obsidian read API)</td><td><strong>#1</strong></td><td><code class="prism-inline-code">recall()</code> pre-check in <code class="prism-inline-code">AISystemRouterEngine.route()</code> (regex-only today, lines 71-90) → returns <code class="prism-inline-code">local-mcp/free</code> on cache hit.</td></tr>
+<tr><td>4</td><td><strong>engines→tribal outcome-capture tap</strong></td><td>golf</td><td>none (model on <code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code>)</td><td>Wire engine outcome records → <code class="prism-inline-code">tribal_add</code>. Largest untapped corpus (~3.6k engines × 33k tribal nodes) at near-zero emission today.</td></tr>
+<tr><td>5</td><td><strong>memory→GNN staleness guard + live rebuild</strong></td><td>india</td><td><strong>#2</strong></td><td>mtime guard in <code class="prism-inline-code">nn-graph-retrain-lifecycle.mjs</code>: if <code class="prism-inline-code">system-graph.json</code> newer than <code class="prism-inline-code">node-embeddings-768d.jsonl</code>, rebuild embedding source first. JSONL ~21h stale vs 302k-node graph.</td></tr>
+<tr><td>6</td><td><strong>vault.mem → GNN Path-3 mapper</strong></td><td>india (alpha: memory-index key shape)</td><td><strong>#5</strong></td><td>Extend <code class="prism-inline-code">graph-node-embedding-bridge.mjs:255-261</code> (Path-1 reads <code class="prism-inline-code">wiki:</code> only) with <code class="prism-inline-code">vault.mem.*</code> → memory-embedding-index keys. Only 1.2% (wiki-joined) nodes feed the GNN today.</td></tr>
+<tr><td>7</td><td><strong>PSN snapshot → <code class="prism-inline-code">ownerSlot</code> routing column</strong> ✅ <strong>SHIPPED (alpha)</strong></td><td>alpha</td><td>none</td><td><code class="prism-inline-code">ownerSlot</code> per leg in <code class="prism-inline-code">psn-synergy-collect.mjs</code> keyed off <code class="prism-inline-code">PSN_LEG_OWNER</code> (← CHAT-SLOT-DOMAINS.md). Leg-health regression auto-routes to its owner. <strong>Done this session.</strong></td></tr>
+<tr><td>8</td><td><strong><code class="prism-inline-code">ghost.octopus_consensus</code> system-viz roost</strong></td><td>sierra</td><td><strong>#1</strong> + panel #9</td><td>Emit a consensus-ledger roost in <code class="prism-inline-code">regen-viz.mjs</code> from <code class="prism-inline-code">state/shared/octopus-runs.jsonl</code> so the octopus leg renders as a 3D surface (387B probe cache today; invisible).</td></tr>
+<tr><td>9</td><td><strong>Web &quot;Brain / Consensus History&quot; panel</strong></td><td>quebec (frontend) + india (dispatcher)</td><td><strong>#1</strong></td><td>Panel calling <code class="prism-inline-code">prism_memory:consensus_recall</code> + <code class="prism-inline-code">memory_search</code>, rendering <code class="prism-inline-code">octopus-runs.jsonl</code> / <code class="prism-inline-code">CONSENSUS_NEURAL_FEED.jsonl</code>. Web app surfaces zero PSN/brain data today.</td></tr></tbody></table>
+<p><strong>Deferred / low-ROI (logged, not dropped):</strong> tribal→nn_gnn reverse-edge feature feed (P1, ba=14 one-way — ships once #6 lands); wiki↔tribal NN nearest-neighbor backfill (23.8k missing edges, large compute — <strong>alpha</strong>, sequence after #7).</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">2. CONFLICTS TO RESOLVE (R7 — pick, don&#39;t average)</h2>
+<ol class="prism-md-list"><li><strong>wiki↔tribal coverage: &quot;31.5%&quot; vs &quot;0.8%&quot; — RESOLVED (alpha, 2026-06-03): FALSE CONFLICT.</strong> Verified: <code class="prism-inline-code">.wiki-tribal-coverage-by-domain.json</code> embeds <code class="prism-inline-code">parentCoverage: 0.3151</code> + <code class="prism-inline-code">parentAuditAt</code> = the overall <code class="prism-inline-code">.wiki-tribal-cross-ref-audit.json</code> <code class="prism-inline-code">generatedAt</code> — i.e. the two files AGREE. 31.5% is <strong>overall</strong> embedding coverage (authoritative — 26,051/38,035 wiki files lack a tribal embedding); 0.8–1.1% are <strong>worst-per-domain</strong> coverages (dev-infra etc.). Same data, different granularity — not a conflict, no correction needed. (The audit <em>is</em> stale-dated 2026-05-27, but its number is internally consistent; a separate system-viz graph ghost reporting a low % would be measuring graph-EDGE coverage, a third distinct metric.) The wiki↔tribal NN backfill (Bridge deferred) should size off the <strong>per-domain</strong> figures, not the aggregate.</li><li><strong>Galaxy MEMORY.md sync headers: <code class="prism-inline-code">token-optimization</code> has UP/DOWN rows; <code class="prism-inline-code">mill</code>/<code class="prism-inline-code">wedm</code> carry none (STUB).</strong> → pick <strong>token-optimization&#39;s populated block</strong> (first MASTER-BRAIN-TEMPLATE-compliant exemplar); backfill into ~32 stub headers. <em>(golf seeds, per-soul slots refine)</em></li><li><strong>CHAT-SLOT-DOMAINS.md slot math: &quot;22 assigned / 4 unassigned&quot; but lists FIVE unassigned (ROMEO, UNIFORM, VICTOR, XRAY, YANKEE).</strong> → pick <strong>the enumerated list</strong>; recount 21/5, drop &quot;(4)&quot;, reconcile YANKEE vs NOVEMBER vs the 26-NATO model. <em>(golf)</em></li><li><strong>master MEMORY.md <code class="prism-inline-code">## Last synced: 2026-05-26</code> vs registry rows 05-28/29 + feed 06-01.</strong> → pick <strong>the newer evidence</strong>; bump <code class="prism-inline-code">## Last synced</code> on every registry append. <em>(alpha)</em></li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">3. INEFFICIENCIES TO CUT</h2>
+<ol class="prism-md-list"><li><strong>GSD_QUICK.md hardcoded header counts stale</strong> (95 disp / 6346 actions vs live 106 / 9959; ~9× off). → generated pointer to <code class="prism-inline-code">PRISM-INVENTORY-LATEST.md</code> or auto-stamp in <code class="prism-inline-code">update-prism-inventory.mjs</code>. <em>(golf)</em></li><li><strong>golf-owns-reaper doctrine triplicated</strong> (CLAUDE.md §FLEET-REAPER + §GOLF SLOT, CHAT-SLOT-DOMAINS.md GOLF row, <code class="prism-inline-code">feedback_golf_owns_reaper.md</code>). → CHAT-SLOT-DOMAINS.md = single source; CLAUDE.md §GOLF SLOT → <code class="prism-inline-code">[[pointer]]</code>. <em>(golf)</em></li><li><strong>memories leg double-counted obsidian_brain&#39;s bridges</strong> (<code class="prism-inline-code">psn-synergy-collect.mjs</code> reused full-file scan verbatim). ✅ <strong>FIXED (alpha)</strong> — now scans the standing-memory subset separately. <strong>Done this session.</strong></li><li><strong>MASTER-DIGEST.md staleness + card-dir miscount</strong> (all 34 brains modified after its generation; rolls up 34 from a 38-file dir). → re-run <code class="prism-inline-code">galaxy-rollup.mjs build</code> + Stop/cron freshness guard; tag the 4 extras <code class="prism-inline-code">_meta</code>. <em>(sierra)</em></li></ol>
+<p><strong>Advisory (golf, low priority):</strong> 6 galaxy brains self-flag &quot;older than dir-mtime ⇒ re-pull&quot; with no enforcement → SessionStart galaxy-sync-staleness advisory.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">4. HONEST NON-GAPS (leave them — R12)</h2>
+<ol class="prism-md-list"><li><strong>6 of 10 PSN zero-ref pairs are genuine isolation</strong> — algorithms↔tribal, algorithms↔prism_os, formulas↔prism_os, tribal↔prism_os, nn_gnn↔prism_os, prism_os↔prism_ai. Pure-math primitives carry no shop-floor lore; the OS layer routes to AI via dispatchers, never direct refs. Building these = fabricated wiring.</li><li><strong>obsidian↔memories feed healthy</strong> — <code class="prism-inline-code">stop-obsidian-memory-feed.mjs</code>: 3-min throttle, O_EXCL lock, fail-loud <code class="prism-inline-code">.err</code>.</li><li><strong>Galaxy back-pointer registry complete</strong> — all 34 <code class="prism-inline-code">engines/<em>/MEMORY.md</code> have exactly one <code class="prism-inline-code">[galaxy:</em>]</code> row (empty <code class="prism-inline-code">comm -3</code>).</li><li><strong>GSD_QUICK lifecycle-hooks list self-flags &quot;aspirational&quot;</strong> — honest disclaimer present, not a conflict.</li><li><strong>graph-ai snapshot internally consistent</strong> — <code class="prism-inline-code">nn_gnn→engines:67</code>, <code class="prism-inline-code">prism_ai→nn_gnn:49</code> match the bridge/ledger files.</li><li><strong>MASTER-DIGEST content still real</strong> despite the LF/mirror timestamp touch — staleness is real (Ineff#4) but per-galaxy salience didn&#39;t move; ≤5/34 boilerplate dup.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Alpha-shipped this session (PSN-SYNERGY-COLLECT-MS3 + gap-audit)</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">b1bf46b3b1</code> five-leg out-edge scan (p0 19→10) · <code class="prism-inline-code">d71daf0ab8</code> memories-false-positive + per-file-binary (3-of-3 PASS) · <code class="prism-inline-code">f3de817393</code> graph-membership-footer + self-class-name exclusion · <strong>this commit:</strong> Bridge#7 ownerSlot column + Ineff#3 memories double-count fix.</li><li><strong>Conflicts #1, #4 + the wiki↔tribal backfill = alpha backlog (next iterations).</strong></li></ul>
+<h2 class="prism-h2">Cross-slot pickup (broadcast to chat bus)</h2>
+<ul class="prism-md-list"><li><strong>india:</strong> bridges #1, #2, #3, #5, #6 (critical path — start with #1 + #2 keystones).</li><li><strong>golf:</strong> bridge #4 + inefficiencies #1, #2 + conflicts #2, #3 + the sync-staleness advisory.</li><li><strong>sierra:</strong> bridge #8 + inefficiency #4 (digest freshness).</li><li><strong>quebec:</strong> bridge #9 (web Brain/Consensus panel).</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,7 +1,14 @@
 // tier: T0
+// RUN: node --test .claude/hooks/__tests__/hook-cross-worktree-block.test.mjs
 /**
  * hook-cross-worktree-block.test.mjs — tests for the cross-worktree Tier-0 firewall
  * HOOK-SYNERGY-MS0 / U-HOOK-CROSS-WORKTREE-FIREWALL  (H10)
+ *
+ * Converted vitest -> node:test (2026-05-31): the repo vitest config only globs
+ * the src/__tests__ ".test.ts" set, so this file was permanently un-CI'd and a stale
+ * assertion shipped undetected (the firewall two-tier rewrite removed
+ * "conflict-fork rule" from the block reason but the test still matched it).
+ * node:test runs it deterministically via `node --test <file>`.
  *
  * The hook exposes `evaluate({stdin, cwd, gitToplevel, gitCommonDir, env})` as a pure
  * function so tests can stub the worktree + git context without spawning processes.
@@ -9,15 +16,16 @@
  * Coverage rubric (per the comprehensive-build floor):
  *   - tool gate (Edit/Write/MultiEdit/NotebookEdit + non-tool filtering)
  *   - main-tree fast-path allow
- *   - non-main worktree → blocks on every shared-state pattern (5+ spanning patterns)
+ *   - non-main worktree: HARD-block (harness-exec) vs ADVISE (doc/coordination)
+ *   - two-tier policy (2026-05-31 main-tree grant) + PRISM_CROSS_WORKTREE_HARD re-arm
  *   - non-main worktree → allows worktree-local file (the per-tree exception)
  *   - non-PRISM cwd → out-of-scope allow
  *   - env override (PRISM_CROSS_WORKTREE_BYPASS=1)
  *   - adversarial: empty stdin, null tool_input, missing file_path, garbage tool_name
- *   - reason text always names the conflict-fork remediation
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { evaluate } from "../hook-cross-worktree-block.mjs";
 
 const MAIN = "H:/prism";
@@ -32,8 +40,8 @@ describe("hook-cross-worktree-block: smoke + tool gating", () => {
       stdin: { tool_name: "Bash", tool_input: { command: "echo hi" } },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/not in firewall scope/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /not in firewall scope/);
   });
 
   it("allows when tool_input has no file_path / notebook_path / path", () => {
@@ -41,13 +49,13 @@ describe("hook-cross-worktree-block: smoke + tool gating", () => {
       stdin: { tool_name: "Edit", tool_input: {} },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/no target file/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /no target file/);
   });
 
   it("fails open on missing stdin (so a broken harness never deadlocks)", () => {
     const r = evaluate({ stdin: null, cwd: WT, gitToplevel: WT, gitCommonDir: null, env: {} });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 
   it("fails open on missing gitToplevel + missing cwd fallback", () => {
@@ -55,7 +63,7 @@ describe("hook-cross-worktree-block: smoke + tool gating", () => {
       stdin: { tool_name: "Edit", tool_input: { file_path: "foo.ts" } },
       cwd: "", gitToplevel: null, gitCommonDir: null, env: {},
     });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 });
 
@@ -67,8 +75,8 @@ describe("hook-cross-worktree-block: main-tree pass-through", () => {
       stdin: { tool_name: "Edit", tool_input: { file_path: "H:/prism/.claude/settings.json" } },
       cwd: MAIN, gitToplevel: MAIN, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/main tree/i);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /main tree/i);
   });
 
   it("allows a CLAUDE.md edit from the main tree", () => {
@@ -76,7 +84,7 @@ describe("hook-cross-worktree-block: main-tree pass-through", () => {
       stdin: { tool_name: "Write", tool_input: { file_path: "H:/prism/CLAUDE.md" } },
       cwd: MAIN, gitToplevel: MAIN, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 
   it("path-case insensitivity: H:\\PRISM\\ counts as main tree", () => {
@@ -84,13 +92,13 @@ describe("hook-cross-worktree-block: main-tree pass-through", () => {
       stdin: { tool_name: "Edit", tool_input: { file_path: "H:\\PRISM\\.claude\\settings.json" } },
       cwd: "H:\\PRISM", gitToplevel: "H:\\PRISM", gitCommonDir: "H:\\PRISM\\.git", env: {},
     });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 });
 
-// ── non-main worktree blocking ────────────────────────────────────────────────
+// ── non-main worktree: HARD-block tier (harness-exec) ─────────────────────────
 
-describe("hook-cross-worktree-block: non-main worktree blocking", () => {
+describe("hook-cross-worktree-block: harness-exec HARD-block tier", () => {
   const ctx = { cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {} };
 
   it("blocks settings.json edit from sibling worktree", () => {
@@ -98,11 +106,11 @@ describe("hook-cross-worktree-block: non-main worktree blocking", () => {
       ...ctx,
       stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.claude/settings.json` } },
     });
-    expect(r.decision).toBe("block");
-    expect(r.reason).toMatch(/Cross-worktree write blocked/);
-    expect(r.reason).toMatch(/conflict-fork rule/);
-    expect(r.reason).toMatch(/PRISM_CROSS_WORKTREE_BYPASS/);
-    expect(r.target?.toLowerCase()).toContain("settings.json");
+    assert.equal(r.decision, "block");
+    assert.match(r.reason, /Cross-worktree write blocked/);
+    assert.match(r.reason, /harness-exec/); // was /conflict-fork rule/ pre-2026-05-31 two-tier rewrite
+    assert.match(r.reason, /PRISM_CROSS_WORKTREE_BYPASS/);
+    assert.ok(r.target?.toLowerCase().includes("settings.json"));
   });
 
   it("blocks .claude/hooks/*.mjs edit (would change which hooks fire fleet-wide)", () => {
@@ -110,23 +118,7 @@ describe("hook-cross-worktree-block: non-main worktree blocking", () => {
       ...ctx,
       stdin: { tool_name: "Write", tool_input: { file_path: `${MAIN}/.claude/hooks/some-new-hook.mjs` } },
     });
-    expect(r.decision).toBe("block");
-  });
-
-  it("blocks state/shared/*.json edit (cross-chat coordination state)", () => {
-    const r = evaluate({
-      ...ctx,
-      stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/state/shared/BUILD_STATE.json` } },
-    });
-    expect(r.decision).toBe("block");
-  });
-
-  it("blocks state/shared/*.md edit (the human-facing twin of the json state)", () => {
-    const r = evaluate({
-      ...ctx,
-      stdin: { tool_name: "MultiEdit", tool_input: { file_path: `${MAIN}/state/shared/MILESTONE_PROGRESS.md` } },
-    });
-    expect(r.decision).toBe("block");
+    assert.equal(r.decision, "block");
   });
 
   it("blocks .mcp.json edit (MCP server registry)", () => {
@@ -134,40 +126,104 @@ describe("hook-cross-worktree-block: non-main worktree blocking", () => {
       ...ctx,
       stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.mcp.json` } },
     });
-    expect(r.decision).toBe("block");
+    assert.equal(r.decision, "block");
   });
 
-  it("blocks milestone envelope edit", () => {
-    const r = evaluate({
-      ...ctx,
-      stdin: { tool_name: "Write", tool_input: { file_path: `${MAIN}/mcp-server/data/milestones/HOOK-SYNERGY-MS0.json` } },
-    });
-    expect(r.decision).toBe("block");
-  });
-
-  it("blocks CLAUDE.md at repo root (top-level doctrine)", () => {
-    const r = evaluate({
-      ...ctx,
-      stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/CLAUDE.md` } },
-    });
-    expect(r.decision).toBe("block");
-  });
-
-  it("blocks NotebookEdit on a shared file (uses .notebook_path)", () => {
-    const r = evaluate({
-      ...ctx,
-      stdin: { tool_name: "NotebookEdit", tool_input: { notebook_path: `${MAIN}/state/shared/AGENT_WORKBOARD.md` } },
-    });
-    expect(r.decision).toBe("block");
-  });
-
-  it("identifies the nested worktree as non-main (under .claude/worktrees/)", () => {
+  it("identifies the nested worktree as non-main (under .claude/worktrees/) and hard-blocks settings", () => {
     const r = evaluate({
       stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.claude/settings.json` } },
       cwd: NESTED_WT, gitToplevel: NESTED_WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("block");
-    expect(r.worktree?.toLowerCase()).toContain("worktrees");
+    assert.equal(r.decision, "block");
+    assert.ok(r.worktree?.toLowerCase().includes("worktrees"));
+  });
+});
+
+// ── non-main worktree: ADVISORY tier (doc/coordination — 2026-05-31 grant) ────
+
+describe("hook-cross-worktree-block: doc/coordination ADVISORY tier", () => {
+  const ctx = { cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {} };
+
+  it("ADVISES (allows) state/shared/*.json edit — operator grant 2026-05-31 (was block)", () => {
+    const r = evaluate({
+      ...ctx,
+      stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/state/shared/BUILD_STATE.json` } },
+    });
+    assert.equal(r.decision, "advise");
+    assert.equal(r.advisory, true);
+  });
+
+  it("ADVISES (allows) state/shared/*.md edit — doc/coordination tier (was block)", () => {
+    const r = evaluate({
+      ...ctx,
+      stdin: { tool_name: "MultiEdit", tool_input: { file_path: `${MAIN}/state/shared/MILESTONE_PROGRESS.md` } },
+    });
+    assert.equal(r.decision, "advise");
+    assert.equal(r.advisory, true);
+  });
+
+  it("ADVISES (allows) milestone envelope edit — doc/coordination tier (was block)", () => {
+    const r = evaluate({
+      ...ctx,
+      stdin: { tool_name: "Write", tool_input: { file_path: `${MAIN}/mcp-server/data/milestones/HOOK-SYNERGY-MS0.json` } },
+    });
+    assert.equal(r.decision, "advise");
+    assert.equal(r.advisory, true);
+  });
+
+  it("ADVISES (allows) CLAUDE.md at repo root — reason cites the operator grant + re-arm knob (was block)", () => {
+    const r = evaluate({
+      ...ctx,
+      stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/CLAUDE.md` } },
+    });
+    assert.equal(r.decision, "advise");
+    assert.equal(r.advisory, true);
+    assert.match(r.reason, /operator grant/i);
+    assert.match(r.reason, /PRISM_CROSS_WORKTREE_HARD/);
+  });
+
+  it("ADVISES NotebookEdit on a shared state/shared/*.md file (uses .notebook_path; was block)", () => {
+    const r = evaluate({
+      ...ctx,
+      stdin: { tool_name: "NotebookEdit", tool_input: { notebook_path: `${MAIN}/state/shared/AGENT_WORKBOARD.md` } },
+    });
+    assert.equal(r.decision, "advise");
+  });
+});
+
+// ── two-tier policy: re-arm knob + tier integrity ─────────────────────────────
+
+describe("hook-cross-worktree-block: two-tier policy (2026-05-31 main-tree grant)", () => {
+  const ctx = { cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {} };
+
+  it("harness-exec stays HARD even though docs are advisory (.claude/hooks/*.mjs reason names harness-exec)", () => {
+    const r = evaluate({ ...ctx, stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.claude/hooks/x.mjs` } } });
+    assert.equal(r.decision, "block");
+    assert.match(r.reason, /harness-exec/);
+  });
+
+  it("PRISM_CROSS_WORKTREE_HARD=1 re-arms the blanket block: CLAUDE.md blocks again", () => {
+    const r = evaluate({
+      stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/CLAUDE.md` } },
+      cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: { PRISM_CROSS_WORKTREE_HARD: "1" },
+    });
+    assert.equal(r.decision, "block");
+    assert.match(r.reason, /re-armed/);
+  });
+
+  it("PRISM_CROSS_WORKTREE_HARD=1 leaves harness-exec unchanged (settings still block)", () => {
+    const r = evaluate({
+      stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.claude/settings.json` } },
+      cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: { PRISM_CROSS_WORKTREE_HARD: "1" },
+    });
+    assert.equal(r.decision, "block");
+  });
+
+  it("advisory reason names the scrutiny-gate + clobber caution", () => {
+    const r = evaluate({ ...ctx, stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/state/shared/x.json` } } });
+    assert.equal(r.decision, "advise");
+    assert.match(r.reason, /scrutiny gate/i);
+    assert.match(r.reason, /clobber/i);
   });
 });
 
@@ -181,18 +237,17 @@ describe("hook-cross-worktree-block: non-main worktree allow paths", () => {
       ...ctx,
       stdin: { tool_name: "Edit", tool_input: { file_path: `${WT}/mcp-server/src/engines/Foo.ts` } },
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/local to worktree/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /local to worktree/);
   });
 
   it("allows a write under main tree that doesn't match any shared-state pattern", () => {
-    // mcp-server/src/engines/* is plenty under main tree, but not shared-state.
     const r = evaluate({
       ...ctx,
       stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/mcp-server/src/engines/Foo.ts` } },
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/not shared-state/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /not shared-state/);
   });
 
   it("allows a target outside the main tree entirely (e.g. C:/tmp)", () => {
@@ -200,8 +255,8 @@ describe("hook-cross-worktree-block: non-main worktree allow paths", () => {
       ...ctx,
       stdin: { tool_name: "Write", tool_input: { file_path: "C:/tmp/scratch.txt" } },
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/outside the main tree/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /outside the main tree/);
   });
 
   it("allows when cwd is outside PRISM altogether (out-of-scope)", () => {
@@ -209,8 +264,8 @@ describe("hook-cross-worktree-block: non-main worktree allow paths", () => {
       stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.claude/settings.json` } },
       cwd: "C:/some-other-repo", gitToplevel: "C:/some-other-repo", gitCommonDir: "C:/some-other-repo/.git", env: {},
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/not a PRISM worktree/i);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /not a PRISM worktree/i);
   });
 });
 
@@ -223,17 +278,17 @@ describe("hook-cross-worktree-block: emergency bypass", () => {
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`,
       env: { PRISM_CROSS_WORKTREE_BYPASS: "1" },
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/firewall bypassed/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /firewall bypassed/);
   });
 
-  it("PRISM_CROSS_WORKTREE_BYPASS=other-value does NOT bypass (only \"1\" counts)", () => {
+  it('PRISM_CROSS_WORKTREE_BYPASS=other-value does NOT bypass (only "1" counts)', () => {
     const r = evaluate({
       stdin: { tool_name: "Edit", tool_input: { file_path: `${MAIN}/.claude/settings.json` } },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`,
       env: { PRISM_CROSS_WORKTREE_BYPASS: "true" },
     });
-    expect(r.decision).toBe("block");
+    assert.equal(r.decision, "block");
   });
 });
 
@@ -245,7 +300,7 @@ describe("hook-cross-worktree-block: adversarial inputs", () => {
       stdin: { tool_name: "Edit", tool_input: { file_path: 12345 } },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 
   it("garbled tool_name is allow-passed", () => {
@@ -253,7 +308,7 @@ describe("hook-cross-worktree-block: adversarial inputs", () => {
       stdin: { tool_name: "Edit\nrm -rf /", tool_input: { file_path: "x" } },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 
   it("tool_input itself missing → allow", () => {
@@ -261,7 +316,7 @@ describe("hook-cross-worktree-block: adversarial inputs", () => {
       stdin: { tool_name: "Write" },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
+    assert.equal(r.decision, "allow");
   });
 
   it("relative file_path resolves against cwd (worktree-local in a worktree)", () => {
@@ -269,7 +324,7 @@ describe("hook-cross-worktree-block: adversarial inputs", () => {
       stdin: { tool_name: "Edit", tool_input: { file_path: "src/engines/Bar.ts" } },
       cwd: WT, gitToplevel: WT, gitCommonDir: `${MAIN}/.git`, env: {},
     });
-    expect(r.decision).toBe("allow");
-    expect(r.reason).toMatch(/local to worktree/);
+    assert.equal(r.decision, "allow");
+    assert.match(r.reason, /local to worktree/);
   });
 });

@@ -25,6 +25,10 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
+import { spawn } from "node:child_process";
+// Opportunistic no-elevation sidecar refresh (complement to the elevation-gated
+// PRISM Brain Refresh task) -- detach-spawns rebuilds for stale recall sidecars.
+import { runSidecarFreshness, defaultPaths } from "../../scripts/lib/sidecar-freshness.mjs";
 
 const STATE_DIR = "H:/prism/mcp-server/data/state";
 const COUNTER_FILE = join(STATE_DIR, "consolidation-counter.json");
@@ -179,6 +183,41 @@ function mirrorPatternsToVault() {
   return { mirrored, skipped, totalSeen: patterns.length };
 }
 
+// Detach-spawn a rebuild script so the heavy work survives the hook exit and
+// never eats the ~5 s Stop budget. process.execPath is the same (portable) node
+// running this hook.
+function detachedSpawn(script, args) {
+  const child = spawn(process.execPath, [script, ...args], {
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
+  });
+  child.unref();
+}
+
+// Reachability probe gating the embeddings-rebuild spawn. SEMANTICS (papa/zulu
+// 2026-06-12, [[reference_ollama_probe_crywolf_2026_06_12]]): /api/tags can
+// take SECONDS while UP under concurrent fleet generation, so an abort/timeout
+// means up-but-busy -> spawning is SAFE (the rebuild just runs slower). Only a
+// REFUSAL/HTTP-error means the daemon is down and the spawn is doomed. The old
+// 1.5s abort->false skipped the embed refresh exactly when content churned
+// most. Probe stays short (2.5s) because it runs inside the decision-lock
+// window (2-min-TTL stale-reclaim makes a harness kill self-healing).
+async function ollamaUp() {
+  const base = (process.env.OLLAMA_URL || "http://127.0.0.1:11434").replace(/\/+$/, "");
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => { try { ctrl.abort(); } catch { /* gone */ } }, 2500);
+  try {
+    const res = await fetch(base + "/api/tags", { signal: ctrl.signal });
+    return !!(res && res.ok);
+  } catch (e) {
+    const msg = String((e && e.message) || e);
+    return (e && e.name === "AbortError") || /abort/i.test(msg); // busy=UP, refused=DOWN
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function main() {
   const input = readStdin() ?? {};
   const sessionId = typeof input.session_id === "string" ? input.session_id
@@ -211,9 +250,28 @@ async function main() {
     }
   }
 
-  const summary = r.ok
+  // Opportunistic sidecar freshness (no elevation): detach-spawn rebuilds for
+  // any stale recall sidecar (master-index, memory embeddings). Lock + 20-min
+  // cooldown keep the 26-chat fleet from a thundering herd. Spawns are detached,
+  // so the Stop budget is safe; wrapped so it can never block session end.
+  let freshness = null;
+  try {
+    const { lockPath, stampPath } = defaultPaths(STATE_DIR);
+    freshness = await runSidecarFreshness({
+      now: Date.now(),
+      lockPath,
+      stampPath,
+      spawnImpl: detachedSpawn,
+      ollamaProbe: ollamaUp,
+    });
+  } catch { /* never block session end on a freshness hiccup */ }
+
+  const freshTag = freshness
+    ? (freshness.ran ? ` sidecar-refresh=${freshness.spawned.join("+")}` : ` sidecar=${freshness.reason}`)
+    : "";
+  const summary = (r.ok
     ? `consolidate-graph: counter=${counterEcho} ranConsolidate=${ranConsolidate} mirrored=${mirrorReport.mirrored}`
-    : `consolidate-graph: counter=${counterEcho} mcp-down (${r.reason ?? "unknown"})`;
+    : `consolidate-graph: counter=${counterEcho} mcp-down (${r.reason ?? "unknown"})`) + freshTag;
 
   console.log(JSON.stringify({
     continue: true,

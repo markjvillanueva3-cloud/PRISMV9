@@ -417,7 +417,7 @@ export function ProgramReleasePage() {
   const programmingMode = useMemo(
     () =>
       inferProgrammingModeFromMachineSignature({
-        machineFamilyId: routeSelection.machineFamilyId,
+        machineFamilyId: routeSelection.machineFamilyId ?? undefined,
         machineLabel: workspace?.selectedMachine.label,
         machineKinematics: workspace?.selectedMachine.kinematics,
         controllerLabel: workspace?.selectedMachine.controller,
@@ -493,7 +493,7 @@ export function ProgramReleasePage() {
   useEffect(() => {
     const fallbackAuthority = buildMachineWorkspaceProgrammingAuthority({
       mode: programmingMode,
-      machineFamilyId: routeSelection.machineFamilyId,
+      machineFamilyId: routeSelection.machineFamilyId ?? undefined,
       machineLabel: workspace?.selectedMachine.label,
       machineKinematics: workspace?.selectedMachine.kinematics,
       controllerLabel: workspace?.selectedMachine.controller,
@@ -515,7 +515,7 @@ export function ProgramReleasePage() {
         setProgrammingAuthority(
           buildMachineWorkspaceProgrammingAuthority({
             mode: programmingMode,
-            machineFamilyId: routeSelection.machineFamilyId,
+            machineFamilyId: routeSelection.machineFamilyId ?? undefined,
             machineLabel: workspace.selectedMachine.label,
             machineKinematics: workspace.selectedMachine.kinematics,
             controllerLabel: workspace.selectedMachine.controller,
@@ -823,7 +823,7 @@ export function ProgramReleasePage() {
         userId: PROGRAM_RELEASE_DEFAULT_USER_ID,
         workspaceId: 'program-release',
         machineId,
-        displayName: `${workspace.selectedMachine.label} Program Release default`,
+        displayName: `${workspace?.selectedMachine.label ?? 'Machine'} Program Release default`,
         makeDefault: true,
       });
 

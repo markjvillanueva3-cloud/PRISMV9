@@ -312,4 +312,64 @@ describe('QuoteBuilderPage', () => {
     expect(releaseUrl.searchParams.get('machineManufacturer')).toBeTruthy();
     expect(releaseUrl.searchParams.get('focusPacketId')).not.toBe(releaseUrl.searchParams.get('partClassId'));
   });
+
+  it('surfaces the margin-floor alert when the quote margin is below the floor', async () => {
+    mockQuoteEstimate.mockResolvedValue({
+      result: {
+        unit_price: 12.5,
+        total: 1250,
+        cycle_time_min: 6.4,
+        confidence: 0.88,
+        material_cost: 140,
+        machining_cost: 620,
+        setup_cost: 200,
+        tooling_cost: 90,
+        overhead: 100,
+        margin: 100,
+        price_breaks: [],
+        pricing: { margin_pct: 11.3, below_margin_floor: true, margin_floor_pct: 20 },
+      },
+      safety: { score: 0.92, warnings: [] },
+      meta: { formula_used: 'quote-estimate', uncertainty: 0.08 },
+    } as any);
+
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /Generate PRISM Price Strategy/i }));
+
+    const heading = await screen.findByText('Margin floor alert.');
+    const alertText = heading.closest('[role="alert"]')?.textContent ?? '';
+    // cites the real eroded margin AND the floor it breached, plus the action -- not a generic warning
+    expect(alertText).toContain('11.3%');
+    expect(alertText).toContain('20% floor');
+    expect(alertText).toContain('Review before sending this quote');
+  });
+
+  it('hides the margin-floor alert when the quote margin clears the floor', async () => {
+    mockQuoteEstimate.mockResolvedValue({
+      result: {
+        unit_price: 12.5,
+        total: 1250,
+        cycle_time_min: 6.4,
+        confidence: 0.88,
+        material_cost: 140,
+        machining_cost: 620,
+        setup_cost: 200,
+        tooling_cost: 90,
+        overhead: 100,
+        margin: 400,
+        price_breaks: [],
+        pricing: { margin_pct: 38, below_margin_floor: false, margin_floor_pct: 20 },
+      },
+      safety: { score: 0.92, warnings: [] },
+      meta: { formula_used: 'quote-estimate', uncertainty: 0.08 },
+    } as any);
+
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /Generate PRISM Price Strategy/i }));
+
+    // cycle-time tile proves the estimate resolved + the cost panel rendered
+    await screen.findByText('6.4 min');
+    // an above-floor quote must NOT raise the alert
+    expect(screen.queryByText('Margin floor alert.')).toBeNull();
+  });
 });

@@ -2,20 +2,31 @@
 // tier: T3
 /**
  * grep-result-cache.mjs - PostToolUse Grep
- * Caches grep results to avoid repeated identical searches.
- * Token savings: 90%+ on repeat searches
+ * Detects repeated identical Grep searches within a 5-min TTL and nudges to
+ * reuse the prior result. NOTE: PostToolUse fires AFTER the Grep ran, so it
+ * cannot un-run the repeat -- this is a post-hoc repeat-grep NUDGE, not a
+ * token-returning cache. Savings are realized only if the model heeds it.
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { createHash } from 'crypto';
 import { dirname, join } from 'path';
 
-const CACHE_DIR = join(process.env.HOME || process.env.USERPROFILE, '.claude', 'cache');
+const CACHE_DIR = process.env.PRISM_GREP_CACHE_DIR || join(process.env.HOME || process.env.USERPROFILE, '.claude', 'cache');
 const CACHE_FILE = join(CACHE_DIR, 'grep-cache.json');
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_CACHE_ENTRIES = 50;
 
-const input = JSON.parse(readFileSync(0, 'utf8'));
+let input;
+try {
+  input = JSON.parse(readFileSync(0, 'utf8'));
+} catch {
+  // Fail-soft (R12): a malformed/empty PostToolUse payload must not crash the
+  // hook and silently kill the grep cache for the turn. Mirrors the sibling
+  // grep-index-first.mjs stdin guard.
+  console.log(JSON.stringify({ continue: true }));
+  process.exit(0);
+}
 const { tool_name, tool_input, tool_result } = input;
 
 if (tool_name !== 'Grep') {

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRISM — BUILD_STATE</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>PRISM — BUILD_STATE</h1>
+<div class="meta">What&#39;s built / wiring / pending / frontend</div>
+<div class="meta">Generated 2026-05-16T00:38:07.452Z</div>
+
+<div class="headline-grid">
+<div class="card ok">
+  <div class="lbl">Engines wired</div>
+  <div class="val">2377</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">With wiki entry</div>
+  <div class="val">1073</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Needs wiring</div>
+  <div class="val">861</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Pending units</div>
+  <div class="val">4489</div>
+  
+</div>
+<div class="card info">
+  <div class="lbl">Active milestones</div>
+  <div class="val">15</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Frontend pending</div>
+  <div class="val">2</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Envelope drift</div>
+  <div class="val">10</div>
+  
+</div>
+<div class="card warn">
+  <div class="lbl">Stale milestones</div>
+  <div class="val">394</div>
+  
+</div>
+</div>
+<h2>Top unwired engine domains</h2>
+<svg class="bar-chart" viewBox="0 0 600 264" width="600" height="264" role="img" aria-label="Top unwired engine domains">
+<g>
+  <text x="0" y="19" text-anchor="start">Other</text>
+  <rect class="bar warn" x="80" y="4" width="448" height="22" rx="2"/>
+  <text x="532" y="19" text-anchor="start">145</text>
+</g>
+<g>
+  <text x="0" y="45" text-anchor="start">Lathe</text>
+  <rect class="bar warn" x="80" y="30" width="275" height="22" rx="2"/>
+  <text x="359" y="45" text-anchor="start">89</text>
+</g>
+<g>
+  <text x="0" y="71" text-anchor="start">Machine</text>
+  <rect class="bar warn" x="80" y="56" width="53" height="22" rx="2"/>
+  <text x="137" y="71" text-anchor="start">17</text>
+</g>
+<g>
+  <text x="0" y="97" text-anchor="start">Turning</text>
+  <rect class="bar warn" x="80" y="82" width="34" height="22" rx="2"/>
+  <text x="118" y="97" text-anchor="start">11</text>
+</g>
+<g>
+  <text x="0" y="123" text-anchor="start">Tool</text>
+  <rect class="bar warn" x="80" y="108" width="31" height="22" rx="2"/>
+  <text x="115" y="123" text-anchor="start">10</text>
+</g>
+<g>
+  <text x="0" y="149" text-anchor="start">Multi</text>
+  <rect class="bar warn" x="80" y="134" width="31" height="22" rx="2"/>
+  <text x="115" y="149" text-anchor="start">10</text>
+</g>
+<g>
+  <text x="0" y="175" text-anchor="start">Five</text>
+  <rect class="bar warn" x="80" y="160" width="28" height="22" rx="2"/>
+  <text x="112" y="175" text-anchor="start">9</text>
+</g>
+<g>
+  <text x="0" y="201" text-anchor="start">Shop</text>
+  <rect class="bar warn" x="80" y="186" width="28" height="22" rx="2"/>
+  <text x="112" y="201" text-anchor="start">9</text>
+</g>
+<g>
+  <text x="0" y="227" text-anchor="start">Outcome</text>
+  <rect class="bar warn" x="80" y="212" width="25" height="22" rx="2"/>
+  <text x="109" y="227" text-anchor="start">8</text>
+</g>
+<g>
+  <text x="0" y="253" text-anchor="start">Hyper</text>
+  <rect class="bar warn" x="80" y="238" width="22" height="22" rx="2"/>
+  <text x="106" y="253" text-anchor="start">7</text>
+</g>
+</svg>
+<table><caption>Envelope-status drift (claim vs git)</caption>
+<thead><tr><th>Milestone</th><th>Claimed</th><th>Real</th><th>Drift</th></tr></thead>
+<tbody>
+<tr><td>MF-MS1</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>MF-MS2</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>ACP-MS0</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>HOOKS-AUTOMATION-V2-MS0</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>INFRA-CLOSEOUT-MS0</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>OCTOPUS-NEURAL-MS0</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>MS-DOCU-FINISH</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>MS-DOCU-INGEST</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>SKILLS-UTILIZATION-MS0</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+<tr><td>TRAINING-LEARNING-MS0</td><td>completed</td><td><span class="badge warn">not_started_real</span></td><td><span class="badge fail">claims_completed_but_units_pending</span></td></tr>
+</tbody>
+</table>
+<table><caption>Frontend trees</caption>
+<thead><tr><th>ID</th><th>Path</th><th>Stack</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>main-web</td><td>mcp-server/web</td><td>React + Vite</td><td><span class="badge ok">merged</span></td></tr>
+<tr><td>cqask-orion-cad</td><td>cqask/ui</td><td>Next.js 13 + Ant Design + Tailwind</td><td><span class="badge warn">PENDING_MERGE</span></td></tr>
+<tr><td>mcp-cadquery-frontend</td><td>mcp-cadquery/frontend</td><td>Vite + React 19 + Three.js (@react-three/fiber)</td><td><span class="badge warn">PENDING_MERGE</span></td></tr>
+</tbody>
+</table>
+<table><caption>Coverage by domain (top 15 of 933)</caption>
+<thead><tr><th>Domain</th><th>Total</th><th>Wired</th><th>Unwired</th><th>Coverage %</th></tr></thead>
+<tbody>
+<tr><td>Other</td><td class="right">602</td><td class="right"><span class="badge ok">457</span></td><td class="right"><span class="badge warn">145</span></td><td class="right"><span class="badge warn">76%</span></td></tr>
+<tr><td>Lathe</td><td class="right">188</td><td class="right"><span class="badge ok">99</span></td><td class="right"><span class="badge warn">89</span></td><td class="right"><span class="badge warn">53%</span></td></tr>
+<tr><td>Machine</td><td class="right">45</td><td class="right"><span class="badge ok">28</span></td><td class="right"><span class="badge warn">17</span></td><td class="right"><span class="badge warn">62%</span></td></tr>
+<tr><td>Turning</td><td class="right">24</td><td class="right"><span class="badge ok">13</span></td><td class="right"><span class="badge warn">11</span></td><td class="right"><span class="badge warn">54%</span></td></tr>
+<tr><td>Tool</td><td class="right">57</td><td class="right"><span class="badge ok">47</span></td><td class="right"><span class="badge warn">10</span></td><td class="right"><span class="badge ok">82%</span></td></tr>
+<tr><td>Multi</td><td class="right">28</td><td class="right"><span class="badge ok">18</span></td><td class="right"><span class="badge warn">10</span></td><td class="right"><span class="badge warn">64%</span></td></tr>
+<tr><td>Shop</td><td class="right">16</td><td class="right"><span class="badge ok">7</span></td><td class="right"><span class="badge warn">9</span></td><td class="right"><span class="badge fail">44%</span></td></tr>
+<tr><td>Five</td><td class="right">12</td><td class="right"><span class="badge ok">3</span></td><td class="right"><span class="badge warn">9</span></td><td class="right"><span class="badge fail">25%</span></td></tr>
+<tr><td>Outcome</td><td class="right">8</td><td class="right"><span class="badge ok">0</span></td><td class="right"><span class="badge warn">8</span></td><td class="right"><span class="badge fail">0%</span></td></tr>
+<tr><td>Hyper</td><td class="right">68</td><td class="right"><span class="badge ok">61</span></td><td class="right"><span class="badge warn">7</span></td><td class="right"><span class="badge ok">90%</span></td></tr>
+<tr><td>Fusion</td><td class="right">36</td><td class="right"><span class="badge ok">29</span></td><td class="right"><span class="badge warn">7</span></td><td class="right"><span class="badge ok">81%</span></td></tr>
+<tr><td>Milling</td><td class="right">34</td><td class="right"><span class="badge ok">27</span></td><td class="right"><span class="badge warn">7</span></td><td class="right"><span class="badge warn">79%</span></td></tr>
+<tr><td>Wet</td><td class="right">15</td><td class="right"><span class="badge ok">8</span></td><td class="right"><span class="badge warn">7</span></td><td class="right"><span class="badge warn">53%</span></td></tr>
+<tr><td>Print</td><td class="right">21</td><td class="right"><span class="badge ok">15</span></td><td class="right"><span class="badge warn">6</span></td><td class="right"><span class="badge warn">71%</span></td></tr>
+<tr><td>Wire</td><td class="right">20</td><td class="right"><span class="badge ok">14</span></td><td class="right"><span class="badge warn">6</span></td><td class="right"><span class="badge warn">70%</span></td></tr>
+</tbody>
+</table>
+<table><caption>Stale milestones (top 15 of 40)</caption>
+<thead><tr><th>Milestone</th><th>Track</th><th>Reason</th><th>Pending</th><th>Shipped/Total</th><th>Last shipped</th></tr></thead>
+<tbody>
+<tr><td>LATHE-MASTER</td><td>LATHE</td><td>never_started</td><td class="right">136</td><td>0/136</td><td>never</td></tr>
+<tr><td>MS-WIRE-FRONTEND</td><td>revenue</td><td>never_started</td><td class="right">90</td><td>0/90</td><td>never</td></tr>
+<tr><td>MS-WIRE-BACKEND</td><td>revenue</td><td>never_started</td><td class="right">60</td><td>0/60</td><td>never</td></tr>
+<tr><td>MS-MASTERPOST</td><td>revenue</td><td>never_started</td><td class="right">44</td><td>0/44</td><td>never</td></tr>
+<tr><td>MS1</td><td>revenue</td><td>never_started</td><td class="right">39</td><td>0/39</td><td>never</td></tr>
+<tr><td>MS-CAM-MASTERY</td><td>revenue</td><td>never_started</td><td class="right">34</td><td>0/34</td><td>never</td></tr>
+<tr><td>MS-AUDIT-DERIVED-2026-05-10</td><td>audit-derived</td><td>never_started</td><td class="right">30</td><td>0/30</td><td>never</td></tr>
+<tr><td>MS2</td><td>revenue</td><td>never_started</td><td class="right">30</td><td>0/30</td><td>never</td></tr>
+<tr><td>COMMAND-KERNEL-MS0</td><td>BACKEND-DEVTOOLS</td><td>never_started</td><td class="right">29</td><td>0/29</td><td>never</td></tr>
+<tr><td>BP-MS0</td><td>BP</td><td>never_started</td><td class="right">28</td><td>0/28</td><td>never</td></tr>
+<tr><td>MS-TRAIN-DEEP</td><td>revenue</td><td>never_started</td><td class="right">26</td><td>0/26</td><td>never</td></tr>
+<tr><td>CADCAM-AGI-MS0</td><td>CAD-CAM-AGI</td><td>never_started</td><td class="right">24</td><td>0/24</td><td>never</td></tr>
+<tr><td>MS-SFC-CALIBRATE</td><td>revenue</td><td>never_started</td><td class="right">24</td><td>0/24</td><td>never</td></tr>
+<tr><td>SCIMATH-MS5</td><td>SCIMATH</td><td>never_started</td><td class="right">23</td><td>0/23</td><td>never</td></tr>
+<tr><td>CLI-MS0</td><td>CLI</td><td>never_started</td><td class="right">22</td><td>0/22</td><td>never</td></tr>
+</tbody>
+</table>
+<table><caption>Top pending units (most-recently-active milestones first, top 15 of 24)</caption>
+<thead><tr><th>Milestone</th><th>Phase</th><th>Unit</th><th>Title</th></tr></thead>
+<tbody>
+<tr><td>CAD-COMPLETE-MS0</td><td>PHASE-6</td><td>U-CADC22</td><td>U-CADC22 — CAD-COMPLETE-MS0 unit 3</td></tr>
+<tr><td>CAD-COMPLETE-MS0</td><td>PHASE-6</td><td>U-CADC23</td><td>U-CADC23 — CAD-COMPLETE-MS0 unit 4</td></tr>
+<tr><td>CAD-COMPLETE-MS0</td><td>PHASE-7</td><td>U-CADC32</td><td>U-CADC32 — CAD-COMPLETE-MS0 unit 5</td></tr>
+<tr><td>CAD-COMPLETE-MS0</td><td>PHASE-7</td><td>U-CADC33</td><td>U-CADC33 — CAD-COMPLETE-MS0 unit 6</td></tr>
+<tr><td>CAM-EXHAUST-MS0</td><td></td><td>U-CAM79</td><td>Dispatcher Wiring â€” CAM Function Dispatcher</td></tr>
+<tr><td>CAM-EXHAUST-MS0</td><td></td><td>U-CAM80</td><td>Integration Tests â€” Per-CAM Function Coverage</td></tr>
+<tr><td>CAM-EXHAUST-MS0</td><td></td><td>U-CAM81</td><td>Integration Tests â€” Cross-CAM Translation</td></tr>
+<tr><td>CAM-EXHAUST-MS0</td><td></td><td>U-CAM82</td><td>Integration Tests â€” AGI Reasoning Validation</td></tr>
+<tr><td>SYSTEM-VIZ-BRAIN-MS0</td><td>P0-FOUND</td><td>U-P0-HOOK-ORPHAN-RECONCILE</td><td>Reconcile 447 orphan hook files vs 109 wired in settings.json</td></tr>
+<tr><td>SYSTEM-VIZ-BRAIN-MS0</td><td>P1-MEMORY</td><td>U-P1-QDRANT-EPISODIC-RECALL</td><td>Qdrant episodic recall on SessionStart + UserPromptSubmit (xproc_episodic_recall)</td></tr>
+<tr><td>SYSTEM-VIZ-BRAIN-MS0</td><td>P2-VIZ-BRAIN</td><td>U-P2-NODE-CLICK-DISPATCH</td><td>Click /system-viz node to invoke its dispatcher&#39;s primary action</td></tr>
+<tr><td>SYSTEM-VIZ-BRAIN-MS0</td><td>P2-VIZ-BRAIN</td><td>U-P2-LIVE-DRIFT-OVERLAY</td><td>5-min auto-regen + drift overlay (red-pulse nodes where envelope-vs-git differ)</td></tr>
+<tr><td>CAD-UNIVERSAL-CONTROL-MS0</td><td></td><td>U-CUC04</td><td>Unknown-extension detector + surface</td></tr>
+<tr><td>CAD-UNIVERSAL-CONTROL-MS0</td><td></td><td>U-CUC05</td><td>New-customer-directory watcher (Stop hook, debounced hourly)</td></tr>
+<tr><td>CAD-UNIVERSAL-CONTROL-MS0</td><td></td><td>U-CUC06</td><td>Volume-delta alert in AGENT_CHAT.md on &gt;5% extension-volume shift</td></tr>
+</tbody>
+</table>
+<footer><div>Source JSON: state/shared/BUILD_STATE.json · render schema 1.0.0</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

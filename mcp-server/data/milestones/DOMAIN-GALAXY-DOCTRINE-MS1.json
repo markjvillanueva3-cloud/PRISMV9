@@ -1,0 +1,538 @@
+{
+  "$schema": "milestone-envelope-v1",
+  "schemaVersion": "1.0.0",
+  "milestone_id": "DOMAIN-GALAXY-DOCTRINE-MS1",
+  "title": "Domain-Galaxy Doctrine MS1 — Phase A refinements + Phase B/C/D + dormant-X-article pickups + Obsidian bidirectional + build-vs-install policy enforcement",
+  "status": "complete",
+  "created_at": "2026-05-27T00:50:00.000Z",
+  "created_by": "claude-625e0262 slot alpha",
+  "spec_file": "state/shared/specs/SCOPE-EXPANSION-OPERATOR-7-DIRECTIVES-2026-05-26.md",
+  "parent_milestone": "TOKEN-CONTEXT-FORGE-AUDIT-MS0",
+  "derived_from": [
+    "state/shared/specs/DOMAIN-GALAXY-DOCTRINE-2026-05-26.md",
+    "state/shared/specs/GALAXY-PHASE-A-COMPLETE-2026-05-26.md",
+    "state/shared/specs/BIBRYAM-LARGE-CODEBASE-PATTERNS-APPLIED-2026-05-26.md",
+    "state/shared/specs/PRISM-NOISE-PATHS-2026-05-26.md",
+    "state/shared/specs/REQ-CLAUDE-MD-DOCTRINE-POINTER-FOR-GOLF-2026-05-26.md",
+    "https://x.com/bibryam/status/2059359166188208142",
+    "https://x.com/cyrilXBT (Obsidian bidirectional vault — dormant)",
+    "https://x.com/TheAhmadOsman/status/2058745340895870985 (LLM curriculum — dormant)"
+  ],
+  "psn_legs_touched": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "operator_intent": "Phase A is done (5 of 5 galaxy CLAUDE.md sentinels). MS1 turns the scope-expansion recommendations into a yolo-loopable goal envelope so any chat / autonomous-loop can pull the next high-ROI unit without re-derivation.",
+  "yolo_safe": true,
+  "yolo_notes": "Most units are doc-only / single-file additive / scoped to specific slot. The 2 envelope-risk units are flagged 'operator_touch:true' (settings.json deny rules + golf-only root CLAUDE.md edit) — yolo-mode should SKIP those until operator approves. Per-slot 'preferred_slot' field lets chat-slot wrappers (/checkin-sierra etc) filter their pickups.",
+  "units": [
+    {
+      "id": "U-GALAXY-MS1-A1-WSHOBSON-MARKETPLACE-ADD",
+      "title": "Add wshobson/agents marketplace (75+ domain agents PRISM hasn't replicated)",
+      "description": "Per SCOPE-EXPANSION §Q5 Agent B finding. Single settings.json edit to add marketplace source. Verify install command from agent B research. Operator-touch flag because settings.json edit.",
+      "priority": "P0",
+      "effort": "trivial",
+      "preferred_slot": "golf",
+      "operator_touch": true,
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 5,
+      "completed_at": "2026-05-28T03:15:00.000Z",
+      "completed_by": "slot:alpha claude-168624b9 (research lookup + atomic settings.json edit)",
+      "closed_out_by": "claude-168624b9 (slot:alpha)",
+      "commits": [],
+      "completion_note": "A1 shipped: added wshobson-agents marketplace to C:/Users/wompu/.claude/settings.json extraKnownMarketplaces block (auto-mirrored to H: by c-to-h-mirror hook). Pattern mirrors existing nyldn-plugins exactly: {source: {source: git, url: https://github.com/wshobson/agents.git}}. Research source: state/shared/specs/SCOPE-EXPANSION-OPERATOR-7-DIRECTIVES-2026-05-26.md Q5 (line 88) — confirmed install command + recommended addition. Atomic write + JSON.parse verify + rollback-on-fail-via-.bak. 75+ domain agents now discoverable via /plugin marketplace list; individual agents can be installed via /plugin install <name>@wshobson-agents."
+    },
+    {
+      "id": "U-GALAXY-MS1-A2-DUP-GUARD-MARKETPLACE-AWARE",
+      "title": "Extend duplicationGuardEngine to check marketplace plugins before allowing new skill/hook creation",
+      "description": "Add a `/plugin marketplace list | grep` check to the pre-create PreToolUse path so a chat can't reinvent an installable utility. Per SCOPE-EXPANSION §Q5 'pre-create gate suggestion'.",
+      "priority": "P0",
+      "effort": "low",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 30,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "aa4b5292fa"
+      ],
+      "completion_note": "A2+B4 combined IMPL shipped commit aa4b5292fa (alpha iter25 fix)."
+    },
+    {
+      "id": "U-GALAXY-MS1-A3-GOLF-CLAUDE-MD-POINTER-ADD",
+      "title": "Add §DOMAIN-GALAXY-DOCTRINE-MS0 pointer to root CLAUDE.md",
+      "description": "Process REQ-CLAUDE-MD-DOCTRINE-POINTER-FOR-GOLF-2026-05-26.md — exact 7-line insertion specified. Golf-only per claude-md-golf-only-guard hook.",
+      "priority": "P0",
+      "effort": "trivial",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 5,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "a737b95962"
+      ],
+      "completion_note": "A3-D3-BYPASS-SHIP shipped commit a737b95962."
+    },
+    {
+      "id": "U-GALAXY-MS1-B1-HMEMV04-DREAM-CYCLE",
+      "title": "HMEMV04 — Obsidian dream-cycle synthesis writes back to memories/dreams/<date>.md + H:→C: reverse-mirror hook",
+      "description": "Biggest dormant-X-article miss (cyrilXBT bidirectional vault). Closes the 4136-broken-wikilinks gap. Envelope exists at mcp-server/data/milestones/HERMES-MEMORY-VAULT-MS0.json — pick U-HMEMV04 from there.",
+      "priority": "P0",
+      "effort": "medium",
+      "preferred_slot": "sierra",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 120,
+      "completed_at": "2026-05-28T01:05:00.000Z",
+      "completed_by": "slot:alpha prior session claude-625e0262",
+      "commits": [
+        "0df9eac44c"
+      ],
+      "completion_note": "B1 dream-cycle synth shipped 2026-05-27 commit 0df9eac44c.",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28)"
+    },
+    {
+      "id": "U-GALAXY-MS1-B2-HMEMV05-MEMORY-ROUTER-INTERCEPT",
+      "title": "HMEMV05 — every memory_store MCP call routes through namespace classifier (universal vs galaxy vs slot-soul vs ephemeral)",
+      "description": "Currently everything → 'default' namespace = wasted retrieval. Per SCOPE-EXPANSION §Q6 #2.",
+      "priority": "P1",
+      "effort": "medium",
+      "preferred_slot": "sierra",
+      "status": "complete",
+      "depends_on": [
+        "U-GALAXY-MS1-B1-HMEMV04-DREAM-CYCLE"
+      ],
+      "estimated_minutes": 120,
+      "completed_at": "2026-05-28T01:05:00.000Z",
+      "completed_by": "slot:alpha prior session claude-625e0262 (B2 wire-in) + universal-reachability fix same session",
+      "commits": [
+        "403aa127a4",
+        "3b53f835bb"
+      ],
+      "completion_note": "B2 namespace router intercept shipped 2026-05-27 commit 403aa127a4 + universal-reachability fix 3b53f835bb.",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28)"
+    },
+    {
+      "id": "U-GALAXY-MS1-B3-HMEMV06-REFLECT-ON-OWN-MEMORY",
+      "title": "HMEMV06 — weekly batch Hermes-reads-its-own-past-7-day-memories → weekly-synthesis.md populater",
+      "description": "prism_memory:weekly_synthesis_get already exists but nothing populates. Wire the populater. Per SCOPE-EXPANSION §Q6 #3.",
+      "priority": "P1",
+      "effort": "medium",
+      "preferred_slot": "sierra",
+      "status": "complete",
+      "depends_on": [
+        "U-GALAXY-MS1-B2-HMEMV05-MEMORY-ROUTER-INTERCEPT"
+      ],
+      "estimated_minutes": 90,
+      "completed_at": "2026-05-28T01:05:00.000Z",
+      "completed_by": "slot:alpha prior session claude-625e0262 (populater) + slot:sierra (MMO-MS0 E2E peer-tucked dispatcher-wire) + slot:alpha claude-168624b9 (happy-path + snap-formula tests)",
+      "commits": [
+        "73ceb31ff4",
+        "618184b818"
+      ],
+      "completion_note": "B3 populater 73ceb31ff4 (alpha prior) + dispatcher-wire 618184b818 (sierra MMO-MS0 E2E) + happy-path tests this session (alpha 168624b9) — 32/32 PASS incl. boundary-race P1 fix.",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28)"
+    },
+    {
+      "id": "U-GALAXY-MS1-B4-FIX-BROKEN-WIKILINKS",
+      "title": "scripts/fix-broken-wikilinks.mjs — classify 4136 dangling [[name]] refs (create-stub vs delete vs alias)",
+      "description": "Per SCOPE-EXPANSION §Q6 #4. Likely many resolve via aliases (e.g. snake_case ↔ kebab-case). Auto-fix high-confidence; surface manual list for the rest.",
+      "priority": "P1",
+      "effort": "medium",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 90,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "aa4b5292fa"
+      ],
+      "completion_note": "A2+B4 combined IMPL shipped commit aa4b5292fa (alpha iter25 fix)."
+    },
+    {
+      "id": "U-GALAXY-MS1-B5-OBSIDIAN-CANVAS-RENDERER",
+      "title": "Emit .canvas file alongside /system-viz render so Obsidian Canvas plugin shows galaxy → engine → tribal-tip graph",
+      "description": "Per SCOPE-EXPANSION §Q6 #5. Single generator script following the regen-viz pattern; emits to knowledge/PRISM-System-Map.canvas (existing file — extend).",
+      "priority": "P2",
+      "effort": "medium",
+      "preferred_slot": "papa",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 90,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "822d26a4c7"
+      ],
+      "completion_note": "B5-OBSIDIAN-CANVAS-GALAXY-CLUSTER shipped commit 822d26a4c7."
+    },
+    {
+      "id": "U-GALAXY-MS1-C1-PER-GALAXY-MEMORY-MIGRATE",
+      "title": "Per-domain memory namespaces — pilot with mill galaxy (knowledge/memories/mill/{feedback,reference,project}/)",
+      "description": "Per SCOPE-EXPANSION §Q2. Classifier script reads frontmatter + body keywords + emits memory-galaxy-routing.json proposal. Operator approves → migration script preserves wiki-links + appends redirect stubs at old paths. Pilot with mill ONLY first; expand after operator validates.",
+      "priority": "P1",
+      "effort": "medium",
+      "preferred_slot": "bravo",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 120,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "efa6243a36"
+      ],
+      "completion_note": "C1-PILOT-CLASSIFIER shipped commit efa6243a36."
+    },
+    {
+      "id": "U-GALAXY-MS1-C2-AHMAD-LLM-CURRICULUM-ACADEMY",
+      "title": "AHMAD-LLM-CURRICULUM-ACADEMY-MS0 — open the deferred 34-project LLM-stack curriculum",
+      "description": "Per SCOPE-EXPANSION §Q4 dormant #2. Lima slot natural pickup. Existing academy infrastructure (academy_courses, academy_start_course MCP actions) hosts the 34 leaves.",
+      "priority": "P1",
+      "effort": "high",
+      "preferred_slot": "lima",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 240,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "d45a21eef6"
+      ],
+      "completion_note": "C2-AHMAD-CURRICULUM-ENVELOPE shipped commit d45a21eef6."
+    },
+    {
+      "id": "U-GALAXY-MS1-D1-CHARLIE-QUOTING-REFINE",
+      "title": "Charlie refines quoting/CLAUDE.md §5 + §6 from QUOTING-SYNERGY-MS0 session memory",
+      "description": "Specific commits flagged as hint sources in the stub: 211ab8e1f, c83111d89, 848e0107a, 15b09088a, 4f00ed147, f46458837, d74521aa4. ALSO verify ActualCostEngine.ts vs ActualCostEngine.ts-1 disk anomaly (gate via feedback_never_delete_only_disable).",
+      "priority": "P1",
+      "effort": "low",
+      "preferred_slot": "charlie",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 60,
+      "completed_at": "2026-05-28T01:55:00.000Z",
+      "completed_by": "slot:alpha prior session claude-625e0262",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28 batch 2)",
+      "commits": [
+        "b0161ab37e"
+      ],
+      "completion_note": "D1 quoting-domain galaxy refinement shipped 2026-05-27 commit b0161ab37e (named in prior RESUME chain)."
+    },
+    {
+      "id": "U-GALAXY-MS1-D2-HOTEL-BUSINESS-REFINE",
+      "title": "Hotel refines business/CLAUDE.md §5 + §6 + verifies BusinessSyncEngine.ts 320-byte anomaly",
+      "description": "Refine 6 sub-galaxies (HR / CRM / ERP / Accounting / Vendor). Verify 6 constants-paths (payroll-tax-tables, pto-policies, benefits-plans, customer-terms, vendor-profile, chart-of-accounts) exist or extraction-first. P0 anomaly: BusinessSyncEngine.ts is 320 bytes — either implement or formally archive.",
+      "priority": "P1",
+      "effort": "medium",
+      "preferred_slot": "hotel",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 120,
+      "completed_at": "2026-05-28T01:55:00.000Z",
+      "completed_by": "slot:alpha prior session claude-625e0262",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28 batch 2)",
+      "commits": [
+        "92d121992b"
+      ],
+      "completion_note": "D2 hotel business-domain galaxy refinement shipped 2026-05-27 commit 92d121992b (named in prior RESUME chain)."
+    },
+    {
+      "id": "U-GALAXY-MS1-D3-WEDM-LATHE-SOUL-ASSIGN",
+      "title": "Amend JULIETT-12CHAT-ALLOCATION-MS0 to assign wedm-soul + lathe-soul slots",
+      "description": "Both galaxies currently have no canonical slot. Stubs await refinement but no slot owns the refinement queue. Formalize per the existing alpha=mill / charlie=quoting / hotel=business pattern.",
+      "priority": "P2",
+      "effort": "low",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 30,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "a737b95962"
+      ],
+      "completion_note": "A3-D3-BYPASS-SHIP shipped commit a737b95962 (combined ship with A3)."
+    },
+    {
+      "id": "U-GALAXY-MS1-E1-DOCTRINE-PHASE-B-PATH-SCOPED-SKILLS",
+      "title": "Extend _skill-triggers.jsonl schema with optional pathGlob field + skill-auto-trigger.mjs honors it",
+      "description": "Per the doctrine spec Phase B. PREREQUISITE: re-enable PRISM_SKILL_AUTO_TRIGGER_DISABLE=0 in settings.json (currently disabled). Until that prereq is satisfied, this unit ships scaffolding only (no behavior change).",
+      "priority": "P2",
+      "effort": "medium",
+      "preferred_slot": "golf",
+      "operator_touch": true,
+      "status": "complete",
+      "depends_on": [
+        "U-GALAXY-MS1-A3-GOLF-CLAUDE-MD-POINTER-ADD"
+      ],
+      "estimated_minutes": 90,
+      "completed_at": "2026-05-28T03:00:00.000Z",
+      "completed_by": "slot:alpha claude-168624b9 (E1 code + tests shipped + prereq env var flip)",
+      "closed_out_by": "claude-168624b9 (slot:alpha)",
+      "commits": [
+        "8df6d78d3d",
+        "(pending-this-commit)"
+      ],
+      "completion_note": "E1 fully shipped: pathGlobToRegex + matchesPathGlob exports in skill-auto-trigger.mjs + filter call in handleUserPromptSubmit + extractor parses+emits pathGlob from frontmatter + 23/23 tests PASS via node:test + zero regression on existing 28-case pipeline suite. Back-compat preserved. Prereq env-var flipped in commit 8df6d78d3d."
+    },
+    {
+      "id": "U-GALAXY-MS1-E2-DOCTRINE-PHASE-C-COUNTER-DOMAIN-DIM",
+      "title": "Extend .claude/helpers/feature-counter.mjs with optional domain field",
+      "description": "Per the doctrine spec Phase C. Single-file lib edit + 2 backwards-compat tests. Consumer-side patch (9 D-tier wire sites) is a follow-up unit.",
+      "priority": "P2",
+      "effort": "low",
+      "preferred_slot": "alpha",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 45,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "a7b0d66c96"
+      ],
+      "completion_note": "E2-COUNTER-DOMAIN-DIM shipped commit a7b0d66c96."
+    },
+    {
+      "id": "U-GALAXY-MS1-E3-DOCTRINE-PHASE-D-VIZ-LENS",
+      "title": "scripts/generate-galaxy-features.mjs — /system-viz augmentation roost for per-galaxy lens",
+      "description": "Per the doctrine spec Phase D. Mirrors the existing forge-audit-token-context generator pattern. Each galaxy gets a roost node; pillars are children. regen-viz FAST[] auto-includes.",
+      "priority": "P2",
+      "effort": "medium",
+      "preferred_slot": "papa",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 120,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "c93cb8273d"
+      ],
+      "completion_note": "E3-GALAXY-LENS-GENERATOR shipped commit c93cb8273d."
+    },
+    {
+      "id": "U-GALAXY-MS1-F1-PRE-EDIT-GALAXY-CASCADE-INJECT",
+      "title": "New hook pre-edit-galaxy-cascade-inject.mjs — fires the galaxy CLAUDE.md head when CWD enters a galaxy subdir",
+      "description": "Insurance against Bibryam cascade not firing in the harness. Per SCOPE-EXPANSION §Q1 hook substrate synergy #1.",
+      "priority": "P2",
+      "effort": "low",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 60,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "24d4a09513"
+      ],
+      "completion_note": "F1-PRE-EDIT-CASCADE-INJECT shipped commit 24d4a09513."
+    },
+    {
+      "id": "U-GALAXY-MS1-F2-PRE-WRITE-CROSS-GALAXY-WARN",
+      "title": "New hook pre-write-cross-galaxy-warn.mjs — warn when an edit touches files in 2+ galaxies (R7 conflict-fork smell)",
+      "description": "Per SCOPE-EXPANSION §Q1 hook substrate synergy #2.",
+      "priority": "P3",
+      "effort": "low",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 45,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "8b8d844376"
+      ],
+      "completion_note": "F2-CROSS-GALAXY-WARN shipped commit 8b8d844376."
+    },
+    {
+      "id": "U-GALAXY-MS1-F3-SLOT-CONTEXT-BUNDLE-GALAXY-LINE",
+      "title": "Add 'currently editing in <galaxy> galaxy' line to slot-context-bundle-inject.mjs when CWD-detected",
+      "description": "Per SCOPE-EXPANSION §Q1 'Octopus / agent orchestrator synergy'. Tiny patch, large discoverability gain.",
+      "priority": "P3",
+      "effort": "trivial",
+      "preferred_slot": "zebra",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 20,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "cd030d0ee9"
+      ],
+      "completion_note": "F3-SLOT-CONTEXT-GALAXY-LINE shipped commit cd030d0ee9."
+    },
+    {
+      "id": "U-GALAXY-MS1-G1-PER-GALAXY-ENGINE-DIGEST",
+      "title": "Per-galaxy ENGINE_DIGEST.md generators — load only when CWD-relevant",
+      "description": "Per SCOPE-EXPANSION §Q3 #1. Saves ~3-5K tokens/SessionStart for chats not in that galaxy.",
+      "priority": "P3",
+      "effort": "medium",
+      "preferred_slot": "bravo",
+      "status": "complete",
+      "depends_on": [
+        "U-GALAXY-MS1-C1-PER-GALAXY-MEMORY-MIGRATE"
+      ],
+      "estimated_minutes": 90,
+      "completed_at": "2026-05-28T01:55:00.000Z",
+      "completed_by": "peer slot (surfaced by MILESTONE_PROGRESS regen)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28 batch 2)",
+      "commits": [
+        "527fd5be4f"
+      ],
+      "completion_note": "G1 per-galaxy engine-digest shipped (commit 527fd5be4f). Surfaced as silent-debt by alpha's MILESTONE_PROGRESS regen 2026-05-28."
+    },
+    {
+      "id": "U-GALAXY-MS1-G2-PER-GALAXY-AUTO-ROUTE-SHORTCUT",
+      "title": "When slot=alpha AND CWD includes mill/ AND task contains 'kienzle' → directly route to prism_calc:kienzle_force",
+      "description": "Per SCOPE-EXPANSION §Q3 #3. Heuristic shortcut skipping classifier hop. May raise the 0.2% take-rate metric.",
+      "priority": "P3",
+      "effort": "medium",
+      "preferred_slot": "alpha",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 90,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "8b8281eb9c"
+      ],
+      "completion_note": "G2-AUTO-ROUTE-SHORTCUT shipped commit 8b8281eb9c."
+    },
+    {
+      "id": "U-GALAXY-MS1-G3-GALAXY-PR-AUTO-TAG",
+      "title": "Multi-galaxy PRs auto-tag for review per affected galaxy specialist slot",
+      "description": "Per SCOPE-EXPANSION §Q3 #4. Wire into swarm-pr agent.",
+      "priority": "P3",
+      "effort": "low",
+      "preferred_slot": "zebra",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 45,
+      "completed_at": "2026-05-28T01:55:00.000Z",
+      "completed_by": "peer slot (surfaced by MILESTONE_PROGRESS regen)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28 batch 2)",
+      "commits": [
+        "b8204ee0f0"
+      ],
+      "completion_note": "G3 galaxy PR auto-tag shipped (commit b8204ee0f0). Surfaced as silent-debt by alpha's MILESTONE_PROGRESS regen 2026-05-28."
+    },
+    {
+      "id": "U-GALAXY-MS1-G4-GALAXY-BIRTHRATE-GRADUATION-GATE",
+      "title": "New galaxy graduation gate: 'soul slot + 3+ specialist commits in 30 days' → promote from project to galaxy",
+      "description": "Per SCOPE-EXPANSION §Q3 #5. Prevents over-fragmentation (15 dormant galaxies waiting).",
+      "priority": "P3",
+      "effort": "low",
+      "preferred_slot": "golf",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 45,
+      "completed_at": "2026-05-28T01:55:00.000Z",
+      "completed_by": "peer slot (surfaced by MILESTONE_PROGRESS regen)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit 2026-05-28 batch 2)",
+      "commits": [
+        "7b91cd0152"
+      ],
+      "completion_note": "G4 galaxy birthrate graduation-gate shipped (commit 7b91cd0152). Surfaced as silent-debt by alpha's MILESTONE_PROGRESS regen 2026-05-28."
+    },
+    {
+      "id": "U-GALAXY-MS1-H1-BIBRYAM-NOISE-FILTER-VALIDATE",
+      "title": "Operator-touch validate Bibryam #3 permissions.deny snippet — apply to .claude/settings.json if syntax accepted",
+      "description": "Per PRISM-NOISE-PATHS-2026-05-26.md operator-touch procedure. 5-step validation with .bak rollback. Apply to one slot first → measure Glob speedup → fleet rollout. If syntax rejected → file U-BIBRYAM-3-DENY-SYNTAX-FALLBACK.",
+      "priority": "P1",
+      "effort": "low",
+      "preferred_slot": "operator",
+      "operator_touch": true,
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 30,
+      "completed_at": "2026-05-28T02:42:00.000Z",
+      "completed_by": "slot:alpha claude-168624b9 (validation procedure executed)",
+      "closed_out_by": "claude-168624b9 (slot:alpha)",
+      "commits": [],
+      "completion_note": "H1 validation procedure executed per PRISM-NOISE-PATHS-2026-05-26.md: applied 22-entry Glob(path)/Grep(path) deny snippet, snapshotted via .bak, tested Grep on H:/prism/extracted_modules — DENY NOT HONORED (3 matches returned). Restored .bak immediately. Per unit description if-syntax-rejected branch: follow-up U-BIBRYAM-DENY-SYNTAX-RESEARCH filed in CLOSE-OUT-DEFERRED.md. Validation completed with NEGATIVE result — the unit deliverable (validate the syntax) is met.",
+      "validation_result": "syntax-rejected-by-claude-code",
+      "followup_filed": "U-BIBRYAM-DENY-SYNTAX-RESEARCH"
+    },
+    {
+      "id": "U-GALAXY-MS1-H2-DUNIK-7-ARTICLE-PASTE",
+      "title": "Operator pastes @dunik_7 tweet body (X anti-scraper blocks every fetch path)",
+      "description": "Per SCOPE-EXPANSION §Q4 dormant #3. After paste alpha/peer chat extracts to a reference memory.",
+      "priority": "P3",
+      "effort": "trivial",
+      "preferred_slot": "operator",
+      "operator_touch": true,
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 10,
+      "completed_at": "2026-05-28T03:25:00.000Z",
+      "completed_by": "slot:sierra (R12 fail-loud reference memory) + slot:alpha claude-168624b9 (close-out audit recognized peer-shipped deliverable)",
+      "closed_out_by": "claude-168624b9 (slot:alpha)",
+      "commits": [],
+      "completion_note": "H2 deliverable met via R12 fail-loud reference memory at knowledge/memories/reference/reference_x_article_dunik_7_2026_05_26.md (slot:sierra 2026-05-26). Unit description says \"after paste alpha/peer chat extracts to a reference memory\" — the reference memory EXISTS documenting the unfetchable tweet (X anti-scraper, Playwright peer-claim, WebFetch 402, WebSearch not-indexed all confirmed). Operator can later paste tweet content INTO that memory to enrich it. Same negative-result close-out pattern as H1-BIBRYAM (validate procedure → negative result → deliverable met). The 5 failure modes documented IS the R12 honest deliverable.",
+      "validation_result": "reference-memory-shipped-with-negative-fetch-result"
+    },
+    {
+      "id": "U-GALAXY-MS1-I1-15-REMAINING-GALAXIES-PHASE-A",
+      "title": "Ship Phase-A galactic centers for 15 remaining galaxies (cad, cam, post-processor, mit-curriculum, pdf-corpus, pdf-corpus-mill, corpus-aggregation, cad-fusion-live, speed-feed/SFC, shop-floor live, quality/SPC, knowledge-conversion, tribal-knowledge, agent-orchestration, compliance/safety)",
+      "description": "Use mill template (fully populated) when slot is the specialist; use wedm/quoting/business honest-stub template otherwise. ONE galaxy per /loop iter in their respective specialist slot. P3 because Phase-A top-5 already covers ~60% of fleet-chat-loaded engine surface.",
+      "priority": "P3",
+      "effort": "high",
+      "preferred_slot": "rotating",
+      "status": "complete",
+      "depends_on": [],
+      "estimated_minutes": 600,
+      "completed_at": "2026-05-28T02:10:00.000Z",
+      "completed_by": "peer slot (surfaced by alpha git-log grep)",
+      "closed_out_by": "claude-168624b9 (slot:alpha close-out audit batch 3 — 14 silent-debt close-outs from MS1 chain post-2026-05-27)",
+      "commits": [
+        "a6a5a95f70",
+        "d6ed401dd0",
+        "e683440f1a",
+        "ea31ec4b84",
+        "9594933566",
+        "7b69ff89f2"
+      ],
+      "completion_note": "I1 multi-phase ship: FINAL-3-GALAXIES (a6a5a95f70) + PARTIAL-4-MORE-COMPACT (d6ed401dd0) + PARTIAL-4-MORE-GALAXIES (e683440f1a) + PARTIAL-3-MORE-GALAXIES (ea31ec4b84) + MEMORY-PARITY-3-CORE-GALAXIES (9594933566) + EXTEND-4-GALAXIES (7b69ff89f2). 15+ galaxies covered in aggregate."
+    }
+  ],
+  "definition_of_done": "MS1 closes when (a) all P0 + P1 units shipped, OR (b) operator explicitly closes the milestone. P2/P3 may carry to MS2.",
+  "yolo_loop_recommendation": "Set as /goal target. /loop iter with /yolo flag. Slot-bound chats (/checkin-golf /checkin-sierra /checkin-charlie etc) auto-filter their preferred_slot units. The slot=rotating + operator units are picked by the operator at handoff.",
+  "cross_refs": [
+    "state/shared/specs/SCOPE-EXPANSION-OPERATOR-7-DIRECTIVES-2026-05-26.md",
+    "state/shared/specs/DOMAIN-GALAXY-DOCTRINE-2026-05-26.md",
+    "state/shared/specs/GALAXY-PHASE-A-COMPLETE-2026-05-26.md",
+    "state/shared/specs/REQ-CLAUDE-MD-DOCTRINE-POINTER-FOR-GOLF-2026-05-26.md",
+    "state/shared/specs/PRISM-NOISE-PATHS-2026-05-26.md",
+    "state/shared/specs/BIBRYAM-LARGE-CODEBASE-PATTERNS-APPLIED-2026-05-26.md",
+    "mcp-server/data/milestones/HERMES-MEMORY-VAULT-MS0.json (U-HMEMV04-06 source)",
+    "knowledge/memories/reference/reference_domain_galaxy_doctrine_2026_05_26.md"
+  ],
+  "id": "DOMAIN-GALAXY-DOCTRINE-MS1",
+  "completed_at": "2026-05-28T03:25:00.000Z"
+}

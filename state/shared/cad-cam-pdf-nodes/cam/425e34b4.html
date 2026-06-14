@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Readme_HMC_Batch_Converter-en</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>Readme_HMC_Batch_Converter-en</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>hypermill</dd>
+<dt>Path</dt><dd><code>OPEN MIND/hyperCAD-S/33.0/BatchConverter/Readme_HMC_Batch_Converter-en.pdf</code></dd>
+<dt>Pages</dt><dd>14</dd>
+<dt>Text chars</dt><dd>15227</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Readme HMC Batch Converter
+
+-- 1 of 14 --
+
+
+
+-- 2 of 14 --
+
+Table of Contents
+1. HMC Batch Converter .................................................................................... 1
+1.1. Important .............................................................................................. 1
+1.2. System Requirements .......................................................................... 1
+1.3. Quick start ............................................................................................ 1
+2. How to convert files to HMC ........................................................................... 2
+3. Starting HMC Batch Converter ....................................................................... 3
+3.1. Description of the Batch Converter Window ......................................... 3
+3.2. Make general settings .......................................................................... 4
+3.3. Files and Folders Selection .................................................................. 5
+4. Starting File Conversion ................................................................................. 7
+5. Exit the application ......................................................................................... 8
+5.1. Quitting the current CAD conversion .................................................... 8
+6. Configuring XML file (optional) ....................................................................... 9
+7. Troubleshooting ............................................................................................ 10
+
+-- 3 of 14 --
+
+
+
+-- 4 of 14 --
+
+1. HMC Batch Converter
+This license-free batch conversion tool allows to convert multiple and different CAD files to HMC at once.
+1.1. Important
+OPEN MIND Technologies AG assumes no warranty for conversion results. Important files must be
+checked
+hyperMILL import e.g. by converting them manually. To do so, open the CAD file in
+hyperCAD-
+S /
+hyperMILL.
+As soon as the file is saved, it is converted to HMC. As we constantly develop our products, we reserve
+the rights to change the application in future releases.
+1.2. System Requirements
+Installation of licensed software versions of
+hyperCAD,
+hyperCAD-S and
+hyperMILL on the system must
+be ensured.
+In addition, an active license of the software whose file format is to be converted must be present.
+1.3. Quick start
+For a quick start, you can see in the video how to use the Batch Converter quickly and easily.
+Click the pin icon to view a video on the topic.
+1
+
+-- 5 of 14 --
+
+2. How to convert files to HMC
+The batch converter is an easy-to-use conversion tool. Proceed as follows:
+1. Start Batch Converter, see Section 3, “Starting HMC Batch Converter”
+2. Check and eventually set general settings (e.g. hmc output folder), see Section 3.2, “Make general
+settings”
+3. Select folders containing files to be converted, see Section 3.3, “Files and Folders Selection”
+4. Start file conversion, see Section 4, “Starting File Conversion”
+5. Quit the application, see Section 5, “Exit the application”
+6. Optional: Edit XML file, see Section 6, “Configuring XML file (optional)”.
+2
+
+-- 6 of 14 --
+
+3. Starting HMC Batch Converter
+The batch converter is installed automatically in the separate subfolder
+Batch Converter of the
+hy
+perCAD®-S installation folder.
+• Enter the Batch Converter subdirectory and double click
+hmcBatchConverter.exe.
+The Batch Converter is started, and the following window is opened.
+3.1. Description of the Batch Converter Window
+The batch conversion window is a clearly arranged dialogue window. See all relevant components at a
+glance.
+1: Title bar: shows the batch converter dialogue box.
+2: General Settings section: Selection of hmc.exe folder (if needed) of the current version and an output
+folder for storing the converted HMC files.
+3
+
+-- 7 of 14 --
+
+NOTE
+The Select HMC output folder is only visible, if Separate HMC output folder is selected.
+3. File and folder scan area: Select files - if required by setting filters and folders for selecting file formats
+and files for the conversion process.
+4. Refresh / Clear Buttons: You can either refresh your scan results, eventually adding new files to folders,
+or clear the selection for a new folder scan.
+• Refresh Folder(s) / File(s) List from Drive: Updates the selected files and folder listing all the existing
+files in the selected folder.
+• Clear selected Folder(s) / File(s): Deletes all scan results from the scan result window.
+5. CAD file selection area: Displays the CAD file formats that are defined to be converted in the hmcBatch
+Converter.XML. Changes to the type list have been made only by modifying the hmcBatchConverter.XML,
+see Configuring XML file (optional).
+6. Apply Filter to Current Selected List: Confirm all filter settings and apply them for folder and file scan
+process. Each time you change the filter settings, this button must be pressed to confirm the new filter
+selection.
+7. Scan result window: All folders set and files found by the filtered scan process are listed here. By right
+clicking on the mouse you will get the submenu as shown.
+8. Start button: Start conversion process by pressing Start conversion to HMC.
+9. Pause button: The button is visible only if the parameter in the HMCBatchConverter.XML is set to
+TRUE. During a conversion the user can pause the conversion process after the current conversion proc
+ess is finished by pressing this button.
+10. Quit button: Exit the program by pressing Quit.
+11. Status window: Observe conversion status in the status window.
+12. Quit current CAD process button: Quits the current HMC.EXE process when converting. In case there
+is a next item to convert, its conversion is processed. This button is only active during a conversion proc
+ess.
+3.2. Make general settings
+For the conversion process the hmc.exe folder and a HMC output folder must be set, default values are
+setup automatically.
+1. HMC.exe folder: In general the hmc.exe is detected by the Batch Converter automatically. If, for any
+reason you need to switch to another hmc.exe, select the corresponding path by pressing this button
+and selecting the designated path.
+4
+
+-- 8 of 14 --
+
+2. Output HMC folder:
+If you want the HMC output files to be stored in the same folder as the input model, select Input Model
+folder = HMC Output.
+If you want the HMC output files to be stored in a separate folder, select Separate HMC output folder.
+The additional button Select HMC output folder appears. Select this button and the designated folder.
+3.3. Files and Folders Selection
+The file and folder selection area provides multiple search options. The following search routine is recom
+mended:
+1. Press Scan folder (s): Select drive and folder from the Folder Browser dialog for files to be converted.
+If necessary, the file filter can be activated by checking the Enable file filters checkbox.
+If necessary before pressing Scan folder (s) activate the Scan and list from subfolder (s) checkbox.
+The program will scan all subdirectories.
+2. Select
+file formats and if necessary more
+file filters: Check or uncheck file formats from the list that you
+want to convert.
+Currently available file types are:
+hyperCAD (e2, e3, GKD), CATIA V4, V5, DXF DWG, IGES, Inventor,
+Parasolid Model, PointFiles, PTC Creo Model File, Siemens NX Model file, Solidworks model file, Step
+file, STL file, JT model file.
+The behavior of the search results in the file selection area is as follows:
+Enable File filters checked: File types are checked depending on the loaded files extensions
+and what the user has selected by hand. Any filter change is ap
+plied to the list only after pressing the Apply filter button. Pressing
+the Refresh Folder (s) / File (s) button then resets the selected
+drive and folder, because they are refreshed again depending on
+the existing loaded file extensions.
+Enable File filters unchecked: All file formats are checked automatically. Files from subfolders
+are also loaded or filtered. This condition is applied automatically
+after pressing the Clear SelectedFolder / Files from drive button.
+Without setting the File Filters, all CAD file formats that are in the selected drive or folder are listed by
+pressing Scan folder (s).
+If CAD file formats are previously selected or selected in the File filters, only the selected CAD ele
+ments are taken into account and listed when scanning the drive or folder by executing Scan folder
+(s)..
+NOTE
+It is also possible to drag and drop files or folders from windows explorer into the
+scan result window of the Batch Converter. All files and folders selected in Windows
+explorer are listed in the scan result window. File and folder changes can be made
+visible by pressing Refresh Folder(s) / Files (s) from Drive.
+5
+
+-- 9 of 14 --
+
+3. After you have set all folders and files filters, confirm the selection by pressing Apply Filter to Current
+Selected List.
+Depending on selection all relevant files appear.
+NOTE
+The files displayed in the folder and file selection window can be removed, checked
+or unchecked at once. To do so, right click into the filter window and select the corre
+sponding function (Remove Selected, Check all, Uncheck all).
+If you want to start a new selection with the primary selected files and folders, press Refresh Folder
+(s) / File (s) List from drive.
+All files and formats that were selected at the beginning of this file scan are displayed again, the filter
+settings are not valid any longer.
+If you want to start a new selection with new folder and file scan, press Clear selected Folder (s) / File
+(s).
+6
+
+-- 10 of 14 --
+
+4. Starting File Conversion
+Once you have selected all relevant files, the file conversion can be started by simply pressing Start con
+version to HMC.
+Before starting, installation of licensed versions of
+hyperCAD,
+hyperCAD-S and
+hyperMILL must be ensur
+ed.
+• Press Start conversion to HMC.
+NOTE
+Depending on file size and file complexity the conversion process takes some minutes
+per file.
+The files will be converted now. The converted file is stored as * .HMC file.
+NOTE
+The resulting HMC of an e2 file is stored as * _e2.HMC.
+• You can see the conversion status and result in the Status window.
+• For pausing the conversion, press Pause.
+7
+
+-- 11 of 14 --
+
+5. Exit the application
+Terminate the file conversion by pressing Quit.
+5.1. Quitting the current CAD conversion
+Terminate the current file conversion by pressing Quit current CAD process.
+8
+
+-- 12 of 14 --
+
+6. Configuring XML file (optional)
+The file hmc BatchConverter.XML contains some relevant settings concerning the behaviour of the tool
+and file selection that can be edited by the user. In general, this file does not have to be edited implicitly.
+Edit hmcBatchConverter.XML if you want to adapt the following relevant directories and data in there:
+1. &lt;Label&gt;
+hyperCAD-S Path&lt;/Label&gt;, e.g. C:\Program Files\OPENMIND\hyperCAD-S\[version]\hmc.exe
+2. &lt;Label&gt;Sleep time unit for multi-threading (in seconds)&lt;/Label&gt;, e.g. 2 seconds
+3. &lt;Label&gt;Time interval for CAD memory size check, no size change is considered hanging CAD (in mi
+nutes) &lt;Label&gt;, e.g. 2 minutes
+4. &lt;Label&gt;LOG files older than this amount of days are deleted when the application starts&lt;/Label&gt;,
+e.g.15 days
+5. &lt;Label&gt;Quit automatically
+hyperCAD-S after EACH SINGLE conversion is finished [TRUE / FALSE] &lt;/
+Label&gt;: TRUE (default setting):hyperCAD-S® will be terminated after converting each file and restar
+ted for converting the next file (pro: more safe; all files will be converted, even if one file causes an
+error, con: time consuming), not converted files are in the folder ‚j‘, see below. FALSE: hyperCAD-S®
+won‘t be terminated after converting each file (pro: much faster, con: if one file causes an error, the
+conversion process will be not terminated, the file conversion will not continue).
+6. &lt;Label&gt;Remember last folder selected by user [TRUE / FALSE] &lt;/Label&gt;: TRUE: last folder will be
+remembered, FALSE: last folder will not be remembered, folder will be empty.
+7. &lt;Label&gt;Overwrite existing hmc [TRUE / FALSE] &lt;/Label&gt;: TRUE: Existing hmc file will be overwritten,
+the file will be converted again, FALSE: Existing hmc file in folder, h &#39;will not be overwritten, the file will
+not be converted again.
+8. &lt;Label&gt;hmc Output Path &lt;/Label&gt;as default it is empty; consult OPENMIND for special settings
+9. &lt;Label&gt;JS Output Path &lt;/Label&gt;as default it is empty; consult OPENMIND for special settings
+10. &lt;Label&gt; LOG Output Path &lt;/Label&gt;as default it is empty; consult OPENMIND for special settings
+11. &lt;Label&gt; not converted models folder &lt;/Label&gt;as default it is empty; consult OPEN MIND for special
+settings
+12. &lt;File type&gt;: Each file type is defined by its specific XML section &lt;FILE-TYPE&gt;, containing the follow
+ing three properties:
+TYPE_NAME Name of the file type, e.g. POINT files
+TYPE_EXTENSIONS All available file extensions for this filetype, e.g. PT ASC XYZ TXT for POINT
+files
+TYPE_ACTIVE Displays file active status, no changes are required here
+• If you delete a complete FILE TYPE section, the deleted FILE TYPE will disappear in the file selection
+area and will not be loaded and filtered any longer.
+• If you delete single extensions from TYPE_EXTENSIONS, e.g. XYZ for TYPE_NAME POINT FILES, the
+deleted extension will disappear in the file selection area and will not be loaded and filtered any longer.
+9
+
+-- 13 of 14 --
+
+7. Troubleshooting
+The batch converter tool should be work reliably. Nevertheless, if problems occur, check the following:
+Conversion of e3 file does not work:
+Load the e3 file in
+hyperCAD-S and save the file as HMC file.
+There are still loading problems with e3 files:
+If trouble occurs when loading to e3 file into
+hyperCAD-S, the following must be checked:
+1. Check installation: Is
+hyperCAD or thinkdesign installed?
+2. Check license: Is a license available for
+hyperCAD or thinkdesign?
+3. Check registration: &quot;... \ OPENMIND \ hyperCAD-S \ [VERSION] \ bin \ converters \ tdhcbridge.dll&quot; is
+not registered. Solution: Run the command &quot;CMD&quot; and insert regsvr32 &quot;... \ OPEN MIND \ hyperCAD-
+S \ [VERSION] \ bin \ converters \ tdhcbridge.dll &quot;. Please use the latest
+hyperCAD-S installation path.
+4. Check registry for old bundle name: &quot;tdesign.exe&quot; disappears after some seconds within the task man
+ager while loading e3 with
+hyperCAD-S. Solution: HKEY_CURRENT_USER \ Software \ think3 \ think
+design \ 2009.3 \ Options \ the key: &quot;BUNDLENAME&quot;.
+5. Check the e3 file:
+Can the e3 file be opened manually?
+Are external components missing? See symbol in the model tree, delete or load and save.
+Are components marked with &quot;light representation&quot;? Check to &quot;full display&quot;
+Occurs an error message while opening the e3 file? Try to solve it. Rebuild the model tree.
+Are corrupt entities inside the model? Check with the command &quot;model quality&quot;
+Copy &amp; paste all entities into a new empty e3 file.
+6. Double clicking on e3 file does not start
+hyperCAD:
+The link between the e3 file and the program is missing. Check in the explorer on the context menu of
+the e3 file: &quot;Open with&quot; and select in the installation folder of
+hyperCAD the exe file, and enable &quot;per
+manent.&quot;
+7. Are there any problems?
+Send the e3 file to the OPEN MIND support team.
+10
+
+-- 14 of 14 --
+
+</pre>
+</body></html>

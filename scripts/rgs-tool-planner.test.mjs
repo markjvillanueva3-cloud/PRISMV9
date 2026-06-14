@@ -612,6 +612,145 @@ describe("T11: unlimited (no timeBudgetMs) — all units planned, nothing deferr
 });
 
 // ---------------------------------------------------------------------------
+// T12: RGS-SYSTEM-UPDATE rule table — new domain-routing assertions (2026-06-04)
+// Tests ≥12 of the 30 new PIPELINE_RULES + structural-exclusion regressions.
+// Uses matchPipelines / matchAgents directly (no I/O needed).
+// ---------------------------------------------------------------------------
+
+describe("T12: new domain pipeline-rule routing (RGS-SYSTEM-UPDATE 2026-06-04)", async () => {
+  const { matchPipelines, matchAgents } = await import("./lib/rgs-pipeline-rules.mjs");
+  const u = (title, description = "") => ({ title, description });
+
+  // Helper: assert at least one matched skill equals the expected value
+  function assertSkill(unit, expectedSkill) {
+    const pipes = matchPipelines(unit);
+    const skills = pipes.map((p) => p.skill);
+    assert.ok(
+      skills.includes(expectedSkill),
+      `Expected skill "${expectedSkill}" for unit "${unit.title}" — got: ${skills.join(", ")}`
+    );
+  }
+
+  // Helper: assert NO skill equals the forbidden value
+  function assertNotSkill(unit, forbiddenSkill) {
+    const pipes = matchPipelines(unit);
+    const skills = pipes.map((p) => p.skill);
+    assert.ok(
+      !skills.includes(forbiddenSkill),
+      `Forbidden skill "${forbiddenSkill}" must NOT appear for unit "${unit.title}" — got: ${skills.join(", ")}`
+    );
+  }
+
+  // Rule #1 — sierra: regen-viz / ghost-roost → /audit-viz-first
+  it("rule #1 sierra: regen-viz routes to /audit-viz-first", () => {
+    assertSkill(u("U-VIZ-MERGE regen-viz streaming OOM rewrite"), "/audit-viz-first");
+  });
+
+  // Rule #2 — india: LoRA / GNN / retrain → /ai-train-india
+  it("rule #2 india: LoRA fine-tune routes to /ai-train-india", () => {
+    assertSkill(u("U-LORA-TRAIN LoRA fine-tune for mill domain"), "/ai-train-india");
+  });
+
+  // Rule #3 — india: RAG / HNSW → /wiki-query
+  it("rule #3 india: corpus embedding HNSW routes to /wiki-query", () => {
+    assertSkill(u("U-RAG-EMBED corpus embedding HNSW vector index"), "/wiki-query");
+  });
+
+  // Rule #4 — golf: MCP daemon / fleet-reaper → /fleet-reaper
+  it("rule #4 golf: MCP daemon watchdog routes to /fleet-reaper", () => {
+    assertSkill(u("U-MCP-RESTART MCP daemon watchdog actuator"), "/fleet-reaper");
+  });
+
+  // Rule #5 — oscar: speed-feed calibration → /auto-speed-feed
+  it("rule #5 oscar: speed-feed calibration routes to /auto-speed-feed", () => {
+    assertSkill(u("U-SFC-COMBO-HARNESS combinatorial speed-feed calibration"), "/auto-speed-feed");
+  });
+
+  // Rule #6 — oscar: G-Wizard vendor parity → /auto-speed-feed
+  it("rule #6 oscar: G-Wizard routes to /auto-speed-feed", () => {
+    assertSkill(u("U-GWIZ-PARITY G-Wizard toolcrib comparator"), "/auto-speed-feed");
+  });
+
+  // Rule #7 — echo: post-processor / G-code dialect → /post-generate
+  it("rule #7 echo: post-processor G-code dialect routes to /post-generate", () => {
+    assertSkill(u("U-POST-DARK-UNWIRE post-proc G-code dialect controller"), "/post-generate");
+  });
+
+  // Rule #17 — charlie: quoting / cost estimating → /quote-to-ship
+  it("rule #17 charlie: cost estimating margin DFM routes to /quote-to-ship", () => {
+    assertSkill(u("U-QP-COST-MODEL cost estimating margin DFM"), "/quote-to-ship");
+  });
+
+  // Rule #18 — alpha: ollama / model routing → /ollama-route-check
+  it("rule #18 alpha: ollama offload model routing routes to /ollama-route-check", () => {
+    assertSkill(u("U-OLLAMA-ROUTE-FIX model routing offload nudge"), "/ollama-route-check");
+  });
+
+  // Rule #21 — hotel: ERP / accounting → /biz-health
+  it("rule #21 hotel: invoice payroll accounting routes to /biz-health", () => {
+    assertSkill(u("U-ERP-WIRE invoice payroll accounting ledger"), "/biz-health");
+  });
+
+  // Rule #27 — xray: OCR dimension reconcile → /extract-xray
+  it("rule #27 xray: OCR dimension reconcile routes to /extract-xray", () => {
+    assertSkill(u("U-XRAY-DIM-ADAPTERS OCR dimension reconcil cross-source dim"), "/extract-xray");
+  });
+
+  // Rule #28 — xray: GD&T / datum → /cad-tolerance-check
+  it("rule #28 xray: GD&T datum FCF routes to /cad-tolerance-check", () => {
+    assertSkill(u("U-GDT-DATUM gd&t datum FCF tolerance stack schema-tie"), "/cad-tolerance-check");
+  });
+
+  // Rule #30 — lima: academy / course / MIT-OCW → /learn-corpus
+  it("rule #30 lima: academy course curriculum MIT-OCW routes to /learn-corpus", () => {
+    assertSkill(u("U-ACADEMY-SVI academy course curriculum MIT-OCW learning-path"), "/learn-corpus");
+  });
+
+  // Rule #30 — polysemy guard: "of course" must NOT route to /learn-corpus
+  it("rule #30 polysemy: 'of course' does NOT route to /learn-corpus", () => {
+    assertNotSkill(u("of course this is a general comment about the build"), "/learn-corpus");
+  });
+
+  // STRUCTURAL EXCLUSION #1: WEDM-post unit hits /wedm (not /post-generate as top match)
+  it("structural exclusion: WEDM post-emit unit routes to /wedm, NOT /post-generate", () => {
+    const unit = u("U-WEDM-DIALECT wedm dialect post emit controller");
+    assertSkill(unit, "/wedm");
+    assertNotSkill(unit, "/post-generate");
+  });
+
+  // STRUCTURAL EXCLUSION #2: Wire EDM wiring unit hits /wedm (not /wire-unwired)
+  it("structural exclusion: Wire EDM dispatcher wiring unit does NOT route to /wire-unwired", () => {
+    const unit = u("U-WEDM-WIRE Wire EDM dispatcher wiring orphan");
+    assertSkill(unit, "/wedm");
+    assertNotSkill(unit, "/wire-unwired");
+  });
+
+  // Agent rule: SFC / speed-feed → physics-reviewer
+  it("agent rule: speed-feed calibration unit gets physics-reviewer agent", () => {
+    const agents = matchAgents(u("U-SFC-COMBO speed-feed calibration force thermal"));
+    assert.ok(agents.includes("physics-reviewer"), `Expected physics-reviewer — got: ${agents.join(", ")}`);
+  });
+
+  // Agent rule: quoting/pricing → code-analyzer
+  it("agent rule: quoting cost pricing unit gets code-analyzer agent", () => {
+    const agents = matchAgents(u("U-QP-PRICING quoting cost pricing model"));
+    assert.ok(agents.includes("code-analyzer"), `Expected code-analyzer — got: ${agents.join(", ")}`);
+  });
+
+  // Agent rule: hotel ERP → reviewer
+  it("agent rule: ERP invoice payroll unit gets reviewer agent", () => {
+    const agents = matchAgents(u("U-ERP-GL invoice payroll ledger accounting"));
+    assert.ok(agents.includes("reviewer"), `Expected reviewer — got: ${agents.join(", ")}`);
+  });
+
+  // Agent rule: academy course → reviewer
+  it("agent rule: academy course unit gets reviewer agent (citation-provenance R9)", () => {
+    const agents = matchAgents(u("U-ACADEMY-CERT academy course curriculum certification"));
+    assert.ok(agents.includes("reviewer"), `Expected reviewer — got: ${agents.join(", ")}`);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Cleanup
 // ---------------------------------------------------------------------------
 

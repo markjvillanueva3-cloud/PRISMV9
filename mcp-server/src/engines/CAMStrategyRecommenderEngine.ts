@@ -38,6 +38,23 @@ export interface StrategyRecRequest {
   material?: string;
   /** Cap returned alternatives. Defaults to 5. */
   max_alternatives?: number;
+  /** Optional learned empirical rankings (win-rate per strategy), injected by the
+   *  dispatcher so the recommender stays pure. Re-ranks catalog candidates by
+   *  proven shop-floor effectiveness -- the closed-loop "consume" of learning. */
+  empirical_ranking?: ReadonlyArray<EmpiricalStrategySignal>;
+}
+
+/** Learned empirical signal for one strategy, derived from
+ *  SelfLearningCAMEngine.strategyRanking().rankings and injected by the dispatcher
+ *  (keeps this engine free of any I/O-bearing import). */
+export interface EmpiricalStrategySignal {
+  strategy: string;
+  /** Fraction of times this strategy was the best (0..1; 0.5 = neutral). */
+  winRate: number;
+  /** Observation-count confidence band from the learner. */
+  confidence: "low" | "medium" | "high";
+  /** Number of real observations behind this signal. */
+  observations: number;
 }
 
 export interface StrategyCandidate {
@@ -47,6 +64,12 @@ export interface StrategyCandidate {
   cams: ReadonlyArray<string>;
   tags: ReadonlyArray<string>;
   materials: ReadonlyArray<string>;
+  /** Set when a learned empirical win-rate moved this candidate's catalog score. */
+  empirical_adjusted?: boolean;
+  /** The learned win-rate applied (0..1), present when empirical_adjusted. */
+  empirical_win_rate?: number;
+  /** The learned confidence band applied, present when empirical_adjusted. */
+  empirical_confidence?: "low" | "medium" | "high";
 }
 
 export interface StrategyRecResult {
@@ -54,6 +77,10 @@ export interface StrategyRecResult {
   part_hint: string;
   material: string;
   recommended_strategy: string | null;
+  /** Winner's score. Catalog scores are bounded [0, 1.05]; a learned empirical
+   *  boost can push an adjusted winner ABOVE 1.05 (proven shop-floor wins may
+   *  outrank pure catalog relevance). Treat as a ranking signal, not a normalized
+   *  confidence. */
   recommended_score: number;
   rationale: string;
   alternatives: StrategyCandidate[];
@@ -253,6 +280,28 @@ const materialMatch = (
   return 0;
 };
 
+/** Empirical re-rank coefficient: the max amount a proven win-rate can move a
+ *  catalog score. Bounded so catalog relevance stays primary and learning only
+ *  reorders near-ties / nudges. Max |delta| = ALPHA * 1.0(high) * 0.5 = 0.15. */
+const EMPIRICAL_RERANK_ALPHA = 0.3;
+const EMPIRICAL_CONFIDENCE_WEIGHT: Record<"low" | "medium" | "high", number> = {
+  low: 0.3,
+  medium: 0.65,
+  high: 1.0,
+};
+
+/** Bounded catalog-score delta from a learned win-rate (centered at 0.5): a
+ *  strategy that empirically wins > 50% of the time is boosted, < 50% dampened,
+ *  scaled by observation confidence. Zero when the signal is missing/empty. */
+export function empiricalScoreDelta(sig: EmpiricalStrategySignal | undefined): number {
+  // Defensive on the injected (external) signal: reject a non-finite win-rate so a
+  // malformed input can never propagate NaN into a candidate score (and poison the sort).
+  if (!sig || !Number.isFinite(sig.winRate) || !(sig.observations > 0)) return 0;
+  const w = EMPIRICAL_CONFIDENCE_WEIGHT[sig.confidence] ?? EMPIRICAL_CONFIDENCE_WEIGHT.low;
+  const centered = Math.max(0, Math.min(1, sig.winRate)) - 0.5;
+  return EMPIRICAL_RERANK_ALPHA * w * centered;
+}
+
 export class CAMStrategyRecommenderEngine {
   constructor(
     private loader: CAMCatalogLoaderEngine = camCatalogLoaderEngine,
@@ -310,6 +359,27 @@ export class CAMStrategyRecommenderEngine {
       };
     });
 
+    // Empirical re-rank (closed-loop consume): nudge catalog scores by the learned
+    // shop-floor win-rate per strategy. Injected + bounded; graceful no-op when no
+    // learning data is supplied, so cold callers behave exactly as before.
+    if (req.empirical_ranking && req.empirical_ranking.length > 0) {
+      const empIndex = new Map<string, EmpiricalStrategySignal>();
+      for (const sig of req.empirical_ranking) {
+        if (sig && typeof sig.strategy === "string") {
+          empIndex.set(sig.strategy.toLowerCase().trim(), sig);
+        }
+      }
+      for (const cand of scored) {
+        const sig = empIndex.get(cand.strategy.toLowerCase().trim());
+        const delta = empiricalScoreDelta(sig);
+        if (delta !== 0 && sig) {
+          cand.score = Math.max(0, cand.score + delta);
+          cand.empirical_adjusted = true;
+          cand.empirical_win_rate = sig.winRate;
+          cand.empirical_confidence = sig.confidence;
+        }
+      }
+    }
     scored.sort((a, b) => b.score - a.score || a.strategy.localeCompare(b.strategy));
     const positives = scored.filter((c) => c.score > 0);
 
@@ -341,7 +411,7 @@ export class CAMStrategyRecommenderEngine {
       material,
       recommended_strategy: winner.strategy,
       recommended_score: winner.score,
-      rationale: `${winner.strategy} won with score ${winner.score.toFixed(3)} — ${winner.rationale}`,
+      rationale: `${winner.strategy} won with score ${winner.score.toFixed(3)}${winner.empirical_adjusted ? ` (learned win-rate ${(winner.empirical_win_rate ?? 0).toFixed(2)}, ${winner.empirical_confidence} confidence)` : ""} -- ${winner.rationale}`,
       alternatives,
       total_corpus_size: this.corpus.length,
       catalog_coverage_pct: coverage,

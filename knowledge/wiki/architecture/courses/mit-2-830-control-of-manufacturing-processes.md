@@ -38,8 +38,30 @@ related:
 
 <!-- AUTO-END -->
 
+## Live extraction (2026-05-23, slot:india U-MIT-LIVE-EXTRACT)
+
+First end-to-end run of the MIT-OCW extraction pipeline (URL resolver `b99cd0c42f` → WebFetch/WebSearch → wiki update). Source: `https://ocw.mit.edu/courses/2-830j-control-of-manufacturing-processes-sma-6303-spring-2008/`.
+
+| Field | Verified value |
+|---|---|
+| Course code (full) | **2.830J / 6.780J / ESD.63J** (joint MechE / EECS / ESD) |
+| Cross-listing | Singapore-MIT Alliance **SMA 6303** |
+| Instructors | Prof. David Hardt, Prof. Duane Boning |
+| Term | Spring 2008 |
+| Level | Graduate |
+| Prerequisites | 2.010 (classical controls) and/or 15.075 (statistics), or equivalent |
+| **Required textbook** | **Montgomery, Douglas C. *Introduction to Statistical Quality Control* (5th ed.). Wiley, 2004. ISBN 9780471656319.** |
+| Lecture 9 topic | Advanced and Multivariate SPC — covers Xbar and S, moving average, **EWMA**, **CUSUM** (confirms PRISM's [[ewmaengine]] + [[cusumengine]] lineage) |
+| Course description | Statistical modeling and control in manufacturing processes. Experimental design + response surface modeling to understand manufacturing process physics. Defect and parametric yield modeling and optimization. |
+
+**Resolver bug surfaced:** the URL grammar this course uses (`2-830j-control-of-manufacturing-processes-sma-6303-spring-2008`) is NOT the canonical `<courseId>-<title>-<term>` pattern PRISM's `MitOcwResourceResolverEngine.resolve()` predicts. Joint courses include the SMA cross-listing as an extra slug fragment. Documented in [[reference_mit_ocw_resolver_joint_course_slug_bug_2026_05_23]] for sibling-slot fix.
+
+**EWMA hand-triplet update:** the primary source citation in [[ewmaengine]] is Roberts (1959). The MIT-OCW teaching context is now confirmed: **Montgomery 5th ed Chapter 9** is the textbook MIT 2.830 uses for EWMA — this is the citation lima should add to engine JSDoc + [[reference_mit_2_830_ewma_formula_engine_triplet_2026_05_23]] for course-textbook traceability.
+
 ## See also
 
 - Course catalog: [[courses-index]]
 - MIT course engines: [[mitcourseintegrationengine]] · [[mitcourseknowledgeengine]] · [[mitcoursedeeplearningengine]]
 - Extracted MIT modules: [[monolith-modules-index]] (category `mit`)
+- Live-extract resolver: [[reference_mit_ocw_resolver_joint_course_slug_bug_2026_05_23]]
+- EWMA triplet: [[ewma-run-to-run-controller-2026-05-23]]

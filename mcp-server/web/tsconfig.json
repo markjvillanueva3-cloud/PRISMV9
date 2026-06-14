@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "// noUnusedLocals/noUnusedParameters": "false intentionally — these are style flags, not correctness. ESLint's @typescript-eslint/no-unused-vars handles this better (supports underscore-prefix exemption, fine-grained per-pattern rules, autofix). All correctness flags (TS2322 / TS2339 / TS2345 / strict / noImplicitAny) remain enforced. Flipped 2026-05-26 (slot golf, /goal tsc-fix loop) — cleared 89 TS6133/TS6196 of 332 errors in shipped UI; the remaining 243 are real type drift, fixed per-file.",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}

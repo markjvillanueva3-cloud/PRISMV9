@@ -20,6 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -37,7 +38,7 @@ const PER_LAYER_CAP = { L0: 14, L1: 30, L2: 16, L3: 20, L4: 110, Lgit: 28, L5: 6
 
 function main() {
   let G;
-  try { G = JSON.parse(fs.readFileSync(GRAPH, "utf8")); }
+  try { G = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8"))); }
   catch (e) { console.error(`[vault-graph] cannot read graph: ${e.message}`); process.exit(0); }
 
   // edge degree per id

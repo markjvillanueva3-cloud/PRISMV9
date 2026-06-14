@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>WhatsNew</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>WhatsNew</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/documentation/WhatsNew.pdf</code></dd>
+<dt>Pages</dt><dd>58</dd>
+<dt>Text chars</dt><dd>43472</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>What’s New in
+Mastercam X8
+July 2014
+
+-- 1 of 58 --
+
+Mastercam® X8 What’s New
+Date: July 2014
+Copyright © 2014 CNC Software, Inc.— All rights reserved.
+Software: Mastercam X8
+TERMS OF USE 	Use of this document is subject to the Mastercam End User License Agreement. A
+copy of the Mastercam End User License Agreement is included with the
+Mastercam product package of which this document is part. The Mastercam End
+User License Agreement can also be found at:
+http://www.mastercam.com/companyinfo/legal/LicenseAgreement.aspx
+Be sure you
+have the latest
+information!
+Information might have been changed or added since this document was
+published. The latest version of this document is installed with Mastercam or can
+be obtained from your local Reseller. A ReadMe file (ReadMe.pdf)—installed
+with each release—includes the latest information about Mastercam features and
+enhancements.
+
+-- 2 of 58 --
+
+iii
+Contents
+Introduction....................................................................................................... 1
+ 	Mastercam Documentation ........................................................................ 1
+Contact Us ...................................................................................................... 1
+ Mastercam Resources ................................................................................. 1
+System Enhancements.................................................................................. 3
+ Graphics Upgrades ....................................................................................... 3
+ New Customize Interface............................................................................. 3
+ Mastercam Simulator Improvements......................................................... 4
+Viewports........................................................................................................ 4
+Part Sectioning ............................................................................................... 5
+Drill Cycle Handling......................................................................................... 7
+Workpiece Tolerance...................................................................................... 8
+Exporting Support Data .................................................................................. 9
+Additional Simulator Improvements............................................................... 9
+ Code Expert Editor Improvements ............................................................ 10
+Multi-Stream Navigation .............................................................................. 10
+NC Configuration Enhancements ................................................................. 10
+New Find Extents Functionality.................................................................... 10
+Additional Enhancements............................................................................. 10
+ Plane Improvements................................................................................... 10
+ System Configuration Enhancements....................................................... 13
+ File Management Improvements .............................................................. 14
+ Graphics Interaction Improvements.......................................................... 14
+ File Translators............................................................................................ 15
+ Migration Wizard ........................................................................................ 16
+
+-- 3 of 58 --
+
+iv
+Design Enhancements................................................................................. 17
+ New Solids Workflow ................................................................................ 17
+New Interface............................................................................................... 17
+Live Preview ................................................................................................. 17
+OK/New ........................................................................................................ 17
+OK/Regen...................................................................................................... 17
+Improved Selection ...................................................................................... 18
+Hands-on Drag Controls ............................................................................... 18
+Non-interrupting Error Messages................................................................. 18
+History Tree .................................................................................................. 19
+ Solid Direct Editing ..................................................................................... 19
+Push/Pull ....................................................................................................... 19
+Move............................................................................................................. 19
+Split............................................................................................................... 19
+Simplify ......................................................................................................... 19
+ Smart Chains in Solids ............................................................................... 20
+ Primitives Default to Solids........................................................................ 20
+ Solid Edge Awareness ............................................................................... 20
+ Surface Modeling Improvements.............................................................. 23
+Change Normal............................................................................................. 23
+Set Normal ................................................................................................... 23
+Orient Normals ............................................................................................. 23
+Surface to Surface and Surface to Plane Auto Analyze .............................. 23
+Mill Enhancements ....................................................................................... 25
+ 2D Milling..................................................................................................... 25
+2D HST Improvements ................................................................................. 25
+Region Chaining............................................................................................ 26
+2D Contour Enhancements .......................................................................... 30
+ 3D Milling..................................................................................................... 31
+Z Stepdowns ................................................................................................ 31
+3D HST Project Depth Cuts .......................................................................... 32
+
+-- 4 of 58 --
+
+v
+Tilt Away to Avoid Collision.......................................................................... 32
+ Multiaxis Milling.......................................................................................... 34
+Multiaxis Roughing ....................................................................................... 34
+Safety Zone Improvements .......................................................................... 34
+Tool Inspection ............................................................................................. 35
+Additional Improvements ............................................................................. 36
+ Mill Tooling .................................................................................................. 36
+Tool Creation and Editing.............................................................................. 36
+Edit Holder .................................................................................................... 37
+Edit Assembly Names .................................................................................. 38
+Calculate Feeds and Speeds ........................................................................ 40
+Standalone Tool Manager ............................................................................ 41
+ Productivity+ Enhancements ................................................................... 41
+Lathe Enhancements.................................................................................... 43
+ Lathe Stock Model Support ....................................................................... 43
+ New Contour Roughing Toolpath .............................................................. 44
+ Additional Improvements........................................................................... 44
+Mill-Turn Enhancements ............................................................................ 45
+ Level 1 Now Available................................................................................ 45
+ Reference Positions.................................................................................... 45
+ Wibu Licensing ........................................................................................... 46
+ Job Setup Enhancements .......................................................................... 46
+ Tool Loading Enhancements...................................................................... 48
+ Sync Manager Enhancements................................................................... 48
+ Machine Property Changes ....................................................................... 49
+ Additional Enhancements .......................................................................... 49
+
+-- 5 of 58 --
+
+vi
+
+-- 6 of 58 --
+
+Introduction
+Welcome to Mastercam X8! Mastercam X8 features new products and new function-
+ality focused on delivering speed and efficiency for your machining jobs. We are sure
+that you will benefit from what Mastercam X8 has to offer you and your shop.
+Mastercam Documentation
+Mastercam installs the following documents in the \Documentation folder of your
+Mastercam installation:
+	
+What’s New in Mastercam X8
+	
+Mastercam X8 Installation Guide
+	
+Mastercam X8 Administrator Guide
+	
+Mastercam X8 Transition Guide
+	
+Mastercam X8 Quick Reference Card
+	
+Mastercam X8 Post Debugger User’s Guide
+	
+Getting Started with Renishaw Productivity+™
+	
+Mastercam X8 ReadMe
+Contact Us
+For questions about this or other Mastercam documentation, contact the Technical
+Documentation department by email at techdocs@mastercam.com.
+Mastercam Resources
+Enhance your Mastercam experience by using the following resources:
+	
+Mastercam Help—Access Mastercam Help by selecting Help, Contents from
+Mastercam’s menu bar or by pressing [Alt+H] on your keyboard.Also, most
+dialog boxes and ribbon bars feature a Help button that opens Mastercam
+Help directly to related information.
+	
+Mastercam Reseller—Your local Mastercam Reseller can help with most
+questions about Mastercam.
+	
+Technical Support—CNC Software’s Technical Support department (860-875-
+5006 or support@mastercam.com) is open Monday through Friday from 8:00
+a.m. to 5:30 p.m. USA Eastern Standard Time.
+
+-- 7 of 58 --
+
+2 MASTERCAM X8/ Introduction
+	
+Mastercam University—CNC Software sponsors Mastercam University, an
+affordable online learning platform that gives you 24/7 access to Mastercam
+training materials. Take advantage of more than 180 videos to master your
+skills at your own pace and help prepare yourself for Mastercam Certification.
+For more information on Mastercam University, please contact your
+Authorized Mastercam Reseller, visit www.mastercamu.com, or email
+training@mastercam.com.
+	
+Online communities— You can find a wealth of information, including many
+videos, at www.mastercam.com.
+For tech tips and the latest Mastercam news, you can join us on Facebook
+(www.facebook.com/mastercam), follow us on Twitter (www.twitter.com/
+mastercam), and subscribe to our blog,
+Mastercam Xtras (http://
+blog.mastercam.com). Visit our YouTube channel to see Mastercam in action
+(www.youtube.com/user/MastercamCadCam)!
+Registered users can search for information or ask questions on the
+Mastercam Web forum, forum.mastercam.com, or use the knowledge base at
+kb.mastercam.com. To register, select Help, Link on Mastercam.com from
+the Mastercam menu and follow the instructions.
+
+-- 8 of 58 --
+
+System Enhancements
+Graphics Upgrades
+The graphics display in Mastercam X8 has been upgraded to provide cleaner
+aesthetics, along with clearer and more responsive selection while delivering a much
+improved overall look and feel. These improvements include:
+ 	Enhanced model rendering with sharp edges and optimal lighting.
+ 	New highlighting methods for model and chain selection make selection
+faster, clearer, and easier.
+ 	New default gradient background and background colors.
+ 	New modern color palette for toolpaths, wireframe geometry, surfaces, solids,
+etc.
+ 	Individual color settings for solids, surfaces, and wireframe geometry.
+ 	New Solid edge color setting.
+ 	New Surface edge color setting.
+New Customize Interface
+Mastercam X8 uses workspace files to customize your Mastercam look and feel.
+Work-
+space files combine key mapping, toolbar states, screen size and location, right-click
+menu settings, and other interface options. Choose Settings, Customize to experi-
+ence this improved look and feel.
+
+-- 9 of 58 --
+
+4 MASTERCAM X8/ System Enhancements
+NOTE: Right-click menu and key mapping information can be imported
+from X7 to X8, but toolbar information cannot be imported..
+Mastercam Simulator Improvements
+Viewports
+A new View ribbon bar has been added for both Backplot and Verify. The ribbon bar
+contains some items from the Home page (Show and 3D View) and adds two new
+sections called Window and Viewports. The Viewport tools are a new feature to both
+Backplot and Verify that split the graphics window into one of four configurations.
+Each viewport offers separate view orientation and control. Right-click options only
+work in the current view (outlined with a red border). Visibility options affect all view-
+ports (workpiece display, tool display, etc.). The Restore default view option resets
+
+-- 10 of 58 --
+
+MASTERCAM SIMULATOR IMPROVEMENTS 5
+the configuration back to the original size. You can save the viewport configuration to
+your default settings by choosing Home, Save to Defaults.
+Part Sectioning
+The view sectioning tool on the Verify ribbon bar has been expanded to add three
+additional plane orientations. In an improvement targeted toward Mill users, when the
+planes are initially displayed, they are oriented around the center of gravity of your
+part. Even if your part is not near the system origin, it will still section efficiently.
+
+-- 11 of 58 --
+
+6 MASTERCAM X8/ System Enhancements
+Selecting one of the ¾ view orientations displays two shaded planes - these clipping
+planes can be moved by left-click/hold and dragging the cursor to a new location.
+
+-- 12 of 58 --
+
+MASTERCAM SIMULATOR IMPROVEMENTS 7
+You can also use just one clipping plane at a time to create the part view you need.
+Drill Cycle Handling
+Drill cycles in both Backplot and Verify now respect the settings in the parameter
+pages, so you see the tool moving in and out as defined. This applies to all cycles for
+Mill and Lathe.
+
+-- 13 of 58 --
+
+8 MASTERCAM X8/ System Enhancements
+Workpiece Tolerance
+The Backplot/Verify Options dialog box includes a new Workpiece tolerance option.
+Targeted towards users with very small parts, it gives you better control over the work-
+piece quality. The Verify/Compare feature provides better results, since you can now
+match the tolerance between the part and the workpiece.
+
+-- 14 of 58 --
+
+MASTERCAM SIMULATOR IMPROVEMENTS 9
+Exporting Support Data
+To improve customer support, you can now save your Mastercam Simulator session
+data to a file to send to CNC Software, Inc. for analysis. Choose File, Help, Export
+Support Data. Enter a file name and all the data for your Simulator session is saved.
+Additional Simulator Improvements
+ 	Improved image quality of custom (STL or solid) stock.
+ 	Display correct feed rate for each move.
+ 	Corrected displayed values in the Move List and measuring tools, which are
+now relative to the current toolpath’s WCS instead of world coordinates.
+ 	Included support for Steady Rest operation.
+ 	Improved lighting source and direction.
+ 	Added message when Stop Condition is triggered.
+ 	Added support for stock origin with WCS offsets.
+ 	Improved quality and reduced size of mesh saved in STL file.
+
+-- 15 of 58 --
+
+10 MASTERCAM X8/ System Enhancements
+Code Expert Editor Improvements
+Multi-Stream Navigation
+The editor in Mastercam Code Expert now properly supports the display of any
+number of streams. The editor uses the stream definition in NC Configuration and the
+starting and ending characters for each stream to determine if single or multiple files
+are required. You can toggle the display of each stream on and off in a new Navigation
+pane. Sync codes are now graphically linked between visible streams, and the Navi-
+gator shows which streams contain associated sync points when you hover over the
+code.
+NC Configuration Enhancements
+NC Configuration allows you to tailor Code Expert display for NC files by defining the
+number of streams, file extensions, sync characters, tool callouts, comments, and other
+features for individual machine output.
+You can access the new interface for creating and modifying the NC Configurations in
+the Application Options dialog box and directly using the NC Document ribbon bar.
+Default NC Configurations are provided for several machine and control types,
+providing easy starting points for user customization.
+New Find Extents Functionality
+NC File document types now include an Extents pane which lists the extents for
+address characters in the NC file. The address characters are easily defined for reuse in
+the NC Configuration and can be customized in each NC document type. Double-
+clicking on an extent moves the cursor in the NC document to the location where the
+value appears.
+Additional Enhancements
+ 	Fonts and Colors are now fully customizable for each document type.
+ 	Go To Bookmark functionality added, which allows you to add a bookmark
+to a document and easily return to that bookmark as desired.
+Plane Improvements
+Throughout Mastercam X8, the term “view” has been replaced with the term “plane”
+(except for graphics views). A Mastercam Plane contains a view and an origin, and a
+
+-- 16 of 58 --
+
+PLANE IMPROVEMENTS 11
+View is a matrix defining an orientation. In keeping with this change, the View
+Manager is now the Plane Manager.
+
+-- 17 of 58 --
+
+12 MASTERCAM X8/ System Enhancements
+New options are also available in the right-click menu of this dialog box.
+ 	Planes are marked “dirty” if their regeneration fails. Any toolpaths that use
+that plane will also be marked dirty.
+ 	You cannot make changes to the default planes. You also cannot delete a
+plane that fits any of the following criteria:
+ 	Plane is locked.
+ 	Plane is being used as the active Tplane, Cplane, WCS, or Gview.
+ 	Plane is used in a machine group.
+ 	Plane names are no longer limited to 40 characters.
+ 	Selecting geometry to define a plane will always offer eight possible plane
+options.
+ 	The WCS, Tplane, and Cplane names have been moved to the status bar to
+provide a cleaner drawing space. When you hover over the status bar area, a
+
+-- 18 of 58 --
+
+SYSTEM CONFIGURATION ENHANCEMENTS 13
+tooltip displays containing extended plane information. The Gview (if defined)
+remains on the screen.
+ 	Automatic work offset assignment has been improved, with better
+performance and handling of conflicting assignments. In addition, the Work
+offset already used warning can now be turned off.
+System Configuration Enhancements
+ 	The Large Buttons setting has been moved from Configuration to
+Customize.
+ 	Multiple viewport support and GDI graphics support options have been
+removed.
+ 	The Toolbars and Keymap startup settings have been replaced by a
+Workspace startup setting.
+
+-- 19 of 58 --
+
+14 MASTERCAM X8/ System Enhancements
+ 	Complicated lighting settings have been replaced with a new Lighting mode
+setting. The session-only Shading Settings command and dialog have also
+been removed.
+ 	“Mastercam” communication functionality has been removed. CIMCO 7 is
+now the default and only distributed option.
+File Management Improvements
+You can now open all supported file types by dragging files from Windows Explorer or
+your desktop and dropping them onto the graphics area of an open Mastercam
+session. You can also drag and drop a file onto the Desktop shortcut to open a new
+session of Mastercam.
+In addition, uppercase and lowercase characters are now supported for file names, file
+extensions, plane names, etc. and are no longer forced to all uppercase.
+Graphics Interaction Improvements
+ 	The 3D Gnomon has been modified and is used as the primary control in the
+new Move function along with Dynamic Xform and Dynamic Planes. When
+
+-- 20 of 58 --
+
+FILE TRANSLATORS 15
+using the linear or rotate options, an editable field displays the current values
+and allows you to directly input values.
+ 	Pressing [Spacebar] now repeats the last command when in an idle state.
+ 	The middle mouse button modifier key to toggle panning and spinning has
+been changed from [Alt] to [Shift].
+ 	The key used to dynamically rotate about the screen normal has been
+changed from [Shift] to [Ctrl].
+ 	Holding down the X, Y, or Z key during dynamic rotation now locks the
+respective axis. This requires the Use &#39;Free&#39; mode in Dynamic Spin option to
+be on.
+ 	Toolpaths now remain visible during dynamic rotation.
+File Translators
+ 	File importers which import solids will now name the solid to match the file
+name.
+ 	Catia V5 - added support for V5 R23.
+ 	Unigraphics - added import support for NX9.
+ 	Parasolids - added support for V26.
+Use the axis rotation handle to
+rotate in multiple planes.
+AutoCursor and the 2D/3D
+switch affect this method.
+Use the midpoint rotation
+handle to rotate about the
+opposite axis in relative
+degrees in the current
+plane.
+Use the origin handle to move
+the entire gnomon in its current
+orientation to a new XYZ
+location.
+Use the plane handle to orient
+the XY plane.
+Use the linear axis handle to
+move along the selected axis.
+Click to switch
+between moving
+geometry and
+manipulating axes.
+
+-- 21 of 58 --
+
+16 MASTERCAM X8/ System Enhancements
+Migration Wizard
+Mastercam&#39;s Update Folder and Migration Utility features have been combined into
+a new Migration Wizard. You can access this new feature by choosing File, Migration
+Wizard.
+The Migration Wizard offers a Basic mode and an Advanced mode. The Basic mode
+will automatically update all Mastercam file types of the previous version (for example,
+Mastercam X7) from a given location, while the Advanced mode provides additional
+control over file types and previous versions to migrate.
+The file update process has also been improved to provide a seamless, more efficient
+experience. Migration results are now displayed in the Mastercam Event Log as well.
+
+-- 22 of 58 --
+
+Design Enhancements
+New Solids Workflow
+The solids interface and workflow has been completely redone for Mastercam X8 and
+makes constructing and editing Solids a lot easier and more intuitive then it&#39;s ever
+been. Every existing Solids function has been updated to reflect this new workflow.
+New Interface
+All solids functions have been given a new
+modern interface that allows you to work in
+the interface and on the screen as needed.
+Live Preview
+With the live preview, you will now see the
+results of changes made in the interface as
+you work - no more entering values into a
+dialog box and then clicking OK hoping you
+didn&#39;t make a mistake.
+OK/New
+While creating a new operation, you have the
+option of clicking OK to finish the operation
+and exit the function, or clicking OK/New
+which will finish the operation and start a
+new one without forcing you to restart the
+function manually.
+OK/Regen
+Prior to this enhancement, any changes
+made to an existing operation required you
+to click the Regen button at the top of the
+Solids Manager. In X8, we added an OK/
+Regen button that exits the function and
+regenerates the solid at the same time.
+
+-- 23 of 58 --
+
+18 MASTERCAM X8/ Design Enhancements
+Improved Selection
+By putting the solid selection filters in a new dialog that pops up at the start of an
+operation, it&#39;s easier to set them up as you are working.
+Holding the [Shift] key down while selecting an edge selects all tangent edges at the
+same time, and holding [Shift] while selecting a face will select all tangent faces at the
+same time. Wireframe, faces, edges, and bodies can be edited inside of the dialog
+itself. This eliminates the need for a separate branch in the Solid tree and makes
+adding and removing items much easier.
+Hands-on Drag Controls
+The single-axis arrow is used in various functions in X8 Solids and can be used to set
+distances on the screen without having to enter them manually in the dialog. This
+includes the ability to type in values on the fly when those controls are in use. The new
+Push/Pull functionality relies on it (see page 19 for more information), and it supple-
+ments the new interface of Extrude, Sweep, Revolve, Thicken, and Shell.
+Non-interrupting Error Messages
+With the new Live preview capability, most error messages have been made so they
+don&#39;t interrupt the workflow. A warning text box displays in the upper right corner of
+the screen to show that the solid in its current state of editing has an error. The
+message may just be a warning or may be more informative. This allows you to make
+Click on the arrow to move
+geometry from its initial
+position.
+The text field dynamically
+updates as you move the
+arrow. You can also type in a
+value.
+The red shaded area shows
+how far you moved from the
+reference point.
+The reference point is initially located at the
+end of the arrow and remains in the same
+position when you move the arrow. Use
+the AutoCursor to move the reference
+point.
+
+-- 24 of 58 --
+
+SOLID DIRECT EDITING 19
+changes to eliminate this error state without having to stop what you are doing and
+dismiss a pop-up dialog.
+History Tree
+In earlier releases of Mastercam Solids, the creation and editing of operations had
+different rules and workflows. Now editing and creating operations is approached in
+the same manner, which simplifies the Solid History and reduces each operation to a
+single branch instead of three branches. In X8, all you need to do is double-click on an
+operation to open it for editing.
+Solid Direct Editing
+In X7, we began to work in the area of direct editing solid bodies. Many users import
+solids from other systems and have no easy way to prepare these models for
+machining. In X8, we have greatly expanded these capabilities to make the process of
+model preparation easier. All of these options have been placed under a new Model
+Prep menu.
+NOTE: All of our direct editing functions remove the solid history. Undo
+restores the history as it was before the direct editing function.
+Push/Pull
+Use it to offset faces or push edges into fillets.
+Move
+The Move function works with faces and allows you to translate or rotate them on
+your solid body. It can be used to move or copy faces or even just to add draft.
+Split
+The Split function in X8 splits a solid face into multiple faces to be used with Move or
+Push/Pull. Split supports two methods: Wireframe and Flowline. The Wireframe
+method projects wireframe geometry onto a face to form new edges and faces. The
+Flowline or UV method splits a face along its UV flowlines.
+Simplify
+Simplify was introduced in X7 but has been improved in X8. This function simplifies a
+body and combines faces on a case-by-case basis by selecting faces or edges.
+
+-- 25 of 58 --
+
+20 MASTERCAM X8/ Design Enhancements
+Smart Chains in Solids
+This enhancement automatically reconnects wireframe chains that have been edited
+so you don&#39;t have to re-chain them. The classic example of the smart chain enhance-
+ment is seen when you extrude a rectangle, then go back and fillet a corner. In
+previous versions, you would have to re-chain the wireframe; in X8, you just have to
+regenerate the operation. This enhancement affects Extrude, Revolve, and Sweep
+operations.
+Primitives Default to Solids
+On systems with Solids enabled, all primitives will default to solids instead of surfaces.
+If you manually switch to surfaces, then the change will remain modal for the session.
+Solid Edge Awareness
+Back in X6, we introduced the ability to use solid edges for trimming wireframe enti-
+ties to solid edges and to find theoretical intersections between solid edges in space.
+Both changes were aimed at eliminating the need to create wireframe as a reference
+entity where a solid edge already exists.
+For X8, we have taken this much further and adapted the idea of Solid Edge Aware-
+ness throughout wireframe modeling. Our goal for X8 is to allow solid edges to be
+used as reference entities and eliminate the need to create temporary geometry.
+In case you want to ignore a solid edge and force a function to pick wireframe instead,
+we tied Solid Edge Awareness to the Edge filter on the General Selection bar. If you are
+in a function that supports Solid Edge Awareness, the Edge filter will be available and
+can be used to recognize or ignore solid edges for that function.
+The following images show the three states the General Selection bar will use to indi-
+cate if a function is Solid Edge aware and if it is currently active or not.
+This is how the General Selection bar looks if Solid Edges are not supported in the
+current function:
+This is how the General Selection bar looks if Solid Edges are supported, but not
+enabled for the current function (note the solids icons):
+
+-- 26 of 58 --
+
+SOLID EDGE AWARENESS 21
+This is how the General Selection bar looks if Solid Edges are supported
+and enabled
+for the current function:
+Here is a current list of functions that support Solid Edges as reference geometry:
+AutoCursor 	Relative Along an Entity
+Nearest
+Perpendicular from a position to an edge
+Tangent from a position to an edge
+Intersection
+Trim/Divide 	*Solid edges are not edited but can be used
+Trim 1
+Trim 2
+Trim 3
+Divide
+Break at intersection 	(used as an intersection entity)
+Xform 	Offset (single entity offset)
+Mirror
+Dimensions 	Linear
+Angular
+Points 	Dynamic
+
+-- 27 of 58 --
+
+22 MASTERCAM X8/ Design Enhancements
+Segment
+Line 	Parallel
+Closest
+Bisect
+Perpendicular
+Tangent through a point
+Arcs and Circles 	Circle Center Point - for tangency conditions
+Arc Polar - for tangency conditions
+Circle Edge Point
+Arc Endpoints
+Arc 3 points - tangency conditions
+Arc Tangent - 1 entity
+Arc Tangent - point
+Arc Tangent - Center Line
+Arc Tangent - Dynamic Tangency
+Arc Tangent - 3 Entities
+Arc Tangent - 2 Entities
+Analyze 	Angle
+Distance
+Dynamic
+Properties
+
+-- 28 of 58 --
+
+SURFACE MODELING IMPROVEMENTS 23
+Surface Modeling Improvements
+Change Normal
+This function supports the new color display of the non-normal side of the surface in
+shading. The display updates as you select surfaces to flip.
+Set Normal
+The Set Normal function now displays a selectable arrow for flipping individual
+surfaces. This function supports the new color display of the non-normal side of the
+surface in shading.
+Orient Normals
+This new function positions the normals of neighboring surfaces to one another. Once
+you set the initial position, you can flip the results and display arrows that show the
+direction. You can also manually select any of the arrows or surfaces to flip individual
+surfaces. Like the other Edit functions, Orient Normals supports the new color display
+of the non-normal side of the surface in shading.
+Surface to Surface and Surface to Plane Auto Analyze
+In X8, the Fillet Surface to Surface and Surface to Plane functions display a Maximum
+Recommended Radius. Once you select the surfaces, Mastercam analyzes them and
+displays a maximum recommended radius that can be successfully created.
+
+-- 29 of 58 --
+
+24 MASTERCAM X8/ Design Enhancements
+
+-- 30 of 58 --
+
+Mill Enhancements
+2D Milling
+2D HST Improvements
+ 	2D HST now supports multi-core processing on toolpaths with multiple
+machining regions.
+ 	Consolidated Dynamic Area, Core, and Rest toolpaths down to one single
+Dynamic Mill toolpath. Also consolidated Area, Core, and Rest Mill toolpaths
+down to one single Area Mill toolpath.
+ 	2D HST Dynamic Mill includes first pass feed reduction and offset on the Cut
+Parameters page. This reduces the feed rate for the first pass of a dynamic mill
+toolpath entering stock from outside. It also expands the machining region to
+ensure the tool does not engage a lot of material on the very first pass due to
+an unknown exact block size.
+X7 	X8
+
+-- 31 of 58 --
+
+26 MASTERCAM X8/ Mill Enhancements
+Region Chaining
+ 	Removed single region chain support to provide more toolpath control.
+X7 	X8
+
+-- 32 of 58 --
+
+2D MILLING 27
+ 	New Air Region chains define safe air the tool can move within via closed
+chains.
+ 	Open Air Region chain support defines an open side of a closed machining
+region or closes an open machining region chain.
+Air region
+Machining
+region
+Tool can start
+in air region.
+Open air region
+Open
+machining
+region
+
+-- 33 of 58 --
+
+28 MASTERCAM X8/ Mill Enhancements
+ 	New Containment chains constrain machining region motion.
+Air region
+Machining
+region
+Containment region
+
+-- 34 of 58 --
+
+2D MILLING 29
+ 	Job setup stock shape support used when no machining region is selected or
+open machining region chains are selected. Open machining region chains
+are extended to block tangent edges or shortest distance.
+ 	When no stock is defined and no open air is defined, open machining chains
+are closed with a straight line.
+Stock
+Open
+machining
+region
+
+-- 35 of 58 --
+
+30 MASTERCAM X8/ Mill Enhancements
+2D Contour Enhancements
+You can now adjust feeds and speeds on the Multi Passes page, making it easier to
+control your tool motion. In addition, Mastercam X8 adds corner rounding support in
+Ramp and Oscillate modes.
+
+-- 36 of 58 --
+
+3D MILLING 31
+3D Milling
+Z Stepdowns
+3D high speed toolpaths based on Z-level cuts now process Z stepdowns across
+multiple cores.
+
+-- 37 of 58 --
+
+32 MASTERCAM X8/ Mill Enhancements
+3D HST Project Depth Cuts
+Mastercam X8 includes new support on Cut Parameters page for multiple depth cuts.
+The Order by depth checkbox controls the cut order by depth or by input entity.
+Tilt Away to Avoid Collision
+These new options in 3D HST finishing toolpaths provide an easy-to-use introduction
+to 5-axis technology. Additional options on the Holder page use tilting to avoid shank
+and holder collisions during multiaxis motion. This toolpath requires a spherical tool.
+
+-- 38 of 58 --
+
+3D MILLING 33
+NOTE: These options require a Mastercam Multiaxis license.
+
+-- 39 of 58 --
+
+34 MASTERCAM X8/ Mill Enhancements
+Multiaxis Milling
+Multiaxis Roughing
+Multiaxis Roughing is a new strategy added for X8. It allows the easy creation of pock-
+eting toolpaths to rough out pockets that have a curved floor surface. It supports
+offset or Dynamic style strategies, and multiple depth floors.
+Safety Zone Improvements
+Improvements to the Safety Zone feature in multiaxis toolpaths makes defining and
+editing the safety zone much easier. On the dialog box, seeing a representation of the
+shape while defining makes it much easier and more precise to enclose the targeted
+volume.
+
+-- 40 of 58 --
+
+MULTIAXIS MILLING 35
+Tool Inspection
+Tool inspection was added to many of the multiaxis toolpaths, including Blade Expert
+and Port Expert. After you enter an inspection parameter, either in distance or time,
+
+-- 41 of 58 --
+
+36 MASTERCAM X8/ Mill Enhancements
+the tool will retract and trigger an inspection code at the next linking move. Your post
+processor must be modified to support this new feature.
+Additional Improvements
+ 	Enhancements to oscillation in Curve 5-axis.
+ 	Ability to finish blades in Blade Expert with a SWARF algorithm.
+Mill Tooling
+Tool Creation and Editing
+The old style Define Tool dialog box has been replaced with the new interface
+throughout the product. This provides a more consistent user experience for creating
+and editing tools. Some of the existing tool types are also updated so they no longer
+require custom profiles.
+
+-- 42 of 58 --
+
+MILL TOOLING 37
+In preparation for future updates, the group boxes include expanders for advanced
+properties.
+Edit Holder
+The Edit Holder interface has been updated to support additional properties. Prior to
+X8, all non-geometric attributes had to be edited using the stand-alone Tool Manager.
+With the X8 release, you can edit properties such as the upper and lower connection
+type and size from within Mastercam.
+The right-click menu in the Mastercam Tool Manager includes a new Edit Holder
+option. Selecting this option displays the edit holder interface.
+Collapsed state 	Expanded state
+
+-- 43 of 58 --
+
+38 MASTERCAM X8/ Mill Enhancements
+The Edit Holder option is still available in the Holder parameters page for tree-style
+toolpath dialogs, but making it available in the Mastercam Tool Manager is useful
+when working with older toolpath types that do not offer the Holder page.
+In addition, the .TOOLDB format is now the standard for holder libraries. This replaces
+the .HOLDERS file format.
+Edit Assembly Names
+Changing tool, holder, and assembly names is now available through a right-click
+menu option in the Mill operation tool parameters page.
+
+-- 44 of 58 --
+
+MILL TOOLING 39
+The Assembly Name field has also been added to the Holder page for convenience.
+
+-- 45 of 58 --
+
+40 MASTERCAM X8/ Mill Enhancements
+Calculate Feeds and Speeds
+The calculate feed/speed button has been added to the Create and Edit tool dialog
+boxes. This option is useful when you are working on tools inside of Mastercam
+because it can query the workpiece material of the active machine group.
+
+-- 46 of 58 --
+
+PRODUCTIVITY+ ENHANCEMENTS 41
+Standalone Tool Manager
+Geometry properties have been removed from the property grid and replaced with a
+button that will launch the Edit Tool dialog box. You can also double-click on an item
+in the data grid to edit the tool.
+Productivity+ Enhancements
+ 	Update to Renishaw Productivity+ Version 2.0.
+ 	Support for extended character languages.
+ 	Added graphic selection for Calibration Point position.
+ 	Probe posting dialog box now resizable.
+
+-- 47 of 58 --
+
+42 MASTERCAM X8/ Mill Enhancements
+ 	Updated Configuration Tool now includes kinematics configuration interface.
+
+-- 48 of 58 --
+
+Lathe Enhancements
+Lathe Stock Model Support
+Lathe toolpaths can now be included in stock model operations, which can be used for
+subsequent milling operations.
+
+-- 49 of 58 --
+
+44 MASTERCAM X8/ Lathe Enhancements
+New Contour Roughing Toolpath
+This new roughing toolpath is designed to take passes parallel to chained geometry.
+This toolpath is useful for parts where the initial stock shape is similar to the final part
+shape.
+Additional Improvements
+ 	Added Incremental Depth Cuts to Lathe Rough toolpath that allow
+incremented and decremented depth cuts.
+ 	Disable the Tool Display option to see significant processing speed
+improvements for Dynamic Lathe and other toolpaths.
+ 	Lathe stock, tailstock, and steady rest are now associated with any solid body
+used to define them.
+ 	New upper and lower profile options in Create Boundary are very helpful for
+Lathe users.
+
+-- 50 of 58 --
+
+Mill-Turn Enhancements
+Level 1 Now Available
+This new option for Mastercam Mill-Turn is perfect for customers with twin turret
+machines and B-axis solutions that do not require surface machining or 5-axis toolpath
+options.
+Reference Positions
+Mill-Turn now includes the ability to define and select reference positions for the
+approach and retract moves in operations. This provides much better control for repo-
+sitioning between operations. Common reference positions are pre-defined in the
+machine definition, allowing for reuse in each job. Job-specific reference positions are
+also easily defined through a dialog accessed from the Toolpaths Manager.
+
+-- 51 of 58 --
+
+46 MASTERCAM X8/ Mill-Turn Enhancements
+Selecting reference positions to use at specific times during the toolpaths occurs in
+the Sync Manager. The settings are reflected in the Sync Manager graphical display
+and in simulation.
+Wibu Licensing
+Mill-Turn .MACHINE files now require WIBU licenses and are secured binary files.
+Third-party development of .MACHINE environments is now possible through Devel-
+oper licenses.
+Job Setup Enhancements
+ 	Pickoff/cutoff options are now available for single pieces of stock in both left
+and right spindles. Machine definition now controls the availability of
+
+-- 52 of 58 --
+
+JOB SETUP ENHANCEMENTS 47
+continuous bar stock options based upon settings in the chuck component
+(for example, if the chuck is plugged, you cannot use bar stock).
+ 	Mill-Turn now checks the defined chuck bore diameter against the stock
+diameter size. If you select a Continuous bar stock option, error messages
+appear when the stock is larger than the bore. If you select a Single pieces of
+stock option, the stock must be positioned beyond the face of the chuck if
+the stock diameter is larger than the bore.
+
+-- 53 of 58 --
+
+48 MASTERCAM X8/ Mill-Turn Enhancements
+Tool Loading Enhancements
+ 	Tool Setup Manager now accessible from a Toolpaths Manager button.
+ 	Added ability to filter tools by Active Turret/Spindle.
+ 	Drag-and-drop ability added for placing tools on locators loaded on turrets.
+ 	Right-click menu option in operation parameter dialog now allows you to
+load tool and view machine.
+ 	Added ability to load tools that are not used in operations but present in
+machine. This allows for collision detecting tools that are present in the
+machine turret, but not actually used in operations.
+Sync Manager Enhancements
+ 	Connected Stream List Display toggle added. This allows for traditional locked
+scrolling and linked operation branch display versus independent control by
+clicking the toggle or selecting a right-click menu option.
+
+-- 54 of 58 --
+
+MACHINE PROPERTY CHANGES 49
+ 	Mastercam file link indicator moved from Code Expert status bar to document
+tab, which makes it easier to see the link status.
+Machine Property Changes
+ 	NC Output Settings now available for each machine.
+ 	Default NC Destination and Overwrite mode moved from Application Options
+- used for all operations in Mill-Turn Machine Group in Toolpaths Manager,
+but editable for each job in Machine Group Properties.
+ 	Stream control added to allow for file name customization for each stream.
+Additional Enhancements
+ 	Turret Park operations have been changed to select the turret/head to move
+and the destination. This change was required to support machines with
+multiple turrets in the same stream.
+ 	Twin turret machines such as the Okuma LU Series, Doosan PUMA TT Series,
+and others are now supported.
+ 	Added Manual Entry operation support to Mill-Turn, allowing users to enter
+comments and code as needed.
+
+-- 55 of 58 --
+
+50 MASTERCAM X8/ Mill-Turn Enhancements
+
+-- 56 of 58 --
+
+
+
+-- 57 of 58 --
+
+671 Old Post Road
+Tolland, CT 06084 USA
+www.mastercam.com
+Attention! Updates may be available.
+Go to Mastercam.com/Support for the latest downloads.
+
+-- 58 of 58 --
+
+</pre>
+</body></html>

@@ -25,7 +25,9 @@
  *      c. Bounds re-injection at 3 per session via stamp file (avoid infinite
  *         re-prompt loop on a truly-stuck task)
  *
- * Strictly advisory: NEVER blocks Stop. Failure → warn + continue.
+ * Advisory by default (appends a RESUME_LOOP handoff note, NEVER blocks Stop). With
+ * PRISM_FORCE_LOOP_BLOCK=1 it ALSO ENFORCES: blocks Stop to force in-session loop
+ * continuation, bounded by a no-progress stuck-detector. Failure → warn + continue.
  *
  * Knobs:
  *   PRISM_FORCE_LOOP_CONTINUE_DISABLE=1   — skip
@@ -46,9 +48,10 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync, statSync, mkdirSync, readdirSync, renameSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { getTranscriptTokens, CONTEXT_CAP } from "../helpers/session-token-state.mjs";
 
 const REPO_ROOT = "H:/prism";
-const HANDOFFS_DIR = resolve(REPO_ROOT, "state/shared/handoffs");
+const HANDOFFS_DIR = process.env.PRISM_TEST_HANDOFFS_DIR || resolve(REPO_ROOT, "state/shared/handoffs");
 const HELPER_LOOP = resolve(REPO_ROOT, ".claude/helpers/loop-state.mjs");
 const SLOTS_JSON = resolve(REPO_ROOT, "state/shared/chat-slots.json");
 const STAMP_DIR = resolve(REPO_ROOT, "state/shared/.force-loop-continue-stamps");
@@ -57,6 +60,27 @@ const RESUME_LOOP_MARKER = "## RESUME_LOOP";
 const DISABLED = process.env.PRISM_FORCE_LOOP_CONTINUE_DISABLE === "1";
 const VERBOSE = process.env.PRISM_FORCE_LOOP_CONTINUE_VERBOSE === "1";
 const MAX_REINJECT = parseInt(process.env.PRISM_FORCE_LOOP_CONTINUE_MAX ?? "3", 10);
+
+// ENFORCEMENT (operator directive 2026-06-11): AUTO-ENFORCE the loop instead of only
+// suggesting it. When PRISM_FORCE_LOOP_BLOCK=1, an active /loop (status=running,
+// iter<target) BLOCKS Stop ({decision:"block"}) to force in-session continuation.
+// THREE independent bounds keep it safe (it can never spin forever or burn unbounded):
+//   1. the loop's own target -- iter>=target early-returns (loop done -> stops);
+//   2. the no-progress stuck-detector (PRISM_FORCE_LOOP_STUCK_LIMIT, default 3) -- a
+//      wedged loop (iter not advancing) is RELEASED;
+//   3. the context-token ceiling (PRISM_FORCE_LOOP_TOKEN_CEILING_PCT, default 90%) --
+//      near context exhaustion we RELEASE so precompact-auto-trigger can compact; the
+//      loop resumes POST-compact via the advisory RESUME_LOOP note + auto-resume.
+//   Multi-unit /loop rolls are additionally bounded by loop-state's own maxRolls() cap.
+// Verifier note (R12 -- accurate to the LIVE Stop chain): `scrutinize-before-stop` IS
+// wired and runs ahead of this hook, so blocking-to-continue does not bypass scrutiny.
+// `stop_on_failing_tests` / `cost-ceiling-stop` are NOT currently wired in settings.json
+// (0 refs) -- do NOT rely on them as gates behind this enforcement; the token ceiling
+// above is this hook's own cost backstop. Default OFF for back-compat; =1 enforces.
+const BLOCK_ENFORCE = process.env.PRISM_FORCE_LOOP_BLOCK === "1";
+const STUCK_LIMIT = Math.max(1, parseInt(process.env.PRISM_FORCE_LOOP_STUCK_LIMIT ?? "3", 10) || 3);
+const TOKEN_CEILING_PCT = Math.max(1, Math.min(100, parseInt(process.env.PRISM_FORCE_LOOP_TOKEN_CEILING_PCT ?? "90", 10) || 90));
+const STUCK_DIR = resolve(REPO_ROOT, "state/shared/.force-loop-progress-stamps");
 
 function vlog(msg) { if (VERBOSE) process.stderr.write(`[force-loop] ${msg}\n`); }
 
@@ -92,7 +116,10 @@ function resolveSessionId(input) {
 function readLoopState(sid) {
   if (!existsSync(HELPER_LOOP)) return null;
   try {
-    const out = execFileSync("node", [HELPER_LOOP, "read", "--session", sid], { encoding: "utf-8", timeout: 3000 });
+    // process.execPath (absolute node path), NOT bare "node": on Windows execFileSync
+    // without shell can't resolve "node" via PATHEXT -> ENOENT -> this hook was a silent
+    // no-op in production (readLoopState always returned null). (fix 2026-06-11)
+    const out = execFileSync(process.execPath, [HELPER_LOOP, "read", "--session", sid], { encoding: "utf-8", timeout: 3000 });
     if (!out || !out.trim()) return null;
     return JSON.parse(out);
   } catch (e) { vlog(`loop-state read err: ${e.message?.slice(0, 200)}`); return null; }
@@ -112,10 +139,22 @@ function bumpReinjectCount(sid) {
   return cur + 1;
 }
 
-function findHandoff(sid) {
+export function handoffNeedle(sid) {
+  // Handoff files are keyed by the SHORT chatId: HANDOFF-claude-<8hex>-<topic>.md.
+  // sid may arrive as a full UUID (70add462-1791-...) OR as claude-<8hex>; derive the
+  // 8-hex short form. The pre-fix code did f.includes(<full-uuid>) which NEVER matched
+  // (the file only carries the 8-hex prefix) -> the RESUME_LOOP append was DEAD in prod
+  // (CLAUDE.md regression log; mirrors stop-task-boundary-compact-nudge fix 9fcda446a1).
+  const hex = String(sid || "").replace(/^claude-/, "").slice(0, 8);
+  return hex ? "claude-" + hex : "";
+}
+
+export function findHandoff(sid) {
   if (!existsSync(HANDOFFS_DIR)) return null;
+  const needle = handoffNeedle(sid);
+  if (!needle) return null;
   try {
-    const files = readdirSync(HANDOFFS_DIR).filter(f => f.startsWith("HANDOFF-") && f.endsWith(".md") && f.includes(sid));
+    const files = readdirSync(HANDOFFS_DIR).filter(f => f.startsWith("HANDOFF-") && f.endsWith(".md") && f.includes(needle));
     if (!files.length) return null;
     // Newest matching file wins
     const sorted = files.map(f => ({ f, mtimeMs: statSync(resolve(HANDOFFS_DIR, f)).mtimeMs })).sort((a, b) => b.mtimeMs - a.mtimeMs);
@@ -163,6 +202,31 @@ Last note: ${loopState.lastNote ?? "(none)"}
   } catch (e) { vlog(`write err: ${e.message?.slice(0, 200)}`); return false; }
 }
 
+// No-progress stuck-detector. Tracks the iter at which we last blocked; if iter has NOT
+// advanced since the previous block, noProgress increments. At STUCK_LIMIT consecutive
+// no-progress blocks the loop is declared wedged and released (we stop blocking), so
+// enforcement can never become an infinite Stop-block. Fail-soft on any stamp I/O error.
+export function progressGate(sid, iter, stampDir = STUCK_DIR) {
+  const path = resolve(stampDir, `${sid}.progress`);
+  let rec = { lastIter: -1, noProgress: 0 };
+  try { rec = JSON.parse(readFileSync(path, "utf-8")); } catch { /* fresh */ }
+  if (typeof rec.lastIter !== "number" || typeof rec.noProgress !== "number") rec = { lastIter: -1, noProgress: 0 };
+  if (iter > rec.lastIter) rec = { lastIter: iter, noProgress: 0 };          // progress made
+  else rec = { lastIter: iter, noProgress: rec.noProgress + 1 };             // stalled
+  try { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, JSON.stringify(rec)); } catch { /* fail-soft */ }
+  return { stuck: rec.noProgress >= STUCK_LIMIT, noProgress: rec.noProgress };
+}
+
+export function blockReason(loop) {
+  const remaining = loop.target - loop.iter;
+  return `[force-loop-continue] ACTIVE /loop NOT complete -- iter ${loop.iter}/${loop.target} (${remaining} remaining). Continue the loop: do the next iteration of "${loop.task ?? "the task"}", then tick it (node H:/prism/.claude/helpers/loop-state.mjs tick --session <sid> --status ok). Do NOT stop until iter >= target or you hit a genuine spiral. To abandon: loop-state.mjs end --session <sid>.`;
+}
+
+function blockAndExit(loop) {
+  process.stdout.write(JSON.stringify({ decision: "block", reason: blockReason(loop) }) + "\n");
+  process.exit(0);
+}
+
 function main() {
   if (DISABLED) approveAndExit("disabled");
   const input = readStdinJson();
@@ -181,21 +245,48 @@ function main() {
   if (typeof loop.iter !== "number" || typeof loop.target !== "number") approveAndExit("loop state missing iter/target");
   if (loop.iter >= loop.target) approveAndExit(`loop complete (${loop.iter}/${loop.target})`);
 
+  // Advisory handoff append (cross-session safety) -- bounded by MAX_REINJECT so we don't
+  // spam the handoff. This does NOT gate enforcement below (the cap is for the note only).
   const count = reinjectCount(sid);
-  if (count >= MAX_REINJECT) approveAndExit(`re-injection cap hit (${count}/${MAX_REINJECT})`);
+  if (count < MAX_REINJECT) {
+    const handoffPath = findHandoff(sid);
+    if (handoffPath) {
+      const newCount = bumpReinjectCount(sid);
+      const ok = injectResumeLoop(handoffPath, loop, newCount);
+      vlog(`advisory inject: ok=${ok}, count=${newCount}/${MAX_REINJECT}, iter=${loop.iter}/${loop.target}`);
+    } else {
+      vlog("advisory inject skipped: no handoff for sid");
+    }
+  }
 
-  const handoffPath = findHandoff(sid);
-  if (!handoffPath) approveAndExit("no handoff for sid");
+  // ENFORCEMENT: block Stop to force in-session continuation, bounded by the stuck-detector.
+  if (BLOCK_ENFORCE) {
+    // Cost/context backstop: near context exhaustion, RELEASE so precompact-auto-trigger
+    // can compact -- the loop resumes post-compact via the advisory RESUME_LOOP note +
+    // auto-resume. Bounds unattended per-session spend at the context window without
+    // fighting the loop target. Fail-soft: unknown token count -> proceed to block.
+    let usedPct = 0;
+    try { usedPct = (getTranscriptTokens(input) / CONTEXT_CAP) * 100; } catch { usedPct = 0; }
+    if (usedPct >= TOKEN_CEILING_PCT) {
+      approveAndExit(`near context limit (${usedPct.toFixed(0)}% >= ${TOKEN_CEILING_PCT}%) -- releasing for compaction; loop resumes post-compact via RESUME_LOOP`);
+    }
+    const gate = progressGate(sid, loop.iter);
+    if (gate.stuck) {
+      approveAndExit(`loop wedged: ${gate.noProgress} blocks without iter progress (iter=${loop.iter}/${loop.target}) -- released`);
+    }
+    vlog(`ENFORCE block: iter=${loop.iter}/${loop.target}, noProgress=${gate.noProgress}, used=${usedPct.toFixed(0)}%`);
+    blockAndExit(loop);
+  }
 
-  const newCount = bumpReinjectCount(sid);
-  const ok = injectResumeLoop(handoffPath, loop, newCount);
-  vlog(`inject: ok=${ok}, count=${newCount}/${MAX_REINJECT}, iter=${loop.iter}/${loop.target}`);
-  approveAndExit("done");
+  approveAndExit("advisory-only (enforcement off)");
 }
 
-try { main(); }
-catch (e) {
-  vlog(`unexpected err: ${e.message}`);
-  process.stdout.write(JSON.stringify({ continue: true, suppressOutput: true }) + "\n");
-  process.exit(0);
+const _invokedDirectly = process.argv[1] && process.argv[1].replace(/\\/g, "/").endsWith("stop-force-loop-continue.mjs");
+if (_invokedDirectly) {
+  try { main(); }
+  catch (e) {
+    vlog(`unexpected err: ${e.message}`);
+    process.stdout.write(JSON.stringify({ continue: true, suppressOutput: true }) + "\n");
+    process.exit(0);
+  }
 }

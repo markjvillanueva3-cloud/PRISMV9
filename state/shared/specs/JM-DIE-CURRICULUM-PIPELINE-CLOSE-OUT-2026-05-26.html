@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="82c6140d3741470dbc3509857e3c99c7a57a8ead301d3df6ae77b8d346db181d">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JM Die Curriculum Pipeline Close-Out</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>JM Die Curriculum Pipeline Close-Out</h1>
+<div class="meta">rendered from state/shared/specs/JM-DIE-CURRICULUM-PIPELINE-CLOSE-OUT-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-26T23:57:35.085Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">POST-PDF-NODE-MS0 JM Die curriculum pipeline — close-out</li><li class="prism-toc-l2">12 commits shipped (iter9-20)</li><li class="prism-toc-l2">Pipeline architecture (final)</li><li class="prism-toc-l2">Live numbers</li><li class="prism-toc-l2">Key findings</li><li class="prism-toc-l2">Re-emit recipe (5 commands)</li><li class="prism-toc-l2">Consumer wiring</li><li class="prism-toc-l2">Loop terminal</li></ul></nav><h1 class="prism-h1">POST-PDF-NODE-MS0 JM Die curriculum pipeline — close-out</h1>
+<p><strong>Slot:</strong> echo  ·  <strong>Loop:</strong> iter 20/20 (terminal)  ·  <strong>Date:</strong> 2026-05-26  ·  <strong>Branch:</strong> cad-fusion-live-ms0</p>
+<p>Operator directive thread (one /loop run): &quot;extract page by page of notable data that will train the system from the easiest input to complex work&quot; → &quot;extract all your domain pdf, don&#39;t skip anything&quot; → <code class="prism-inline-code">/goal /yolo-mode</code> (cron every 5min) → continue to iter 20.</p>
+<h2 class="prism-h2">12 commits shipped (iter9-20)</h2>
+<table class="prism-md-table"><thead><tr><th>iter</th><th>commit</th><th>unit</th><th>tests added</th></tr></thead><tbody><tr><td>9</td><td><code class="prism-inline-code">0b8f0515ef</code></td><td>U-JM-TRAINING-CURRICULUM</td><td>55 ranker</td></tr>
+<tr><td>10</td><td><code class="prism-inline-code">a0a3549faa</code></td><td>U-JM-TRAINING-CURRICULUM-QUERY</td><td>49 query</td></tr>
+<tr><td>11</td><td><code class="prism-inline-code">2e35693ab6</code> + <code class="prism-inline-code">f0b167e7f2</code></td><td>U-JM-CURRICULUM-TRIBAL-CANDIDATES</td><td>44 candidate</td></tr>
+<tr><td>12</td><td><code class="prism-inline-code">fbd4ad69a1</code></td><td>U-JM-CONTENT-CLASSIFIER</td><td>32 content-classifier</td></tr>
+<tr><td>13</td><td><code class="prism-inline-code">e74af0b4f5</code></td><td>U-CITED-TIPS-EMIT</td><td>35 emitter</td></tr>
+<tr><td>14</td><td><code class="prism-inline-code">56dac81a40</code></td><td>U-CITED-TIPS-README+CLOSEOUT-REFRESH</td><td>—</td></tr>
+<tr><td>15</td><td><code class="prism-inline-code">51d20b3d88</code></td><td>U-CITED-TIP-FETCHER</td><td>40 fetcher</td></tr>
+<tr><td>16</td><td><code class="prism-inline-code">73fe2d40b4</code></td><td>U-CITED-TIP-FETCHER-CLI</td><td>—</td></tr>
+<tr><td>17</td><td><code class="prism-inline-code">238e17c209</code></td><td>U-CITED-TIPS-VIZ</td><td>12 viz</td></tr>
+<tr><td>18</td><td><code class="prism-inline-code">3c72b9c6db</code></td><td>U-CITED-TIPS-VIZ-REGISTER</td><td>—</td></tr>
+<tr><td>19</td><td><code class="prism-inline-code">48d4246853</code></td><td>U-MEMORY-RECENT-POINTER</td><td>—</td></tr>
+<tr><td>20</td><td>(this commit)</td><td>U-PIPELINE-CLOSE-OUT</td><td>—</td></tr></tbody></table>
+<p><strong>Total: 304/304 tests PASS</strong> across 8 test files.</p>
+<h2 class="prism-h2">Pipeline architecture (final)</h2>
+<pre class="prism-codeblock"><code>JM Die TRIBAL+WIKI corpus (80 PDFs, 1.1 GB)
+   ↓ scripts/extract-cam-domain-pdfs.sh (idempotent, cache-aware, SKIP_REGEX for other-slot)
+67 .txt extracts under state/shared/pdf-extracts/jm-die-tribal-wiki/
+   ↓ scripts/generate-training-curriculum.mjs (page split + 6-signal score + R12 fail-loud)
+mcp-server/data/ingestion_cache/training-curriculum/jm-die-easy-to-complex.jsonl (7565 pages)
+   ↓ scripts/generate-curriculum-tribal-candidates.mjs (advanced+complex filter + full-body join)
+   ↓ scripts/lib/jm-die-content-classifier.mjs (content fallback: +26 controllers recovered)
+mcp-server/data/ingestion_cache/curriculum-tribal-candidates/jm-die-curriculum-tribal-candidates.jsonl (94 candidates)
+   ↓ scripts/generate-cited-tips-from-candidates.mjs (per-controller TS emitter)
+mcp-server/src/data/tribal-tips/jm-die-curriculum/ (6 TS files: mazak/siemens/okuma/fanuc/haas/hurco + index.ts + README.md)
+   ↓ scripts/lib/cited-tip-fetcher.mjs (runtime query layer) + scripts/cited-tip-fetch.mjs (CLI)
+   ↓ scripts/generate-cited-tips-viz-features.mjs (system-viz augmentation, registered in regen-viz FAST[])
+PSN: ghost.jm_die_cited_tips_corpus roost + 6 pivots + 6 leaves + 11 bridge edges to MasterPostProcessor*</code></pre>
+<h2 class="prism-h2">Live numbers</h2>
+<ul class="prism-md-list"><li>67 / 80 PDFs extracted (13 SKIP_REGEX matches for other-slot lathe/cad)</li><li>8313 pages scanned → 7565 training-grade (748 noise filtered)</li><li>94 advanced+complex candidates → 63 controller-curated cited tips</li><li>6 controllers: mazak 38 / siemens 14 / okuma 6 / fanuc 3 / haas 1 / hurco 1</li><li>31 candidates remain &quot;unspecified&quot; (future content-classifier work)</li><li>TS-syntax-verified: 0 diagnostics on the 66.6K mazak file</li></ul>
+<h2 class="prism-h2">Key findings</h2>
+<p><strong>Reviewer-B catch at iter11</strong> (P0-2): 88.6% &quot;easy&quot; was masking 39% truly-unscored low-signal pages. Added <code class="prism-inline-code">unscored</code> bucket for score&lt;0.5. Honest distribution: 39 unscored / 50 easy / 9 intermediate / 0.9 advanced / 0.03 complex. R12 fail-loud win.</p>
+<p><strong>iter12 classifier blindspot</strong>: 57/94 candidates had <code class="prism-inline-code">controller: null</code> because filename classifier missed Haas Mill Manual (filename = &quot;English - Mill Operator&#39;s Manual ... NGC ...&quot;). Content-classifier scanning leading 5 pages recovered 26 (first Siemens/Okuma/Fanuc visibility).</p>
+<p><strong>Multi-chat absorption</strong> at iter11: lib + test + spec landed in delta&#39;s <code class="prism-inline-code">f0b167e7f2</code> peer commit while my git index was contended. Documented 3rd occurrence — see <code class="prism-inline-code">[[feedback_commit_to_slot_worktree]]</code>.</p>
+<h2 class="prism-h2">Re-emit recipe (5 commands)</h2>
+<pre class="prism-codeblock" data-lang="bash"><code>bash scripts/extract-cam-domain-pdfs.sh
+node scripts/generate-training-curriculum.mjs
+node scripts/generate-curriculum-tribal-candidates.mjs
+node scripts/generate-cited-tips-from-candidates.mjs
+node scripts/generate-cited-tips-viz-features.mjs</code></pre>
+<p>Or just the system-viz regen (auto-includes the augmentation):</p>
+<pre class="prism-codeblock" data-lang="bash"><code>node scripts/regen-viz.mjs</code></pre>
+<h2 class="prism-h2">Consumer wiring</h2>
+<p>Engine import:</p>
+<pre class="prism-codeblock" data-lang="typescript"><code>import { MAZAK_CITED_TIPS, SIEMENS_CITED_TIPS, type CitedTip } from &quot;@/data/tribal-tips/jm-die-curriculum&quot;;</code></pre>
+<p>Runtime query (any slot):</p>
+<pre class="prism-codeblock" data-lang="bash"><code>node scripts/cited-tip-fetch.mjs --controller=mazak --min-difficulty=advanced --limit=5
+node scripts/cited-tip-fetch.mjs --keyword=macro --json</code></pre>
+<p>Programmatic:</p>
+<pre class="prism-codeblock" data-lang="javascript"><code>import { fetchTips } from &quot;./scripts/lib/cited-tip-fetcher.mjs&quot;;
+const tips = fetchTips(allTips, { controller: &quot;haas&quot;, minScore: 4.5, limit: 10 });</code></pre>
+<h2 class="prism-h2">Loop terminal</h2>
+<p>iter 20/20 reached cleanly. Cron <code class="prism-inline-code">142b76f4</code> cancelled at iter20 — pipeline is shipped, no further autonomous work needed in this loop. Operator can re-arm with a fresh <code class="prism-inline-code">/loop</code> directive.</p>
+<p>Memory pointer: <code class="prism-inline-code">[[reference_jm_die_curriculum_pipeline_2026_05_26]]</code> (auto-fed to <code class="prism-inline-code">knowledge/memories/reference/</code> on next Stop).</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

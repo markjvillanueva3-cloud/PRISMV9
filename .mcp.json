@@ -8,33 +8,10 @@
       ],
       "env": {
         "MCP_HTTP_URL": "http://127.0.0.1:3100/mcp",
-        "MCP_MAX_CONCURRENT": "6",
+        "MCP_MAX_CONCURRENT": "3",
         "MCP_TIMEOUT": "120000",
-        "LOG_LEVEL": "info"
-      }
-    },
-    "claude-flow": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "claude-flow",
-        "mcp",
-        "start"
-      ],
-      "env": {
-        "LOG_LEVEL": "info"
-      }
-    },
-    "prism_safe": {
-      "type": "stdio",
-      "command": "node",
-      "args": [
-        "H:/prism/mcp-server/dist/index.js"
-      ],
-      "env": {
-        "TRANSPORT": "stdio",
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "info",
+        "PRISM_MCP_READY_BUDGET_MS": "120000"
       }
     }
   }

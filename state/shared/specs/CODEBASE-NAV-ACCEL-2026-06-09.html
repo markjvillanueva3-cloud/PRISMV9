@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="ee53e857b632cdac566e5a042e3bda4ac0641853ff2104ee0f474a5ca28e602e">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CODEBASE-NAV-ACCEL — Ollama/embedding-assisted codebase navigation (2026-06-09, slot:sierra)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>CODEBASE-NAV-ACCEL — Ollama/embedding-assisted codebase navigation (2026-06-09, slot:sierra)</h1>
+<div class="meta">rendered from state/shared/specs/CODEBASE-NAV-ACCEL-2026-06-09.md</div>
+<div class="meta">Generated 2026-06-09T20:25:36.478Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">CODEBASE-NAV-ACCEL — Ollama/embedding-assisted codebase navigation (2026-06-09, slot:sierra)</li><li class="prism-toc-l2">Verdict: mostly already built; the literal &quot;Ollama wires every node&quot; is the WRONG tool (R12)</li><li class="prism-toc-l2">GAP A — RESOLVED: ALREADY BUILT (premise falsified 2026-06-09, slot:sierra, post-compact)</li><li class="prism-toc-l2">GAP B (APPROVED, BUILD SECOND — depends on A&#39;s per-file nodes) — semantic search (the RIGHT Ollama/embedding use)</li><li class="prism-toc-l2">GAP C / U-OLLAMA-FORGE-ASSIST (backlog, operator msg #3) — Ollama generates skill/script/hook combos, GATED</li><li class="prism-toc-l2">Adjacent (noted, not core): path-embedder prewarm</li><li class="prism-toc-l2">Build order (R13 dependency-correct)</li><li class="prism-toc-l2">Provenance</li></ul></nav><h1 class="prism-h1">CODEBASE-NAV-ACCEL — Ollama/embedding-assisted codebase navigation (2026-06-09, slot:sierra)</h1>
+<p><strong>Operator goal (3 messages, OLLAMA-SYNERGY /loop):</strong> &quot;use Ollama to code direct paths to every file/node and wire them to relevant nodes for faster/more-efficient searches+reads ... and use Ollama to generate skill/script/hook combos for tool calls so it builds to the best of its ability.&quot;</p>
+<p><strong>Method:</strong> 4-agent read-only audit (Explore, all claims file:line-cited at HEAD) of the existing node-access / search-steering / edge-wiring / Ollama-role infrastructure. Operator approved the path <strong>&quot;Both, Gap A first.&quot;</strong></p>
+<h2 class="prism-h2">Verdict: mostly already built; the literal &quot;Ollama wires every node&quot; is the WRONG tool (R12)</h2>
+<ul class="prism-md-list"><li><strong>Direct node access EXISTS</strong> — <code class="prism-inline-code">CHEAP-NODE-ACCESS-MS0</code>: 301,242 node-cards, <code class="prism-inline-code">seekCard(id)</code> ~12ms / ~200 tok (vs ~186K to read the 644MB graph); <code class="prism-inline-code">node-card-prefetch-inject.mjs</code> injects cards with ZERO tool call on id-mention. (<code class="prism-inline-code">scripts/lib/node-card-read.mjs</code>, <code class="prism-inline-code">scripts/lib/node-card-offset-lib.mjs</code>, <code class="prism-inline-code">.claude/hooks/node-card-prefetch-inject.mjs</code>.)</li><li><strong>Search steering EXISTS</strong> — <code class="prism-inline-code">pre-read-graph-inject</code> + <code class="prism-inline-code">pre-grep-graph-inject</code> + <code class="prism-inline-code">master-index-precheck-inject</code> surface relevant nodes before every Read/Grep/prompt; ~5-6.6K tok/session saved. <strong>BUT purely LEXICAL</strong> (BM25-lite substring via <code class="prism-inline-code">scripts/lib/master-index-search-lib.mjs:369-462</code>) — misses synonyms.</li><li><strong>Node wiring EXISTS</strong> — 77,622 structural edges + 120 typed cross-substrate edges + 25 GNN-predicted edges; embedding cosine relatedness already in <code class="prism-inline-code">scripts/lib/tribal-graph-embedding.mjs</code> (<code class="prism-inline-code">buildLateralWires</code>/<code class="prism-inline-code">topKSimilar</code>).</li><li><strong>WRONG tool (do NOT build):</strong> LLM-generated per-node/per-edge wiring = 302K nodes x K edges = ~604K LLM calls = ~302 hrs / $6K+ (Agent-4 math). Embeddings (<code class="prism-inline-code">nomic-embed-text</code> 768d, already wired) do this in O(768), instant, $0. Edges are correctly DETERMINISTIC; Ollama is correctly gated to PROSE.</li></ul>
+<h2 class="prism-h2">GAP A — RESOLVED: ALREADY BUILT (premise falsified 2026-06-09, slot:sierra, post-compact)</h2>
+<p><strong>DO NOT BUILD. The Agent-1 premise was EMPIRICALLY FALSE.</strong> Direct verification against the live offset index (<code class="prism-inline-code">state/shared/system-viz/node-card-offsets.json</code>, 301,246 seekCard-able cards) shows source files are ALREADY individually node-covered by existing FAST[] generators:</p>
+<ul class="prism-md-list"><li>**engines: 5,931 <code class="prism-inline-code">eng.<em></code> cards (5,819 atomic <code class="prism-inline-code">eng.&lt;domain&gt;.&lt;slug&gt;</code>)</em>* — <code class="prism-inline-code">scripts/generate-engine-saturate.mjs</code> (FAST[] line 152) already drops the per-domain cap and emits EVERY engine (&quot;from ~275 atomic engines to ~3.2k ... so every named engine has a node&quot;, its own header). The <code class="prism-inline-code">generate-engine-domain-inventory.mjs</code> MAX_CHILDREN_PER_DOMAIN=8 <code class="prism-inline-code">_misc</code> collapse is SUPERSEDED by saturate — not a coverage gap.</li><li>**schemas: 2,270 <code class="prism-inline-code">schema.<em></code> cards</em>* — <code class="prism-inline-code">scripts/generate-schemas-atomic.mjs:83</code> already emits one node per schema FILE + per exported symbol.</li><li>**algorithms: <code class="prism-inline-code">alg.<em></code> cards present</em>* — <code class="prism-inline-code">scripts/generate-algorithms-atomic.mjs:81</code> (<code class="prism-inline-code">alg.&lt;stem&gt;</code> per file).</li><li>**scripts 1,173 / registries 1,015 / tests 4,347 / formulas 8,331 / full filesystem <code class="prism-inline-code">fs.<em></code> 140,889</em>* — all already seekCard-able via existing <code class="prism-inline-code"><em>-atomic.mjs</code> / <code class="prism-inline-code">generate-fs-</em>-inventory.mjs</code> generators in FAST[].</li></ul>
+<p><strong>Residual (minor, NOT worth a generator):</strong> the id convention is domain-prefixed + lowercased (<code class="prism-inline-code">eng.mill.millingforceengine</code>), so <code class="prism-inline-code">seekCard(&quot;eng.AHPEngine&quot;)</code> by bare CapCase doesn&#39;t resolve — you must know the <code class="prism-inline-code">eng.&lt;domain&gt;.&lt;lowercased&gt;</code> form. The pre-read/pre-grep/master-index lexical steering + the prefetch hook already mitigate this; a CapCase-alias index would be a tiny follow-on, not the ~3,300-node build the spec proposed. <strong>Lesson:</strong> the 4-agent audit asserted coverage ~22% without querying the offset index; always verify node coverage against <code class="prism-inline-code">node-card-offsets.json</code> (the seekCard source of truth), never against a cluster-node count. Memory: [[reference_nav_accel_gap_a_already_built_2026_06_09]].</p>
+<p>&lt;details&gt;&lt;summary&gt;ORIGINAL (FALSIFIED) PROBLEM STATEMENT — kept for provenance&lt;/summary&gt;</p>
+<p><strong>Problem (Agent-1, verified):</strong> ~3,300 of ~5,320 source files have NO node. You can <code class="prism-inline-code">seekCard(&quot;disp.X&quot;)</code> but NOT <code class="prism-inline-code">seekCard(&quot;eng.AHPEngine&quot;)</code> — ~1,508 individual engine files roll up into only ~5 domain CLUSTER nodes (<code class="prism-inline-code">eng.mill</code>/<code class="prism-inline-code">eng.lathe</code>/...); ~1,800 schema/algorithm/other <code class="prism-inline-code">src/</code> files have no per-file node. Source-file coverage ~22%. &lt;/details&gt;</p>
+<p><strong>Design (sierra-domain-correct — MUST use the augmentation/FAST[]/merge-splice pattern, NEVER write system-graph.json directly):</strong></p>
+<ol class="prism-md-list"><li>New FAST[] generator <code class="prism-inline-code">scripts/generate-source-file-nodes-features.mjs</code> — deterministic enumerate of <code class="prism-inline-code">src/engines/<em>.ts</code>, <code class="prism-inline-code">src/schemas/</em>.ts</code>, <code class="prism-inline-code">src/algorithms/*.ts</code> (+ consider <code class="prism-inline-code">src/hooks</code>, <code class="prism-inline-code">src/registries</code>); emit one node per file <code class="prism-inline-code">{id, label, layer, status, info}</code>. <code class="prism-inline-code">info</code> from JSDoc/first comment line (deterministic slice, NO LLM). Id convention: <code class="prism-inline-code">eng.&lt;Basename&gt;</code> / <code class="prism-inline-code">schema.&lt;Basename&gt;</code> / <code class="prism-inline-code">alg.&lt;Basename&gt;</code> (distinct from cluster ids by string). Emit <code class="prism-inline-code">{newNodes}</code> augmentation JSON (NO edges needed for v1; structural containment edges to the domain cluster are a clean v1.1).</li><li>Register in <code class="prism-inline-code">regen-viz.mjs</code> GENERATORS (FAST[] list) + the <code class="prism-inline-code">merge-augmentations.mjs</code> splice block (sierra refuse: never a FAST[] gen without the splice). The post-merge <code class="prism-inline-code">build-card-offset-index</code> stage then makes them <code class="prism-inline-code">seekCard</code>-able automatically.</li><li>Tests: real assertions — generator emits N nodes for a fixture dir, id/label shape, no dangling, idempotent; round-trip <code class="prism-inline-code">seekCard(&quot;eng.&lt;Known&gt;&quot;)</code> after a (tmp) offset-index build.</li><li>Live-validate (R15): run regen, prove <code class="prism-inline-code">seekCard</code> hits a real engine file id + count delta (was-0 -&gt; ~3,300).</li><li><strong>Gap A.2 (follow-on):</strong> carefully expand <code class="prism-inline-code">node-card-prefetch-inject.mjs</code> whitelist to the new distinctive prefixes (<code class="prism-inline-code">eng.&lt;CapCase&gt;</code> is distinctive; <code class="prism-inline-code">schema.</code>/<code class="prism-inline-code">alg.</code> need false-positive-injection review — Agent-1 noted prefetch deliberately EXCLUDES noisy prefixes). Gate behind the existing <code class="prism-inline-code">PRISM_NODECARD_PREFETCH_K</code>/<code class="prism-inline-code">_DISABLE</code>.</li></ol>
+<h2 class="prism-h2">GAP B (APPROVED, BUILD SECOND — depends on A&#39;s per-file nodes) — semantic search (the RIGHT Ollama/embedding use)</h2>
+<p><strong>Problem (Agent-2):</strong> steering hooks are lexical-only — &quot;where do we throttle memory&quot; finds <code class="prism-inline-code">memory-limiter</code> but misses <code class="prism-inline-code">rate-gate</code>/<code class="prism-inline-code">backpressure</code>. <strong>Design:</strong> embed the node index (<code class="prism-inline-code">nomic-embed-text</code> 768d, already the wired embedder) + a <strong>LAZY semantic reranker AFTER BM25</strong> (<code class="prism-inline-code">master-index-search-lib.mjs</code> ~line 135) — pay the embed cost only when BM25 recall is low (&lt;=2 hits) OR opt-in <code class="prism-inline-code">PRISM_SEMANTIC_RERANK=1</code>; cosine-rerank top-10 via pre-computed node embeddings (reuse <code class="prism-inline-code">tribal-graph-embedding.mjs</code> cosine). <strong>Anti-pattern (Agent-2):</strong> never put an LLM/embedding call in the per-Read hot path unconditionally — it blows the ~1.5s hook budget. Lazy + opt-in only.</p>
+<h2 class="prism-h2">GAP C / U-OLLAMA-FORGE-ASSIST (backlog, operator msg #3) — Ollama generates skill/script/hook combos, GATED</h2>
+<ul class="prism-md-list"><li>✅ <strong>Gated scaffold-forge:</strong> Ollama drafts the boilerplate of a forge-triple (frontmatter + wiring glue + repetitive ~60%) from a spec -&gt; CANDIDATE -&gt; MUST pass <code class="prism-inline-code">duplicationGuardEngine</code> (throws on dup) -&gt; real tests -&gt; per-file + 3-of-3 scrutiny -&gt; wiring verify, BEFORE wired live. Build on <code class="prism-inline-code">/forge-triple</code> + <code class="prism-inline-code">scripts/ollama-prism-bridge.mjs</code> (already has viz_search/wiki_lookup/read_excerpt/semantic_search/mcp_call) + <code class="prism-inline-code">duplicationGuard</code> — NOT from scratch.</li><li>✅ <strong>Tool-combo recommender:</strong> Ollama composes candidate tool-call combos from EXISTING tools (a nav playbook) — pure prose/recommendation, zero code-gen risk.</li><li>❌ <strong>Guardrail:</strong> never auto-wire Ollama-authored novel hook LOGIC live without the gate stack (the stub/regression class <code class="prism-inline-code">comprehensive-build-enforce</code> + no-stub + scrutiny exist to block). Generated artifacts are candidates, never auto-wired. R5: correctness-critical novel logic = Claude+gates; Ollama = scaffold + recommendation.</li></ul>
+<h2 class="prism-h2">Adjacent (noted, not core): path-embedder prewarm</h2>
+<p>Agent-4: <code class="prism-inline-code">keep_alive:-1</code> for <code class="prism-inline-code">nomic-embed-text</code> (path-ledger kNN replay) — partial overlap with the shipped #8 prewarm-wire (which warms 32b + nomic on pipeline prompts). Low-effort; fold into prewarm config if pursued.</p>
+<h2 class="prism-h2">Build order (R13 dependency-correct)</h2>
+<p>A (file-node coverage, deterministic) -&gt; A.2 (prefetch whitelist) -&gt; B (node embed + lazy semantic rerank) -&gt; C (gated Ollama forge-assist). A is the foundation B embeds.</p>
+<h2 class="prism-h2">Provenance</h2>
+<p>4-agent audit (Explore), this session (sierra 0e5669d2). Evidence file:line in the agent transcripts. Pairs with [[reference_ollama_synergy_audit_2026_06_09]]; OLLAMA-SYNERGY backlog at <code class="prism-inline-code">OLLAMA-SYNERGY-AUDIT-2026-06-09.md</code>.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

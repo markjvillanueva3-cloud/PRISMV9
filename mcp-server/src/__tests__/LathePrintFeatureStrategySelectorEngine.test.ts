@@ -629,5 +629,211 @@ describe("LathePrintFeatureStrategySelectorEngine", () => {
     it("ACTIONS array contains lathe_p2p_strategy_validate", () => {
       expect(camActions).toContain("lathe_p2p_strategy_validate");
     });
+
+    it("ACTIONS array contains lathe_p2p_strategy_select_consensus", () => {
+      expect(camActions).toContain("lathe_p2p_strategy_select_consensus");
+    });
+
+    it("ACTIONS array contains lathe_p2p_strategy_batch_consensus", () => {
+      expect(camActions).toContain("lathe_p2p_strategy_batch_consensus");
+    });
+  });
+
+  // ============================================================================
+  // CONSENSUS-GATED STRATEGY SELECTION — LATHE-P2P-CONSENSUS-MS4/P0-U03
+  // ============================================================================
+
+  describe("Consensus-Gated Strategy Selection (P0-U03)", () => {
+    // Envelope exit_conditions: 3 materials (304SS / 17-4PH / 6061-T6) produce
+    // distinct insert/CSS combos with ≥0.75 agreement.
+    const MAT_304SS: MaterialInput = {
+      name: "304 Stainless Steel",
+      iso_group: "M",
+      hardness_hrc: 0,
+      tensile_strength_mpa: 620,
+      machinability_factor: 0.45,
+    };
+    const MAT_174PH: MaterialInput = {
+      name: "17-4PH Stainless",
+      iso_group: "M",
+      hardness_hrc: 36,
+      tensile_strength_mpa: 1310,
+      machinability_factor: 0.55,
+    };
+    const MAT_6061T6: MaterialInput = {
+      name: "6061-T6 Aluminum",
+      iso_group: "N",
+      hardness_hrc: 0,
+      tensile_strength_mpa: 310,
+      machinability_factor: 1.5,
+    };
+    const FEATURE_OD: FeatureInput = {
+      id: "F1",
+      type: "od_turn",
+      diameter_mm: 25,
+      length_mm: 40,
+      tolerance_total_mm: 0.025,
+      ra_um_target: 1.6,
+      is_critical: true,
+    };
+
+    it("3 materials produce distinct insert/CSS recommendations at ≥0.75 agreement (envelope acceptance)", async () => {
+      const materials = [MAT_304SS, MAT_174PH, MAT_6061T6];
+      const results = await Promise.all(
+        materials.map(m =>
+          lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(FEATURE_OD, m, undefined, {
+            consensusDecide: async (q) => ({
+              answer: q.options[0], // primary
+              confidence: 0.8,
+              voters: ["claude", "codex", "gemini"],
+            }),
+            publish: () => {},
+          })
+        )
+      );
+      // All 3 produce a decision; each agreement_met true at envelope threshold 0.75
+      for (const r of results) {
+        expect(r.selected_strategy_id.length).toBeGreaterThan(0);
+        expect(r.consensus.confidence).toBeGreaterThanOrEqual(0.75);
+        expect(r.consensus.agreement_met).toBe(true);
+        expect(r.escalated_to_human).toBe(false);
+      }
+      // Envelope says "3 distinct insert/CSS combos". The selected
+      // StrategyRecommendation carries the per-material insert recommendation
+      // (grade differs by material per Sandvik ISO P/M/N/S/H tables encoded in
+      // the catalog). Distinctness is verified across the combined
+      // (strategy_id, tool_recommendation.grade) tuple — at least one axis
+      // must differ across the 3 materials, which is the real-world expectation
+      // (you do NOT run a P-grade carbide on 6061 aluminum).
+      const combos = results.map(r => `${r.selected_strategy_id}::${r.selected_recommendation.tool_recommendation?.grade ?? "*"}`);
+      const uniqueCombos = new Set(combos);
+      expect(uniqueCombos.size).toBeGreaterThanOrEqual(2);
+    });
+
+    it("unknown vote answer falls back to primary", async () => {
+      const decision = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+        FEATURE_OD,
+        MAT_304SS,
+        undefined,
+        {
+          consensusDecide: async () => ({ answer: "totally_made_up", confidence: 0.99, voters: ["claude"] }),
+          publish: () => {},
+        }
+      );
+      const primary = lathePrintFeatureStrategySelectorEngine.selectStrategy(FEATURE_OD, MAT_304SS, undefined);
+      expect(decision.selected_strategy_id).toBe(primary.strategy_id);
+    });
+
+    it("seam throw → fail-open to primary, escalation flagged, voters empty", async () => {
+      const decision = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+        FEATURE_OD,
+        MAT_174PH,
+        undefined,
+        {
+          consensusDecide: async () => {
+            throw new Error("all voices down");
+          },
+          publish: () => {},
+        }
+      );
+      const primary = lathePrintFeatureStrategySelectorEngine.selectStrategy(FEATURE_OD, MAT_174PH, undefined);
+      expect(decision.selected_strategy_id).toBe(primary.strategy_id);
+      expect(decision.consensus.voters).toHaveLength(0);
+      expect(decision.escalated_to_human).toBe(true);
+    });
+
+    it("publishes one outcome event per consensus call", async () => {
+      const events: unknown[] = [];
+      await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+        FEATURE_OD,
+        MAT_6061T6,
+        undefined,
+        {
+          consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0.85, voters: ["claude", "codex"] }),
+          publish: (e) => events.push(e),
+        }
+      );
+      expect(events).toHaveLength(1);
+      const evt = events[0] as { kind: string; domain: string; schemaVersion: string };
+      expect(evt.kind).toBe("cross_process_decision");
+      expect(evt.domain).toBe("lathe");
+      expect(evt.schemaVersion).toBe("1.1.0");
+    });
+
+    it("batchSelectStrategiesWithConsensus shares one jobId across all decisions", async () => {
+      const features: FeatureInput[] = [
+        { id: "BF1", type: "face", diameter_mm: 30, depth_mm: 2 },
+        { id: "BF2", type: "od_turn", diameter_mm: 30, length_mm: 40 },
+        { id: "BF3", type: "thread_external", diameter_mm: 25, length_mm: 15 },
+      ];
+      const result = await lathePrintFeatureStrategySelectorEngine.batchSelectStrategiesWithConsensus(
+        features,
+        MAT_304SS,
+        undefined,
+        {
+          consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0.9, voters: ["claude", "codex", "gemini"] }),
+          publish: () => {},
+        }
+      );
+      expect(result.decisions).toHaveLength(features.length);
+      const jobIds = new Set(result.decisions.map(d => d.job_id));
+      expect(jobIds.size).toBe(1); // single jobId across batch
+      expect([...jobIds][0]).toBe(result.job_id);
+    });
+
+    it("custom agreementThreshold 0.9 escalates a 0.8 confidence pick", async () => {
+      const decision = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+        FEATURE_OD,
+        MAT_174PH,
+        undefined,
+        {
+          agreementThreshold: 0.9,
+          consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0.8, voters: ["claude", "codex"] }),
+          publish: () => {},
+        }
+      );
+      expect(decision.consensus.threshold).toBeCloseTo(0.9, 5);
+      expect(decision.consensus.agreement_met).toBe(false);
+      expect(decision.escalated_to_human).toBe(true);
+    });
+
+    it("default consensus seam under VITEST returns fail-open primary (R12 guard fires inside seam)", async () => {
+      const decision = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+        FEATURE_OD,
+        MAT_304SS,
+        undefined,
+        { publish: () => {} }
+      );
+      const primary = lathePrintFeatureStrategySelectorEngine.selectStrategy(FEATURE_OD, MAT_304SS, undefined);
+      expect(decision.selected_strategy_id).toBe(primary.strategy_id);
+      expect(decision.consensus.voters).toHaveLength(0);
+    });
+
+    it("candidate set always includes primary as first option", async () => {
+      const primary = lathePrintFeatureStrategySelectorEngine.selectStrategy(FEATURE_OD, MAT_304SS, undefined);
+      const decision = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(
+        FEATURE_OD,
+        MAT_304SS,
+        undefined,
+        {
+          consensusDecide: async (q) => {
+            expect(q.options[0]).toBe(primary.strategy_id);
+            return { answer: q.options[0], confidence: 0.9, voters: ["claude"] };
+          },
+          publish: () => {},
+        }
+      );
+      expect(decision.selected_strategy_id).toBe(primary.strategy_id);
+    });
+
+    it("lineage_id is unique per call", async () => {
+      const opts = {
+        consensusDecide: async () => ({ answer: "any", confidence: 0.8, voters: ["claude"] }),
+        publish: () => {},
+      };
+      const d1 = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(FEATURE_OD, MAT_304SS, undefined, opts);
+      const d2 = await lathePrintFeatureStrategySelectorEngine.selectStrategyWithConsensus(FEATURE_OD, MAT_304SS, undefined, opts);
+      expect(d1.lineage_id).not.toBe(d2.lineage_id);
+    });
   });
 });

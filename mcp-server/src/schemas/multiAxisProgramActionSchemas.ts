@@ -55,7 +55,47 @@ const multiAxisInputZ = z.object({
 const multiaxis_print_to_program = multiAxisInputZ;
 const multiaxis_process_plan = multiAxisInputZ;
 
+// ── Program replication (retrieve similar existing program + adapt) ───────────
+// Corpus records are internally-produced FeatureSequenceRecords — kept loose
+// (z.any()) rather than re-deriving the full nested record shape in Zod.
+const recognizedFeatureZ = z.object({
+  id: z.string().describe("Feature id from the print"),
+  type: z.string().describe("Feature type, e.g. through_hole, pocket_rectangular"),
+  dimensions: z.record(z.string(), z.any()).optional().describe("Feature dimensions in mm"),
+  position: z.object({ x: z.number(), y: z.number(), z: z.number() }).partial().optional()
+    .describe("Feature position in mm"),
+  orientation: z
+    .object({ axis: z.string(), angle_deg: z.number().optional() })
+    .passthrough()
+    .optional()
+    .describe("Feature orientation — custom axis or non-zero angle implies rotary (≥4-axis)"),
+}).passthrough();
+
+const replicate_from_print = z.object({
+  part_name: z.string().describe("New part name from the print title block"),
+  material: z.string().describe("New part material designation"),
+  iso_group: z.enum(["P", "M", "K", "N", "S", "H"]).optional().describe("ISO machinability group of the new material"),
+  dimensions: z.object({ x: z.number(), y: z.number(), z: z.number() }).describe("Stock bounding box in mm"),
+  features: z.array(recognizedFeatureZ).describe("Features recognized from the print"),
+  corpus: z.array(z.any()).describe("Existing programs (FeatureSequenceRecords) to retrieve from"),
+  target_axis_count: z.union([z.literal(3), z.literal(4), z.literal(5)]).optional()
+    .describe("Axis capability of the target machine — gates which corpus programs are usable (default 3)"),
+  machine_max_rpm: z.number().optional().describe("Max spindle RPM clamp for adapted speeds"),
+  machine_max_feed: z.number().optional().describe("Max feed mm/min clamp for adapted feeds"),
+  min_score: z.number().optional().describe("Minimum similarity 0-100 to accept a match (default 25)"),
+  top_n: z.number().optional().describe("Candidates to consider before axis-gating (default 5)"),
+}).passthrough();
+
+const replicate_similarity_search = replicate_from_print;
+
+const replicate_corpus_index = z.object({
+  corpus: z.array(z.any()).describe("Existing programs (FeatureSequenceRecords) to index for retrieval"),
+}).passthrough();
+
 export const ACTION_MULTIAXIS_PROGRAM_SCHEMAS: ActionSchemaMap = {
   multiaxis_print_to_program,
   multiaxis_process_plan,
+  replicate_from_print,
+  replicate_similarity_search,
+  replicate_corpus_index,
 };

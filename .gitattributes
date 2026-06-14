@@ -1,0 +1,67 @@
+# FLEET-GIT-CONTENTION-MS0 / U-FGC-2b — repo-wide line-ending normalization.
+#
+# WHY: the 26-chat fleet shares one working tree; CRLF-vs-LF drift re-dirties
+# files that nobody changed, producing phantom diffs that get absorbed across
+# chats (the EOL-absorption conflict class — e.g. the EventBus 047fd6ab8 and
+# calcDispatcher 61e9cfe6a LF-restore regressions). `core.autocrlf` is false on
+# this host, so normalization must be explicit + deterministic here.
+#
+# This file only sets the policy. The one-time `git add --renormalize .` that
+# rewrites already-CRLF-in-index blobs is a SEPARATE, deliberately-scoped commit
+# (golf integrator, quiet window) — do NOT bundle it with this file or it
+# collides with in-flight fleet work as one giant diff.
+
+# Default: auto-detect text, store + check out as LF everywhere.
+* text=auto eol=lf
+
+# Explicit text/source types — always LF in working tree AND index.
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.cjs   text eol=lf
+*.jsx   text eol=lf
+*.json  text eol=lf
+*.jsonl text eol=lf
+*.md    text eol=lf
+*.css   text eol=lf
+*.scss  text eol=lf
+*.html  text eol=lf
+*.svg   text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.toml  text eol=lf
+*.sh    text eol=lf
+*.ps1   text eol=lf
+*.py    text eol=lf
+*.sql   text eol=lf
+*.nc    text eol=lf
+*.cps   text eol=lf
+
+# Windows batch scripts genuinely need CRLF — keep them CRLF on checkout.
+*.bat   text eol=crlf
+*.cmd   text eol=crlf
+
+# Binary / non-diffable — never normalize, never attempt EOL conversion.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.pdf   binary
+*.gz    binary
+*.zip   binary
+*.7z    binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.onnx  binary
+*.bin   binary
+*.wasm  binary
+*.step  binary
+*.stp   binary
+*.stl   binary
+*.3mf   binary
+*.dxf   binary

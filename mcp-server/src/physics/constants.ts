@@ -69,11 +69,24 @@ export const TAYLOR_DEFAULTS = CANONICAL_TAYLOR;
 // MATERIAL DATABASE
 // ============================================================================
 
-export interface MaterialEntry {
+/**
+ * Canonical material database entry.
+ *
+ * Extends MaterialPhysics so every CANONICAL_MATERIAL_DB record IS a complete,
+ * runtime-safe MaterialPhysics — the speed/feed, cost and post-processor
+ * engines can consume DB entries directly without an undefined/NaN hazard.
+ *
+ * Legacy thermal field names (thermal_conductivity_W_mK, specific_heat_J_kgK)
+ * are retained alongside the MaterialPhysics-canonical names (k_thermal,
+ * cp_J_kgK) for the 30+ EDM/ceramics/grinding consumers that still read them.
+ */
+export interface MaterialEntry extends MaterialPhysics {
   name: string;
   iso_group: ISOGroup;
   density_kg_m3: number;
+  /** Legacy alias of k_thermal — thermal conductivity [W/(m*K)]. */
   thermal_conductivity_W_mK: number;
+  /** Legacy alias of cp_J_kgK — specific heat [J/(kg*K)]. */
   specific_heat_J_kgK: number;
   melting_point_C: number;
   hardness_HRC?: number;
@@ -84,27 +97,55 @@ export interface MaterialEntry {
   tensile_strength_MPa?: number;
 }
 
-export const CANONICAL_MATERIAL_DB: Record<string, MaterialEntry> = {
-  "1018": { name: "AISI 1018 Mild Steel", iso_group: "P", density_kg_m3: 7870, thermal_conductivity_W_mK: 51.9, specific_heat_J_kgK: 486, melting_point_C: 1510, tensile_strength_MPa: 440, taylor_C: 350, taylor_n: 0.25 },
-  "1045": { name: "AISI 1045 Carbon Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 49.8, specific_heat_J_kgK: 486, melting_point_C: 1495, tensile_strength_MPa: 585, taylor_C: 350, taylor_n: 0.25 },
-  "4140": { name: "AISI 4140 Alloy Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 42.7, specific_heat_J_kgK: 473, melting_point_C: 1425, tensile_strength_MPa: 655, taylor_C: 350, taylor_n: 0.25 },
-  "304": { name: "AISI 304 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.2, specific_heat_J_kgK: 500, melting_point_C: 1450, tensile_strength_MPa: 515, taylor_C: 200, taylor_n: 0.2 },
-  "316": { name: "AISI 316 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.3, specific_heat_J_kgK: 500, melting_point_C: 1375, tensile_strength_MPa: 515, taylor_C: 200, taylor_n: 0.2 },
-  "6061": { name: "Aluminum 6061-T6", iso_group: "N", density_kg_m3: 2700, thermal_conductivity_W_mK: 167, specific_heat_J_kgK: 896, melting_point_C: 652, tensile_strength_MPa: 310, taylor_C: 600, taylor_n: 0.4 },
-  "7075": { name: "Aluminum 7075-T6", iso_group: "N", density_kg_m3: 2810, thermal_conductivity_W_mK: 130, specific_heat_J_kgK: 960, melting_point_C: 635, tensile_strength_MPa: 572, taylor_C: 600, taylor_n: 0.4 },
-  "Ti-6Al-4V": { name: "Titanium 6Al-4V", iso_group: "S", density_kg_m3: 4430, thermal_conductivity_W_mK: 6.7, specific_heat_J_kgK: 526, melting_point_C: 1660, tensile_strength_MPa: 900, taylor_C: 150, taylor_n: 0.18 },
-  "Inconel 718": { name: "Inconel 718", iso_group: "S", density_kg_m3: 8190, thermal_conductivity_W_mK: 11.4, specific_heat_J_kgK: 435, melting_point_C: 1336, tensile_strength_MPa: 1240, taylor_C: 150, taylor_n: 0.18 },
-  "D2": { name: "AISI D2 Tool Steel", iso_group: "H", density_kg_m3: 7700, thermal_conductivity_W_mK: 20.5, specific_heat_J_kgK: 460, melting_point_C: 1420, hardness_HRC: 62, taylor_C: 120, taylor_n: 0.15 },
-  "A2": { name: "AISI A2 Tool Steel", iso_group: "H", density_kg_m3: 7860, thermal_conductivity_W_mK: 28.6, specific_heat_J_kgK: 460, melting_point_C: 1425, hardness_HRC: 60, taylor_C: 120, taylor_n: 0.15 },
-  "tungsten_carbide": { name: "Tungsten Carbide (WC-Co)", iso_group: "H", density_kg_m3: 15000, thermal_conductivity_W_mK: 84, specific_heat_J_kgK: 210, melting_point_C: 2870, hardness_HRC: 75, taylor_C: 120, taylor_n: 0.15 },
-  "gray_iron": { name: "Gray Cast Iron", iso_group: "K", density_kg_m3: 7200, thermal_conductivity_W_mK: 46, specific_heat_J_kgK: 490, melting_point_C: 1200, taylor_C: 250, taylor_n: 0.25 },
+/**
+ * Raw material records — the hand-maintained source values. The exported
+ * CANONICAL_MATERIAL_DB is built from this by buildMaterialPhysics() once the
+ * per-ISO physics tables (CANONICAL_TURNING_SPEEDS etc.) are in scope; that
+ * enrichment fills the MaterialPhysics cutting-physics fields (kc1_1, mc,
+ * vc_base_*, machinability_factor, E_GPa, sigma_y_MPa, hardness_HB ...) so
+ * every DB entry is a complete, runtime-safe MaterialPhysics.
+ *
+ * hardness_HB here is the per-material Brinell value when known; for the
+ * HRC-rated tool steels / carbide it is omitted and derived from hardness_HRC.
+ */
+interface RawMaterialEntry {
+  name: string;
+  iso_group: ISOGroup;
+  density_kg_m3: number;
+  thermal_conductivity_W_mK: number;
+  specific_heat_J_kgK: number;
+  melting_point_C: number;
+  taylor_C: number;
+  taylor_n: number;
+  hardness_HRC?: number;
+  hardness_HB?: number;
+  tensile_strength_MPa?: number;
+}
+
+const _RAW_MATERIAL_DB: Record<string, RawMaterialEntry> = {
+  "1018": { name: "AISI 1018 Mild Steel", iso_group: "P", density_kg_m3: 7870, thermal_conductivity_W_mK: 51.9, specific_heat_J_kgK: 486, melting_point_C: 1510, tensile_strength_MPa: 440, hardness_HB: 126, taylor_C: 350, taylor_n: 0.25 },
+  "1045": { name: "AISI 1045 Carbon Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 49.8, specific_heat_J_kgK: 486, melting_point_C: 1495, tensile_strength_MPa: 585, hardness_HB: 170, taylor_C: 350, taylor_n: 0.25 },
+  "4140": { name: "AISI 4140 Alloy Steel", iso_group: "P", density_kg_m3: 7850, thermal_conductivity_W_mK: 42.7, specific_heat_J_kgK: 473, melting_point_C: 1425, tensile_strength_MPa: 655, hardness_HB: 197, taylor_C: 350, taylor_n: 0.25 },
+  "304": { name: "AISI 304 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.2, specific_heat_J_kgK: 500, melting_point_C: 1450, tensile_strength_MPa: 515, hardness_HB: 170, taylor_C: 200, taylor_n: 0.2 },
+  "316": { name: "AISI 316 Stainless", iso_group: "M", density_kg_m3: 8000, thermal_conductivity_W_mK: 16.3, specific_heat_J_kgK: 500, melting_point_C: 1375, tensile_strength_MPa: 515, hardness_HB: 180, taylor_C: 200, taylor_n: 0.2 },
+  "6061": { name: "Aluminum 6061-T6", iso_group: "N", density_kg_m3: 2700, thermal_conductivity_W_mK: 167, specific_heat_J_kgK: 896, melting_point_C: 652, tensile_strength_MPa: 310, hardness_HB: 95, taylor_C: 600, taylor_n: 0.4 },
+  "7075": { name: "Aluminum 7075-T6", iso_group: "N", density_kg_m3: 2810, thermal_conductivity_W_mK: 130, specific_heat_J_kgK: 960, melting_point_C: 635, tensile_strength_MPa: 572, hardness_HB: 150, taylor_C: 600, taylor_n: 0.4 },
+  "Ti-6Al-4V": { name: "Titanium 6Al-4V", iso_group: "S", density_kg_m3: 4430, thermal_conductivity_W_mK: 6.7, specific_heat_J_kgK: 526, melting_point_C: 1660, tensile_strength_MPa: 900, hardness_HB: 334, taylor_C: 150, taylor_n: 0.18 },
+  "Inconel 718": { name: "Inconel 718", iso_group: "S", density_kg_m3: 8190, thermal_conductivity_W_mK: 11.4, specific_heat_J_kgK: 435, melting_point_C: 1336, tensile_strength_MPa: 1240, hardness_HB: 331, taylor_C: 150, taylor_n: 0.18 },
+  // Tool-steel / carbide hardness_HB from ASTM E140-12b conversion of the
+  // hardness_HRC rating (D2 HRC62 ~ 688 HB, A2 HRC60 ~ 654 HB) and ASM Handbook
+  // Vol.2 for cemented carbide (WC-Co ~ 1500 HB equivalent).
+  "D2": { name: "AISI D2 Tool Steel", iso_group: "H", density_kg_m3: 7700, thermal_conductivity_W_mK: 20.5, specific_heat_J_kgK: 460, melting_point_C: 1420, hardness_HRC: 62, hardness_HB: 688, tensile_strength_MPa: 2200, taylor_C: 120, taylor_n: 0.15 },
+  "A2": { name: "AISI A2 Tool Steel", iso_group: "H", density_kg_m3: 7860, thermal_conductivity_W_mK: 28.6, specific_heat_J_kgK: 460, melting_point_C: 1425, hardness_HRC: 60, hardness_HB: 654, tensile_strength_MPa: 2070, taylor_C: 120, taylor_n: 0.15 },
+  "tungsten_carbide": { name: "Tungsten Carbide (WC-Co)", iso_group: "H", density_kg_m3: 15000, thermal_conductivity_W_mK: 84, specific_heat_J_kgK: 210, melting_point_C: 2870, hardness_HRC: 75, hardness_HB: 1500, tensile_strength_MPa: 3450, taylor_C: 120, taylor_n: 0.15 },
+  "gray_iron": { name: "Gray Cast Iron", iso_group: "K", density_kg_m3: 7200, thermal_conductivity_W_mK: 46, specific_heat_J_kgK: 490, melting_point_C: 1200, tensile_strength_MPa: 250, hardness_HB: 200, taylor_C: 250, taylor_n: 0.25 },
   // Cu/brass added 2026-05-17 (TSC-FIX/U-TSC-WIRE-EDM-TEST scrutiny arm-B blocker):
   // WireEDMSettingsEngine was substituting Al6061 for copper/brass workpieces — a
   // ~3x volumetric-energy error reaching generated WEDM G-code. Real thermophysical
   // values: ASM Metals Handbook Vol.2 + Touloukian Thermophysical Properties (1970).
-  "C11000": { name: "C11000 ETP Copper", iso_group: "N", density_kg_m3: 8960, thermal_conductivity_W_mK: 391, specific_heat_J_kgK: 385, melting_point_C: 1085, taylor_C: 600, taylor_n: 0.4 },
-  "C26000": { name: "C26000 Cartridge Brass (70/30)", iso_group: "N", density_kg_m3: 8530, thermal_conductivity_W_mK: 120, specific_heat_J_kgK: 375, melting_point_C: 930, taylor_C: 600, taylor_n: 0.4 },
-} as const;
+  "C11000": { name: "C11000 ETP Copper", iso_group: "N", density_kg_m3: 8960, thermal_conductivity_W_mK: 391, specific_heat_J_kgK: 385, melting_point_C: 1085, tensile_strength_MPa: 220, hardness_HB: 87, taylor_C: 600, taylor_n: 0.4 },
+  "C26000": { name: "C26000 Cartridge Brass (70/30)", iso_group: "N", density_kg_m3: 8530, thermal_conductivity_W_mK: 120, specific_heat_J_kgK: 375, melting_point_C: 930, tensile_strength_MPa: 350, hardness_HB: 75, taylor_C: 600, taylor_n: 0.4 },
+};
 
 // ============================================================================
 // MATERIAL ALIASES
@@ -637,26 +678,161 @@ export function getToolModulus(material: string): number {
   return CANONICAL_TOOL_MODULUS[key] ?? CANONICAL_TOOL_MODULUS.carbide;
 }
 
+/**
+ * Tool-material cutting-speed multiplier, relative to CARBIDE (= 1.0).
+ *
+ * The SFC base cutting speeds (CANONICAL_TURNING_SPEEDS / the SFC CUTTING_PARAMS
+ * lookup) are CARBIDE-anchored. This factor scales the base Vc to the selected
+ * cutting-tool material — the first-order effect a real speed/feed calc applies
+ * (HSMAdvisor / FSWizard do the same): carbide vs HSS is ~3x regardless of
+ * workpiece. The fine tool<->workpiece feasibility coupling (PCD only on
+ * non-ferrous, CBN on hardened) is a tool-SELECTION concern, not the
+ * speed-multiplier concern.
+ *
+ * Values: Machinery's Handbook 31st ed. (speed tables per tool material);
+ * Sandvik Coromant + Kennametal turning/milling catalogs. Conservative within
+ * each published range.
+ *   hss 0.35  — HSS runs ~1/3 of carbide (the dominant, safety-relevant case:
+ *               anchoring HSS to the carbide speed OVER-speeds it ~3x).
+ *   cermet 1.15 — modest premium over carbide in steel finishing.
+ *   ceramic/cbn/pcd/diamond 2.5 — high-speed regimes (published 2.5-4x; conservative).
+ *
+ * SAFETY: factor > 1 makes PRISM MORE aggressive than the carbide base (the
+ * un-safe-leaning direction) — the downstream machine-RPM cap + S(x) safety gate
+ * remain the backstop. factor < 1 (HSS) is strictly safer. Unknown material
+ * falls back to carbide (1.0), never a wild value.
+ */
+export const CANONICAL_TOOL_MATERIAL_SPEED_FACTOR: Record<ToolMaterial, number> = {
+  carbide: 1.0,
+  cermet:  1.15,
+  ceramic: 2.5,
+  cbn:     2.5,
+  pcd:     2.5,
+  hss:     0.35,
+  diamond: 2.5,
+};
+
+/** Conservative clamp band for the applied tool-material speed multiplier. */
+export const TOOL_MATERIAL_SPEED_FACTOR_MIN = 0.3;
+export const TOOL_MATERIAL_SPEED_FACTOR_MAX = 3.0;
+
+/**
+ * Resolve the tool-material cutting-speed multiplier, clamped to the safe band.
+ * Unknown / unmapped / empty material → carbide (1.0), never a wild value.
+ *
+ * @param material tool material name (case-insensitive, e.g. "HSS", "carbide")
+ * @returns multiplier in [TOOL_MATERIAL_SPEED_FACTOR_MIN, TOOL_MATERIAL_SPEED_FACTOR_MAX]
+ */
+export function getToolMaterialSpeedFactor(material: string | undefined | null): number {
+  if (!material) return CANONICAL_TOOL_MATERIAL_SPEED_FACTOR.carbide;
+  const key = String(material).toLowerCase() as ToolMaterial;
+  const raw = CANONICAL_TOOL_MATERIAL_SPEED_FACTOR[key] ?? CANONICAL_TOOL_MATERIAL_SPEED_FACTOR.carbide;
+  return Math.min(TOOL_MATERIAL_SPEED_FACTOR_MAX, Math.max(TOOL_MATERIAL_SPEED_FACTOR_MIN, raw));
+}
+
+/** Machine-rigidity levels for the cutting-speed backoff factor (OSCAR-SFC-9AXIS-MS0/U-OSC-RIGIDITY-VC). */
+export type MachineRigidity = "low" | "medium" | "high";
+
+/**
+ * Machine-rigidity → cutting-speed backoff factor — OSCAR-SFC-9AXIS-MS0/U-OSC-RIGIDITY-VC.
+ *
+ * De-inlines the factor previously HARDCODED at UltimateSpeedFeedEngine.ts:2629
+ * (`machine_rigidity === "low" ? 0.7 : "high" ? 1.1 : 1.0`) — an inline-physics-constant
+ * violation. A low-rigidity setup (worn ways, long overhang, light/benchtop machine) backs
+ * the speed off to stay under the chatter threshold; a rigid box-way machine tolerates a
+ * modest premium. This is the OPERATIONAL Vc backoff (matches the rigidity slider in
+ * G-Wizard / HSMAdvisor). The rigorous chatter-free DEPTH-of-cut effect (machine rigidity →
+ * stability-lobe effective stiffness → critical_depth_mm) is a SEPARATE, physics-reviewer-
+ * gated unit (U-OSC-RIGIDITY-DOC, TODO) — not double-counted here.
+ *
+ * Values PRESERVE the prior inline behavior (low 0.7 / medium 1.0 / high 1.1) — this is a
+ * behaviour-preserving de-inline, not a tuning change. Conservative; low is strictly safer
+ * (slower), and the downstream machine-RPM cap + S(x) safety gate remain the backstop.
+ * Source: commercial speed-feed convention (rigidity backoff) + the engine's prior values.
+ */
+export const CANONICAL_MACHINE_RIGIDITY_VC_FACTOR: Record<MachineRigidity, number> = {
+  low:    0.7,
+  medium: 1.0,
+  high:   1.1,
+};
+
+/**
+ * Resolve the machine-rigidity cutting-speed factor. Unknown / unmapped / empty / null
+ * rigidity → medium (1.0, neutral) — byte-identical to the prior inline `: 1.0` fallback.
+ *
+ * @param rigidity machine-rigidity level (case-insensitive: "low" | "medium" | "high")
+ * @returns multiplier (0.7 / 1.0 / 1.1)
+ */
+export function getMachineRigidityVcFactor(rigidity: string | undefined | null): number {
+  if (!rigidity) return CANONICAL_MACHINE_RIGIDITY_VC_FACTOR.medium;
+  const key = String(rigidity).toLowerCase() as MachineRigidity;
+  return CANONICAL_MACHINE_RIGIDITY_VC_FACTOR[key] ?? CANONICAL_MACHINE_RIGIDITY_VC_FACTOR.medium;
+}
+
 export const EPS_MACHINE = 2.220446049250313e-16;
 export const EPS_EIGEN = 1e-10;
 export const EPS_RANK = 1e-12;
 export const EPS_SVD = 1e-12;
 
+/**
+ * Rich cutting-physics material descriptor consumed by the speed/feed,
+ * cost, post-processor and turning engines.
+ *
+ * Field provenance:
+ * - kc1_1 / mc            : CANONICAL_KIENZLE[iso_group] (Sandvik Coromant)
+ * - taylor_C / taylor_n   : CANONICAL_TAYLOR[iso_group]  (ISO 3685:1993)
+ * - vc_base_roughing/_finishing : CANONICAL_TURNING_SPEEDS[iso_group] (m/min,
+ *                           carbide; Sandvik/Kennametal turning catalogs)
+ * - machinability_factor  : MACHINABILITY_FACTOR_BY_ISO[iso_group]
+ * - E_GPa                 : WORKPIECE_ELASTIC_MODULUS_GPA[iso_group]
+ * - k_thermal             : thermal conductivity W/(m*K)
+ * - cp_J_kgK              : specific heat J/(kg*K)
+ * - sigma_y_MPa           : yield strength (Re); tensile * YIELD_TO_TENSILE_RATIO
+ * - hardness_HB           : Brinell hardness
+ * - melting_point_C       : solidus/melting temperature
+ *
+ * Required fields are non-optional because consumer engines read them in
+ * bare arithmetic (e.g. `material.vc_base_roughing * 0.6`); leaving them
+ * optional would let `number | undefined` propagate to NaN at runtime.
+ * Use buildMaterialPhysics() to obtain a complete, runtime-safe instance.
+ */
 export interface MaterialPhysics {
   iso_group: ISOGroup;
   kc1_1: number;
   mc: number;
   taylor_C: number;
   taylor_n: number;
-  density_kg_m3?: number;
+  /** Base roughing cutting speed [m/min], carbide. */
+  vc_base_roughing: number;
+  /** Base finishing cutting speed [m/min], carbide. */
+  vc_base_finishing: number;
+  /** Relative machinability factor (1.0 = free-machining P-steel baseline). */
+  machinability_factor: number;
+  /** Thermal conductivity [W/(m*K)]. */
+  k_thermal: number;
+  /** Specific heat [J/(kg*K)]. */
+  cp_J_kgK: number;
+  /** Workpiece elastic modulus [GPa]. */
+  E_GPa: number;
+  /** Yield strength Re [MPa]. */
+  sigma_y_MPa: number;
+  /** Brinell hardness [HB]. */
+  hardness_HB: number;
+  /** Density [kg/m^3]. */
+  density_kg_m3: number;
+  /** Melting / solidus temperature [degC]. */
+  melting_point_C: number;
+  name: string;
+  /** Alias of vc_base_roughing — typical cutting speed [m/min]. */
+  Vc_typical: number;
+  /** Alias of vc_base_finishing — upper-bound cutting speed [m/min]. */
+  Vc_max: number;
   thermal_conductivity_W_mK?: number;
   specific_heat_J_kgK?: number;
   hardness_HRC?: number;
-  hardness_HB?: number;
   tensile_strength_MPa?: number;
   yield_strength_MPa?: number;
   elastic_modulus_MPa?: number;
-  name?: string;
 }
 
 const _MATERIAL_KEYWORD_TO_ISO: Record<string, ISOGroup> = {
@@ -873,6 +1049,130 @@ export const AISI_CUTTING_COEFFICIENTS: Record<string, AISICuttingCoefficients> 
   "D2": { iso_group: "H", kc1_1: 3200, mc: 0.30, taylor_C: 120, taylor_n: 0.15 },
   "A2": { iso_group: "H", kc1_1: 3000, mc: 0.29, taylor_C: 130, taylor_n: 0.16 },
 };
+
+// ============================================================================
+// MATERIAL PHYSICS BUILDER
+// ============================================================================
+
+/**
+ * Build a complete, runtime-safe MaterialPhysics from a partial material
+ * record. Every cutting-physics field is populated from the canonical per-ISO
+ * tables (CANONICAL_KIENZLE, CANONICAL_TAYLOR, CANONICAL_TURNING_SPEEDS,
+ * MACHINABILITY_FACTOR_BY_ISO, WORKPIECE_ELASTIC_MODULUS_GPA,
+ * YIELD_TO_TENSILE_RATIO) — never left undefined, so consumer arithmetic
+ * cannot produce NaN.
+ *
+ * Per-material kc1_1/mc from AISI_CUTTING_COEFFICIENTS take precedence over the
+ * per-ISO CANONICAL_KIENZLE fallback when an entry exists. AISI_CUTTING_COEFFICIENTS
+ * is keyed by SHORT material code ("4140", "Ti-6Al-4V"), NOT the descriptive
+ * `name` ("AISI 4140 Alloy Steel") — so the override is resolved by `aisiKey`
+ * first (CANONICAL_MATERIAL_DB passes its short-code record key), falling back to
+ * a name-direct hit only for callers that pass a bare code as the name.
+ *
+ * @param partial  Source record (RawMaterialEntry / MaterialEntry / loose).
+ * @param isoOverride  Force the ISO group (used by the generic-ISO fallback path).
+ * @param aisiKey  Short AISI_CUTTING_COEFFICIENTS key ("4140", "316", "Ti-6Al-4V")
+ *                 for the per-material kc1_1/mc override. The DB builder passes its
+ *                 record key here; omit for loose external partials.
+ */
+export function buildMaterialPhysics(
+  partial: Partial<MaterialEntry> & { iso_group?: ISOGroup; name?: string },
+  isoOverride?: ISOGroup,
+  aisiKey?: string,
+): MaterialPhysics {
+  const iso: ISOGroup = isoOverride ?? partial.iso_group ?? "P";
+  const kienzle = CANONICAL_KIENZLE[iso];
+  const taylor = CANONICAL_TAYLOR[iso];
+  const turning = CANONICAL_TURNING_SPEEDS[iso];
+  // AISI per-material override: prefer the explicit short-code key, then a
+  // name-direct hit (caller passed a bare code as `name`). The prior single
+  // `AISI_CUTTING_COEFFICIENTS[partial.name]` lookup was DEAD for every DB
+  // material — the table is keyed "4140" but the names are "AISI 4140 Alloy
+  // Steel" — so the documented per-material precedence above never fired and
+  // every material silently used the per-ISO CANONICAL_KIENZLE default.
+  const aisi =
+    (aisiKey !== undefined ? AISI_CUTTING_COEFFICIENTS[aisiKey] : undefined) ??
+    (partial.name !== undefined ? AISI_CUTTING_COEFFICIENTS[partial.name] : undefined);
+
+  const kc1_1 = partial.kc1_1 ?? aisi?.kc1_1 ?? kienzle.kc1_1;
+  const mc = partial.mc ?? aisi?.mc ?? kienzle.mc;
+  const taylor_C = partial.taylor_C ?? aisi?.taylor_C ?? taylor.C;
+  const taylor_n = partial.taylor_n ?? aisi?.taylor_n ?? taylor.n;
+
+  const vc_base_roughing = partial.vc_base_roughing ?? partial.Vc_typical ?? turning.rough;
+  const vc_base_finishing = partial.vc_base_finishing ?? partial.Vc_max ?? turning.finish;
+
+  // Yield strength: explicit -> derived from tensile via ISO Re/Rm ratio.
+  const tensile = partial.tensile_strength_MPa;
+  const sigma_y_MPa =
+    partial.sigma_y_MPa ??
+    partial.yield_strength_MPa ??
+    (tensile !== undefined ? Math.round(tensile * YIELD_TO_TENSILE_RATIO[iso]) : Math.round(kc1_1 * 0.25));
+
+  // Brinell hardness: explicit -> estimated from yield strength. The
+  // Re ~ 3.45*HB Tabor-class relation (Re in MPa) holds for steel-family
+  // metals; reference: Tabor, "The Hardness of Metals" (1951). All
+  // CANONICAL_MATERIAL_DB entries carry an explicit hardness_HB, so this
+  // estimate only applies to loose external partials.
+  const HB_FROM_YIELD = 3.45; // MPa per HB unit (Tabor steel-class relation)
+  const hardness_HB =
+    partial.hardness_HB ??
+    Math.max(20, Math.round(sigma_y_MPa / HB_FROM_YIELD));
+
+  const k_thermal = partial.k_thermal ?? partial.thermal_conductivity_W_mK ?? 30;
+  const cp_J_kgK = partial.cp_J_kgK ?? partial.specific_heat_J_kgK ?? 480;
+  const density_kg_m3 = partial.density_kg_m3 ?? 7850;
+  const melting_point_C = partial.melting_point_C ?? 1450;
+  const E_GPa = partial.E_GPa ?? (partial.elastic_modulus_MPa !== undefined ? partial.elastic_modulus_MPa / 1000 : WORKPIECE_ELASTIC_MODULUS_GPA[iso]);
+  const machinability_factor = partial.machinability_factor ?? MACHINABILITY_FACTOR_BY_ISO[iso];
+
+  return {
+    name: partial.name ?? `Generic ISO ${iso}`,
+    iso_group: iso,
+    kc1_1, mc, taylor_C, taylor_n,
+    vc_base_roughing, vc_base_finishing,
+    Vc_typical: vc_base_roughing,
+    Vc_max: vc_base_finishing,
+    machinability_factor,
+    k_thermal, cp_J_kgK, E_GPa,
+    sigma_y_MPa, hardness_HB,
+    density_kg_m3, melting_point_C,
+    // Legacy aliases retained for the 30+ EDM/ceramics/grinding consumers.
+    thermal_conductivity_W_mK: k_thermal,
+    specific_heat_J_kgK: cp_J_kgK,
+    tensile_strength_MPa: tensile,
+    hardness_HRC: partial.hardness_HRC,
+    yield_strength_MPa: sigma_y_MPa,
+    elastic_modulus_MPa: E_GPa * 1000,
+  };
+}
+
+/**
+ * Canonical material database — each entry is a complete MaterialEntry
+ * (== MaterialPhysics + legacy fields), built from _RAW_MATERIAL_DB by
+ * enriching it with the per-ISO canonical physics tables.
+ */
+export const CANONICAL_MATERIAL_DB: Record<string, MaterialEntry> = Object.fromEntries(
+  Object.entries(_RAW_MATERIAL_DB).map(([key, raw]) => {
+    // Pass the record key as the AISI short-code so the per-material kc1_1/mc
+    // override resolves (the key IS the AISI_CUTTING_COEFFICIENTS key).
+    const phys = buildMaterialPhysics(raw, undefined, key);
+    const entry: MaterialEntry = {
+      ...phys,
+      name: raw.name,
+      iso_group: raw.iso_group,
+      density_kg_m3: raw.density_kg_m3,
+      thermal_conductivity_W_mK: raw.thermal_conductivity_W_mK,
+      specific_heat_J_kgK: raw.specific_heat_J_kgK,
+      melting_point_C: raw.melting_point_C,
+      taylor_C: raw.taylor_C,
+      taylor_n: raw.taylor_n,
+      hardness_HRC: raw.hardness_HRC,
+      tensile_strength_MPa: raw.tensile_strength_MPa,
+    };
+    return [key, entry];
+  }),
+);
 
 export const MATERIAL_DB = CANONICAL_MATERIAL_DB;
 

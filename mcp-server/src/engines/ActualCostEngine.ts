@@ -270,6 +270,11 @@ class ActualCostEngine {
     };
   }
 
+  /** Return all job ids currently tracked in the estimates map. */
+  listJobIds(): string[] {
+    return Array.from(this.estimates.keys());
+  }
+
   /** Margin erosion alerts across all tracked jobs. */
   marginAlerts(threshold_pct: number = 10): {
     alerts: { job_id: string; estimated_margin_pct: number; actual_margin_pct: number; erosion_pct: number; severity: string }[];

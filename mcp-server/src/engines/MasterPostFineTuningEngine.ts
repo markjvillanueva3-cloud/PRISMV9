@@ -138,6 +138,9 @@ export interface LoRAWeights {
   sample_counts: Record<ParameterType, number>;
   /** Running variance for confidence calculation */
   variances: Record<ParameterType, number>;
+  /** True running mean of the raw corrections per parameter -- the statistic for online
+   *  Welford variance, kept distinct from the bounded/smoothed EMA `deltas` applicator. */
+  correction_means: Record<ParameterType, number>;
   /** Last updated timestamp */
   last_updated: string;
   /** Total samples across all parameters */
@@ -370,9 +373,19 @@ export class MasterPostFineTuningEngine {
 
       if (samples === 0) continue;
 
+      const variance = weights.variances[param];
+      const stability = this.assessStability(variance, samples);
+
       let recommendation: "apply" | "review" | "skip";
       if (confidence >= this.config.confidence_threshold && samples >= this.config.min_samples_threshold) {
         recommendation = "apply";
+      } else if (
+        samples >= this.config.min_samples_threshold &&
+        (stability === "stable" || stability === "converging")
+      ) {
+        // Enough samples AND a consistent (low-variance) correction signal -> human review,
+        // even while the tau-decayed confidence scalar is still climbing toward the apply bar.
+        recommendation = "review";
       } else if (confidence >= 0.5 && samples >= this.config.min_samples_threshold / 2) {
         recommendation = "review";
       } else {
@@ -510,7 +523,7 @@ export class MasterPostFineTuningEngine {
     const avgVariance = Object.values(weights.variances).reduce((s, v) => s + v, 0) / PARAMETER_TYPES.length;
     const avgDelta = Object.values(weights.deltas).reduce((s, d) => s + Math.abs(d), 0) / PARAMETER_TYPES.length;
 
-    const stability = this.assessStability(weights.avg_confidence, avgVariance, totalSamples);
+    const stability = this.assessStability(avgVariance, totalSamples);
 
     return {
       controller,
@@ -835,18 +848,34 @@ export class MasterPostFineTuningEngine {
     const maxCorrection = Math.abs(record.predicted_value) * this.config.max_correction_fraction;
     weights.deltas[param] = Math.max(-maxCorrection, Math.min(maxCorrection, newDelta));
 
-    // Update running variance using Welford's algorithm
+    // Update running variance using Welford's online algorithm.
+    // The statistic must track how consistent the raw CORRECTIONS are, so it runs against the
+    // true running mean of corrections -- NOT `deltas[param]`, which is a bounded/smoothed EMA
+    // applicator. Running it against the moving, clamped delta injected a spurious ramp-up
+    // variance that never washed out (the prior bug: a perfectly consistent correction stream
+    // reported variance ~131 instead of ~0, collapsing stability to "unstable").
     weights.sample_counts[param]++;
     const n = weights.sample_counts[param];
-    const mean = weights.deltas[param];
-    const diff = record.correction - mean;
-    weights.variances[param] = ((n - 1) * weights.variances[param] + diff * diff) / n;
 
-    // Update confidence
+    // Self-heal legacy weight sets imported without correction_means (N-1 back-compat).
+    if (!weights.correction_means) {
+      weights.correction_means = {} as Record<ParameterType, number>;
+      for (const p of PARAMETER_TYPES) weights.correction_means[p] = weights.deltas[p] ?? 0;
+    }
+
+    const prevMean = weights.correction_means[param];
+    const newMean = prevMean + (record.correction - prevMean) / n;
+    weights.correction_means[param] = newMean;
+    // variance is stored as M2/n (population), so reconstruct M2 from the prior variance.
+    const m2Prev = weights.variances[param] * (n - 1);
+    const m2 = m2Prev + (record.correction - prevMean) * (record.correction - newMean);
+    weights.variances[param] = n > 0 ? m2 / n : 0;
+
+    // Update confidence (the large-correction penalty uses the true correction mean magnitude).
     weights.confidences[param] = this.computeConfidence(
       n,
       weights.variances[param],
-      Math.abs(mean)
+      Math.abs(newMean)
     );
 
     // Update aggregates
@@ -860,12 +889,14 @@ export class MasterPostFineTuningEngine {
     const confidences: Record<ParameterType, number> = {} as Record<ParameterType, number>;
     const sample_counts: Record<ParameterType, number> = {} as Record<ParameterType, number>;
     const variances: Record<ParameterType, number> = {} as Record<ParameterType, number>;
+    const correction_means: Record<ParameterType, number> = {} as Record<ParameterType, number>;
 
     for (const p of PARAMETER_TYPES) {
       deltas[p] = 0;
       confidences[p] = 0;
       sample_counts[p] = 0;
       variances[p] = 0;
+      correction_means[p] = 0;
     }
 
     return {
@@ -875,6 +906,7 @@ export class MasterPostFineTuningEngine {
       confidences,
       sample_counts,
       variances,
+      correction_means,
       last_updated: new Date().toISOString(),
       total_samples: 0,
       avg_confidence: 0,
@@ -981,7 +1013,7 @@ export class MasterPostFineTuningEngine {
     const sampleCount = weights.sample_counts[parameter];
     const variance = weights.variances[parameter];
     const meanCorrection = weights.deltas[parameter];
-    const stability = this.assessStability(confidence, variance, sampleCount);
+    const stability = this.assessStability(variance, sampleCount);
 
     return {
       controller,
@@ -997,17 +1029,19 @@ export class MasterPostFineTuningEngine {
   }
 
   private assessStability(
-    confidence: number,
     variance: number,
     sampleCount: number
   ): "stable" | "converging" | "unstable" | "insufficient_data" {
     if (sampleCount < this.config.min_samples_threshold) {
       return "insufficient_data";
     }
-    if (confidence >= 0.8 && variance < 10) {
+    // Stability is the CONSISTENCY axis: once enough samples exist, it is determined by how
+    // tightly the corrections cluster (variance), independent of `confidence` -- which rises on
+    // a slow tau and would otherwise mislabel a tight, low-variance signal as "unstable".
+    if (variance < 10) {
       return "stable";
     }
-    if (confidence >= 0.5 && variance < 50) {
+    if (variance < 50) {
       return "converging";
     }
     return "unstable";
@@ -1044,6 +1078,11 @@ export class MasterPostFineTuningEngine {
 
       // Weighted average for deltas
       merged.deltas[param] = (existing.deltas[param] * n1 + imported.deltas[param] * n2) / totalN;
+
+      // Weighted average for the true correction mean (legacy sets default to their delta).
+      const m1 = existing.correction_means?.[param] ?? existing.deltas[param];
+      const m2c = imported.correction_means?.[param] ?? imported.deltas[param];
+      merged.correction_means[param] = (m1 * n1 + m2c * n2) / totalN;
 
       // Combined variance (pooled variance formula)
       const v1 = existing.variances[param];

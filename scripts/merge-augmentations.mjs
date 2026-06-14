@@ -20,23 +20,79 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
+import v8 from "node:v8";
+
+// Self-reexec with adequate heap if invoked under-heaped (REGRESSION-FIX,
+// slot:bravo 2026-05-26, per feedback_bravo_golf_papa_quebec_fix_known_failures).
+// The merge of all augmentations into the 542MB+ system-graph.json needs ~12GB
+// resident; with V8 default ~4GB max-old-space, the script OOMs at the final
+// writeGraphStreaming stringify with "Reached heap limit Allocation failed".
+// regen-viz.mjs already passes --max-old-space-size=16384 when spawning this
+// script, but direct invocation (rtk node, npm run, manual debug) silently
+// loses that flag.  This block re-execs with adequate heap so the script is
+// safe to call from any wrapper.  Bypass: PRISM_MERGE_AUG_REEXEC=1.
+// 24GB — bumped from 12288 (slot:sierra 2026-05-29, U-VIZ-MERGE-HEAP-HEADROOM): the 12GB floor
+// was the observed *minimum* for a 542MB graph, leaving no headroom; the graph grew to 576MB
+// and the merge intermittently OOM'd (exit 134) even at regen-viz's 16GB. Matched to regen-viz
+// NODE_ARGS (24GB) so a standalone `node merge-augmentations.mjs` gets the same headroom the
+// pipeline now gives. Host has 136GB total — 24GB is safe.
+const HEAP_MB_REQUIRED = 24576;
+if (!process.env.PRISM_MERGE_AUG_REEXEC) {
+  const heapMaxMB = Math.floor(v8.getHeapStatistics().heap_size_limit / 1024 / 1024);
+  if (heapMaxMB < HEAP_MB_REQUIRED * 0.9) {
+    const r = spawnSync(process.execPath,
+      [`--max-old-space-size=${HEAP_MB_REQUIRED}`, ...process.argv.slice(1)],
+      { stdio: "inherit", env: { ...process.env, PRISM_MERGE_AUG_REEXEC: "1" } });
+    process.exit(r.status ?? 1);
+  }
+}
+
+import { readGraphStreaming, writeGraphStreamingAtomic, exceedsStringParseCap } from "./lib/graph-io.mjs";
+import { canonicalizeGraphEdgeTargets } from "./lib/viz-engine-node-id-canon.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VIZ_DIR = path.join(ROOT, "state", "shared", "system-viz");
 
+// Augmentations that cross V8's ~512MiB string cap (obsidian-augmentation.json is
+// 416MB and climbing) can't be JSON.parse()'d through a string. The old
+// `JSON.parse(fs.readFileSync(p,"utf8"))` THREW on such a file and the catch
+// silently returned null -> the augmentation was SILENTLY DROPPED: at >512MiB every
+// node's wiki/memory linkage would vanish with no error (silent master-index
+// degradation, R12). Now: read as an off-heap Buffer, and if it exceeds the cap,
+// record + log LOUD (never silent) and return null; only string-parse under the cap.
+// A streaming loader that PRESERVES oversize linkage is the documented next unit.
+// (U-VIZ-MERGE-AUG-CAP-GUARD, 2026-06-09)
+const OVERSIZE_DROPPED = [];
 function loadOptional(name) {
   const p = path.join(VIZ_DIR, name);
-  if (!fs.existsSync(p)) return null;
-  try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; }
+  if (!fs.existsSync(p)) return null; // genuinely absent -> fine, stay quiet
+  let buf;
+  try { buf = fs.readFileSync(p); } catch { return null; }
+  if (exceedsStringParseCap(buf.length)) {
+    const mb = +(buf.length / 1048576).toFixed(1);
+    OVERSIZE_DROPPED.push({ name, mb });
+    console.error(`[merge-augmentations] OVERSIZE: ${name} is ${mb}MB > V8's ~512MiB string cap -- cannot JSON.parse via a string; DROPPING this augmentation (needs a streaming loader or sharding). Reported loud in the merge summary -- this is NOT a silent drop.`);
+    return null;
+  }
+  try { return JSON.parse(buf.toString("utf8")); } catch { return null; }
 }
+
+// Streaming graph I/O is extracted to scripts/lib/graph-io.mjs (papa /loop
+// 2026-05-23). All downstream consumers of system-graph.json that fail on
+// >512MB files should migrate to readGraphStreaming/writeGraphStreaming from
+// the lib. Test coverage: scripts/lib/graph-io.test.mjs (11/11 PASS).
 
 const graphPath = path.join(VIZ_DIR, "system-graph.json");
 if (!fs.existsSync(graphPath)) {
   console.error(`base graph missing: ${graphPath}\n  run: node scripts/generate-system-viz.mjs`);
   process.exit(2);
 }
-const G = JSON.parse(fs.readFileSync(graphPath, "utf8"));
+// Streaming read — bypasses V8 ~512MB max-string-length ceiling on
+// JSON.parse(fs.readFileSync(graphPath, "utf8")) for graphs >450MB.
+// See readGraphStreaming() docblock for the full diagnostic.
+const G = readGraphStreaming(graphPath);
 
 // Hoisted index of nodes by id — replaces every G.nodes.find()/filter() in
 // this script. The graph reached ~240K nodes and the linear scans started
@@ -86,12 +142,57 @@ const knowledgeGal   = loadOptional("knowledge-galaxy-augmentation.json");
 const layerBridges   = loadOptional("layer-bridges-augmentation.json");
 const stagnantFeats  = loadOptional("stagnant-features-augmentation.json");
 const miscTasks      = loadOptional("misc-tasks-augmentation.json");
+const collegeCourses = loadOptional("college-course-augmentation.json");
+const resourcePdfs   = loadOptional("resource-pdf-augmentation.json");
+const pdfCourseBridge = loadOptional("pdf-course-bridge-augmentation.json");
+const cadcamTrainingCorpus = loadOptional("cadcam-training-corpus-augmentation.json");
+const extractedPdfTips = loadOptional("extracted-pdf-tips-augmentation.json");
+const pdfCoverage = loadOptional("pdf-coverage-augmentation.json");
+const tokenSavingsPivot = loadOptional("token-savings-pivot-augmentation.json");
+const forgeAuditTokenContext = loadOptional("forge-audit-token-context-augmentation.json");  // FORGE-AUDIT-TOKEN-CONTEXT-2026-05-26 (slot:alpha)
 const bridgeSynergy  = loadOptional("bridge-synergy-augmentation.json");
+const bridgePriority = loadOptional("bridge-priority-augmentation.json");  // COMBO-EFFICIENCY-MS0/P1-U03 viz wire (slot:alpha 2026-05-25)
+const slotBindingHealth = loadOptional("slot-binding-augmentation.json");  // SLOT-BRIDGE-MS0/U-SBB06 viz wire (slot:alpha 2026-05-26)
 const priorityQueue  = loadOptional("priority-queue-augmentation.json");
+const dreamArtifacts = loadOptional("dream-artifacts-augmentation.json");  // DREAM-RECEIPT-MS0/U-DR09 (slot:bravo 2026-05-26)
+const hermesApp     = loadOptional("hermes-augmentation.json");  // HERMES-APP-INCORPORATION-MS0/U-HERMES-VIZ-ROOST (slot:bravo 2026-06-05)
+const testingInfra   = loadOptional("testing-infra-augmentation.json");  // TESTING-INFRA-MS0/U-AXIS1-VIZ-CLOSURE (slot:tango 2026-05-26)
+const slotQueue      = loadOptional("slot-queue-augmentation.json");  // SLOT-RECOVERY-MS0/U-FD06 (slot:golf /loop iter10 2026-05-25)
+const chatSlotNodes  = loadOptional("chat-slot-nodes-augmentation.json");  // ZULU-CHAT-SLOT-NODES-MS0 (slot:bravo 2026-05-25): per-slot nodes + PSN synergy
+const databaseSurfaces = loadOptional("database-surfaces-augmentation.json");
+const hotelDomain    = loadOptional("hotel-domain-features.json");
+const quotingPipeline = loadOptional("quoting-pipeline-augmentation.json");
+// U-VIZ-FAST-REGISTER-9 (sierra 2026-05-30): 3 measured roosts wired (12+15+45 curated nodes).
+// milling-tribal emits newNodes/newEdges + proper shape; svi-component + vendor-catalog emit
+// nodes/edges (light kind-normalize in their splice). All 3 now write to VIZ_DIR root.
+const millingTribalBridge = loadOptional("milling-tribal-tip-bridge-augmentation.json");
+const sviComponent   = loadOptional("svi-component-features.json");
+const vendorCatalog  = loadOptional("vendor-catalog-features.json");
+const octopusConsensus = loadOptional("octopus-consensus-augmentation.json");  // PSN-OCTOPUS-FLEET-SYNERGY-MS0/U-FLEET-CONSUME-VIZ (slot:bravo 2026-06-01): per-galaxy octopus consensus roost — newNodes/newEdges, internal-only edges.
+const predictedEdges = loadOptional("predicted-missing-edges-augmentation.json");  // BLACKWELL-AI-MS0/U-GNN-EDGE-PREDICT-VIZ (slot:india 2026-06-09): predicted MISSING knowledge edges roost (GraphSAGE link-prediction) — newNodes/newEdges, internal-only contains edges.
+const episodeStore   = loadOptional("episode-store-augmentation.json");
+const hybridRetrieval = loadOptional("hybrid-retrieval-augmentation.json");
+const cagRouter       = loadOptional("cag-router-augmentation.json");  // TOKEN-SAVINGS-PIVOT/U-CAG-DASHBOARD (sierra 2026-05-27)
+const launchReadiness = loadOptional("launch-readiness-augmentation.json");
+const extractedModules = loadOptional("extracted-modules-augmentation.json");
+const extractedModulesDetail = loadOptional("extracted-modules-detail-augmentation.json");
+const gnnEmbedBridge = loadOptional("gnn-embed-bridge-augmentation.json");
+const postGap        = loadOptional("post-gap-augmentation.json");
+const ragUpgrade     = loadOptional("rag-upgrade-augmentation.json");
+const linkAudit      = loadOptional("link-audit-augmentation.json");
+const wikiTribal     = loadOptional("wiki-tribal-augmentation.json");
+const substrateMetaRoost = loadOptional("substrate-meta-roost-augmentation.json");
+const galaxyFederationRoost = loadOptional("galaxy-federation-roost-augmentation.json");  // GALAXY-CONTEXT-FEDERATION-MS0/U-GCF-VIZ-ROOST (slot:alpha 2026-06-01) — federation roost (cards/digest/knows-map/dedup/savings)
+const aiMemoXref     = loadOptional("ai-memo-xref-augmentation.json");
+const featureGap     = loadOptional("feature-gap-augmentation.json");
+const domainPipeline = loadOptional("domain-pipeline-augmentation.json");
+const slotSynergy    = loadOptional("slot-synergy-augmentation.json");
+const dockerMcp      = loadOptional("docker-mcp-augmentation.json");
 const engineGraph    = loadOptional("engine-graph-augmentation.json");
 const hookBridges    = loadOptional("hook-bridges-augmentation.json");
 const frontendPages  = loadOptional("frontend-pages-augmentation.json");
 const untrackedFiles = loadOptional("untracked-files-augmentation.json");
+const echoVizLayers  = loadOptional("echo-viz-layers-augmentation.json");
 const comboDetector  = loadOptional("combo-detector-augmentation.json");
 const engineSat      = loadOptional("engine-saturate-augmentation.json");
 const wikiEntries    = loadOptional("wiki-entries-augmentation.json");
@@ -106,6 +207,9 @@ const actionsAtomic  = loadOptional("actions-atomic-augmentation.json");
 const hooksAtomic    = loadOptional("hooks-atomic-augmentation.json");
 const testsAtomic    = loadOptional("tests-atomic-augmentation.json");
 const scriptsAtomic  = loadOptional("scripts-atomic-augmentation.json");
+const scriptsLibAtm  = loadOptional("scripts-lib-atomic-augmentation.json");
+const milestoneEnvAtm = loadOptional("milestone-envelope-atomic-augmentation.json");
+const slotTouchAug    = loadOptional("slot-touch-augmentation.json");
 const memoriesAtomic = loadOptional("memories-atomic-augmentation.json");
 const registryEnts   = loadOptional("registry-entries-augmentation.json");
 const actionEngEdges = loadOptional("action-engine-edges-augmentation.json");
@@ -124,6 +228,13 @@ const extractDataAtm = loadOptional("extracted-data-atomic-augmentation.json");
 const dataCatAtm     = loadOptional("data-catalogs-atomic-augmentation.json");
 const gitTree        = loadOptional("git-tree-augmentation.json");
 const vaultGraph     = loadOptional("obsidian-vault-augmentation.json");
+const ghostWireValidation = loadOptional("ghost-wire-validation-augmentation.json");
+const tribalDensity  = loadOptional("tribal-density-augmentation.json");
+// CROSS-SUBSTRATE-SYNERGY-MS0/U-XSUB-CLOSURE-AUGMENTATION (slot:sierra): typed,
+// schema-validated cross-substrate edges (owned-by-slot: galaxy/domain node ->
+// Hermes slot node). ADD-only; folded edge-only below. Generator:
+// scripts/generate-cross-substrate-edges.mjs · schema: scripts/lib/cross-substrate-edge-schema.mjs
+const xsubEdges      = loadOptional("cross-substrate-edges-augmentation.json");
 
 const versions = {};
 if (obsidian)  versions.obsidian  = obsidian.generatedAt  ?? "present";
@@ -151,12 +262,40 @@ if (knowledgeGal)    versions.knowledgeGal    = knowledgeGal.generatedAt    ?? "
 if (layerBridges)    versions.layerBridges    = layerBridges.generatedAt    ?? "present";
 if (stagnantFeats)   versions.stagnantFeats   = stagnantFeats.generatedAt   ?? "present";
 if (miscTasks)       versions.miscTasks       = miscTasks.generatedAt       ?? "present";
+if (collegeCourses)  versions.collegeCourses  = collegeCourses.generatedAt  ?? "present";
+if (resourcePdfs)    versions.resourcePdfs    = resourcePdfs.generatedAt    ?? "present";
+if (pdfCourseBridge) versions.pdfCourseBridge = pdfCourseBridge.generatedAt ?? "present";
+if (cadcamTrainingCorpus) versions.cadcamTrainingCorpus = cadcamTrainingCorpus.generatedAt ?? "present";
+if (extractedPdfTips) versions.extractedPdfTips = extractedPdfTips.generatedAt ?? "present";
+if (pdfCoverage) versions.pdfCoverage = pdfCoverage.generatedAt ?? "present";
+if (tokenSavingsPivot) versions.tokenSavingsPivot = tokenSavingsPivot.generatedAt ?? "present";
+if (forgeAuditTokenContext) versions.forgeAuditTokenContext = forgeAuditTokenContext.generatedAt ?? "present";
+if (bridgePriority)  versions.bridgePriority  = bridgePriority.generatedAt  ?? "present";
 if (bridgeSynergy)   versions.bridgeSynergy   = bridgeSynergy.generatedAt   ?? "present";
+if (slotQueue)       versions.slotQueue       = slotQueue.generatedAt       ?? "missing-generatedAt";
+if (chatSlotNodes)   versions.chatSlotNodes   = chatSlotNodes.generated_at   ?? "present";
 if (priorityQueue)   versions.priorityQueue   = priorityQueue.generatedAt   ?? "present";
+if (dreamArtifacts)  versions.dreamArtifacts  = dreamArtifacts.generated_at ?? "present";
+if (hermesApp)       versions.hermesApp       = hermesApp.generated_at ?? "present";
+if (testingInfra)    versions.testingInfra    = testingInfra.generatedAt    ?? "present";
+if (quotingPipeline) versions.quotingPipeline = quotingPipeline.generatedAt ?? "present";
+if (episodeStore)    versions.episodeStore    = episodeStore.generatedAt    ?? "present";
+if (hybridRetrieval) versions.hybridRetrieval = hybridRetrieval.generatedAt ?? "present";
+if (cagRouter)       versions.cagRouter       = cagRouter.generatedAt       ?? "present";
+if (launchReadiness) versions.launchReadiness = launchReadiness.generatedAt ?? "present";
+if (gnnEmbedBridge)  versions.gnnEmbedBridge  = gnnEmbedBridge.generatedAt  ?? "present";
+if (ragUpgrade)      versions.ragUpgrade      = ragUpgrade.generatedAt      ?? "present";
+if (linkAudit)       versions.linkAudit       = linkAudit.generatedAt       ?? "present";
+if (wikiTribal)      versions.wikiTribal      = wikiTribal.generatedAt      ?? "present";
+if (substrateMetaRoost) versions.substrateMetaRoost = substrateMetaRoost.generatedAt ?? "present";
+if (galaxyFederationRoost) versions.galaxyFederationRoost = galaxyFederationRoost.generatedAt ?? "present";
+if (aiMemoXref)      versions.aiMemoXref      = aiMemoXref.generatedAt      ?? "present";
+if (slotSynergy)     versions.slotSynergy     = slotSynergy.generatedAt     ?? "present";
 if (engineGraph)     versions.engineGraph     = engineGraph.generatedAt     ?? "present";
 if (hookBridges)     versions.hookBridges     = hookBridges.generatedAt     ?? "present";
 if (frontendPages)   versions.frontendPages   = frontendPages.generatedAt   ?? "present";
 if (untrackedFiles)  versions.untrackedFiles  = untrackedFiles.generatedAt  ?? "present";
+if (echoVizLayers)   versions.echoVizLayers   = echoVizLayers.generatedAt   ?? "present";
 if (comboDetector)   versions.comboDetector   = comboDetector.generatedAt   ?? "present";
 if (engineSat)       versions.engineSat       = engineSat.generatedAt       ?? "present";
 if (wikiEntries)     versions.wikiEntries     = wikiEntries.generatedAt     ?? "present";
@@ -171,6 +310,9 @@ if (actionsAtomic)   versions.actionsAtomic   = actionsAtomic.generatedAt   ?? "
 if (hooksAtomic)     versions.hooksAtomic     = hooksAtomic.generatedAt     ?? "present";
 if (testsAtomic)     versions.testsAtomic     = testsAtomic.generatedAt     ?? "present";
 if (scriptsAtomic)   versions.scriptsAtomic   = scriptsAtomic.generatedAt   ?? "present";
+if (scriptsLibAtm)   versions.scriptsLibAtomic = scriptsLibAtm.generatedAt   ?? "present";
+if (milestoneEnvAtm) versions.milestoneEnvelopeAtomic = milestoneEnvAtm.generatedAt ?? "present";
+if (slotTouchAug)    versions.slotTouch       = slotTouchAug.generatedAt    ?? "present";
 if (memoriesAtomic)  versions.memoriesAtomic  = memoriesAtomic.generatedAt  ?? "present";
 if (registryEnts)    versions.registryEnts    = registryEnts.generatedAt    ?? "present";
 if (actionEngEdges)  versions.actionEngEdges  = actionEngEdges.generatedAt  ?? "present";
@@ -189,6 +331,8 @@ if (extractDataAtm)  versions.extractedDataAtomic = extractDataAtm.generatedAt ?
 if (dataCatAtm)      versions.dataCatalogsAtomic = dataCatAtm.generatedAt ?? "present";
 if (gitTree)         versions.gitTree         = gitTree.generatedAt         ?? "present";
 if (vaultGraph)      versions.vaultGraph      = vaultGraph.generatedAt      ?? "present";
+if (ghostWireValidation) versions.ghostWireValidation = ghostWireValidation.generatedAt ?? "present";
+if (tribalDensity)   versions.tribalDensity   = tribalDensity.generatedAt   ?? "present";
 
 let mergedNodes = 0;
 for (const n of G.nodes) {
@@ -718,6 +862,42 @@ if (wiringOverlay?.annotations && wiringOverlay?.phantomEdges) {
   };
 }
 
+// Ghost-wire validation overlay (SYSTEM-VIZ-HIGH-ROI-MS0/U-VIZ-GHOST-WIRE-VALIDATE,
+// 2026-05-21 sierra). Each ghost.unwired-engine node gets a confirmed/refuted/
+// pending status stamp by scripts/validate-ghost-wires.mjs; this block paints
+// those stamps onto the live graph so the /system-viz overlay can color them
+// (green/red/amber per STATUS_INTENSITIES). Edges of type "ghost-wire-validation"
+// re-anchor the proposed-wire arc with the same status signal — they are
+// SEPARATE from the original "proposed-wire" edges (which stay in place so the
+// reviewer can see both the prediction and the validation outcome side-by-side).
+let ghostWireAnnotated = 0, ghostWireEdgesAdded = 0;
+if (ghostWireValidation?.annotations && ghostWireValidation?.edges) {
+  const byId = new Map(G.nodes.map(n => [n.id, n]));
+  for (const [id, ann] of Object.entries(ghostWireValidation.annotations)) {
+    const node = byId.get(id);
+    if (!node) continue;
+    Object.assign(node, ann);
+    ghostWireAnnotated++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of ghostWireValidation.edges) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    ghostWireEdgesAdded++;
+  }
+  G.meta.ghostWireValidation = {
+    generatedAt: ghostWireValidation.generatedAt,
+    version: ghostWireValidation.version,
+    counts: ghostWireValidation.counts,
+    annotated: ghostWireAnnotated,
+    edgesAdded: ghostWireEdgesAdded,
+  };
+}
+
 // Galaxy constituents: populate node.molecules for engine-domains, core
 // modules, and registries so users can double-click ANY rollup to see its
 // atomic planets orbiting the parent (existing enterMolecules() drill-down).
@@ -794,6 +974,42 @@ if (knowledgeGal?.newNodes && knowledgeGal?.newEdges) {
   };
 }
 
+// CROSS-SUBSTRATE-SYNERGY-MS0/U-XSUB-CLOSURE+ROOST (slot:sierra): fold the typed
+// cross-substrate galaxy-roost NODES (one per PSN galaxy) then the owned-by-slot
+// EDGES (galaxy/domain node -> Hermes slot node). ADD-only; nodes deduped by id,
+// edges by (from|to|type), like every block above. Nodes are folded FIRST so the
+// roost->slot edges reference an existing node. Each edge carries
+// {source,confidence,addedBy,addedAt} so a graded inference (confidence<1) is
+// never read as ground truth downstream.
+let xsubNodesAdded = 0, xsubEdgesAdded = 0;
+if (Array.isArray(xsubEdges?.newNodes) && xsubEdges.newNodes.length) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of xsubEdges.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    xsubNodesAdded++;
+  }
+}
+if (Array.isArray(xsubEdges?.newEdges) && xsubEdges.newEdges.length) {
+  G.edges ??= [];
+  const ek = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingXsub = new Set(G.edges.map(ek));
+  for (const edge of xsubEdges.newEdges) {
+    const k = ek(edge);
+    if (existingXsub.has(k)) continue;
+    G.edges.push(edge);
+    existingXsub.add(k);
+    xsubEdgesAdded++;
+  }
+  G.meta.crossSubstrateEdges = {
+    generatedAt: xsubEdges.generatedAt,
+    nodesAdded: xsubNodesAdded,
+    added: xsubEdgesAdded,
+    edgeSchemaVersion: xsubEdges.edgeSchemaVersion,
+  };
+}
+
 // Layer bridges: fill the sparse upper-layer cascade. Adds:
 //   L4→L5 lazy_import edges (dispatcher → engine-domain rollup),
 //   L3→L4 route edges     (AI tier → dispatcher),
@@ -846,6 +1062,37 @@ if (stagnantFeats?.newNodes && stagnantFeats?.newEdges) {
   };
 }
 
+// Tribal-density heatmap roost: the "Tribal Density" ghost parent + one
+// L9 child per domain bucket (sized by tribal-tip count, tagged hot/warm/
+// cold band). Complements the wiki-tribal coverage roost (which finds gaps)
+// by showing where tribal knowledge ALREADY accumulates.
+// Source: knowledge/wiki/code-tribal/**/*.md via
+// scripts/generate-tribal-density-features.mjs.
+let tribalDensityNodes = 0, tribalDensityEdges = 0;
+if (tribalDensity?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of tribalDensity.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    tribalDensityNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (tribalDensity.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    tribalDensityEdges++;
+  }
+  G.meta.tribalDensity = {
+    generatedAt: tribalDensity.generatedAt,
+    stats: tribalDensity.stats,
+  };
+}
+
 // Misc-tasks roost: the "Misc Tasks" ghost parent + one misc-task child per
 // orphaned-incomplete-work item — work found across all PRISM chats that was
 // never finished and never formalized into a roadmap unit / milestone envelope.
@@ -873,6 +1120,214 @@ if (miscTasks?.newNodes) {
   G.meta.miscTasks = {
     generatedAt: miscTasks.generatedAt,
     stats: miscTasks.stats,
+  };
+}
+
+// College-course layer: the "ghost.college_courses" roost + one college-course
+// child per AUTOGEN-SPEC under state/shared/college-course-specs/. Renders the
+// lima execution queue (96 courses across 6 kinds — mit-ocw, basic-training,
+// knowledge-pack, handbook-pdfs, prism-training, prism-personal).
+// Source: state/shared/college-course-specs/AUTOGEN-SPEC-*.md via
+// scripts/generate-college-course-features.mjs.
+let collegeCourseNodes = 0, collegeCourseEdges = 0;
+if (collegeCourses?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of collegeCourses.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    collegeCourseNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (collegeCourses.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    collegeCourseEdges++;
+  }
+  G.meta.collegeCourses = {
+    generatedAt: collegeCourses.generatedAt,
+    stats: collegeCourses.stats,
+  };
+}
+
+// Resource-PDF layer: the "ghost.resource_pdfs" roost + one resource-pdf child
+// per AUTOGEN-EXTRACT-SPEC under state/shared/resource-pdf-specs/. Renders the
+// /pdf-learn execution queue (893 PDFs across 5 kinds — machining-handbook,
+// resource-catalog, blueprint-pdf, manual-pdf, other-pdf).
+// Source: state/shared/resource-pdf-specs/AUTOGEN-EXTRACT-SPEC-*.md via
+// scripts/generate-resource-pdf-features.mjs.
+let resourcePdfNodes = 0, resourcePdfEdges = 0;
+if (resourcePdfs?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of resourcePdfs.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    resourcePdfNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (resourcePdfs.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    resourcePdfEdges++;
+  }
+  G.meta.resourcePdfs = {
+    generatedAt: resourcePdfs.generatedAt,
+    stats: resourcePdfs.stats,
+  };
+}
+
+// PDF-Course bridge layer: edges-only augmentation linking ghost.resource_pdfs
+// + ghost.college_courses children to their LOGICAL CONNECTED engine nodes.
+// Closes the "wire and bridge to logical connected nodes" leg.
+// Source: scripts/generate-pdf-course-bridge-features.mjs (2541 edges typical).
+let pdfCourseBridgeEdges = 0;
+if (pdfCourseBridge?.newEdges) {
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of pdfCourseBridge.newEdges) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    pdfCourseBridgeEdges++;
+  }
+  G.meta.pdfCourseBridge = {
+    generatedAt: pdfCourseBridge.generatedAt,
+    stats: pdfCourseBridge.stats,
+  };
+}
+
+// CAD+CAM training-corpus roost: nodes-only augmentation.
+// ghost.cadcam_training_corpus + 2 domain pivots (cad→delta, cam→kilo) + one
+// training-source leaf per consolidated entry. Lets delta + kilo discover the
+// corpora visually via /system-viz (PSN System Viz leg).
+// Source: state/shared/cadcam-consolidated-corpus.json via
+// scripts/generate-cadcam-training-corpus-features.mjs (india iter25).
+let cadcamTrainingCorpusNodes = 0;
+if (cadcamTrainingCorpus?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of cadcamTrainingCorpus.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    cadcamTrainingCorpusNodes++;
+  }
+  G.meta.cadcamTrainingCorpus = {
+    generatedAt: cadcamTrainingCorpus.generatedAt,
+    stats: cadcamTrainingCorpus.stats,
+  };
+}
+
+// Extracted-PDF-tips roost: REAL-content tribal tips extracted from source PDFs
+// (india iter27+). ghost.extracted_pdf_tips (L8) + book pivots (L9) + tribal-tip
+// leaves (L10). Each leaf encodes [domain · →audience] + tip text + cites the
+// originating source.book + page. Synergizes the extraction to PSN leg #6 (System
+// Viz) + #5 (Tribal) — delta/kilo/alpha/bravo discover real content via /system-viz.
+// Source: state/shared/extracted-pdfs/*.jsonl via
+// scripts/generate-extracted-pdf-tips-features.mjs (india iter28).
+let extractedPdfTipsNodes = 0;
+if (extractedPdfTips?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of extractedPdfTips.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    extractedPdfTipsNodes++;
+  }
+  G.meta.extractedPdfTips = {
+    generatedAt: extractedPdfTips.generatedAt,
+    stats: extractedPdfTips.stats,
+  };
+}
+
+// PDF extraction-coverage roost: structural surfacing of EVERY consolidated PDF
+// in the iter23 corpus as a graph leaf, tagged extracted vs pending. Closes the
+// "889 longer-tail" gap structurally: even un-curated PDFs become discoverable +
+// flagged for batch automation, instead of being invisible.
+// Source: state/shared/cadcam-consolidated-corpus.json + state/shared/extracted-pdfs/*.jsonl
+// via scripts/generate-pdf-coverage-features.mjs (india iter43).
+let pdfCoverageNodes = 0;
+if (pdfCoverage?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of pdfCoverage.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    pdfCoverageNodes++;
+  }
+  G.meta.pdfCoverage = {
+    generatedAt: pdfCoverage.generatedAt,
+    stats: pdfCoverage.stats,
+  };
+}
+
+// Token-savings-pivot layer: the "ghost.token_savings_pivot" roost + one
+// tsp-classifier child per route-suggest classifier + one tsp-tool child per
+// tool name, sized by fire counts from the atomic-write telemetry sidecar.
+// Source: state/shared/mcp-route-suggest-stats.json via
+// scripts/generate-token-savings-pivot-features.mjs.
+let tokenSavingsPivotNodes = 0, tokenSavingsPivotEdges = 0;
+if (tokenSavingsPivot?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of tokenSavingsPivot.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    tokenSavingsPivotNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (tokenSavingsPivot.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    tokenSavingsPivotEdges++;
+  }
+  G.meta.tokenSavingsPivot = {
+    generatedAt: tokenSavingsPivot.generatedAt,
+    stats: tokenSavingsPivot.stats,
+  };
+}
+
+// FORGE-AUDIT-TOKEN-CONTEXT-2026-05-26 (slot:alpha): ghost roost + 12 punch-list
+// children. Source: hard-coded in scripts/generate-forge-audit-token-context-features.mjs
+// (spec at state/shared/specs/FORGE-AUDIT-TOKEN-CONTEXT-2026-05-26.md).
+let forgeAuditTokenContextNodes = 0, forgeAuditTokenContextEdges = 0;
+if (forgeAuditTokenContext?.nodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of forgeAuditTokenContext.nodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    forgeAuditTokenContextNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? e.kind ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (forgeAuditTokenContext.edges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    forgeAuditTokenContextEdges++;
+  }
+  G.meta.forgeAuditTokenContext = {
+    generatedAt: forgeAuditTokenContext.generatedAt,
+    stats: forgeAuditTokenContext.stats,
+    nodesAdded: forgeAuditTokenContextNodes,
+    edgesAdded: forgeAuditTokenContextEdges,
   };
 }
 
@@ -906,6 +1361,122 @@ if (bridgeSynergy?.newNodes) {
   };
 }
 
+// Dream-artifacts layer: ghost.dream_artifacts roost + one dream-artifact child per
+// staged/validated/applied/discarded receipt-bundle. Source:
+// state/shared/dream-artifacts/<id>/manifest.json via generate-dream-artifacts-features.mjs.
+// DREAM-RECEIPT-MS0/U-DR09 (slot:bravo 2026-05-26) — Hermes Dreaming v0.1.0 interop.
+let dreamArtifactsNodes = 0, dreamArtifactsEdges = 0;
+if (dreamArtifacts?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of dreamArtifacts.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    dreamArtifactsNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (dreamArtifacts.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    dreamArtifactsEdges++;
+  }
+  G.meta.dreamArtifacts = {
+    generated_at: dreamArtifacts.generated_at,
+    stats: dreamArtifacts.stats,
+  };
+}
+
+// Hermes-app layer: ghost.hermes_app roost + native-MCP capability (bridges
+// edge to tr.mcp) + one child per skill/cron/output. Source: the external
+// Nous Hermes desktop app dirs + knowledge/hermes-outputs/ via
+// generate-hermes-features.mjs. HERMES-APP-INCORPORATION-MS0/U-HERMES-VIZ-ROOST (slot:bravo 2026-06-05).
+let hermesAppNodes = 0, hermesAppEdges = 0;
+if (hermesApp?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of hermesApp.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    hermesAppNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (hermesApp.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    hermesAppEdges++;
+  }
+  G.meta.hermesApp = {
+    generated_at: hermesApp.generated_at,
+    stats: hermesApp.stats,
+  };
+}
+
+// Bridge-priority layer: ghost.bridge_priority roost + one tier-colored
+// unwired-bridge child per ranked unwired engine. Source:
+// state/shared/UNWIRED-BRIDGES-TOP10.json via generate-bridge-priority-features.mjs.
+// COMBO-EFFICIENCY-MS0/P1-U03 viz wire (slot:alpha 2026-05-25).
+let bridgePriorityNodes = 0, bridgePriorityEdges = 0;
+if (bridgePriority?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of bridgePriority.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    bridgePriorityNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (bridgePriority.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    bridgePriorityEdges++;
+  }
+  G.meta.bridgePriority = {
+    generatedAt: bridgePriority.generatedAt,
+    stats: bridgePriority.stats,
+  };
+}
+
+// Slot-binding health layer: ghost.slot_binding_health roost + one tier-coloured
+// slot-binding child per NATO slot. Source: state/shared/slot-branch-bindings.json
+// + chat-slots.json via generate-slot-binding-features.mjs.
+// SLOT-BRIDGE-MS0/U-SBB06 PSN+/system-viz synergy (slot:alpha 2026-05-26).
+let slotBindingNodes = 0, slotBindingEdges = 0;
+if (slotBindingHealth?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of slotBindingHealth.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    slotBindingNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (slotBindingHealth.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    slotBindingEdges++;
+  }
+  G.meta.slotBindingHealth = {
+    generatedAt: slotBindingHealth.generatedAt,
+    stats: slotBindingHealth.stats,
+  };
+}
+
 // Priority-queue layer: ghost.priority_queue roost + one color-coded
 // priority-unit child per remaining work item from ROADMAP-CONSOLIDATED.
 // Source: scripts/generate-priority-queue-features.mjs.
@@ -931,6 +1502,876 @@ if (priorityQueue?.newNodes) {
   G.meta.priorityQueue = {
     generatedAt: priorityQueue.generatedAt,
     stats: priorityQueue.stats,
+  };
+}
+
+// Testing-infra layer: ghost.testing_infra roost + 4 testing-infra-axis
+// children, one per axis engine shipped in TESTING-INFRA-MS0/U-AXIS2-3-4
+// (slot:tango 2026-05-25 commits 68b62b1152 + 2bc580d536). Each axis carries
+// pass-count/total atomic values + dispatcher action + engine source path.
+// Closes the Axis 1 (PSN/system-viz wiring) gap from that handoff.
+// Source: scripts/generate-testing-infra-features.mjs.
+// Spec: TESTING-INFRA-MS0/U-AXIS1-VIZ-CLOSURE (slot:tango 2026-05-26).
+let testingInfraNodes = 0, testingInfraEdges = 0;
+if (testingInfra?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of testingInfra.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    testingInfraNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (testingInfra.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    testingInfraEdges++;
+  }
+  G.meta.testingInfra = {
+    generatedAt: testingInfra.generatedAt,
+    stats: testingInfra.stats,
+  };
+}
+
+// Slot-queue layer: ghost.slot_queue roost + one ghost.slot_queue.<nato>
+// subgroup per active slot + slot-queue-unit children per pending unit from
+// state/shared/slot-task-queues.json. Dedicated tasks colored per-slot NATO
+// palette; general_pool (dedicated=false) colored gray.
+// Source: scripts/generate-slot-queue-features.mjs.
+// Spec: state/shared/specs/SLOT-RECOVERY-MS0.md#U-FD06 (slot:golf 2026-05-25).
+let slotQueueNodes = 0, slotQueueEdges = 0;
+if (slotQueue?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of slotQueue.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    slotQueueNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (slotQueue.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    slotQueueEdges++;
+  }
+  G.meta.slotQueue = {
+    generatedAt: slotQueue.generatedAt,
+    stats: slotQueue.stats,
+  };
+}
+
+// Chat-slot fleet nodes: ghost.chat_fleet L8 roost + 26 NATO slot children
+// with PSN synergy edges (soul/loop/token/branch/domain). Source:
+// scripts/generate-chat-slot-nodes-features.mjs. Spec: ZULU-CHAT-SLOT-NODES-MS0
+// (slot:bravo 2026-05-25, follow-up to ZULU-OMNISCIENT-MS0 envelope close).
+let chatSlotNodesNodes = 0, chatSlotNodesEdges = 0;
+if (chatSlotNodes?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of chatSlotNodes.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    chatSlotNodesNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? e.kind ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (chatSlotNodes.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    chatSlotNodesEdges++;
+  }
+  G.meta.chatSlotNodes = {
+    generatedAt: chatSlotNodes.generated_at,
+    stats: chatSlotNodes.stats,
+  };
+}
+
+// Database-surfaces layer: ghost.database_surfaces L7 roost + one
+// database-surface child per PRISM storage backend, tagged with PSN leg owner,
+// backend type, status (wired/unwired/external/ghost), and bridge-gap count.
+// Source: scripts/generate-database-surfaces-roost.mjs.
+// Spec: state/shared/specs/JULIETT-DB-BRIDGE-PLAN-2026-05-25.md.
+let databaseSurfacesNodes = 0, databaseSurfacesEdges = 0;
+if (databaseSurfaces?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of databaseSurfaces.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    databaseSurfacesNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (databaseSurfaces.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    databaseSurfacesEdges++;
+  }
+  G.meta.databaseSurfaces = {
+    generatedAt: databaseSurfaces.generatedAt,
+    stats: databaseSurfaces.stats,
+  };
+}
+
+// Hotel-domain layer: ghost.business_frontend + ghost.shop_safety +
+// ghost.realtime_accounting roosts with one hotel-action child per
+// classified prism_business / prism_shop dispatcher action.
+// Source: scripts/generate-hotel-domain-features.mjs.
+let hotelDomainNodes = 0, hotelDomainEdges = 0;
+if (hotelDomain?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of hotelDomain.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    hotelDomainNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (hotelDomain.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    hotelDomainEdges++;
+  }
+  G.meta.hotelDomain = {
+    generatedAt: hotelDomain.generatedAt,
+    stats: hotelDomain.stats,
+  };
+}
+
+// Quoting-pipeline layer: ghost.quoting_pipeline L8 roost + 7 engines +
+// 12 dispatcher actions + 4 UI/HTTP surfaces. Source:
+// scripts/generate-quoting-pipeline-features.mjs (QUOTING-PIPELINE-MS0).
+let quotingPipelineNodes = 0, quotingPipelineEdges = 0;
+if (quotingPipeline?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of quotingPipeline.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    quotingPipelineNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (quotingPipeline.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    quotingPipelineEdges++;
+  }
+  G.meta.quotingPipeline = {
+    generatedAt: quotingPipeline.generatedAt,
+    stats: quotingPipeline.stats,
+  };
+}
+
+// Milling tribal-tip bridge: ghost roost linking milling tribal tips to peer nodes.
+// Source: scripts/generate-milling-tribal-tip-bridge-features.mjs (writes VIZ_DIR root,
+// newNodes/newEdges + proper {id,layer,parent,kind} shape). U-VIZ-FAST-REGISTER-9 (sierra 2026-05-30).
+let millingTribalNodes = 0, millingTribalEdges = 0;
+if (millingTribalBridge?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of millingTribalBridge.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    millingTribalNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (millingTribalBridge.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    millingTribalEdges++;
+  }
+  G.meta.millingTribalBridge = { generatedAt: millingTribalBridge.generatedAt, stats: millingTribalBridge.stats };
+}
+
+// Octopus per-domain consensus: ghost.octopus_consensus roost surfacing real fleet consensus per
+// galaxy from the U-FLEET-CONSUME feeds. Source: scripts/generate-octopus-consensus-features.mjs
+// (writes VIZ_DIR root, newNodes/newEdges + proper shape, internal-only edges). PSN-OCTOPUS-FLEET-
+// SYNERGY-MS0/U-FLEET-CONSUME-VIZ (slot:bravo 2026-06-01).
+let octopusConsensusNodes = 0, octopusConsensusEdges = 0;
+if (octopusConsensus?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of octopusConsensus.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    octopusConsensusNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (octopusConsensus.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    octopusConsensusEdges++;
+  }
+  G.meta.octopusConsensus = { generatedAt: octopusConsensus.generatedAt, stats: octopusConsensus.stats, nodesAdded: octopusConsensusNodes, edgesAdded: octopusConsensusEdges };
+}
+
+// BLACKWELL-AI-MS0/U-GNN-EDGE-PREDICT-VIZ (slot:india 2026-06-09): predicted MISSING knowledge
+// edges roost (ghost.predicted_edges) from generate-predicted-edges-features.mjs — self-contained
+// cluster, internal-only "contains" edges (root→child), mirrors the octopus splice above.
+let predictedEdgesNodes = 0, predictedEdgesEdges = 0;
+if (predictedEdges?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of predictedEdges.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    predictedEdgesNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (predictedEdges.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    predictedEdgesEdges++;
+  }
+  G.meta.predictedEdges = { generatedAt: predictedEdges.generatedAt, stats: predictedEdges.stats, nodesAdded: predictedEdgesNodes, edgesAdded: predictedEdgesEdges };
+}
+
+// SVI-component breakdown: Ψ-component + MOAT-axis nodes. Source: generate-svi-component-features.mjs
+// — emits `nodes`/`edges` (NOT newNodes/newEdges); nodes are {id,type,label,layer,metadata}.
+// kind-normalize from `type`; contains-edges parent them via the post-merge reparent stage.
+let sviComponentNodes = 0, sviComponentEdges = 0;
+if (sviComponent?.nodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of sviComponent.nodes) {
+    if (existingIds.has(node.id)) continue;
+    if (!node.kind && node.type) node.kind = node.type;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    sviComponentNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (sviComponent.edges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    sviComponentEdges++;
+  }
+  G.meta.sviComponent = { generatedAt: sviComponent.generated_at, augmentationKind: sviComponent.augmentation_kind };
+}
+
+// Vendor-catalog: tool/insert vendor catalog nodes. Source: generate-vendor-catalog-features.mjs
+// — emits `nodes`/`edges`; nodes are {id,group,type,label,title,color,metadata}. kind-normalize from `type`.
+let vendorCatalogNodes = 0, vendorCatalogEdges = 0;
+if (vendorCatalog?.nodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of vendorCatalog.nodes) {
+    if (existingIds.has(node.id)) continue;
+    if (!node.kind && node.type) node.kind = node.type;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    vendorCatalogNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (vendorCatalog.edges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    vendorCatalogEdges++;
+  }
+  G.meta.vendorCatalog = { generatedAt: vendorCatalog.generated_at, stats: vendorCatalog.stats };
+}
+
+// Episode-store layer: ghost.episode_store L8 roost +
+// per-entity nodes + per-episode nodes. Source:
+// state/shared/episodes.jsonl via scripts/generate-episode-store-features.mjs.
+// Closes PSN-ENHANCE-MS0/U-PSN-GRAPHITI-WIRE — makes the graphiti-lite
+// episode store queryable in /system-viz.
+let episodeStoreNodes = 0, episodeStoreEdges = 0;
+if (episodeStore?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of episodeStore.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    episodeStoreNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (episodeStore.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    episodeStoreEdges++;
+  }
+  G.meta.episodeStore = {
+    generatedAt: episodeStore.generatedAt,
+    stats: episodeStore.stats,
+  };
+}
+
+// Hybrid-retrieval layer: ghost.hybrid_retrieval L8 roost + 4 substrate
+// L9 children (memory + master + episode + vector) + 4 fan-out edges.
+// Source: live substrate probes via scripts/generate-hybrid-retrieval-features.mjs.
+// Closes PSN-ENHANCE-MS0/U-PSN-HYBRID-VIZ-ROOST — surfaces the iter-18
+// hybridSearch() 4-substrate architecture in /system-viz.
+let hybridRetrievalNodes = 0, hybridRetrievalEdges = 0;
+if (hybridRetrieval?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of hybridRetrieval.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    hybridRetrievalNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.kind ?? e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (hybridRetrieval.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    hybridRetrievalEdges++;
+  }
+  G.meta.hybridRetrieval = {
+    generatedAt: hybridRetrieval.generatedAt,
+    stats: hybridRetrieval.stats,
+  };
+}
+
+// TOKEN-SAVINGS-PIVOT/U-CAG-DASHBOARD (sierra 2026-05-27) — merge the
+// CAG-router augmentation: ghost.cag_router roost + 7 substrate children
+// (producer router-inject, producer cold-anchor, shared consume-helper,
+// 3 consumers, router-lib) + fans-out edges + writes-sidecar-for edges +
+// imported-by edges. Verbatim structural copy of the hybridRetrieval merger
+// (which itself is the iter-12 episode-store pattern). edgeKey tolerates both
+// `kind` and `type` shapes for forward-compat.
+let cagRouterNodes = 0, cagRouterEdges = 0;
+if (cagRouter?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of cagRouter.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    cagRouterNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.kind ?? e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (cagRouter.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    cagRouterEdges++;
+  }
+  G.meta.cagRouter = {
+    generatedAt: cagRouter.generatedAt,
+    stats: cagRouter.stats,
+  };
+}
+
+// Launch-readiness layer: ghost.launch_readiness L7 roost +
+// per-domain readiness + revenue blockers + milestone phases/units + PSN-leg health.
+// Source: state/shared/specs/LAUNCH-READINESS-2026-05-24.json + envelope JSON via
+// scripts/generate-launch-readiness-features.mjs.
+let launchReadinessNodes = 0, launchReadinessEdges = 0;
+if (launchReadiness?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of launchReadiness.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    addNodeIndexed(node);
+    existingIds.add(node.id);
+    launchReadinessNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (launchReadiness.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    launchReadinessEdges++;
+  }
+  G.meta.launchReadiness = {
+    generatedAt: launchReadiness.generatedAt,
+    stats: launchReadiness.stats,
+  };
+}
+
+// U-PSN-EXTRACTED-DIRS-NODE-MAP (slot:golf 2026-05-24 iter11): splice the two
+// ghost roosts (ghost.extracted_modules + ghost.extracted) and their 50
+// top-level category children. Adds H:/prism/extracted_modules + H:/prism/extracted
+// (~1342 files, 50 categories) into PSN substrate.
+// Source: scripts/generate-extracted-modules-features.mjs.
+let extractedModulesNodes = 0;
+if (extractedModules?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of extractedModules.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    extractedModulesNodes++;
+  }
+  G.meta = G.meta || {};
+  G.meta.extractedModules = {
+    generatedAt: extractedModules.generatedAt,
+    stats: extractedModules.stats,
+  };
+}
+
+// Per-file detail layer for the extraction stockpile (slot:papa 2026-05-26):
+// 653 file-level L10 nodes + 786 bridge/wire edges from top-200 WIRE_CANDIDATEs
+// + 208 DATABASEs + 111 DUP_KEEP_EXISTING + 134 PARTIAL_OVERLAP modules. Each
+// DUP/PARTIAL node carries a bridge_to_existing edge to the matched PRISM
+// engine; each WIRE/PARTIAL carries a wire_target edge to the recommended
+// dispatcher. Closes the "individual nodes + bridges + wiring" leg of the
+// papa /goal /loop. Source: scripts/generate-extracted-modules-detail-features.mjs.
+let extractedModulesDetailNodes = 0, extractedModulesDetailEdges = 0;
+if (extractedModulesDetail?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of extractedModulesDetail.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    addNodeIndexed(node);
+    existingIds.add(node.id);
+    extractedModulesDetailNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (extractedModulesDetail.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    extractedModulesDetailEdges++;
+  }
+  G.meta = G.meta || {};
+  G.meta.extractedModulesDetail = {
+    generatedAt: extractedModulesDetail.generatedAt,
+    stats: extractedModulesDetail.stats,
+  };
+}
+
+// GNN node-embedding bridge surface: ghost.gnn_embed_bridge roost + stats child
+// reporting matched/dim/model/generatedAt from the live JSONL. Source:
+// scripts/generate-gnn-embed-bridge-features.mjs (RAG-UPGRADE-MS0/U-GNN-NODE-EMBED-BRIDGE).
+let gnnEmbedBridgeNodes = 0, gnnEmbedBridgeEdges = 0;
+if (gnnEmbedBridge?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of gnnEmbedBridge.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    gnnEmbedBridgeNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (gnnEmbedBridge.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    gnnEmbedBridgeEdges++;
+  }
+  G.meta.gnnEmbedBridge = {
+    generatedAt: gnnEmbedBridge.generatedAt,
+    stats: gnnEmbedBridge.stats,
+  };
+}
+
+// JM Die post-processor gap surface: ghost.post_gap_surface roost + corpus-
+// wide gap children + per-post nodes. Closes (c) /system-viz roost integration
+// from [[reference_india_post_gaps_2026_05_22]] (slot:india 2026-05-22).
+// Source: scripts/generate-post-gap-features.mjs ← scripts/lib/jmdie-post-gap-detect.mjs
+// ← H:/prism/JM DIE/PRISM MODIFIED POST PROCESSORS/*.cps.
+let postGapNodes = 0, postGapEdges = 0;
+if (postGap?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of postGap.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    postGapNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (postGap.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    postGapEdges++;
+  }
+  G.meta.postGap = {
+    generatedAt: postGap.generatedAt,
+    stats: postGap.stats,
+  };
+}
+
+// RAG-UPGRADE-MS0 layer: ghost.rag_upgrade_ms0 roost + one rag-upgrade-unit
+// child per unit (U-RAG-1..6), color-coded by parsed status. Source:
+// scripts/generate-rag-upgrade-features.mjs ← state/shared/specs/RAG-UPGRADE-MS0.md.
+let ragUpgradeNodes = 0, ragUpgradeEdges = 0;
+if (ragUpgrade?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of ragUpgrade.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    ragUpgradeNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (ragUpgrade.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    ragUpgradeEdges++;
+  }
+  G.meta.ragUpgrade = {
+    generatedAt: ragUpgrade.generatedAt,
+    stats: ragUpgrade.stats,
+  };
+}
+
+// Link-audit integrity layer: ghost.link_audit_integrity roost + one
+// broken-link child per top-N broken `[[name]]` sample. Source:
+// state/shared/.knowledge-link-audit.json (producer iter-4) via
+// scripts/generate-link-audit-features.mjs (iter-6, echo /goal synergy).
+// The producer/consumer pair (Stop-hook write, SessionStart digest) is
+// already in place; this layer adds the visual surface to /system-viz.
+let linkAuditNodes = 0, linkAuditEdges = 0;
+if (linkAudit?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of linkAudit.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    linkAuditNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (linkAudit.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    linkAuditEdges++;
+  }
+  G.meta.linkAudit = {
+    generatedAt: linkAudit.generatedAt,
+    stats: linkAudit.stats,
+  };
+}
+
+// Wiki-tribal coverage layer: ghost.wiki_tribal_coverage roost + one
+// missing-coverage child per top-N wiki path lacking tribal embedding.
+// Source: state/shared/.wiki-tribal-cross-ref-audit.json (producer iter-7)
+// via scripts/generate-wiki-tribal-features.mjs (iter-9, echo /goal synergy).
+// Producer/consumer/viz triplet for the wiki-tribal substrate (after the
+// iter-7 producer + iter-8 SessionStart consumer).
+let wikiTribalNodes = 0, wikiTribalEdges = 0;
+if (wikiTribal?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of wikiTribal.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    wikiTribalNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (wikiTribal.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    wikiTribalEdges++;
+  }
+  G.meta.wikiTribal = {
+    generatedAt: wikiTribal.generatedAt,
+    stats: wikiTribal.stats,
+  };
+}
+
+// Substrate-health meta-roost: ghost.substrate_health L7 parent that
+// aggregates the iter-6 link-audit roost + iter-9 wiki-tribal roost via
+// "aggregates" edges. Source: state/shared/.goal-synergy-status.json
+// (iter-10 rollup) via scripts/generate-substrate-meta-roost-features.mjs
+// (iter-12, echo /goal synergy). Compounds the viz tier: textual rollup
+// (iter-10) + textual digest (iter-11) + visual meta-parent (iter-12).
+let substrateMetaRoostNodes = 0, substrateMetaRoostEdges = 0;
+if (substrateMetaRoost?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of substrateMetaRoost.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    substrateMetaRoostNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (substrateMetaRoost.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    substrateMetaRoostEdges++;
+  }
+  G.meta.substrateMetaRoost = {
+    generatedAt: substrateMetaRoost.generatedAt,
+    stats: substrateMetaRoost.stats,
+  };
+}
+
+// GALAXY-CONTEXT-FEDERATION-MS0/U-GCF-VIZ-ROOST (slot:alpha 2026-06-01): federation roost —
+// ghost.galaxy_federation L7 meta + 5 child roosts (cards/digest/knows-map/dedup/savings) L8.
+// Source: scripts/generate-galaxy-federation-roost-features.mjs. Mirrors the substrateMetaRoost
+// splice exactly (own existingIds/existingEdges Sets, dedup by id + edgeKey).
+let galaxyFederationRoostNodes = 0, galaxyFederationRoostEdges = 0;
+if (galaxyFederationRoost?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of galaxyFederationRoost.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    galaxyFederationRoostNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (galaxyFederationRoost.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    galaxyFederationRoostEdges++;
+  }
+  G.meta.galaxyFederationRoost = {
+    generatedAt: galaxyFederationRoost.generatedAt,
+    stats: galaxyFederationRoost.stats,
+  };
+}
+
+// PRISM-AI memo-coverage roost: ghost.ai_memo_xref L8 roost + one
+// missing-coverage child per blind-spot PRISM-AI engine. Source:
+// state/shared/.prism-ai-memo-cross-ref-audit.json (iter-13 producer) via
+// scripts/generate-ai-memo-xref-features.mjs (iter-16, echo /goal synergy).
+// Completes the producer/consumer/viz triplet for the prism-ai-memo
+// substrate (iter-13 producer + iter-14 SessionStart consumer + iter-16 viz).
+let aiMemoXrefNodes = 0, aiMemoXrefEdges = 0;
+if (aiMemoXref?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of aiMemoXref.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    aiMemoXrefNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (aiMemoXref.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    aiMemoXrefEdges++;
+  }
+  G.meta.aiMemoXref = {
+    generatedAt: aiMemoXref.generatedAt,
+    stats: aiMemoXref.stats,
+  };
+}
+
+// Echo-viz observability layers: three ghost roosts from the ECHO-UNDONE
+// survey (H2 tribal-knowledge corpus, H3 live chat-slot agents, H5 active
+// handoffs) + their children. Source:
+// state/shared/system-viz/echo-viz-layers-augmentation.json via
+// scripts/generate-echo-viz-layers-features.mjs.
+let echoVizLayerNodes = 0, echoVizLayerEdges = 0;
+if (echoVizLayers?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of echoVizLayers.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    echoVizLayerNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (echoVizLayers.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    echoVizLayerEdges++;
+  }
+  G.meta.echoVizLayers = {
+    generatedAt: echoVizLayers.generatedAt,
+    stats: echoVizLayers.stats,
+  };
+}
+
+// Feature-gap audit layer: ghost.feature_gap_audit roost + one gap-unit per
+// audit-discovered feature (FEATURE-GAP-AUDIT-MS0), color-coded by owning
+// domain. Each gap-unit also emits an "audit-discovered" ghost wire to the
+// roost. Source: scripts/generate-feature-gap-features.mjs.
+let featureGapNodes = 0, featureGapEdges = 0;
+if (featureGap?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of featureGap.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    featureGapNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (featureGap.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    featureGapEdges++;
+  }
+  G.meta.featureGap = {
+    generatedAt: featureGap.generatedAt,
+    stats: featureGap.stats,
+  };
+}
+
+// Domain-pipeline layer: ghost.domain_pipelines roost + 13 domain-pipeline
+// nodes + per-(domain,stage) pipeline-stage children with pipeline-flow edges.
+// Source: scripts/generate-domain-pipeline-features.mjs (reads
+// state/shared/specs/DOMAIN-PIPELINE-MS0-CONFIG.json).
+let domainPipelineNodes = 0, domainPipelineEdges = 0;
+if (domainPipeline?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of domainPipeline.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    domainPipelineNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (domainPipeline.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    domainPipelineEdges++;
+  }
+  G.meta.domainPipeline = {
+    generatedAt: domainPipeline.generatedAt,
+    stats: domainPipeline.stats,
+  };
+}
+
+// Slot-synergy map: ghost.slot_synergy roost + 14 synergy-subsystem anchors
+// + 13 slot-synergy-node children (one per NATO slot), with per-slot edges
+// to every subsystem the slot has non-zero connections to (handoffs, queue,
+// claims, commits, branch, skills, scripts, hooks, memories, wikis, tribal,
+// CLAUDE.md, GSD, TDD/DSL). Closes the "end-to-end pipeline per slot is
+// invisible in the graph" gap. Source: scripts/generate-slot-synergy-features.mjs.
+let slotSynergyNodes = 0, slotSynergyEdges = 0;
+if (slotSynergy?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of slotSynergy.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    slotSynergyNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (slotSynergy.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    slotSynergyEdges++;
+  }
+  G.meta.slotSynergy = {
+    generatedAt: slotSynergy.generatedAt,
+    stats: slotSynergy.stats,
+  };
+}
+
+// Docker MCP layer: ghost.docker_mcp roost + one node per registered MCP
+// catalog, MCP client, and the servers wired into each client. Puts the
+// Docker MCP Toolkit integration ON the graph — the shared substrate the AI
+// router (master_index_query) and NN-graph GNN both read, so this single
+// augmentation surfaces Docker MCP to three intelligence layers at once.
+// Source: scripts/generate-docker-mcp-features.mjs.
+let dockerMcpNodes = 0, dockerMcpEdges = 0;
+if (dockerMcp?.newNodes) {
+  const existingIds = new Set(G.nodes.map(n => n.id));
+  for (const node of dockerMcp.newNodes) {
+    if (existingIds.has(node.id)) continue;
+    G.nodes.push(node);
+    existingIds.add(node.id);
+    dockerMcpNodes++;
+  }
+  G.edges ??= [];
+  const edgeKey = e => `${e.from || e.source}|${e.to || e.target}|${e.type ?? ""}`;
+  const existingEdges = new Set(G.edges.map(edgeKey));
+  for (const edge of (dockerMcp.newEdges || [])) {
+    const k = edgeKey(edge);
+    if (existingEdges.has(k)) continue;
+    G.edges.push(edge);
+    existingEdges.add(k);
+    dockerMcpEdges++;
+  }
+  G.meta.dockerMcp = {
+    generatedAt: dockerMcp.generatedAt,
+    stats: dockerMcp.stats,
   };
 }
 
@@ -1363,6 +2804,9 @@ function mergeIndexedAugmentation(aug, name) {
 const [hookNodes,    hookEdges]    = mergeIndexedAugmentation(hooksAtomic,    "hooksAtomic");
 const [testNodes,    testEdges]    = mergeIndexedAugmentation(testsAtomic,    "testsAtomic");
 const [scriptNodesA, scriptEdgesA] = mergeIndexedAugmentation(scriptsAtomic,  "scriptsAtomic");
+const [scriptLibN,   scriptLibE]   = mergeIndexedAugmentation(scriptsLibAtm,  "scriptsLibAtomic");
+const [msEnvN,       msEnvE]       = mergeIndexedAugmentation(milestoneEnvAtm, "milestoneEnvelopeAtomic");
+const [slotTouchN,   slotTouchE]   = mergeIndexedAugmentation(slotTouchAug,    "slotTouch");
 const [memoryNodes,  memoryEdges]  = mergeIndexedAugmentation(memoriesAtomic, "memoriesAtomic");
 const [regEntNodes,  regEntEdges]  = mergeIndexedAugmentation(registryEnts,   "registryEntries");
 const [camVCNodes,   camVCEdges]   = mergeIndexedAugmentation(camVendorCat,   "camVendorCatalog");
@@ -1425,14 +2869,42 @@ if (actionEngEdges?.newEdges) {
   G.meta.ghostSummary = { ghostNodes, ghostEdges };
 }
 
+// U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra): canonicalize mis-prefixed edge targets
+// in the assembled graph. The merged graph is CUMULATIVE (merge reads the
+// persistent system-graph.json + adds, never removes stale-target edges), so a
+// producer-side fix only affects NEW edges — the ~2.7K `dispatcher.prism_*` +
+// `engine.<ClassName>` edges accumulated from prior merges persist until rewritten
+// HERE (the single writer + the only place with the full post-merge node set; a
+// separate rewriting script would be a 2nd writer). Both remaps are gated so they
+// are strictly dead→live: engine.<X>→eng.<domain>.<name> only when X matches a live
+// eng.* node (graph-alias); dispatcher.<X>→disp.<file-id> only when the resolved
+// disp.* node EXISTS. Unmatched targets stay honest dead pixels (R12). Reverts with
+// PRISM_VIZ_ENGINE_CANON_DISABLE=1.
+let edgeCanon = { engRemapped: 0, dispRemapped: 0, dropped: 0, engUnresolved: 0, dispUnresolved: 0, bareEngRemapped: 0, bareDispRemapped: 0, distinctEngMissing: 0, distinctDispMissing: 0 };
+if (process.env.PRISM_VIZ_ENGINE_CANON_DISABLE !== "1") {
+  edgeCanon = canonicalizeGraphEdgeTargets(G);
+  G.meta.edgeTargetCanonicalization = { ...edgeCanon, ranAt: new Date().toISOString() };
+}
+
 G.meta.augmentationVersions = versions;
 G.schemaVersion = "2.29.0";
-fs.writeFileSync(graphPath, JSON.stringify(G));
+// Streaming + ATOMIC write -- bypasses V8 ~512MB max-string-length ceiling AND is
+// crash-atomic (tmp-<pid> + rename). A reaper/OOM/commit-pressure kill mid-write
+// leaves only an orphan .tmp (swept by the tmp-orphan janitor), NEVER a truncated
+// system-graph.json. The non-atomic writeGraphStreaming truncated the 660MB graph
+// mid-edges-array on a killed regen (U-VIZ-GRAPH-ATOMIC-WRITE, 2026-06-09) -- which
+// broke every readGraphStreaming consumer. See writeGraphStreamingAtomic() docblock.
+writeGraphStreamingAtomic(graphPath, G);
 console.log(`merged augmentations into ${graphPath}`);
 console.log(`  obsidian: ${obsidian ? "yes" : "missing"}  awareness: ${awareness ? "yes" : "missing"}  novelty: ${novelty ? "yes" : "missing"}  business: ${business ? "yes" : "missing"}`);
-console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  bridgeSynergy: ${bridgeSynergyNodes} nodes / ${bridgeSynergyEdges} edges  priorityQueue: ${priorityQueueNodes} nodes / ${priorityQueueEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
+if (OVERSIZE_DROPPED.length) {
+  console.error(`  !! OVERSIZE-DROPPED ${OVERSIZE_DROPPED.length} augmentation(s) -- exceeded V8 ~512MiB string cap, NOT loaded; master-index degraded for these until sharded or given a streaming loader:`);
+  for (const o of OVERSIZE_DROPPED) console.error(`     - ${o.name} (${o.mb}MB)`);
+}
+console.log(`  nodes augmented: ${mergedNodes}  coreInventory: ${coreInventoryChildren}  fsInventory: ${fsInventoryChildren}  engineDomain: ${engineDomainChildren}  knowledgeInv: ${knowledgeInvChildren}  stalenessAnnotated: ${stalenessAnnotated}  fsDeep: ${fsDeepNodes} nodes, ${fsDeepEdges} edges  l11Leaves: ${l11Nodes} nodes, ${l11Edges} edges  wiring: ${wiringAnnotated} annotated, ${wiringPhantomEdges} phantom edges  galaxies: ${galaxyAnnotated} (+${galaxyMolsAttached} planets)  knowledge: ${knowledgeNodes} nodes, ${knowledgeEdges} edges, ${knowledgeAnnotated} annotated  layerBridges: ${bridgeEdges} new edges  stagnant: ${stagnantNodes} nodes / ${stagnantEdges} edges  miscTasks: ${miscTaskNodes} nodes / ${miscTaskEdges} edges  bridgeSynergy: ${bridgeSynergyNodes} nodes / ${bridgeSynergyEdges} edges  priorityQueue: ${priorityQueueNodes} nodes / ${priorityQueueEdges} edges  echoVizLayers: ${echoVizLayerNodes} nodes / ${echoVizLayerEdges} edges  engineGraph: ${engineGraphNodes} nodes / ${engineGraphEdges} edges  hookBridges: ${hookBridgesEdges} edges  frontendPages: ${frontendPageNodes} nodes / ${frontendPageEdges} edges  combo: ${comboNodes} nodes / ${comboEdges} edges  engineSat: ${engSatNodes} nodes / ${engSatEdges} edges  wikiEntries: ${wikiNodes} nodes / ${wikiEdges} edges  formulasAtomic: ${formulaNodes} / ${formulaEdges}  personas: ${personaNodes} / ${personaEdges}  skills: ${skillNodes} / ${skillEdges}  schemas: ${schemaNodes} / ${schemaEdges}  algos: ${algoNodes} / ${algoEdges}  transport: ${transportNodes} / ${transportEdges}  aiTier: ${aiTierNodes} / ${aiTierEdges}  actions: ${actionNodes} / ${actionEdges}  hooks: ${hookNodes} / ${hookEdges}  tests: ${testNodes} / ${testEdges}  scriptsAtom: ${scriptNodesA} / ${scriptEdgesA}  scriptsLib: ${scriptLibN} / ${scriptLibE}  memories: ${memoryNodes} / ${memoryEdges}  regEnt: ${regEntNodes} / ${regEntEdges}  actEng: 0 / ${actEngEdges}  ghosts: ${G.meta.ghostSummary.ghostNodes} nodes / ${G.meta.ghostSummary.ghostEdges} edges`);
 console.log(`  L7-saturation: camVendor=${camVCNodes}n/${camVCEdges}e  tsRegEnt=${tsRENodes}n/${tsREEdges}e  physics=${phyANodes}n/${phyAEdges}e`);
 console.log(`  L5-edges:      engineImp=${engineImpEdgeCount} new edges  testCov=${testCovEdgeCount} new edges`);
 console.log(`  Phase 2:       jmDie=${jmDieNodes}n/${jmDieEdges}e  frontendDeep=${frontDNodes}n/${frontDEdges}e  wikiX=${wikiXNodes}n/${wikiXEdges}e  schemaEng=${schemaEdgeCount}e  enginePhys=${physEdgeCount}e`);
 console.log(`  Phase 3:       extractedDataAtomic=${xtractNodes}n/${xtractEdges}e  dataCatalogsAtomic=${datacatNodes}n/${datacatEdges}e  gitTree=${gitTreeNodes}n/${gitTreeEdges}e  vaultGraph=${vaultGNodes}n/${vaultGEdges}e`);
 console.log(`  schema bumped to 2.29.0`);
+console.log(`  edgeCanon: eng ${edgeCanon.engRemapped} remap/${edgeCanon.engUnresolved} miss(${edgeCanon.distinctEngMissing}), disp ${edgeCanon.dispRemapped} remap/${edgeCanon.dispUnresolved} miss(${edgeCanon.distinctDispMissing}), bare eng ${edgeCanon.bareEngRemapped}/disp ${edgeCanon.bareDispRemapped}, ${edgeCanon.dropped} dup-dropped`);

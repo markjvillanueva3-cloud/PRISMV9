@@ -1,0 +1,22 @@
+---
+session: claude-0413eca6
+topic: system-viz-layer-exp
+written_at: 2026-05-10T03:39:07.053Z
+machine: DESKTOP-N7MI1VB
+family: Claude
+session_key: claude-0413eca6
+status: active
+---
+
+# HANDOFF: claude-0413eca6
+Updated: 2026-05-10T03:39:07.053Z
+Family: Claude | Machine: DESKTOP-N7MI1VB | Session: claude-0413eca6
+
+## STATE
+system-viz layer expansion + stall fixes + staleness overlay. Session ran 9 augmentation passes: L5(41->312) + L6(10->309) + L8(86->129) + L9(84->30,893) + staleness on 724 nodes. Plus stall fixes: dedupe Stop hook, restore plans junction, 42 cross-file dup hooks removed (PRISM/.claude->H:/.claude canonical). Total nodes 772->32,194 (4070% growth). Schema 2.1.0->2.13.0. Last action: editing generate-fs-deep-inventory.mjs to add STRICT_PARENT_FROM_DEPTH gate; Edit got rejected (suspected hook glitch, not peer claim) right before context hard-blocked at 12.5M tokens.
+
+## RESUME
+Continue system-viz layer expansion. L9 depth 3-6 done (32,194 total nodes / 43.5MB graph / schema 2.13.0). NEXT: edit scripts/generate-fs-deep-inventory.mjs to support depths 7-10 with STRICT_PARENT_FROM_DEPTH=7 gate (only emit if real parent exists in graph; orphan archive subtrees skip synthetic-parent fallback to keep size sane). The constants MIN_DEPTH=3/MAX_DEPTH=10/STRICT_PARENT_FROM_DEPTH=7 are already declared but unused. Wire STRICT_PARENT_FROM_DEPTH into the orphan branch of the emit loop: replace the existing 'if (parentId) { ... } else { synthetic } stats.emitted++' block with one that checks 'if (!parentId && depth >= STRICT_PARENT_FROM_DEPTH) { ds.skippedNoParent++; continue; }' BEFORE pushing to newNodes. Then run: node scripts/generate-fs-deep-inventory.mjs && node scripts/merge-augmentations.mjs. Verify L9 grows to ~50K nodes. After that: optionally add Layer 11 per-file leaf nodes (one node per top-K file inside each depth-3-6 dir; ~50-100K more nodes; pushes browser viz limit but reaches 'every file as a node').
+
+## CONTEXT
+Critical patterns established this session: (1) parallel Edits to same file race the file-claim hooks and silently reject with 'user denied' message — ALWAYS sequential. (2) c-to-h-mirror only fires on Edit/Write tool calls, NOT on node -e writes — manual Copy-Item needed for those. (3) scripts/ and state/shared/system-viz/ are intentionally untracked — no commits needed. (4) Edge format is {from,to,type,status,intensity}, NOT source/target. (5) Hook bloat reduced 316->275 commands by deduping cross-file. (6) PRISM has 1.27M files / 54,855 dirs / 512GB on H:; depth distribution: 73(d1) 622(d2) 6395(d3) 9898(d4) 8651(d5) 10472(d6) 5817(d7) 5182(d8) 3657(d9) 1807(d10). Depths 3-6 already in graph after this session. Files dont each get a node; top-10 per dir ride as node.files[] metadata. (7) Augmentation pattern: write per-augmentation JSON in state/shared/system-viz/, add loadOptional/versions/merge-block to scripts/merge-augmentations.mjs, bump schema. Files generated this session: generate-core-inventory.mjs, generate-fs-inventory.mjs, generate-engine-domain-inventory.mjs, generate-knowledge-inventory.mjs, generate-staleness-overlay.mjs, generate-fs-deep-inventory.mjs, audit-hook-paths.mjs, audit-hook-duplicates.mjs, audit-cross-file-hooks.mjs, dedupe-cross-file-hooks.mjs.

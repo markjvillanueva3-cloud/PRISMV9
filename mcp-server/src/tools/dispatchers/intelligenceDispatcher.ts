@@ -27,7 +27,7 @@ type HookContext = any;
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
-    _userAssistanceSkills: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
+    _userAssistanceSkills: any, _intelligenceAmplification: any, _aiFeatureRegistry: any, _aiSystemRouter: any,
     _autonomousOrchestration: any, _xprocSymbolicEnforcer: any, _xprocSafetyVerifier: any,
     _xprocCausalLearner: any, _xprocDoCalculus: any, _xprocCounterfactual: any, _xprocMediation: any,
     _xprocUncertainty: any, _xprocNovelty: any, _xprocCuriosity: any, _xprocDOE: any,
@@ -61,6 +61,7 @@ async function getEngine(name: string): Promise<any> {
     case "conversationalMemory": return _conversationalMemory ??= (await import("../../engines/ConversationalMemoryEngine.js")).conversationalMemory;
     case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
     case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
+    case "intelligenceAmplification": return _intelligenceAmplification ??= (await import("../../engines/IntelligenceAmplificationEngine.js")).intelligenceAmplificationDispatch;
     case "aiFeatureRegistry":    return _aiFeatureRegistry ??= (await import("../../engines/AIFeatureAutoRegistryEngine.js")).aiFeatureRegistryDispatch;
     case "aiSystemRouter":       return _aiSystemRouter ??= (await import("../../engines/AISystemRouterEngine.js")).aiSystemRouterDispatch;
     case "autonomousOrchestration": return _autonomousOrchestration ??= (await import("../../engines/AutonomousAIOrchestrationEngine.js")).autonomousAIOrchestrationDispatch;
@@ -231,6 +232,10 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "assist_confidence",
   "assist_mistakes",
   "assist_safety",
+  // IntelligenceAmplificationEngine (3) — WIRE-INTAMP-MS0/U-WIRE-INTAMP
+  "ia_amplify",
+  "ia_get_source",
+  "ia_list_sources",
   // AI Feature Auto-Registry (U-AI-WIRE)
   "ai_feature_discover",
   "ai_feature_find",
@@ -480,6 +485,8 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_audio_constants",
   // XPROC-ROUTER-01: top-level cross-process pipeline router
   "process_route", "process_full_pipeline", "process_pipeline_stages",
+  // INFRA-AGI-ROUTER-MS2/P1-U05: unified DomainAGIIntent dispatch
+  "process_orchestrate",
   // XPROC-NEURAL-T1-01: outcome ledger for the 5 XPROC bridges
   "xproc_outcome_record", "xproc_outcome_record_outcome", "xproc_outcome_query",
   "xproc_outcome_retrieve_similar", "xproc_outcome_stats", "xproc_outcome_clear",
@@ -491,6 +498,10 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_neural_save", "xproc_neural_load", "xproc_neural_metrics", "xproc_neural_reset",
   // XPROC-NEURAL-T1-03: transfer learning across material clusters
   "xproc_transfer_classify", "xproc_transfer_pairs", "xproc_transfer_check",
+  // ORCH-MULTIDOMAIN-MS11: cross-domain orchestration (route job features → domains, sequence handoffs)
+  "orch_multidomain_plan", "orch_multidomain_summarize", "orch_multidomain_feature_map",
+  // PSN-SYNERGY-INSPECT-MS0: read-only meta-engine scoring cross-leg coverage across the 11 PSN legs
+  "psn_synergy_inspect", "psn_synergy_summarize", "psn_synergy_legs",
   // XPROC-NEURAL-T1-04: LIME + ECE + L1 anomaly attention/explain
   "xproc_attention_explain", "xproc_attention_ece",
   "xproc_attention_baseline_add", "xproc_attention_anomaly",
@@ -513,6 +524,40 @@ export const INTELLIGENCE_CORE_ACTIONS = [
   "xproc_feedbackbus_publish", "xproc_feedbackbus_stats",
   "xproc_feedbackbus_topics",  "xproc_feedbackbus_subscriber_count",
   "xproc_feedbackbus_reset",
+  // JULIETT-DB-BRIDGE/U-DB-BRIDGE-05 (2026-05-25, slot juliett):
+  // FeatureStoreEngine — expose to MCP layer (was UNWIRED; only reachable
+  // via hardcoded engine imports in NN pipeline before this).
+  "feature_store_query", "feature_store_put", "feature_store_stats",
+  // JULIETT-DB-BRIDGE/U-DB-BRIDGE-03 (2026-05-25, slot juliett):
+  // CatalogUnifiedQueryEngine — bridge across 4 similar catalog DBs
+  // (MaterialRegistry + ToolRegistry + CoatingRegistry + MachineRegistry).
+  // Quoting/frontend intake surface: one call returns material + compatible
+  // tools + coatings + machines, replacing the 4-dispatcher round trip.
+  "catalog_unified_match",
+  // JULIETT-DB-BRIDGE-MS0/U-DB-MONOLITH-UNIFIED-QUERY (2026-05-27, slot juliett):
+  // Unified routing surface across 12 standalone Monolith*Engine ports
+  // (controllers / machine_specs / stock_positions / roughing_configs /
+  // macro_schema / fusion_posts / mfr_catalog / gateway / zeni / consolidated /
+  // final / major_mfrs). Closes the "Monolith (9)" unwired gap in BUILD_STATE.
+  "monolith_query",
+  // JULIETT-DB-BRIDGE/U-DB-BRIDGE-CONSUMERS (2026-05-25, slot juliett):
+  // CatalogConsumerAdapterEngine — 8-consumer adapter wires the bridge to
+  // speedfeed/post/masterpost/{mill,lathe,wedm}_wizard/quoting/cadcam in one
+  // call each. Adds consumer-specific extras (coolant for quote, controller
+  // hint for post, kc1.1+mc for speedfeed, etc.).
+  "catalog_resolve_for_consumer",
+  // JULIETT-DB-BRIDGE/U-DB-MACHINE-QUALITY-SCORE (2026-05-25, slot juliett):
+  // MachineQualityScoreEngine — composite 0-100 score (manufacturer reputation +
+  // controller + way type + accuracy μm + motion dynamics + smoothing + mass)
+  // with accuracy_compensation_factor for downstream SF / wizard / post / quote
+  // / My-Shop / ROI calculations. audit() surfaces data-quality gaps across all
+  // machine records.
+  "machine_quality_score", "machine_quality_audit",
+  // JULIETT-DB-BRIDGE/U-DB-MACHINE-QUALITY-CONSUMERS (Phase 5, 2026-05-25):
+  // Wire MachineQualityScoreEngine into 5 named consumer surfaces:
+  // wizard / sfc / post / my_shop / roi. + machine-vs-machine ROI comparison
+  // for upgrade-vs-outsource decisions.
+  "machine_quality_for_consumer", "machine_compare_upgrade_outsource",
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -1097,6 +1142,37 @@ export function registerIntelligenceDispatcher(server: any): void {
             content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...routed }) }],
           };
         }
+        // === INFRA-AGI-ROUTER-MS2/P1-U05: unified DomainAGIIntent dispatch ===
+        // Exposes ProcessIntelligenceRouterEngine.orchestrate(intent) — the
+        // structured-contract sibling of `process_route`. Callers hand a full
+        // DomainAGIIntent (schemaVersion/domain/action/features/material/
+        // constraints/consensusRequired); the router schema-gates it then
+        // dispatches to the mill/lathe/wedm domain AGI. Unlike `process_route`
+        // (free-text intent → keyword classification), this path is fully
+        // typed end-to-end and returns a DomainAGIResult.
+        // case "process_orchestrate":
+        if (action === "process_orchestrate") {
+          const { ProcessIntelligenceRouterEngine } = await import(
+            "../../engines/ProcessIntelligenceRouterEngine.js"
+          );
+          // The router re-validates the intent against DomainAGIIntentSchema
+          // internally and returns a DomainAGIResult with success=false +
+          // error.code=INVALID_INTENT on a bad payload — so a malformed
+          // `params.intent` never throws here, it round-trips as a typed
+          // failure result. We forward params.intent verbatim; the cast is
+          // the dispatcher→engine boundary (engine owns validation, R8).
+          const intent = (params.intent ?? params) as Parameters<
+            typeof ProcessIntelligenceRouterEngine.orchestrate
+          >[0];
+          const result = await ProcessIntelligenceRouterEngine.orchestrate(intent);
+          await hookExecutor.execute("post-calculation", {
+            ...hookCtx,
+            target: { ...hookCtx.target, data: { ...params, result } },
+          } as HookContext);
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.success, result }) }],
+          };
+        }
         // === XPROC-NEURAL-T1-01: Outcome store ===
         if (action === "xproc_outcome_record") {
           const { crossProcessOutcomeStore } = await import(
@@ -1153,6 +1229,219 @@ export function registerIntelligenceDispatcher(server: any): void {
           );
           crossProcessOutcomeStore.clear();
           return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true }) }] };
+        }
+
+        // JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-05 (2026-05-25, slot juliett):
+        // FeatureStoreEngine — was UNWIRED; only reachable via hardcoded engine
+        // imports in NN pipeline. These 3 inline-if handlers expose the
+        // canonical query/put/stats surface to the MCP layer.
+        //   case "feature_store_query": handled inline.
+        //   case "feature_store_put":   handled inline.
+        //   case "feature_store_stats": handled inline.
+        if (action === "feature_store_query") {
+          const { FeatureStoreEngine } = await import("../../engines/FeatureStoreEngine.js");
+          const store = new FeatureStoreEngine();
+          const result = store.getHistoricalFeatures(params as Parameters<typeof store.getHistoricalFeatures>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...result }) }] };
+        }
+        if (action === "feature_store_put") {
+          const { FeatureStoreEngine } = await import("../../engines/FeatureStoreEngine.js");
+          const store = new FeatureStoreEngine();
+          const result = store.put(params as Parameters<typeof store.put>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
+        }
+        if (action === "feature_store_stats") {
+          const { FeatureStoreEngine } = await import("../../engines/FeatureStoreEngine.js");
+          const store = new FeatureStoreEngine();
+          const result = store.stats();
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: true, ...result }) }] };
+        }
+
+        // JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-03 (2026-05-25, slot juliett):
+        // CatalogUnifiedQueryEngine — cross-catalog match (material + tools +
+        // coatings + machines in one call). Quoting/frontend intake surface.
+        //   case "catalog_unified_match": handled inline.
+        if (action === "catalog_unified_match") {
+          const { catalogUnifiedQueryEngine } = await import("../../engines/CatalogUnifiedQueryEngine.js");
+          const result = await catalogUnifiedQueryEngine.query(params as Parameters<typeof catalogUnifiedQueryEngine.query>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
+        }
+
+        // JULIETT-DB-BRIDGE-MS0/U-DB-MONOLITH-UNIFIED-QUERY (2026-05-27, slot juliett):
+        // MonolithUnifiedQuery — unified routing across 12 standalone Monolith*Engine
+        // ports (controllers / machine_specs / stock_positions / roughing_configs /
+        // macro_schema / fusion_posts + 6 catalog manifests). Closes BUILD_STATE's
+        // "Monolith (9)" unwired gap. Returns the engine's native record shape +
+        // {action, subject, ok, count} envelope.
+        if (action === "monolith_query") {
+          const subject = String(params.subject ?? "");
+          const query = typeof params.query === "string" ? params.query.trim() : "";
+          const id = typeof params.id === "string" ? params.id.trim() : "";
+          const limit = typeof params.limit === "number" && Number.isInteger(params.limit)
+            ? Math.min(50, Math.max(1, params.limit))
+            : 20;
+
+          let records: unknown[] = [];
+          let single: unknown = null;
+          let ok = true;
+          let error: string | undefined;
+
+          try {
+            switch (subject) {
+              case "controllers": {
+                const { monolithControllerDatabaseEngine: e } = await import("../../engines/MonolithControllerDatabaseEngine.js");
+                if (id) { single = e.getController(id); }
+                else if (query) {
+                  // Substring search across manufacturer + model + family
+                  const q = query.toLowerCase();
+                  records = e.listControllers()
+                    .filter((c) => `${c.manufacturer} ${c.model} ${c.family} ${c.identification.short_name}`.toLowerCase().includes(q))
+                    .slice(0, limit);
+                } else { records = e.listControllers().slice(0, limit); }
+                break;
+              }
+              case "machine_specs": {
+                const { monolithMachineSpecStandardEngine: e } = await import("../../engines/MonolithMachineSpecStandardEngine.js");
+                single = { template: e.emptySpec(), required_fields: e.requiredFields(), stats: e.stats() };
+                break;
+              }
+              case "stock_positions": {
+                const { monolithStockPositionsDatabaseEngine: e } = await import("../../engines/MonolithStockPositionsDatabaseEngine.js");
+                if (id) { single = e.getPosition(id); }
+                else if (query) {
+                  const q = query.toLowerCase();
+                  records = e.listPositions()
+                    .filter((p) => `${p.id} ${p.desc}`.toLowerCase().includes(q))
+                    .slice(0, limit);
+                } else { records = e.listPositions().slice(0, limit); }
+                break;
+              }
+              case "roughing_configs": {
+                const { monolithRoughingMachineConfigsEngine: e } = await import("../../engines/MonolithRoughingMachineConfigsEngine.js");
+                if (id) { single = e.getConfig(id); }
+                else if (query) { records = e.search(query, limit); }
+                else { records = e.list().slice(0, limit); }
+                break;
+              }
+              case "macro_schema": {
+                const { monolithMacroDatabaseSchemaEngine: e } = await import("../../engines/MonolithMacroDatabaseSchemaEngine.js");
+                if (id) { single = e.getTable(id); }
+                else { records = e.listTables().slice(0, limit); }
+                break;
+              }
+              case "fusion_posts": {
+                const { monolithFusionPostDatabaseEngine: e } = await import("../../engines/MonolithFusionPostDatabaseEngine.js");
+                if (id) { single = e.getVendor(id); }
+                else if (query) { records = e.search(query, limit); }
+                else { records = e.listVendors().slice(0, limit); }
+                break;
+              }
+              case "mfr_catalog": {
+                const { monolithManufacturerCatalogManifestEngine: e } = await import("../../engines/MonolithManufacturerCatalogManifestEngine.js");
+                if (id) { single = e.getCountsFor(id); }
+                else { single = { manufacturers: e.listManufacturers(), with_inventory: e.listManufacturersWithInventory(), stats: e.getStats() }; }
+                break;
+              }
+              case "gateway": {
+                const { monolithFinalCatalogGatewayManifestEngine: e } = await import("../../engines/MonolithFinalCatalogGatewayManifestEngine.js");
+                if (id) {
+                  const route = e.getRoute(id);
+                  const normalized = e.normalizeManufacturerKey(id);
+                  single = route ?? (normalized ? { canonicalKey: normalized } : null);
+                } else if (query) { records = e.listGatewayRoutes().filter((r) => r.route.toLowerCase().includes(query.toLowerCase())).slice(0, limit); }
+                else { single = { manufacturers: e.listManufacturers(), sections: e.listCatalogSections(), routes: e.listGatewayRoutes(), stats: e.stats() }; }
+                break;
+              }
+              case "zeni": {
+                const { monolithZeniCatalogManifestEngine: e } = await import("../../engines/MonolithZeniCatalogManifestEngine.js");
+                if (id) { single = e.getGrade(id) ?? e.getCuttingEnvelope(id); }
+                else { single = { manufacturer: e.getManufacturer(), grades: e.listGrades(), cnmg_sizes: e.listCNMGSizes(), stats: e.stats() }; }
+                break;
+              }
+              case "consolidated": {
+                const { monolithConsolidatedCatalogManifestEngine: e } = await import("../../engines/MonolithConsolidatedCatalogManifestEngine.js");
+                const numericId = id ? Number(id) : NaN;
+                if (Number.isFinite(numericId)) { single = e.getGuhringChuckByClampingDia(numericId); }
+                else if (id) { single = { categories: e.getCategoriesFor(id) }; }
+                else { single = { metadata: e.getMetadata(), mfrs_by_category: e.getManufacturersByCategory(), guhring_chucks: e.listGuhringHydraulicChucks(), stats: e.stats() }; }
+                break;
+              }
+              case "final": {
+                const { monolithFinalCatalogManifestEngine: e } = await import("../../engines/MonolithFinalCatalogManifestEngine.js");
+                const numericId = id ? Number(id) : NaN;
+                if (Number.isFinite(numericId)) { single = e.getGuhringExtendedChuckByClampingDia(numericId); }
+                else { single = { metadata: e.getMetadata(), extended_chucks: e.listGuhringExtendedChucks(), cat_series_4216: e.getCatSeries4216Metadata(), features: e.listGuhringHydraulicChuckFeatures(), stats: e.stats() }; }
+                break;
+              }
+              case "major_mfrs": {
+                const { monolithMajorManufacturersCatalogManifestEngine: e } = await import("../../engines/MonolithMajorManufacturersCatalogManifestEngine.js");
+                if (id) { single = e.getManufacturer(id); }
+                else if (query) {
+                  const q = query.toLowerCase();
+                  records = e.listManufacturers()
+                    .filter((m) => `${m.name} ${m.country} ${m.specialty}`.toLowerCase().includes(q))
+                    .slice(0, limit);
+                } else { records = e.listManufacturers().slice(0, limit); }
+                break;
+              }
+              default:
+                ok = false;
+                error = `Unknown subject: ${subject}. Use one of: controllers, machine_specs, stock_positions, roughing_configs, macro_schema, fusion_posts, mfr_catalog, gateway, zeni, consolidated, final, major_mfrs.`;
+            }
+          } catch (e) {
+            ok = false;
+            error = e instanceof Error ? e.message : String(e);
+          }
+
+          // R12 fail-loud: use loose != null so undefined (Map.get/Array.find miss)
+          // does NOT slip into the single-shape branch and get dropped by
+          // JSON.stringify({single: undefined}). Either single-shape with a real
+          // record, or records-shape with count:0 — never the ambiguous middle.
+          const payload = single != null
+            ? { action, subject, ok, single, ...(error ? { error } : {}) }
+            : { action, subject, ok, count: records.length, records, ...(error ? { error } : {}) };
+          return { content: [{ type: "text" as const, text: JSON.stringify(payload) }] };
+        }
+
+        // JULIETT-DB-BRIDGE-MS0/U-DB-BRIDGE-CONSUMERS (2026-05-25, slot juliett):
+        // CatalogConsumerAdapterEngine — 8-consumer adapter (speedfeed/post/
+        // masterpost/{mill,lathe,wedm}_wizard/quoting/cadcam) with consumer-
+        // specific extras.
+        //   case "catalog_resolve_for_consumer": handled inline.
+        if (action === "catalog_resolve_for_consumer") {
+          const { catalogConsumerAdapter } = await import("../../engines/CatalogConsumerAdapterEngine.js");
+          const result = await catalogConsumerAdapter.resolve(params as Parameters<typeof catalogConsumerAdapter.resolve>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
+        }
+
+        // JULIETT-DB-BRIDGE-MS0/U-DB-MACHINE-QUALITY-SCORE (2026-05-25, slot juliett):
+        // MachineQualityScoreEngine — 0-100 composite + accuracy_compensation_factor.
+        //   case "machine_quality_score": handled inline.
+        //   case "machine_quality_audit": handled inline.
+        if (action === "machine_quality_score") {
+          const { machineQualityScoreEngine } = await import("../../engines/MachineQualityScoreEngine.js");
+          const result = await machineQualityScoreEngine.score(params as Parameters<typeof machineQualityScoreEngine.score>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
+        }
+        if (action === "machine_quality_audit") {
+          const { machineQualityScoreEngine } = await import("../../engines/MachineQualityScoreEngine.js");
+          const result = await machineQualityScoreEngine.audit();
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
+        }
+
+        // JULIETT-DB-BRIDGE-MS0/U-DB-MACHINE-QUALITY-CONSUMERS Phase 5 (2026-05-25):
+        // Wire machine quality into 5 consumer surfaces + ROI upgrade-vs-outsource.
+        //   case "machine_quality_for_consumer": handled inline.
+        //   case "machine_compare_upgrade_outsource": handled inline.
+        if (action === "machine_quality_for_consumer") {
+          const { machineQualityForConsumer } = await import("../../engines/MachineQualityScoreEngine.js");
+          const result = await machineQualityForConsumer(params as Parameters<typeof machineQualityForConsumer>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
+        }
+        if (action === "machine_compare_upgrade_outsource") {
+          const { machineCompareUpgradeOutsource } = await import("../../engines/MachineQualityScoreEngine.js");
+          const result = await machineCompareUpgradeOutsource(params as Parameters<typeof machineCompareUpgradeOutsource>[0]);
+          return { content: [{ type: "text" as const, text: JSON.stringify({ action, success: result.ok, ...result }) }] };
         }
 
         // === INFRA-NEURAL-LEDGER-MS1/P0-U03: replay capability ===
@@ -1410,6 +1699,142 @@ export function registerIntelligenceDispatcher(server: any): void {
                 targetCluster,
                 trusted,
               }),
+            }],
+          };
+        }
+
+        // === ORCH-MULTIDOMAIN-MS11: cross-domain orchestration =========
+        // Wired as inline if-blocks (matches the surrounding XPROC pattern in
+        // this dispatcher); scanner-friendly case-markers below ensure
+        // stop_on_unwired_assets.mjs detects the wiring.
+        // case "orch_multidomain_plan":
+        // case "orch_multidomain_summarize":
+        // case "orch_multidomain_feature_map":
+        if (action === "orch_multidomain_plan") {
+          const { crossDomainOrchestratorEngine } = await import(
+            "../../engines/CrossDomainOrchestratorEngine.js"
+          );
+          const features = params.features;
+          if (!Array.isArray(features) || features.length === 0) {
+            return dispatcherError(
+              "orch_multidomain_plan requires `features` (non-empty array)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const plan = crossDomainOrchestratorEngine.planJob({
+            features: features as Parameters<typeof crossDomainOrchestratorEngine.planJob>[0]["features"],
+            preferred_domains: params.preferred_domains as Parameters<
+              typeof crossDomainOrchestratorEngine.planJob
+            >[0]["preferred_domains"],
+            feature_time_estimates_sec: params.feature_time_estimates_sec as Parameters<
+              typeof crossDomainOrchestratorEngine.planJob
+            >[0]["feature_time_estimates_sec"],
+            job_id: typeof params.job_id === "string" ? params.job_id : undefined,
+          });
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, plan }),
+            }],
+          };
+        }
+        if (action === "orch_multidomain_summarize") {
+          const { crossDomainOrchestratorEngine } = await import(
+            "../../engines/CrossDomainOrchestratorEngine.js"
+          );
+          const plan = params.plan;
+          if (!plan || typeof plan !== "object") {
+            return dispatcherError(
+              "orch_multidomain_summarize requires `plan` (OrchestrationPlan object)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const summary = crossDomainOrchestratorEngine.summarize(
+            plan as Parameters<typeof crossDomainOrchestratorEngine.summarize>[0],
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, summary }),
+            }],
+          };
+        }
+        if (action === "orch_multidomain_feature_map") {
+          const { crossDomainOrchestratorEngine } = await import(
+            "../../engines/CrossDomainOrchestratorEngine.js"
+          );
+          const map = crossDomainOrchestratorEngine.getFeatureDomainMap();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, feature_domain_map: map }),
+            }],
+          };
+        }
+
+        // === PSN-SYNERGY-INSPECT-MS0: cross-leg coverage meta-engine =====
+        // case "psn_synergy_inspect":
+        // case "psn_synergy_summarize":
+        // case "psn_synergy_legs":
+        if (action === "psn_synergy_inspect") {
+          const { psnSynergyInspectorEngine } = await import(
+            "../../engines/PSNSynergyInspectorEngine.js"
+          );
+          const inventories = params.inventories;
+          if (!Array.isArray(inventories) || inventories.length === 0) {
+            return dispatcherError(
+              "psn_synergy_inspect requires `inventories` (non-empty array of PSNLegInventory)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const report = psnSynergyInspectorEngine.inspect(
+            inventories as Parameters<typeof psnSynergyInspectorEngine.inspect>[0],
+            {
+              topK: typeof params.top_k === "number" ? params.top_k : undefined,
+              densityFloor: typeof params.density_floor === "number" ? params.density_floor : undefined,
+            },
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, report }),
+            }],
+          };
+        }
+        if (action === "psn_synergy_summarize") {
+          const { psnSynergyInspectorEngine } = await import(
+            "../../engines/PSNSynergyInspectorEngine.js"
+          );
+          const report = params.report;
+          if (!report || typeof report !== "object") {
+            return dispatcherError(
+              "psn_synergy_summarize requires `report` (SynergyReport object)",
+              action,
+              "prism_intelligence",
+            );
+          }
+          const summary = psnSynergyInspectorEngine.summarize(
+            report as Parameters<typeof psnSynergyInspectorEngine.summarize>[0],
+          );
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, summary }),
+            }],
+          };
+        }
+        if (action === "psn_synergy_legs") {
+          const { psnSynergyInspectorEngine } = await import(
+            "../../engines/PSNSynergyInspectorEngine.js"
+          );
+          const legs = psnSynergyInspectorEngine.getPSNLegs();
+          return {
+            content: [{
+              type: "text" as const,
+              text: JSON.stringify({ action, success: true, legs }),
             }],
           };
         }
@@ -1870,6 +2295,10 @@ export function registerIntelligenceDispatcher(server: any): void {
           assist_list: "userAssistanceSkills", assist_get: "userAssistanceSkills", assist_search: "userAssistanceSkills",
           assist_match: "userAssistanceSkills", assist_explain: "userAssistanceSkills", assist_confidence: "userAssistanceSkills",
           assist_mistakes: "userAssistanceSkills", assist_safety: "userAssistanceSkills",
+          // IntelligenceAmplificationEngine (WIRE-INTAMP-MS0/U-WIRE-INTAMP) — tribal-knowledge amplification (formula+tribal+MIT+JM Die)
+          ia_amplify: "intelligenceAmplification",
+          ia_get_source: "intelligenceAmplification",
+          ia_list_sources: "intelligenceAmplification",
           // AI Feature Auto-Registry (U-AI-WIRE)
           ai_feature_discover: "aiFeatureRegistry", ai_feature_find: "aiFeatureRegistry", ai_feature_route: "aiFeatureRegistry",
           ai_feature_list: "aiFeatureRegistry", ai_domain_list: "aiFeatureRegistry", ai_feature_stats: "aiFeatureRegistry",

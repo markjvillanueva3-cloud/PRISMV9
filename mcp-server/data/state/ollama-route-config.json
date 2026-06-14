@@ -1,0 +1,6 @@
+{
+  "_comment": "GPU-OFFLOAD-MAXIMIZE-MS0/U2 (2026-05-22, slot:sierra): flipped 'suggest'->'auto' per safe-rollout gate. EXEMPT_BASENAMES in the hook prevents self-substitution on load-bearing state files. Operator override: write 'suggest' here OR set PRISM_OLLAMA_ROUTE_AUTO=0 to revert without code change. | BLACKWELL-MODEL-UPGRADE U-BW-RESEARCH-REFINE (2026-06-04, slot:alpha): model was 'qwen2.5-coder:7b' which was DELETED from the host -> every auto-route hit cascade_model_missing -> short-circuit to 'pass' (the live 5589-fired/0-offloaded dead-offloader bug). Re-pointed to the kept floor 'qwen2.5-coder:32b' (in /api/tags). NOTE the deeper hardening (runRoute resolves the model via resolveSynthesisModel so a future retirement never re-breaks this) is HERMES-EFFICIENCY-ROUTER U1.",
+  "mode": "auto",
+  "minKb": 24,
+  "model": "qwen2.5-coder:32b"
+}

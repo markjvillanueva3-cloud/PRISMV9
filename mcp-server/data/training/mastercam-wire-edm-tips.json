@@ -1,0 +1,697 @@
+{
+  "schemaVersion": "1.0.0",
+  "unit_id": "U-CTE03",
+  "source_doc": "doc-mastercam-wire-edm-tutorial-2018",
+  "generated_at": "2026-05-20T06:15:28.132Z",
+  "totals": {
+    "tips": 44
+  },
+  "tips": [
+    {
+      "title": "Open a part file and assign a machine definition",
+      "body": "Start Mastercam, select the default metric configuration file, open the part file 'single_contour.mcam', and choose a wire EDM machine definition.",
+      "category": "machine_setup",
+      "tags": [
+        "Mastercam",
+        "Wire EDM"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.7",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Create a contour toolpath with a single contour",
+      "body": "On the Wireframe tab, choose Point Position and identify the thread point on the gear shape. Create a point at X-40, Y0.2, Z0.",
+      "category": "toolpath",
+      "tags": [
+        "contour",
+        "thread point"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.8",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Define stock model for better visualization",
+      "body": "In the Toolpaths Manager, set stock boundaries with Y75, X75, Z10 and a Z origin of 10.",
+      "category": "workholding",
+      "tags": [
+        "stock setup"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.9",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select geometry for toolpaths (chaining)",
+      "body": "On the Wirepaths tab, choose Contour and chain the thread point with the gear shape.",
+      "category": "toolpath",
+      "tags": [
+        "chaining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.11",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Enter wire path parameters",
+      "body": "Set Wire Diameter to 0.2, Compensation Type to Computer, and Taper settings for Rapid height, UV trimplane, and UV height.",
+      "category": "toolpath",
+      "tags": [
+        "parameters"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.13",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Backplot the toolpath to check for errors",
+      "body": "Click Backplot selected operations, display wire and guides during backplot, run the backplot, and exit.",
+      "category": "troubleshooting",
+      "tags": [
+        "backplot"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.15",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Change toolpath parameters for better machining",
+      "body": "Modify parameters and update the operation to include new settings for more effective machining.",
+      "category": "strategy",
+      "tags": [
+        "parameter tuning"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.15",
+      "_chunk": 1,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Wire Overburn for Passes",
+      "body": "Pass1: 0.035; Pass2: 0.02; Pass3: 0.01; Pass4: 0",
+      "category": "toolpath",
+      "tags": [
+        "wire edm",
+        "overburn"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.16",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Add Additional Skim Cuts",
+      "body": "Enter 3 for additional skim cuts before tab to improve finish.",
+      "category": "cut_parameters",
+      "tags": [
+        "skim cuts",
+        "tab"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Tab Width and Cutting Method",
+      "body": "Tab Width: 1.0; Cutting Method: Reverse",
+      "category": "cut_parameters",
+      "tags": [
+        "tab width",
+        "cutting method"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select Glue Stop for Output",
+      "body": "Choose a glue stop to pause machine before tab cut.",
+      "category": "stops",
+      "tags": [
+        "glue stop",
+        "tab cut"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.17",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Lead-in and Lead-out Motion",
+      "body": "Use arc motion with radius 0.125 and sweep 60 for entry and exit moves.",
+      "category": "leads",
+      "tags": [
+        "lead-in",
+        "lead-out"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Maximum Leadout Distance",
+      "body": "Distance: 0.3 to shorten leadout move.",
+      "category": "leads",
+      "tags": [
+        "lead-out",
+        "distance"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.18",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Postprocess Toolpath to NC Code",
+      "body": "Use postprocessor to convert Mastercam file to G-code.",
+      "category": "post_processor",
+      "tags": [
+        "postprocessing",
+        "NC code"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.20",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select Multiple Contours for Wire EDM",
+      "body": "Use window chaining to select multiple contours.",
+      "category": "toolpath",
+      "tags": [
+        "multiple contours",
+        "window chaining"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.25",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Tab Width for Multiple Contours",
+      "body": "Tab Width: 2.0 to keep part from dropping out of stock.",
+      "category": "cut_parameters",
+      "tags": [
+        "tab width",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.26",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Compensation for Multiple Contours",
+      "body": "Compensation Type: Computer; Direction: Left",
+      "category": "compensation",
+      "tags": [
+        "compensation",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Add Glue Stops for Multiple Contours",
+      "body": "Select 'Foreach tab' to add glue stops before each tab cut.",
+      "category": "stops",
+      "tags": [
+        "glue stop",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Lead-in and Lead-out Motion for Multiple Contours",
+      "body": "Use arc motion with radius 0.5 and sweep 90 for entry and exit moves.",
+      "category": "leads",
+      "tags": [
+        "lead-in",
+        "lead-out",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Overlap for Multiple Contours",
+      "body": "Overlap: 0.02 to eliminate potential burrs.",
+      "category": "leads",
+      "tags": [
+        "overlap",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set Taper for Multiple Contours",
+      "body": "Rapid Height: 20.0; UV Trim Plane: UV; UV Height: 20.0",
+      "category": "taper",
+      "tags": [
+        "taper",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.27",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Adjust Chain Order for Multiple Contours",
+      "body": "Sort chains from Y+X to get desired toolpath motion.",
+      "category": "chain_manager",
+      "tags": [
+        "chain order",
+        "multiple contours"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": [
+        "contouring"
+      ],
+      "page_ref": "p.29",
+      "_chunk": 2,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Verify selected operations in Toolpaths Manager",
+      "body": "Click 'Verify' at the top of the Toolpaths Manager to display stock, wire, and guides in the Mastercam Simulator window.",
+      "category": "toolpath",
+      "tags": [
+        "verification",
+        "simulation"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Rotate view in Simulator window",
+      "body": "Right-click in the Simulator window and choose 'Isometric' then 'Fit' to get a better view of the toolpath and wire.",
+      "category": "toolpath",
+      "tags": [
+        "view",
+        "isometric"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Play through verification in Simulator window",
+      "body": "Click 'Play' at the bottom of the Simulator window to move through the verification process.",
+      "category": "toolpath",
+      "tags": [
+        "play",
+        "verification"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Zoom in on results in Simulator window",
+      "body": "After verification, right-click and choose 'Zoom Window' to draw a window around the center part to look at the results more closely.",
+      "category": "toolpath",
+      "tags": [
+        "zoom",
+        "results"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Remove chips and observe slug dropout",
+      "body": "Click 'Remove Chips' on the Verify tab, then click on the middle part to see the slug dropout of the stock.",
+      "category": "toolpath",
+      "tags": [
+        "chips",
+        "slug"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.31",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select thread points for NoCore toolpaths",
+      "body": "On the Wireframe tab, choose 'Point Position' and select 'Thread Point'. Move cursor to end of a slot to detect center of an arc.",
+      "category": "toolpath",
+      "tags": [
+        "thread points",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.34",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Define thread points for NoCore toolpaths",
+      "body": "Select four points as thread points, placing them close together to reduce travel time between slots.",
+      "category": "toolpath",
+      "tags": [
+        "thread points",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set up stock for NoCore toolpaths",
+      "body": "In the Toolpaths Manager, set stock shape to Cylindrical with Axis Z and dimensions 30 height and 40 diameter.",
+      "category": "toolpath",
+      "tags": [
+        "stock setup",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.35",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select geometry for NoCore toolpaths",
+      "body": "All chains (except thread points) must be a closed shape for NoCore toolpaths.",
+      "category": "toolpath",
+      "tags": [
+        "geometry",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.36",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set up NoCore toolpaths parameters",
+      "body": "Select 'Rapid', 'UVtrimplane', and 'UVheight' to 40.0 for the NoCore toolpath.",
+      "category": "toolpath",
+      "tags": [
+        "parameters",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select cutting method for NoCore toolpaths",
+      "body": "The default Parallel Spiral option works well for this part.",
+      "category": "toolpath",
+      "tags": [
+        "cutting method",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Enable finish pass for NoCore toolpaths",
+      "body": "Select 'Finish' and enable it to activate the default finish pass parameters.",
+      "category": "toolpath",
+      "tags": [
+        "finish pass",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set compensation type for finish pass",
+      "body": "Select 'Compensation Type' to compute for the finish pass.",
+      "category": "toolpath",
+      "tags": [
+        "compensation",
+        "finish pass"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.37",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set start pass option for finish pass",
+      "body": "Select 'Startpass at closest entity' to make the toolpath motion more efficient.",
+      "category": "toolpath",
+      "tags": [
+        "start pass",
+        "finish pass"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.38",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Backplot NoCore toolpaths",
+      "body": "Click 'Backplot' and select 'Quick verify' to display a shaded path the width of the wire as backplot progresses.",
+      "category": "toolpath",
+      "tags": [
+        "backplot",
+        "NoCore"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.39",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select a different machine definition for 4-axis toolpaths",
+      "body": "On the Machinetab, choose 'Wire' and manage list to select a different machine definition than the default Wire machine.",
+      "category": "toolpath",
+      "tags": [
+        "machine definition",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Add a Makino machine definition for 4-axis toolpaths",
+      "body": "Select 'GENERIC MAKINO 4X WIREMM (Tech).MCAM-WMD' from the machine definition list and click Add.",
+      "category": "toolpath",
+      "tags": [
+        "machine definition",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.42",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set up stock for 4-axis toolpaths",
+      "body": "In the Toolpaths Manager, set stock shape to Cylindrical with Axis Z and dimensions 40 height and 70 diameter.",
+      "category": "toolpath",
+      "tags": [
+        "stock setup",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.43",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select geometry for 4-axis toolpaths",
+      "body": "Change geometry in two planes: XY plane (lower contour) and UV plane (upper contour).",
+      "category": "toolpath",
+      "tags": [
+        "geometry",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.44",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Chain geometry for 4-axis toolpaths",
+      "body": "Select thread point to the left of the part as the first toolpath chain and chain the upper contour starting at the green point.",
+      "category": "toolpath",
+      "tags": [
+        "chaining",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Select synchronization method for 4-axis toolpaths",
+      "body": "Select 'By Entity' from the Sync mode drop-down list to match endpoints of each entity.",
+      "category": "toolpath",
+      "tags": [
+        "synchronization",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    },
+    {
+      "title": "Set up parameters for 4-axis toolpaths",
+      "body": "Select 'Wire/Power' and click the Tech button to change power settings for this toolpath.",
+      "category": "toolpath",
+      "tags": [
+        "parameters",
+        "4-axis"
+      ],
+      "confidence": 90,
+      "material_groups": null,
+      "operation_types": null,
+      "page_ref": "p.45",
+      "_chunk": 3,
+      "_source_doc": "doc-mastercam-wire-edm-tutorial-2018"
+    }
+  ]
+}

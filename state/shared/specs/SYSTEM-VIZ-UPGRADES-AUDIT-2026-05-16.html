@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="e0a8b0232ac6db676ec07dafbc9c4cd79a3d7a17be6b2acef717f056d9617d46">
+<title>SYSTEM-VIZ UPGRADES — AUDIT 2026-05-16</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">SYSTEM-VIZ UPGRADES — AUDIT 2026-05-16</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.068Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#system-viz-upgrades-audit-2026-05-16">SYSTEM-VIZ UPGRADES — AUDIT 2026-05-16</a></li>
+<li class="toc-l2"><a href="#tldr-top-5-actionable-upgrades-ranked">TL;DR — top 5 actionable upgrades, ranked</a></li>
+<li class="toc-l2"><a href="#phase-0-baseline-measurements-this-session">Phase 0 baseline (measurements, this session)</a></li>
+<li class="toc-l2"><a href="#performance-findings-p1-p5">PERFORMANCE findings (P1-P5)</a></li>
+<li class="toc-l3"><a href="#p1-shared-loadgraph-lib-has-no-in-process-cache-highest-leverage-depends-on-m1">P1 — Shared loadGraph lib has no in-process cache (HIGHEST LEVERAGE — depends on M1)</a></li>
+<li class="toc-l3"><a href="#p2-merge-augmentations-load-sequentially">P2 — Merge augmentations load sequentially</a></li>
+<li class="toc-l3"><a href="#p3-four-sequential-spawnsync-repair-passes-after-merge">P3 — Four sequential spawnSync repair passes after merge</a></li>
+<li class="toc-l3"><a href="#p4-l12-file-walker-has-no-mtime-skip-cache-high-impact-on-full">P4 — L12 file-walker has no mtime skip cache (HIGH IMPACT ON --full)</a></li>
+<li class="toc-l3"><a href="#p5-open-question-was-web-viewer-monolith-load">P5 — OPEN QUESTION (was: web viewer monolith load)</a></li>
+<li class="toc-l2"><a href="#functionality-findings-f1-f5">FUNCTIONALITY findings (F1-F5)</a></li>
+<li class="toc-l3"><a href="#f1-ghost-inventory-drill-down-verb">F1 — ghost-inventory drill-down verb</a></li>
+<li class="toc-l3"><a href="#f2-action-trace-overlay-verb-d4-surface-complete-query-missing">F2 — action-trace overlay verb (D4 surface complete, query missing)</a></li>
+<li class="toc-l3"><a href="#f3-search-act-composite-verb-close-the-loop">F3 — search-act composite verb (close-the-loop)</a></li>
+<li class="toc-l3"><a href="#f4-differential-viz-diff">F4 — Differential viz (diff  )</a></li>
+<li class="toc-l3"><a href="#f5-agent-plan-query">F5 — agent-plan  query</a></li>
+<li class="toc-l2"><a href="#wiring-findings-w1-w6">WIRING findings (W1-W6)</a></li>
+<li class="toc-l3"><a href="#w1-foldnewlybuilt0-default-creates-1-commit-blind-spot">W1 — FOLDNEWLYBUILT=0 default creates 1-commit blind spot</a></li>
+<li class="toc-l3"><a href="#w2-obsidian-bridge-v2-only-fires-on-full">W2 — Obsidian-bridge v2 only fires on --full</a></li>
+<li class="toc-l3"><a href="#w3-detached-wiki-regen-child-unsupervised">W3 — Detached wiki-regen child unsupervised</a></li>
+<li class="toc-l3"><a href="#w4-drift-report-consumer-is-stop-advisory-only-auto-remediation-loop-missing">W4 — Drift report consumer is Stop-advisory only; auto-remediation loop missing</a></li>
+<li class="toc-l3"><a href="#w5-no-cross-worktree-graph-checksum">W5 — No cross-worktree graph checksum</a></li>
+<li class="toc-l3"><a href="#w6-hook-installer-doesnt-self-verify">W6 — Hook installer doesn&#39;t self-verify</a></li>
+<li class="toc-l2"><a href="#additional-findings-added-in-v2-after-peer-review">Additional findings (added in v2 after peer review)</a></li>
+<li class="toc-l3"><a href="#m1-loadgraph-reimplemented-or-duplicated-across-18-scripts-blocks-p1">M1 — loadGraph reimplemented or duplicated across ≥ 18 scripts (BLOCKS P1)</a></li>
+<li class="toc-l3"><a href="#m2-merge-augmentationsmjs-byid-index-silent-desync-risk">M2 — merge-augmentations.mjs byId index — silent-desync risk</a></li>
+<li class="toc-l2"><a href="#findings-noted-but-not-in-top-n">Findings noted but not in top-N</a></li>
+<li class="toc-l2"><a href="#phase-6a-meta-artifact-compounding-gains-tax">Phase 6A — META artifact (compounding-gains tax)</a></li>
+<li class="toc-l2"><a href="#verification-feedback-matrix">Verification feedback matrix</a></li>
+<li class="toc-l2"><a href="#recommended-next-steps-for-the-operator">Recommended next steps for the operator</a></li>
+<li class="toc-l2"><a href="#self-scheduled-re-run">Self-scheduled re-run</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="system-viz-upgrades-audit-2026-05-16"><a class="anchor" href="#system-viz-upgrades-audit-2026-05-16" aria-label="Permalink to SYSTEM-VIZ UPGRADES — AUDIT 2026-05-16">#</a>SYSTEM-VIZ UPGRADES — AUDIT 2026-05-16</h1>
+<p><strong>Auditor:</strong> claude-1a624844 (slot juliett, /forge-audit-v2) <strong>Scope:</strong> Upgrade opportunities for the PRISM system-viz subsystem — improve <strong>functionality</strong> (what operators/agents can learn) and <strong>efficiency</strong> (regen, query, file size, wiring drift prevention). <strong>Verification channel (master):</strong> <code>node H:/prism/scripts/system-viz-health.mjs</code> — re-runnable measurement script shipped as the META artifact of this audit.</p>
+<hr>
+<h2 id="tldr-top-5-actionable-upgrades-ranked"><a class="anchor" href="#tldr-top-5-actionable-upgrades-ranked" aria-label="Permalink to TL;DR — top 5 actionable upgrades, ranked">#</a>TL;DR — top 5 actionable upgrades, ranked</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Finding</th><th>Symptom</th><th>Lift</th><th>Effort</th></tr></thead>
+<tbody>
+<tr><td><strong>M1</strong></td><td><code>loadGraph</code> duplicated across 18 scripts</td><td>each caller pays 24 MB parse</td><td>Prereq for P1 cache to actually take</td><td>S-M</td></tr>
+<tr><td><strong>P1</strong></td><td>Shared <code>loadGraph</code> lib has no in-process cache</td><td>261-833 ms/verb cold</td><td>~80% drop on 2nd+ same-process call</td><td>S</td></tr>
+<tr><td><strong>P4</strong></td><td>L12 FS expansion does full re-walk every <code>--full</code></td><td>2-5 min/run</td><td>Drops to &lt;10 s w/ mtime cache</td><td>M</td></tr>
+<tr><td><strong>W1</strong></td><td><code>FOLD_NEWLY_BUILT=0</code> default → 1-commit blind spot</td><td>newly-built nodes invisible until next commit</td><td>Eliminates lag for fleet of 6-12 chats</td><td>S</td></tr>
+<tr><td><strong>W4</strong></td><td>Drift consumer is Stop-advisory only, no auto-remediate</td><td><code>truncated &gt; 0</code> reaches operator but doesn&#39;t block</td><td>Closes corruption auto-fail loop</td><td>S</td></tr>
+<tr><td><strong>F2</strong></td><td>No <code>action-trace</code> query verb</td><td>agents can&#39;t see why a dispatcher fired</td><td>Removes Grep round-trip from agent debugging</td><td>M</td></tr>
+</tbody>
+</table></div>
+<p><strong>Combined parallel build estimate:</strong> ~2 weeks of focused effort closes top 5. Lower-leverage items (P5 web pagination, F4 differential viz) are L-effort and gated on user demand signal.</p>
+<hr>
+<h2 id="phase-0-baseline-measurements-this-session"><a class="anchor" href="#phase-0-baseline-measurements-this-session" aria-label="Permalink to Phase 0 baseline (measurements, this session)">#</a>Phase 0 baseline (measurements, this session)</h2>
+<pre><code>graph:        20,462 nodes / 77,099 edges / 23.9 MB / mtime ~6h ago
+augmentations: 53 files, top-25 sum &gt; 200 MB
+scripts:      13 files, 6,408 LOC
+worktrees:    41 active (KEEP 23 / MERGE 2 / PRUNE 9 / INVESTIGATE 7)
+domains:      89% wired (4 laggards: Lathe 89, Machine 17, Turning 11, Multi 10)
+milestones:   11 envelope-drift (claims vs git reality)
+
+Per-verb query latency (cold, measured this session):
+  headline:             674 ms
+  find audit:           833 ms
+  roadmap-candidates:   297 ms
+  coverage-by-domain:   284 ms
+  blast-radius:         274 ms
+  node-status:          261 ms
+
+Large files in state/shared/system-viz/:
+  system-graph-normalized.json     259 MB  (NN-GRAPH-MS0 embeddings — distinct pipeline)
+  h-drive-census.json              132 MB  (FS census — distinct pipeline)
+  system-graph.json                 24 MB  (live graph)
+  system-graph.previous.json        20 MB  (1-step history)
+  wiki-entries-augmentation.json    17 MB  (largest single aug)
+</code></pre>
+<p>Hook wiring verified live: <code>audit-viz-first-inject</code> + <code>post-ship-distill</code> both present 2× each in C: and H: settings.json (the 2026-05-16 regression noted in CLAUDE.md is currently closed).</p>
+<hr>
+<h2 id="performance-findings-p1-p5"><a class="anchor" href="#performance-findings-p1-p5" aria-label="Permalink to PERFORMANCE findings (P1-P5)">#</a>PERFORMANCE findings (P1-P5)</h2>
+<h3 id="p1-shared-loadgraph-lib-has-no-in-process-cache-highest-leverage-depends-on-m1"><a class="anchor" href="#p1-shared-loadgraph-lib-has-no-in-process-cache-highest-leverage-depends-on-m1" aria-label="Permalink to P1 — Shared loadGraph lib has no in-process cache (HIGHEST LEVERAGE — depends on M1)">#</a>P1 — Shared <code>loadGraph</code> lib has no in-process cache (HIGHEST LEVERAGE — depends on M1)</h3>
+<ul>
+<li><strong>Symptom:</strong> Per-process: every <code>loadGraph()</code> does a full 24 MB <code>JSON.parse</code>. Cold latency 261-833 ms per query verb (this session). Hooks that fire on every <code>UserPromptSubmit</code> (master-index-precheck) and <code>SubagentStart</code> (per-subagent presearch via <code>master-index-search-lib.mjs</code>) pay the parse cost on every fire.</li>
+<li><strong>Root cause:</strong> <code>scripts/lib/system-viz-graph.mjs:loadGraph()</code> — actual parse site. The query script merely imports it (<code>scripts/system-viz-query.mjs:23</code>). Cache must land in the <strong>lib</strong>, not the query script. (Reviewer correction: prior audit draft mis-attributed to the query script.)</li>
+<li><strong>Upgrade:</strong> Module-scope <code>{ mtimeMs, graph }</code> cache inside <code>system-viz-graph.mjs</code>. On entry <code>fs.statSync(GRAPH).mtimeMs</code>; if unchanged return cached, else reload. 60 s TTL safety fallback. Add <code>--no-cache</code> flag for callers that just regenerated.</li>
+<li><strong>Prerequisite:</strong> <strong>M1 (lib consolidation) must land first</strong> — 18 files currently reference <code>loadGraph</code> or inline <code>JSON.parse</code> of the graph; until they all route through the lib, caching is partial.</li>
+<li><strong>Verify:</strong> <code>node H:/prism/scripts/system-viz-health.mjs --bench-query</code> before/after. Same-process re-issue of the same verb should drop to ≤ 50 ms.</li>
+<li><strong>Estimated lift:</strong> 200-700 ms per non-first invocation in any process that issues ≥ 2 queries.</li>
+<li><strong>Effort:</strong> S (lib cache) + M (M1 consolidation).</li>
+</ul>
+<h3 id="p2-merge-augmentations-load-sequentially"><a class="anchor" href="#p2-merge-augmentations-load-sequentially" aria-label="Permalink to P2 — Merge augmentations load sequentially">#</a>P2 — Merge augmentations load sequentially</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>merge-augmentations.mjs</code> calls <code>loadOptional()</code> for 53 augmentation files in a sync loop. Top-25 of those sum &gt; 200 MB; I/O serialized.</li>
+<li><strong>Root cause:</strong> <code>scripts/merge-augmentations.mjs</code> (1408 LOC) — sequential <code>fs.readFileSync</code> calls, no <code>Promise.all</code>.</li>
+<li><strong>Upgrade:</strong> Convert load phase to <code>await Promise.all(files.map(f =&gt; fsp.readFile(f, &quot;utf8&quot;)))</code> followed by serial <code>JSON.parse</code> (parse-bound, not I/O-bound). Keep merge phase serial since it mutates one graph.</li>
+<li><strong>Verify:</strong> <code>time node scripts/merge-augmentations.mjs --dry-run</code> before/after; reviewer agent to read the diff and confirm parse-correctness preserved.</li>
+<li><strong>Estimated lift:</strong> ~200-300 ms per regen-viz invocation (the load phase).</li>
+<li><strong>Effort:</strong> S.</li>
+<li><strong>Verifies via:</strong> <code>time node scripts/regen-viz.mjs</code> (existing tool, before/after).</li>
+</ul>
+<h3 id="p3-four-sequential-spawnsync-repair-passes-after-merge"><a class="anchor" href="#p3-four-sequential-spawnsync-repair-passes-after-merge" aria-label="Permalink to P3 — Four sequential spawnSync repair passes after merge">#</a>P3 — Four sequential <code>spawnSync</code> repair passes after merge</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>regen-viz.mjs</code> runs engine-classification → dedup → reparent → parent→child-edges as 4 separate <code>spawnSync</code> processes, each re-parsing system-graph.json.</li>
+<li><strong>Root cause:</strong> <code>scripts/regen-viz.mjs:122-165</code> — separate processes for what could be one in-memory traversal.</li>
+<li><strong>Upgrade:</strong> Compose into a single <code>scripts/repair-passes-composite.mjs</code> that loads graph once, applies all 4 transforms, writes once.</li>
+<li><strong>Verify:</strong> <code>time node scripts/regen-viz.mjs</code> post-change; check <code>system-graph.json</code> is byte-identical to pre-change (correctness gate).</li>
+<li><strong>Estimated lift:</strong> ~60-80 ms per regen + 4× less process-spawn overhead.</li>
+<li><strong>Effort:</strong> M (correctness-preserving merge of 4 transforms — needs test coverage).</li>
+</ul>
+<h3 id="p4-l12-file-walker-has-no-mtime-skip-cache-high-impact-on-full"><a class="anchor" href="#p4-l12-file-walker-has-no-mtime-skip-cache-high-impact-on-full" aria-label="Permalink to P4 — L12 file-walker has no mtime skip cache (HIGH IMPACT ON --full)">#</a>P4 — L12 file-walker has no mtime skip cache (HIGH IMPACT ON <code>--full</code>)</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>expand-system-viz-l12-files.mjs</code> walks the full H: drive on every <code>--full</code> regen. 2-5 min wall time. Most directories haven&#39;t changed since last walk.</li>
+<li><strong>Root cause:</strong> <code>scripts/expand-system-viz-l12-files.mjs</code> (609 LOC) — no <code>.l12-cache.json</code> mtime sentinel, no <code>git status --porcelain</code> short-circuit for tracked files.</li>
+<li><strong>Upgrade:</strong> Persist per-directory mtime cache; skip subtree if <code>fs.statSync(dir).mtimeMs</code> unchanged. For paths under <code>H:/prism/</code>, prefer <code>git status --porcelain</code> delta. Worktree-aware (mtime per-worktree).</li>
+<li><strong>Verify:</strong> First run cold (cache miss) ≈ 120-300 s baseline; second run with no FS changes should drop to &lt; 10 s.</li>
+<li><strong>Estimated lift:</strong> 110-290 s per <code>--full</code>. SYSTEM-VIZ-FS-COVERAGE-MS1 already shipped a cron re-walker (memory <code>reference_system_viz_fs_coverage_ms1_2026_05_16</code>) — that&#39;s complementary. This is the per-invocation incremental layer it&#39;s missing.</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<h3 id="p5-open-question-was-web-viewer-monolith-load"><a class="anchor" href="#p5-open-question-was-web-viewer-monolith-load" aria-label="Permalink to P5 — OPEN QUESTION (was: web viewer monolith load)">#</a>P5 — OPEN QUESTION (was: web viewer monolith load)</h3>
+<ul>
+<li><strong>Status:</strong> Per peer reviewer FAIL: the &quot;5-15 s TTI / 24 MB transferred&quot; claim was inferred without measurement. <strong>Demoted from a finding to an open question.</strong></li>
+<li><strong>What it would take to promote:</strong> A Playwright-MCP measurement of <code>/system-viz</code> on a cold cache. Capture: <code>transferred bytes</code>, <code>domContentLoaded ms</code>, <code>largestContentfulPaint ms</code>. If transferred &gt; 5 MB and TTI &gt; 2 s, promote to a finding with <code>M effort</code> and the cited numbers. Otherwise drop.</li>
+<li><strong>Verify (the question):</strong> <code>mcp__playwright__browser_navigate http://127.0.0.1:8765/system-viz</code> → <code>mcp__playwright__browser_network_requests</code> → inspect the largest payload.</li>
+</ul>
+<hr>
+<h2 id="functionality-findings-f1-f5"><a class="anchor" href="#functionality-findings-f1-f5" aria-label="Permalink to FUNCTIONALITY findings (F1-F5)">#</a>FUNCTIONALITY findings (F1-F5)</h2>
+<h3 id="f1-ghost-inventory-drill-down-verb"><a class="anchor" href="#f1-ghost-inventory-drill-down-verb" aria-label="Permalink to F1 — ghost-inventory drill-down verb">#</a>F1 — <code>ghost-inventory</code> drill-down verb</h3>
+<ul>
+<li><strong>Need:</strong> Operators reanimating PARKED worktrees, agents deciding whether to consolidate DRAINED roosts, the misc-tasks (318) + bridge-synergy (16) + ROADMAP-CONSOLIDATED (5826) ghosts have no programmatic drill-down.</li>
+<li><strong>Gap:</strong> Headlines report counts; no verb returns per-ghost metadata, recovery readiness, or age.</li>
+<li><strong>Upgrade:</strong> <code>system-viz-query.mjs ghost-inventory [--category misc_tasks|bridge_synergy|parked|drained] [--json]</code> — returns each ghost with: id, kind, sourcePath, ageDays, lastTouchedSha, recoveryReadiness (heuristic score 0-1).</li>
+<li><strong>Verify:</strong> <code>node scripts/system-viz-query.mjs ghost-inventory --category misc_tasks | jq &#39;. | length&#39;</code> should equal 318 (matches MISC-TASKS-INVENTORY.json).</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<h3 id="f2-action-trace-overlay-verb-d4-surface-complete-query-missing"><a class="anchor" href="#f2-action-trace-overlay-verb-d4-surface-complete-query-missing" aria-label="Permalink to F2 — action-trace overlay verb (D4 surface complete, query missing)">#</a>F2 — <code>action-trace</code> overlay verb (D4 surface complete, query missing)</h3>
+<ul>
+<li><strong>Need:</strong> D4 (action-traces append-only JSONL) shipped 2026-05-16 (<code>reference_d4_action_traces_2026_05_16</code>). The JSONL is being written; no query verb reads it through system-viz.</li>
+<li><strong>Gap:</strong> Agents must <code>cat state/shared/action-traces/*.jsonl | grep ...</code> directly. Defeats the master-index doctrine.</li>
+<li><strong>Upgrade:</strong> <code>system-viz-query.mjs action-trace &lt;action_name&gt; [--last N] [--agent &lt;slot&gt;]</code> — joins traces + dispatcher graph (in-edges/out-edges) + telemetry, renders tree.</li>
+<li><strong>Verify:</strong> <code>node scripts/system-viz-query.mjs action-trace prism_calc:tool_life --last 5</code> returns ≥ 1 trace if action was invoked in this session.</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<h3 id="f3-search-act-composite-verb-close-the-loop"><a class="anchor" href="#f3-search-act-composite-verb-close-the-loop" aria-label="Permalink to F3 — search-act composite verb (close-the-loop)">#</a>F3 — <code>search-act</code> composite verb (close-the-loop)</h3>
+<ul>
+<li><strong>Need:</strong> Hooks inject &quot;found 5 nodes&quot; but agent still has to call blast-radius + wiki-query as 3 separate hops.</li>
+<li><strong>Gap:</strong> No single verb closes find → impact → next-action.</li>
+<li><strong>Upgrade:</strong> <code>search-act &lt;noun&gt;</code> returns top-3 find hits, each with: blast-radius summary, wiki excerpt, recommended next action (e.g. &quot;engine is unwired in L4a — emit wire-plan via /wire-unwired&quot;).</li>
+<li><strong>Verify:</strong> A/B compare follow-up <code>Grep</code> / <code>Read</code> tool-call count per session in <code>state/shared/.tool-call-telemetry.jsonl</code> before and after the hook starts injecting <code>search-act</code> output. <strong>No pre-baseline yet</strong> — needs a 1-week observation window before any reduction target is claimed.</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<h3 id="f4-differential-viz-diff"><a class="anchor" href="#f4-differential-viz-diff" aria-label="Permalink to F4 — Differential viz (diff  )">#</a>F4 — Differential viz (<code>diff &lt;sha1&gt; &lt;sha2&gt;</code>)</h3>
+<ul>
+<li><strong>Need:</strong> PR reviewers + roadmap auditors want &quot;what graph nodes/edges changed in this commit range?&quot;</li>
+<li><strong>Gap:</strong> <code>system-graph.previous.json</code> exists but no diff verb consumes it.</li>
+<li><strong>Upgrade:</strong> <code>system-viz-query.mjs diff [--since &lt;sha|date&gt;]</code> — uses git log + per-sha graph snapshots (or single previous), emits added/removed/rewired counts + markdown table.</li>
+<li><strong>Verify:</strong> <code>node scripts/system-viz-query.mjs diff --since HEAD~5</code> returns non-empty for any 5-commit window touching code.</li>
+<li><strong>Effort:</strong> L (requires per-sha graph history or rolling snapshot — partially implemented via <code>.previous.json</code>).</li>
+</ul>
+<h3 id="f5-agent-plan-query"><a class="anchor" href="#f5-agent-plan-query" aria-label="Permalink to F5 — agent-plan  query">#</a>F5 — <code>agent-plan &lt;dispatcher&gt;</code> query</h3>
+<ul>
+<li><strong>Need:</strong> Tier-1 orchestrator deciding to call <code>prism_cam:cam_recommend</code> needs: which Tier-3 specialists handle this? prerequisite checks? fallback chain?</li>
+<li><strong>Gap:</strong> G2 agent-overlay shipped today (<code>reference_g2_agent_overlay_2026_05_16</code>) but no query verb surfaces it.</li>
+<li><strong>Upgrade:</strong> <code>agent-plan &lt;dispatcher&gt;</code> returns: agents that route here, prereq wiring status, current overlay state, fallback chain.</li>
+<li><strong>Verify:</strong> Smoke-test against <code>prism_cam</code> — expect non-empty agents list + ≥ 1 fallback.</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<hr>
+<h2 id="wiring-findings-w1-w6"><a class="anchor" href="#wiring-findings-w1-w6" aria-label="Permalink to WIRING findings (W1-W6)">#</a>WIRING findings (W1-W6)</h2>
+<h3 id="w1-foldnewlybuilt0-default-creates-1-commit-blind-spot"><a class="anchor" href="#w1-foldnewlybuilt0-default-creates-1-commit-blind-spot" aria-label="Permalink to W1 — FOLDNEWLYBUILT=0 default creates 1-commit blind spot">#</a>W1 — <code>FOLD_NEWLY_BUILT=0</code> default creates 1-commit blind spot</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>system-viz-on-commit.mjs:103</code> skips final merge-augmentations pass unless <code>FOLD_NEWLY_BUILT=1</code> set. Newly-built nodes only highlight on the <em>next</em> commit.</li>
+<li><strong>Risk:</strong> In a 6-12 chat fleet doing rapid commits, &quot;latest state&quot; lags by 1 commit per chat. Stop-time chat agents read stale graph.</li>
+<li><strong>Upgrade:</strong> Either (a) default to ON if total newly-built delta &lt; threshold, or (b) move the 91 s overhead to a separate background spawn that updates the next-commit slot.</li>
+<li><strong>Verify:</strong> <code>grep -n &quot;FOLD_NEWLY_BUILT&quot; scripts/system-viz-on-commit.mjs</code> should show a default-true branch.</li>
+<li><strong>Effort:</strong> S.</li>
+</ul>
+<h3 id="w2-obsidian-bridge-v2-only-fires-on-full"><a class="anchor" href="#w2-obsidian-bridge-v2-only-fires-on-full" aria-label="Permalink to W2 — Obsidian-bridge v2 only fires on --full">#</a>W2 — Obsidian-bridge v2 only fires on <code>--full</code></h3>
+<ul>
+<li><strong>Symptom:</strong> <code>regen-viz.mjs:173-179</code> runs <code>system-viz-obsidian-bridge-v2.mjs</code> only with <code>--full</code>. Post-commit fast path never refreshes wiki backlinks → wiki and node.knowledge fields drift.</li>
+<li><strong>Upgrade:</strong> Move to FAST[] (profile + optimize if it&#39;s the bottleneck).</li>
+<li><strong>Verify:</strong> <code>wc -l knowledge/wiki/architecture/*.md</code> mtime distribution before/after a non-<code>--full</code> regen.</li>
+<li><strong>Effort:</strong> M.</li>
+<li><strong>Side note (separate, low-priority):</strong> <code>system-viz-obsidian-bridge.mjs</code> (v1) has no live script callers per reviewer pass. Archive per <code>feedback_never_delete_only_disable</code> (rename to <code>.archive.&lt;date&gt;</code>); not a wiring concern, just unused-code hygiene.</li>
+</ul>
+<h3 id="w3-detached-wiki-regen-child-unsupervised"><a class="anchor" href="#w3-detached-wiki-regen-child-unsupervised" aria-label="Permalink to W3 — Detached wiki-regen child unsupervised">#</a>W3 — Detached wiki-regen child unsupervised</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>system-viz-on-commit.mjs:127-138</code> spawns wiki regen with <code>detached: true; child.unref()</code>. No PID file, no health check. Silent crash leaves wiki stuck.</li>
+<li><strong>Upgrade:</strong> Write <code>.viz-wiki-regen.pid</code> + <code>.viz-wiki-regen.last-success</code>; new health check hook compares timestamps every 30 s; alerts via chat-bus if stale &gt; 10 min.</li>
+<li><strong>Verify:</strong> Kill the child mid-run; alert should appear in <code>AGENT_CHAT.jsonl</code> within 10 min.</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<h3 id="w4-drift-report-consumer-is-stop-advisory-only-auto-remediation-loop-missing"><a class="anchor" href="#w4-drift-report-consumer-is-stop-advisory-only-auto-remediation-loop-missing" aria-label="Permalink to W4 — Drift report consumer is Stop-advisory only; auto-remediation loop missing">#</a>W4 — Drift report consumer is Stop-advisory only; auto-remediation loop missing</h3>
+<ul>
+<li><strong>Reviewer correction:</strong> prior audit draft claimed &quot;never consumed&quot; — false. <code>H:/prism/.claude/hooks/stop-system-viz-drift.mjs</code> (lines 32-49) IS wired as a Stop hook and reads <code>DRIFT_REPORT.json</code>. It emits a one-line advisory when <code>truncated &gt; 0</code>, <code>root-missing &gt; 0</code>, drift count &gt; 10, or report age &gt; 12 h. Throttled 60 min/session. <strong>Consumer exists; the gap is narrower.</strong></li>
+<li><strong>Symptom (corrected):</strong> Consumer is <strong>non-blocking advisory</strong> (<code>continue:true, suppressOutput:false</code>) with 60-min throttle. It nudges the operator but does not (a) auto-trigger a re-walk, (b) block in <code>regen-viz.mjs</code>, or (c) escalate to the chat-bus. Current report: 4 <code>stale-churn</code> entries (disk Δ &gt; 5 h since walk); within acceptable today, but a future <code>truncated &gt; 0</code> event surfaces only as a nudge.</li>
+<li><strong>Upgrade:</strong> Add post-detect stage in <code>regen-viz.mjs</code> that hard-fails on <code>truncated|root-missing</code> (currently those would still allow the merge to proceed). Optionally: chat-bus broadcast for any non-fresh count &gt; threshold so other slots see it sooner than the next Stop.</li>
+<li><strong>Verify:</strong> Inject a synthetic <code>truncated:1</code> into <code>DRIFT_REPORT.json</code>, run <code>node scripts/regen-viz.mjs</code> — current behavior continues; post-fix should exit non-zero before the merge step.</li>
+<li><strong>Effort:</strong> S.</li>
+</ul>
+<h3 id="w5-no-cross-worktree-graph-checksum"><a class="anchor" href="#w5-no-cross-worktree-graph-checksum" aria-label="Permalink to W5 — No cross-worktree graph checksum">#</a>W5 — No cross-worktree graph checksum</h3>
+<ul>
+<li><strong>Symptom:</strong> 41 active worktrees each maintain their own <code>system-graph.json</code>. Post-commit fires independently. No mechanism ensures fleet-wide consistency.</li>
+<li><strong>Upgrade:</strong> <code>GRAPH_CHECKSUM</code> per worktree + 60 s cron diff. Alert if divergence &gt; 2 min.</li>
+<li><strong>Verify:</strong> <code>for d in H:/prism*/state/shared/system-viz; do sha256sum &quot;$d/system-graph.json&quot;; done</code> — fleet should converge within 2 min of last commit.</li>
+<li><strong>Effort:</strong> M.</li>
+</ul>
+<h3 id="w6-hook-installer-doesnt-self-verify"><a class="anchor" href="#w6-hook-installer-doesnt-self-verify" aria-label="Permalink to W6 — Hook installer doesn&#39;t self-verify">#</a>W6 — Hook installer doesn&#39;t self-verify</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>install-system-viz-git-hook.mjs</code> writes the hook but doesn&#39;t test-fire it. Permissions or path bugs leave commits silently skipping viz refresh.</li>
+<li><strong>Upgrade:</strong> After install, run <code>git commit --allow-empty -m &quot;viz hook smoke test&quot;</code>; assert <code>system-graph.json</code> mtime advanced within 5 s. Hard-fail install on no advance.</li>
+<li><strong>Verify:</strong> Run the installer in a fresh worktree; check exit code + mtime.</li>
+<li><strong>Effort:</strong> S.</li>
+</ul>
+<hr>
+<h2 id="additional-findings-added-in-v2-after-peer-review"><a class="anchor" href="#additional-findings-added-in-v2-after-peer-review" aria-label="Permalink to Additional findings (added in v2 after peer review)">#</a>Additional findings (added in v2 after peer review)</h2>
+<h3 id="m1-loadgraph-reimplemented-or-duplicated-across-18-scripts-blocks-p1"><a class="anchor" href="#m1-loadgraph-reimplemented-or-duplicated-across-18-scripts-blocks-p1" aria-label="Permalink to M1 — loadGraph reimplemented or duplicated across ≥ 18 scripts (BLOCKS P1)">#</a>M1 — <code>loadGraph</code> reimplemented or duplicated across ≥ 18 scripts (BLOCKS P1)</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>grep -l &#39;loadGraph\\|JSON\\.parse.*system-graph&#39; H:/prism/scripts</code> returns 18 files. The shared lib <code>scripts/lib/system-viz-graph.mjs</code> exports <code>loadGraph</code>, but multiple consumers (<code>build-system-viz-livediff.mjs</code>, <code>generate-combo-detector.mjs</code>, <code>generate-engine-graph.mjs</code>, <code>audit-roadmap-viz-bindings.mjs</code>, others) either reimplement the parse or duplicate the import surface in ways that defeat module-scope caching.</li>
+<li><strong>Why it blocks P1:</strong> A cache landing in the lib only helps callers that route through the lib. Any inline-parse caller pays full cost on every invocation.</li>
+<li><strong>Upgrade:</strong> Audit the 18 hits; route every caller through <code>loadGraph()</code>. Delete inline parses. Once the lib is the only path, P1&#39;s module-scope cache becomes effective fleet-wide.</li>
+<li><strong>Verify:</strong> <code>rg -c &quot;JSON\\.parse\\(.*readFileSync.*system-graph&quot; H:/prism/scripts</code> should return 0 after the consolidation (only the lib remains).</li>
+<li><strong>Effort:</strong> S-M (mostly mechanical — 18 small edits, byte-equal output gate on any function that mutates the graph).</li>
+</ul>
+<h3 id="m2-merge-augmentationsmjs-byid-index-silent-desync-risk"><a class="anchor" href="#m2-merge-augmentationsmjs-byid-index-silent-desync-risk" aria-label="Permalink to M2 — merge-augmentations.mjs byId index — silent-desync risk">#</a>M2 — <code>merge-augmentations.mjs</code> byId index — silent-desync risk</h3>
+<ul>
+<li><strong>Symptom:</strong> <code>scripts/merge-augmentations.mjs</code> (1408 LOC) maintains a <code>byId</code> index with mutation guarded by <code>addNodeIndexed()</code>. If any merge block falls back to a raw <code>G.nodes.push(...)</code> (search the file), the index desyncs silently and downstream <code>byId.get()</code> returns stale.</li>
+<li><strong>Why it matters:</strong> 53 augmentation blocks all share one index. A single bypass corrupts downstream queries with no detectable error message.</li>
+<li><strong>Upgrade:</strong> Add an invariant check at end of merge: <code>assert(G.nodes.length === G.byId.size)</code>. If they diverge, log the delta + first 5 offending nodes. (Lower-cost: ESLint rule that bans raw <code>nodes.push</code> in this file.)</li>
+<li><strong>Verify:</strong> <code>grep -nE &#39;\\bnodes\\.push\\b&#39; H:/prism/scripts/merge-augmentations.mjs</code> should return only references inside <code>addNodeIndexed()</code>.</li>
+<li><strong>Effort:</strong> S (one assertion + one grep gate).</li>
+</ul>
+<h2 id="findings-noted-but-not-in-top-n"><a class="anchor" href="#findings-noted-but-not-in-top-n" aria-label="Permalink to Findings noted but not in top-N">#</a>Findings noted but not in top-N</h2>
+<ul>
+<li><strong>53 augmentations, 0 mtime-orphans</strong> — clean pipeline. No prune work needed.</li>
+<li><strong>259 MB <code>system-graph-normalized.json</code></strong> — written by <code>regen-graph-normalized.mjs</code> (NN-GRAPH-MS0 embedding pipeline, deploy DEFERRED per memory). Not orphan, but watch for unbounded growth.</li>
+<li><strong><code>MS-VIZ-ROADMAP-BIND.json</code> + <code>VIZ-COVERAGE-MS0.json</code></strong> — pre-existing milestones; this audit&#39;s findings should be folded as new units in a fresh <code>SYSTEM-VIZ-UPGRADES-MS0</code>, NOT bolted onto these (avoids drift with their separate scope).</li>
+</ul>
+<hr>
+<h2 id="phase-6a-meta-artifact-compounding-gains-tax"><a class="anchor" href="#phase-6a-meta-artifact-compounding-gains-tax" aria-label="Permalink to Phase 6A — META artifact (compounding-gains tax)">#</a>Phase 6A — META artifact (compounding-gains tax)</h2>
+<p><strong>Shipped as:</strong> <code>H:/prism/scripts/system-viz-health.mjs</code></p>
+<p>Re-runnable measurement that establishes the baseline this audit measured + flags regressions on re-run:</p>
+<ul>
+<li>Graph size + mtime + age (seconds)</li>
+<li>Augmentation count + total size + oldest mtime</li>
+<li>Per-verb query latency (headline, find, blast-radius, node-status, coverage-by-domain, roadmap-candidates) — 5-iter mean</li>
+<li>DRIFT_REPORT.json severity counts</li>
+<li>Cache-hit estimate (re-runs the same verb 5× and checks slope)</li>
+<li>Outputs JSON (<code>--json</code>) and human text (default)</li>
+</ul>
+<p><code>--bench-query &lt;verb&gt;</code> runs just that verb&#39;s latency sample.</p>
+<hr>
+<h2 id="verification-feedback-matrix"><a class="anchor" href="#verification-feedback-matrix" aria-label="Permalink to Verification feedback matrix">#</a>Verification feedback matrix</h2>
+<p>Every finding must have a re-measurable signal. Index:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Finding</th><th>Verifying tool</th><th>Expected signal</th><th>Today&#39;s baseline</th></tr></thead>
+<tbody>
+<tr><td>M1</td><td><code>rg -c &quot;JSON\\.parse\\(.*system-graph&quot; H:/prism/scripts</code></td><td>only <code>lib/system-viz-graph.mjs</code> matches</td><td>18 files match</td></tr>
+<tr><td>P1</td><td><code>system-viz-health.mjs --bench-query</code> (same-process re-issue)</td><td>2nd-call latency ≤ 50 ms</td><td>261-833 ms</td></tr>
+<tr><td>M2</td><td><code>grep -nE &#39;\\bnodes\\.push\\b&#39; merge-augmentations.mjs</code></td><td>only inside <code>addNodeIndexed()</code></td><td>TBD — needs grep</td></tr>
+<tr><td>P2</td><td><code>time node regen-viz.mjs</code></td><td>merge phase ≤ 250 ms</td><td>TBD (not isolated)</td></tr>
+<tr><td>P3</td><td><code>time node regen-viz.mjs</code> + byte-equal <code>system-graph.json</code></td><td>repair phase ≤ 20 ms</td><td>~80 ms</td></tr>
+<tr><td>P4</td><td><code>time node expand-system-viz-l12-files.mjs</code> cold-vs-warm</td><td>warm ≤ 10 s</td><td>cold 120-300 s</td></tr>
+<tr><td>P5</td><td>Playwright-MCP cold-cache <code>/system-viz</code></td><td>measure transferred MB + TTI</td><td><strong>open question, no baseline yet</strong></td></tr>
+<tr><td>F1</td><td><code>query ghost-inventory --category misc_tasks | jq length</code></td><td>318</td><td>n/a (verb doesn&#39;t exist)</td></tr>
+<tr><td>F2</td><td><code>query action-trace prism_calc:tool_life --last 5</code></td><td>≥ 1 trace</td><td>n/a</td></tr>
+<tr><td>F3</td><td>A/B <code>.tool-call-telemetry.jsonl</code> Grep-count delta</td><td>non-negative reduction post-rollout</td><td>no pre-baseline yet</td></tr>
+<tr><td>F4</td><td><code>query diff --since HEAD~5</code></td><td>non-empty on any 5-commit window</td><td>n/a</td></tr>
+<tr><td>F5</td><td><code>query agent-plan prism_cam</code></td><td>≥ 1 agent + 1 fallback</td><td>n/a</td></tr>
+<tr><td>W1</td><td><code>grep FOLD_NEWLY_BUILT system-viz-on-commit.mjs</code></td><td>default-true branch present</td><td>currently default-off</td></tr>
+<tr><td>W2</td><td>wiki mtime distribution post non-<code>--full</code> regen</td><td>distribution shifts forward</td><td>currently static</td></tr>
+<tr><td>W3</td><td>kill detached child mid-run</td><td>chat-bus alert within 10 min</td><td>currently silent</td></tr>
+<tr><td>W4</td><td>synthetic <code>truncated:1</code> injection → <code>regen-viz.mjs</code></td><td>exits non-zero before merge</td><td>currently exits 0 (advisory only)</td></tr>
+<tr><td>W5</td><td>sha256 across worktrees</td><td>converge within 2 min</td><td>currently undefined</td></tr>
+<tr><td>W6</td><td>run installer in fresh worktree</td><td>exit nonzero on broken install</td><td>currently exit-0</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="recommended-next-steps-for-the-operator"><a class="anchor" href="#recommended-next-steps-for-the-operator" aria-label="Permalink to Recommended next steps for the operator">#</a>Recommended next steps for the operator</h2>
+<ol>
+<li><strong>Sequence: M1 → P1 → W1 → W4.</strong> All S-effort, all measurable, M1 unblocks P1.</li>
+<li><strong>Spin a 5-unit milestone <code>SYSTEM-VIZ-UPGRADES-MS0</code></strong>: U-LIB-CONSOLIDATE (M1), U-CACHE-LIB (P1), U-FOLD-DEFAULT (W1), U-DRIFT-HARD-FAIL (W4), U-MERGE-INVARIANT (M2). Per-file scrutiny gate per project CLAUDE.md.</li>
+<li><strong>P4 (L12 mtime cache) is the biggest absolute time-saver</strong> but lives in <code>expand-system-viz-l12-files.mjs</code> — coordinate with whoever ships SYSTEM-VIZ-FS-COVERAGE-MS2.</li>
+<li><strong>F2 (action-trace verb) is the highest-leverage functionality</strong> because D4 traces are already being written — query layer is the only missing piece.</li>
+<li><strong>P5 open question</strong> — only promote after a Playwright-MCP measurement of <code>/system-viz</code>. Otherwise drop entirely.</li>
+</ol>
+<hr>
+<h2 id="self-scheduled-re-run"><a class="anchor" href="#self-scheduled-re-run" aria-label="Permalink to Self-scheduled re-run">#</a>Self-scheduled re-run</h2>
+<p>Per <code>/forge-audit-v2</code> Phase 6C: this audit is registered for re-run in 7 days via <code>/loop --interval 7d --max 4</code>. After 4 re-runs (≈ 28 days), operator re-evaluates whether the audit is still worth running.</p>
+<p>Re-run command: <code>/forge-audit-v2 /system-viz can we make further upgrades to the system-viz system to improve functionality and efficiency</code></p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="SYSTEM-VIZ-UPGRADES-AUDIT-2026-05-16.md">SYSTEM-VIZ-UPGRADES-AUDIT-2026-05-16.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

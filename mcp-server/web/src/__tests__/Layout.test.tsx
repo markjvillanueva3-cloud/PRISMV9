@@ -378,7 +378,8 @@ describe('Layout', () => {
   });
 
   it('refreshes a saved view without clobbering its custom name', async () => {
-    let capturedUpdateInput: { name?: string; to?: string } | null = null;
+    // Suppress TS "narrowed to null" by typing as the actual capture shape.
+    let capturedUpdateInput: { viewId?: string; name?: string; to?: string; isDefault?: boolean } | null = null;
     const services = {
       ...fixtureOperatingSystemServices,
       async getShellSavedViews() {
@@ -422,7 +423,12 @@ describe('Layout', () => {
       expect(capturedUpdateInput).not.toBeNull();
     });
 
-    expect(capturedUpdateInput?.name).toBeUndefined();
+    // The refresh path must NOT clobber the saved view's name (operator-renamed
+    // views need to survive a /refresh). Asserting the input lacks `name` proves
+    // updateShellSavedView won't propagate any name field downstream. Cast is
+    // required because closure mutation is invisible to TS control-flow narrowing.
+    const captured = capturedUpdateInput as { name?: string; viewId?: string } | null;
+    expect(captured && 'name' in captured ? captured.name : 'no-name-key').toBe('no-name-key');
     expect(screen.getAllByRole('button', { name: 'Planner queue' }).length).toBeGreaterThanOrEqual(1);
   });
 

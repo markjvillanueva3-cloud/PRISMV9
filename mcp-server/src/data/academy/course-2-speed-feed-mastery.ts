@@ -269,8 +269,19 @@ For ball end mills, the effective cutting diameter changes with depth of cut:
 $$D_{eff} = 2 \\times \\sqrt{ap \\times (D - ap)}$$
 
 At shallow DOC, the effective diameter is much smaller than nominal — so you need much higher RPM!`,
+  }, {
+    type: "calculator",
+    title: "Live RPM Calculator (interactive)",
+    body: `Enter your **cutting speed Vc** (m/min) and **tool diameter D** (mm) below — the spindle RPM is computed live via PRISM's SpeedFeedOrchestratorEngine. Formula [per ISO 3002-1:1982, clause 4]: RPM = (Vc × 1000) / (π × D). Try the table values above to verify (Vc=200 m/min, D=12 mm should give ~5305 RPM).`,
+    calculatorConfig: {
+      engine: "SpeedFeedOrchestratorEngine",
+      inputFields: ["Vc_m_per_min", "diameter_mm"],
+      outputFields: ["rpm"],
+      defaults: { Vc_m_per_min: 200, diameter_mm: 12 },
+    },
   }],
   keyFormulas: ["rpm_from_vc"],
+  prismEngines: ["SpeedFeedOrchestratorEngine"],
 }];
 
 // ═══════════════════════════════════════════════════════════
@@ -330,8 +341,19 @@ When the tool moves in Z (plunging into material), use reduced feed:
 | Hard material (>45 HRC) | Reduce 40-60% |
 | Finishing pass | Reduce to achieve target Ra |
 | Adaptive/HSM toolpath | Can increase 50-200% |`,
+  }, {
+    type: "calculator",
+    title: "Live Feed Rate Calculator (interactive)",
+    body: `Enter **chip load fz** (mm/tooth from manufacturer table), **flute count z**, and **spindle RPM n** — feed rate is computed live via PRISM's SpeedFeedOrchestratorEngine. Formula [per Sandvik Coromant *Modern Metal Cutting* — milling section]: Vf = fz × z × n (mm/min). Try the example above (fz=0.08, z=4, n=7958 RPM) — answer should be ~2547 mm/min.`,
+    calculatorConfig: {
+      engine: "SpeedFeedOrchestratorEngine",
+      inputFields: ["fz_mm_per_tooth", "flute_count", "rpm"],
+      outputFields: ["feed_rate_mm_per_min"],
+      defaults: { fz_mm_per_tooth: 0.08, flute_count: 4, rpm: 7958 },
+    },
   }],
   keyFormulas: ["feed_rate", "mrr"],
+  prismEngines: ["SpeedFeedOrchestratorEngine"],
 }];
 
 // ═══════════════════════════════════════════════════════════
@@ -679,6 +701,60 @@ Before hitting Cycle Start:
   ],
 }];
 
+const mod11: Lesson[] = [{
+  id: `${CID}-m11-l1`, moduleId: `${CID}-mod-11`,
+  title: "Citation Discipline — Cutting Data Sources", order: 1,
+  content: [{
+    type: "text",
+    body: `# Citation Discipline — Cutting-Data Sources
+
+**Prerequisite:** Modules 1-10 of this course (Kienzle, Taylor, SFM, chip-thinning, stability lobes, etc.).
+**Learning objective:** For every speed/feed claim, identify its source — a handbook table, a tool-vendor catalog, an ISO test standard, or a textbook formula. Speed/feed is the highest-citation-density domain in shop math.
+**Assessment:** Justify the cutting parameters for one operation in your last setup. Cite every input value.
+
+## Why Speed/Feed Needs Sources
+
+Every speed/feed table is **conditional** on tool grade, coating, material grade, machine rigidity, coolant, depth of cut, and L/D ratio. A starting value pulled from one source may be wrong by 2× on the next job. The only defense against guessing is citation.
+
+## Citation Pattern (Cutting-Data Variant)
+
+\`<parameter value> [per <handbook/standard/vendor catalog>, <year>, <table/section>]\`
+
+Examples revisiting earlier modules of THIS course:
+
+- **"Kienzle equation Fc = kc1.1 × ap × fz^(1-mc)"** [per Kienzle, O., 1952. *Die Bestimmung von Kräften und Leistungen an spanenden Werkzeugen und Werkzeugmaschinen.* VDI-Zeitschrift 94 (11-12): 299-305. PRISM kc1.1 + mc constants per ISO group live in \`src/physics/constants.ts\`.]
+- **"Taylor tool life equation V·T^n = C"** [per Taylor, F.W., 1907. *On the Art of Cutting Metals.* Transactions of the ASME 28: 31-350. Modern n/C values: ISO 3685:1993 *Tool-life testing with single-point turning tools.*]
+- **"Tool-life test method for milling"** [per ISO 8688-1:1989 (face milling) + ISO 8688-2:1989 (end milling) — ISO; defines the standard conditions under which T values are measured.]
+- **"Sandvik recommended cutting data for steel P-group"** [per Sandvik Coromant, *Coromant Capto / Modern Metal Cutting* catalog, current revision (CoroPlus app or printed catalog) — Section: Turning/Milling cutting data per ISO material group.]
+- **"Iscar recommended chip-load fz for solid carbide end mills"** [per Iscar Metals, *Master Catalog*, current edition — Section: Solid Carbide End Mills, chip-load tables per Ø/material.]
+- **"Stability lobe diagram derivation"** [per Altintas, Y., 2012. *Manufacturing Automation: Metal Cutting Mechanics, Machine Tool Vibrations, and CNC Design*, 2nd ed., Cambridge University Press, Chapter 4 (chatter stability).]
+- **"Machining center performance test code"** [per ASME B5.54-2005 (R2017) — for accuracy verification under cutting conditions.]
+- **"Material-group classification P/M/K/N/S/H"** [per ISO 513:2012 — anchors which kc1.1 + Taylor constants apply.]
+
+## Doctrine vs Technique vs Reference (Cutting-Data Lens)
+
+| Category | In speed/feed | Examples |
+|----------|--------------|----------|
+| **Doctrine** | Universal physical laws. Memorize. | Kienzle structure · Taylor structure · RPM = Vc·1000/(πD) · power = Fc·Vc/60000 |
+| **Technique** | Derivation from the formula + inputs. | Plug + solve for parameters · adjust for chip thinning · apply L/D deflection limit |
+| **Reference** | Tables that change by tool + material. | kc1.1 per ISO group · Sandvik/Iscar chip-load tables · Taylor n/C per material |
+
+## The Cutting-Data Failure Mode
+
+A programmer copies a chip-load value from Sandvik's table for a *P-group steel* but the part is *K-group cast iron*. The Kienzle force prediction is off by ~60% (kc1.1 P=1800 vs K=1100, plus different mc exponent). Tool chips on the first cut. **Defense:** every chip-load + Vc + Taylor-life claim must cite (a) the source table, and (b) the matched ISO material group.
+
+## Practice
+
+For your last cutting job, write the citation chain for:
+1. **Vc** (cutting speed) — table source + tool grade + ISO material group + coolant assumption
+2. **fz** (chip load per tooth) — table source + tool diameter + axial DOC assumption
+3. **ap** (axial DOC) — limit from tool catalog + L/D deflection check
+4. **Expected tool life T** — Taylor n/C source or vendor expected-life claim
+
+If any chain has gaps → the operation is operating on guesses, not data.`,
+  }],
+}];
+
 // ═══════════════════════════════════════════════════════════
 // Quiz Questions
 // ═══════════════════════════════════════════════════════════
@@ -747,6 +823,23 @@ export const COURSE_2_QUIZZES: Record<string, Question[]> = {
       tags: ["feed_rate", "rpm", "speed_feed"],
     },
   ],
+  [`${CID}-mod-11-quiz`]: [
+    {
+      id: "c2-m11-q1", type: "multiple_choice", difficulty: 2,
+      text: "You copy a chip-load value fz=0.10 mm/tooth from a Sandvik table for P-group steel, but the part is K-group cast iron. Predict the consequence on the first cut.",
+      options: [
+        { id: "a", text: "No effect — chip load is independent of material group", isCorrect: false,
+          explanation: "Chip load IS material-group-dependent; the table is conditional on the group it was measured for." },
+        { id: "b", text: "Cutting force ~60% off (kc1.1 mismatch: P=1800 vs K=1100), tool may chip or break", isCorrect: true },
+        { id: "c", text: "Tool life doubles because cast iron is softer than steel", isCorrect: false,
+          explanation: "Cast iron's lower kc1.1 doesn't translate to longer life — the wear mechanism is different (abrasive vs adhesive)." },
+        { id: "d", text: "Surface finish improves due to lower force", isCorrect: false,
+          explanation: "Force is only one input; chip morphology in K-group differs and may scallop or chip the cutting edge." },
+      ],
+      explanation: "Citation: ISO 513:2012 (material-group definition) + Sandvik Modern Metal Cutting (group-specific chip-load tables) + Kienzle 1952 (force formula coupling kc1.1 to material). Defense = always match ISO group to data source.",
+      tags: ["citation_discipline", "kienzle", "iso_513", "chip_load"],
+    },
+  ],
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -783,4 +876,5 @@ export const COURSE_2_MODULES: Module[] = [
   makeModule(8, "Material-Specific Strategies", mod8, 40),
   makeModule(9, "Tool Deflection", mod9, 40),
   makeModule(10, "Full S/F Walkthrough", mod10, 50),
+  makeModule(11, "Citation Discipline — Cutting Data Sources", mod11, 35),
 ];

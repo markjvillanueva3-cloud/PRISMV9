@@ -9,12 +9,76 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
+import { spawnSync } from "node:child_process";
+import { existsSync, readFileSync, unlinkSync } from "node:fs";
+import { join } from "node:path";
 import {
   extractPrompt,
   inferTribalDomain,
   parseRerankOutput,
+  applyLexicalRerank,
   formatInjection,
+  SLOT_TRIBAL_DOMAIN,
 } from "./tribal-by-domain-inject.mjs";
+import { DEFAULT_STATE_DIR, safeSessionId, promptHash } from "../../scripts/lib/inject-throttle.mjs";
+
+// --- U-TRIBAL-DOMAIN-THROTTLE (2026-06-10 slot:bravo) ---
+// Subprocess integration: a /loop re-submits the IDENTICAL prompt every tick;
+// this hook's rerank spawns a subprocess + Ollama embed each time. The throttle
+// stamps state BEFORE the rerank, and a suppressed tick does NOT re-stamp
+// (shouldThrottleInject saves only on the inject path) -- so an unchanged ts
+// after a 2nd identical tick proves suppression, independent of Ollama/approve().
+describe("U-TRIBAL-DOMAIN-THROTTLE -- same-prompt /loop suppression (subprocess)", () => {
+  const HOOK = "H:/prism/.claude/hooks/tribal-by-domain-inject.mjs";
+  const NODE = process.execPath;
+  const runHook = ({ prompt, sessionId, env = {}, timeoutMs = 30000 }) => {
+    const r = spawnSync(NODE, [HOOK], {
+      input: JSON.stringify({ prompt, session_id: sessionId }),
+      encoding: "utf8", env: { ...process.env, ...env }, timeout: timeoutMs,
+    });
+    return { status: r.status, stdout: r.stdout || "" };
+  };
+  const statePathFor = (sid) => join(DEFAULT_STATE_DIR, `${safeSessionId(sid)}.json`);
+
+  it("1st inject stamps state; an identical 2nd within TTL is throttled (no re-stamp)", () => {
+    const S = "test-tribal-throttle-suppress";
+    const P = "throttle wiring probe for tribal by domain inject loop tick";
+    const sp = statePathFor(S);
+    try { if (existsSync(sp)) unlinkSync(sp); } catch { /* clean slate */ }
+    try {
+      // Big TTL so a slow spawn can't widen past the window; tiny rerank timeout
+      // so tick-1 returns fast (the throttle stamps BEFORE the rerank subprocess,
+      // so the assertion holds even if Ollama is slow/down).
+      const env = { PRISM_TRIBAL_DOMAIN_INJECT_THROTTLE_MS: "600000", PRISM_TRIBAL_DOMAIN_INJECT_TIMEOUT_MS: "600" };
+      const r1 = runHook({ prompt: P, sessionId: S, env });
+      assert.equal(r1.status, 0);
+      assert.ok(existsSync(sp), "throttle state stamped on 1st inject (wiring live)");
+      const st1 = JSON.parse(readFileSync(sp, "utf8"));
+      assert.equal(st1.hash, promptHash(P), "stamped hash matches the prompt");
+      const r2 = runHook({ prompt: P, sessionId: S, env });
+      assert.equal(r2.status, 0);
+      const st2 = JSON.parse(readFileSync(sp, "utf8"));
+      assert.equal(st2.ts, st1.ts, "2nd identical tick is throttled -> ts unchanged (not re-injected)");
+    } finally {
+      try { if (existsSync(sp)) unlinkSync(sp); } catch { /* swallow */ }
+    }
+  });
+
+  it("PRISM_TRIBAL_DOMAIN_INJECT_THROTTLE_MS=0 disables the throttle (writes no state)", () => {
+    const S = "test-tribal-throttle-disabled";
+    const P = "throttle knob-off probe for tribal by domain inject";
+    const sp = statePathFor(S);
+    try { if (existsSync(sp)) unlinkSync(sp); } catch { /* clean slate */ }
+    try {
+      const env = { PRISM_TRIBAL_DOMAIN_INJECT_THROTTLE_MS: "0", PRISM_TRIBAL_DOMAIN_INJECT_TIMEOUT_MS: "600" };
+      const r1 = runHook({ prompt: P, sessionId: S, env });
+      assert.equal(r1.status, 0);
+      assert.ok(!existsSync(sp), "ttl=0 writes NO throttle state");
+    } finally {
+      try { if (existsSync(sp)) unlinkSync(sp); } catch { /* swallow */ }
+    }
+  });
+});
 
 describe("extractPrompt", () => {
   it("returns trimmed prompt for valid top-level input", () => {
@@ -82,6 +146,7 @@ describe("module-load smoke test (regression for P2-A: module-load failure bypas
     assert.equal(typeof mod.extractPrompt, "function");
     assert.equal(typeof mod.inferTribalDomain, "function");
     assert.equal(typeof mod.parseRerankOutput, "function");
+    assert.equal(typeof mod.applyLexicalRerank, "function");
     assert.equal(typeof mod.formatInjection, "function");
     assert.equal(typeof mod.main, "function");
   });
@@ -129,14 +194,49 @@ describe("inferTribalDomain", () => {
     assert.equal(inferTribalDomain(["toolpath"]), "cam");
   });
 
-  it("returns general for unrelated tokens (e.g. system-viz)", () => {
+  it("returns general for unrelated tokens (no backend-dev signal either)", () => {
+    // `system`, `viz`, `brain` are not in ANY of the 6 domain sets (mill/lathe/
+    // wedm/cad/cam/backend-dev). With the 2026-05-18 backend-dev wiring, tokens
+    // like `hook`/`synergy`/`fleet` now route to backend-dev (see test below);
+    // this case keeps the "no domain at all → general" fallback path covered.
     assert.equal(inferTribalDomain(["system", "viz", "brain"]), "general");
-    assert.equal(inferTribalDomain(["hook", "synergy"]), "general");
+    assert.equal(inferTribalDomain(["random", "unrelated", "tokens"]), "general");
   });
 
-  it("is case-insensitive", () => {
+  it("matches backend-dev from canonical milestone tokens (2026-05-18)", () => {
+    // BACKEND-DEV-LOOP / HOOK-SYNERGY-MS0 / OLLAMA-PIPELINE-MS0 /
+    // NN-GRAPH-MS0 / COMMAND-KERNEL-MS0 / SLOT-WORKTREE-MS0 all signal
+    // pure dev work (no physical-manufacturing axis). The hook routes
+    // them to `backend-dev` so the index's backend-dev-tagged tribal
+    // entries get the 2× in-domain cosine boost.
+    assert.equal(inferTribalDomain(["backend"]), "backend-dev");
+    assert.equal(inferTribalDomain(["hook", "synergy"]), "backend-dev");
+    assert.equal(inferTribalDomain(["ollama"]), "backend-dev");
+    assert.equal(inferTribalDomain(["lora"]), "backend-dev");
+    assert.equal(inferTribalDomain(["gnn"]), "backend-dev");
+    assert.equal(inferTribalDomain(["neural"]), "backend-dev");
+    assert.equal(inferTribalDomain(["llm"]), "backend-dev");
+    assert.equal(inferTribalDomain(["embedding"]), "backend-dev");
+    assert.equal(inferTribalDomain(["kernel", "command"]), "backend-dev");
+    assert.equal(inferTribalDomain(["slot", "worktree"]), "backend-dev");
+  });
+
+  it("manufacturing tokens still win over backend-dev (first-match-wins precedence)", () => {
+    // Critical safety invariant: a mill/lathe/wedm/cad/cam slot whose topic
+    // happens to also contain a backend-dev token MUST still route to the
+    // manufacturing domain. Backend-dev is declared LAST in DOMAIN_MAP.
+    assert.equal(inferTribalDomain(["mill", "hook"]), "mill");
+    assert.equal(inferTribalDomain(["lathe", "ollama"]), "lathe");
+    assert.equal(inferTribalDomain(["wedm", "neural"]), "wedm");
+    assert.equal(inferTribalDomain(["cad", "embedding"]), "cad");
+    assert.equal(inferTribalDomain(["cam", "lora"]), "cam");
+  });
+
+  it("is case-insensitive (incl. backend-dev tokens)", () => {
     assert.equal(inferTribalDomain(["MILL"]), "mill");
     assert.equal(inferTribalDomain(["Lathe"]), "lathe");
+    assert.equal(inferTribalDomain(["OLLAMA"]), "backend-dev");
+    assert.equal(inferTribalDomain(["Hook"]), "backend-dev");
   });
 
   it("mill wins over lathe when both present (declaration order)", () => {
@@ -218,6 +318,70 @@ describe("parseRerankOutput", () => {
   });
 });
 
+describe("applyLexicalRerank (U-RAG-2 stage-2)", () => {
+  it("returns [] for non-array input", () => {
+    assert.deepEqual(applyLexicalRerank("cutting force", null, 3), []);
+    assert.deepEqual(applyLexicalRerank("cutting force", undefined, 3), []);
+    assert.deepEqual(applyLexicalRerank("cutting force", "nope", 3), []);
+  });
+
+  it("returns [] for empty hits", () => {
+    assert.deepEqual(applyLexicalRerank("cutting force", [], 3), []);
+  });
+
+  it("passes a single hit through (sliced to topK)", () => {
+    const one = [{ score: 0.5, source: "a", title: "t", snippet: "x" }];
+    assert.deepEqual(applyLexicalRerank("cutting force", one, 3), one);
+  });
+
+  it("re-ranks: a strong lexical match beats a higher-cosine non-match", () => {
+    // Stage-1 (cosine) order keeps A first (0.9 > 0.5). Stage-2 lexical MUST
+    // promote B — full query-term coverage, the verbatim phrase, a title hit,
+    // high density — none of which A has. This test fails if applyLexicalRerank
+    // ever degrades to a pass-through (R9 — verifies intent, not behavior).
+    const hits = [
+      { score: 0.9, source: "a", title: "Finish", snippet: "surface finish roughness" },
+      { score: 0.5, source: "b", title: "Force",  snippet: "cutting force model kienzle" },
+    ];
+    const out = applyLexicalRerank("cutting force", hits, 2);
+    assert.equal(out[0].source, "b", "lexical winner must lead");
+    assert.equal(out[1].source, "a");
+  });
+
+  it("narrows the candidate set to topK", () => {
+    const hits = Array(8).fill(0).map((_, i) => ({
+      score: 1 - i * 0.1, source: `s${i}`, title: `t${i}`, snippet: `cutting force ${i}`,
+    }));
+    assert.equal(applyLexicalRerank("cutting force", hits, 3).length, 3);
+  });
+
+  it("stays within topK on an all-stopword query (rerank degrades to a copy)", () => {
+    // `rerank` returns an unsliced copy when the query tokenizes to nothing;
+    // the defensive .slice(0, topK) must still bound the injected output.
+    const hits = Array(6).fill(0).map((_, i) => ({
+      score: 0.5, source: `s${i}`, title: `t${i}`, snippet: `body ${i}`,
+    }));
+    assert.equal(applyLexicalRerank("the and of", hits, 3).length, 3);
+  });
+
+  it("preserves the cosine hit shape consumed by formatInjection", () => {
+    const hits = [
+      { score: 0.7, source: "a", title: "Force model", snippet: "cutting force" },
+      { score: 0.6, source: "b", title: "Other",       snippet: "unrelated" },
+    ];
+    const out = applyLexicalRerank("cutting force", hits, 2);
+    for (const h of out) {
+      assert.equal(typeof h.score, "number");
+      assert.equal(typeof h.source, "string");
+      assert.equal(typeof h.title, "string");
+      assert.equal(typeof h.snippet, "string");
+      // the reranker-scoring inputs (text/label) must NOT leak into the hit
+      assert.equal(h.text, undefined);
+      assert.equal(h.label, undefined);
+    }
+  });
+});
+
 describe("formatInjection", () => {
   it("returns null for empty hits", () => {
     assert.equal(formatInjection([], "mill"), null);
@@ -278,5 +442,31 @@ describe("formatInjection", () => {
     assert.match(out, /^1\. /m);
     assert.match(out, /^2\. /m);
     assert.match(out, /^3\. /m);
+  });
+});
+
+describe("SLOT_TRIBAL_DOMAIN", () => {
+  // Mirrors tribal-rerank.mjs VALID_DOMAINS. A value outside this set makes the
+  // rerank exit non-zero -> hook injects nothing (the regression this map fixes).
+  const VALID = new Set(["mill", "lathe", "wedm", "cad", "cam", "backend-dev", "general"]);
+
+  it("every mapped domain is a VALID tribal-rerank domain (no fail-loud regression)", () => {
+    for (const [slot, dom] of Object.entries(SLOT_TRIBAL_DOMAIN)) {
+      assert.ok(VALID.has(dom), `slot ${slot} -> ${dom} is NOT a valid rerank domain`);
+    }
+  });
+
+  it("maps the 11 operator-named priority slots to their canonical domains", () => {
+    assert.equal(SLOT_TRIBAL_DOMAIN.oscar, "mill");
+    assert.equal(SLOT_TRIBAL_DOMAIN.foxtrot, "mill");
+    assert.equal(SLOT_TRIBAL_DOMAIN.mike, "wedm");
+    assert.equal(SLOT_TRIBAL_DOMAIN.whiskey, "lathe");
+    assert.equal(SLOT_TRIBAL_DOMAIN.delta, "cad");
+    assert.equal(SLOT_TRIBAL_DOMAIN.xray, "cad");
+    assert.equal(SLOT_TRIBAL_DOMAIN.kilo, "cam");
+    assert.equal(SLOT_TRIBAL_DOMAIN.echo, "cam");
+    assert.equal(SLOT_TRIBAL_DOMAIN.juliett, "backend-dev");
+    assert.equal(SLOT_TRIBAL_DOMAIN.india, "backend-dev");
+    assert.equal(SLOT_TRIBAL_DOMAIN.hotel, "general");
   });
 });

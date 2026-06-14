@@ -1,0 +1,388 @@
+{
+  "id": "TOOL-CATALOG-INGEST-MS0",
+  "version": "1.0.0",
+  "title": "Tool Catalog Ingest — 38-vendor PDF→structured-JSON + STEP files + AI-training + collision-envelope wiring",
+  "brief": "Ingest the 38 owned vendor tool catalogs (~36K tools, ~36K gap to 90K target) into ToolRegistry with full cutting parameters, usage scenarios, and 2D/3D dimensional envelopes. Download STEP files from PTS Tools, Misumi, Sandvik CoroPlus, Kennametal NOVO, Iscar etool, GrabCAD, TraceParts. Wire the new corpus into CADCorpusIngesterEngine for CAD/CAM AI training and CollisionDetectionEngine for parametric envelope checks. Builds on existing infrastructure (StepImportEngine occt-import-js WASM, CatalogExtractionEngine.CuttingDataSet, CADCorpusIngesterEngine, CAMLoRAAdapterTrainerEngine, CollisionDetectionEngine, ToolHolderDatabaseEngine) — pure orchestration + data, no new physics engines.",
+  "created_at": "2026-05-24T04:30:00.000Z",
+  "created_by": "claude-1dab582f (juliett) /goal — user directive 2026-05-24",
+  "track": "TOOL-CATALOG-INGEST",
+  "track_name": "Vendor Tool Catalog Ingest",
+  "roadmap_priority": 2,
+  "status": "in_progress",
+  "total_units": 20,
+  "total_sessions": "3-5",
+  "source_audit": "state/shared/specs/TOOL-CATALOG-INGEST-MS0-2026-05-24.md",
+  "plan_file": "H:/.claude/plans/enchanted-dazzling-scott.md",
+  "depends_on_milestones": ["RES-CATALOG-AUDIT-MS0"],
+  "baseline": {
+    "ownedPdfs": 38,
+    "extractedToText": 38,
+    "extractedToStructured": 0,
+    "currentToolCount": 54080,
+    "targetToolCount": 90000,
+    "gapToTarget": 35920,
+    "stepFilesIngested": 0,
+    "vendorPortalScrapers": 0,
+    "collisionEnvelopesPopulated": 0,
+    "publishersVerified": 30,
+    "publishersUnknown": 8,
+    "missingZipPartGaps": 21
+  },
+  "decisions": {
+    "build_order": "PDF-first, then portals (user-approved 2026-05-24)",
+    "auth_strategy": "operator-provides creds for Misumi/Sandvik/Kennametal/Iscar portals (user-approved 2026-05-24)",
+    "step_storage": "store ALL STEP files locally for CAD/CAM AI training (user-approved 4TB SSD, ~20-50GB budget)",
+    "table_extraction_backend": "camelot-py via execFileAsync(PYTHON_PATH, ...) — mirrors documentLearningDispatcher pattern",
+    "vendor_classification_authority": "1) pdftotext cover-page verbatim verification (highest), 2) Apr 16 vendor-catalog-manifest, 3) filename heuristic (lowest)"
+  },
+  "phases": {
+    "A": { "name": "Schema + Scaffold", "units": 3, "owner_slot": "juliett (started in-session)", "blocks": "B,C,D,E,F" },
+    "B": { "name": "PDF Table Extraction", "units": 5, "owner_slot": "alpha + bravo parallel", "blocks": "D1,E2" },
+    "C": { "name": "STEP Local-Catalog Ingest", "units": 2, "owner_slot": "charlie", "blocks": "D6" },
+    "D": { "name": "Vendor Portal Scrapers", "units": 6, "owner_slot": "delta", "blocks": "E1,E3,F" },
+    "E": { "name": "AI Training + Collision Wiring", "units": 3, "owner_slot": "echo", "blocks": "F" },
+    "F": { "name": "System-viz + PSN synergy + close-out", "units": 1, "owner_slot": "juliett" }
+  },
+  "units": [
+    {
+      "id": "U-TCI-A1",
+      "title": "CatalogExtractionResult schema — TypeScript interface matching manifest.targetJson contract",
+      "status": "not_started",
+      "domain": "schema",
+      "phase": "A",
+      "effort": 30,
+      "leverage": "foundation",
+      "description": "Create mcp-server/src/schemas/CatalogExtractionResult.ts. Reuses CatalogExtractionEngine.CuttingDataSet shape (isoGroup, Vc/fz/ap/ae min/max/recommended, conditions, coolant, source). Adds: step_file_path?, datasheet_pdf_path?, application_scenarios[], collision_envelope: {boundingCylinderD, boundingCylinderL, neckD?, neckL?, shankD, gaugeLength?}. Strict zod-style typing.",
+      "exit_conditions": [
+        "File exists at mcp-server/src/schemas/CatalogExtractionResult.ts",
+        "npx tsc --noEmit passes",
+        "Interface fields documented inline with units (mm, °, °C, SFM)"
+      ],
+      "verifies_via": "node -e \"const t=require('typescript'); /* schema compiles */\" (typecheck is the gate)"
+    },
+    {
+      "id": "U-TCI-A2",
+      "title": "Extend CuttingTool — 3 optional fields for catalog ingest",
+      "status": "not_started",
+      "domain": "schema",
+      "phase": "A",
+      "effort": 15,
+      "leverage": "foundation",
+      "description": "Add step_file_path?, datasheet_pdf_path?, collision_envelope? to CuttingTool in mcp-server/src/registries/ToolRegistry.ts. ALL OPTIONAL — every existing tool record must still load. CollisionEnvelope imported from U-TCI-A1.",
+      "exit_conditions": [
+        "Three optional fields added to CuttingTool interface",
+        "npx tsc --noEmit clean",
+        "All existing CuttingTool consumers compile unchanged"
+      ],
+      "verifies_via": "npx tsc --noEmit + grep for any existing test that builds a CuttingTool — should still pass"
+    },
+    {
+      "id": "U-TCI-A3",
+      "title": "Catalog storage paths helper — single source of truth",
+      "status": "not_started",
+      "domain": "schema",
+      "phase": "A",
+      "effort": 20,
+      "leverage": "foundation",
+      "description": "Create scripts/lib/catalog-storage-paths.mjs. Pure functions: stepPathFor(vendor, partNumber), extractedJsonPathFor(vendor, type), pdfPathFor(filename), datasheetPdfPathFor(vendor, partNumber). Slugify consistent with iter15 generate-vendor-catalog-features.mjs (lowercase, [^a-z0-9]→-, trim leading/trailing -, slice(0,60)). No I/O — only path string building.",
+      "exit_conditions": [
+        "scripts/lib/catalog-storage-paths.mjs exports the 4 named functions",
+        "scripts/lib/__tests__/catalog-storage-paths.test.mjs covers each function with at least 3 cases incl. unicode + special-char vendor names",
+        "node --test scripts/lib/__tests__/catalog-storage-paths.test.mjs green"
+      ],
+      "verifies_via": "node --test"
+    },
+    {
+      "id": "U-TCI-B1",
+      "title": "extract-vendor-pdf.mjs orchestrator — per-vendor PDF→structured-JSON",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "B",
+      "effort": 90,
+      "leverage": "compounding",
+      "description": "scripts/extract-vendor-pdf.mjs. For one vendor: enumerate matching PDFs from manifest, run camelot table extraction (via execFileAsync(PYTHON_PATH, 'scripts/camelot-extract.py', pdfPath)) for cutting tables, run pdftotext for narrative + cover verification, classify entities via CatalogExtractionEngine, write extracted/<vendor>-<type>-extracted.json matching U-TCI-A1 schema. Idempotent + resumable (hash-skip).",
+      "exit_conditions": [
+        "Orchestrator runs against one sample vendor and writes valid extraction JSON",
+        "Resume-mode verified: re-running with unchanged PDF skips work + logs SKIP",
+        "Camelot wrapper handles malformed PDFs gracefully (errors → recorded, never crash batch)"
+      ],
+      "verifies_via": "node scripts/extract-vendor-pdf.mjs --vendor tungaloy --dry-run + diff vs manifest.estimatedTools"
+    },
+    {
+      "id": "U-TCI-B2",
+      "title": "Iscar + Tungaloy GC_* extraction (~36K tools, largest batch)",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "B",
+      "effort": 60,
+      "leverage": "compounding",
+      "description": "Run B1 orchestrator on: Master Catalog 2018 Vol. 1 + Vol. 2 + Turning 2018.1 + Milling 2018.1 + Threading 2018.1 (Iscar — 5 catalogs, ~22.9K tools) + GC_2023-2024_{US,G}_{Tooling,Turning-Grooving,Milling,Drilling} (Tungaloy — 8 catalogs, ~18.7K tools). Spot-check 5 random tools per catalog against source PDF. Merge into ToolRegistry via U-TCI-D1.",
+      "exit_conditions": [
+        "13 extraction JSONs written to mcp-server/data/catalog-extractions/",
+        "ToolRegistry tool count delta ≥ 30,000 after merge",
+        "Spot-check report passes for each catalog (≥4 of 5 tools verbatim-match source)"
+      ],
+      "verifies_via": "node scripts/extract-vendor-pdf.mjs --vendor iscar --verify; same for tungaloy"
+    },
+    {
+      "id": "U-TCI-B3",
+      "title": "Kennametal + Korloy + Big Daishowa + AMPC extraction (~13K tools)",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "B",
+      "effort": 50,
+      "leverage": "compounding",
+      "description": "Run B1 against: Kennametal (3 catalogs), Korloy (2), Big Daishowa (1), AMPC (1, ~6.6K). Merge into ToolRegistry. Same R12 spot-check rule.",
+      "exit_conditions": [
+        "7 extraction JSONs written",
+        "ToolRegistry tool count delta ≥ 10,000"
+      ],
+      "verifies_via": "node scripts/extract-vendor-pdf.mjs --vendor kennametal --verify; korloy; big_daishowa; ampc"
+    },
+    {
+      "id": "U-TCI-B4",
+      "title": "Mid-tier vendor extraction (Sandvik + MA Ford + Rego-Fix + Emuge + Guhring + Seco + OSG + SGS + YG-1 + Mitsubishi + Flash, ~16K tools)",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "B",
+      "effort": 70,
+      "leverage": "compounding",
+      "description": "Run B1 against 11 mid-tier vendors. Each catalog gets one extraction JSON. Spot-check rule applies.",
+      "exit_conditions": [
+        "11 extraction JSONs written",
+        "ToolRegistry tool count delta ≥ 12,000"
+      ],
+      "verifies_via": "node scripts/extract-vendor-pdf.mjs --vendor sandvik --verify; etc per vendor"
+    },
+    {
+      "id": "U-TCI-B5",
+      "title": "Tail vendor extraction (Global CNC + Rapidkut + Orange Vise + AccuPro + Metalmorphosis + zeni + YU25 + Tooling Systems, ~5K tools)",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "B",
+      "effort": 50,
+      "leverage": "compounding",
+      "description": "Run B1 against 8 tail-tier vendors. Tooling Systems.pdf is the genuine-unknown — flag for operator review if extraction yields no clear vendor signature.",
+      "exit_conditions": [
+        "8 extraction JSONs written",
+        "ToolRegistry tool count delta ≥ 4,000"
+      ],
+      "verifies_via": "node scripts/extract-vendor-pdf.mjs --vendor global_cnc --verify; etc"
+    },
+    {
+      "id": "U-TCI-C1",
+      "title": "Vendor STEP URL inventory — seed for portal phase",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "C",
+      "effort": 30,
+      "leverage": "foundation",
+      "description": "Scan all 38 extracted JSONs (from Phase B) for embedded vendor URLs → write state/shared/specs/VENDOR-STEP-URL-INVENTORY.json. Advisory list for phase D.",
+      "exit_conditions": [
+        "VENDOR-STEP-URL-INVENTORY.json exists with per-vendor part-number → URL list",
+        "Companion VENDOR-STEP-URL-INVENTORY.md surfaces the same"
+      ],
+      "verifies_via": "JSON.parse round-trip + manual scan of 5 random URLs (should be valid HTTPS)"
+    },
+    {
+      "id": "U-TCI-C2",
+      "title": "Index existing on-disk STEP files",
+      "status": "not_started",
+      "domain": "extraction",
+      "phase": "C",
+      "effort": 40,
+      "leverage": "foundation",
+      "description": "Walk H:/prism/resources/CAD FILES/, MACHINE MODELS/, JM DIE/, and any other STEP/STP file in the repo. Write mcp-server/data/state/STEP_FILE_INDEX.json (path, vendor-inferred, part-number-inferred, SHA-256). Cross-reference into ToolRegistry's step_file_path field where part-number matches.",
+      "exit_conditions": [
+        "STEP_FILE_INDEX.json populated",
+        "ToolRegistry step_file_path linkage rate ≥ 5% (any non-zero is a win on first pass)"
+      ],
+      "verifies_via": "node scripts/index-step-files.mjs --report"
+    },
+    {
+      "id": "U-TCI-D1",
+      "title": "Catalog merge orchestrator → ToolRegistry + dataDispatcher action",
+      "status": "not_started",
+      "domain": "wiring",
+      "phase": "D",
+      "effort": 70,
+      "leverage": "foundation",
+      "description": "scripts/merge-catalog-extraction-to-registry.mjs. Reads extracted/*.json, dedup against existing ToolRegistry via duplicationGuardEngine, upserts with provenance trail. Wired into a new dataDispatcher action catalog_extraction_merge.",
+      "exit_conditions": [
+        "Merge orchestrator implemented",
+        "dataDispatcher action catalog_extraction_merge wired + zod schema",
+        "Round-trip test: extract → merge → query via catalog_tool_lookup"
+      ],
+      "verifies_via": "npx vitest run mcp-server/src/__tests__/CatalogMerge.test.ts"
+    },
+    {
+      "id": "U-TCI-D2",
+      "title": "PTS Tools scraper (publicly accessible spec sheets)",
+      "status": "not_started",
+      "domain": "scraping",
+      "phase": "D",
+      "effort": 80,
+      "leverage": "expansion",
+      "description": "scripts/scrape-pts-tools.mjs via playwright-mcp. URL pattern: /all-categories/[cat]/[sub]/[product].html. Respects robots.txt; rate-limited (1 req / 3s); resumable per-product checkpoint.",
+      "exit_conditions": [
+        "Scraper walks 10 sample products in --dry-run",
+        "Spec PDFs downloaded to resources/MANUFACTURER_CATALOGS/datasheets/pts-tools/",
+        "STEP files (if exposed) downloaded to resources/MANUFACTURER_CATALOGS/step/pts-tools/"
+      ],
+      "verifies_via": "node scripts/scrape-pts-tools.mjs --dry-run --sample 10"
+    },
+    {
+      "id": "U-TCI-D3",
+      "title": "Misumi scraper (login-gated STEP via meCAD)",
+      "status": "not_started",
+      "domain": "scraping",
+      "phase": "D",
+      "effort": 100,
+      "leverage": "expansion",
+      "description": "scripts/scrape-misumi.mjs. Requires operator creds (via capture-claude-credentials skill). Misumi exposes STEP via meCAD configurator — playwright walks Generate STEP → download → store at resources/MANUFACTURER_CATALOGS/step/misumi/<part>.step. Aggressive rate-limit (1 req / 3s). Per-part checkpoint file for resume.",
+      "exit_conditions": [
+        "Auth flow verified with operator-provided creds",
+        "10-part sample download successful",
+        "Per-part checkpoint resumability proven",
+        "STEP files validated via StepImportEngine (parseable + bounding box reasonable)"
+      ],
+      "verifies_via": "node scripts/scrape-misumi.mjs --dry-run --sample 10 (requires operator creds + manual approval)"
+    },
+    {
+      "id": "U-TCI-D4",
+      "title": "Sandvik CoroPlus Tool Library export",
+      "status": "not_started",
+      "domain": "scraping",
+      "phase": "D",
+      "effort": 60,
+      "leverage": "expansion",
+      "description": "scripts/scrape-sandvik-coroplus.mjs. Uses Sandvik's public Tool Library export endpoint (coromant.com/coroplus/toollibrary). Documented data export — better than scraping.",
+      "exit_conditions": [
+        "Export endpoint integrated; respects rate limits",
+        "Per-tool data merged into ToolRegistry with sandvik vendor flag",
+        "STEP files (if exposed) stored at resources/MANUFACTURER_CATALOGS/step/sandvik/"
+      ],
+      "verifies_via": "node scripts/scrape-sandvik-coroplus.mjs --report"
+    },
+    {
+      "id": "U-TCI-D5",
+      "title": "Kennametal NOVO + Iscar etool scrapers",
+      "status": "not_started",
+      "domain": "scraping",
+      "phase": "D",
+      "effort": 90,
+      "leverage": "expansion",
+      "description": "Two scrapers sharing scripts/lib/vendor-portal-base.mjs. Both expose structured product data + STEP downloads (better signal than catalog PDFs).",
+      "exit_conditions": [
+        "Both scrapers verified --dry-run",
+        "Operator creds applied where required",
+        "Merged data flows into ToolRegistry"
+      ],
+      "verifies_via": "per scraper --dry-run + sample merge"
+    },
+    {
+      "id": "U-TCI-D6",
+      "title": "GrabCAD + TraceParts STEP backfill",
+      "status": "not_started",
+      "domain": "scraping",
+      "phase": "D",
+      "effort": 70,
+      "leverage": "expansion",
+      "description": "For tools where step_file_path is null after D2-D5, query GrabCAD + TraceParts community libraries. Last-resort STEP source.",
+      "exit_conditions": [
+        "Backfill scraper implemented",
+        "ToolRegistry step_file_path coverage delta measured + reported",
+        "Provenance flag: stepSource=grabcad/traceparts (informs trust score)"
+      ],
+      "verifies_via": "node scripts/scrape-grabcad-backfill.mjs --report"
+    },
+    {
+      "id": "U-TCI-E1",
+      "title": "Wire STEP corpus into CADCorpusIngesterEngine",
+      "status": "not_started",
+      "domain": "ai-training",
+      "phase": "E",
+      "effort": 40,
+      "leverage": "compounding",
+      "description": "Add resources/MANUFACTURER_CATALOGS/step/**/*.step to CADCorpusIngesterEngine scan roots. Output appends to CAD_CORPUS_ALLVENDOR.jsonl. Triggers CADTrainingCorpusOrchestratorEngine for next CAD-LoRA training cycle.",
+      "exit_conditions": [
+        "Scan root configured",
+        "Corpus JSONL grows by ≥ 5K entries after first run",
+        "CAD-LoRA training cycle picks up new data on next run"
+      ],
+      "verifies_via": "node scripts/regenerate-cad-corpus.mjs && jq '.entries | length' on the JSONL diff"
+    },
+    {
+      "id": "U-TCI-E2",
+      "title": "Wire cutting-param priors into UltimateSpeedFeedEngine calibration overlay",
+      "status": "not_started",
+      "domain": "ai-training",
+      "phase": "E",
+      "effort": 50,
+      "leverage": "compounding",
+      "description": "When a tool from the catalog is selected, its per-ISO-group recommended Vc/fz from CuttingDataSet becomes a calibration overlay prior (not a hard override). Orchestrator already supports overlays via sf_autopilot_run.",
+      "exit_conditions": [
+        "Overlay-prior wiring landed",
+        "End-to-end test: catalog tool → calc → overlay applied → confidence boost",
+        "No regression in existing SF tests"
+      ],
+      "verifies_via": "npx vitest run --testNamePattern 'sf-overlay-catalog'"
+    },
+    {
+      "id": "U-TCI-E3",
+      "title": "Wire collision_envelope into CollisionDetectionEngine",
+      "status": "not_started",
+      "domain": "ai-training",
+      "phase": "E",
+      "effort": 50,
+      "leverage": "compounding",
+      "description": "When a catalog tool is referenced in a job, build the parametric bounding-cylinder + holder envelope automatically from the catalog dims. No collision-physics changes — data-flow wire only.",
+      "exit_conditions": [
+        "Envelope-from-catalog helper landed",
+        "Round-trip test: catalog tool → collision check → envelope used",
+        "Existing collision tests untouched"
+      ],
+      "verifies_via": "npx vitest run --testNamePattern 'collision-envelope-catalog'"
+    },
+    {
+      "id": "U-TCI-F1",
+      "title": "System-viz augmentation + close-out",
+      "status": "not_started",
+      "domain": "system-viz",
+      "phase": "F",
+      "effort": 30,
+      "leverage": "visibility",
+      "description": "Extend scripts/generate-vendor-catalog-features.mjs with live per-vendor stats (tool_count_extracted, step_files_downloaded, ai_training_coverage_pct). Register in regen-viz.mjs FAST[] + merge-augmentations.mjs splice (the U-AUDIT-V5 follow-on deferred from prior session). Add ghost.tool_step_corpus L7 roost.",
+      "exit_conditions": [
+        "Feature pack updated with live stats",
+        "Registered in regen-viz.mjs FAST[]",
+        "Spliced in merge-augmentations.mjs",
+        "/system-viz renders the new roost"
+      ],
+      "verifies_via": "node scripts/generate-vendor-catalog-features.mjs && node scripts/regen-viz.mjs --augment-only && curl http://localhost:8765/api/graph | jq '.nodes | map(select(.type==\"vendor-catalog\"))'"
+    }
+  ],
+  "psn_synergy": [
+    { "leg": "PSN-OS (Obsidian brain)", "action": "Cross-link extracted tool specs to Obsidian memories via /route-to-obsidian", "phase": "F" },
+    { "leg": "PSN-Wiki", "action": "Promote per-vendor extraction summaries to knowledge/wiki/code-tribal/ via tribal-to-wiki promoter", "phase": "F" },
+    { "leg": "PSN-Tribal", "action": "Mine vendor recommended-cutting-data into tribal tips", "phase": "E2" },
+    { "leg": "PSN-AI", "action": "Catalog cutting params feed UltimateSpeedFeedEngine.calibrationFactors; STEP files feed CAD-LoRA training", "phase": "E1+E2" },
+    { "leg": "PSN-Engines", "action": "Wire extracted GRADE_SPEED_FACTORS + coating multipliers into ExtendedTaylorModel + KienzleForceModel calibration overlays", "phase": "E2" },
+    { "leg": "PSN-System-Viz", "action": "Live per-vendor stats roost via U-TCI-F1", "phase": "F1" }
+  ],
+  "risks": [
+    "Misumi/PTS ToS may prohibit bulk scraping — mitigation: per-vendor rate limit + GrabCAD/TraceParts fallback (D6)",
+    "Camelot table extraction may misparse complex multi-row cutting tables — mitigation: R12 spot-check 5 random rows per catalog, confidence-tag in source field",
+    "21 missing zip-part gaps still operator-blocked — out of scope",
+    "occt-import-js WASM memory limits on giant STEP files — mitigation: 50MB hard cap + STEPGeometryParserEngine text-only fallback",
+    "Vendor publisher mis-attribution (iter12 lesson) — authoritative order: pdftotext cover-verify > Apr manifest > filename heuristic"
+  ],
+  "out_of_scope": [
+    "Re-uploading the 21 missing zip parts (operator action)",
+    "Adding new physics/cutting models (calibration overlays only)",
+    "New vendor data format (reuses CatalogExtractionEngine.CuttingDataSet)",
+    "Storing STEP binary inside ToolRegistry (only path reference)",
+    "Unattended portal scraping without operator creds (D-3..D-5 gated)",
+    "Changing existing PDF text extraction (pdftotext stays; camelot additive)"
+  ]
+}

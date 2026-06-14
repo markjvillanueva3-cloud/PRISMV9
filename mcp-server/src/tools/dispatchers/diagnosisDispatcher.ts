@@ -98,6 +98,19 @@ const ALARM_ESC_ACTIONS = [
   "alarm_esc_active", "alarm_esc_history", "alarm_esc_rules", "alarm_esc_stats",
 ] as const;
 
+// -- WIRE-SUSTAIN-DIRECT-MS0/U-VICTOR-SUSTAIN-DIRECT (slot:victor, 2026-05-26) --
+// Wires three previously-unwired sub-engines that overlap the SustainabilityEngine
+// domain but expose distinct, more specialized APIs (L2-P4-MS1/P0-U05 Batch 9).
+// SustainabilityEngine = high-level aggregator; these 3 are the specialized
+// calculators it COULD compose but doesn't today. Operator can A/B compare
+// the two implementations once both are exposed.
+//   sustain_params_optimize  → SustainOptimizeEngine.optimize(SustainInput)
+//   sustain_carbon_calculate → SustainCarbonEngine.calculate(CarbonInput)
+//   sustain_energy_analyze   → SustainEnergyEngine.analyze(EnergyAnalysisInput)
+const SUSTAIN_DIRECT_ACTIONS = [
+  "sustain_params_optimize", "sustain_carbon_calculate", "sustain_energy_analyze",
+] as const;
+
 const ACTIONS = [
   ...FORENSIC_ACTIONS,
   ...INVERSE_ACTIONS,
@@ -107,6 +120,7 @@ const ACTIONS = [
   ...ALARM_INTEL_ACTIONS,
   ...REMEDIATION_ACTIONS,
   ...ALARM_ESC_ACTIONS,
+  ...SUSTAIN_DIRECT_ACTIONS,
 ] as const;
 
 // ============================================================================
@@ -384,6 +398,27 @@ export function registerDiagnosisDispatcher(server: any): void {
             case "error_remediation_known_errors": {
               const errors = errorRemediationEngine.getKnownErrors(params.action_path ?? params.actionPath ?? "");
               result = { errors, action_path: params.action_path ?? params.actionPath };
+              break;
+            }
+          }
+        } else if (SUSTAIN_DIRECT_ACTIONS.includes(action as ActionString as typeof SUSTAIN_DIRECT_ACTIONS[number])) {
+          // WIRE-SUSTAIN-DIRECT-MS0/U-VICTOR-SUSTAIN-DIRECT (slot:victor 2026-05-26):
+          // route to the 3 specialized sub-engines (vs the high-level SustainabilityEngine
+          // composed in the fallthrough below). Each engine uses static methods.
+          switch (action) {
+            case "sustain_params_optimize": {
+              const { SustainOptimizeEngine } = await import("../../engines/SustainOptimizeEngine.js");
+              result = SustainOptimizeEngine.optimize(params as any);
+              break;
+            }
+            case "sustain_carbon_calculate": {
+              const { SustainCarbonEngine } = await import("../../engines/SustainCarbonEngine.js");
+              result = SustainCarbonEngine.calculate(params as any);
+              break;
+            }
+            case "sustain_energy_analyze": {
+              const { SustainEnergyEngine } = await import("../../engines/SustainEnergyEngine.js");
+              result = SustainEnergyEngine.analyze(params as any);
               break;
             }
           }

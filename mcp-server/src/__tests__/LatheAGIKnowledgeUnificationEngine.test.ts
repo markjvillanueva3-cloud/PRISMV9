@@ -12,7 +12,14 @@ import {
   normalizeTribalTip,
   defaultLatheTribalSource,
   type LatheTribalSourceFn,
+  type LatheOrchestrateOptions,
+  type LatheDecisionValue,
 } from "../engines/LatheAGIKnowledgeUnificationEngine.js";
+import { LatheAGIFeatureBridgeEngine } from "../engines/LatheAGIFeatureBridgeEngine.js";
+import { LatheAGIContinuousLearningEngine } from "../engines/LatheAGIContinuousLearningEngine.js";
+import { latheAGISafetyContainmentEngine } from "../engines/LatheAGISafetyContainmentEngine.js";
+import type { DomainAGIIntent } from "../schemas/domainAGIContract.js";
+import { OutcomeEventSchema, type OutcomeEvent } from "../schemas/outcomeEventSchema.js";
 
 function makeEngine() {
   const dir = mkdtempSync(join(tmpdir(), "kg-"));
@@ -370,5 +377,433 @@ describe("LatheAGIKnowledgeUnificationEngine — tribal seeding (audit finding #
     engine.upsertNode({ type: "material", id: "1018-iter7" });
     const trace = engine.traceReasoning({ start_type: "material", start_id: "1018-iter7" });
     expect(trace.steps.length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+// ============================================================================
+// DOMAIN AGI CONTRACT — orchestrate(intent) — INFRA-AGI-ROUTER-MS2/P0-U03
+// ============================================================================
+
+/**
+ * Build a fresh orchestrate test rig: a KG engine plus fresh FeatureBridge and
+ * ContinuousLearning instances on temp state paths — real cluster composition
+ * logic, hermetic (no writes to H:/prism/state/shared/). SafetyContainment is
+ * pure, so the real singleton is used directly. `realSeams` wires all four into
+ * the orchestrate() opts; `published` captures every emitted outcome event.
+ */
+function makeOrchestrateRig() {
+  const dir = mkdtempSync(join(tmpdir(), "kg-orch-"));
+  const engine = new LatheAGIKnowledgeUnificationEngine(join(dir, "kg.json"));
+  engine.__resetForTests();
+  const fb = new LatheAGIFeatureBridgeEngine(join(dir, "fb.json"));
+  const cl = new LatheAGIContinuousLearningEngine(join(dir, "cl.json"));
+  const published: OutcomeEvent[] = [];
+  const realSeams: LatheOrchestrateOptions = {
+    featureReason: (input) => fb.reason(input),
+    predictAdjustment: (feature, key) => cl.predictAdjustment(feature, key),
+    safetyCheck: (input) => latheAGISafetyContainmentEngine.check(input),
+    publishOutcome: (event) => {
+      published.push(event);
+    },
+  };
+  return { engine, fb, cl, published, realSeams };
+}
+
+/** Build a valid lathe DomainAGIIntent with optional overrides. */
+function latheIntent(overrides: Partial<DomainAGIIntent> = {}): DomainAGIIntent {
+  return {
+    schemaVersion: "1.0.0",
+    domain: "lathe",
+    action: "turning",
+    features: [],
+    material: "1018 steel",
+    constraints: {},
+    consensusRequired: false,
+    ...overrides,
+  };
+}
+
+describe("LatheAGIKnowledgeUnificationEngine.orchestrate — DomainAGIIntent contract (P0-U03)", () => {
+  // ── 3 lathe intent types — turning / threading / parting ──────────────────
+  it("turning intent returns a valid DomainAGIResult with tool/strategy/feed decisions", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ action: "turning" }), realSeams);
+    expect(result.success).toBe(true);
+    expect(result.schemaVersion).toBe("1.0.0");
+    expect(result.decisions.map((d) => d.kind)).toEqual(["tool", "strategy", "feed"]);
+    // Content, not just shape — the turning branch must yield turning-specific picks.
+    const tool = result.decisions[0].value as LatheDecisionValue;
+    const strategy = result.decisions[1].value as LatheDecisionValue;
+    const feed = result.decisions[2].value as LatheDecisionValue;
+    expect(tool.selected).toContain("CNMG");
+    expect(["rough_then_finish", "finish_single_pass"]).toContain(strategy.selected);
+    const fd = feed.detail as { vc_m_min: number; fz_mm: number };
+    expect(fd.vc_m_min).toBeGreaterThan(0);
+    // Baseline feed (no learning slot ⇒ multiplier 1.0) — the ContinuousLearning
+    // test below shows 1.5× shifts this to 0.45, proving the multiplier applies.
+    expect(fd.fz_mm).toBeCloseTo(0.3, 4);
+    expect(result.confidence).toBeGreaterThan(0);
+    expect(result.confidence).toBeLessThanOrEqual(1);
+    expect(result.outcomes).toHaveLength(3);
+  });
+
+  it("threading intent returns a valid result with a threading-specific tool", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ action: "threading" }), realSeams);
+    expect(result.success).toBe(true);
+    expect(result.decisions).toHaveLength(3);
+    const tool = result.decisions[0].value as LatheDecisionValue;
+    expect(tool.selected).toContain("threading insert");
+    expect(tool.selected).toContain("16ER"); // ISO-1832 laydown threading designation
+  });
+
+  it("parting intent returns a valid result with a parting-specific tool", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ action: "parting" }), realSeams);
+    expect(result.success).toBe(true);
+    expect(result.decisions).toHaveLength(3);
+    const tool = result.decisions[0].value as LatheDecisionValue;
+    expect(tool.selected).toContain("parting blade");
+    expect(tool.selected).toContain("MGMN"); // ISO-1832 parting-blade designation
+  });
+
+  // ── Confidence rollup ─────────────────────────────────────────────────────
+  it("pipeline confidence is the joint product of the 3 decision confidences", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), realSeams);
+    expect(result.decisions).toHaveLength(3);
+    // The tool decision carries the fixed LATHE_TOOL_HEURISTIC_CONFIDENCE (0.8).
+    expect(result.decisions[0].confidence).toBe(0.8);
+    const joint =
+      result.decisions[0].confidence * result.decisions[1].confidence * result.decisions[2].confidence;
+    expect(result.confidence).toBeCloseTo(joint, 5);
+    // Joint-product semantics: the rollup of 3 sub-unity factors is strictly
+    // smaller than any single factor — proves it is NOT min / max / mean.
+    expect(result.confidence).toBeLessThan(result.decisions[0].confidence);
+  });
+
+  it("a zero-confidence consensus zeroes the pipeline rollup (multiplicative)", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), {
+      ...realSeams,
+      consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0, voters: [] }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.decisions.every((d) => d.confidence === 0)).toBe(true);
+    expect(result.confidence).toBe(0);
+  });
+
+  // ── Outcome events ────────────────────────────────────────────────────────
+  it("emits one cross_process_decision v1.1.0 outcome event per decision", async () => {
+    const { engine, realSeams, published } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), realSeams);
+    expect(published).toHaveLength(3);
+    expect(result.outcomes).toHaveLength(3);
+    for (const e of published) {
+      // Proof, not belief — the hand-built event must satisfy the real schema
+      // (incl. the v1.1.0 no-version-bleed superRefine).
+      expect(() => OutcomeEventSchema.parse(e)).not.toThrow();
+      expect(e.schemaVersion).toBe("1.1.0");
+      expect(e.kind).toBe("cross_process_decision");
+      expect(e.domain).toBe("lathe");
+      expect(e.context.engine).toBe("LatheAGIKnowledgeUnificationEngine");
+      expect(e.context.pipeline_stage).toBe("domain_agi_orchestrate");
+    }
+    // Each event carries its own decision's value as `recommended`.
+    expect(published.map((e) => e.recommended)).toEqual(result.decisions.map((d) => d.value));
+  });
+
+  it("all outcome events of one run share a job_id; lineage_ids are distinct per decision", async () => {
+    const { engine, realSeams, published } = makeOrchestrateRig();
+    await engine.orchestrate(latheIntent(), realSeams);
+    const jobIds = new Set(published.map((e) => e.context.job_id));
+    expect(jobIds.size).toBe(1);
+    expect(published[0].context.job_id).toMatch(/^lathe-agi-job-/);
+    const lineageIds = new Set(published.map((e) => e.lineage_id));
+    expect(lineageIds.size).toBe(3);
+  });
+
+  it("a throwing publishOutcome seam degrades to a warning; result still succeeds", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      publishOutcome: () => {
+        throw new Error("bus down");
+      },
+    });
+    expect(result.success).toBe(true);
+    expect(result.outcomes).toHaveLength(3);
+    expect(result.warnings.some((w) => w.includes("could not be published"))).toBe(true);
+  });
+
+  // ── Consensus gating ──────────────────────────────────────────────────────
+  it("consensusRequired routes every pick through the consensus seam", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), {
+      ...realSeams,
+      consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0.91, voters: ["claude", "ollama"] }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.decisions.every((d) => d.source.startsWith("consensus_decide:"))).toBe(true);
+    expect(result.decisions.every((d) => d.confidence === 0.91)).toBe(true);
+    expect(result.decisions.every((d) => (d.value as LatheDecisionValue).consensusOverride === false)).toBe(true);
+  });
+
+  it("a consensus answer that differs from the engine pick overrides it", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), {
+      ...realSeams,
+      consensusDecide: async (q) => ({ answer: q.options[1], confidence: 0.77, voters: ["claude"] }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.decisions.every((d) => (d.value as LatheDecisionValue).consensusOverride === true)).toBe(true);
+    for (const d of result.decisions) {
+      const v = d.value as LatheDecisionValue;
+      expect(v.selected).not.toBe(v.enginePick);
+    }
+    expect(result.warnings.some((w) => w.includes("Consensus overrode"))).toBe(true);
+    // A consensus run populates each decision's alternatives (the losing options).
+    expect(result.decisions.every((d) => (d.alternatives?.length ?? 0) > 0)).toBe(true);
+    expect(
+      result.decisions.every((d) =>
+        (d.alternatives ?? []).every((a) => (a.rejected_reason ?? "").includes("consensus")),
+      ),
+    ).toBe(true);
+  });
+
+  it("surfaces consensus_audit_id on decisions + outcome events when the seam provides one", async () => {
+    const { engine, realSeams, published } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), {
+      ...realSeams,
+      consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0.9, voters: ["a"], auditId: "AUD-123" }),
+    });
+    expect(result.decisions.every((d) => d.consensus_audit_id === "AUD-123")).toBe(true);
+    expect(published.every((e) => e.context.consensus_audit_id === "AUD-123")).toBe(true);
+  });
+
+  it("never fabricates a consensus_audit_id when the seam omits it (R12)", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), {
+      ...realSeams,
+      consensusDecide: async (q) => ({ answer: q.options[0], confidence: 0.9, voters: ["a"] }),
+    });
+    expect(result.decisions.every((d) => d.consensus_audit_id === undefined)).toBe(true);
+  });
+
+  it("a throwing consensus seam degrades to the engine pick + a warning", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), {
+      ...realSeams,
+      consensusDecide: async () => {
+        throw new Error("voices down");
+      },
+    });
+    expect(result.success).toBe(true);
+    expect(result.decisions).toHaveLength(3);
+    expect(result.warnings.some((w) => w.includes("Consensus call failed"))).toBe(true);
+  });
+
+  it("the default consensus seam fails loud under the test runner without an injected fake", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    // realSeams has no consensusDecide → defaultConsensusDecide → throws under VITEST.
+    const result = await engine.orchestrate(latheIntent({ consensusRequired: true }), realSeams);
+    expect(result.success).toBe(true);
+    expect(result.warnings.some((w) => w.includes("without an injected consensusDecide"))).toBe(true);
+  });
+
+  // ── Validation + error paths ──────────────────────────────────────────────
+  it("rejects an action that does not belong to the lathe domain (INVALID_INTENT)", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ action: "roughing" }), realSeams);
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe("INVALID_INTENT");
+    expect(result.error?.stage).toBe("validation");
+  });
+
+  it("rejects a non-lathe domain (WRONG_DOMAIN)", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ domain: "mill", action: "roughing" }), realSeams);
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe("WRONG_DOMAIN");
+  });
+
+  it("returns REASONING_FAILED when the FeatureBridge seam throws", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      featureReason: () => {
+        throw new Error("bridge boom");
+      },
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe("REASONING_FAILED");
+    expect(result.error?.stage).toBe("reasoning");
+    // The underlying bridge error must be propagated, not silently absorbed.
+    expect(result.error?.message).toContain("bridge boom");
+  });
+
+  it("returns REASONING_INCOMPLETE when the FeatureBridge yields no usable prediction", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      featureReason: () => ({
+        feature: "speed_feed",
+        prediction: {},
+        confidence: 0.5,
+        explanation: "stub",
+        novel_insights: [],
+        trace: [],
+        generated_at: new Date().toISOString(),
+        request_id: "stub",
+      }),
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe("REASONING_INCOMPLETE");
+  });
+
+  it("returns REASONING_INCOMPLETE when speed/feed is valid but the strategy is absent", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    // Isolates the strategy arm of the completeness guard — speed/feed is fully
+    // populated, only print_to_program's `strategy` is missing.
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      featureReason: (input) => ({
+        feature: input.feature,
+        prediction: input.feature === "speed_feed" ? { vc_m_min: 180, fz_mm: 0.3, ap_mm: 2.0 } : {},
+        confidence: 0.7,
+        explanation: "partial stub",
+        novel_insights: [],
+        trace: [],
+        generated_at: new Date().toISOString(),
+        request_id: "partial",
+      }),
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe("REASONING_INCOMPLETE");
+  });
+
+  it("returns SAFETY_FLOOR_VIOLATED when SafetyContainment hard-blocks the candidate", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      safetyCheck: () => ({
+        passed: false,
+        blocking_count: 1,
+        warning_count: 0,
+        checks: [
+          { category: "physics", check_id: "vc_above_hard_max", severity: "hard", message: "Vc exceeds hard max" },
+        ],
+        trace: [],
+      }),
+    });
+    expect(result.success).toBe(false);
+    expect(result.error?.code).toBe("SAFETY_FLOOR_VIOLATED");
+    expect(result.error?.message).toContain("Vc exceeds hard max");
+  });
+
+  it("a soft SafetyContainment check surfaces a warning; result still succeeds", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      safetyCheck: () => ({
+        passed: true,
+        blocking_count: 0,
+        warning_count: 1,
+        checks: [
+          { category: "physics", check_id: "fz_above_soft_max", severity: "soft", message: "fz above recommended" },
+        ],
+        trace: [],
+      }),
+    });
+    expect(result.success).toBe(true);
+    expect(result.warnings.some((w) => w.includes("Safety warning: fz above recommended"))).toBe(true);
+  });
+
+  // ── Intent → cluster context mapping ──────────────────────────────────────
+  it("maps a tight feature tolerance_um into a finish-pass strategy", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(
+      latheIntent({ features: [{ id: "F1", kind: "od_groove", tolerance_um: 10 }] }),
+      realSeams,
+    );
+    expect(result.success).toBe(true);
+    const strategy = result.decisions[1].value as LatheDecisionValue;
+    expect(strategy.selected).toBe("finish_single_pass");
+  });
+
+  it("maps a loose feature tolerance_um into a rough-then-finish strategy", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(
+      latheIntent({ features: [{ id: "F1", kind: "od_turn", tolerance_um: 100 }] }),
+      realSeams,
+    );
+    expect(result.success).toBe(true);
+    const strategy = result.decisions[1].value as LatheDecisionValue;
+    expect(strategy.selected).toBe("rough_then_finish");
+  });
+
+  it("a feature tolerance_um of 0 falls through to the FeatureBridge default (no throw)", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    // tolerance_um=0 must NOT be forwarded as tolerance_mm=0 — reasonPrintToProgram
+    // throws on a non-positive tolerance. orchestrate's `tolUm > 0` guard handles it.
+    const result = await engine.orchestrate(
+      latheIntent({ features: [{ id: "F1", kind: "od_turn", tolerance_um: 0 }] }),
+      realSeams,
+    );
+    expect(result.success).toBe(true);
+    expect(result.decisions).toHaveLength(3);
+  });
+
+  it("maps a fine surface_finish_ra_um into a finish-pass strategy", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(
+      latheIntent({ features: [{ id: "F1", kind: "od_finish", surface_finish_ra_um: 0.4 }] }),
+      realSeams,
+    );
+    expect(result.success).toBe(true);
+    const strategy = result.decisions[1].value as LatheDecisionValue;
+    expect(strategy.selected).toBe("finish_single_pass");
+  });
+
+  it("surfaces a warning when the ISO group is inferred from an unrecognized material", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ material: "unobtanium-9000" }), realSeams);
+    expect(result.success).toBe(true);
+    expect(result.warnings.some((w) => w.includes("name-based heuristic"))).toBe(true);
+  });
+
+  it("does not warn about ISO inference for a recognized material", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent({ material: "1018 steel" }), realSeams);
+    expect(result.warnings.some((w) => w.includes("name-based heuristic"))).toBe(false);
+  });
+
+  // ── ContinuousLearning feed adjustment ────────────────────────────────────
+  it("applies the ContinuousLearning multiplier to the feed and records it", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    const result = await engine.orchestrate(latheIntent(), {
+      ...realSeams,
+      predictAdjustment: () => 1.5,
+    });
+    expect(result.success).toBe(true);
+    const feed = result.decisions[2].value as LatheDecisionValue;
+    const detail = feed.detail as { fz_mm: number; learning_multiplier: number };
+    expect(detail.learning_multiplier).toBe(1.5);
+    // FeatureBridge default fz is 0.3 mm/rev → 0.3 × 1.5 = 0.45. The multiplier
+    // is deliberately chosen so adjustedFz (0.45) stays under the ISO-P fz soft
+    // envelope (0.50) — so no safety warning fires and `success` stays true.
+    expect(detail.fz_mm).toBeCloseTo(0.45, 4);
+    expect(result.warnings.some((w) => w.includes("ContinuousLearning adjusted feed"))).toBe(true);
+    expect(result.warnings.some((w) => w.includes("Safety warning"))).toBe(false);
+  });
+
+  // ── Legacy KG API preservation ────────────────────────────────────────────
+  it("leaves the legacy KG API untouched (formula seed + upsert + query still work)", async () => {
+    const { engine, realSeams } = makeOrchestrateRig();
+    await engine.orchestrate(latheIntent(), realSeams);
+    expect(engine.query({ type: "formula" }).nodes.length).toBe(12);
+    const node = engine.upsertNode({ type: "customer", id: "ALCOA" });
+    expect(node.id).toBe("ALCOA");
+    expect(engine.query({ type: "customer", id: "ALCOA" }).center?.id).toBe("ALCOA");
   });
 });

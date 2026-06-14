@@ -40,7 +40,11 @@ export type TaskKind =
 
 export type Backend = "ollama" | "anthropic" | "openai";
 
-export type HardwareProfile = "home_4080" | "work_3080" | "cloud_only";
+export type HardwareProfile =
+  | "home_blackwell" // RTX PRO 6000 Blackwell 96GB — runs the 32B GPU tier (superset of home_4080)
+  | "home_4080" // RTX 4080/4080 SUPER 16GB — runs ≤14B quantized
+  | "work_3080" // RTX 3080 10GB — small quantized models only
+  | "cloud_only"; // no local GPU — cloud backends only
 
 export interface ModelSpec {
   /** Canonical id used by whichever client speaks to this model. */
@@ -119,7 +123,194 @@ export interface RoutingDecision {
  * callers can extend/override via `register()`.
  */
 export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
+  // ── Local Ollama — Blackwell GPU tier (RTX PRO 6000 96GB) ───────────
+  // The 2026-06-03 BLACKWELL-GPU-SWAP made these large local models free
+  // and fast (warm ~220 tok/s, full GPU residency). They are the token-
+  // saving payoff: a free 32B coder beats paid cloud on `code` and on
+  // substantial `reasoning`/`chat` once the cloud cost penalty grows with
+  // output length. SAFETY INVARIANT: every local entry keeps qualityTier
+  // < 85 so the `safety_critical` tier floor (canServe) always routes
+  // force/collision/workholding decisions to a cloud frontier model —
+  // never to a local model, however large. VRAM is the real quantized
+  // footprint from `ollama /api/tags`, not FP16.
+  {
+    id: "qwen2.5-coder:32b",
+    backend: "ollama",
+    paramsB: 32,
+    vramGB: 20, // Q4_K_M ~19.9GB resident
+    qualityTier: 83,
+    codeTier: 90,
+    latencyMsTypical: 3500, // warm on Blackwell; cold load ~40s mitigated by 60m keep_alive
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["code", "gcode", "reasoning", "chat"],
+  },
+  // RETIRED 2026-06-04 (BLACKWELL-MODEL-UPGRADE / U-BW-TS-ENGINES-RETIRE, slot:alpha):
+  // deepseek-r1:14b + qwen2.5-coder:14b were `ollama rm`'d from this 96GB Blackwell
+  // host. Their reasoning/code/chat roles are fully covered — at HIGHER quality — by
+  // qwen2.5-coder:32b above (qualityTier 83 / codeTier 90) + the qwen3 big-model stack
+  // below. route() install-gates at runtime, so a stale entry could never be SELECTED,
+  // but the catalog must not DECLARE a deleted tag (scripts/no-retired-llm-refs.test.mjs
+  // source-lock). Higher-tier upgrade targets (gpt-oss:120b, gemma4:31b) route via the
+  // cost-router today; their catalog entries land in U-BW-CATALOG-REALIGN post-pull.
+  {
+    id: "qwen3-vl:8b",
+    backend: "ollama",
+    paramsB: 8,
+    vramGB: 6,
+    qualityTier: 66,
+    codeTier: 60,
+    latencyMsTypical: 1800,
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell", "home_4080", "work_3080"],
+    tags: ["chat"],
+  },
+
+  // ── qwen3 stack (LOCAL-LLM-FOUNDATION-BLUEPRINT-2026-06-03, slot:golf) ──
+  // CAPABILITY DECLARATIONS — these models are PULLING now (not yet in the live
+  // `/api/tags` store). Tiers below are conservative FLOORS (well under the
+  // proven pulled defaults) so route() does NOT prefer an unpulled model
+  // (R13: no consumer atop an unproven dependency) and does NOT silently
+  // displace qwen2.5-coder:32b (code/reasoning) or nomic-embed-text (embed).
+  // PROMOTION to true tiers (qwen3-coder ~82/88, qwen3-next ~84, qwen3-vl ~72)
+  // + real vramGB happens via U-BW-CATALOG-REALIGN once `/api/tags` confirms
+  // presence. The EMBEDDER stays below nomic(60) until the corpus is
+  // re-embedded (india, blueprint §1.1) — promoting it before the re-index
+  // retrieves garbage against the nomic-indexed vectors. SAFETY: all keep
+  // qualityTier < 85 so the safety_critical floor always routes to cloud.
+  // Reachable now via forceModel / forceBackend for explicit opt-in use.
+  {
+    id: "qwen3-coder:30b-a3b",
+    backend: "ollama",
+    paramsB: 30, // MoE, ~3B active
+    vramGB: 20, // Q4_K_M MoE ~est; realign from /api/tags once pulled
+    qualityTier: 60, // FLOOR pending pull; true ~82 (realign)
+    codeTier: 65, // FLOOR pending pull; true ~88 (realign) — keeps 32B the code default
+    latencyMsTypical: 2200, // MoE 3B-active = fast on Blackwell
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["code", "gcode", "reasoning", "chat"],
+  },
+  {
+    id: "qwen3-next:80b-a3b-instruct",
+    backend: "ollama",
+    paramsB: 80, // MoE, ~3B active
+    vramGB: 42, // Q4_K_M ~est; realign from /api/tags once pulled
+    qualityTier: 62, // FLOOR pending pull; true ~84 (realign) — keeps 32B the reasoning default
+    codeTier: 62,
+    latencyMsTypical: 2600,
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["chat", "reasoning", "code"],
+  },
+  {
+    id: "qwen3-embedding:8b",
+    backend: "ollama",
+    paramsB: 8,
+    vramGB: 8, // ~est; realign from /api/tags once pulled
+    qualityTier: 58, // FLOOR below nomic(60) until corpus re-embed (india); true ~70
+    latencyMsTypical: 100,
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell", "home_4080"],
+    tags: ["embed"],
+  },
+  {
+    id: "dengcao/Qwen3-Reranker-4B:Q5_K_M",
+    backend: "ollama",
+    paramsB: 4,
+    vramGB: 4, // ~est; realign from /api/tags once pulled
+    qualityTier: 55, // no "rerank" taskKind routes here; consumed by the future rerank helper
+    latencyMsTypical: 150,
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell", "home_4080"],
+    tags: ["rerank"],
+  },
+  {
+    id: "qwen3-vl:30b",
+    backend: "ollama",
+    paramsB: 30,
+    vramGB: 20, // ~est; realign from /api/tags once pulled
+    qualityTier: 60, // FLOOR pending pull; true ~72 (realign)
+    codeTier: 55,
+    latencyMsTypical: 2200,
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["chat", "vision"],
+  },
+
+  // ── gpt-oss / gemma4 stack (BLACKWELL-MODEL-INTEGRATION-MS0 P2, 2026-06-06) ──
+  // The post-swap target tiers: gpt-oss:120b is the strongest LOCAL synthesis/
+  // reasoning voice (true ~88 quality / ~91 code, out-scoring 32b once pulled);
+  // gpt-oss:20b is the low-latency speed tier (~3B active MoE); gemma4:31b adds
+  // consensus diversity. CAPABILITY DECLARATIONS with conservative FLOOR tiers.
+  //
+  // FLOOR INVARIANT (matches the qwen3 stack above — DELIBERATE, not the plan's
+  // literal 88/91): route() in THIS engine is a PURE SCORER with NO /api/tags
+  // filter — it scores the static catalog and the highest tier wins. As of the
+  // 2026-06-06 live /api/tags scan ONLY gpt-oss:20b is pulled; gpt-oss:120b +
+  // gemma4:31b are still PULLING. A tier ≥ 84 here would make route() PREFER an
+  // absent model for code/reasoning → the orchestrator's first hop cold-fails
+  // (R13: no consumer atop an unproven dependency; the exact "phantom traffic to
+  // an absent model" the integration plan's pre-check flagged). So every entry
+  // keeps qualityTier < 85 until /api/tags live-confirms presence + real
+  // vram/latency, when U-BW-CATALOG-REALIGN promotes them to measured tiers.
+  // Two invariants this preserves: (1) safety_critical stays on cloud (the < 85
+  // tier floor at canServe); (2) the proven 32b (83/90) remains the auto-winner
+  // for code/reasoning. These models are reachable NOW via forceModel/
+  // forceBackend for explicit opt-in, and the install-gated consumers
+  // (MultiModelConsensusEngine.resolveOllamaModels, OllamaTaskOffloaderEngine.
+  // selectModel, the .mjs cost-router) route to them on the hot path once present.
+  {
+    id: "gpt-oss:120b",
+    backend: "ollama",
+    paramsB: 120, // MoE; ~est active params
+    vramGB: 65, // Q4_K_M MoE ~est; realign from /api/tags once pulled
+    qualityTier: 70, // FLOOR pending pull; true ~88 (realign — beats 32b on synthesis/reasoning)
+    codeTier: 72, // FLOOR pending pull; true ~91 (realign — keeps 32b the code default until then)
+    latencyMsTypical: 2200, // warm MoE on Blackwell ~est
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["code", "reasoning", "chat", "synthesis"],
+  },
+  {
+    id: "gpt-oss:20b",
+    backend: "ollama",
+    paramsB: 20, // MoE, ~3B active
+    vramGB: 15, // Q4_K_M ~est; realign from /api/tags once pulled
+    qualityTier: 64, // FLOOR pending /api/tags confirm; speed tier, true ~75
+    codeTier: 66, // FLOOR; true ~80
+    latencyMsTypical: 800, // MoE 3B-active fast tier
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["code", "chat"],
+  },
+  {
+    id: "gemma4:31b",
+    backend: "ollama",
+    paramsB: 31,
+    vramGB: 22, // Q4_K_M ~est; realign from /api/tags once pulled
+    qualityTier: 68, // FLOOR pending pull; consensus-diversity tier, true ~85
+    codeTier: 62, // FLOOR; true ~82
+    latencyMsTypical: 2400,
+    inputCostUSDPer1k: 0,
+    outputCostUSDPer1k: 0,
+    runsOn: ["home_blackwell"],
+    tags: ["reasoning", "chat"],
+  },
+
   // ── Local Ollama — home (RTX 4080 16GB) ────────────────────────────
+  // NOTE (U-BW-CATALOG-REALIGN, pending): phi3:*/mistral:* below are NOT
+  // currently pulled in the live Ollama store — kept as capability
+  // declarations; realignment to the real store is a tracked follow-up.
   {
     id: "phi3:14b",
     backend: "ollama",
@@ -130,7 +321,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 1500,
     inputCostUSDPer1k: 0,
     outputCostUSDPer1k: 0,
-    runsOn: ["home_4080"],
+    runsOn: ["home_blackwell", "home_4080"],
     tags: ["chat", "reasoning"],
   },
   {
@@ -143,22 +334,12 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 900,
     inputCostUSDPer1k: 0,
     outputCostUSDPer1k: 0,
-    runsOn: ["home_4080"],
+    runsOn: ["home_blackwell", "home_4080"],
     tags: ["chat"],
   },
-  {
-    id: "qwen2.5-coder:7b",
-    backend: "ollama",
-    paramsB: 7,
-    vramGB: 14,
-    qualityTier: 52,
-    codeTier: 70,
-    latencyMsTypical: 1000,
-    inputCostUSDPer1k: 0,
-    outputCostUSDPer1k: 0,
-    runsOn: ["home_4080"],
-    tags: ["code", "gcode"],
-  },
+  // RETIRED 2026-06-04 (U-BW-TS-ENGINES-RETIRE): qwen2.5-coder:7b `ollama rm`'d from the
+  // Blackwell — code/gcode role covered by qwen2.5-coder:32b + qwen3-coder:30b-a3b.
+  // (no-retired-llm-refs source-lock; mistral:7b remains for weak-host capability decl.)
 
   // ── Local Ollama — work (RTX 3080 10GB, quantized) ──────────────────
   {
@@ -197,7 +378,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 500,
     inputCostUSDPer1k: 0,
     outputCostUSDPer1k: 0,
-    runsOn: ["home_4080", "work_3080"],
+    runsOn: ["home_blackwell", "home_4080", "work_3080"],
     tags: ["chat"],
   },
 
@@ -211,7 +392,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 80,
     inputCostUSDPer1k: 0,
     outputCostUSDPer1k: 0,
-    runsOn: ["home_4080", "work_3080", "cloud_only"],
+    runsOn: ["home_blackwell", "home_4080", "work_3080", "cloud_only"],
     tags: ["embed"],
   },
 
@@ -226,7 +407,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 3500,
     inputCostUSDPer1k: 0.015,
     outputCostUSDPer1k: 0.075,
-    runsOn: ["home_4080", "work_3080", "cloud_only"],
+    runsOn: ["home_blackwell", "home_4080", "work_3080", "cloud_only"],
     tags: ["chat", "reasoning", "code", "safety", "tools"],
   },
   {
@@ -239,7 +420,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 1800,
     inputCostUSDPer1k: 0.003,
     outputCostUSDPer1k: 0.015,
-    runsOn: ["home_4080", "work_3080", "cloud_only"],
+    runsOn: ["home_blackwell", "home_4080", "work_3080", "cloud_only"],
     tags: ["chat", "code", "tools"],
   },
   {
@@ -252,7 +433,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 900,
     inputCostUSDPer1k: 0.0008,
     outputCostUSDPer1k: 0.004,
-    runsOn: ["home_4080", "work_3080", "cloud_only"],
+    runsOn: ["home_blackwell", "home_4080", "work_3080", "cloud_only"],
     tags: ["chat", "tools"],
   },
 
@@ -267,7 +448,7 @@ export const DEFAULT_MODEL_CATALOG: ModelSpec[] = [
     latencyMsTypical: 2200,
     inputCostUSDPer1k: 0.005,
     outputCostUSDPer1k: 0.02,
-    runsOn: ["home_4080", "work_3080", "cloud_only"],
+    runsOn: ["home_blackwell", "home_4080", "work_3080", "cloud_only"],
     tags: ["code", "tools"],
   },
 ];

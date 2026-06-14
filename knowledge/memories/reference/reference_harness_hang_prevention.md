@@ -1,11 +1,12 @@
 ---
 name: reference-harness-hang-prevention
 description: "Why Claude CLI sessions stall on this PC (Windows hook fork-storm), what's wired to prevent it, and the knobs to turn if it recurs."
-metadata: 
-  node_type: memory
-  type: reference
-  originSessionId: 613e0c04-e5d7-4eda-9aa6-c693c20ed1e8
+aliases: reference_harness_hang_prevention
+type: reference
+source: prism-memory
+synced: 2026-06-09T14:54:09.137Z
 ---
+
 
 **Symptom:** after a while, Write/Read/Grep/Bash/hook tool calls hang and the turn never ends. Worsens across the session and with more concurrent chats.
 

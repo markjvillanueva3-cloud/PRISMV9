@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="1f6f91feb8d3b5d4c83a4e82bfe65d970666b3d02825774a30ccb10f8e33bff0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRIBAL+WIKI Coverage Matrix — Victor Audit (2026-05-27 iter-1)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>TRIBAL+WIKI Coverage Matrix — Victor Audit (2026-05-27 iter-1)</h1>
+<div class="meta">rendered from state/shared/specs/TRIBAL-WIKI-COVERAGE-VICTOR-2026-05-27.md</div>
+<div class="meta">Generated 2026-05-27T13:02:25.117Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">TRIBAL+WIKI Coverage Matrix — Victor Audit (2026-05-27 iter-1)</h1>
+<blockquote class="prism-quote"><strong>Slot:</strong> victor · <strong>Goal:</strong> <code class="prism-inline-code">assess current state of tribal knowledge and wiki across all main domains for the prism app</code> → enable closed-loop self-learning / self-improving plan.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Iter-1 deliverable:</strong> comprehensive 25-domain coverage matrix from filesystem counts. No subjective narrowing — every domain enumerated per comprehensive-build directive.</blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Iter-2 follows:</strong> parallel Explore agents on the bottom-tier domains.</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">Surface totals (2026-05-27)</h2>
+<table class="prism-md-table"><thead><tr><th>Surface</th><th>Count</th><th>Location</th></tr></thead><tbody><tr><td>Wiki entries (total)</td><td><strong>37,243</strong></td><td><code class="prism-inline-code">knowledge/wiki/**/*.md</code></td></tr>
+<tr><td>Tribal canonical (filtered)</td><td><strong>2,639</strong></td><td><code class="prism-inline-code">knowledge/wiki/code-tribal/**/*.md</code></td></tr>
+<tr><td>Memory files (Obsidian mirror, H:)</td><td><strong>10,847</strong></td><td><code class="prism-inline-code">knowledge/memories/**/*.md</code></td></tr>
+<tr><td>Memory files (auto-memory, C:)</td><td><strong>742</strong></td><td><code class="prism-inline-code">C:/Users/wompu/.claude/projects/H--PRISM/memory/*.md</code></td></tr>
+<tr><td>Engine galaxies (with sentinel CLAUDE.md)</td><td><strong>20</strong></td><td><code class="prism-inline-code">mcp-server/src/engines/&lt;galaxy&gt;/CLAUDE.md</code></td></tr>
+<tr><td>Engine galaxies (with ENGINE_DIGEST)</td><td><strong>10</strong></td><td><code class="prism-inline-code">mcp-server/data/docs/galaxies/&lt;galaxy&gt;/ENGINE_DIGEST.md</code></td></tr></tbody></table>
+<p>Note: CLAUDE.md headline counts (<code class="prism-inline-code">722 wiki entries</code>) reference an older <code class="prism-inline-code">wiki/index.md</code> snapshot. Live <code class="prism-inline-code">find</code> total is 37,243 — the index file does NOT enumerate every entry. The 722 number is <strong>stale</strong> and should be re-derived for any planning that depends on it.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">25-domain coverage matrix</h2>
+<p>Per the operator&#39;s /goal enumeration. <strong>Columns:</strong> wiki (filename-match), tribal (<code class="prism-inline-code">code-tribal/<em>&lt;dom&gt;</em>.md</code>), memory H:, memory C:, galaxy-digest (ENGINE_DIGEST.md size in lines, &quot;—&quot; if no galaxy).</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Domain</th><th>Wiki</th><th>Tribal</th><th>Mem H:</th><th>Mem C:</th><th>Galaxy digest</th><th>Tier</th></tr></thead><tbody><tr><td>1</td><td>milling / mill</td><td>1308 / 220</td><td>53</td><td>304</td><td>2</td><td><strong>189</strong></td><td>GREEN</td></tr>
+<tr><td>2</td><td>lathe / turning</td><td>1327 / 527</td><td>25</td><td>364</td><td>33</td><td><strong>210</strong></td><td>GREEN</td></tr>
+<tr><td>3</td><td>wire-EDM (wedm)</td><td>1213 / 6</td><td>67</td><td>344</td><td>11</td><td><strong>175</strong></td><td>GREEN (naming split: <code class="prism-inline-code">wedm</code> vs <code class="prism-inline-code">wire-edm</code>)</td></tr>
+<tr><td>4</td><td>post processors</td><td>47</td><td>50</td><td>304</td><td>102</td><td><strong>120</strong></td><td>YELLOW</td></tr>
+<tr><td>5</td><td>speed/feed calculator (SFC)</td><td>96 + 52 (speedfeed)</td><td>15 + 3 (speed)</td><td>13</td><td>3</td><td>speed-feed sentinel only</td><td>YELLOW</td></tr>
+<tr><td>6</td><td>engineering</td><td>(not in keyword list — covered by sub-domains)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>DERIVED</td></tr>
+<tr><td>7</td><td>CAD 2D sketching</td><td>(rolled into CAD)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>INSIDE CAD</td></tr>
+<tr><td>8</td><td>CAD 3D modeling (mesh/surfaces/asm/contour/aerospace/robotics)</td><td>2398</td><td>274</td><td>997</td><td>35</td><td><strong>116</strong></td><td>GREEN-overall, but sub-buckets unaudited</td></tr>
+<tr><td>9</td><td>CAM programming (settings/macros/templates/entry-boxes)</td><td>4161</td><td>28</td><td>2446</td><td>17</td><td><strong>77</strong></td><td>GREEN-overall, but tribal-thin (28 tips for the heaviest engine surface — drift signal)</td></tr>
+<tr><td>10</td><td>quoting</td><td>79 + 222 (quote)</td><td>58</td><td>13</td><td>10</td><td><strong>30</strong></td><td>YELLOW</td></tr>
+<tr><td>11</td><td>shop-floor management</td><td><strong>9</strong></td><td><strong>4</strong></td><td>38</td><td>3</td><td><strong>18</strong></td><td>RED</td></tr>
+<tr><td>12</td><td>business management</td><td>504</td><td>3</td><td>462</td><td>1</td><td><strong>51</strong></td><td>YELLOW (large memory, thin tribal)</td></tr>
+<tr><td>13</td><td>accounting (QuickBooks)</td><td>12 / <strong>2</strong></td><td><strong>0</strong> / <strong>0</strong></td><td>mem not searched</td><td>0</td><td>(inside business)</td><td>RED</td></tr>
+<tr><td>14</td><td>file digest / Evernote redistribution</td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td>—</td><td>RED — TRUE GAP</td></tr>
+<tr><td>15</td><td>scheduling</td><td>53</td><td><strong>1</strong></td><td>7</td><td>0</td><td>—</td><td>RED-ORANGE</td></tr>
+<tr><td>16</td><td>HR</td><td>319</td><td>22</td><td>(inside business)</td><td>—</td><td>(inside business)</td><td>YELLOW</td></tr>
+<tr><td>17</td><td>ERP (E2)</td><td>444 + 90 (e2)</td><td>9 + 8 (e2)</td><td>68</td><td>3</td><td>—</td><td>YELLOW</td></tr>
+<tr><td>18</td><td>payroll</td><td>23</td><td>3</td><td>(inside HR/business)</td><td>—</td><td>(inside business)</td><td>ORANGE</td></tr>
+<tr><td>19</td><td>logistics</td><td><strong>0</strong></td><td><strong>0</strong></td><td>(not searched)</td><td>0</td><td>—</td><td>RED — TRUE GAP</td></tr>
+<tr><td>20</td><td>audits</td><td>426</td><td>99</td><td>149</td><td>31</td><td>—</td><td>GREEN-content, no galaxy</td></tr>
+<tr><td>21</td><td>OSHA</td><td>14</td><td><strong>1</strong></td><td><strong>0</strong></td><td>0</td><td>—</td><td>RED</td></tr>
+<tr><td>22</td><td>ISO certification</td><td>207</td><td>6</td><td>(inside business)</td><td>—</td><td>(inside compliance-safety sentinel)</td><td>YELLOW</td></tr>
+<tr><td>23</td><td>purchasing</td><td>24</td><td><strong>0</strong></td><td>6</td><td>0</td><td>—</td><td>RED-ORANGE</td></tr>
+<tr><td>24</td><td>maintenance</td><td>53</td><td><strong>0</strong></td><td>13</td><td>0</td><td>—</td><td>ORANGE</td></tr>
+<tr><td>25</td><td>alarms / troubleshooting</td><td>128 + 41</td><td>1 + <strong>0</strong></td><td>3</td><td>0</td><td>—</td><td>ORANGE (heavy controller-error surface unindexed in tribal)</td></tr></tbody></table>
+<hr class="prism-hr">
+<h2 class="prism-h2">Confirmed structural findings</h2>
+<ol class="prism-md-list"><li><strong>Naming split — <code class="prism-inline-code">wedm</code> vs <code class="prism-inline-code">wire-edm</code></strong>: 1213 vs 6 wiki entries. Two filename conventions for the same domain — search recall is forked. Closed-loop plan should pick one canonical slug and add aliases / rename.</li><li><strong>CAM tribal under-indexed</strong>: CAM has 4161 wiki + 2446 memory but only <strong>28 tribal tips</strong>. The richest engine surface (cam galaxy) has the thinnest tribal layer — operator+macro+template knowledge isn&#39;t landing in canonical tribal.</li><li><strong>Shop-floor galaxy is a stub</strong>: 9 wiki + 4 tribal + 18-line digest. Currently an &quot;honest stub&quot; per alpha&#39;s MS1 work. This is the slot that was originally pre-assigned to november for refine — still open.</li><li><strong>Business galaxy has 462 memory files but 3 tribal</strong>: massive memory surface unpromoted to tribal canonical. Tribal extraction pipeline is silent on the business cluster.</li><li><strong>TRUE GAPS — 0/0/0 coverage</strong>: <code class="prism-inline-code">logistics</code>, <code class="prism-inline-code">evernote/file-digest</code>. These are domains the operator explicitly named that have no wiki, no tribal, no memory presence at all.</li><li><strong>Galaxies missing for 8 operator domains</strong>: scheduling, HR, ERP, payroll, logistics, audits, purchasing, maintenance — none have a <code class="prism-inline-code">mcp-server/src/engines/&lt;dom&gt;/</code> sentinel or <code class="prism-inline-code">data/docs/galaxies/&lt;dom&gt;/</code> digest. These either live inside <code class="prism-inline-code">business/</code> or are unrepresented at engine layer.</li><li><strong>Compliance-safety sentinel exists</strong> but no ENGINE_DIGEST for it (compliance/OSHA/ISO/audits aggregation gap).</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Bottom-tier (RED) for iter-2 deep scan</h2>
+<p>Five domains will receive parallel Explore agents in iter-2:</p>
+<ol class="prism-md-list"><li><strong>logistics</strong> — true greenfield. Verify it&#39;s not hidden under another name (shipping? supply-chain?).</li><li><strong>evernote / automatic file digest</strong> — confirm no existing OCR/ingest/redistribute engine. Check <code class="prism-inline-code">pdf-corpus*</code>, <code class="prism-inline-code">knowledge-conversion</code>.</li><li><strong>shop-floor</strong> — alpha left this as a refine target. Need to deep-scan MachineLive<em>+Traveler</em> sources to extract concrete gotchas.</li><li><strong>accounting / quickbooks</strong> — operator named QuickBooks specifically. Check <code class="prism-inline-code">business/</code> for QBO connector engines.</li><li><strong>alarm + troubleshoot</strong> — controller-error knowledge (Fanuc/Heidenhain/Haas alarm codes) is presumably in machine manuals but not indexed to tribal. High-leverage closed-loop input.</li></ol>
+<p>Iter-3 will synthesize the closed-loop plan referencing these scans + the gap profile.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Loop-state</h2>
+<ul class="prism-md-list"><li><strong>iter:</strong> 1/4</li><li><strong>started:</strong> 2026-05-27 (slot:victor session <code class="prism-inline-code">65997de2</code>)</li><li><strong>next:</strong> dispatch 5 parallel Explore agents on the RED-tier domains</li><li><strong>eventual deliverable:</strong> <code class="prism-inline-code">CLOSED-LOOP-TRIBAL-WIKI-PLAN-VICTOR-2026-05-27.md</code> with concrete roadmap units (engine + dispatcher + test + wiring per domain) and self-improvement triggers (re-ingest signals, auto-prune stale).</li></ul>
+<p>— Generated by slot:victor, /loop iter 1, 2026-05-27.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

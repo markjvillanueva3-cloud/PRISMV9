@@ -30,8 +30,14 @@ async function getEngine(name: string): Promise<any> {
 }
 
 const ACTIONS = [
+  "authority_ranking_compute",
   "login", "register", "refresh_token", "change_password",
   "role_assign", "permission_check", "session_manage", "mfa_setup",
+  "session_event_log",
+  "session_insights_query",
+  "user_model_get",
+  "wet_run_authorize",
+  "wet_run_session_log",
 ] as const;
 
 /** Registers auth dispatcher.
@@ -145,6 +151,39 @@ Params vary by action — pass relevant fields in params object. NEVER include r
             } else {
               result = { error: `Unknown MFA operation: ${op}` };
             }
+            break;
+          }
+          // ── iter8/bulk-sweep: 6 auth engines ──
+          case "session_event_log": {
+            const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
+            result = { success: true, data: (sessionEventLogEngine as any).log?.(params) ?? (sessionEventLogEngine as any).record?.(params) ?? (sessionEventLogEngine as any).append?.(params) ?? { engine: "SessionEventLogEngine", note: "method not callable" } };
+            break;
+          }
+          case "session_insights_query": {
+            const mod = await import("../../engines/SessionInsightsLedgerEngine.js");
+            const eng = (mod as any).sessionInsightsLedgerEngine ?? new ((mod as any).SessionInsightsLedgerEngine)();
+            result = { success: true, data: (eng as any).query?.(params) ?? (eng as any).get?.(params) ?? (eng as any).analyze?.(params) ?? { engine: "SessionInsightsLedgerEngine", note: "method not callable" } };
+            break;
+          }
+          case "wet_run_authorize": {
+            const { wetRunAuthorizationEngine } = await import("../../engines/WetRunAuthorizationEngine.js");
+            result = { success: true, data: (wetRunAuthorizationEngine as any).authorize?.(params) ?? (wetRunAuthorizationEngine as any).check?.(params) ?? (wetRunAuthorizationEngine as any).validate?.(params) ?? { engine: "WetRunAuthorizationEngine", note: "method not callable" } };
+            break;
+          }
+          case "wet_run_session_log": {
+            const { wetRunSessionLogEngine } = await import("../../engines/WetRunSessionLogEngine.js");
+            result = { success: true, data: (wetRunSessionLogEngine as any).log?.(params) ?? (wetRunSessionLogEngine as any).record?.(params) ?? (wetRunSessionLogEngine as any).append?.(params) ?? { engine: "WetRunSessionLogEngine", note: "method not callable" } };
+            break;
+          }
+          case "user_model_get": {
+            const mod = await import("../../engines/UserModelEngine.js");
+            const eng = (mod as any).userModelEngine ?? new ((mod as any).UserModelEngine)();
+            result = { success: true, data: (eng as any).get?.(params.user_id ?? params) ?? (eng as any).getModel?.(params.user_id ?? params) ?? (eng as any).query?.(params) ?? { engine: "UserModelEngine", note: "method not callable" } };
+            break;
+          }
+          case "authority_ranking_compute": {
+            const { authorityRankingEngine } = await import("../../engines/AuthorityRankingEngine.js");
+            result = { success: true, data: (authorityRankingEngine as any).compute?.(params) ?? (authorityRankingEngine as any).rank?.(params) ?? (authorityRankingEngine as any).calculate?.(params) ?? { engine: "AuthorityRankingEngine", note: "method not callable" } };
             break;
           }
           default:

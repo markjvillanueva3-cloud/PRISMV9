@@ -61,7 +61,11 @@ export default function PostProcessorStorePage() {
     const type = purchasing[controller.id] ?? "monthly";
     setLoading(controller.id);
     try {
-      const { url } = await billingApi.purchasePost(controller.id, type);
+      // billing.purchasePost only accepts 'permanent' | 'subscription'; the
+      // store UI also exposes monthly/annual which both map to subscription
+      // (Stripe price-id distinguishes the actual cadence server-side).
+      const licenseType: 'permanent' | 'subscription' = type === 'permanent' ? 'permanent' : 'subscription';
+      const { url } = await billingApi.purchasePost(controller.id, licenseType);
       window.location.href = url;
     } catch (err) {
       console.error("Purchase failed:", err);

@@ -170,7 +170,7 @@ const MATCHERS: Matcher[] = [
  * OLLAMA-DEV-02: Ollama escalation
  *
  * When the deterministic signature match returns category="unknown"
- * (no known pattern), call local Ollama qwen2.5-coder:7b for a
+ * (no known pattern), call local Ollama qwen2.5-coder:32b for a
  * domain-specific minimalFix instead of giving up with generic
  * guidance. Ollama is opportunistic — if it's down or timed out we
  * keep the original generic block, never throw.
@@ -182,7 +182,7 @@ async function explainWithOllama(
   input: ErrorExplainInput,
 ): Promise<{ plainLanguage: string; minimalFix: string; unblockCommand: string; confidence: number } | null> {
   const ollamaUrl = process.env.OLLAMA_URL ?? "http://127.0.0.1:11434";
-  const ollamaModel = process.env.OLLAMA_ERROR_MODEL ?? "qwen2.5-coder:7b";
+  const ollamaModel = process.env.OLLAMA_ERROR_MODEL ?? "qwen2.5-coder:32b";
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), OLLAMA_TIMEOUT_MS);
   const message = input.message.slice(0, OLLAMA_MAX_MESSAGE_CHARS);

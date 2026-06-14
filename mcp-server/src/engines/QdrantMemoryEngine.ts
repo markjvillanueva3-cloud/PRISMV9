@@ -96,6 +96,7 @@ export type MemoryResult<T> =
 
 const DEFAULT_VECTOR_SIZE = 768; // nomic-embed-text output dim
 const DEFAULT_PREFIX = "prism_memory";
+const DEFAULT_QDRANT_URL = "http://localhost:6333";
 
 // WIRE-EXEMPT: indirect dispatcher access — wrapped by QdrantMemoryEngineSingleton, which is imported by memoryDispatcher and UnifiedErrorLedgerEngine. Direct import would bypass the singleton's lazy-init + embedder factory.
 export class QdrantMemoryEngine {
@@ -104,12 +105,53 @@ export class QdrantMemoryEngine {
   private vectorSize: number;
   private prefix: string;
   private ensured = new Set<string>();
+  /** True only when the store was default-constructed (the production singleton
+   * path). Injected-store callers keep full control of connection state, so
+   * lazy auto-connect never fires for them. */
+  private readonly autoConnect: boolean;
+
+  // Canonical kind -> live populated collection. The vault memory corpus, wiki
+  // leaves, and asset (engine/skill/formula) descriptions are embedded into
+  // these plural-named collections by the sidecar + SemanticAssetIndex
+  // pipelines, NOT into prism_memory_<kind>. Recall reads from here so the
+  // fleet-canonical `prism_memory:semantic_search` returns real hits instead of
+  // querying an empty prism_memory_<kind>. Applied for the default prefix only
+  // (custom-prefix / test instances keep prism_memory_<kind>).
+  private static readonly CANONICAL_READ_COLLECTIONS: Partial<Record<MemoryKind, string>> = {
+    engine: "prism_engines",
+    skill: "prism_skills",
+    formula: "prism_formulas",
+    wiki: "prism_wiki",
+    note: "prism_memories",
+  };
 
   constructor(deps: QdrantMemoryDeps = {}) {
     this.store = deps.store ?? new QdrantVectorStoreEngine();
+    this.autoConnect = deps.store === undefined;
     this.embedder = deps.embedder ?? null;
     this.vectorSize = deps.vectorSize ?? DEFAULT_VECTOR_SIZE;
     this.prefix = deps.collectionPrefix ?? DEFAULT_PREFIX;
+  }
+
+  /**
+   * Lazily connect the *default* vector store to Qdrant. Only fires when the
+   * store was NOT injected -- injected-store tests keep full control. connect()
+   * just constructs the REST client (no network round-trip), so this is cheap;
+   * the real reachability failure surfaces later on upsert/search as a typed
+   * error (R12).
+   *
+   * Fixes the historical bug where QdrantMemoryEngineSingleton built the engine
+   * + embedder but never connected the store, so every remember/recall returned
+   * "qdrant not connected" -- the entire MCP memory surface was dead.
+   */
+  private async ensureConnected(): Promise<void> {
+    if (!this.autoConnect || this.store.isConnected()) return;
+    const url = process.env.QDRANT_URL || DEFAULT_QDRANT_URL;
+    try {
+      await this.store.connect({ url });
+    } catch {
+      /* leave disconnected -- downstream guard returns a typed "not connected" error */
+    }
   }
 
   setEmbedder(fn: Embedder | null): void {
@@ -120,6 +162,20 @@ export class QdrantMemoryEngine {
     return `${this.prefix}_${kind}`;
   }
 
+  /**
+   * Collection to READ for a kind. Returns the populated canonical collection
+   * when one exists (default prefix only); otherwise the prism_memory_<kind>
+   * write target. Keeps writes isolated (collectionFor) while letting recall
+   * hit the real, already-populated vault/asset data.
+   */
+  readCollectionFor(kind: MemoryKind): string {
+    if (this.prefix === DEFAULT_PREFIX) {
+      const mapped = QdrantMemoryEngine.CANONICAL_READ_COLLECTIONS[kind];
+      if (mapped) return mapped;
+    }
+    return this.collectionFor(kind);
+  }
+
   /** Commit a memory item; returns ok on successful upsert. */
   async remember(input: RememberInput): Promise<MemoryResult<void>> {
     const guard = this.validateRemember(input);
@@ -127,6 +183,7 @@ export class QdrantMemoryEngine {
     if (!this.embedder) {
       return { ok: false, error: "embedder not configured" };
     }
+    await this.ensureConnected();
     if (!this.store.isConnected()) {
       return { ok: false, error: "qdrant not connected" };
     }
@@ -169,11 +226,12 @@ export class QdrantMemoryEngine {
     if (!this.embedder) {
       return { ok: false, error: "embedder not configured" };
     }
+    await this.ensureConnected();
     if (!this.store.isConnected()) {
       return { ok: false, error: "qdrant not connected" };
     }
 
-    const collection = this.collectionFor(input.kind);
+    const collection = this.readCollectionFor(input.kind);
     const ensured = await this.ensureCollection(collection);
     if (!ensured.ok) return ensured;
 
@@ -197,8 +255,11 @@ export class QdrantMemoryEngine {
     return { ok: true, value: items };
   }
 
-  /** Delete the entire collection for a kind (tests, resets). */
+  /** Delete the entire collection for a kind (tests, resets). Always targets
+   * the prism_memory_<kind> write collection, never a populated canonical
+   * collection, so a stray forgetAll() can't wipe the live vault/asset data. */
   async forgetAll(kind: MemoryKind): Promise<MemoryResult<boolean>> {
+    await this.ensureConnected();
     if (!this.store.isConnected()) {
       return { ok: false, error: "qdrant not connected" };
     }
@@ -209,12 +270,14 @@ export class QdrantMemoryEngine {
     return { ok: true, value: dropped.value };
   }
 
-  /** How many items are stored under a given kind. */
+  /** How many items are stored under a given kind. Reads the canonical
+   * populated collection when one exists (matches recall's read target). */
   async count(kind: MemoryKind): Promise<MemoryResult<number>> {
+    await this.ensureConnected();
     if (!this.store.isConnected()) {
       return { ok: false, error: "qdrant not connected" };
     }
-    const collection = this.collectionFor(kind);
+    const collection = this.readCollectionFor(kind);
     const ensured = await this.ensureCollection(collection);
     if (!ensured.ok) return ensured;
     const r = await this.store.count(collection);
@@ -245,11 +308,30 @@ export class QdrantMemoryEngine {
 
   private hitToItem(hit: SearchHit, kind: MemoryKind): MemoryItem {
     const payload = hit.payload ?? {};
-    const text = typeof payload.text === "string" ? payload.text : "";
-    const metadata =
+    const str = (v: unknown): string => (typeof v === "string" ? v : "");
+    // Payload-schema-tolerant text rendering. Three indexing pipelines feed the
+    // canonical collections with different shapes, and recall must be useful for
+    // all of them:
+    //   System-3 (QdrantMemoryEngine):    { text, metadata, createdAt }
+    //   System-2 (SemanticAssetIndex):    { name, description, externalId, ... }  (engines/skills/formulas)
+    //   System-1 (node-embedding sidecar):{ node_id }                            (memories/wiki)
+    let text = str(payload.text);
+    if (!text) {
+      const joined = [str(payload.name), str(payload.description)].filter(Boolean).join(" - ");
+      text = joined || str(payload.node_id);
+    }
+    const metadata: Record<string, unknown> =
       payload.metadata && typeof payload.metadata === "object"
-        ? (payload.metadata as Record<string, unknown>)
+        ? { ...(payload.metadata as Record<string, unknown>) }
         : {};
+    // Surface cross-schema identifiers so callers can resolve the underlying
+    // asset/note even when `text` was synthesized from name/node_id. (kind is
+    // already a top-level field, so it is intentionally not copied here.)
+    for (const key of ["name", "description", "externalId", "node_id", "sourceFile", "tags"]) {
+      if (payload[key] !== undefined && metadata[key] === undefined) {
+        metadata[key] = payload[key];
+      }
+    }
     const createdAt =
       typeof payload.createdAt === "string" ? payload.createdAt : undefined;
     return {

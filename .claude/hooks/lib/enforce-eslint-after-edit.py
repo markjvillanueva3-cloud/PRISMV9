@@ -31,11 +31,20 @@ def main():
         print(json.dumps({"continue": True}))
         return
 
-    # Check if eslint config exists
-    eslint_config = "H:/prism/mcp-server/eslint.config.js"
-    eslint_rc = "H:/prism/mcp-server/.eslintrc.json"
-    if not os.path.exists(eslint_config) and not os.path.exists(eslint_rc):
-        # No eslint config — skip silently
+    # Host-portable mcp-server dir: derive it from the edited file's OWN path
+    # (always ".../mcp-server/src/...") instead of hardcoding a drive letter.
+    # The pre-2026-06-08 hardcode "C:/PRISM/mcp-server" was wrong for this host
+    # (live tree is H:/prism after the drive swap; C: holds only .claude config),
+    # so the config-exists check below ALWAYS failed and the hook silently no-op'd
+    # — i.e. ESLint-after-edit was dead fleet-wide. (HARDWARE-DRIVE-SYNC §eslint-hook)
+    mcp_dir = file_path[: file_path.index("mcp-server/") + len("mcp-server")]
+
+    # Real config is eslint.config.mjs (flat config). The old check looked for
+    # eslint.config.js / .eslintrc.json — neither exists in this repo, another
+    # reason the gate was inert. Accept any of the known flat/legacy config names.
+    config_names = ("eslint.config.mjs", "eslint.config.js", "eslint.config.cjs", ".eslintrc.json", ".eslintrc.js")
+    if not any(os.path.exists(os.path.join(mcp_dir, c)) for c in config_names):
+        # No eslint config found next to the source tree — skip silently.
         print(json.dumps({"continue": True}))
         return
 
@@ -44,7 +53,7 @@ def main():
             ["npx", "eslint", "--no-warn-ignored", "--format", "compact", file_path],
             capture_output=True,
             text=True,
-            cwd="H:/prism/mcp-server",
+            cwd=mcp_dir,
             timeout=20,
         )
         if result.returncode != 0:

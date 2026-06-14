@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-06-11T03:47:55.884Z",
+  "topK": 8,
+  "weightUncertainty": 0.6,
+  "weightClassRarity": 0.4,
+  "diversityDecay": 0.6,
+  "poolStats": {
+    "unlabeledTargets": 33,
+    "voted": 31,
+    "unvoted": 2,
+    "scored": 31,
+    "skippedMalformed": 0,
+    "skippedHeterophily": 0,
+    "references": 23,
+    "labelledClasses": 5,
+    "classDistribution": {
+      "prism_cam": 12,
+      "prism_ai": 5,
+      "prism_calc": 2,
+      "prism_turning": 2,
+      "prism_safety": 2
+    },
+    "classifierMode": "direct-embed",
+    "classifierSkipped": false,
+    "classifierReason": "classified"
+  },
+  "worklist": [
+    {
+      "engine": "GrooveClassificationEngine",
+      "predictedDispatcher": "prism_turning",
+      "confidence": 0.2175,
+      "voteShare": 0.2175,
+      "uncertainty": 0.7825,
+      "classRefCount": 2,
+      "classRarity": 0.8333,
+      "acquisition": 0.8028,
+      "effectiveScore": 0.8028,
+      "rank": 1
+    },
+    {
+      "engine": "PDFFormulaExtractionEngine",
+      "predictedDispatcher": "prism_calc",
+      "confidence": 0.2611,
+      "voteShare": 0.2611,
+      "uncertainty": 0.7389,
+      "classRefCount": 2,
+      "classRarity": 0.8333,
+      "acquisition": 0.7767,
+      "effectiveScore": 0.7767,
+      "rank": 2
+    },
+    {
+      "engine": "TriLevelKillSwitchEngine",
+      "predictedDispatcher": "prism_safety",
+      "confidence": 0.3258,
+      "voteShare": 0.3258,
+      "uncertainty": 0.6742,
+      "classRefCount": 2,
+      "classRarity": 0.8333,
+      "acquisition": 0.7378,
+      "effectiveScore": 0.7378,
+      "rank": 3
+    },
+    {
+      "engine": "PPGRAGDialectMatchEngine",
+      "predictedDispatcher": "prism_ai",
+      "confidence": 0.3459,
+      "voteShare": 0.3459,
+      "uncertainty": 0.6541,
+      "classRefCount": 5,
+      "classRarity": 0.5833,
+      "acquisition": 0.6258,
+      "effectiveScore": 0.6258,
+      "rank": 4
+    },
+    {
+      "engine": "PreMOUKickoffChecklistEngine",
+      "predictedDispatcher": "prism_safety",
+      "confidence": 0.3731,
+      "voteShare": 0.3731,
+      "uncertainty": 0.6269,
+      "classRefCount": 2,
+      "classRarity": 0.8333,
+      "acquisition": 0.7095,
+      "effectiveScore": 0.4257,
+      "rank": 5
+    },
+    {
+      "engine": "CadPartLibraryEngine",
+      "predictedDispatcher": "prism_calc",
+      "confidence": 0.435,
+      "voteShare": 0.435,
+      "uncertainty": 0.565,
+      "classRefCount": 2,
+      "classRarity": 0.8333,
+      "acquisition": 0.6723,
+      "effectiveScore": 0.4034,
+      "rank": 6
+    },
+    {
+      "engine": "DisasterRecoveryEngine",
+      "predictedDispatcher": "prism_cam",
+      "confidence": 0.3637,
+      "voteShare": 0.3637,
+      "uncertainty": 0.6363,
+      "classRefCount": 12,
+      "classRarity": 0,
+      "acquisition": 0.3818,
+      "effectiveScore": 0.3818,
+      "rank": 7
+    },
+    {
+      "engine": "GrokCLIClientEngine",
+      "predictedDispatcher": "prism_ai",
+      "confidence": 0.3463,
+      "voteShare": 0.3463,
+      "uncertainty": 0.6537,
+      "classRefCount": 5,
+      "classRarity": 0.5833,
+      "acquisition": 0.6255,
+      "effectiveScore": 0.3753,
+      "rank": 8
+    }
+  ]
+}

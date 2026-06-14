@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "JULIETT-12CHAT-ALLOCATION-MS0",
+  "milestone": "JULIETT-12CHAT-ALLOCATION-MS0",
+  "title": "Juliett 12-Chat ROI Allocation MS0",
+  "owner": "juliett",
+  "status": "completed",
+  "createdAt": "2026-05-17T20:00:00Z",
+  "updatedAt": "2026-05-20T05:00:00Z",
+  "source_specs": [
+    "state/shared/specs/JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md",
+    "state/shared/specs/JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md",
+    "state/shared/specs/JULIETT-FAN-OUT-T1-T5-ADDENDUM-2026-05-17.md",
+    "state/shared/specs/JULIETT-TOKEN-OPTIMIZATION-AUDIT-2026-05-17.md"
+  ],
+  "doctrine": "12-chat ROI allocation across alpha..mike work slots + golf hygiene. Each slot's queue in state/shared/slot-task-queues.json IS that slot's /goal when invoked via /checkin-<nato>. Wave-priority: W0 BLOCKERS first, then W1..W4, then synergy/fan-out.",
+  "units": [
+    {
+      "id": "U-PRECOMMIT-PATHSPEC-ONLY",
+      "owner_slot": "echo",
+      "wave": "W1",
+      "cost": "S",
+      "roi_score": 8.5,
+      "status": "completed",
+      "spec": "state/shared/specs/UNITS/U-PRECOMMIT-PATHSPEC-ONLY.md",
+      "summary": "pre-commit reject git add -A/-a/. when peer file-claims active (5 collateral-staging incidents in 48h)",
+      "shipped_at": "2026-05-17T23:30:00Z",
+      "ship_commit": "22418a618a",
+      "ship_notes": "git pre-commit guard reads state/shared/chat-bus/claims/*.json. Pure-core + injected-IO + CLI. 48 unit tests + 16 installer tests + control-char sanitization (P1 from arm A) + real-data fixture E2E (P2 from arm B). Activate: node H:/prism/scripts/install-pathspec-only-hook.mjs"
+    },
+    {
+      "id": "U-CLEAR-AUTO-RESUME",
+      "owner_slot": "alpha",
+      "wave": "W0",
+      "cost": "S",
+      "roi_score": 9.5,
+      "status": "completed",
+      "spec": "state/shared/specs/UNITS/U-CLEAR-AUTO-RESUME.md",
+      "summary": "session-start-auto-resume hook fires on SessionStart matcher=clear (not only matcher=compact)",
+      "shipped_at": "2026-05-20T03:32:00Z",
+      "ship_commit": "b34941b47e",
+      "ship_notes": "Disk-verified: both C:/Users/wompu/.claude/settings.json AND H:/.claude/settings.json SessionStart array carry {matcher:clear, hooks:[session-start-auto-resume.mjs]} at line 260-267. Hook code accepts source==='clear' per S8 finding. Envelope flipped 2026-05-20 by alpha during leftover-task close-out pass; spec at state/shared/specs/UNITS/U-CLEAR-AUTO-RESUME.md was stale."
+    },
+    {
+      "id": "U-ACTIVATE-BEFORE-BUILD-PRECHECK",
+      "owner_slot": "alpha",
+      "wave": "W1",
+      "cost": "S",
+      "roi_score": 8.0,
+      "status": "completed",
+      "spec": "state/shared/specs/UNITS/U-ACTIVATE-BEFORE-BUILD-PRECHECK.md",
+      "summary": "PreToolUse hook reminds operator to ACTIVATE the engine/skill before building (dedup-guard sister)",
+      "shipped_at": "2026-05-20T03:35:00Z",
+      "ship_commit": "b34941b47e",
+      "ship_notes": "Disk-verified: .claude/hooks/activate-before-build-precheck.mjs exists (14.8K). Wired in BOTH settings.json files at line 590 (PreToolUse arm). Hook is live. Envelope flipped 2026-05-20 by alpha during leftover-task close-out pass; spec at state/shared/specs/UNITS/U-ACTIVATE-BEFORE-BUILD-PRECHECK.md was stale."
+    }
+  ],
+  "notes": "Envelope created post-hoc 2026-05-17 by echo slot during /loop run — milestone existed in slot-task-queues.json since juliett's 2026-05-17 allocation but had no formal envelope. Other units across all 13 slots are in slot-task-queues.json:queues.<slot>[]. 2026-05-20 alpha augmented with U-CLEAR-AUTO-RESUME + U-ACTIVATE-BEFORE-BUILD-PRECHECK after CLOSE-OUT-DEFERRED disk-verify pass.",
+  "updated_at": "2026-05-20T05:00:00Z"
+}

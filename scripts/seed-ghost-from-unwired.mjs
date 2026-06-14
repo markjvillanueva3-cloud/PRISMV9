@@ -28,11 +28,22 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildEngineDispatcherMap, inferDispatcherBySibling } from "./lib/wired-engine-mapper.mjs";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
+import { MCP_TOOL_TO_DISP_NODE_ID, mcpToolToDispNodeId } from "./lib/viz-dispatcher-node-id.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const ENGINES_DIR = path.join(ROOT, "mcp-server", "src", "engines");
 const DISPATCHERS_DIR = path.join(ROOT, "mcp-server", "src", "tools", "dispatchers");
+// WIRE-NOTE (U-VIZ-F11-CROSS-LOCK): this is a 4th DIRECT writer of
+// system-graph.json (atomicWrite below). It is covered TODAY only because it
+// runs exclusively as a regen-viz.mjs post-merge subprocess (regen-viz holds
+// the shared .system-graph-write.pid lock for its whole child chain). If this
+// script is EVER invoked standalone (cron, an nn-graph data refresh, a manual
+// `node scripts/seed-ghost-from-unwired.mjs --apply`), it would write the
+// graph with NO F11 lock and silently clobber a concurrent regen/on-commit
+// merge. Standalone callers MUST wrap the write in
+// withGraphWriteLock(...) from scripts/lib/system-graph-write-lock.mjs.
 const GRAPH_PATH = path.join(ROOT, "state", "shared", "system-viz", "system-graph.json");
 
 // Dispatcher inference table — ordered, first-match-wins.
@@ -77,6 +88,15 @@ export const DISPATCHER_INFERENCE_RULES = Object.freeze([
   { pattern: /\b(mill|milling|drill|tap|bore|countersink|reamer|endmill|ballmill)/i, dispatcher: "prism_cam", confidence: 0.65, reason: "milling tool keyword (catch-all)" },
   { pattern: /\b(base|abstract[-_]?engine|core[-_]?engine|util|helper)/i, dispatcher: "prism_dev", confidence: 0.50, reason: "base/util keyword (low conf — review)" },
 ]);
+
+// U-VIZ-G4-SEEDER-FIX (2026-05-20 sierra) → extracted to a shared SSOT lib in
+// U-VIZ-G4-DEAD-EDGE (2026-05-30 sierra). The MCP-tool → disp-node-id mapping +
+// resolver now live in ./lib/viz-dispatcher-node-id.mjs (imported above) so the
+// other ghost/bridge producers resolve through ONE source of truth instead of
+// re-introducing the `dispatcher.<mcp_tool>` dead-edge bug. Re-exported here for
+// back-compat with existing importers + this seeder's own test. See that lib for
+// the full dead-edge-class rationale.
+export { MCP_TOOL_TO_DISP_NODE_ID, mcpToolToDispNodeId };
 
 export const MIN_CONFIDENCE = 0.5;
 
@@ -184,7 +204,7 @@ export function buildGhostFromUnwired(engine, opts = {}) {
   const edge = inf.confidence >= MIN_CONFIDENCE
     ? {
         from: node.id,
-        to: `dispatcher.${inf.dispatcher}`,
+        to: mcpToolToDispNodeId(inf.dispatcher),
         type: "ghost-wire",
         relation: "proposed-wire",
         status: "proposed",
@@ -231,12 +251,16 @@ export function main() {
   const opts = parseArgs(process.argv.slice(2));
 
   if (opts.revert) {
-    const g = JSON.parse(fs.readFileSync(GRAPH_PATH, "utf8"));
+    const g = readGraphStreaming(GRAPH_PATH); // streaming read — see scripts/lib/graph-io.mjs
     const before = g.nodes.length;
     const ghostIds = new Set(g.nodes.filter((n) => n?.kind === "ghost.unwired-engine").map((n) => n.id));
     g.nodes = g.nodes.filter((n) => !ghostIds.has(n.id));
     g.edges = g.edges.filter((e) => !ghostIds.has(e.from));
-    atomicWrite(GRAPH_PATH, JSON.stringify(g, null, 2));
+    // Compact serialization (no indent): the merged system-graph.json is
+    // ~390 MB. Pretty-printing (`null, 2`) inflates the string past V8's
+    // ~512 MB max-string-length cap → `RangeError: Invalid string length`.
+    // Mirrors merge-augmentations.mjs's `JSON.stringify(G)`.
+    atomicWrite(GRAPH_PATH, JSON.stringify(g));
     console.log(`reverted — removed ${ghostIds.size} ghost.unwired-engine nodes; graph now ${g.nodes.length} nodes (was ${before})`);
     return;
   }
@@ -300,7 +324,8 @@ export function main() {
   }
 
   console.log(`Writing ${GRAPH_PATH} (nodes added=${nodesAdded} updated=${nodesUpdated}, edges added=${edgesAdded})...`);
-  atomicWrite(GRAPH_PATH, JSON.stringify(g, null, 2));
+  // Compact serialization — see the V8 string-cap note in the --revert path above.
+  atomicWrite(GRAPH_PATH, JSON.stringify(g));
   console.log(`DONE — graph nodes=${g.nodes.length} edges=${g.edges.length}`);
 }
 

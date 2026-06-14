@@ -22,6 +22,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readGraphStreaming } from "./lib/graph-io.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -271,7 +272,7 @@ function generate() {
 
   // Synthesize missing parent rollups for any new domain the reclassifier
   // created. Without this, ~30 domains have orphan children at merge time.
-  const graph = JSON.parse(fs.readFileSync(GRAPH, "utf8"));
+  const graph = (fs.statSync(GRAPH).size > 256 * 1024 * 1024 ? readGraphStreaming(GRAPH) : JSON.parse(fs.readFileSync(GRAPH, "utf8")));
   const existingRollups = new Set();
   for (const n of graph.nodes) {
     if (n.layer === "L5" && n.id?.startsWith("eng.") && n.id.split(".").length === 2) {

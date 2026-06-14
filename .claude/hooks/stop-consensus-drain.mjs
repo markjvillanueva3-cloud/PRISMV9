@@ -33,42 +33,51 @@ function emit(payload) {
   process.exit(0);
 }
 
-function queueDepth() {
-  if (!fs.existsSync(QUEUE_PATH)) return 0;
+export function queueDepth(queuePath = QUEUE_PATH) {
+  if (!fs.existsSync(queuePath)) return 0;
   try {
-    const raw = fs.readFileSync(QUEUE_PATH, "utf-8");
+    const raw = fs.readFileSync(queuePath, "utf-8");
     return raw.split("\n").filter((l) => l.trim().length > 0).length;
   } catch {
     return 0;
   }
 }
 
-function pickDrainer() {
-  for (const p of DRAINER_CANDIDATES) {
+export function pickDrainer(candidates = DRAINER_CANDIDATES) {
+  for (const p of candidates) {
     if (fs.existsSync(p)) return p;
   }
   return null;
 }
 
-const depth = queueDepth();
-if (depth === 0) {
-  emit({ continue: true });
+/**
+ * Decide + act: return the Stop payload. Spawns the drainer DETACHED only when the
+ * queue is non-empty AND a drainer exists; never throws (Stop must never block).
+ * Deps (queuePath/candidates/spawnImpl) are injected so the decision path is
+ * unit-testable without a real spawn or real queue file.
+ */
+export function run({ queuePath = QUEUE_PATH, candidates = DRAINER_CANDIDATES, spawnImpl = spawn } = {}) {
+  const depth = queueDepth(queuePath);
+  if (depth === 0) return { continue: true };
+  const drainer = pickDrainer(candidates);
+  if (!drainer) return { continue: true, systemMessage: `consensus-drain: queue=${depth} but drainer not found` };
+  try {
+    const child = spawnImpl("H:/.claude/bin/portable-node", [drainer, "--max=1"], {
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    child?.unref?.();
+  } catch {
+    /* never block Stop on spawn failure */
+  }
+  return { continue: true, systemMessage: `consensus-drain: queue=${depth}, drainer spawned (--max=1)` };
 }
 
-const drainer = pickDrainer();
-if (!drainer) {
-  emit({ continue: true, systemMessage: `consensus-drain: queue=${depth} but drainer not found` });
+// Run only as a direct hook invocation, never on import. The prior top-level execution
+// ran the drain logic AND process.exit'd on import -- making the hook untestable; this
+// isDirect guard makes it import-safe while preserving the CLI behavior exactly.
+const isDirect = (process.argv[1] || "").replace(/\\/g, "/").endsWith("stop-consensus-drain.mjs");
+if (isDirect) {
+  emit(run());
 }
-
-try {
-  const child = spawn("H:/.claude/bin/portable-node", [drainer, "--max=1"], {
-    detached: true,
-    stdio: "ignore",
-    windowsHide: true,
-  });
-  child.unref();
-} catch {
-  /* never block Stop on spawn failure */
-}
-
-emit({ continue: true, systemMessage: `consensus-drain: queue=${depth}, drainer spawned (--max=1)` });

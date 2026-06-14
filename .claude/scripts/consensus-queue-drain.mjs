@@ -33,6 +33,45 @@ const QUEUE_PATH = process.env.PRISM_CONSENSUS_QUEUE ?? "H:/prism/state/shared/c
 const PROCESSED_PATH = QUEUE_PATH.replace(/\.jsonl$/, "-processed.jsonl");
 const DEFAULT_MAX_PER_DRAIN = 3;
 
+// RATE-LIMIT-FIX (slot:bravo, 2026-06-09). The auto-consensus hook queues EVERY prompt across
+// the ~10-session fleet; the drain fans each out via engine.ask(). With the engine DEFAULTS
+// (includeClaude:true + the always-on codex voice) every drained entry made a real Claude/Codex
+// API call -> across the fleet that is a hidden amplifier of the exact org-wide rate limit this
+// session diagnosed (see reference_ollama_fanout_ratelimit_fix_2026_06_09). So the drain now runs
+// LOCAL-ONLY by default: gpt-oss:120b + qwen2.5-coder:32b (two strong resident voices = genuine
+// multi-model consensus, $0, NO Anthropic limit). Set PRISM_CONSENSUS_DRAIN_INCLUDE_CLAUDE=1 to
+// restore Claude/Codex-inclusive consensus when rate limits are not a concern (R7: safe default,
+// richer path opt-in). The local panel mirrors octopus-first-live-record's voice bound.
+const DRAIN_INCLUDE_CLAUDE = process.env.PRISM_CONSENSUS_DRAIN_INCLUDE_CLAUDE === "1";
+// CO-RESIDENCY-CORRECT panel (live-validation R15 finding 2026-06-09): the drain fires on every
+// Stop, so its two voices must CO-RESIDE in VRAM for a fast genuine 2-voice consensus. gpt-oss:120b
+// (65GB) + qwen2.5-coder:32b (37GB) = 102GB > 96GB -> can't co-reside -> resolveDiverseOllamaPanel
+// drops the 120b -> SINGLE voter (proven: a batch drain recorded voters=[qwen2.5-coder:32b] only).
+// qwen2.5-coder:32b (37GB, code specialist) + gpt-oss:20b (13GB, general reasoner) = 50GB < 96GB:
+// both resident, both diverse families -> a real fast 2-voice consensus. Override via
+// PRISM_CONSENSUS_DRAIN_PANEL="modelA,modelB". (The 120b stays the octopus deep-reasoning voice.)
+const DRAIN_LOCAL_PANEL = (process.env.PRISM_CONSENSUS_DRAIN_PANEL
+  ? process.env.PRISM_CONSENSUS_DRAIN_PANEL.split(",").map((s) => s.trim()).filter(Boolean)
+  : ["qwen2.5-coder:32b", "gpt-oss:20b"]);
+
+// Build the voice bound for engine.ask(). Local-only unless explicitly opted into Claude/Codex.
+export function buildDrainVoiceBound() {
+  if (DRAIN_INCLUDE_CLAUDE) return {}; // engine defaults: Claude + Codex + Ollama (richer, costs API)
+  return {
+    includeClaude: false,
+    // includeCodex:false CLEANLY drops the codex voice. Without it the engine
+    // called codex UNCONDITIONALLY, so this "local-only" drain still spawned the
+    // codex CLI on every drained entry across the fleet -- real ChatGPT spend on
+    // any host with codex installed (the exact rate-limit amplifier this drain
+    // claims to eliminate), or a phantom failed:spawn-enoent voice where it isn't.
+    includeCodex: false,
+    includeGrok: false,
+    includeGemini: false,
+    diverseLocalPanel: true,
+    diverseLocalModels: DRAIN_LOCAL_PANEL,
+  };
+}
+
 const args = process.argv.slice(2);
 const maxArg = args.find((a) => a.startsWith("--max="));
 // Validate --max: a non-numeric / <1 value would otherwise make the drain loop
@@ -110,6 +149,7 @@ async function processEntry(engine, entry) {
       sourceSession: entry.session_id,
       timeoutMs: 90_000,
       persist: true,
+      ...buildDrainVoiceBound(), // local-only by default (no Claude/Codex API spend) -- rate-limit-fix
     });
     return { result, errorMsg: null };
   } catch (e) {
@@ -150,7 +190,14 @@ async function main() {
   process.stdout.write(JSON.stringify({ drained, remaining: remaining.length }) + "\n");
 }
 
-main().catch((e) => {
-  process.stderr.write(`drain failed: ${e?.message ?? String(e)}\n`);
-  process.exit(0); // never break Stop hook
-});
+// Only drain when invoked directly (node consensus-queue-drain.mjs) -- NOT on
+// import. Without this guard, importing buildDrainVoiceBound for a test (or any
+// consumer) triggered a real drain as a side effect. Mirrors the isDirect guard
+// in octopus-first-live-record.mjs.
+const isDirect = (process.argv[1] || "").replace(/\\/g, "/").endsWith("consensus-queue-drain.mjs");
+if (isDirect) {
+  main().catch((e) => {
+    process.stderr.write(`drain failed: ${e?.message ?? String(e)}\n`);
+    process.exit(0); // never break Stop hook
+  });
+}

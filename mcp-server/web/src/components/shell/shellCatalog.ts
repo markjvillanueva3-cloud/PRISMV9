@@ -173,6 +173,7 @@ export const NAV_SECTIONS: readonly NavSection[] = [
       { to: '/commissions', label: 'Commissions', keywords: ['compensation', 'sales commissions', 'pay'], minClearance: 'hr_manager' },
       { to: '/credit-management', label: 'Credit Management', keywords: ['credit', 'terms', 'risk', 'collections'], minClearance: 'hr_manager' },
       { to: '/vendor-scorecard', label: 'Vendor Scorecard', keywords: ['supplier scorecard', 'vendor quality', 'procurement'], minClearance: 'lead' },
+      { to: '/vendor-catalog', label: 'Vendor Catalog', keywords: ['vendor catalog', 'supplier directory', 'sourcing', 'tool makers', 'procurement'], minClearance: 'lead' },
       { to: '/receiving', label: 'Receiving', keywords: ['receipts', 'incoming', 'inspection', 'dock'], minClearance: 'lead' },
       { to: '/shipping', label: 'Shipping', keywords: ['packout', 'shipment', 'bol', 'tracking'], minClearance: 'lead' },
     ],

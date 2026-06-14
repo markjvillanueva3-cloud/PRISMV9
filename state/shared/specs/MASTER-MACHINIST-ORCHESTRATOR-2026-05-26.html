@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="81107fbc7136cd68b6ebcc46d3e0651e8e46ffef82c1214669daf27e3cddd487">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MASTER-MACHINIST-ORCHESTRATOR-MS0 Specification</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>MASTER-MACHINIST-ORCHESTRATOR-MS0 Specification</h1>
+<div class="meta">rendered from state/shared/specs/MASTER-MACHINIST-ORCHESTRATOR-2026-05-26.md</div>
+<div class="meta">Generated 2026-05-27T02:54:37.866Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">MASTER-MACHINIST-ORCHESTRATOR-MS0 — Specification</li><li class="prism-toc-l2">Thesis</li><li class="prism-toc-l2">Source of design</li><li class="prism-toc-l2">The 16-stage pipeline + 2 side-channels + 3 routers + 2 closed loops</li><li class="prism-toc-l2">Hub map — what to compose with (DO NOT bypass)</li><li class="prism-toc-l2">Honest amendments to prior brainstorming agents</li><li class="prism-toc-l2">Unit inventory — 20 units across 5 slots</li><li class="prism-toc-l3">P0 — must ship to call MS0 complete (13 units)</li><li class="prism-toc-l3">P1 — compounds with P0 (7 units)</li><li class="prism-toc-l3">Deferred to MS1</li><li class="prism-toc-l2">Slot assignments</li><li class="prism-toc-l2">Sequencing constraints (DAG)</li><li class="prism-toc-l2">Safety doctrine — non-negotiable</li><li class="prism-toc-l2">Quote dry-run output contract (U2)</li><li class="prism-toc-l2">Acceptance criteria (MS0 ships when)</li><li class="prism-toc-l2">Open questions for spec reviewer</li><li class="prism-toc-l2">Next actions for sierra (this slot)</li><li class="prism-toc-l2">Anti-regression / R12 fail-loud</li><li class="prism-toc-l2">References</li><li class="prism-toc-l2">Status</li></ul></nav><hr class="prism-hr">
+<p>spec_id: MASTER-MACHINIST-ORCHESTRATOR-MS0 created: 2026-05-26 slot: sierra author: claude-5c0bd535 status: proposed must_human_verify: true brainstorming_rounds: 3 (15 parallel research agents) companion_html: false</p>
+<hr class="prism-hr">
+<h1 class="prism-h1">MASTER-MACHINIST-ORCHESTRATOR-MS0 — Specification</h1>
+<h2 class="prism-h2">Thesis</h2>
+<p>PRISM has the engines (3,500+ wired, world-class adaptive-algorithm depth). It is <strong>missing the composing layer</strong> that turns 16 production stages × 87 adaptive algorithms × 200+ toolpaths × 8 controller dialects × 4 stakeholder roles into a single answer per RFQ.</p>
+<p>The orchestrator&#39;s first visible product is the <strong>dry-run quote</strong>: every RFQ runs the full 16-stage plan in simulation; every dollar traces to a pipeline stage; quote-actual variance collapses because the quote IS the plan.</p>
+<h2 class="prism-h2">Source of design</h2>
+<p>3 brainstorming rounds (sierra slot, 2026-05-26):</p>
+<ul class="prism-md-list"><li>Round 1: 5 agents → 16-stage pipeline + 200+ toolpath catalog + alternative production paths + stakeholder coverage + missing-stages gap analysis</li><li>Round 2: 5 agents → 87 adaptive-algorithm catalog + per-stage observable signals + outcome-bus architecture + safety risk matrix + stakeholder UX</li><li>Round 3: 4 agents (5th died on session limit) → 593 orphan engines → orchestrator-fit map + hub identification + cross-domain duplication audit + granularity guide</li></ul>
+<p>15 agent reports synthesized in this session&#39;s assistant turns. Full conversation transcript preserved.</p>
+<h2 class="prism-h2">The 16-stage pipeline + 2 side-channels + 3 routers + 2 closed loops</h2>
+<pre class="prism-codeblock"><code>┌────────────────────────────────────────────────────────────────┐
+│ SIDE-CHANNEL A: GD&amp;T payload propagates through every stage    │
+│ SIDE-CHANNEL B: Confidence trace propagates through every stage│
+└────────────────────────────────────────────────────────────────┘
+
+1.  INPUT (RFQ + blueprint/photo/STEP)
+2.  MATERIAL-RESOLVE (spec + heat-treat + supplier)
+3.  FEASIBILITY-GATE (pre-quote — fixes wrong-order regression)
+4.  CAD (text/blueprint/photo → 3D + featureDAG) ← DOMAIN-ROUTER
+5.  SETUP-PLAN (workholding + datum + multi-op sequence)
+6.  METHOD-ROUTER (CAM vs Fanuc macro vs Mazatrol vs on-machine)
+7.  CAM-STRATEGY / MACRO-COMPOSE / CONVERSATIONAL-COMPOSE
+8.  SSF (Kienzle + Taylor + chatter + chip-thinning)
+9.  TOOL-CRIB (JM Die real inventory + substitute/order)
+10. POST (controller-dialect emit + capability-matrix gate)
+11. SETUP-VALIDATION (air-cut + datum-offset proof)
+12. SIM/QA (collision + safety Ω≥0.95/S(x)≥0.98)
+13. FAI-GATE (CMM + Cpk + PPAP form 3)
+14. SECONDARY-OPS (heat-treat/grind/anodize/plate routing)
+15. EXECUTE (MACHINE_RUN — currently MISSING dispatcher)
+16. ERP/COST + QUOTE-DRY-RUN
+
+Closed-loop A: pre-quote feasibility (fixes Agent D&#39;s P0)
+Closed-loop B: outcome bus → confidence weights + Kienzle/Taylor +
+               LoRA + Wright curve + win/lose pricing</code></pre>
+<h2 class="prism-h2">Hub map — what to compose with (DO NOT bypass)</h2>
+<table class="prism-md-table"><thead><tr><th>Stage</th><th>Coarse hub</th><th>Status</th></tr></thead><tbody><tr><td>INPUT</td><td><code class="prism-inline-code">PrintToProgramPipelineEngine</code></td><td>✓ wired</td></tr>
+<tr><td>MATERIAL</td><td><code class="prism-inline-code">MaterialEquivalenceEngine</code></td><td>✓ wired</td></tr>
+<tr><td>FEASIBILITY</td><td><code class="prism-inline-code">FeasibilityOrchestratorEngine</code></td><td>✓ wired</td></tr>
+<tr><td>CAD</td><td><code class="prism-inline-code">CADSystemRouterEngine</code> (367 + 564 actions)</td><td>✓ wired (sink: 3,212 in / 10 out — fan-out gap)</td></tr>
+<tr><td>SETUP</td><td><strong>MISSING</strong> — <code class="prism-inline-code">SetupOrchestrationEngine</code> to build</td><td>✗ no coarse hub</td></tr>
+<tr><td>METHOD</td><td><strong>MISSING</strong> — <code class="prism-inline-code">ProgrammingMethodOrchestratorEngine</code> to build</td><td>✗ god gap</td></tr>
+<tr><td>CAM</td><td><code class="prism-inline-code">CAMKernelOrchestratorEngine</code> (2,475 actions)</td><td>✓ wired (god-engine: needs MS1 decomp)</td></tr>
+<tr><td>SSF</td><td><code class="prism-inline-code">SpeedFeedOrchestratorEngine</code> (2,851 LOC, 67 integration points)</td><td>✓ wired (mislabeled &quot;orchestrator&quot; — IS the hub)</td></tr>
+<tr><td>TOOL-CRIB</td><td><code class="prism-inline-code">ToolInventoryOrchestratorEngine</code></td><td>✓ wired</td></tr>
+<tr><td>POST</td><td><code class="prism-inline-code">MasterPostProcessorEngine</code> → <code class="prism-inline-code">PostProcessorPipelineEngine</code></td><td>✓ wired (38-stage god engine — MS1 decomp candidate)</td></tr>
+<tr><td>SETUP-VALID</td><td><code class="prism-inline-code">CalibratedSimulationEngine</code></td><td>✓ wired</td></tr>
+<tr><td>SIM/QA</td><td><code class="prism-inline-code">SimulationEngine</code></td><td>✓ wired</td></tr>
+<tr><td>FAI-GATE</td><td><code class="prism-inline-code">PRISMOmegaSafetyEngine</code></td><td>✓ wired (UNIVERSAL gate)</td></tr>
+<tr><td>SECONDARY</td><td><code class="prism-inline-code">SecondaryOpsEngine</code></td><td>✓ wired</td></tr>
+<tr><td>EXECUTE</td><td><strong>MISSING</strong> — <code class="prism-inline-code">prism_machine_run</code> dispatcher to build</td><td>✗ structural gap</td></tr>
+<tr><td>QUOTE</td><td><code class="prism-inline-code">QuoteToShipOrchestratorEngine</code> + <code class="prism-inline-code">QuoteEstimatorEngine</code> + <code class="prism-inline-code">JobCostingEngine</code></td><td>✓ wired</td></tr></tbody></table>
+<h2 class="prism-h2">Honest amendments to prior brainstorming agents</h2>
+<p><strong>Agent I (safety)</strong> overstated the EWC gap:</p>
+<ul class="prism-md-list"><li>CLAIM: &quot;CrossProcessEWCMemoryPreservationEngine built+tested but never invoked&quot;</li><li>REALITY (verified inline 2026-05-26): EWC IS wired into <code class="prism-inline-code">CrossProcessNeuralLearningEngine.ts</code> lines 1090, 1173, 1192, 1219, 1618 — <code class="prism-inline-code">regLoss</code>, <code class="prism-inline-code">computeFisher</code>, <code class="prism-inline-code">consolidateCurrentTask</code>, <code class="prism-inline-code">reset</code> all called</li><li>TRUE GAP: EWC NOT wired into <code class="prism-inline-code">CAMLoRAAdapterTrainerEngine.trainAll()</code> — LoRA adapter trainer uses simpler LS optimization without Fisher-info regularization. This is a P1 design unit (non-trivial integration), not the 20-LOC wire claimed.</li><li>Lesson: per <code class="prism-inline-code">feedback_verify_actual_contract_not_proxy</code>, ALL Agent I claims of &quot;BUILT but UNWIRED&quot; must be inline-verified before becoming a unit.</li></ul>
+<p><strong>Agent A (system-viz crawler)</strong> claimed <code class="prism-inline-code">QuotingEngine</code> + <code class="prism-inline-code">JobCostingEngine</code> + <code class="prism-inline-code">JobShopSchedulingEngine</code> are all ○ ghost:</p>
+<ul class="prism-md-list"><li>Agent K (round 3) corrected: <code class="prism-inline-code">QuotingEngine</code> + <code class="prism-inline-code">JobCostingEngine</code> ARE wired. <code class="prism-inline-code">JobShopSchedulingEngine</code> is the actual ghost.</li><li>Verification (inline 2026-05-26): not done; flagged for spec reviewer.</li></ul>
+<h2 class="prism-h2">Unit inventory — 20 units across 5 slots</h2>
+<h3 class="prism-h3">P0 — must ship to call MS0 complete (13 units)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>Slot</th><th>Effort</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>1</td><td>U-MMO-PIPELINE-SHELL</td><td>sierra</td><td>M</td><td>NEW</td><td>16-stage <code class="prism-inline-code">OrchestratorPipelineEngine</code> skeleton with facade adapters. Stage-by-stage cost-emit contract. Foundation for all downstream units.</td></tr>
+<tr><td>2</td><td>U-MMO-QUOTE-DRY-RUN</td><td>sierra</td><td>M</td><td>NEW</td><td>Dry-run mode on the pipeline shell. Returns <code class="prism-inline-code">{quote_low_p50, quote_med_p95, quote_high_p99, decomposition[16], alt_methods[], should_cost, margin_floor, risk_premium, win_probability, wright_curve}</code>. Wraps <code class="prism-inline-code">QuoteEstimatorEngine</code> + <code class="prism-inline-code">JobCostingEngine</code> + <code class="prism-inline-code">QuoteToShipOrchestratorEngine</code>. THE THESIS.</td></tr>
+<tr><td>3</td><td>U-MMO-FEASIBILITY-GATE</td><td>sierra</td><td>S</td><td>WIRE</td><td>Wire <code class="prism-inline-code">FeasibilityOrchestratorEngine</code> to run BEFORE <code class="prism-inline-code">QuoteEstimatorEngine</code> (fixes Agent D&#39;s wrong-order P0).</td></tr>
+<tr><td>4</td><td>U-MMO-OUTCOME-BUS-CONTROLLER</td><td>juliett</td><td>L</td><td>NEW</td><td>Unified subscriber to <code class="prism-inline-code">outcome.completed</code>. Fan-out: fast-loop override store + per-part replay buffer + per-batch calibration + nightly LoRA/GNN retrain. Audit log + 7-day rolling weight snapshots + auto-rollback on AUROC drop &gt;5% + confidence gate (&gt;2σ delta).</td></tr>
+<tr><td>5</td><td>U-MMO-MULTI-AGENT-MODEL-LOCK</td><td>juliett</td><td>S</td><td>WIRE-ONLY</td><td>Wrap <code class="prism-inline-code">CAMLoRAAdapterTrainerEngine.trainAll()</code> and <code class="prism-inline-code">CrossProcessNeuralLearningEngine.train()</code> in <code class="prism-inline-code">DistributedLockManager.withLock(&quot;model-&lt;id&gt;&quot;, ...)</code>. Add concurrent-train regression test (3 slots, deterministic final loss).</td></tr>
+<tr><td>6</td><td>U-MMO-DRIFT-REGRESSION-NIGHTLY</td><td>golf</td><td>M</td><td>NEW</td><td><code class="prism-inline-code">scripts/cam-ml-regression-check.mjs</code> cron. Evaluate baseline + current model on held-out CAMMLSplitEngine test set. Alert if <code class="prism-inline-code">MAE_current &gt; MAE_baseline * 1.05</code>; auto-rollback if <code class="prism-inline-code">&gt;1.15</code>. Manager dashboard surface.</td></tr>
+<tr><td>7</td><td>U-MMO-DARK-STAGE-INSTRUMENTATION</td><td>sierra</td><td>M</td><td>NEW</td><td>Wire observable-signal capture into MATERIAL-RESOLVE, FEASIBILITY-GATE, SETUP-PLAN (currently 0 observables per Agent G). 3 new events to <code class="prism-inline-code">FeedbackBusEngine</code>.</td></tr>
+<tr><td>8</td><td>U-MMO-OVERRIDE-RECEIPT-LOOP</td><td>sierra</td><td>M</td><td>WIRE + UI</td><td>Operator override capture → receipt UI (&quot;Recorded. Retrain at 5 overrides. Current: 2/5&quot;) → auto-trigger <code class="prism-inline-code">/queue-model-refresh</code> → manager dashboard. Closes the open loop.</td></tr>
+<tr><td>9</td><td>U-MMO-LORA-PIPELINE-COLLAPSE</td><td>juliett</td><td>L</td><td>REFACTOR</td><td>Collapse 67 LoRA engines (50 LatheLoRA<em> + 17 MillingLoRA</em> + 1 WEDMLoRA) → 1 generic <code class="prism-inline-code">LoRATrainingPipelineEngine</code> + 3 thin domain adapters. Biggest compounding cleanup. -64 files.</td></tr>
+<tr><td>10</td><td>U-MMO-MACHINE-RUN-DISPATCHER</td><td>india</td><td>L</td><td>NEW</td><td>Create <code class="prism-inline-code">prism_machine_run</code> dispatcher + wire <code class="prism-inline-code">MTConnectIngester</code> (ghost — verify/build) + <code class="prism-inline-code">SlotSessionHistoryEngine</code> (26KB unwired) + <code class="prism-inline-code">ShopOutcomeIngestProcessorEngine</code> (14KB unwired). The execution-edge gap.</td></tr>
+<tr><td>11</td><td>U-MMO-SETUP-ORCHESTRATION-ENGINE</td><td>sierra</td><td>M</td><td>NEW</td><td>Coarse hub for Stage 5. Composes <code class="prism-inline-code">FeasibilityOrchestrator</code> + <code class="prism-inline-code">FeatureClusteringEngine</code> + <code class="prism-inline-code">FixtureDesignEngine</code> + <code class="prism-inline-code">WorkCoordinateEngine</code> + <code class="prism-inline-code">TombstoneLayoutEngine</code>. Currently no hub exists per Agent N.</td></tr>
+<tr><td>12</td><td>U-MMO-METHOD-ROUTER</td><td>india</td><td>M</td><td>NEW</td><td>Create <code class="prism-inline-code">ProgrammingMethodOrchestratorEngine</code> + <code class="prism-inline-code">prism_method</code> dispatcher. Decision tree: feature graph + machine + operator skill + volume → CAM/macro/conversational/on-machine ranked methods with confidence.</td></tr>
+<tr><td>13</td><td>U-MMO-MATERIAL-RESOLVE-STAGE</td><td>sierra</td><td>S</td><td>WIRE</td><td>Stage 2 standalone wiring <code class="prism-inline-code">MaterialEquivalenceEngine</code> + <code class="prism-inline-code">MaterialDatabaseBridgeEngine</code> + <code class="prism-inline-code">HeatTreatmentResponseEngine</code>. Drives every downstream stage.</td></tr></tbody></table>
+<h3 class="prism-h3">P1 — compounds with P0 (7 units)</h3>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Unit</th><th>Slot</th><th>Effort</th><th>Type</th><th>Description</th></tr></thead><tbody><tr><td>14</td><td>U-MMO-CONFIDENCE-EXPLAIN-TRACE</td><td>hotel</td><td>M</td><td>NEW</td><td><code class="prism-inline-code">explain()</code> contract on every adaptive recommendation: <code class="prism-inline-code">{recommendation, prior: {n, distribution}, evidence[], confidence_interval, tribal_rules, alternatives[], drift_status, last_calibrated}</code>. Doctrine: never show single number when N&lt;20 or drift&gt;0.15.</td></tr>
+<tr><td>15</td><td>U-MMO-TOOL-CRIB-STAGE</td><td>sierra</td><td>S</td><td>WIRE</td><td>Wrap <code class="prism-inline-code">ToolInventoryOrchestratorEngine</code> as Stage 9. Gate POST on inventory availability.</td></tr>
+<tr><td>16</td><td>U-MMO-TOOLPATH-CONTEXT</td><td>sierra</td><td>L</td><td>REFACTOR</td><td>Define <code class="prism-inline-code">ToolpathSelectorContext</code> schema (8 missing dimensions: rigidity, coolant, IT-class, volume, chatter history, rework penalty, spindle kW, prior-part match). Wire through 91 strategy engines (incremental — start with <code class="prism-inline-code">MillingStrategyLibraryEngine</code> + <code class="prism-inline-code">LatheStrategyLibrary</code> + 5 most-used).</td></tr>
+<tr><td>17</td><td>U-MMO-WRIGHT-CURVE</td><td>hotel</td><td>M</td><td>NEW</td><td>Wright&#39;s 80% learning curve in <code class="prism-inline-code">QuoteEstimatorEngine</code>. Quote N=1 vs N=10 vs N=100 each priced.</td></tr>
+<tr><td>18</td><td>U-MMO-WIN-LOSE-LOOP</td><td>hotel</td><td>M</td><td>WIRE</td><td><code class="prism-inline-code">QuoteAnalyticsEngine</code> outcome bus → pricing model training loop. Win/lose feeds Wright calibration.</td></tr>
+<tr><td>19</td><td>U-MMO-FIXTURE-DESIGN-REFACTOR</td><td>sierra</td><td>M</td><td>REFACTOR</td><td>Invert-of-control: <code class="prism-inline-code">FixtureDesignEngine</code> stays generic + <code class="prism-inline-code">LatheWorkholdingAdapter</code> + <code class="prism-inline-code">MillWorkholdingAdapter</code> + <code class="prism-inline-code">WEDMWorkholdingAdapter</code>. Compounds with U-MMO-SETUP-ORCHESTRATION-ENGINE.</td></tr>
+<tr><td>20</td><td>U-MMO-CAD-FANOUT-STREAMING</td><td>sierra</td><td>M</td><td>NEW</td><td>dispatcher-cad is a sink (3,212 in / 10 out). Add per-feature streaming output so downstream consumes incrementally.</td></tr></tbody></table>
+<h3 class="prism-h3">Deferred to MS1</h3>
+<ul class="prism-md-list"><li>U-MMO-EWC-LORA-TRAINER-WIRE — design EWC integration for LoRA adapter trainer (Fisher-info on LS optimization is non-trivial — was overstated by Agent I)</li><li>U-MMO-DISPATCHER-CAM-DECOMP — shard god dispatcher (6,822 total degree) into 4 sub-dispatchers</li><li>U-MMO-POST-PIPELINE-DECOMP — split <code class="prism-inline-code">PostProcessorPipelineEngine</code> 38 stages into 5 phases</li><li>U-MMO-LATHE-RL-WIRE / U-MMO-MILL-RL-WIRE — wire the unwired <code class="prism-inline-code">LatheReinforcementLearningEngine</code> + <code class="prism-inline-code">MillingReinforcementLearningEngine</code></li><li>U-MMO-CPK-SURROGATE-GENERALIZE — <code class="prism-inline-code">TurningCpkSurrogateEngine</code> → <code class="prism-inline-code">CpkSurrogateEngine[domain]</code> (missed reuse)</li><li>U-MMO-HRL-OPTIONS-FRAMEWORK — Hierarchical RL options framework (entirely missing — Agent F finding)</li><li>U-MMO-CAD-ADVERSARIAL-FILTER — pre-orchestrator CAD adversarial-input detector</li><li>U-MMO-FANUC-MACRO-EMITTER — close the Fanuc Macro-B stub (dialect captured, emitter missing)</li><li>U-MMO-MAZATROL-EMITTER — first conversational emitter for Mazak machines at JM Die</li></ul>
+<h2 class="prism-h2">Slot assignments</h2>
+<table class="prism-md-table"><thead><tr><th>Slot</th><th>Units</th><th>Total effort</th><th>Notes</th></tr></thead><tbody><tr><td>sierra</td><td>1, 2, 3, 7, 8, 11, 13, 15, 16, 19, 20</td><td>~6 weeks</td><td>This slot. Open-work-slot per soul.</td></tr>
+<tr><td>india</td><td>10, 12</td><td>~3 weeks</td><td>Post-processor specialist per soul. MACHINE-RUN + METHOD-ROUTER fit india&#39;s domain.</td></tr>
+<tr><td>juliett</td><td>4, 5, 9</td><td>~3 weeks</td><td>SSF + AI training specialist (per chat-id claude-d63af58b&#39;s current PSN-SELF-IMPROVING-LOOP work).</td></tr>
+<tr><td>golf</td><td>6</td><td>~1 week</td><td>Hygiene + cron.</td></tr>
+<tr><td>hotel</td><td>14, 17, 18</td><td>~2 weeks</td><td>Business wrapper.</td></tr></tbody></table>
+<p>Concurrent elapsed: 4-6 weeks assuming PIPELINE-SHELL (U1) lands week 1 — all other units depend on its stage contract.</p>
+<h2 class="prism-h2">Sequencing constraints (DAG)</h2>
+<pre class="prism-codeblock"><code>U1 (PIPELINE-SHELL) ──→ U2 (QUOTE-DRY-RUN) ──→ U3 (FEASIBILITY-GATE)
+                  ──→ U7 (DARK-STAGE-INSTRUMENTATION)
+                  ──→ U11 (SETUP-ORCH) ──→ U19 (FIXTURE-REFACTOR)
+                  ──→ U13 (MATERIAL-RESOLVE)
+                  ──→ U15 (TOOL-CRIB)
+                  ──→ U16 (TOOLPATH-CONTEXT)
+                  ──→ U20 (CAD-FANOUT)
+
+U4 (OUTCOME-BUS) ──→ U5 (MODEL-LOCK)
+                ──→ U9 (LORA-COLLAPSE)
+                ──→ U6 (DRIFT-NIGHTLY)
+                ──→ U8 (OVERRIDE-RECEIPT)
+
+U10 (MACHINE-RUN) — independent; can ship in parallel
+U12 (METHOD-ROUTER) — independent; can ship in parallel
+U14 (CONFIDENCE-EXPLAIN) — independent; wires INTO existing engines
+U17 (WRIGHT-CURVE) ──→ U18 (WIN-LOSE-LOOP) ──→ feeds U2 QUOTE-DRY-RUN</code></pre>
+<h2 class="prism-h2">Safety doctrine — non-negotiable</h2>
+<p>Per CLAUDE.md and <code class="prism-inline-code">feedback_no_weakening_safety_gates</code>:</p>
+<ul class="prism-md-list"><li>Never weaken <code class="prism-inline-code">Ω≥0.95</code> or <code class="prism-inline-code">S(x)≥0.98</code> to make a model pass</li><li>Every adaptive update writes audit trace (event_id, part_id, prior, new, delta_sigma)</li><li>Cold-start defaults to physics-safe minimum, NOT mid-tier</li><li>Multi-agent training is locked (DistributedLockManager) — no concurrent weight writes</li><li>EWC++ wraps LoRA training where Fisher information applies (P1 design unit)</li><li>Drift detection auto-rollback on AUROC drop &gt;5%</li><li>Operator override carries intent classification (tribal | emergency | over-conservative | over-aggressive); only tribal + emergency feed RL</li></ul>
+<h2 class="prism-h2">Quote dry-run output contract (U2)</h2>
+<pre class="prism-codeblock" data-lang="typescript"><code>{
+  quote_low_p50:  { dollars, lead_days, confidence },
+  quote_med_p95:  { dollars, lead_days, confidence },  // recommended
+  quote_high_p99: { dollars, lead_days, confidence },
+  decomposition: [{ stage, cost, source, confidence }, ...×16],
+  alt_methods: [{ method, total, savings, tradeoff }],
+  should_cost,        // theoretical optimum
+  margin_floor,       // below this = walk away
+  risk_premium,       // unknowns
+  win_probability,    // from QuoteAnalyticsEngine prior data
+  wright_curve: { n1, n10, n100 }
+}</code></pre>
+<h2 class="prism-h2">Acceptance criteria (MS0 ships when)</h2>
+<ol class="prism-md-list"><li>All 13 P0 units land with per-file scrutiny (2 parallel reviewers each)</li><li>Quote-actual variance on historical JM Die archive (24,545 files) within ±15% on N=50 sample (target: ±10% per Quoting Expert Mode)</li><li>Zero god-engine safety bypasses (Ω/S(x) thresholds intact)</li><li>Outcome bus closes loop on ≥1 retrain cycle (auditable in <code class="prism-inline-code">OUTCOME_AUDIT_LOG.jsonl</code>)</li><li>Multi-agent model-write test passes (3 concurrent trains, deterministic final loss)</li><li>MACHINE-RUN dispatcher emits ≥1 MTConnect-sourced outcome to bus</li></ol>
+<h2 class="prism-h2">Open questions for spec reviewer</h2>
+<ul class="prism-md-list"><li>(P0) Is <code class="prism-inline-code">JobShopSchedulingEngine</code> actually ghost per Agent A or wired per Agent K? Verify before assuming.</li><li>(P1) Should U16 TOOLPATH-CONTEXT wire all 91 strategy engines or just top-5 most-used in MS0? Incremental scope.</li><li>(P1) U9 LORA-COLLAPSE: does collapsing 67 engines break any existing in-flight cron / scheduled task? Audit before refactor.</li><li>(P2) Does the per-stage cost-emit contract belong on the engine interface or as a separate Decorator? Discuss before U1.</li></ul>
+<h2 class="prism-h2">Next actions for sierra (this slot)</h2>
+<ol class="prism-md-list"><li><strong>Iter 5 (this session if budget allows):</strong> Build U-MMO-LORA-PIPELINE-COLLAPSE FOUNDATION — <code class="prism-inline-code">scripts/lib/lora-training-pipeline.mjs</code> (generic) + 3 domain-adapter stubs + test suite. Collapse migration is a follow-up wave.</li><li><strong>Iter 6+:</strong> Build U1 PIPELINE-SHELL + U2 QUOTE-DRY-RUN as sierra&#39;s primary plate.</li><li><strong>Post to chat-bus:</strong> Notify india + juliett + golf + hotel of their assigned units.</li></ol>
+<h2 class="prism-h2">Anti-regression / R12 fail-loud</h2>
+<ul class="prism-md-list"><li>Agent I&#39;s EWC claim was wrong (verified inline). Future audit agents must verify &quot;BUILT-but-UNWIRED&quot; claims before promoting to unit.</li><li>Agent A&#39;s <code class="prism-inline-code">QuotingEngine</code>/<code class="prism-inline-code">JobCostingEngine</code> ghost claim contradicted by Agent K. Resolve before U2 ships.</li><li>dispatcher-cam (god engine, 6,822 total degree) — composing with it works for MS0 but is a known scaling risk for MS1.</li></ul>
+<h2 class="prism-h2">References</h2>
+<ul class="prism-md-list"><li>Brainstorming session transcript: this session 2026-05-26, slot sierra, claude-5c0bd535</li><li>15 parallel agent reports synthesized in assistant turns (3 rounds × 5 agents, 1 died on session limit)</li><li>CLAUDE.md §SCRUTINY GATE, §HOOK ENFORCEMENT GATES, §NN-GRAPH-MS0/MS1/MS2</li><li><code class="prism-inline-code">state/shared/system-viz/domain-pipeline-augmentation.json</code> (13 domain pipelines, 86 stages mapped)</li><li><code class="prism-inline-code">state/shared/AWARENESS-SNAPSHOT.md</code> (current wiring coverage)</li><li><code class="prism-inline-code">state/shared/specs/HERMES-MEMORY-VAULT-RESEARCH-2026-05-23.md</code> (cross-ref for closed-loop architecture)</li><li>akshay_pachaar X tweet 2056714042455343160 (RAG vs CAG — substrate already shipped this session as commit 3787ba822a)</li><li>cyrilXBT X tweet 2052923836090167526 (Obsidian writes back — formally HMEMV04+05+06 envelope)</li></ul>
+<h2 class="prism-h2">Status</h2>
+<ul class="prism-md-list"><li>[x] Design proposed</li><li>[ ] User reviews this spec (gate before envelope JSON write)</li><li>[ ] User approves</li><li>[ ] Envelope JSON written to <code class="prism-inline-code">mcp-server/data/milestones/MASTER-MACHINIST-ORCHESTRATOR-MS0/envelope.json</code></li><li>[ ] Per-unit specs written to <code class="prism-inline-code">mcp-server/data/milestones/MASTER-MACHINIST-ORCHESTRATOR-MS0/units/U-MMO-*.json</code></li><li>[ ] Chat-bus broadcast posted to india/juliett/golf/hotel</li><li>[ ] First unit claimed</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

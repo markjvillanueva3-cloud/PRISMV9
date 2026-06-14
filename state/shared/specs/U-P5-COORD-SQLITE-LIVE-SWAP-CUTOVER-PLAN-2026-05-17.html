@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="b9e851362bf6b3f757ac1de889e853e6f2cf6459614003f9b8cf09e0f2a98cf7">
+<title>U-P5-COORD-SQLITE-LIVE-SWAP — Cutover De-Risk Plan</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">U-P5-COORD-SQLITE-LIVE-SWAP — Cutover De-Risk Plan</h1>
+<p class="provenance">Generated 2026-05-18T17:34:21.162Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#u-p5-coord-sqlite-live-swap-cutover-de-risk-plan">U-P5-COORD-SQLITE-LIVE-SWAP — Cutover De-Risk Plan</a></li>
+<li class="toc-l2"><a href="#1-premise-correction-verified-against-head-not-the-unit-title">1. Premise correction (verified against HEAD, not the unit title)</a></li>
+<li class="toc-l2"><a href="#2-endpoints">2. Endpoints</a></li>
+<li class="toc-l3"><a href="#2a-file-ownership-store-5-hot-path-hooks">2a. File-ownership store (5 hot-path hooks)</a></li>
+<li class="toc-l3"><a href="#2b-work-unit-claim-store-2-hooks">2b. Work-unit-claim store (2 hooks)</a></li>
+<li class="toc-l2"><a href="#3-risk-why-this-is-not-autonomous-loop-safe">3. Risk — why this is NOT autonomous-/loop-safe</a></li>
+<li class="toc-l2"><a href="#4-cutover-plan-env-switched-every-phase-reversible">4. Cutover plan (env-switched, every phase reversible)</a></li>
+<li class="toc-l2"><a href="#5-acceptance-criteria">5. Acceptance criteria</a></li>
+<li class="toc-l2"><a href="#6-autonomous-boundary-explicit">6. Autonomous boundary (explicit)</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="u-p5-coord-sqlite-live-swap-cutover-de-risk-plan"><a class="anchor" href="#u-p5-coord-sqlite-live-swap-cutover-de-risk-plan" aria-label="Permalink to U-P5-COORD-SQLITE-LIVE-SWAP — Cutover De-Risk Plan">#</a>U-P5-COORD-SQLITE-LIVE-SWAP — Cutover De-Risk Plan</h1>
+<p><strong>Status:</strong> advisory · <code>mustHumanVerify</code> · operator-supervised execution <strong>Author:</strong> claude-a61bbf34 (slot echo) · 2026-05-17 <strong>Milestone:</strong> SYSTEM-VIZ-BRAIN-MS0 (last open unit; 25/26 shipped/closed) <strong>Why this doc:</strong> the <code>/loop</code> autonomous scope cannot safely execute this unit (see §Risk). This plan makes it executable by an operator and bounds the blast radius. Producing the plan is autonomous-safe (a doc); executing it is not.</p>
+<hr>
+<h2 id="1-premise-correction-verified-against-head-not-the-unit-title"><a class="anchor" href="#1-premise-correction-verified-against-head-not-the-unit-title" aria-label="Permalink to 1. Premise correction (verified against HEAD, not the unit title)">#</a>1. Premise correction (verified against HEAD, not the unit title)</h2>
+<p>The unit name says &quot;swap coord store to live SQLite&quot; and implies a single <code>WORK_CLAIMS.json → SQLite</code> migration. The reality is more nuanced — there are <strong>three</strong> coordination JSON stores, only one of which was H8-migrated. Verified on disk 2026-05-17 (corrected after 3-of-3 reviewer A caught a false &quot;zero references&quot; claim in the first draft — the original sweep used the wrong path scope and missed the surviving <code>state/shared/</code> store; R12 fail-loud):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Store</th><th>Status 2026-05-17</th><th>Refs</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td><code>mcp-server/data/state/WORK_CLAIMS.json</code></td><td><strong>absent</strong> — H8-migrated to SQLite 2026-05-13</td><td>none</td><td>(historical)</td></tr>
+<tr><td><code>state/shared/WORK_CLAIMS.json</code></td><td><strong>EXISTS</strong> (552 B, mtime 2026-05-17) — NOT migrated</td><td><code>.claude/hooks/work-claim.mjs:27</code>, <code>.claude/hooks/stop_on_open_claim.mjs:12</code> (env <code>PRISM_WORK_CLAIMS_FILE</code>)</td><td>work-<strong>unit</strong> claims</td></tr>
+<tr><td><code>mcp-server/data/state/session-file-ownership.json</code></td><td><strong>EXISTS</strong> — live, NOT migrated</td><td>5 hot-path hooks (see §2)</td><td><strong>file-ownership</strong> claims</td></tr>
+</tbody>
+</table></div>
+<p><code>CoordinationStoreEngine.ts</code> exists, wired into <code>contextDispatcher.ts:1164</code> (<code>coord_sqlite</code>). API: <code>claim/release/findClaim/liveClaims/allClaims/</code> <code>activeSessions/findPresence/prune/counts/migrateFromJson/health</code>. Its <code>LEGACY_WORK_CLAIMS_PATH</code> (CoordinationStoreEngine.ts:52) is exactly <code>state/shared/WORK_CLAIMS.json</code> — i.e. <code>migrateFromJson()</code> already targets the surviving work-unit store by default, but <strong>nothing calls it on the live path</strong>.</p>
+<p><strong>The real remaining swap</strong> is therefore TWO independent live JSON stores, not the one the title implies:</p>
+<ol>
+<li><strong>work-unit claims</strong> — <code>state/shared/WORK_CLAIMS.json</code> on 2 hooks (<code>work-claim.mjs</code>, <code>stop_on_open_claim.mjs</code>). <code>migrateFromJson()</code> already handles the shape; the gap is wiring those 2 hooks at the SQLite engine.</li>
+<li><strong>file-ownership claims</strong> — <code>session-file-ownership.json</code> on 5 hot-path hooks (§2). Different shape (<code>{files,sessions}</code> vs ClaimRow) — needs a shape adapter, NOT a raw <code>migrateFromJson</code>.</li>
+</ol>
+<p>The SQLite engine is dispatcher-wired but off BOTH live paths.</p>
+<h2 id="2-endpoints"><a class="anchor" href="#2-endpoints" aria-label="Permalink to 2. Endpoints">#</a>2. Endpoints</h2>
+<h3 id="2a-file-ownership-store-5-hot-path-hooks"><a class="anchor" href="#2a-file-ownership-store-5-hot-path-hooks" aria-label="Permalink to 2a. File-ownership store (5 hot-path hooks)">#</a>2a. File-ownership store (5 hot-path hooks)</h3>
+<p><strong>Source:</strong> <code>mcp-server/data/state/session-file-ownership.json</code> shape <code>{ files: {}, sessions: {} }</code>.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Hook</th><th>Role</th><th>Trigger</th></tr></thead>
+<tbody>
+<tr><td><code>.claude/hooks/file-ownership-tracker.mjs</code></td><td><strong>writer</strong></td><td>PreToolUse Edit/Write/MultiEdit</td></tr>
+<tr><td><code>.claude/hooks/commit-ownership-guard.mjs</code></td><td>reader</td><td>PreToolUse (commit path)</td></tr>
+<tr><td><code>.claude/hooks/scrutinize-before-stop.mjs</code></td><td>reader</td><td>Stop</td></tr>
+<tr><td><code>.claude/hooks/always-build-guard.mjs</code></td><td>reader</td><td>Stop</td></tr>
+<tr><td><code>.claude/hooks/stale-claim-sweeper.mjs</code></td><td>reader+sweeper</td><td>scheduled / Stop</td></tr>
+</tbody>
+</table></div>
+<p>Shape <code>{files,sessions}</code> ≠ <code>ClaimRow</code>, so a <strong>shape adapter</strong> is required — NOT a raw <code>migrateFromJson</code> call.</p>
+<h3 id="2b-work-unit-claim-store-2-hooks"><a class="anchor" href="#2b-work-unit-claim-store-2-hooks" aria-label="Permalink to 2b. Work-unit-claim store (2 hooks)">#</a>2b. Work-unit-claim store (2 hooks)</h3>
+<p><strong>Source:</strong> <code>state/shared/WORK_CLAIMS.json</code> (env <code>PRISM_WORK_CLAIMS_FILE</code>).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Hook</th><th>Role</th><th>Trigger</th></tr></thead>
+<tbody>
+<tr><td><code>.claude/hooks/work-claim.mjs:27</code></td><td>reader+writer</td><td>(work-unit claim/release)</td></tr>
+<tr><td><code>.claude/hooks/stop_on_open_claim.mjs:12</code></td><td>reader+writer</td><td>Stop (lines 96, 121 read/write)</td></tr>
+</tbody>
+</table></div>
+<p>This is exactly <code>CoordinationStoreEngine</code>&#39;s <code>LEGACY_WORK_CLAIMS_PATH</code>, so <code>migrateFromJson()</code> handles the shape directly — the gap is only repointing these 2 hooks at <code>coord_sqlite</code>.</p>
+<p><strong>Target (both):</strong> <code>CoordinationStoreEngine</code> SQLite WAL via the shim in §4.</p>
+<h2 id="3-risk-why-this-is-not-autonomous-loop-safe"><a class="anchor" href="#3-risk-why-this-is-not-autonomous-loop-safe" aria-label="Permalink to 3. Risk — why this is NOT autonomous-/loop-safe">#</a>3. Risk — why this is NOT autonomous-/loop-safe</h2>
+<ul>
+<li><strong>Hot path, every chat:</strong> <code>file-ownership-tracker</code> fires on <em>every</em> Edit/Write/MultiEdit across all concurrent chats. A defect → fleet-wide claim loss → two chats edit the same file → silent peer clobber (exactly the silent-overwrite class CLAUDE.md §PER-CHAT HANDOFF warns about).</li>
+<li><strong>Live concurrency:</strong> at authoring time 7 peer chats are active; coordination subsystem files (<code>chat-slots.mjs</code>, <code>process-slot-map.mjs</code>) are <em>peer-claimed and being modified concurrently</em>. Editing adjacent claim infra now risks collision-absorption + duplication-guard contention.</li>
+<li><strong>Hard to reverse mid-flight:</strong> if one chat writes a claim to SQLite while a not-yet-swapped chat reads JSON, claim views diverge → lane discipline breaks fleet-wide with no clean rollback once writes have split.</li>
+</ul>
+<p>Conclusion: execution requires an operator + a quiescent (ideally single-chat) fleet. The <code>/loop</code> delivered this plan only.</p>
+<h2 id="4-cutover-plan-env-switched-every-phase-reversible"><a class="anchor" href="#4-cutover-plan-env-switched-every-phase-reversible" aria-label="Permalink to 4. Cutover plan (env-switched, every phase reversible)">#</a>4. Cutover plan (env-switched, every phase reversible)</h2>
+<p>A shim <code>coordBackend</code> (<code>.claude/helpers/coord-backend.mjs</code>) exporting <code>loadOwnership/saveOwnership/findClaim/release</code> with env switch <code>PRISM_COORD_BACKEND = json | dual | shadow | sqlite</code> (default <code>json</code> = <strong>zero behavior change</strong>). All 7 hooks (5 file-ownership §2a + 2 work-unit §2b) import the shim instead of touching the store directly. Rollback at every phase = flip the env var back. Sequence the two stores independently: do §2b (work-unit, 2 hooks, <code>migrateFromJson</code> handles shape) before §2a (file-ownership, 5 hot-path hooks, needs adapter) — §2b is lower-risk and validates the shim.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Phase</th><th>Mode</th><th>Fleet</th><th>Gate to advance</th></tr></thead>
+<tbody>
+<tr><td><strong>0 Prep</strong> <em>(operator, low-risk)</em></td><td>build shim, default <code>json</code>, NOT wired</td><td>any</td><td>shim unit tests green vs both backends; rollback drill</td></tr>
+<tr><td><strong>1 Dual-write</strong></td><td><code>dual</code> (write json+sqlite, read json)</td><td>full</td><td>reconcile script diffs json vs sqlite every 5 min → <strong>0 divergence for 24h</strong></td></tr>
+<tr><td><strong>2 Read-shadow</strong></td><td><code>shadow</code> (read sqlite, json authoritative on mismatch, log mismatch)</td><td>full</td><td><strong>0 mismatch for 24h</strong></td></tr>
+<tr><td><strong>3 Cutover</strong></td><td><code>sqlite</code> (json kept cold)</td><td>quiescent / single-chat</td><td>all 7 hooks pass existing tests vs sqlite; smoke a real cross-chat claim/release on BOTH stores</td></tr>
+<tr><td><strong>4 Decommission</strong> <em>(+7d clean)</em></td><td>remove json branch</td><td>any</td><td>rename <code>session-file-ownership.json</code> AND <code>state/shared/WORK_CLAIMS.json</code> → <code>.archive.&lt;date&gt;</code> (NEVER delete, per [[feedback_never_delete_only_disable]])</td></tr>
+</tbody>
+</table></div>
+<p>Phase 0 builds the shim but <strong>does not wire it into any of the 7 hooks</strong> — wiring is Phase 1, §2b store first then §2a. No destructive action before Phase 4 (+7d clean window).</p>
+<h2 id="5-acceptance-criteria"><a class="anchor" href="#5-acceptance-criteria" aria-label="Permalink to 5. Acceptance criteria">#</a>5. Acceptance criteria</h2>
+<ul>
+<li>All 7 hooks pass their existing test suites against the <code>sqlite</code> backend: §2a <code>file-ownership-tracker</code>, <code>commit-ownership-guard</code>, <code>scrutinize-before-stop</code>, <code>always-build-guard</code>, <code>stale-claim-sweeper</code>; §2b <code>work-claim</code>, <code>stop_on_open_claim</code>.</li>
+<li>0 json↔sqlite divergence across the 24h dual-write <strong>and</strong> 24h read-shadow windows, <strong>per store</strong> (reconcile script is the oracle, not eyeballing).</li>
+<li>One rollback drill executed and logged during Phase 1 (run it on the §2b store — lower blast radius).</li>
+<li>§2a shape adapter (<code>{files,sessions}</code> ↔ ClaimRow) has its own unit tests incl. the empty-store and concurrent-claim cases. §2b reuses <code>migrateFromJson()</code> — assert its output against a known <code>state/shared/WORK_CLAIMS.json</code> fixture.</li>
+</ul>
+<h2 id="6-autonomous-boundary-explicit"><a class="anchor" href="#6-autonomous-boundary-explicit" aria-label="Permalink to 6. Autonomous boundary (explicit)">#</a>6. Autonomous boundary (explicit)</h2>
+<ul>
+<li><strong>Autonomous-safe:</strong> this plan (done). Optionally Phase 0 shim build — but ONLY when the coordination subsystem is not peer-claimed (it is, right now), so even Phase 0 is deferred to operator here.</li>
+<li><strong>Operator-only:</strong> Phases 1–4 (live hot-path, multi-chat, hard-to-reverse).</li>
+</ul>
+<p>Operator entry point: build the Phase 0 shim + adapter + tests when <code>chat-slots.mjs</code> / <code>process-slot-map.mjs</code> are not peer-claimed, then proceed phase-by-phase with the gates above.</p>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="U-P5-COORD-SQLITE-LIVE-SWAP-CUTOVER-PLAN-2026-05-17.md">U-P5-COORD-SQLITE-LIVE-SWAP-CUTOVER-PLAN-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

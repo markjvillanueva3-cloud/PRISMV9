@@ -1,0 +1,19 @@
+# INTEL-OLLAMA-OBSIDIAN-MS0 / P13-U02 — Qdrant defaults baked into the image.
+#
+# Read by Qdrant on startup from /qdrant/config/production.yaml.
+# Compose-level env vars (QDRANT__*) still override these — env wins.
+# See docker/qdrant.Dockerfile for context.
+
+service:
+  http_port: 6333
+  grpc_port: 6334
+  # Bind all interfaces inside the container; the bind-mount in compose
+  # publishes the port to 127.0.0.1 on the host.
+  host: 0.0.0.0
+
+storage:
+  # Persistent payload on disk — pairs with the bind-mount to
+  # ./data/docker-volumes/qdrant for H: drive cross-PC portability.
+  on_disk_payload: true
+
+telemetry_disabled: true

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>`/research` — Pre-Build Research Orchestrator (U-CK18)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>`/research` — Pre-Build Research Orchestrator (U-CK18)</h1>
+<div class="meta">rendered from H:/prism/knowledge/wiki/os/pipelines/research.md</div>
+<div class="meta">Generated 2026-05-17T22:02:45.075Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1"><code class="prism-inline-code">/research</code> — Pre-Build Research Orchestrator (U-CK18)</li><li class="prism-toc-l2">Two input branches</li><li class="prism-toc-l3">Branch A — UNIT (<code class="prism-inline-code">&lt;MILESTONE&gt;::U-XX</code>)</li><li class="prism-toc-l3">Branch B — TOKEN (any free string)</li><li class="prism-toc-l2">Output</li><li class="prism-toc-l1">Research Brief: &lt;input&gt;</li><li class="prism-toc-l2">Envelope status (UNIT mode only)</li><li class="prism-toc-l2">Already-shipped check (UNIT mode only)</li><li class="prism-toc-l2">Prior art</li><li class="prism-toc-l2">Sibling units (UNIT mode)</li><li class="prism-toc-l2">Build recommendation</li><li class="prism-toc-l2">Depth tuning</li><li class="prism-toc-l2">Knobs</li><li class="prism-toc-l2">Karpathy discipline pins</li><li class="prism-toc-l2">Pipeline integration</li><li class="prism-toc-l2">Surfaces</li><li class="prism-toc-l2">Related</li><li class="prism-toc-l2">See also</li></ul></nav><hr class="prism-hr">
+<p>title: PRISM pipeline — /research &lt;token-or-unit&gt; pre-build research orchestrator slug: research kind: pipeline status: shipped date: 2026-05-17 milestone: COMMAND-KERNEL-MS0 unit: U-CK18 author: claude-2d30710b (slot hotel, /loop command-kernel) trigger: command composed_of: [master-index-query, memory-semantic-search, /wiki-query, slot-task-claim, MILESTONE_PROGRESS, duplication-guard] stages:</p>
+<ul class="prism-md-list"><li>resolve-input          # decide UNIT vs TOKEN branch</li><li>already-shipped-check  # UNIT only — MILESTONE_PROGRESS + git-log subtract</li><li>peer-claim-check       # UNIT only — surface conflicting slot claims</li><li>prior-art              # master-index + wiki + memory + spec scan (both modes)</li><li>duplicate-guard        # TOKEN only — surface near-matches before any new asset</li><li>sibling-units          # UNIT only — other pending units in same phase</li><li>emit-brief             # markdown brief inline OR --out file</li></ul>
+<p>consumes:</p>
+<ul class="prism-md-list"><li>mcp-server/data/milestones/&lt;MILESTONE&gt;.json</li><li>state/shared/MILESTONE_PROGRESS.json</li><li>state/shared/slot-task-claims.json</li><li>state/shared/system-viz/system-graph.json</li><li>knowledge/wiki/index.md</li></ul>
+<p>produces:</p>
+<ul class="prism-md-list"><li>research-brief.md</li></ul>
+<p>downgrade:   mode: silent-degrade   fallback_to: brief-without-deep-recall telemetry:   ledger: state/shared/pipeline-telemetry.jsonl   fields: [fire_ts, chain_id, step_id, token_cost, latency_ms, outcome, session_id, slot]</p>
+<hr class="prism-hr">
+<h1 class="prism-h1"><code class="prism-inline-code">/research</code> — Pre-Build Research Orchestrator (U-CK18)</h1>
+<p>The <strong>pre-build</strong> surface of the command kernel. <code class="prism-inline-code">/session-cycle</code> (U-CK17) calls this between <em>pick</em> and <em>build</em> so every unit ships with a research brief instead of a re-derived guess. Composes existing surfaces — does NOT add new search engines (R8: read before you write — this skill IS the read step).</p>
+<h2 class="prism-h2">Two input branches</h2>
+<h3 class="prism-h3">Branch A — UNIT (<code class="prism-inline-code">&lt;MILESTONE&gt;::U-XX</code>)</h3>
+<p>Triggered when input matches <code class="prism-inline-code">^[A-Z][A-Z0-9-]+::U-[A-Z0-9]+$</code>. The brief grounds the build in roadmap reality before any code is written.</p>
+<table class="prism-md-table"><thead><tr><th>Step</th><th>Stage</th><th>What</th></tr></thead><tbody><tr><td>1</td><td>resolve-input</td><td>Parse <code class="prism-inline-code">&lt;MILESTONE&gt;::&lt;U-ID&gt;</code> → load envelope <code class="prism-inline-code">mcp-server/data/milestones/&lt;MILESTONE&gt;.json</code>. Find the unit; extract <code class="prism-inline-code">title</code>, <code class="prism-inline-code">description</code>, <code class="prism-inline-code">phase</code>, <code class="prism-inline-code">acceptance_criteria</code>, <code class="prism-inline-code">dependencies</code>, <code class="prism-inline-code">tools</code>, <code class="prism-inline-code">deliverables</code>.</td></tr>
+<tr><td>2</td><td>already-shipped-check</td><td>Read <code class="prism-inline-code">MILESTONE_PROGRESS.json</code>. If this unit&#39;s id is in any phase&#39;s <code class="prism-inline-code">shipped[]</code> array → STOP. Return <code class="prism-inline-code">verdict: close-out-debt</code>. The unit was already built; only an envelope flip + close-out audit remain. This is the WIRE-UNWIRED-MS0 lesson (verify before build) — non-negotiable.</td></tr>
+<tr><td>3</td><td>peer-claim-check</td><td><code class="prism-inline-code">node H:/prism/.claude/helpers/slot-task-claim.mjs list</code> → surface any active claim on this unit. If owned by another slot → STOP. Return <code class="prism-inline-code">verdict: peer-claimed</code>, names the slot + chatId. Do not race-build.</td></tr>
+<tr><td>4</td><td>prior-art</td><td><code class="prism-inline-code">prism_session:master_index_query</code> with unit title + key nouns → top-5 graph hits. <code class="prism-inline-code">/wiki-query</code> with same → top-3 wiki. <code class="prism-inline-code">prism_memory:semantic_search</code> → top-3 memory. <code class="prism-inline-code">git log --all --oneline --grep=&quot;&lt;U-XX&gt;&quot;</code> → prior commits. <code class="prism-inline-code">ls state/shared/specs/&lt;MILESTONE&gt;-<em>&lt;U-XX&gt;</em></code> → existing spec docs.</td></tr>
+<tr><td>5</td><td>sibling-units</td><td>List other units in same phase that are still pending. If this unit blocks others, take them in order.</td></tr>
+<tr><td>6</td><td>emit-brief</td><td>Markdown brief — either inline (default) or to <code class="prism-inline-code">--out &lt;path&gt;</code>. See §Output below.</td></tr></tbody></table>
+<h3 class="prism-h3">Branch B — TOKEN (any free string)</h3>
+<p>Triggered when input does NOT match the unit pattern. The brief surfaces existing prior art so the operator stops re-deriving.</p>
+<table class="prism-md-table"><thead><tr><th>Step</th><th>Stage</th><th>What</th></tr></thead><tbody><tr><td>1</td><td>resolve-input</td><td>Treat raw input as a search token.</td></tr>
+<tr><td>2</td><td>prior-art</td><td><code class="prism-inline-code">prism_session:master_index_query</code> → top-10 graph hits ranked by kind (engine &gt; dispatcher &gt; skill &gt; wiki). <code class="prism-inline-code">/wiki-query</code> → top-3. <code class="prism-inline-code">prism_memory:semantic_search</code> → top-3.</td></tr>
+<tr><td>3</td><td>duplicate-guard</td><td>If token looks like a proposed-new-asset name (no exact engine match but ≥2 near-matches), call <code class="prism-inline-code">duplicationGuardEngine.checkBeforeCreating()</code> semantics → surface every near-match with similarity score. Adopted from the standing duplication-hard-block discipline.</td></tr>
+<tr><td>4</td><td>tribal-overlay</td><td>Top-3 tribal hits gated on the token&#39;s inferred domain (mill/lathe/wedm/cad/cam).</td></tr>
+<tr><td>5</td><td>emit-brief</td><td>Same output shape — minus the unit-specific sections.</td></tr></tbody></table>
+<h2 class="prism-h2">Output</h2>
+<pre class="prism-codeblock" data-lang="markdown"><code># Research Brief: &lt;input&gt;
+**Mode:** UNIT | TOKEN  ·  **Depth:** quick | standard | deep  ·  **Generated:** &lt;ISO ts&gt;
+**Verdict:** build-needed | close-out-debt | peer-claimed | already-deep-known | green-field
+
+## Envelope status (UNIT mode only)
+- Milestone: ...
+- Phase: ...
+- Status: pending | in_progress | shipped-not-closed-out | complete
+- Peer claims: [slot/chatId/age]
+- Acceptance criteria: [...]
+- Dependencies: [...]
+- Deliverables: [path/type]
+
+## Already-shipped check (UNIT mode only)
+- MILESTONE_PROGRESS shipped[]: &lt;list&gt;
+- Git log matches: &lt;commits referencing U-XX&gt;
+- **VERDICT: close-out-debt | build-needed**
+
+## Prior art
+- Top-N master-index hits (kind/name/wired/path)
+- Top-N wiki pages (slug + 1-line abstract)
+- Top-N memory entries (filename + tag)
+- Top-N spec docs (path + 1-line abstract)
+- Duplicate-guard near-matches (token mode only)
+
+## Sibling units (UNIT mode)
+- Other pending units in same phase (do them in order if they block)
+
+## Build recommendation
+- Files to create / modify (from prior art hits)
+- Surfaces to wire (dispatcher action)
+- Tests to add (existing __tests__/ file)
+- One-paragraph approach drawn from prior art</code></pre>
+<h2 class="prism-h2">Depth tuning</h2>
+<table class="prism-md-table"><thead><tr><th>Depth</th><th>Master-index top-K</th><th>Wiki top-K</th><th>Memory top-K</th><th>Git scan</th><th>Spec scan</th></tr></thead><tbody><tr><td>quick</td><td>3</td><td>1</td><td>1</td><td>no</td><td>no</td></tr>
+<tr><td>standard (default)</td><td>5</td><td>3</td><td>3</td><td>yes</td><td>yes</td></tr>
+<tr><td>deep</td><td>15</td><td>8</td><td>8</td><td>full milestone</td><td>adjacent specs</td></tr></tbody></table>
+<h2 class="prism-h2">Knobs</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">PRISM_RESEARCH_OUT_DIR</code> — default output dir if <code class="prism-inline-code">--out</code> omitted (defaults to <code class="prism-inline-code">state/shared/research-briefs/</code>).</li><li><code class="prism-inline-code">PRISM_RESEARCH_DEPTH</code> — override default <code class="prism-inline-code">standard</code>.</li><li><code class="prism-inline-code">PRISM_RESEARCH_DISABLE_WIKI=1</code> — skip wiki recall (offline mode → emits a <code class="prism-inline-code">wiki:disabled</code> provenance tag).</li><li><code class="prism-inline-code">PRISM_RESEARCH_DISABLE_MEMORY=1</code> — skip memory recall.</li></ul>
+<h2 class="prism-h2">Karpathy discipline pins</h2>
+<ul class="prism-md-list"><li><strong>R8 — read before you write.</strong> This skill IS the read step. Do not skip.</li><li><strong>R10 — checkpoint.</strong> The brief&#39;s <code class="prism-inline-code">verdict:</code> field is the checkpoint — restate before continuing.</li><li><strong>R12 — fail loud.</strong> If wiki returns 0 hits, the brief says <code class="prism-inline-code">wiki: no-hits</code>. If git-log returns 0 matches, the brief says <code class="prism-inline-code">git: no-prior-commits</code>. Never invent.</li><li><strong>WIRE-UNWIRED-MS0 / silent close-out debt.</strong> The already-shipped check is mandatory in UNIT mode. ~96% of &quot;unwired&quot; engines are actually shipped + un-closed.</li><li><strong>Duplication-guard.</strong> TOKEN mode surfaces near-matches as a courtesy mirror of <code class="prism-inline-code">duplicationGuardEngine.mustCheckBeforeCreating()</code> — but the THROW-on-dup discipline at engine-creation time is still enforced by the original guard.</li></ul>
+<h2 class="prism-h2">Pipeline integration</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">/session-cycle</code> (U-CK17) → calls <code class="prism-inline-code">/research</code> between <em>pick</em> and <em>build</em>.</li><li><code class="prism-inline-code">/pipeline research &lt;args&gt;</code> (U-CK25) → routes here.</li><li><code class="prism-inline-code">pick-prefresh-inject.mjs</code> UserPromptSubmit hook → links to this surface on <code class="prism-inline-code">/pick-unit</code>.</li></ul>
+<h2 class="prism-h2">Surfaces</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/commands/research.md</code> — operator-facing skill spec (gitignored on disk; this wiki entry is the committed mirror per U-CK05 &quot;Generated-mirror generators&quot; pattern)</li><li><code class="prism-inline-code">knowledge/wiki/os/pipelines/research.md</code> — this file (pipeline registry entry)</li><li><code class="prism-inline-code">state/shared/research-briefs/&lt;unit-or-token&gt;-&lt;ts&gt;.md</code> — emitted brief (when <code class="prism-inline-code">--out</code> supplied)</li></ul>
+<h2 class="prism-h2">Related</h2>
+<ul class="prism-md-list"><li>[[loop]] — sister pipeline (drives the autonomous /loop that calls research per iter)</li><li>[[knowledge-injection]] — sister pipeline (research findings feed knowledge ingest)</li><li>[[goal-complete]] — sister pipeline (Stop-hook close-out gate that research&#39;s <code class="prism-inline-code">close-out-debt</code> verdict surfaces against)</li><li>[[pick]] — kernel syscall (U-CK03) that hands off to research</li><li>[[session-cycle]] — composed-of caller (U-CK17)</li></ul>
+<h2 class="prism-h2">See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">.claude/schemas/pipeline-frontmatter.schema.json</code> — schema this entry conforms to</li><li><code class="prism-inline-code">scripts/validate-pipeline-registry.mjs</code> — validator</li><li><code class="prism-inline-code">mcp-server/data/milestones/COMMAND-KERNEL-MS0.json</code> U-CK18 — the unit envelope</li><li><code class="prism-inline-code">state/shared/MILESTONE_PROGRESS.json</code> — already-shipped check source</li><li><code class="prism-inline-code">state/shared/slot-task-claims.json</code> — peer-claim check source</li></ul></main><footer><div>generated by mdToHtml() at 2026-05-17T22:02:45.075Z</div>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

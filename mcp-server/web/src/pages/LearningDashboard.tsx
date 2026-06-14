@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProgress, useRecommend } from '../hooks/useLearning';
 import { useLearningCourseRegistry } from '../hooks/useLearningCourseRegistry';
 import { useCourses } from '../hooks/useCourses';
+import { useStudentId } from '../hooks/useStudentId';
 import { SPECIALIZATION_TRACKS, TOTAL_DURATION_MIN, TOTAL_LESSONS } from '../data/academy';
 import { LoadingState } from '../components/LoadingState';
 import { ErrorState } from '../components/ErrorState';
@@ -40,7 +41,7 @@ export function LearningDashboard() {
     fetchProgress,
   } = useProgress();
   const { recommendations, loading: rLoading, fetchRecommendations } = useRecommend();
-  const { stats: academyStats } = useCourses();
+  const { stats: academyStats } = useCourses(useStudentId());
   const courseRegistry = useLearningCourseRegistry();
   const [learningSnapshot, setLearningSnapshot] = useState<PlatformLearningSnapshot | null>(null);
 

@@ -22,6 +22,7 @@ import {
   consolidate,
   readHandoffDir,
   writeConsolidated,
+  sweepStaleTmpOrphans,
 } from "./handoff-consolidate.mjs";
 
 const HTML_RESUME =
@@ -254,4 +255,33 @@ test("REGRESSION P2: dedup keeps threads that differ only after char 400 (no fai
   ];
   const { slots } = consolidate({ handoffs, gitSubjects: [], now: 9 });
   assert.equal(slots.bravo.length, 2, "both distinct threads preserved (full-text dedup key)");
+});
+
+// HIGHVALUE-DISCOVERY #11b (2026-06-09, slot:alpha): killed-mid-write tmp-orphan sweep.
+test("sweepStaleTmpOrphans removes only STALE atomic-write temps, keeps fresh + real files", () => {
+  const dir = mkdtempSync(join(tmpdir(), "prism-consolidate-sweep-"));
+  const staleTmp = join(dir, "alpha.md.tmp-111-222");   // a killed writer's orphan
+  const freshTmp = join(dir, "bravo.md.tmp-333-444");   // a concurrent peer's IN-FLIGHT tmp
+  const realFile = join(dir, "alpha.md");                // the real consolidated handoff
+  const otherFile = join(dir, "notes.txt");              // unrelated, must never be touched
+  for (const f of [staleTmp, freshTmp, realFile, otherFile]) writeFileSync(f, "x", "utf-8");
+  // Backdate the stale tmp's mtime to 2h ago (well past the 1h default threshold).
+  const twoHoursAgoSec = Math.floor(Date.now() / 1000) - 7200;
+  utimesSync(staleTmp, twoHoursAgoSec, twoHoursAgoSec);
+
+  const removed = sweepStaleTmpOrphans(dir); // default 1h threshold
+  assert.equal(removed, 1, "exactly one stale orphan swept");
+  assert.equal(existsSync(staleTmp), false, "stale tmp orphan removed");
+  assert.equal(existsSync(freshTmp), true, "fresh (in-flight) peer tmp KEPT — never clobber a live write");
+  assert.equal(existsSync(realFile), true, "real consolidated .md KEPT (not a tmp)");
+  assert.equal(existsSync(otherFile), true, "non-tmp file KEPT (filter is precise)");
+});
+
+test("sweepStaleTmpOrphans is fail-soft on a missing dir and honors an explicit maxAge", () => {
+  assert.equal(sweepStaleTmpOrphans(join(tmpdir(), "prism-nope-" + process.pid)), 0, "absent dir → 0, no throw");
+  const dir = mkdtempSync(join(tmpdir(), "prism-consolidate-sweep2-"));
+  const t = join(dir, "echo.md.tmp-9-9");
+  writeFileSync(t, "x", "utf-8"); // fresh
+  assert.equal(sweepStaleTmpOrphans(dir, 0), 1, "maxAge=0 → even a just-written tmp is stale (every age ≥ 0)");
+  assert.equal(existsSync(t), false, "removed under maxAge=0");
 });

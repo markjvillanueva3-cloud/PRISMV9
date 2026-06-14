@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "QUOTING-PIPELINE-MS0",
+  "title": "Quoting Pipeline MS0 — wire camera-OCR + insert/tool/service-tag lookup + live-chat troubleshoot + customer-facing mobile capture page",
+  "status": "shipped",
+  "shipped_at": "2026-05-24",
+  "shipped_commits": ["7eb093a0f6", "6b04bd79cf", "d399233c84"],
+  "shipped_summary": "12/12 units shipped — 100 vitest PASS across 7 test files. Backend layer: 6 bridge engines + prism_quoting dispatcher (8 actions) + Express HTTP bridge (/api/v1/quoting + /api/mcp/quoting). Frontend layer: MobileCameraQuotePage React + LiveChatWidget + PWA manifest + service worker. E2E: 7-test integration suite proving full assembly. Wire-not-build leveraging 30+ existing quote/cost/OCR/troubleshoot/catalog engines.",
+  "ms1_deferrals": ["real-vendor-API-integration", "real-photo-OCR-fixtures-replace-synthetic-OCR-text", "PRISM_COST_DATABASE.js-288K-harvest-G8", "native-iOS-Android-app"],
+  "owner": "charlie",
+  "trigger": "/goal-13 (2026-05-24) — user directive: utilize PSN to assess + scope quoting; build web app + phone app; pic of print → instant quote+program; pic of insert/tool body → catalog lookup; pic of machine service tag → parts + realtime pricing; live chat AI troubleshoot",
+  "assessment_spec": "state/shared/specs/QUOTING-PIPELINE-MS0-ASSESSMENT-2026-05-24.md",
+  "leverage_summary": "7 new bridge engines reuse 30+ existing quote/cost/OCR/troubleshoot/catalog engines — wire-not-build milestone",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Wiring + bridges",
+      "units": [
+        {
+          "id": "U-QP01",
+          "title": "Audit: end-to-end read of CaptureOpsPage + BlueprintOCREngine + QuoteBuilderPage — verify no stub returns (R12)",
+          "status": "pending",
+          "files": ["state/shared/specs/QUOTING-PIPELINE-MS0-U-QP01-AUDIT-2026-05-XX.md"],
+          "acceptance": "audit doc names every method/method-output that's stubbed or partial; PR follow-up items captured per stub"
+        },
+        {
+          "id": "U-QP02",
+          "title": "CameraIntakeRouterEngine — image-type classifier + route dispatch (blueprint | insert-box | tool-body | machine-service-tag)",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/CameraIntakeRouterEngine.ts", "mcp-server/src/__tests__/CameraIntakeRouterEngine.test.ts"],
+          "acceptance": "≥12 tests covering 4 image classes + 2 adversarial (blank, multi-content) + 3 spanning configs; classifier confidence ≥0.85 on clean samples"
+        },
+        {
+          "id": "U-QP03",
+          "title": "InsertBoxToCatalogBridgeEngine — wires ImageOCRPipeline.partNumberExtract → ShopToolLibrary.lookup + InsertGradeSelection.recommend",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/InsertBoxToCatalogBridgeEngine.ts", "mcp-server/src/__tests__/InsertBoxToCatalogBridgeEngine.test.ts"],
+          "acceptance": "≥12 tests; lookup happy path returns catalog match + ≥3 compatible inserts; unknown part returns explicit ENOENT, not silent empty"
+        },
+        {
+          "id": "U-QP04",
+          "title": "MachineServiceTagOCREngine — make + model + serial extraction (subclasses ImageOCRPipeline)",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/MachineServiceTagOCREngine.ts", "mcp-server/src/__tests__/MachineServiceTagOCREngine.test.ts"],
+          "acceptance": "≥12 tests covering 5 vendor tag formats (Haas, Hurco, Okuma, Mazak, generic); make+model+SN tuple returned with per-field confidence"
+        },
+        {
+          "id": "U-QP05",
+          "title": "MachinePartsBOMResolverEngine — service-tag → parts BOM via DocustrataCustomerIndex + JM Die archive cross-ref",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/MachinePartsBOMResolverEngine.ts", "mcp-server/src/__tests__/MachinePartsBOMResolverEngine.test.ts"],
+          "acceptance": "≥12 tests; resolution returns BOM list with vendor SKUs + per-part vendor adapter route; unknown machine fails loud"
+        },
+        {
+          "id": "U-QP06",
+          "title": "VendorRealtimePricingClientEngine — adapter shape + Misumi/McMaster CSV-backed stubs + per-vendor env-key knobs",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/VendorRealtimePricingClientEngine.ts", "mcp-server/src/__tests__/VendorRealtimePricingClientEngine.test.ts"],
+          "acceptance": "≥15 tests; adapter pattern verified; stub path returns CSV-cached prices; real-API path returns clear NotConfigured error when key absent (R12)"
+        },
+        {
+          "id": "U-QP07",
+          "title": "LiveChatRouterEngine — UI session ↔ TroubleshootingAssistantEngine ↔ ChatBus with citation provenance",
+          "status": "pending",
+          "files": ["mcp-server/src/engines/LiveChatRouterEngine.ts", "mcp-server/src/__tests__/LiveChatRouterEngine.test.ts"],
+          "acceptance": "≥12 tests; session lifecycle (open/turn/close); citation tuples attached to each response; ConversationalMemoryEngine integration verified"
+        },
+        {
+          "id": "U-QP08",
+          "title": "prism_quoting dispatcher — 5 new action slots (camera_intake_route, insert_box_lookup, machine_tag_parts, vendor_realtime_price, live_chat_session) + schemas",
+          "status": "pending",
+          "files": ["mcp-server/src/tools/dispatchers/quotingDispatcher.ts", "mcp-server/src/schemas/quotingActionSchemas.ts", "mcp-server/src/__tests__/quotingDispatcher.test.ts"],
+          "acceptance": "≥8 dispatcher tests; round-trip through each new action; schemas zod-validated; tool descriptions in MCP manifest"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "UI surfaces",
+      "units": [
+        {
+          "id": "U-QP09",
+          "title": "MobileCameraQuotePage — customer-facing mobile-first capture → BlueprintToQuote → live estimate page",
+          "status": "pending",
+          "files": ["mcp-server/web/src/pages/MobileCameraQuotePage.tsx", "mcp-server/web/src/components/quote/CameraIntakePanel.tsx", "mcp-server/web/src/__tests__/MobileCameraQuotePage.test.tsx"],
+          "acceptance": "≥6 component tests; happy path (capture → quote in <3s with synthetic blueprint); mobile-first viewport (375x812); offline-cache fallback path"
+        },
+        {
+          "id": "U-QP10",
+          "title": "LiveChatWidget — embeddable troubleshoot chat (invokes live_chat_session action) with citation chips",
+          "status": "pending",
+          "files": ["mcp-server/web/src/components/chat/LiveChatWidget.tsx", "mcp-server/web/src/__tests__/LiveChatWidget.test.tsx"],
+          "acceptance": "≥6 component tests; turn-based UI; citation chips render with source-engine attribution; session resumes across page navigation"
+        },
+        {
+          "id": "U-QP11",
+          "title": "PWA manifest + service-worker registration (MobileCacheEngine integration)",
+          "status": "pending",
+          "files": ["mcp-server/web/public/manifest.webmanifest", "mcp-server/web/src/sw.ts", "mcp-server/web/src/__tests__/pwa-registration.test.ts"],
+          "acceptance": "≥4 tests; manifest installs prompt fires; service-worker caches MobileCameraQuotePage shell; offline-load returns cached page within 200ms"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Real-data E2E",
+      "units": [
+        {
+          "id": "U-QP12",
+          "title": "E2E integration test — real JM Die _PART LIBRARY/ drawing JPG → CameraIntakeRouter → BlueprintToQuote → cost ± 15% of historical actual; real tool-body photo → InsertBoxToCatalog → ≥1 catalog match (R9 + R12)",
+          "status": "pending",
+          "files": ["mcp-server/src/__tests__/integration/QuotingPipelineMS0.e2e.test.ts", "mcp-server/src/__tests__/integration/fixtures/jm-die-real/*.jpg"],
+          "acceptance": "fixture set ≥3 real JM Die drawings + 1 real tool-body photo; quote within ±15% of historical actual on ≥80% of fixtures (cite invariant per R9); test fails loud (no .skip) if fixture missing"
+        }
+      ]
+    }
+  ],
+  "out_of_scope_ms0": [
+    "Native iOS/Android app (PWA only in MS0)",
+    "Real vendor-API integration (adapter stubs only in MS0; commercial layer in MS1)",
+    "PRISM_COST_DATABASE.js harvest (288KB legacy asset — separate G8 unit, hand to golf/echo)",
+    "Visual G-code preview (verify CaptureOpsPage in U-QP01 first)"
+  ],
+  "synergy_psn_wiring": {
+    "obsidian_brain": "reference_qp_*.md memory per unit",
+    "prism_os": "prism_quoting actions surface in prism_operating_system workspace",
+    "wiki": "knowledge/wiki/architecture/quoting-pipeline-ms0.md",
+    "memories": "12 unit-keyed references + 1 milestone close-out",
+    "tribal": "LiveChatRouterEngine queries CAMTribalRAGEngine + CAMTribalKnowledgeEngine for citations",
+    "system_viz": "ghost.quoting_pipeline roost + 12 new nodes + edges to existing quote engines",
+    "engines": "7 new engines reuse 30+ existing quote/cost/OCR/troubleshoot/catalog engines",
+    "algorithms": "interval-arithmetic (PROGRAM-PROOF-MS0/U-PP02) for cost-uncertainty bounds; Bayesian update for historical-actuals",
+    "formulas": "cost = labor + tooling + material + overhead + margin; vendor pricing canonical rate-table",
+    "nn_gnn": "Quote outcomes feed PSNAutonomyLoopEngine as psi_delta signals",
+    "prism_ai": "LiveChatRouterEngine routes deep-reasoning via aiSystemRouterEngine (Claude/Ollama/prism_calc)"
+  },
+  "r12_risks": [
+    "Real vendor-API keys not in MS0 — only adapter shape + stubs",
+    "Handheld camera OCR quality on shop-floor photos (oil/glare/blur) — E2E uses real (imperfect) photos in U-QP12",
+    "PRISM_COST_DATABASE.js un-harvested — quote accuracy bounded by today's wiring until G8",
+    "Customer-facing mobile page = new auth/session scope, not a re-skin of EmployeePhonePortalPage",
+    "TroubleshootingAssistantEngine output schema unknown until U-QP01 reads it; chat-router contract depends"
+  ]
+}

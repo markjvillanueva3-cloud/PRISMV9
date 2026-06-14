@@ -20,6 +20,14 @@ import {
   CANONICAL_TURNING_FEEDS,
   type ISOGroup,
 } from "../physics/constants.js";
+import * as diamondTurningEngineType from "./DiamondTurningEngine.js";
+import {
+  diamondTurningEngine,
+  type SurfaceFinishOutput,
+  type CuttingForcesOutput,
+  type ToolWearOutput,
+  type MachineConfigOutput,
+} from "./DiamondTurningEngine.js";
 
 // ============================================================================
 // TYPES
@@ -119,6 +127,89 @@ export interface StrategyRecommendation {
 export interface StrategyEngineStats {
   calculations: number;
   lastInput: StrategyInput | null;
+}
+
+/**
+ * U-DEA-november-P03: Optional precision-overlay input for
+ * `recommendWithDiamondTurning`. Supplies the diamond-turning physics inputs
+ * the bridge needs to query DiamondTurningEngine on top of the standard
+ * strategy recommendation.
+ *
+ * `target_Ra_nm` is the gate: if it exceeds the bridge's threshold
+ * (default 100 nm — typical mirror-finish ceiling), the overlay is NOT
+ * computed and `precision_overlay_source` becomes `'not_applicable'`.
+ *
+ * The 4 DiamondTurningEngine methods are called in this order:
+ *   1. predictSurfaceFinish — always (when overlay is supplied + gate passes)
+ *   2. calculateCuttingForces — always
+ *   3. assessToolWear — only when `cutting_distance_km` AND `coolant` are present
+ *   4. selectMachineConfig — only when `workpiece_diameter_mm` AND `form` are present
+ *
+ * Per-method failures are captured in `precision_overlay.warnings` (never
+ * silently swallowed — observable per engines.md convention).
+ */
+export interface PrecisionOverlayInput {
+  /** Workpiece material name (resolved via DiamondTurningEngine.resolveMat). */
+  material: string;
+  /** Gate threshold + driver: required Ra in nanometers. */
+  target_Ra_nm: number;
+  /** Tool nose radius (mm) — drives ideal-Ra term f²/(32R). */
+  tool_nose_radius_mm: number;
+  /** Feed per revolution (µm). */
+  feed_per_rev_um: number;
+  /** Depth of cut (µm). */
+  depth_of_cut_um: number;
+  /** Spindle RPM. */
+  spindle_rpm: number;
+  /** Optional spindle synchronous error motion (nm). Defaults to 25 nm in DT engine. */
+  spindle_error_motion_nm?: number;
+  /** Optional tool edge waviness (nm). */
+  tool_waviness_nm?: number;
+  /** Optional rake angle (deg) for cutting-force model. */
+  rake_angle_deg?: number;
+  /** Optional tool edge radius (nm) for cutting-force model. */
+  edge_radius_nm?: number;
+  /** Optional cumulative cutting distance (km) — gates assessToolWear. */
+  cutting_distance_km?: number;
+  /** Optional coolant strategy — gates assessToolWear. */
+  coolant?: "oil_mist" | "flood" | "dry" | "nitrogen";
+  /** Optional workpiece diameter (mm) — gates selectMachineConfig. */
+  workpiece_diameter_mm?: number;
+  /** Optional workpiece form — gates selectMachineConfig. */
+  form?: "flat" | "spherical" | "aspheric" | "freeform";
+}
+
+/**
+ * U-DEA-november-P03: Precision-overlay result block attached to a strategy
+ * recommendation. All 4 sub-results are nullable so partial overlays are
+ * permitted; `warnings` carries any per-method failure messages.
+ */
+export interface PrecisionOverlayResult {
+  surface_finish: SurfaceFinishOutput | null;
+  cutting_forces: CuttingForcesOutput | null;
+  tool_wear: ToolWearOutput | null;
+  machine_config: MachineConfigOutput | null;
+  /** True when surface_finish.achievable is true; false otherwise. */
+  feasible: boolean;
+  /** Per-method error messages — non-empty when any sub-call failed. */
+  warnings: string[];
+}
+
+/**
+ * U-DEA-november-P03: StrategyRecommendation augmented with the optional
+ * diamond-turning precision overlay. Backwards-compatible — when callers
+ * don't supply `overlay`, the existing `recommend()` shape is preserved
+ * (`precision_overlay: null`, `precision_overlay_source: 'no_data'`).
+ */
+export interface StrategyRecommendationWithPrecisionOverlay extends StrategyRecommendation {
+  precision_overlay: PrecisionOverlayResult | null;
+  /**
+   * Provenance of the precision overlay:
+   *  - `'consulted'` — gate passed and DiamondTurningEngine was queried
+   *  - `'not_applicable'` — overlay supplied but target_Ra_nm > thresholdRaNm
+   *  - `'no_data'` — no overlay supplied OR target_Ra_nm invalid (<= 0 or non-finite)
+   */
+  precision_overlay_source: "consulted" | "not_applicable" | "no_data";
 }
 
 // ============================================================================
@@ -813,6 +904,161 @@ export class HyperMillStrategyEngine {
       confidence: warnings.length === 0 ? 0.9 : 0.75,
       source: "document:hypermill-manual-en-{1,2,3,4}",
       turningPhysics,
+    };
+  }
+
+  /**
+   * Alias for `calculate(input)`.
+   *
+   * The dispatcher action `cam_strategy_recommend` historically called
+   * `engine.recommend(params)` — a method that never existed on this class
+   * (latent bug). This alias makes the existing dispatcher action work
+   * AND provides a stable canonical entry point that
+   * `recommendWithDiamondTurning` and other future precision-overlay
+   * wrappers can call. Pure delegation — no behavior change.
+   */
+  recommend(input: StrategyInput): StrategyRecommendation {
+    return this.calculate(input);
+  }
+
+  /**
+   * U-DEA-november-P03: Recommend a hyperMILL strategy and optionally overlay
+   * sub-micron precision physics from DiamondTurningEngine when the operation
+   * targets nm-scale Ra finishes.
+   *
+   * Activates the dormant precision-cluster (diamond_turning_surface +
+   * diamond_turning_forces + diamond_turning_wear + diamond_turning_machine_config)
+   * at strategy-recommendation time so the CAM layer can flag whether the
+   * caller's parameter set is feasible for ultra-precision single-point
+   * diamond turning — instead of returning a generic mill cycle that has no
+   * awareness of the physics involved.
+   *
+   * The overlay is OPT-IN: when `overlay` is absent OR
+   * `overlay.target_Ra_nm > thresholdRaNm`, the precision overlay is NOT
+   * computed (`precision_overlay: null`, `precision_overlay_source: 'not_applicable'`
+   * or `'no_data'`). When applicable, each of the 4 DiamondTurning sub-calls
+   * is wrapped in try/catch with the error captured in `precision_overlay.warnings`
+   * (never silently swallowed — observable per engines.md convention).
+   *
+   * @param strategy Standard StrategyInput passed straight through to `recommend()`
+   * @param overlay  Optional ultra-precision parameters (gate via `target_Ra_nm`)
+   * @param thresholdRaNm Gate threshold in nm (default 100 — typical mirror-finish ceiling)
+   * @returns Strategy recommendation augmented with optional precision overlay
+   */
+  recommendWithDiamondTurning(
+    strategy: StrategyInput,
+    overlay?: PrecisionOverlayInput,
+    thresholdRaNm: number = 100,
+  ): StrategyRecommendationWithPrecisionOverlay {
+    const base = this.recommend(strategy);
+
+    if (!overlay) {
+      return { ...base, precision_overlay: null, precision_overlay_source: "no_data" };
+    }
+    if (overlay.target_Ra_nm > thresholdRaNm) {
+      return { ...base, precision_overlay: null, precision_overlay_source: "not_applicable" };
+    }
+    if (!Number.isFinite(overlay.target_Ra_nm) || overlay.target_Ra_nm <= 0) {
+      return { ...base, precision_overlay: null, precision_overlay_source: "no_data" };
+    }
+
+    // Defer DiamondTurning import to runtime to keep this engine usable in
+    // contexts where the precision cluster isn't loaded.
+    let _dt: typeof diamondTurningEngineType.diamondTurningEngine | null = null;
+    try {
+      // dynamic require pattern via the static import below — see top of file
+      _dt = diamondTurningEngine;
+    } catch (e: unknown) {
+      return {
+        ...base,
+        precision_overlay: {
+          surface_finish: null,
+          cutting_forces: null,
+          tool_wear: null,
+          machine_config: null,
+          feasible: false,
+          warnings: [`DiamondTurningEngine unavailable: ${(e as Error)?.message ?? String(e)}`],
+        },
+        precision_overlay_source: "consulted",
+      };
+    }
+
+    const warnings: string[] = [];
+    let surface_finish: SurfaceFinishOutput | null = null;
+    let cutting_forces: CuttingForcesOutput | null = null;
+    let tool_wear: ToolWearOutput | null = null;
+    let machine_config: MachineConfigOutput | null = null;
+
+    try {
+      const sf = _dt.predictSurfaceFinish({
+        material: overlay.material,
+        tool_nose_radius_mm: overlay.tool_nose_radius_mm,
+        feed_per_rev_um: overlay.feed_per_rev_um,
+        depth_of_cut_um: overlay.depth_of_cut_um,
+        spindle_rpm: overlay.spindle_rpm,
+        spindle_error_motion_nm: overlay.spindle_error_motion_nm,
+        tool_waviness_nm: overlay.tool_waviness_nm,
+      });
+      surface_finish = sf.value;
+    } catch (e: unknown) {
+      warnings.push(`predictSurfaceFinish failed: ${(e as Error)?.message ?? String(e)}`);
+    }
+
+    try {
+      const cf = _dt.calculateCuttingForces({
+        material: overlay.material,
+        depth_of_cut_um: overlay.depth_of_cut_um,
+        feed_um: overlay.feed_per_rev_um,
+        rake_angle_deg: overlay.rake_angle_deg,
+        edge_radius_nm: overlay.edge_radius_nm,
+      });
+      cutting_forces = cf.value;
+    } catch (e: unknown) {
+      warnings.push(`calculateCuttingForces failed: ${(e as Error)?.message ?? String(e)}`);
+    }
+
+    if (overlay.cutting_distance_km !== undefined && overlay.coolant !== undefined) {
+      try {
+        const tw = _dt.assessToolWear({
+          workpiece_material: overlay.material,
+          cutting_distance_km: overlay.cutting_distance_km,
+          depth_um: overlay.depth_of_cut_um,
+          feed_um: overlay.feed_per_rev_um,
+          coolant: overlay.coolant,
+        });
+        tool_wear = tw.value;
+      } catch (e: unknown) {
+        warnings.push(`assessToolWear failed: ${(e as Error)?.message ?? String(e)}`);
+      }
+    }
+
+    if (overlay.workpiece_diameter_mm !== undefined && overlay.form !== undefined) {
+      try {
+        const mc = _dt.selectMachineConfig({
+          target_Ra_nm: overlay.target_Ra_nm,
+          workpiece_diameter_mm: overlay.workpiece_diameter_mm,
+          material: overlay.material,
+          form: overlay.form,
+        });
+        machine_config = mc.value;
+      } catch (e: unknown) {
+        warnings.push(`selectMachineConfig failed: ${(e as Error)?.message ?? String(e)}`);
+      }
+    }
+
+    const feasible = surface_finish?.achievable ?? false;
+
+    return {
+      ...base,
+      precision_overlay: {
+        surface_finish,
+        cutting_forces,
+        tool_wear,
+        machine_config,
+        feasible,
+        warnings,
+      },
+      precision_overlay_source: "consulted",
     };
   }
 

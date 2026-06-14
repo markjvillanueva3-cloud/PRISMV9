@@ -167,14 +167,16 @@ function isSolidProducing(op: string): boolean {
  * with CADTokenRepresentationEngine output via `build({ operations })`.
  */
 export class CADKnowledgeGraphEngine extends BaseEngine {
-  readonly info: EngineInfo = {
-    name: "CADKnowledgeGraphEngine",
-    version: "1.0.0",
-    domain: "cad_neural",
-    description:
-      "CAD operation dependency graph — nodes: Sketch/Plane/Feature/Body/Assembly; " +
-      "edges: references/modifies/constrains/contains. Topology-aware for neural CAD.",
-  };
+  constructor() {
+    super({
+      name: "CADKnowledgeGraphEngine",
+      version: "1.0.0",
+      domain: "cad_neural",
+      description:
+        "CAD operation dependency graph — nodes: Sketch/Plane/Feature/Body/Assembly; " +
+        "edges: references/modifies/constrains/contains. Topology-aware for neural CAD.",
+    });
+  }
 
   getCapabilities(): EngineCapability[] {
     return [

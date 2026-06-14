@@ -1,0 +1,53 @@
+# HMEMV08-OBSIDIAN-BASES — Wiki doctrine pivoted by `galaxy` (domain) frontmatter field.
+#
+# Vault root = H:/prism/knowledge/. All file.* paths below are RELATIVE to that
+# root (NOT absolute H:/... and NOT prefixed with "knowledge/"). The targeted
+# corpus is knowledge/wiki/** -> filter is file.inFolder("wiki").
+#
+# `galaxy` is a real frontmatter field carried by the curated galaxy-doctrine
+# subset of the wiki (verified live 2026-06-10): 181 wiki files tag a galaxy
+# (academy, mill, lathe, wedm, cad, cam, quoting, business, shop-floor, ... ~14
+# core galaxies at 6 files each + slot-owned doctrine). The wiki tree has tens
+# of thousands of .md files total, so this view INTENTIONALLY surfaces only the
+# galaxy-TAGGED doctrine subset; un-tagged pages are suppressed by the
+# `galaxy != ""` filter below so there is no noisy empty group.
+filters:
+  and:
+    - file.inFolder("wiki")
+    - 'file.ext == "md"'
+    - 'galaxy != ""'
+
+properties:
+  galaxy:
+    displayName: "Galaxy"
+  title:
+    displayName: "Title"
+  owner_slot:
+    displayName: "Owner Slot"
+  status:
+    displayName: "Status"
+  file.name:
+    displayName: "Wiki Entry"
+
+views:
+  - type: table
+    name: "By Galaxy"
+    groupBy:
+      property: galaxy
+      direction: ASC
+    order:
+      - file.name
+      - galaxy
+      - title
+      - owner_slot
+      - status
+    summaries:
+      galaxy: Unique
+
+  - type: cards
+    name: "Doctrine Cards"
+    order:
+      - file.name
+      - galaxy
+      - title
+      - status

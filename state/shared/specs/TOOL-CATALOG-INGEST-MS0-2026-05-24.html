@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="acbba54b676a655dbe7820ed68d2fde00de958796833dd0becb10aa31003e1f8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TOOL-CATALOG-INGEST-MS0 — Spec (2026-05-24)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>TOOL-CATALOG-INGEST-MS0 — Spec (2026-05-24)</h1>
+<div class="meta">rendered from state/shared/specs/TOOL-CATALOG-INGEST-MS0-2026-05-24.md</div>
+<div class="meta">Generated 2026-05-24T07:24:48.061Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">TOOL-CATALOG-INGEST-MS0 — Spec (2026-05-24)</h1>
+<blockquote class="prism-quote">Operator-facing summary. Authoritative envelope: <code class="prism-inline-code">mcp-server/data/milestones/TOOL-CATALOG-INGEST-MS0.json</code>. Plan: <code class="prism-inline-code">H:/.claude/plans/enchanted-dazzling-scott.md</code>.</blockquote>
+<h2 class="prism-h2">Why</h2>
+<p>PRISM owns 38 vendor tool catalogs at <code class="prism-inline-code">H:/prism/resources/MANUFACTURER_CATALOGS/uploaded/</code> representing <strong>~35,920 tools</strong> missing from <code class="prism-inline-code">ToolRegistry</code> (current 54K → target 90K per <code class="prism-inline-code">vendor-catalog-manifest.json</code> Apr-16-2026). Today only <strong>text</strong> (publisher + grade families + coatings) is extracted via pdftotext — the structured per-tool data (geometry, cutting parameters per material × operation, holder compatibility, 2D/3D dimensional envelopes) is <strong>not yet in the database</strong>. STEP files for collision avoidance + CAD/CAM AI training are also missing.</p>
+<p>This milestone closes that gap with a 6-phase pipeline that <strong>builds on existing infrastructure</strong> rather than green-field. Recon confirmed: tool-registry schema is mature, STEP parser is installed (occt-import-js WASM), CAM-LoRA trainer is wired, collision engines are ready.</p>
+<h2 class="prism-h2">Prior art to align with (read first)</h2>
+<ul class="prism-md-list"><li><strong>mike 2026-05-23</strong>: <code class="prism-inline-code">H:/prism-slot-mike/scripts/extract-fusion-tooling-catalog.mjs</code> + <code class="prism-inline-code">state/shared/FUSION-TOOLING-CATALOG-2026-05-23.json</code> (947 KB, 712 tools / 329 presets / 8 libraries). Pattern source for vendor PDF extractors. Memory: <code class="prism-inline-code">[[reference_fusion_tooling_catalog_2026_05_23]]</code>. <strong>The U-TCI-A1 schema MUST share top-level keys</strong> (<code class="prism-inline-code">schemaVersion</code>, <code class="prism-inline-code">generatedAt</code>, <code class="prism-inline-code">advisoryOnly</code>, <code class="prism-inline-code">must_human_verify</code>, <code class="prism-inline-code">purpose</code>, <code class="prism-inline-code">summary</code>, <code class="prism-inline-code">raw_tools</code>) so the two ingest paths produce interoperable JSON.</li><li><strong>iter12-15 vendor-catalog audit (this session)</strong>: <code class="prism-inline-code">scripts/vendor-catalog-audit.mjs</code> + <code class="prism-inline-code">scripts/vendor-catalog-summarize.mjs</code> + <code class="prism-inline-code">state/shared/specs/VENDOR-CATALOG-{AUDIT,SUMMARIES}-2026-05-23.{json,md}</code>. Already provides per-PDF publisher verification (30 of 38 verified via pdftotext cover-page).</li><li><strong>April vendor-catalog-manifest.json</strong>: source of truth for per-vendor <code class="prism-inline-code">targetJson</code> paths + estimated tool counts.</li></ul>
+<h2 class="prism-h2">Scope</h2>
+<p>20 units across 6 phases. <strong>Pure orchestration + data</strong>, no new physics engines (calibration overlays only). Detailed unit list in the envelope.</p>
+<table class="prism-md-table"><thead><tr><th>Phase</th><th>Name</th><th>Units</th><th>Owner</th><th>Blocks</th></tr></thead><tbody><tr><td><strong>A</strong></td><td>Schema + Scaffold</td><td>3 (A1-A3)</td><td>juliett (this session)</td><td>B,C,D,E,F</td></tr>
+<tr><td><strong>B</strong></td><td>PDF Table Extraction</td><td>5 (B1-B5)</td><td>alpha + bravo parallel</td><td>D1,E2</td></tr>
+<tr><td><strong>C</strong></td><td>STEP Local Ingest</td><td>2 (C1-C2)</td><td>charlie</td><td>D6</td></tr>
+<tr><td><strong>D</strong></td><td>Vendor Portal Scrapers</td><td>6 (D1-D6)</td><td>delta</td><td>E1,E3,F</td></tr>
+<tr><td><strong>E</strong></td><td>AI Training + Collision Wiring</td><td>3 (E1-E3)</td><td>echo</td><td>F</td></tr>
+<tr><td><strong>F</strong></td><td>System-viz + close-out</td><td>1 (F1)</td><td>juliett</td><td>—</td></tr></tbody></table>
+<h2 class="prism-h2">User-approved decisions (2026-05-24)</h2>
+<table class="prism-md-table"><thead><tr><th>Decision</th><th>Choice</th></tr></thead><tbody><tr><td>Build order</td><td><strong>PDF-first, then portals</strong> — extract owned data before chasing live STEP files</td></tr>
+<tr><td>Auth</td><td><strong>Operator provides creds</strong> for Misumi / Sandvik CoroPlus / Kennametal NOVO / Iscar etool</td></tr>
+<tr><td>STEP storage</td><td><strong>Store all locally</strong> at <code class="prism-inline-code">H:/prism/resources/MANUFACTURER_CATALOGS/step/&lt;vendor&gt;/</code> (~20-50GB on 4TB SSD)</td></tr>
+<tr><td>STEP purpose</td><td>Both <strong>collision-avoidance</strong> AND <strong>CAD/CAM AI training data</strong> (feeds CADCorpusIngesterEngine)</td></tr></tbody></table>
+<h2 class="prism-h2">Critical existing infrastructure (reuse, do not reinvent)</h2>
+<table class="prism-md-table"><thead><tr><th>Asset</th><th>Path</th><th>Use</th></tr></thead><tbody><tr><td><code class="prism-inline-code">CuttingTool</code> interface</td><td><code class="prism-inline-code">mcp-server/src/registries/ToolRegistry.ts</code></td><td>Target — extend with 3 optional fields (A2)</td></tr>
+<tr><td><code class="prism-inline-code">CatalogExtractionEngine.CuttingDataSet</code></td><td><code class="prism-inline-code">mcp-server/src/engines/CatalogExtractionEngine.ts</code></td><td>Cutting-data shape reused by A1</td></tr>
+<tr><td><code class="prism-inline-code">VendorCatalogManifestEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/VendorCatalogManifestEngine.ts</code></td><td>Drives extraction queue</td></tr>
+<tr><td><code class="prism-inline-code">documentLearningDispatcher</code></td><td><code class="prism-inline-code">mcp-server/src/tools/dispatchers/documentLearningDispatcher.ts</code></td><td>execFileAsync(PYTHON_PATH, ...) pattern for camelot wrapper</td></tr>
+<tr><td><code class="prism-inline-code">StepImportEngine</code> (occt-import-js WASM)</td><td><code class="prism-inline-code">mcp-server/src/engines/StepImportEngine.ts</code></td><td>STEP→mesh + bounding box</td></tr>
+<tr><td><code class="prism-inline-code">STEPGeometryParserEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/STEPGeometryParserEngine.ts</code></td><td>Feature inference fallback</td></tr>
+<tr><td><code class="prism-inline-code">CADCorpusIngesterEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/CADCorpusIngesterEngine.ts</code></td><td>Already accepts .step — only add new scan root in E1</td></tr>
+<tr><td><code class="prism-inline-code">CADTrainingCorpusOrchestratorEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/CADTrainingCorpusOrchestratorEngine.ts</code></td><td>Auto-picks new corpus on next train cycle</td></tr>
+<tr><td><code class="prism-inline-code">CAMLoRAAdapterTrainerEngine</code> + <code class="prism-inline-code">CAMLoRAEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/CAMLoRA*.ts</code></td><td>Per-vendor LoRA adapters consume training data</td></tr>
+<tr><td><code class="prism-inline-code">CollisionDetectionEngine</code> (AABB/OBB/SAT)</td><td><code class="prism-inline-code">mcp-server/src/engines/CollisionDetectionEngine.ts</code></td><td>Consumes <code class="prism-inline-code">collision_envelope</code> for E3</td></tr>
+<tr><td><code class="prism-inline-code">ToolHolderDatabaseEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/ToolHolderDatabaseEngine.ts</code></td><td>80+ holder types, spindle-taper validation</td></tr>
+<tr><td><code class="prism-inline-code">UltimateSpeedFeedEngine.GRADE_SPEED_FACTORS</code></td><td><code class="prism-inline-code">mcp-server/src/engines/UltimateSpeedFeedEngine.ts</code></td><td>Calibration-overlay target (E2)</td></tr>
+<tr><td><code class="prism-inline-code">duplicationGuardEngine</code></td><td><code class="prism-inline-code">mcp-server/src/engines/DuplicationGuardEngine.ts</code></td><td>Dedup gate for merge orchestrator (D1)</td></tr>
+<tr><td><code class="prism-inline-code">dataDispatcher</code> (144 actions)</td><td><code class="prism-inline-code">mcp-server/src/tools/dispatchers/dataDispatcher.ts</code></td><td>New action <code class="prism-inline-code">catalog_extraction_merge</code> wires here</td></tr>
+<tr><td>Apr 16 vendor-catalog-manifest</td><td><code class="prism-inline-code">mcp-server/data/vendor-catalog-manifest.json</code></td><td>Per-vendor batching authority</td></tr>
+<tr><td>iter14 pdftotext sidecars</td><td><code class="prism-inline-code">mcp-server/data/tool-catalog-inventory.json[].pdftotext_extraction</code></td><td>Already-extracted text seed</td></tr>
+<tr><td>playwright-mcp + chrome-devtools-mcp</td><td><code class="prism-inline-code">.mcp.json</code></td><td>Browser automation for D-phase</td></tr>
+<tr><td><code class="prism-inline-code">capture-claude-credentials</code> skill</td><td><code class="prism-inline-code">.claude/commands/capture-claude-credentials.md</code></td><td>Operator-creds capture for D3-D5</td></tr>
+<tr><td>Mike&#39;s fusion extractor</td><td><code class="prism-inline-code">H:/prism-slot-mike/scripts/extract-fusion-tooling-catalog.mjs</code></td><td>Pattern source for B1 orchestrator</td></tr></tbody></table>
+<h2 class="prism-h2">Disk layout (new)</h2>
+<pre class="prism-codeblock"><code>H:/prism/resources/MANUFACTURER_CATALOGS/
+├── uploaded/                                # 38 PDFs (existing)
+├── datasheets/&lt;vendor&gt;/&lt;part-number&gt;.pdf   # NEW — per-part spec sheets from D-phase scrapers
+├── step/&lt;vendor&gt;/&lt;part-number&gt;.step        # NEW — vendor STEP files
+└── extracted/&lt;vendor&gt;-&lt;type&gt;-extracted.json # NEW — per-vendor structured data
+                                              # naming matches vendor-catalog-manifest.json[].targetJson contract
+
+H:/prism/mcp-server/data/
+├── tool-catalog-inventory.json              # existing — extend with per-tool count + last_ingest_at
+├── vendor-catalog-manifest.json             # existing — drives extraction queue
+└── catalog-extractions/                     # existing empty dir — Phase B fills it</code></pre>
+<h2 class="prism-h2">Risks + mitigations</h2>
+<table class="prism-md-table"><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td>Misumi / PTS ToS may prohibit bulk scraping</td><td>D2/D3 starts with publicly-visible spec PDFs only; STEP scraping behind auth + 1 req / 3-5s rate limit; D6 GrabCAD/TraceParts fallback for blocked vendors</td></tr>
+<tr><td>Camelot table extraction may misparse complex multi-row cutting tables</td><td>R12 fail-loud: every extracted vendor JSON spot-checks 5 random source PDF pages before merge; confidence-tagged in <code class="prism-inline-code">source</code> field</td></tr>
+<tr><td>21 missing zip-part gaps still operator-blocked</td><td>Out of scope — the 38 already-uploaded PDFs deliver ~36K tools</td></tr>
+<tr><td>occt-import-js WASM memory limits on giant STEP files</td><td>50MB hard cap + STEPGeometryParserEngine text-only fallback</td></tr>
+<tr><td>20-50GB STEP disk</td><td>Operator OK&#39;d 4TB SSD; storage convention isolates to a single subtree for easy backup/exclusion</td></tr>
+<tr><td>Vendor publisher mis-attribution (iter12 lesson)</td><td>Authoritative order: pdftotext cover-verify &gt; Apr manifest &gt; filename heuristic</td></tr>
+<tr><td>Slot worktree concurrency (peer-sweep #5 observed this session)</td><td>Strict slot allocation in envelope; each unit commits in its own slot worktree; juliett delegates B-F to other slots after Phase A</td></tr></tbody></table>
+<h2 class="prism-h2">Verification (per-phase)</h2>
+<ul class="prism-md-list"><li><strong>A</strong>: <code class="prism-inline-code">npx tsc --noEmit</code> clean; <code class="prism-inline-code">vitest run scripts/lib/__tests__/catalog-storage-paths.test.mjs</code> PASS; ToolRegistry schema backward-compat.</li><li><strong>B</strong>: <code class="prism-inline-code">node scripts/extract-vendor-pdf.mjs --vendor &lt;name&gt; --verify</code> — tool-count within ±15% of <code class="prism-inline-code">manifest.estimatedTools</code>, 5-of-5 spot-check verbatim-match.</li><li><strong>C</strong>: <code class="prism-inline-code">node scripts/index-step-files.mjs --report</code> — cross-reference linkage rate ≥ 5% (any non-zero on first pass).</li><li><strong>D</strong>: Per scraper <code class="prism-inline-code">--dry-run --sample 10</code>; per-part checkpoint resumability proven.</li><li><strong>E</strong>: <code class="prism-inline-code">npx vitest run --testNamePattern &#39;catalog-corpus|catalog-overlay|catalog-collision&#39;</code>.</li><li><strong>F</strong>: <code class="prism-inline-code">node scripts/generate-vendor-catalog-features.mjs &amp;&amp; node scripts/regen-viz.mjs --augment-only</code>.</li><li><strong>Milestone close</strong>: 20/20 units; ToolRegistry tool count ≥ 85K; CAD corpus +STEP count visible; commit chain <code class="prism-inline-code">[TOOL-CATALOG-INGEST-MS0]/U-TCI-*</code> clean.</li></ul>
+<h2 class="prism-h2">PSN synergy targets</h2>
+<ul class="prism-md-list"><li><strong>PSN-OS (Obsidian brain)</strong> — Cross-link extracted tool specs to Obsidian memories via <code class="prism-inline-code">/route-to-obsidian</code> (Phase F)</li><li><strong>PSN-Wiki</strong> — Promote per-vendor extraction summaries to <code class="prism-inline-code">knowledge/wiki/code-tribal/</code> (Phase F)</li><li><strong>PSN-Tribal</strong> — Mine vendor recommended-cutting-data into tribal tips (Phase E2)</li><li><strong>PSN-AI</strong> — Cutting params feed <code class="prism-inline-code">UltimateSpeedFeedEngine.calibrationFactors</code>; STEP files feed CAD-LoRA (Phase E1+E2)</li><li><strong>PSN-Engines</strong> — Extracted GRADE_SPEED_FACTORS + coating multipliers into ExtendedTaylor + Kienzle overlays (Phase E2)</li><li><strong>PSN-System-Viz</strong> — Live per-vendor stats roost (Phase F1)</li></ul>
+<h2 class="prism-h2">Out of scope</h2>
+<ul class="prism-md-list"><li>Re-uploading the 21 missing zip parts (operator action)</li><li>New physics/cutting models (calibration overlays only)</li><li>New vendor data format (reuses <code class="prism-inline-code">CatalogExtractionEngine.CuttingDataSet</code>)</li><li>Storing STEP binary inside ToolRegistry (path reference only)</li><li>Unattended portal scraping without operator creds (D3-D5 gated)</li><li>Changing existing pdftotext path (camelot additive for table parsing)</li></ul></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

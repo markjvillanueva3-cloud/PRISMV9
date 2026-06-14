@@ -1,0 +1,208 @@
+{
+  "id": "FLEET-REAPER-MS3",
+  "title": "Fleet Reaper Phase 3 — chat-capacity upgrades (live-chat boost + bg-app throttle + per-chat advisory + reaper self-IO)",
+  "track": "INFRA-FLEET-HYGIENE",
+  "status": "complete",
+  "version": "1.2.0",
+  "schemaVersion": 2,
+  "created_at": "2026-05-19",
+  "updated_at": "2026-05-24",
+  "completed_at": "2026-05-23",
+  "priority": "HIGH",
+  "target_omega": 0.85,
+  "description": "Strictly additive over FLEET-REAPER-MS0/MS1/MS2. Reframes the reaper from 'kill more orphans / save more memory' to 'keep live chats at full capacity.' Reaper today does nothing for the failure mode of 13 live non-orphaned chats fighting for the same CPU/RAM/disk — host runs at 96% commit pressure with zero orphans, yet every chat is slow. MS3 adds four strictly-reversible, kill-switched units: (A) UserPromptSubmit hook boosts the active chat's claude.exe tree to AboveNormal for 5 min; (B) Tier-1.5 background-app throttling under warn-band pressure drops Chrome/Discord/Steam to BelowNormal before any reap; (C) fleet-memory-monitor posts a per-chat /compact advisory when a single tree exceeds 2 GB RSS (before system-wide critical); (D) reaper-self drops to PROCESS_MODE_BACKGROUND_BEGIN during sweeps so its own I/O doesn't compete with Claude for disk. Every unit honors PRISM_FR_DISABLE=1 master kill + per-unit knob.",
+  "context_doc": "state/shared/specs/FLEET-REAPER-MS3-CHAT-CAPACITY-DESIGN.md",
+  "knowledge_sources": [
+    "state/shared/specs/FLEET-REAPER-MS3-CHAT-CAPACITY-DESIGN.md",
+    "knowledge/wiki/architecture/fleet-reaper.md",
+    "knowledge/wiki/architecture/fleet-memory-monitor.md",
+    "knowledge/memories/reference/reference_fleet_reaper_ms1.md",
+    "knowledge/memories/reference/reference_fleet_reaper_ms2_2026_05_18.md",
+    "knowledge/memories/reference/reference_fleet_memory_monitor_2026_05_16.md",
+    "knowledge/memories/feedback/feedback_golf_owns_reaper.md",
+    "knowledge/memories/feedback/feedback_never_delete_only_disable.md"
+  ],
+  "goals": [
+    "Give the chat the user is actively typing in a measurable CPU lift via AboveNormal priority on its claude.exe + node.exe tree for 5 min (auto-decays)",
+    "Convert non-Claude tree RSS into Claude headroom under warn-band pressure via reversible BelowNormal throttle on top-3 heavy non-system processes (hysteresis: down at 90%, up at 85%)",
+    "Tell the chat that is bloating to /compact BEFORE system-wide critical via per-chat-tree threshold advisory in fleet-memory-monitor",
+    "Remove the reaper's own 30s sweep from Claude's disk-queue critical path via PROCESS_MODE_BACKGROUND_BEGIN wrapper"
+  ],
+  "total_units": 4,
+  "phases": [
+    {
+      "id": "PHASE3",
+      "title": "Phase 3 — four reversible, kill-switched capacity units",
+      "session": 1,
+      "smart_config": {
+        "role": "R3-Systems Architect + R5-Build Doctor",
+        "model": "opus-4.7",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      },
+      "intent": "After this phase: (A) active-chat-priority-boost.mjs is wired into UserPromptSubmit (auto-mirrored C:->H:), the boost auto-decays via active-chat-priority-decay.mjs Stop hook, and the helper claude-tree-priority.mjs is reusable; (B) applyBackgroundAppThrottle() runs in fleet-reaper-sweep.mjs Tier-1.5 with hysteresis-gated restore; (C) fleet-memory-monitor.mjs emits per-chat advisories to AGENT_CHAT.jsonl with 30-min cooldown; (D) runSweep wraps itself with PROCESS_MODE_BACKGROUND_BEGIN/END (try/finally + beforeExit invariant); all 4 units have node:test suites with real-process E2E oracles and legacy-parity regression guards; CLAUDE.md + 4 wiki entries + 4 memory entries doc-synced.",
+      "skills": [
+        "/fleet-reaper",
+        "/scrutinize",
+        "/checkin-charlie"
+      ],
+      "exit_gate": {
+        "criteria": [
+          "All 4 units shipped + per-file 2-reviewer scrutiny PASS on every file before the next",
+          "Each test suite green (~55 cases total across 4 units; each unit has its own real-process E2E)",
+          "Each unit's legacy-path (knob-disabled) is byte-identical to pre-MS3 behavior (regression-guard test)",
+          "CLAUDE.md FLEET-REAPER section extended + 4 wiki entries created/updated + 4 reference memories created",
+          "HOOK_REGISTRY.json regenerated for the 2 new hooks (A: UserPromptSubmit boost + Stop decay)",
+          "Knob list updated in CLAUDE.md FLEET-REAPER-MS3 entry"
+        ],
+        "omega_floor": 0.85
+      },
+      "units": [
+        "U-FR-MS3-D",
+        "U-FR-MS3-C",
+        "U-FR-MS3-A",
+        "U-FR-MS3-B"
+      ]
+    }
+  ],
+  "unit_specs": {
+    "U-FR-MS3-A": {
+      "title": "Live-chat priority boost on prompt",
+      "status": "shipped",
+      "files": [
+        ".claude/hooks/active-chat-priority-boost.mjs",
+        ".claude/hooks/active-chat-priority-decay.mjs",
+        ".claude/helpers/claude-tree-priority.mjs",
+        "scripts/__tests__/claude-tree-priority.test.mjs",
+        ".claude/settings.json (wire both hooks)"
+      ],
+      "loc_estimate": 120,
+      "test_count_min": 15,
+      "knobs": [
+        "PRISM_FR_BOOST_DISABLE",
+        "PRISM_FR_BOOST_TTL_SEC",
+        "PRISM_FR_BOOST_PRIORITY"
+      ]
+    },
+    "U-FR-MS3-B": {
+      "title": "Tier-1.5 background-app throttling before reap",
+      "status": "shipped",
+      "files": [
+        "scripts/fleet-reaper-sweep.mjs (add applyBackgroundAppThrottle)",
+        "scripts/__tests__/fleet-reaper-bg-throttle.test.mjs"
+      ],
+      "loc_estimate": 180,
+      "test_count_min": 18,
+      "knobs": [
+        "PRISM_FR_BG_THROTTLE_DISABLE",
+        "PRISM_FR_BG_THROTTLE_TOP_N",
+        "PRISM_FR_BG_THROTTLE_MIN_RSS_MB"
+      ],
+      "auto_close_out_at": "2026-05-24T00:59:31.220Z"
+    },
+    "U-FR-MS3-C": {
+      "title": "Per-chat-tree proactive compact advisory",
+      "status": "shipped",
+      "files": [
+        "scripts/fleet-memory-monitor.mjs (add evaluateChatTreeAdvisories)",
+        "scripts/__tests__/fleet-memory-monitor-chat-advisory.test.mjs"
+      ],
+      "loc_estimate": 80,
+      "test_count_min": 12,
+      "knobs": [
+        "PRISM_FM_CHAT_ADVISORY_DISABLE",
+        "PRISM_FM_CHAT_THRESHOLD_MB",
+        "PRISM_FM_CHAT_ADVISORY_COOLDOWN_SEC"
+      ],
+      "auto_close_out_at": "2026-05-24T00:59:31.220Z"
+    },
+    "U-FR-MS3-D": {
+      "title": "Reaper-self background-IO during sweep",
+      "status": "shipped",
+      "files": [
+        "scripts/fleet-reaper-sweep.mjs (wrap runSweep with BACKGROUND_BEGIN/END)",
+        "scripts/__tests__/fleet-reaper-self-bg-io.test.mjs"
+      ],
+      "loc_estimate": 30,
+      "test_count_min": 10,
+      "knobs": [
+        "PRISM_FR_SELF_BG_IO_DISABLE"
+      ],
+      "auto_close_out_at": "2026-05-24T00:59:31.220Z"
+    }
+  },
+  "units": {
+    "U-FR-MS3-A": {
+      "title": "Live-chat priority boost on prompt",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "0b4d868820",
+        "aad2152f7f"
+      ],
+      "ship_notes": "Silent close-out debt detected + closed 2026-05-23 (slot:delta /loop). Helper claude-tree-priority.mjs landed in 0b4d868820 (hitchhike on SLOT-COMPACT-SYNERGY-MS0/U-WAVE5c-AUTO, slot:echo). Boost hook (155 LOC) + decay hook (131 LOC) + test suite (254 LOC, 17/17 passing) landed in aad2152f7f (hitchhike on DEV-TOOLS/U-DVA01). Both hooks wired in C:/wompu/.claude/settings.json + auto-mirrored to H:/.claude/settings.json (UserPromptSubmit boost + Stop decay). Tests cover anti-regression invariants: never-above-AboveNormal, claude-anchor-only descent, TTL clamp [60..1800], hermetic wmic+PS injection, idempotent decay."
+    },
+    "U-FR-MS3-B": {
+      "title": "Tier-1.5 background-app throttling before reap",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "9baacb056e"
+      ],
+      "ship_notes": "U-FR-MS3-B-WIRE landed Tier-1.5 bg-throttle in fleet-reaper-sweep.mjs. auto-closed 2026-05-24T00:59:31.220Z by close-out-cad-silent-debt.mjs"
+    },
+    "U-FR-MS3-C": {
+      "title": "Per-chat-tree proactive compact advisory",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "51b2d04a10"
+      ],
+      "ship_notes": "per-chat-tree compact advisory wired into fleet-memory-monitor. auto-closed 2026-05-24T00:59:31.220Z by close-out-cad-silent-debt.mjs"
+    },
+    "U-FR-MS3-D": {
+      "title": "Reaper-self background-IO during sweep",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "97d60775ec"
+      ],
+      "ship_notes": "reaper-self CPU priority guard. auto-closed 2026-05-24T00:59:31.220Z by close-out-cad-silent-debt.mjs"
+    }
+  },
+  "ship_extras": {
+    "U-FR-MS3-SPEC": {
+      "title": "4-unit chat-capacity design spec",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "c30889550e"
+      ]
+    },
+    "U-FR-MS3-SPEC-HTML": {
+      "title": "Spec HTML twin render",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "5d410e09d6"
+      ]
+    },
+    "U-FR-MS3-DOCS": {
+      "title": "4-surface doc reflection",
+      "status": "shipped",
+      "shipped_at": "2026-05-19",
+      "commits": [
+        "1f71dae7c8"
+      ]
+    }
+  },
+  "build_order_recommendation": "D -> C -> A -> B (smallest first; build confidence + earliest payoff; B has biggest blast radius, ship last)",
+  "execution_recipe": "/checkin-charlie /loop work FLEET-REAPER-MS3 units D, C, A, B per state/shared/specs/FLEET-REAPER-MS3-CHAT-CAPACITY-DESIGN.md",
+  "notes": [
+    "All units strictly additive over MS2; each has its own kill switch + a master PRISM_FR_DISABLE=1 honored",
+    "None of these units ever kills a Claude process (A boosts, B excludes Claude, C advises, D self-throttles)",
+    "Real-process E2E oracle MANDATORY per MS1/U-INTEG-FIX-P0 lesson (hermetic fakes don't prove production wiring)",
+    "Legacy-parity regression-guard test MANDATORY per the same lesson",
+    "Charlie slot reserved by claude-9dc5dad7 on 2026-05-19; execution via /checkin-charlie keeps slot-bound continuity"
+  ]
+}

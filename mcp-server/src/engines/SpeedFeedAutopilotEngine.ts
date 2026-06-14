@@ -112,18 +112,38 @@ export interface AutopilotResult {
 // MATERIAL ALIASES
 // ============================================================================
 
+// FEATURE-GAP-AUDIT-MS0/U-SF-AUTOPILOT-ALIAS-MAP-RECONCILE (2026-05-21, slot:juliett):
+// Reconciled alias targets against actual CANONICAL_MATERIAL_DB keys from
+// _RAW_MATERIAL_DB in src/physics/constants.ts. The pre-reconcile map pointed
+// to invented keys (aluminum_6061, alloy_steel, stainless_304, inconel_718,
+// titanium_gr5, tool_steel, copper_c110, brass_360, cast_iron, ductile_iron,
+// aluminum_7075, stainless_316) that DO NOT exist in the canonical DB — so
+// every aliased material fell through to default_fallback (kc1_1=1800,
+// mc=0.25, taylor_C=350, confidence=0.3, source="default_fallback"),
+// rendering the autopilot material-insensitive. Now every alias target IS a
+// real RAW key per constants.ts:125+. NOTE: DB keys preserve case ("Inconel
+// 718" with capital + space, "Ti-6Al-4V" with hyphens + capitals); the
+// engine's `lower = name.toLowerCase()` normalizes INPUT names only — the
+// alias *targets* must match the DB's exact case.
 const MATERIAL_ALIASES: Record<string, string> = {
-  // Common names → CANONICAL_MATERIAL_DB keys
-  "steel": "steel", "mild steel": "steel", "carbon steel": "steel", "1018": "steel", "1045": "steel",
-  "4140": "alloy_steel", "4340": "alloy_steel", "alloy steel": "alloy_steel",
-  "stainless": "stainless_304", "stainless steel": "stainless_304", "304": "stainless_304", "316": "stainless_316",
-  "cast iron": "cast_iron", "gray iron": "cast_iron", "ductile iron": "ductile_iron",
-  "aluminum": "aluminum_6061", "aluminium": "aluminum_6061", "6061": "aluminum_6061", "7075": "aluminum_7075",
-  "titanium": "titanium_gr5", "ti-6al-4v": "titanium_gr5", "ti64": "titanium_gr5",
-  "inconel": "inconel_718", "hastelloy": "inconel_718",
-  "hardened steel": "tool_steel", "tool steel": "tool_steel", "d2": "tool_steel", "h13": "tool_steel",
-  "copper": "copper_c110", "brass": "brass_360",
-  "superalloy": "inconel_718", "nickel alloy": "inconel_718",
+  // P group — carbon / alloy steel
+  "steel": "1018", "mild steel": "1018", "1018": "1018",
+  "carbon steel": "1045", "1045": "1045",
+  "alloy steel": "4140", "4140": "4140", "4340": "4140",
+  // M group — stainless
+  "stainless": "304", "stainless steel": "304", "304": "304", "316": "316",
+  // K group — cast iron
+  "cast iron": "gray_iron", "gray iron": "gray_iron", "ductile iron": "gray_iron",
+  // N group — aluminum + non-ferrous
+  "aluminum": "6061", "aluminium": "6061", "6061": "6061", "7075": "7075",
+  "copper": "C11000", "brass": "C26000",
+  // S group — superalloys + titanium
+  "titanium": "Ti-6Al-4V", "ti-6al-4v": "Ti-6Al-4V", "ti64": "Ti-6Al-4V",
+  "inconel": "Inconel 718", "inconel 718": "Inconel 718",
+  "hastelloy": "Inconel 718", "superalloy": "Inconel 718", "nickel alloy": "Inconel 718",
+  // H group — hardened / tool steel
+  "hardened steel": "D2", "tool steel": "D2", "d2": "D2", "a2": "A2",
+  "h13": "D2", // H13 hot-work tool steel — closest H-group RAW key is D2
 };
 
 // ============================================================================

@@ -141,7 +141,7 @@ export class FormalVerificationEngine {
 
       const res = await solver.check();
       const counterexample =
-        res === "sat" ? this.extractModel(solver, input.variables) : null;
+        res === "sat" ? this.extractModel(solver, input.variables, vars) : null;
       const result: FormalResult = mapResult(res);
       return { result, counterexample, wallMs: Date.now() - started };
     } catch {
@@ -180,7 +180,7 @@ export class FormalVerificationEngine {
       }
 
       const res = await solver.check();
-      const model = res === "sat" ? this.extractModel(solver, input.variables) : null;
+      const model = res === "sat" ? this.extractModel(solver, input.variables, vars) : null;
       return { result: mapResult(res), model, wallMs: Date.now() - started };
     } catch {
       return { result: "unknown", model: null, wallMs: Date.now() - started };
@@ -243,15 +243,20 @@ export class FormalVerificationEngine {
     return low;
   }
 
+  // solver is z3-solver's untyped high-level Solver; `any` is unavoidable at this boundary.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractModel(solver: any, variables: readonly BoundedIntVar[]): Record<string, number> {
+  private extractModel(solver: any, variables: readonly BoundedIntVar[], vars: Map<string, unknown>): Record<string, number> {
     const model = solver.model();
     const out: Record<string, number> = {};
     for (const v of variables) {
-      const val = model.get(v.name);
-      if (val !== undefined) {
-        out[v.name] = Number(val.toString());
-      }
+      // z3-solver's Model.get takes the variable EXPRESSION (the Int.const), NOT its string
+      // name: model.get("x") matches no overload and throws, which the prove/satisfy try/catch
+      // silently degraded every SAT result to "unknown". Look the expression up by name.
+      const expr = vars.get(v.name);
+      if (expr === undefined) continue;
+      const val = model.get(expr);
+      if (val === undefined || val === null) continue;
+      out[v.name] = Number(val.toString());
     }
     return out;
   }

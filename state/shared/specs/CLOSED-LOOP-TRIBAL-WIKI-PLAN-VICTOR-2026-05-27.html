@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="37d10d8e214a81572df8a5a41e22dd74676a043d1bbdbd1173bfc8dd0d387999">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Closed-Loop Tribal+Wiki Self-Improvement Plan — slot:victor (2026-05-27)</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>Closed-Loop Tribal+Wiki Self-Improvement Plan — slot:victor (2026-05-27)</h1>
+<div class="meta">rendered from state/shared/specs/CLOSED-LOOP-TRIBAL-WIKI-PLAN-VICTOR-2026-05-27.md</div>
+<div class="meta">Generated 2026-05-27T13:10:16.469Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><h1 class="prism-h1">Closed-Loop Tribal+Wiki Self-Improvement Plan — slot:victor (2026-05-27)</h1>
+<blockquote class="prism-quote"><strong>Operator goal:</strong> <em>&quot;assess current state of tribal knowledge and wiki across all main domains for the prism app… make plan for wikis and tribal knowledge across categories for the purpose of closed loop system self learning and self improving.&quot;</em></blockquote>
+<blockquote class="prism-quote"></blockquote>
+<blockquote class="prism-quote"><strong>Companion doc:</strong> <code class="prism-inline-code">TRIBAL-WIKI-COVERAGE-VICTOR-2026-05-27.md</code> (iter-1 coverage matrix; this doc supersedes its &quot;iter-2/3 follows&quot; stub).</blockquote>
+<hr class="prism-hr">
+<h2 class="prism-h2">Headline state (live audit, 2026-05-22)</h2>
+<table class="prism-md-table"><thead><tr><th>Metric</th><th>Value</th><th>Read</th></tr></thead><tbody><tr><td>Wiki files (audit count)</td><td><strong>24,255</strong></td><td>corrects iter-1&#39;s filename-match 37,243 (overcounted multi-match)</td></tr>
+<tr><td>Tribal-wiki entries (in embed index)</td><td><strong>23,573</strong></td><td>source: <code class="prism-inline-code">state/shared/tribal-embed-index.json</code> (400MB, regen 2026-05-27 13:01)</td></tr>
+<tr><td>Missing from tribal</td><td><strong>692</strong></td><td>wiki entries the index doesn&#39;t see</td></tr>
+<tr><td>Stale in tribal</td><td><strong>10</strong></td><td>indexed but source removed</td></tr>
+<tr><td><strong>Coverage</strong></td><td><strong>97.15%</strong></td><td>up from echo iter-7 baseline (99.2% gap → 2.85% gap in ~6 days)</td></tr>
+<tr><td>Audit report age</td><td><strong>5 days</strong></td><td>stale; gate threshold 720h — re-regen overdue per echo&#39;s discipline</td></tr></tbody></table>
+<p><strong>Read:</strong> the closed-loop is <strong>already wired and working</strong>. Iter-1 framing as &quot;design a closed-loop&quot; was wrong — delta + echo + whiskey shipped this in May. What&#39;s needed is (a) per-domain rebalancing for the 5 RED-tier domains, (b) re-ingest cadence enforcement, (c) JM DIE/TRIBAL+WIKI completion. This is a maintenance/extension plan, not a greenfield architecture.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Existing closed-loop pipeline (DO NOT DUPLICATE)</h2>
+<pre class="prism-codeblock"><code>SOURCE                  STAGE                                  SCRIPT / HOOK
+──────                  ─────                                  ─────────────
+PDF corpus              (1) extract                            scripts/pdf-parse-extract.mjs (whiskey, U-WPWT-EXTRACT)
+JM DIE/TRIBAL+WIKI      (1a) per-page deep extract             scripts/extract-jm-die-corpus-page-by-page.py
+3,935 indexed PDFs      (1b) catalog                           scripts/build-cad-cam-resources-pdf-index.mjs v1.2.0 (delta)
+                                                                scripts/catalog-jm-die-tribal-wiki-corpus.mjs
+Courses (MIT-OCW etc)   (1c) course → tribal tips              scripts/course-to-tribal-tips.mjs
+                                                                scripts/tribal-graph-course-{extract,mine,embed,mapper}.mjs
+Monolith                (1d) monolith → tribal                 scripts/monolith-to-tribal-tips.mjs
+Tribal corpus           (2) promote conf≥0.9 → wiki            scripts/promote-tribal-to-wiki.mjs (628 already above floor of 3919)
+Wiki/Engines/Memories   (3) embed into tribal-embed-index      scripts/embed-{wiki,engines,knowledge-store,tribal-jsonl}-into-tribal-index.mjs
+                            (4) build per-domain feature graph  scripts/generate-{extracted-pdf-tips,jm-die-tribal-wiki,milling-tribal-tip-bridge,wiki-tribal,tribal-density}-features.mjs
+Embed index (400MB)     (5) inject per-prompt by slot domain    hook: .claude/hooks/tribal-by-domain-inject.mjs
+                            (5a) inject coverage gap on session  hook: .claude/hooks/wiki-tribal-coverage-inject.mjs (echo, U-WTCI iter-8)
+Audit                   (6) periodic cross-ref audit            scripts/wiki-tribal-cross-ref-audit.mjs (writes .wiki-tribal-cross-ref-audit.json)
+Cleanup                 (7) consolidate weekly                  scripts/tribal-consolidate-weekly.mjs
+                            (8) fix broken wikilinks            scripts/fix-broken-wikilinks.mjs + create-broken-wikilink-stubs.mjs
+                            (9) lint orphans                    scripts/lint-wiki-orphans.mjs</code></pre>
+<p><strong>~201 scripts</strong> total in tribal/wiki/extract/promote/catalog surface. The pipeline self-improves via: (a) PDF/course/monolith ingest → tribal jsonl → promotion threshold → wiki, (b) re-embed on schedule, (c) inject surfaces gap to operators every session.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Gap profile across 25 operator-named domains</h2>
+<p>(From iter-1 filename+memory inventory; numbers are filename-match counts, not embed-index counts.)</p>
+<table class="prism-md-table"><thead><tr><th>Tier</th><th>Domains</th><th>Action</th></tr></thead><tbody><tr><td><strong>GREEN</strong> (heavy coverage)</td><td>mill, lathe, wedm, cad, cam, business, audit, hr, erp</td><td>maintenance only — keep weekly consolidation running</td></tr>
+<tr><td><strong>YELLOW</strong> (mid coverage)</td><td>post-processor, sfc, quoting, ISO, scheduling, maintenance</td><td>targeted ingest from existing PDF corpus subdirs</td></tr>
+<tr><td><strong>ORANGE</strong> (thin)</td><td>shop-floor, payroll, purchasing, alarm/troubleshoot, OSHA</td><td>new ingest sources + manual seed authoring</td></tr>
+<tr><td><strong>RED — TRUE GAPS</strong></td><td><strong>logistics</strong>, <strong>evernote/file-digest</strong>, <strong>quickbooks</strong>, plus subset of accounting</td><td>brand-new ingest pipelines needed</td></tr></tbody></table>
+<p><strong>Cross-cutting findings:</strong></p>
+<ol class="prism-md-list"><li><strong><code class="prism-inline-code">wedm</code> vs <code class="prism-inline-code">wire-edm</code> filename split</strong> — 1213 vs 6 entries. Search recall is forked. Pick canonical slug, add alias map in <code class="prism-inline-code">wiki-link-fix-suggester</code>.</li><li><strong>CAM tribal under-promotion</strong> — 4,161 wiki + 2,446 memory but only 28 tribal tips. Promotion pipeline isn&#39;t picking up CAM tribal candidates. Investigate why <code class="prism-inline-code">promote-tribal-to-wiki</code> is silent on CAM.</li><li><strong>Audit lacks per-domain breakdown</strong> — <code class="prism-inline-code">.wiki-tribal-cross-ref-audit.json</code> reports global 692/24,255 missing but not WHICH domains contain them. Self-improvement signal too coarse.</li></ol>
+<hr class="prism-hr">
+<h2 class="prism-h2">Proposed roadmap — TRIBAL-WIKI-AUDIT-MS0 (12 units)</h2>
+<p>Each unit ships an engine OR script OR hook + real tests + dispatcher wiring (where applicable). No stubs.</p>
+<h3 class="prism-h3">A. Per-domain coverage signal (3 units)</h3>
+<ul class="prism-md-list"><li><strong>U-VICTOR-A1-PER-DOMAIN-AUDIT</strong> — extend <code class="prism-inline-code">wiki-tribal-cross-ref-audit.mjs</code> to emit <code class="prism-inline-code">byDomain: { mill: {coverage, missing[]}, lathe: {…}, … }</code> for the 25 operator-named domains. Domain classifier reuses <code class="prism-inline-code">classifyJmDie()</code> heuristic from delta&#39;s <code class="prism-inline-code">build-cad-cam-resources-pdf-index.mjs</code>. Tests: 25-domain happy path + unclassified-bucket + zero-coverage domain (logistics) + naming-split (wedm vs wire-edm) merges into single bucket. Files: <code class="prism-inline-code">scripts/wiki-tribal-cross-ref-audit.mjs</code> (extend), <code class="prism-inline-code">scripts/lib/wiki-domain-classifier.mjs</code> (new, pure), <code class="prism-inline-code">scripts/wiki-tribal-cross-ref-audit.test.mjs</code> (extend).</li><li><strong>U-VICTOR-A2-INJECT-PER-DOMAIN</strong> — extend <code class="prism-inline-code">.claude/hooks/wiki-tribal-coverage-inject.mjs</code> to surface top-3 lowest-coverage domains in the SessionStart payload (silent unless any domain &lt;50% coverage). Wired through existing <code class="prism-inline-code">loadAudit</code> reader. Tests: per-domain threshold gating, slot-aware filter (so a <code class="prism-inline-code">mill</code>-slot chat sees mill-gap first), backward compat with current single-number coverage line.</li><li><strong>U-VICTOR-A3-AUDIT-REGEN-CADENCE</strong> — durable scheduled task <code class="prism-inline-code">PRISM Wiki-Tribal Audit Regen</code> (24h cadence, +480s phase to avoid contention with fleet-reaper at +210s). Currently the audit is regen-on-demand; 5-day staleness is the symptom. Reuses existing <code class="prism-inline-code">install-fleet-reaper-task.ps1</code> template.</li></ul>
+<h3 class="prism-h3">B. Close the 5 RED-tier gaps (5 units)</h3>
+<ul class="prism-md-list"><li><strong>U-VICTOR-B1-LOGISTICS-SEED</strong> — bootstrap <code class="prism-inline-code">knowledge/wiki/architecture/dispatcher-logistics.md</code> + seed 10 tribal tips on shipping/receiving/inventory/UPS-FedEx integration. No engine yet — wiki+tribal first, engine when domain materializes.</li><li><strong>U-VICTOR-B2-FILE-DIGEST-EVERNOTE</strong> — operator named &quot;automatic file digest (Evernote) and redistribution of data from the file to all corresponding units.&quot; Map: this IS the <code class="prism-inline-code">knowledge-conversion/</code> galaxy + <code class="prism-inline-code">pdf-corpus/</code> galaxy (already exists). Write a wiki concept-page <code class="prism-inline-code">knowledge/wiki/concepts/file-digest-redistribution.md</code> linking the existing engines (<code class="prism-inline-code">PDFCorpusEngine</code>, <code class="prism-inline-code">KnowledgeConversionEngine</code>, <code class="prism-inline-code">CourseToTribalTipsEngine</code>) and the redistribution side (master-index inject, slot-soul routing, per-galaxy memory).</li><li><strong>U-VICTOR-B3-QUICKBOOKS-CONNECTOR-SEED</strong> — operator named QuickBooks. Check <code class="prism-inline-code">business/</code> galaxy for existing QBO connector; if absent, seed <code class="prism-inline-code">knowledge/wiki/architecture/business-quickbooks-connector.md</code> with the 4-axis (chart-of-accounts sync, invoice → SFC quote bridge, job-cost → ERP-E2 reconcile, payroll path). Engine deferred to a follow-up MS1.</li><li><strong>U-VICTOR-B4-OSHA-COMPLIANCE-SEED</strong> — <code class="prism-inline-code">compliance-safety/</code> sentinel exists with no ENGINE_DIGEST. Generate it via <code class="prism-inline-code">scripts/generate-per-galaxy-engine-digest.mjs --galaxy compliance-safety</code> + extract OSHA-1910 + ISO-12100 + machine-guarding patterns from existing <code class="prism-inline-code">tribal-knowledge/</code> galaxy.</li><li><strong>U-VICTOR-B5-ALARM-TROUBLESHOOT-PATTERN-MINE</strong> — 128 wiki + 41 troubleshoot but only 1 tribal tip. Controller alarm-code knowledge (Fanuc 4-digit, Heidenhain HSCI, Haas LED states, Mazak EIA) lives in machine manuals already in <code class="prism-inline-code">resources/</code>. Add <code class="prism-inline-code">scripts/extract-controller-alarm-codes.mjs</code> to mine the manual PDFs, emit to <code class="prism-inline-code">mcp-server/data/tribal/controller-alarms.jsonl</code>, embed into the index.</li></ul>
+<h3 class="prism-h3">C. Self-improvement triggers (4 units)</h3>
+<ul class="prism-md-list"><li><strong>U-VICTOR-C1-PROMOTION-CADENCE</strong> — auto-run <code class="prism-inline-code">promote-tribal-to-wiki.mjs --apply --threshold 0.9</code> nightly. Currently runs only when an operator invokes it. 628 candidates already above 0.9 — proves the threshold works, but no scheduled fire.</li><li><strong>U-VICTOR-C2-CONSOLIDATE-WEEKLY-CRON</strong> — <code class="prism-inline-code">tribal-consolidate-weekly.mjs</code> exists but isn&#39;t on a cron. Wire it.</li><li><strong>U-VICTOR-C3-RE-INGEST-ON-NEW-PDF</strong> — file-watcher on <code class="prism-inline-code">JM DIE/TRIBAL + WIKI/</code> + <code class="prism-inline-code">resources/</code>: any new <code class="prism-inline-code">*.pdf</code> triggers <code class="prism-inline-code">pdf-parse-extract.mjs --file &lt;new&gt;</code> automatically. Closes the operator&#39;s prior complaint ([[feedback_enumerate_before_read]]) — new resources should auto-flow without operator manually compiling them.</li><li><strong>U-VICTOR-C4-STALE-AUTO-PRUNE</strong> — 10 stale entries surfaced in audit (indexed but source removed). Extend <code class="prism-inline-code">tribal-consolidate-weekly.mjs</code> to drop them; emit a deletion log to <code class="prism-inline-code">state/shared/tribal-pruned.jsonl</code>.</li></ul>
+<h3 class="prism-h3">D. Complete the JM DIE/TRIBAL+WIKI ingest (already on roadmap)</h3>
+<ul class="prism-md-list"><li><strong>U-JM-DIE-TRIBAL-WIKI-INGEST-COMPLETE</strong> — delta extracted 8/93 books 2026-05-26 (operator drop). 85 remaining. Pickup via <code class="prism-inline-code">pdf-parse-extract.mjs --batch</code> per delta&#39;s tiered strategy (medium 1.5-10MB / heavy 10-25MB / massive 100MB+ split). The 115MB SolidWorks 2021 + 48MB InventorCAM 2024 books need chapter-by-chapter splits to avoid pdf-parse OOM. Reference: [[reference_jm_die_tribal_wiki_extraction_starter_2026_05_26]].</li></ul>
+<hr class="prism-hr">
+<h2 class="prism-h2">Self-improvement architecture (summary)</h2>
+<pre class="prism-codeblock"><code>INGEST (new sources)                      ──►   tribal jsonl
+   • file-watcher on JM DIE + resources/    (U-VICTOR-C3)
+   • controller-alarm mining                (U-VICTOR-B5)
+   • OSHA/ISO/compliance corpus             (U-VICTOR-B4)
+                                                  │
+                                                  ▼
+PROMOTE (threshold 0.9)              ──►   wiki canonical
+   • nightly cron                            (U-VICTOR-C1)
+                                                  │
+                                                  ▼
+EMBED (re-build tribal-embed-index)  ──►   400MB index
+   • already daily (delta)                            │
+                                                       ▼
+AUDIT (per-domain coverage)          ──►   .wiki-tribal-cross-ref-audit.json
+   • daily cron                              (U-VICTOR-A3)
+   • per-domain breakdown                    (U-VICTOR-A1)
+                                                  │
+                                                  ▼
+INJECT (per-prompt + per-session)    ──►   surface gaps to chats
+   • tribal-by-domain-inject (live)
+   • wiki-tribal-coverage-inject (live)
+   • per-domain extension                    (U-VICTOR-A2)
+                                                  │
+                                                  ▼
+CONSOLIDATE / PRUNE (weekly)         ──►   drop stale, dedup
+   • weekly cron                             (U-VICTOR-C2)
+   • stale auto-prune                        (U-VICTOR-C4)</code></pre>
+<p>The <strong>closed-loop signal</strong> is: per-domain coverage gap surfaces at session-start → operator picks a unit from this plan or kicks off existing extraction → ingest landing increases coverage → next audit cycle reflects it.</p>
+<hr class="prism-hr">
+<h2 class="prism-h2">Iter-2 deliverables</h2>
+<ul class="prism-md-list"><li>This document</li><li>Companion: <code class="prism-inline-code">TRIBAL-WIKI-COVERAGE-VICTOR-2026-05-27.md</code> (iter-1 raw inventory)</li><li>Memo proposal: <code class="prism-inline-code">reference_existing_tribal_wiki_pipeline_2026_05_27.md</code> (existing-pipeline tour for future chats so they don&#39;t re-derive)</li></ul>
+<h2 class="prism-h2">Out of scope</h2>
+<ul class="prism-md-list"><li>Engine builds for B1-B4 (logistics/quickbooks/osha/file-digest) — wiki-first seed only; engine work deferred to MS1 after the wiki+tribal foundations land.</li><li>Vector-index re-architecture — 400MB embed-index is healthy.</li><li><code class="prism-inline-code">wiki-tribal-coverage-inject</code> rework — extension only (U-VICTOR-A2).</li></ul>
+<p>— slot:victor, /loop iter 2-3, 2026-05-27.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

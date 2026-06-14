@@ -88,7 +88,16 @@ const ACTIONS = [
   "handoff_prepare",
   "handoff_write",
   "handoff_read",
+  // U-WIRE-OPERATOR-PREFS (slot:romeo): OperatorPreferencesEngine → prism_session (3 actions)
+  "operator_prefs_set",
+  "operator_prefs_get",
+  "operator_prefs_apply",
   "resume_session",
+  // Session replay (SessionReplayEngine — git-backed context, complements quick_resume)
+  "replay_context",
+  "replay_resume_line",
+  "replay_working_set",
+  "replay_diff_summary",
   "memory_save",
   "memory_recall",
   "context_pressure",
@@ -158,8 +167,16 @@ const ACTIONS = [
   // OBSIDIAN-PRISM-OS-MS0/U-MASTER-INDEX: unified master search across system-viz + obsidian + capability index + BUILD_STATE
   "master_index_query",
   "master_index_node_status",
+  // SIERRA-LEVERAGE/U-N1-RANKED-HYBRID (sierra 2026-05-29): re-rank master-index hits by RRF-fusing the confidence (lexical) ranking against the utilization (structural-importance) ranking — distinct axis from `hybrid_search` (which fuses across the 4 PSN SOURCES); this blends relevance × importance WITHIN the master hits.
+  "master_index_ranked_hybrid",
+  // PSN-ENHANCE-MS0/U-PSN-HYBRID-MCP-WIRE (sierra iter26 2026-05-25): one query → all 4 PSN retrieval substrates (memory + master + episode + Qdrant vector) → RRF k=60 fusion
+  "hybrid_search",
   // OBSIDIAN-PRISM-OS-MS0/U-NODE-UTILIZATION: graph-wide utilization classifier (hub/sink/source/orphan/ghost)
   "master_index_utilization_dashboard",
+  // CHEAP-NODE-ACCESS-MS0/U-NODECARD-DISPATCHER (sierra 2026-06-04): token-cheap node-card read-by-id — seeks the offset index via the single-source CLI (no 644MB graph load). params.id (string) | params.ids (string[]).
+  "node_card",
+  // CHEAP-NODE-ACCESS-MS0/U-VBL-DISPATCHER (sierra 2026-06-09): REVERSE of node_card — given a vault doc (wiki path or memory slug) list the graph node(s) that document it, via the single-source CLI `doc-nodes` over vault-backlinks.json (no 644MB graph load). params.doc (string) + aliases query/q/key/path/slug.
+  "doc_nodes",
   // COORD-MS0/U-COORD04: CrossSessionOrchestratorEngine unified facade — claim/broadcast/handoff over the 3 cross-session primitives
   "cross_session_get_session_id",
   "cross_session_claim",
@@ -195,6 +212,48 @@ const ACTIONS = [
   // internal (cadence-wrapper-driven), only read/handoff surfaces exposed.
   "lifecycle_metrics",
   "lifecycle_quality_score",
+  // U-BRIDGE-WIRE-AGENT (oscar 2026-05-23): wire 2 unwired Agent engines.
+  // AgentAutoUpdateEngine — agent-knowledge sync (5 actions).
+  "agent_knowledge_scan",
+  "agent_knowledge_snapshot",
+  "agent_knowledge_recent",
+  "agent_knowledge_context_string",
+  "agent_knowledge_rescan",
+  // AgentWorkflowEngine — autonomous workflow execution (4 lifecycle actions).
+  // Prefixed `agent_workflow_*` to avoid collision with existing
+  // workflow_{start,advance,status,complete} (different engine).
+  "agent_workflow_list",
+  "agent_workflow_start",
+  "agent_workflow_status",
+  "agent_workflow_cancel",
+  // U-BRIDGE-WIRE-CROSS (oscar 2026-05-23): wire 2 unwired Cross engines.
+  // CrossCAMComparisonLedgerEngine — per-cell Wilson-bound CAM leaderboard.
+  "cross_cam_ledger_record",
+  "cross_cam_ledger_leaderboard",
+  "cross_cam_ledger_by_cam",
+  "cross_cam_ledger_stats",
+  "cross_cam_ledger_reset",
+  // CrossToolCouplingEngine — multi-tool modal coupling analysis.
+  "cross_tool_coupling_analyze",
+  // U-BRIDGE-WIRE-LIVE (oscar 2026-05-23 iter3): wire 3 unwired Live engines.
+  "live_tooling_analyze_driven",
+  "live_tooling_controller_capabilities",
+  "live_turret_validate_kinematics",
+  // U-BRIDGE-WIRE-INVENTOR (oscar 2026-05-23 iter4): wire 3 unwired Inventor engines.
+  "inventor_cad_list_modules",
+  "inventor_cad_get_module_entry",
+  "inventor_cam_list_strategies",
+  "inventor_cam_get_strategy_params",
+  "inventor_cam_get_templates",
+  // U-BRIDGE-WIRE-PRINT-PARTIAL (oscar 2026-05-23 iter5): wire 2 of 4 unwired Print
+  // engines. PrintAccuracyProofEngine + PrintCorpusOrchestratorEngine deferred —
+  // november DEA-MS0/P06 has explicit claim on PrintAccuracyProofEngine.
+  "print_corpus_all_shas",
+  "print_corpus_total_count",
+  "print_stall_stats",
+  // U-BRIDGE-WIRE-SENSOR (oscar 2026-05-23 iter6): DEFERRED — goal pivoted to mill
+  // calculator page studio mid-iter; cases never wired. Names removed to satisfy
+  // stop_on_unwired_assets. Re-add when SENSOR wiring resumes.
   "lifecycle_session_id",
   "lifecycle_call_count",
   "lifecycle_final_handoff",
@@ -208,11 +267,389 @@ const ACTIONS = [
   // conflict, persist both versions + a policy-selected winner to
   // knowledge/memories/conflicts/<key>.diff.md. Backed by
   // MemoryConflictResolverEngine.resolveConflict.
-  "memory_conflict_resolve"
+  "memory_conflict_resolve",
+  // HERMES-AGI-ARCHITECTURE-MS0/U-HAGI08 — source-chain / provenance decorator
+  // (Voxyz Layer 8). Citation chain on every retrieval, operator-auditable.
+  "source_chain_decorate",
+  "source_chain_merge",
+  "source_chain_validate",
+  "source_chain_render",
+  // HERMES-AGI-ARCHITECTURE-MS0/U-HAGI12 — PSNCoverageAuditEngine
+  // 11x12 PSN-leg x Voxyz-layer coverage matrix, operator-tunable thresholds.
+  "psn_coverage_audit",
+  "psn_coverage_by_verdict",
+  "psn_coverage_render",
+  "psn_coverage_decorated",
+  // U-HAGI11 KillSwitchEngine — unified 3-level operator kill switch.
+  "kill_switch_initial",
+  "kill_switch_promote",
+  "kill_switch_reset",
+  "kill_switch_decide",
+  // U-HAGI04 TaskDecomposerEngine — prose to N parallel sub-tasks.
+  "task_decompose",
+  "task_decompose_cap",
+  "task_decompose_validate",
+  // U-HAGI09 PolicyTestSuiteEngine — adversarial / forbidden-action verdict suite.
+  "policy_suite_run",
+  "policy_suite_summarize",
+  "policy_suite_render",
+  // U-HAGI10 TenantBoundaryEngine — multi-tenant data isolation primitive.
+  "tenant_boundary_decide",
+  "tenant_boundary_filter",
+  "tenant_boundary_render",
+  // U-HAGI03 CoordinatorSwarmEngine — Kimi-pattern fan-out + synthesize.
+  "swarm_run",
+  "swarm_successes",
+  "swarm_failures",
+  // U-HAGI07 A2AProtocolEngine — Linux Foundation Agent2Agent protocol layer.
+  "a2a_inbound_descriptor",
+  "a2a_outbound_envelope",
+  "a2a_accept_inbound",
+  // U-HAGI02 UnifiedControlPlaneEngine — composes kill-switch + tenant + budget + approval.
+  "control_plane_decide",
+  "control_plane_render",
+  // U-HAGI05 BatchDeliverableEngine — fan-out multi-customer batch production.
+  "batch_deliverable_run",
+  "batch_deliverable_render",
+  // U-HAGI01 DurableWorkflowEngine — crash-resumable workflow primitive (Voxyz L9).
+  "workflow_initial",
+  "workflow_advance",
+  "workflow_pause",
+  "workflow_resume",
+  "workflow_cancel",
+  "workflow_render",
+  // U-HAGI06 WorkSurfaceScaffoldEngine — PrismApp web work-surface (Voxyz L1).
+  "work_surface_manifest",
+  "work_surface_route_at",
+  "work_surface_filter_by_role",
+  "work_surface_render",
+  // HMEMV-MS0 sister milestone — memory/vector layer.
+  // HMEMV01 TieredMemoryEngine — 3-tier working/episodic/semantic store.
+  "tiered_memory_insert",
+  "tiered_memory_recall",
+  "tiered_memory_promote",
+  "tiered_memory_expire",
+  "tiered_memory_stats",
+  "tiered_memory_render",
+  // HMEMV02 RecallRankingEngine — hybrid retrieval ranking + MMR.
+  "recall_rank",
+  "recall_rank_render",
+  // HMEMV03 MemoryGovernanceEngine — TTL + audit + scrub.
+  "memory_find_expired",
+  "memory_scrub",
+  "memory_record_audit",
+  "memory_render_audit",
+  // HMEMV04 EmbeddingRouterEngine — Euclidean vs hyperbolic routing.
+  "embedding_route",
+  "embedding_route_render",
+  // HMEMV05 MemoryDecayConsolidationEngine — decay/merge/drop consolidation.
+  "memory_decay_consolidate",
+  // HMEMV06 DriftDetectionEngine — semantic drift detection.
+  "drift_measure",
+  "drift_render",
+  // HMEMV07 ContextBlockPackerEngine — per-block context packing.
+  "context_pack_plan",
+  "context_pack_render",
+  // HMEMV08 MemoryDiffEngine — state-snapshot diff.
+  "memory_diff",
+  "memory_diff_render",
+  // HMEMV09 NamespaceMigrationEngine — cross-namespace re-key.
+  "namespace_migrate",
+  "namespace_migrate_render",
+  // HMEMV10 HybridIndexEngine — RRF fusion of BM25 + semantic.
+  "hybrid_fuse",
+  "hybrid_fuse_render",
+  // HMEMV11 QuantizationProfileEngine — RaBitQ profile selector.
+  "quant_select",
+  "quant_render",
+  // HCAP-MS0 sister milestone — capability layer.
+  // HCAP01 PluginRegistryEngine — Hermes plugin manifest registry.
+  "plugin_register",
+  "plugin_deregister",
+  "plugin_find_by_capability",
+  "plugin_filter_by_side_effect",
+  "plugin_render",
+  // HCAP02 ExcelStructureEngine — Excel sheet/range parser.
+  "excel_analyze",
+  "excel_column_values",
+  "excel_render",
+  // HCAP03 PDFStructureEngine — PDF document structural model.
+  "pdf_analyze",
+  "pdf_render",
+  // HMPI-MS0 sister milestone — MCP plugin / integration layer.
+  // HMPI01 MCPServerRegistryEngine — registry of MCP servers we consume/expose.
+  "mcp_server_register",
+  "mcp_server_deregister",
+  "mcp_server_find_by_tool",
+  "mcp_server_filter_by_tier",
+  "mcp_server_filter_by_transport",
+  "mcp_server_find_oauth_gated",
+  "mcp_server_render",
+  // HCAP04 CSVStructureEngine — CSV structural parser.
+  "csv_analyze",
+  "csv_render",
+  // HMPI02 OAuthCredentialEngine — OAuth credential lifecycle state machine.
+  "oauth_initial",
+  "oauth_authorize",
+  "oauth_record_failure",
+  "oauth_revoke",
+  "oauth_reevaluate",
+  "oauth_render",
+  // HMPI03 IntegrationHealthEngine — health score + verdict for integrations.
+  "health_score",
+  "health_aggregate",
+  "health_render",
+  // HCAP05 JSONSchemaValidatorEngine — lightweight JSON Schema validator.
+  "json_schema_validate",
+  "json_schema_render",
+  // HCAP06 WebScrapeResultEngine — structured web scrape result.
+  "web_scrape_analyze",
+  "web_scrape_rank",
+  "web_scrape_render",
+  // HCAP07 OCRResultEngine — structured OCR output.
+  "ocr_summarize",
+  "ocr_filter_by_confidence",
+  "ocr_merge_text",
+  "ocr_render",
+  // HCAP08 ImageMetadataEngine — image metadata structural model.
+  "image_analyze",
+  "image_strip_gps",
+  "image_render",
+  // HCAP09 EmailMessageEngine — email message structural model.
+  "email_analyze",
+  "email_same_thread",
+  "email_render",
+  // HCAP10 ZipArchiveEngine — zip-archive structural model.
+  "zip_analyze",
+  "zip_filter_by_extension",
+  "zip_render",
+  // HCAP11 ParquetSchemaEngine — columnar table schema model.
+  "parquet_analyze",
+  "parquet_columns_of_type",
+  "parquet_render",
+  // HCAP12 SQLQueryStructureEngine — SQL structural classifier.
+  "sql_query_analyze",
+  "sql_query_render",
+  // HCAP13 GraphQLSchemaEngine — GraphQL schema structural model.
+  "graphql_analyze",
+  "graphql_render",
+  // HCAP14 RegexCatalogEngine — named-regex catalog.
+  "regex_register",
+  "regex_deregister",
+  "regex_test",
+  "regex_extract_all",
+  "regex_list",
+  "regex_render",
+  // HCAP15 LocalizationBundleEngine — i18n bundle coverage.
+  "i18n_analyze",
+  "i18n_render",
+  // HCAP16 PluginPermissionMatrixEngine — plugin × capability authz.
+  "perm_matrix_set",
+  "perm_matrix_lookup",
+  "perm_matrix_remove",
+  "perm_matrix_filter_by_verdict",
+  "perm_matrix_stats",
+  "perm_matrix_render",
+  // HMPI04 SchemaDriftDetectorEngine — MCP tool schema drift detection.
+  "schema_drift_diff",
+  "schema_drift_render",
+  // HMPI05 RateLimitGovernorEngine — token-bucket rate limiter.
+  "rate_limit_initial",
+  "rate_limit_refill",
+  "rate_limit_consume",
+  "rate_limit_render",
+  // HMPI06 ToolDeprecationTrackerEngine — tool lifecycle / deprecation verdict.
+  "tool_dep_decide",
+  "tool_dep_aggregate",
+  "tool_dep_render",
+  // HMPI07 TransportHealthProbeEngine.
+  "transport_health_analyze",
+  "transport_health_render",
+  // HMPI08 AuthHandshakeEngine.
+  "auth_handshake_initial",
+  "auth_handshake_challenge",
+  "auth_handshake_respond",
+  "auth_handshake_verify",
+  "auth_handshake_render",
+  // HMPI09 PluginInstallManifestEngine.
+  "plugin_manifest_check",
+  "plugin_manifest_render",
+  // HMPI10 McpResourceLifecycleEngine.
+  "mcp_resource_validate",
+  "mcp_resource_begin_load",
+  "mcp_resource_mark_ready",
+  "mcp_resource_mark_failed",
+  "mcp_resource_revoke",
+  "mcp_resource_render",
+  // HMPI11 PluginUpgradePathEngine.
+  "plugin_upgrade_classify",
+  "plugin_upgrade_render",
+  // HMPI12 WebhookSubscriptionEngine.
+  "webhook_subscription_check_add",
+  "webhook_subscription_render",
+  // HMPI13 ToolCallAuditLogEngine.
+  "tool_call_audit_append",
+  "tool_call_audit_summarize",
+  "tool_call_audit_render",
+  // HMPI14 PluginSandboxPolicyEngine.
+  "plugin_sandbox_evaluate",
+  "plugin_sandbox_render",
+  // HZP01 HermesParallelFanoutPlannerEngine.
+  "hermes_fanout_plan",
+  "hermes_fanout_render",
+  // HZP01.5 auto-trigger gate — decides WHEN a raw task warrants fan-out (the dormant decision layer).
+  "hermes_auto_fanout_gate",
+  "hermes_auto_fanout_render",
+  // HZP02 HermesFileScopePartitionerEngine.
+  "hermes_file_scope_partition",
+  "hermes_file_scope_render",
+  // HZP03 HermesParallelBudgetEnvelopeEngine.
+  "hermes_budget_estimate",
+  "hermes_budget_render",
+  // HZP04 HermesParallelVerdictAggregatorEngine.
+  "hermes_verdict_aggregate",
+  "hermes_verdict_render",
+  // HSE01 SoulFrontmatterReaderEngine.
+  "soul_parse",
+  "soul_summary_render",
+  // HSE02 SoulSubagentRouterEngine.
+  "soul_subagent_route",
+  "soul_subagent_render",
+  // HSE03 SoulEscalationCheckerEngine.
+  "soul_escalation_check",
+  "soul_escalation_render",
+  // HSE04 SoulHtmlRenderEngine.
+  "soul_html_render",
+  // HSE05 SoulFleetRollupEngine.
+  "soul_fleet_rollup",
+  "soul_fleet_html",
+  "soul_fleet_summary",
+  // HSE06 DreamLoopProposalEngine.
+  "dream_propose",
+  "dream_batch_render",
+  // HSE07 DreamConsolidationEngine.
+  "dream_consolidate",
+  "dream_queue_render",
+  // DREAM-RECEIPT-MS0 / U-DR02 + U-DR03 + U-DR04 + U-DR05 + U-DR06 — DreamArtifactBundleEngine receipt-bundle surface (Hermes Dreaming v0.1.0 6-verb interop).
+  "dream_status",
+  "dream_diff",
+  "dream_validate",
+  "dream_apply",
+  "dream_discard",
+  // DREAM-RECEIPT-MS0 / U-DR07 — DreamMarkerScannerEngine: offline `DREAM:` marker parser (pure-core).
+  "dream_scan",
+  "dream_markers_to_proposals",
+  // HSE08 SoulConsensusEngine.
+  "soul_consensus_analyze",
+  "soul_consensus_render",
+  // HZP05 SoulAwareFanoutExtenderEngine.
+  "soul_aware_fanout_extend",
+  "soul_aware_fanout_render",
+  // HZP06 ZuluTaskAuctionEngine.
+  "zulu_task_auction",
+  "zulu_task_auction_render",
+  // HZD-02 ZuluFleetGovernorEngine — pure-core authority gate (read-only query).
+  "zulu_authority_check",
+  "zulu_authority_check_render",
+  // HZD-06 ModelAttributionEngine — fleet model-provenance ledger (which model/provenance answered + token/latency badge). Pure in-memory, no I/O.
+  "model_attribution_record",
+  "model_attribution_summary",
+  "model_attribution_recent",
+  "model_attribution_find",
+  "model_attribution_badge",
+  // HZD-07 OpusCapabilityEngine — model-tier complexity router (PURE assessment + stats surface). execute() is LLM-backed (separate live-integration unit).
+  "opus_assess_complexity",
+  "opus_stats",
+  // HZP07 HermesSelfCorrectionEngine.
+  "hermes_self_correct",
+  "hermes_self_correct_render",
+  // HZP08 DoctrineDraftEngine.
+  "doctrine_draft",
+  "doctrine_draft_render",
+  // HZD-05 ZuluDashboardControlEngine — MCP wrapper for the :8767 control server (HZP-DASH-MS0).
+  "zulu_dash_assign",
+  "zulu_dash_veto",
+  "zulu_dash_promote_refuse",
+  "zulu_dash_adopt_doctrine",
+  "zulu_dash_escalate",
+  "zulu_dash_bus_send",
+  "zulu_dash_state",
+  "zulu_dash_audit_tail",
+  // ── DEA-MS0/U-DEA-november-01 — ContextualBoundaryEngine wire ──
+  "context_bound_compute",
+  "context_bound_all",
+  "context_bound_check",
+  // ── DEA-MS0/U-DEA-november-P06 — PrintAccuracyProofEngine wire (was UNKNOWN dispatcher) ──
+  "print_accuracy_audit",
+  "print_accuracy_classify_row",
+  // ZULU-OBSIDIAN-LIVE-MS0 — ObsidianRestBridgeEngine (live Obsidian vault, READ-ONLY v1).
+  "obsidian_status",
+  "obsidian_read",
+  "obsidian_search"
 ] as const;
 
 function ok(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
+}
+
+/**
+ * Wire-layer mapper for SessionReplayEngine results.
+ * Detects the engine's synthetic-error sentinel (lastCommit.hash === "error" OR
+ * resumeLine starting with "Could not determine session context") and re-shapes
+ * the response as {ok:false, error:"git_unavailable"} so MCP clients can branch
+ * on a real discriminant. Also strips $HOME / USERPROFILE prefix from all
+ * string fields (recursive) to prevent path/username leak through git stderr
+ * round-tripping into MCP responses.
+ *
+ * Pure / side-effect-free. Exported for direct unit-test coverage of the
+ * sentinel-detection + path-strip branches (the dispatcher's round-trip can
+ * only reach the happy path in a real git repo).
+ */
+export function _replayMapResult(raw: unknown): unknown {
+  const homeDir = process.env.HOME || process.env.USERPROFILE || "";
+  // Sentinel detection: engine returns {lastCommit:{hash:"error",...}} on git failure.
+  if (
+    raw && typeof raw === "object" &&
+    (raw as { lastCommit?: { hash?: string } }).lastCommit?.hash === "error"
+  ) {
+    return {
+      ok: false,
+      error: "git_unavailable",
+      detail: "SessionReplayEngine could not access git (cwd missing .git, git not on PATH, or repo corrupted)",
+    };
+  }
+  // Sentinel detection: getResumeLine() returns "Could not determine session context" on failure.
+  if (
+    raw && typeof raw === "object" &&
+    typeof (raw as { resumeLine?: string }).resumeLine === "string" &&
+    (raw as { resumeLine: string }).resumeLine.startsWith("Could not determine")
+  ) {
+    return {
+      ok: false,
+      error: "git_unavailable",
+      detail: "SessionReplayEngine resume-line build failed",
+    };
+  }
+  return _stripHomeDir(raw, homeDir);
+}
+
+export function _stripHomeDir(v: unknown, homeDir: string): unknown {
+  if (!homeDir) return v;
+  if (typeof v === "string") {
+    // Replace both forward-slash and backslash variants (Windows / POSIX).
+    let out = v.split(homeDir).join("~");
+    if (homeDir.includes("\\")) out = out.split(homeDir.replace(/\\/g, "/")).join("~");
+    return out;
+  }
+  if (Array.isArray(v)) return v.map(x => _stripHomeDir(x, homeDir));
+  if (v && typeof v === "object") {
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(v as Record<string, unknown>)) {
+      out[k] = _stripHomeDir((v as Record<string, unknown>)[k], homeDir);
+    }
+    return out;
+  }
+  return v;
 }
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -865,13 +1302,40 @@ export function registerSessionDispatcher(server: any): void {
           case "quick_resume": {
             const state = loadJsonFile(CURRENT_STATE_FILE);
             const roadmap = loadJsonFile(ROADMAP_FILE);
-            
+
             const quickResume = state?.quickResume || "No previous session";
             const currentPhase = roadmap?.current_phase || state?.currentSession?.phase || "Unknown";
             const lastCheckpoint = state?.currentSession?.progress?.lastCheckpoint || "None";
             const nextAction = state?.currentSession?.progress?.next || "Check prism_gsd_core";
-            
+
             return ok({ quickResume, currentPhase, lastCheckpoint, nextAction });
+          }
+
+          // SessionReplayEngine — git-backed context (token-cheap alternative to transcript reads).
+          // Wire-layer responsibility: detect the engine's synthetic-error sentinel and surface
+          // a proper {ok:false, error:"git_unavailable"} discriminant to the MCP client (the engine
+          // itself silent-wraps execSync failures as {hash:"error", summary:"... failed: <stderr>"};
+          // without this layer, clients can't tell git-missing from a real commit literally named "error").
+          // Also strips $HOME / repo-root prefix from any string fields to prevent path/username leak.
+          case "replay_context": {
+            const { sessionReplayEngine } = await import("../../engines/SessionReplayEngine.js");
+            const maxCommits = typeof params.max_commits === "number" ? params.max_commits : 5;
+            const raw = sessionReplayEngine.getReplayContext(maxCommits);
+            return ok(_replayMapResult(raw));
+          }
+          case "replay_resume_line": {
+            const { sessionReplayEngine } = await import("../../engines/SessionReplayEngine.js");
+            const line = sessionReplayEngine.getResumeLine();
+            return ok(_replayMapResult({ resumeLine: line }));
+          }
+          case "replay_working_set": {
+            const { sessionReplayEngine } = await import("../../engines/SessionReplayEngine.js");
+            return ok(_replayMapResult(sessionReplayEngine.getWorkingSet()));
+          }
+          case "replay_diff_summary": {
+            const { sessionReplayEngine } = await import("../../engines/SessionReplayEngine.js");
+            const ds = sessionReplayEngine.getDiffSummary();
+            return ok(_replayMapResult({ diffSummary: ds }));
           }
           
           case "session_start": {
@@ -1335,6 +1799,42 @@ export function registerSessionDispatcher(server: any): void {
           // search across system-viz graph + Obsidian vault + capability index
           // + BUILD_STATE. Future hot path under master-index-precheck-inject
           // hook — replaces N Grep/Glob/Agent calls.
+          // PSN-ENHANCE-MS0/U-PSN-HYBRID-MCP-WIRE (sierra iter26 2026-05-25):
+          // closes iter-18 follow-up. Cross-tree dynamic import via file://
+          // URL bypasses src/ boundary so MCP + CLI + skill share one
+          // implementation (duplicate-guard would block a copy under
+          // mcp-server/src/engines).
+          //
+          // U-PSN-HYBRID-MCP-VERIFY (sierra iter27 2026-05-26): case body
+          // hoisted into ./sessionHybridSearchAction.ts so it can be
+          // exercised under vitest with mock deps. Behavior identical to
+          // iter26 — same defaults, same params accepted.
+          case "hybrid_search": {
+            const { runHybridSearchAction } = await import("./sessionHybridSearchAction.js");
+            const result = await runHybridSearchAction(params as Parameters<typeof runHybridSearchAction>[0]);
+            return ok(result);
+          }
+
+          // SIERRA-LEVERAGE/U-N1-RANKED-HYBRID (sierra 2026-05-29): re-rank master-index
+          // hits by RRF-fusing confidence (lexical) vs utilization (structural importance).
+          // OOM-safe — reuses MasterIndexEngine's cached index; no live PageRank on the 548MB graph.
+          case "master_index_ranked_hybrid": {
+            const { rankedHybridGraphSearchEngine } = await import("../../engines/RankedHybridGraphSearchEngine.js");
+            const query = String(params.query ?? params.q ?? "");
+            const opts: Record<string, unknown> = {};
+            if (params.limit != null) opts.limit = Number(params.limit);
+            if (Array.isArray(params.layers)) opts.layers = params.layers;
+            if (Array.isArray(params.sources)) opts.sources = params.sources;
+            if (params.min_utilization != null) opts.minUtilization = Number(params.min_utilization);
+            if (params.min_confidence != null) opts.minConfidence = Number(params.min_confidence);
+            if (Array.isArray(params.build_classes)) opts.buildClasses = params.build_classes;
+            if (typeof params.stopwords === "string" || Array.isArray(params.stopwords)) opts.stopwords = params.stopwords;
+            if (params.rrf_k != null) opts.rrfK = Number(params.rrf_k);
+            if (params.top_k != null) opts.topK = Number(params.top_k);
+            const result = await rankedHybridGraphSearchEngine.search(query, opts as Parameters<typeof rankedHybridGraphSearchEngine.search>[1]);
+            return ok(result);
+          }
+
           case "master_index_query": {
             const { masterIndexEngine } = await import("../../engines/MasterIndexEngine.js");
             const query = String(params.query ?? params.q ?? "");
@@ -1345,6 +1845,12 @@ export function registerSessionDispatcher(server: any): void {
             if (params.min_utilization != null) opts.minUtilization = Number(params.min_utilization);
             if (params.min_confidence != null) opts.minConfidence = Number(params.min_confidence);
             if (Array.isArray(params.build_classes)) opts.buildClasses = params.build_classes;
+            // BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG (iter-2): pass either
+            // string mode ('default'|'minimal'|'off') or custom string[] through
+            // verbatim; engine's resolveStopwords() defends against unknowns.
+            if (typeof params.stopwords === "string" || Array.isArray(params.stopwords)) {
+              opts.stopwords = params.stopwords;
+            }
             const result = await masterIndexEngine.query(query, opts as Parameters<typeof masterIndexEngine.query>[1]);
             return ok(result);
           }
@@ -1363,6 +1869,45 @@ export function registerSessionDispatcher(server: any): void {
             if (Array.isArray(params.layers)) opts.layers = params.layers;
             if (Array.isArray(params.exclude_layers)) opts.excludeLayers = params.exclude_layers;
             const result = await masterIndexEngine.classifyAllNodes(opts as Parameters<typeof masterIndexEngine.classifyAllNodes>[0]);
+            return ok(result);
+          }
+
+          // CHEAP-NODE-ACCESS-MS0/U-NODECARD-DISPATCHER (sierra 2026-06-04): token-cheap
+          // node-card read-by-id. Delegates to runNodeCardAction with a real
+          // execFileSync-backed runner (argv array, NO shell — ids are positional args)
+          // that calls the single-source CLI `system-viz-query.mjs node-card --json`,
+          // which SEEKS the offset index (parse 24MB once, fs.read exact bytes) — never
+          // the 644MB graph, and never a fork of the .mjs reader.
+          case "node_card": {
+            const { runNodeCardAction } = await import("./sessionNodeCardAction.js");
+            const scriptPath = path.join(PATHS.PRISM_ROOT, "scripts", "system-viz-query.mjs");
+            const result = runNodeCardAction(params, {
+              runCli: (ids: string[]) => execFileSync(
+                process.execPath,
+                [scriptPath, "node-card", ...ids, "--json"],
+                { encoding: "utf8", timeout: 12000, maxBuffer: 16 * 1024 * 1024 },
+              ),
+            });
+            return ok(result);
+          }
+
+          // CHEAP-NODE-ACCESS-MS0/U-VBL-DISPATCHER (sierra 2026-06-09): REVERSE of
+          // node_card. Given a vault doc (wiki path or memory slug), list the graph
+          // node(s) that document it. Delegates to runDocNodesAction with the same
+          // execFileSync-backed runner pattern (argv array, NO shell — the key is one
+          // positional arg) calling the single-source CLI `system-viz-query.mjs
+          // doc-nodes <key> --json`, which reads vault-backlinks.json — never the
+          // 644MB graph, never a fork of the .mjs reader.
+          case "doc_nodes": {
+            const { runDocNodesAction } = await import("./sessionDocNodesAction.js");
+            const scriptPath = path.join(PATHS.PRISM_ROOT, "scripts", "system-viz-query.mjs");
+            const result = runDocNodesAction(params, {
+              runCli: (key: string) => execFileSync(
+                process.execPath,
+                [scriptPath, "doc-nodes", key, "--json"],
+                { encoding: "utf8", timeout: 12000, maxBuffer: 16 * 1024 * 1024 },
+              ),
+            });
             return ok(result);
           }
 
@@ -2074,6 +2619,1758 @@ export function registerSessionDispatcher(server: any): void {
                   : undefined,
             });
             return ok({ success: true, ...result });
+          }
+
+          // ==================================================================
+          // HERMES-AGI-ARCHITECTURE-MS0/U-HAGI08 — SourceChainEngine (Voxyz L8)
+          // Provenance/citation chain decorator. Wraps any retrieval with
+          // {value, sources, digest} so every PSN-leg hit is operator-auditable.
+          // ==================================================================
+          case "source_chain_decorate": {
+            const { SourceChainEngine } = await import("../../engines/SourceChainEngine.js");
+            const value = (params as { value?: unknown }).value;
+            const citations = ((params as { citations?: unknown }).citations ?? []) as unknown[];
+            const result = SourceChainEngine.decorate(value, citations as never);
+            return ok({ success: true, ...result });
+          }
+          case "source_chain_merge": {
+            const { SourceChainEngine } = await import("../../engines/SourceChainEngine.js");
+            const results = ((params as { results?: unknown }).results ?? []) as unknown[];
+            const merged = SourceChainEngine.merge(results as never);
+            return ok({ success: true, ...merged });
+          }
+          case "source_chain_validate": {
+            const { SourceChainEngine } = await import("../../engines/SourceChainEngine.js");
+            const citation = (params as { citation?: unknown }).citation;
+            const parsed = SourceChainEngine.validate(citation);
+            return ok({ success: true, citation: parsed });
+          }
+          case "source_chain_render": {
+            const { SourceChainEngine } = await import("../../engines/SourceChainEngine.js");
+            const citations = ((params as { citations?: unknown }).citations ?? []) as unknown[];
+            const markdown = SourceChainEngine.renderMarkdown(citations as never);
+            return ok({ success: true, markdown });
+          }
+
+          // ==================================================================
+          // HERMES-AGI-ARCHITECTURE-MS0/U-HAGI12 — PSNCoverageAuditEngine
+          // ==================================================================
+          case "psn_coverage_audit": {
+            const { PSNCoverageAuditEngine } = await import("../../engines/PSNCoverageAuditEngine.js");
+            const evidence = ((params as { evidence?: unknown }).evidence ?? []) as unknown[];
+            const opts = (params as { opts?: unknown }).opts ?? {};
+            const matrix = PSNCoverageAuditEngine.audit(evidence as never, opts as never);
+            return ok({ success: true, ...matrix });
+          }
+          case "psn_coverage_by_verdict": {
+            const { PSNCoverageAuditEngine } = await import("../../engines/PSNCoverageAuditEngine.js");
+            const matrix = (params as { matrix?: unknown }).matrix;
+            const verdict = (params as { verdict?: unknown }).verdict as "covered" | "partial" | "missing";
+            const cells = PSNCoverageAuditEngine.cellsByVerdict(matrix as never, verdict);
+            return ok({ success: true, cells });
+          }
+          case "psn_coverage_render": {
+            const { PSNCoverageAuditEngine } = await import("../../engines/PSNCoverageAuditEngine.js");
+            const matrix = (params as { matrix?: unknown }).matrix;
+            const markdown = PSNCoverageAuditEngine.renderMarkdown(matrix as never);
+            return ok({ success: true, markdown });
+          }
+          case "psn_coverage_decorated": {
+            const { PSNCoverageAuditEngine } = await import("../../engines/PSNCoverageAuditEngine.js");
+            const evidence = ((params as { evidence?: unknown }).evidence ?? []) as unknown[];
+            const opts = (params as { opts?: unknown }).opts ?? {};
+            const matrix = PSNCoverageAuditEngine.audit(evidence as never, opts as never);
+            const decorated = PSNCoverageAuditEngine.decorateWithProvenance(matrix);
+            return ok({ success: true, ...decorated });
+          }
+
+          // U-HAGI11 KillSwitchEngine
+          case "kill_switch_initial": {
+            const { KillSwitchEngine } = await import("../../engines/KillSwitchEngine.js");
+            const at = (params as { at?: string }).at;
+            return ok({ success: true, state: KillSwitchEngine.initial(at) });
+          }
+          case "kill_switch_promote": {
+            const { KillSwitchEngine } = await import("../../engines/KillSwitchEngine.js");
+            const p = params as { state: never; to: never; reason: string; actor: string; at?: string };
+            const next = KillSwitchEngine.promote(p.state, p.to, p.reason, p.actor, p.at);
+            return ok({ success: true, state: next });
+          }
+          case "kill_switch_reset": {
+            const { KillSwitchEngine } = await import("../../engines/KillSwitchEngine.js");
+            const p = params as { state: never; actor: string; reason: string; force: boolean; at?: string };
+            const next = KillSwitchEngine.reset(p.state, p.actor, p.reason, p.force, p.at);
+            return ok({ success: true, state: next });
+          }
+          case "kill_switch_decide": {
+            const { KillSwitchEngine } = await import("../../engines/KillSwitchEngine.js");
+            const p = params as { state: never; operation: "new_request"|"in_flight"|"credential_use"; opts?: { blockCredsAtHard?: boolean } };
+            const decision = KillSwitchEngine.decide(p.state, p.operation, p.opts ?? {});
+            return ok({ success: true, ...decision });
+          }
+
+          // U-HAGI04 TaskDecomposerEngine
+          case "task_decompose": {
+            const { TaskDecomposerEngine } = await import("../../engines/TaskDecomposerEngine.js");
+            const p = params as { prompt: string; opts?: { maxSubtasks?: number; itemLabel?: string } };
+            const result = TaskDecomposerEngine.decompose(p.prompt, p.opts ?? {});
+            return ok({ success: true, ...result });
+          }
+          case "task_decompose_cap": {
+            const { TaskDecomposerEngine } = await import("../../engines/TaskDecomposerEngine.js");
+            const p = params as { result: never; maxN: number };
+            const capped = TaskDecomposerEngine.cap(p.result, p.maxN);
+            return ok({ success: true, ...capped });
+          }
+          case "task_decompose_validate": {
+            const { TaskDecomposerEngine } = await import("../../engines/TaskDecomposerEngine.js");
+            const subtask = (params as { subtask?: unknown }).subtask;
+            const parsed = TaskDecomposerEngine.validate(subtask);
+            return ok({ success: true, subtask: parsed });
+          }
+
+          // U-HAGI09 PolicyTestSuiteEngine
+          case "policy_suite_run": {
+            const { PolicyTestSuiteEngine } = await import("../../engines/PolicyTestSuiteEngine.js");
+            const p = params as { cases: never; runner: (i: unknown) => never };
+            const result = await PolicyTestSuiteEngine.run(p.cases, p.runner);
+            return ok({ success: true, ...result });
+          }
+          case "policy_suite_summarize": {
+            const { PolicyTestSuiteEngine } = await import("../../engines/PolicyTestSuiteEngine.js");
+            const results = (params as { results: never }).results;
+            const summary = PolicyTestSuiteEngine.summarize(results);
+            return ok({ success: true, summary });
+          }
+          case "policy_suite_render": {
+            const { PolicyTestSuiteEngine } = await import("../../engines/PolicyTestSuiteEngine.js");
+            const p = params as { summary: never; results?: never };
+            const markdown = PolicyTestSuiteEngine.renderMarkdown(p.summary, p.results);
+            return ok({ success: true, markdown });
+          }
+
+          // U-HAGI10 TenantBoundaryEngine
+          case "tenant_boundary_decide": {
+            const { TenantBoundaryEngine } = await import("../../engines/TenantBoundaryEngine.js");
+            const p = params as { requestTenantId: string; resourceTenantId: string; allowlist?: never };
+            const decision = TenantBoundaryEngine.decide(p.requestTenantId, p.resourceTenantId, p.allowlist ?? []);
+            return ok({ success: true, ...decision });
+          }
+          case "tenant_boundary_filter": {
+            const { TenantBoundaryEngine } = await import("../../engines/TenantBoundaryEngine.js");
+            const p = params as { requestTenantId: string; resources: Array<Record<string, unknown>>; tenantField: string; allowlist?: never };
+            const visible = TenantBoundaryEngine.filterAccessible(
+              p.requestTenantId,
+              p.resources,
+              (r) => String(r[p.tenantField] ?? ""),
+              p.allowlist ?? [],
+            );
+            return ok({ success: true, resources: visible, count: visible.length });
+          }
+          case "tenant_boundary_render": {
+            const { TenantBoundaryEngine } = await import("../../engines/TenantBoundaryEngine.js");
+            const decision = (params as { decision: never }).decision;
+            return ok({ success: true, markdown: TenantBoundaryEngine.renderDecision(decision) });
+          }
+
+          // U-HAGI03 CoordinatorSwarmEngine
+          case "swarm_run": {
+            const { CoordinatorSwarmEngine } = await import("../../engines/CoordinatorSwarmEngine.js");
+            const p = params as unknown as {
+              tasks: Parameters<typeof CoordinatorSwarmEngine.run>[0];
+              runner: Parameters<typeof CoordinatorSwarmEngine.run>[1];
+              opts?: Parameters<typeof CoordinatorSwarmEngine.run>[2];
+            };
+            const r = await CoordinatorSwarmEngine.run(p.tasks, p.runner, p.opts ?? {});
+            return ok({ success: true, ...r });
+          }
+          case "swarm_successes": {
+            const { CoordinatorSwarmEngine } = await import("../../engines/CoordinatorSwarmEngine.js");
+            const r = (params as { result: never }).result;
+            return ok({ success: true, results: CoordinatorSwarmEngine.successes(r) });
+          }
+          case "swarm_failures": {
+            const { CoordinatorSwarmEngine } = await import("../../engines/CoordinatorSwarmEngine.js");
+            const r = (params as { result: never }).result;
+            return ok({ success: true, results: CoordinatorSwarmEngine.failures(r) });
+          }
+
+          // U-HAGI07 A2AProtocolEngine
+          case "a2a_inbound_descriptor": {
+            const { A2AProtocolEngine } = await import("../../engines/A2AProtocolEngine.js");
+            const p = params as { profile: never; at?: string };
+            const desc = A2AProtocolEngine.inboundDescriptor(p.profile, p.at);
+            return ok({ success: true, descriptor: desc });
+          }
+          case "a2a_outbound_envelope": {
+            const { A2AProtocolEngine } = await import("../../engines/A2AProtocolEngine.js");
+            const message = A2AProtocolEngine.outboundEnvelope(params as never);
+            return ok({ success: true, message });
+          }
+          case "a2a_accept_inbound": {
+            const { A2AProtocolEngine } = await import("../../engines/A2AProtocolEngine.js");
+            const p = params as { message: never; descriptor: never };
+            const verdict = A2AProtocolEngine.acceptInbound(p.message, p.descriptor);
+            return ok({ success: true, ...verdict });
+          }
+
+          // U-HAGI02 UnifiedControlPlaneEngine
+          case "control_plane_decide": {
+            const { UnifiedControlPlaneEngine } = await import("../../engines/UnifiedControlPlaneEngine.js");
+            const p = params as { request: never; killState: never; budget: never; allowlist?: never; at?: string };
+            const v = UnifiedControlPlaneEngine.decide(p.request, p.killState, p.budget, p.allowlist ?? [], p.at);
+            return ok({ success: true, ...v });
+          }
+          case "control_plane_render": {
+            const { UnifiedControlPlaneEngine } = await import("../../engines/UnifiedControlPlaneEngine.js");
+            const v = (params as { verdict: never }).verdict;
+            return ok({ success: true, markdown: UnifiedControlPlaneEngine.renderVerdict(v) });
+          }
+
+          // U-HAGI05 BatchDeliverableEngine — multi-customer batch production roll-up.
+          // Note: serializable inputs only; runner is wired in-process via a registry of
+          // known kinds (caller-supplied via params.kindHandlers as a label).  For the
+          // pure-core surface here we accept a payload-echo runner to make the dispatcher
+          // round-trippable from MCP without RPC-serializing functions.
+          case "batch_deliverable_run": {
+            const { BatchDeliverableEngine } = await import("../../engines/BatchDeliverableEngine.js");
+            const p = params as { request: never; completed_at?: string };
+            // Default runner: echo the payload as the output — operator-driven batches
+            // that need real work go through a kind-specific dispatcher (quote/program).
+            const rollup = await BatchDeliverableEngine.run(
+              p.request,
+              (d) => ({ kind: d.kind, payload: d.payload }),
+              p.completed_at,
+            );
+            return ok({ success: true, ...rollup });
+          }
+          case "batch_deliverable_render": {
+            const { BatchDeliverableEngine } = await import("../../engines/BatchDeliverableEngine.js");
+            const r = (params as { rollup: never }).rollup;
+            return ok({ success: true, markdown: BatchDeliverableEngine.renderRollup(r) });
+          }
+
+          // U-HAGI01 DurableWorkflowEngine — crash-resumable workflow ops.
+          // State-management surfaces are serializable; advance() requires a runner
+          // function so the dispatcher uses an identity step runner (each step's
+          // output = step_id label) to keep the contract round-trippable.  Real
+          // workflows wire kind-specific runners in-process.
+          case "workflow_initial": {
+            const { DurableWorkflowEngine } = await import("../../engines/DurableWorkflowEngine.js");
+            const p = params as { spec: never; at?: string };
+            const state = DurableWorkflowEngine.initial(p.spec, p.at);
+            return ok({ success: true, state });
+          }
+          case "workflow_advance": {
+            const { DurableWorkflowEngine } = await import("../../engines/DurableWorkflowEngine.js");
+            const p = params as { prior: never; step_ids: string[] };
+            // Reconstitute spec from prior state's step_ids list + identity runners.
+            const stepIds = Array.isArray(p.step_ids) ? p.step_ids : (p.prior as { steps: { step_id: string }[] }).steps.map((s) => s.step_id);
+            const spec = {
+              workflow_id: (p.prior as { workflow_id: string }).workflow_id,
+              kind: (p.prior as { kind: string }).kind,
+              input: null,
+              steps: stepIds.map((id) => ({ step_id: id, run: () => id })),
+              synthesize: (outs: unknown[]) => outs,
+            };
+            const next = await DurableWorkflowEngine.advance(spec as never, p.prior);
+            return ok({ success: true, state: next });
+          }
+          case "workflow_pause": {
+            const { DurableWorkflowEngine } = await import("../../engines/DurableWorkflowEngine.js");
+            const p = params as { state: never; at?: string };
+            return ok({ success: true, state: DurableWorkflowEngine.pause(p.state, p.at) });
+          }
+          case "workflow_resume": {
+            const { DurableWorkflowEngine } = await import("../../engines/DurableWorkflowEngine.js");
+            const p = params as { state: never; at?: string };
+            return ok({ success: true, state: DurableWorkflowEngine.resume(p.state, p.at) });
+          }
+          case "workflow_cancel": {
+            const { DurableWorkflowEngine } = await import("../../engines/DurableWorkflowEngine.js");
+            const p = params as { state: never; reason: string; at?: string };
+            return ok({ success: true, state: DurableWorkflowEngine.cancel(p.state, p.reason, p.at) });
+          }
+          case "workflow_render": {
+            const { DurableWorkflowEngine } = await import("../../engines/DurableWorkflowEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: DurableWorkflowEngine.renderState(p.state) });
+          }
+
+          // U-HAGI06 WorkSurfaceScaffoldEngine — PrismApp web work-surface manifest.
+          case "work_surface_manifest": {
+            const { WorkSurfaceScaffoldEngine } = await import("../../engines/WorkSurfaceScaffoldEngine.js");
+            const p = params as { surface_id: string; roles: never; at?: string };
+            const manifest = WorkSurfaceScaffoldEngine.manifestForRoles(p.surface_id, p.roles, p.at);
+            return ok({ success: true, manifest });
+          }
+          case "work_surface_route_at": {
+            const { WorkSurfaceScaffoldEngine } = await import("../../engines/WorkSurfaceScaffoldEngine.js");
+            const p = params as { manifest: never; path: string };
+            return ok({ success: true, route: WorkSurfaceScaffoldEngine.routeAt(p.manifest, p.path) });
+          }
+          case "work_surface_filter_by_role": {
+            const { WorkSurfaceScaffoldEngine } = await import("../../engines/WorkSurfaceScaffoldEngine.js");
+            const p = params as { manifest: never; role: never };
+            return ok({ success: true, manifest: WorkSurfaceScaffoldEngine.filterByRole(p.manifest, p.role) });
+          }
+          case "work_surface_render": {
+            const { WorkSurfaceScaffoldEngine } = await import("../../engines/WorkSurfaceScaffoldEngine.js");
+            const p = params as { manifest: never };
+            return ok({ success: true, markdown: WorkSurfaceScaffoldEngine.renderManifest(p.manifest) });
+          }
+
+          // HMEMV01 TieredMemoryEngine — 3-tier memory store.
+          case "tiered_memory_insert": {
+            const { TieredMemoryEngine } = await import("../../engines/TieredMemoryEngine.js");
+            const p = params as { state: never; entry: never; at?: string };
+            return ok({ success: true, state: TieredMemoryEngine.insert(p.state, p.entry, p.at) });
+          }
+          case "tiered_memory_recall": {
+            const { TieredMemoryEngine } = await import("../../engines/TieredMemoryEngine.js");
+            const p = params as { state: never; key: string; at?: string };
+            return ok({ success: true, ...TieredMemoryEngine.recall(p.state, p.key, p.at) });
+          }
+          case "tiered_memory_promote": {
+            const { TieredMemoryEngine } = await import("../../engines/TieredMemoryEngine.js");
+            const p = params as { state: never; policy?: never };
+            return ok({ success: true, state: TieredMemoryEngine.promote(p.state, p.policy ?? {}) });
+          }
+          case "tiered_memory_expire": {
+            const { TieredMemoryEngine } = await import("../../engines/TieredMemoryEngine.js");
+            const p = params as { state: never; at?: string };
+            return ok({ success: true, ...TieredMemoryEngine.expire(p.state, p.at) });
+          }
+          case "tiered_memory_stats": {
+            const { TieredMemoryEngine } = await import("../../engines/TieredMemoryEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, ...TieredMemoryEngine.stats(p.state) });
+          }
+          case "tiered_memory_render": {
+            const { TieredMemoryEngine } = await import("../../engines/TieredMemoryEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: TieredMemoryEngine.renderState(p.state) });
+          }
+
+          // HMEMV02 RecallRankingEngine — hybrid retrieval ranking.
+          case "recall_rank": {
+            const { RecallRankingEngine, DEFAULT_WEIGHTS } = await import("../../engines/RecallRankingEngine.js");
+            const p = params as { candidates: never; weights?: never; at?: string; topK?: number };
+            const ranked = RecallRankingEngine.rank(p.candidates, p.weights ?? DEFAULT_WEIGHTS, p.at, p.topK);
+            return ok({ success: true, ranked });
+          }
+          case "recall_rank_render": {
+            const { RecallRankingEngine } = await import("../../engines/RecallRankingEngine.js");
+            const p = params as { ranked: never };
+            return ok({ success: true, markdown: RecallRankingEngine.renderRanking(p.ranked) });
+          }
+
+          // HMEMV03 MemoryGovernanceEngine — TTL + audit + scrub.
+          case "memory_find_expired": {
+            const { MemoryGovernanceEngine } = await import("../../engines/MemoryGovernanceEngine.js");
+            const p = params as { entries: never; at: string; actor?: string };
+            return ok({ success: true, ...MemoryGovernanceEngine.findExpired(p.entries, p.at, p.actor) });
+          }
+          case "memory_scrub": {
+            const { MemoryGovernanceEngine } = await import("../../engines/MemoryGovernanceEngine.js");
+            const p = params as { entries: never; request: never; at?: string };
+            return ok({ success: true, ...MemoryGovernanceEngine.scrub(p.entries, p.request, p.at) });
+          }
+          case "memory_record_audit": {
+            const { MemoryGovernanceEngine } = await import("../../engines/MemoryGovernanceEngine.js");
+            const p = params as { args: never };
+            return ok({ success: true, audit: MemoryGovernanceEngine.recordAudit(p.args) });
+          }
+          case "memory_render_audit": {
+            const { MemoryGovernanceEngine } = await import("../../engines/MemoryGovernanceEngine.js");
+            const p = params as { audits: never };
+            return ok({ success: true, markdown: MemoryGovernanceEngine.renderAudit(p.audits) });
+          }
+
+          // HMEMV04 EmbeddingRouterEngine — Euclidean vs hyperbolic routing.
+          case "embedding_route": {
+            const { EmbeddingRouterEngine } = await import("../../engines/EmbeddingRouterEngine.js");
+            const p = params as { profile: never };
+            return ok({ success: true, decision: EmbeddingRouterEngine.route(p.profile) });
+          }
+          case "embedding_route_render": {
+            const { EmbeddingRouterEngine } = await import("../../engines/EmbeddingRouterEngine.js");
+            const p = params as { decision: never };
+            return ok({ success: true, markdown: EmbeddingRouterEngine.renderDecision(p.decision) });
+          }
+
+          // HMEMV05 MemoryDecayConsolidationEngine — decay/merge/drop.
+          case "memory_decay_consolidate": {
+            const { MemoryDecayConsolidationEngine } = await import("../../engines/MemoryDecayConsolidationEngine.js");
+            const p = params as { entries: never; at?: string; opts?: never };
+            return ok({ success: true, ...MemoryDecayConsolidationEngine.consolidate(p.entries, p.at, p.opts ?? {}) });
+          }
+
+          // HMEMV06 DriftDetectionEngine — semantic drift detection.
+          case "drift_measure": {
+            const { DriftDetectionEngine } = await import("../../engines/DriftDetectionEngine.js");
+            const p = params as { args: never };
+            return ok({ success: true, measurement: DriftDetectionEngine.measure(p.args) });
+          }
+          case "drift_render": {
+            const { DriftDetectionEngine } = await import("../../engines/DriftDetectionEngine.js");
+            const p = params as { measurement: never };
+            return ok({ success: true, markdown: DriftDetectionEngine.renderMeasurement(p.measurement) });
+          }
+
+          // HMEMV07 ContextBlockPackerEngine — per-block context packing.
+          case "context_pack_plan": {
+            const { ContextBlockPackerEngine } = await import("../../engines/ContextBlockPackerEngine.js");
+            const p = params as { blocks: never; budget_tokens: number };
+            return ok({ success: true, plan: ContextBlockPackerEngine.plan(p.blocks, p.budget_tokens) });
+          }
+          case "context_pack_render": {
+            const { ContextBlockPackerEngine } = await import("../../engines/ContextBlockPackerEngine.js");
+            const p = params as { plan: never };
+            return ok({ success: true, markdown: ContextBlockPackerEngine.renderPlan(p.plan) });
+          }
+
+          // HMEMV08 MemoryDiffEngine — state-snapshot diff.
+          case "memory_diff": {
+            const { MemoryDiffEngine } = await import("../../engines/MemoryDiffEngine.js");
+            const p = params as { a: never; b: never };
+            return ok({ success: true, diff: MemoryDiffEngine.diff(p.a, p.b) });
+          }
+          case "memory_diff_render": {
+            const { MemoryDiffEngine } = await import("../../engines/MemoryDiffEngine.js");
+            const p = params as { diff: never };
+            return ok({ success: true, markdown: MemoryDiffEngine.renderDiff(p.diff) });
+          }
+
+          // HMEMV09 NamespaceMigrationEngine — cross-namespace re-key.
+          case "namespace_migrate": {
+            const { NamespaceMigrationEngine } = await import("../../engines/NamespaceMigrationEngine.js");
+            const p = params as { args: never };
+            return ok({ success: true, result: NamespaceMigrationEngine.migrate(p.args) });
+          }
+          case "namespace_migrate_render": {
+            const { NamespaceMigrationEngine } = await import("../../engines/NamespaceMigrationEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: NamespaceMigrationEngine.renderResult(p.result) });
+          }
+
+          // HMEMV10 HybridIndexEngine — RRF fusion of BM25 + semantic.
+          case "hybrid_fuse": {
+            const { HybridIndexEngine } = await import("../../engines/HybridIndexEngine.js");
+            const p = params as { bm25: never; semantic: never; opts?: { k?: number; topK?: number } };
+            return ok({ success: true, fusion: HybridIndexEngine.fuse(p.bm25, p.semantic, p.opts ?? {}) });
+          }
+          case "hybrid_fuse_render": {
+            const { HybridIndexEngine } = await import("../../engines/HybridIndexEngine.js");
+            const p = params as { results: never };
+            return ok({ success: true, markdown: HybridIndexEngine.renderFusion(p.results) });
+          }
+
+          // HMEMV11 QuantizationProfileEngine — RaBitQ profile selector.
+          case "quant_select": {
+            const { QuantizationProfileEngine } = await import("../../engines/QuantizationProfileEngine.js");
+            const p = params as { corpus_size: number; query_budget_ms: number };
+            return ok({ success: true, selection: QuantizationProfileEngine.select(p.corpus_size, p.query_budget_ms) });
+          }
+          case "quant_render": {
+            const { QuantizationProfileEngine } = await import("../../engines/QuantizationProfileEngine.js");
+            const p = params as { selection: never };
+            return ok({ success: true, markdown: QuantizationProfileEngine.renderSelection(p.selection) });
+          }
+
+          // HCAP01 PluginRegistryEngine — Hermes plugin manifest registry.
+          case "plugin_register": {
+            const { PluginRegistryEngine } = await import("../../engines/PluginRegistryEngine.js");
+            const p = params as { state: never; manifest: never };
+            return ok({ success: true, state: PluginRegistryEngine.register(p.state, p.manifest) });
+          }
+          case "plugin_deregister": {
+            const { PluginRegistryEngine } = await import("../../engines/PluginRegistryEngine.js");
+            const p = params as { state: never; plugin_id: string };
+            return ok({ success: true, state: PluginRegistryEngine.deregister(p.state, p.plugin_id) });
+          }
+          case "plugin_find_by_capability": {
+            const { PluginRegistryEngine } = await import("../../engines/PluginRegistryEngine.js");
+            const p = params as { state: never; capability: string };
+            return ok({ success: true, plugins: PluginRegistryEngine.findByCapability(p.state, p.capability) });
+          }
+          case "plugin_filter_by_side_effect": {
+            const { PluginRegistryEngine } = await import("../../engines/PluginRegistryEngine.js");
+            const p = params as { state: never; tier: never };
+            return ok({ success: true, plugins: PluginRegistryEngine.filterBySideEffect(p.state, p.tier) });
+          }
+          case "plugin_render": {
+            const { PluginRegistryEngine } = await import("../../engines/PluginRegistryEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: PluginRegistryEngine.renderState(p.state) });
+          }
+
+          // HCAP02 ExcelStructureEngine — Excel sheet/range structural parser.
+          case "excel_analyze": {
+            const { ExcelStructureEngine } = await import("../../engines/ExcelStructureEngine.js");
+            const p = params as { sheet: never };
+            return ok({ success: true, structure: ExcelStructureEngine.analyze(p.sheet) });
+          }
+          case "excel_column_values": {
+            const { ExcelStructureEngine } = await import("../../engines/ExcelStructureEngine.js");
+            const p = params as { sheet: never; col: number; header_row?: number };
+            return ok({ success: true, values: ExcelStructureEngine.columnValues(p.sheet, p.col, p.header_row) });
+          }
+          case "excel_render": {
+            const { ExcelStructureEngine } = await import("../../engines/ExcelStructureEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: ExcelStructureEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP03 PDFStructureEngine — PDF document structural model.
+          case "pdf_analyze": {
+            const { PDFStructureEngine } = await import("../../engines/PDFStructureEngine.js");
+            const p = params as { document_id: string; blocks: never };
+            return ok({ success: true, structure: PDFStructureEngine.analyze(p.document_id, p.blocks) });
+          }
+          case "pdf_render": {
+            const { PDFStructureEngine } = await import("../../engines/PDFStructureEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: PDFStructureEngine.renderStructure(p.structure) });
+          }
+
+          // HMPI01 MCPServerRegistryEngine — registry of MCP servers we consume/expose.
+          case "mcp_server_register": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never; manifest: never };
+            return ok({ success: true, state: MCPServerRegistryEngine.register(p.state, p.manifest) });
+          }
+          case "mcp_server_deregister": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never; server_id: string };
+            return ok({ success: true, state: MCPServerRegistryEngine.deregister(p.state, p.server_id) });
+          }
+          case "mcp_server_find_by_tool": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never; tool_name: string };
+            return ok({ success: true, servers: MCPServerRegistryEngine.findByTool(p.state, p.tool_name) });
+          }
+          case "mcp_server_filter_by_tier": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never; tier: never };
+            return ok({ success: true, servers: MCPServerRegistryEngine.filterByTier(p.state, p.tier) });
+          }
+          case "mcp_server_filter_by_transport": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never; transport: never };
+            return ok({ success: true, servers: MCPServerRegistryEngine.filterByTransport(p.state, p.transport) });
+          }
+          case "mcp_server_find_oauth_gated": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, servers: MCPServerRegistryEngine.findOAuthGated(p.state) });
+          }
+          case "mcp_server_render": {
+            const { MCPServerRegistryEngine } = await import("../../engines/MCPServerRegistryEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: MCPServerRegistryEngine.renderState(p.state) });
+          }
+
+          // HCAP04 CSVStructureEngine — CSV structural parser.
+          case "csv_analyze": {
+            const { CSVStructureEngine } = await import("../../engines/CSVStructureEngine.js");
+            const p = params as { document_id: string; rows: never };
+            return ok({ success: true, structure: CSVStructureEngine.analyze(p.document_id, p.rows) });
+          }
+          case "csv_render": {
+            const { CSVStructureEngine } = await import("../../engines/CSVStructureEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: CSVStructureEngine.renderStructure(p.structure) });
+          }
+
+          // HMPI02 OAuthCredentialEngine — OAuth credential lifecycle.
+          case "oauth_initial": {
+            const { OAuthCredentialEngine } = await import("../../engines/OAuthCredentialEngine.js");
+            const p = params as { server_id: string };
+            return ok({ success: true, state: OAuthCredentialEngine.initial(p.server_id) });
+          }
+          case "oauth_authorize": {
+            const { OAuthCredentialEngine } = await import("../../engines/OAuthCredentialEngine.js");
+            const p = params as { state: never; expires_at: string; now_at: string };
+            return ok({ success: true, state: OAuthCredentialEngine.authorize(p.state, p.expires_at, p.now_at) });
+          }
+          case "oauth_record_failure": {
+            const { OAuthCredentialEngine } = await import("../../engines/OAuthCredentialEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, state: OAuthCredentialEngine.recordRefreshFailure(p.state) });
+          }
+          case "oauth_revoke": {
+            const { OAuthCredentialEngine } = await import("../../engines/OAuthCredentialEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, state: OAuthCredentialEngine.revoke(p.state) });
+          }
+          case "oauth_reevaluate": {
+            const { OAuthCredentialEngine } = await import("../../engines/OAuthCredentialEngine.js");
+            const p = params as { state: never; now_at: string };
+            return ok({ success: true, state: OAuthCredentialEngine.reevaluate(p.state, p.now_at) });
+          }
+          case "oauth_render": {
+            const { OAuthCredentialEngine } = await import("../../engines/OAuthCredentialEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: OAuthCredentialEngine.renderState(p.state) });
+          }
+
+          // HMPI03 IntegrationHealthEngine — health score + verdict.
+          case "health_score": {
+            const { IntegrationHealthEngine } = await import("../../engines/IntegrationHealthEngine.js");
+            const p = params as { probe: never; now_at?: string };
+            return ok({ success: true, score: IntegrationHealthEngine.score(p.probe, p.now_at) });
+          }
+          case "health_aggregate": {
+            const { IntegrationHealthEngine } = await import("../../engines/IntegrationHealthEngine.js");
+            const p = params as { scores: never };
+            return ok({ success: true, ...IntegrationHealthEngine.aggregate(p.scores) });
+          }
+          case "health_render": {
+            const { IntegrationHealthEngine } = await import("../../engines/IntegrationHealthEngine.js");
+            const p = params as { score: never };
+            return ok({ success: true, markdown: IntegrationHealthEngine.renderScore(p.score) });
+          }
+
+          // HCAP05 JSONSchemaValidatorEngine — JSON Schema validator.
+          case "json_schema_validate": {
+            const { JSONSchemaValidatorEngine } = await import("../../engines/JSONSchemaValidatorEngine.js");
+            const p = params as { spec: never; payload: unknown };
+            return ok({ success: true, ...JSONSchemaValidatorEngine.validate(p.spec, p.payload) });
+          }
+          case "json_schema_render": {
+            const { JSONSchemaValidatorEngine } = await import("../../engines/JSONSchemaValidatorEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: JSONSchemaValidatorEngine.renderResult(p.result) });
+          }
+
+          // HCAP06 WebScrapeResultEngine — structured web-scrape result.
+          case "web_scrape_analyze": {
+            const { WebScrapeResultEngine } = await import("../../engines/WebScrapeResultEngine.js");
+            const p = params as { response: never };
+            return ok({ success: true, structure: WebScrapeResultEngine.analyze(p.response) });
+          }
+          case "web_scrape_rank": {
+            const { WebScrapeResultEngine } = await import("../../engines/WebScrapeResultEngine.js");
+            const p = params as { blocks: never; topK?: number };
+            return ok({ success: true, ranked: WebScrapeResultEngine.rankByLength(p.blocks, p.topK) });
+          }
+          case "web_scrape_render": {
+            const { WebScrapeResultEngine } = await import("../../engines/WebScrapeResultEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: WebScrapeResultEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP07 OCRResultEngine — structured OCR output.
+          case "ocr_summarize": {
+            const { OCRResultEngine } = await import("../../engines/OCRResultEngine.js");
+            const p = params as { document_id: string; regions: never; low_confidence_threshold?: number };
+            return ok({ success: true, summary: OCRResultEngine.summarize(p.document_id, p.regions, p.low_confidence_threshold) });
+          }
+          case "ocr_filter_by_confidence": {
+            const { OCRResultEngine } = await import("../../engines/OCRResultEngine.js");
+            const p = params as { regions: never; min_confidence: number };
+            return ok({ success: true, regions: OCRResultEngine.filterByConfidence(p.regions, p.min_confidence) });
+          }
+          case "ocr_merge_text": {
+            const { OCRResultEngine } = await import("../../engines/OCRResultEngine.js");
+            const p = params as { regions: never };
+            return ok({ success: true, text: OCRResultEngine.mergeText(p.regions) });
+          }
+          case "ocr_render": {
+            const { OCRResultEngine } = await import("../../engines/OCRResultEngine.js");
+            const p = params as { summary: never };
+            return ok({ success: true, markdown: OCRResultEngine.renderSummary(p.summary) });
+          }
+
+          // HCAP08 ImageMetadataEngine — image metadata structural model.
+          case "image_analyze": {
+            const { ImageMetadataEngine } = await import("../../engines/ImageMetadataEngine.js");
+            const p = params as { raw: never };
+            return ok({ success: true, structure: ImageMetadataEngine.analyze(p.raw) });
+          }
+          case "image_strip_gps": {
+            const { ImageMetadataEngine } = await import("../../engines/ImageMetadataEngine.js");
+            const p = params as { raw: never };
+            return ok({ success: true, stripped: ImageMetadataEngine.stripGPS(p.raw) });
+          }
+          case "image_render": {
+            const { ImageMetadataEngine } = await import("../../engines/ImageMetadataEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: ImageMetadataEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP09 EmailMessageEngine — email message structural model.
+          case "email_analyze": {
+            const { EmailMessageEngine } = await import("../../engines/EmailMessageEngine.js");
+            const p = params as { raw: never };
+            return ok({ success: true, structure: EmailMessageEngine.analyze(p.raw) });
+          }
+          case "email_same_thread": {
+            const { EmailMessageEngine } = await import("../../engines/EmailMessageEngine.js");
+            const p = params as { a: never; b: never };
+            return ok({ success: true, sameThread: EmailMessageEngine.sameThread(p.a, p.b) });
+          }
+          case "email_render": {
+            const { EmailMessageEngine } = await import("../../engines/EmailMessageEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: EmailMessageEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP10 ZipArchiveEngine — zip-archive structural model.
+          case "zip_analyze": {
+            const { ZipArchiveEngine } = await import("../../engines/ZipArchiveEngine.js");
+            const p = params as { archive_id: string; entries: never };
+            return ok({ success: true, structure: ZipArchiveEngine.analyze(p.archive_id, p.entries) });
+          }
+          case "zip_filter_by_extension": {
+            const { ZipArchiveEngine } = await import("../../engines/ZipArchiveEngine.js");
+            const p = params as { entries: never; ext: string };
+            return ok({ success: true, entries: ZipArchiveEngine.filterByExtension(p.entries, p.ext) });
+          }
+          case "zip_render": {
+            const { ZipArchiveEngine } = await import("../../engines/ZipArchiveEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: ZipArchiveEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP11 ParquetSchemaEngine.
+          case "parquet_analyze": {
+            const { ParquetSchemaEngine } = await import("../../engines/ParquetSchemaEngine.js");
+            const p = params as { file: never };
+            return ok({ success: true, structure: ParquetSchemaEngine.analyze(p.file) });
+          }
+          case "parquet_columns_of_type": {
+            const { ParquetSchemaEngine } = await import("../../engines/ParquetSchemaEngine.js");
+            const p = params as { file: never; t: never };
+            return ok({ success: true, columns: ParquetSchemaEngine.columnsOfType(p.file, p.t) });
+          }
+          case "parquet_render": {
+            const { ParquetSchemaEngine } = await import("../../engines/ParquetSchemaEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: ParquetSchemaEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP12 SQLQueryStructureEngine.
+          case "sql_query_analyze": {
+            const { SQLQueryStructureEngine } = await import("../../engines/SQLQueryStructureEngine.js");
+            const p = params as { query_id: string; sql: string };
+            return ok({ success: true, structure: SQLQueryStructureEngine.analyze(p.query_id, p.sql) });
+          }
+          case "sql_query_render": {
+            const { SQLQueryStructureEngine } = await import("../../engines/SQLQueryStructureEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: SQLQueryStructureEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP13 GraphQLSchemaEngine.
+          case "graphql_analyze": {
+            const { GraphQLSchemaEngine } = await import("../../engines/GraphQLSchemaEngine.js");
+            const p = params as { schema_id: string; types: never };
+            return ok({ success: true, structure: GraphQLSchemaEngine.analyze(p.schema_id, p.types) });
+          }
+          case "graphql_render": {
+            const { GraphQLSchemaEngine } = await import("../../engines/GraphQLSchemaEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: GraphQLSchemaEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP14 RegexCatalogEngine.
+          case "regex_register": {
+            const { RegexCatalogEngine } = await import("../../engines/RegexCatalogEngine.js");
+            const p = params as { state: never; entry: never };
+            return ok({ success: true, state: RegexCatalogEngine.register(p.state, p.entry) });
+          }
+          case "regex_deregister": {
+            const { RegexCatalogEngine } = await import("../../engines/RegexCatalogEngine.js");
+            const p = params as { state: never; name: string };
+            return ok({ success: true, state: RegexCatalogEngine.deregister(p.state, p.name) });
+          }
+          case "regex_test": {
+            const { RegexCatalogEngine } = await import("../../engines/RegexCatalogEngine.js");
+            const p = params as { state: never; name: string; input: string };
+            return ok({ success: true, match: RegexCatalogEngine.test(p.state, p.name, p.input) });
+          }
+          case "regex_extract_all": {
+            const { RegexCatalogEngine } = await import("../../engines/RegexCatalogEngine.js");
+            const p = params as { state: never; name: string; input: string };
+            return ok({ success: true, matches: RegexCatalogEngine.extractAll(p.state, p.name, p.input) });
+          }
+          case "regex_list": {
+            const { RegexCatalogEngine } = await import("../../engines/RegexCatalogEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, list: RegexCatalogEngine.list(p.state) });
+          }
+          case "regex_render": {
+            const { RegexCatalogEngine } = await import("../../engines/RegexCatalogEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: RegexCatalogEngine.renderState(p.state) });
+          }
+
+          // HCAP15 LocalizationBundleEngine.
+          case "i18n_analyze": {
+            const { LocalizationBundleEngine } = await import("../../engines/LocalizationBundleEngine.js");
+            const p = params as { bundle_id: string; base_locale: string; locales: never };
+            return ok({ success: true, structure: LocalizationBundleEngine.analyze(p.bundle_id, p.base_locale, p.locales) });
+          }
+          case "i18n_render": {
+            const { LocalizationBundleEngine } = await import("../../engines/LocalizationBundleEngine.js");
+            const p = params as { structure: never };
+            return ok({ success: true, markdown: LocalizationBundleEngine.renderStructure(p.structure) });
+          }
+
+          // HCAP16 PluginPermissionMatrixEngine.
+          case "perm_matrix_set": {
+            const { PluginPermissionMatrixEngine } = await import("../../engines/PluginPermissionMatrixEngine.js");
+            const p = params as { state: never; entry: never };
+            return ok({ success: true, state: PluginPermissionMatrixEngine.set(p.state, p.entry) });
+          }
+          case "perm_matrix_lookup": {
+            const { PluginPermissionMatrixEngine } = await import("../../engines/PluginPermissionMatrixEngine.js");
+            const p = params as { state: never; plugin_id: string; capability: string };
+            return ok({ success: true, entry: PluginPermissionMatrixEngine.lookup(p.state, p.plugin_id, p.capability) });
+          }
+          case "perm_matrix_remove": {
+            const { PluginPermissionMatrixEngine } = await import("../../engines/PluginPermissionMatrixEngine.js");
+            const p = params as { state: never; plugin_id: string; capability: string };
+            return ok({ success: true, state: PluginPermissionMatrixEngine.remove(p.state, p.plugin_id, p.capability) });
+          }
+          case "perm_matrix_filter_by_verdict": {
+            const { PluginPermissionMatrixEngine } = await import("../../engines/PluginPermissionMatrixEngine.js");
+            const p = params as { state: never; verdict: never };
+            return ok({ success: true, entries: PluginPermissionMatrixEngine.filterByVerdict(p.state, p.verdict) });
+          }
+          case "perm_matrix_stats": {
+            const { PluginPermissionMatrixEngine } = await import("../../engines/PluginPermissionMatrixEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, ...PluginPermissionMatrixEngine.stats(p.state) });
+          }
+          case "perm_matrix_render": {
+            const { PluginPermissionMatrixEngine } = await import("../../engines/PluginPermissionMatrixEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: PluginPermissionMatrixEngine.renderState(p.state) });
+          }
+
+          // HMPI04 SchemaDriftDetectorEngine.
+          case "schema_drift_diff": {
+            const { SchemaDriftDetectorEngine } = await import("../../engines/SchemaDriftDetectorEngine.js");
+            const p = params as { a: never; b: never };
+            return ok({ success: true, report: SchemaDriftDetectorEngine.diff(p.a, p.b) });
+          }
+          case "schema_drift_render": {
+            const { SchemaDriftDetectorEngine } = await import("../../engines/SchemaDriftDetectorEngine.js");
+            const p = params as { report: never };
+            return ok({ success: true, markdown: SchemaDriftDetectorEngine.renderReport(p.report) });
+          }
+
+          // HMPI05 RateLimitGovernorEngine.
+          case "rate_limit_initial": {
+            const { RateLimitGovernorEngine } = await import("../../engines/RateLimitGovernorEngine.js");
+            const p = params as { bucket_id: string; capacity: number; refill_rate_per_sec: number; at: string };
+            return ok({ success: true, state: RateLimitGovernorEngine.initial(p.bucket_id, p.capacity, p.refill_rate_per_sec, p.at) });
+          }
+          case "rate_limit_refill": {
+            const { RateLimitGovernorEngine } = await import("../../engines/RateLimitGovernorEngine.js");
+            const p = params as { state: never; now_at: string };
+            return ok({ success: true, state: RateLimitGovernorEngine.refill(p.state, p.now_at) });
+          }
+          case "rate_limit_consume": {
+            const { RateLimitGovernorEngine } = await import("../../engines/RateLimitGovernorEngine.js");
+            const p = params as { state: never; cost: number; now_at: string };
+            return ok({ success: true, ...RateLimitGovernorEngine.consume(p.state, p.cost, p.now_at) });
+          }
+          case "rate_limit_render": {
+            const { RateLimitGovernorEngine } = await import("../../engines/RateLimitGovernorEngine.js");
+            const p = params as { state: never };
+            return ok({ success: true, markdown: RateLimitGovernorEngine.renderState(p.state) });
+          }
+
+          // HMPI06 ToolDeprecationTrackerEngine.
+          case "tool_dep_decide": {
+            const { ToolDeprecationTrackerEngine } = await import("../../engines/ToolDeprecationTrackerEngine.js");
+            const p = params as { tool: never; now_at: string };
+            return ok({ success: true, verdict: ToolDeprecationTrackerEngine.decide(p.tool, p.now_at) });
+          }
+          case "tool_dep_aggregate": {
+            const { ToolDeprecationTrackerEngine } = await import("../../engines/ToolDeprecationTrackerEngine.js");
+            const p = params as { tools: never };
+            return ok({ success: true, ...ToolDeprecationTrackerEngine.aggregate(p.tools) });
+          }
+          case "tool_dep_render": {
+            const { ToolDeprecationTrackerEngine } = await import("../../engines/ToolDeprecationTrackerEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: ToolDeprecationTrackerEngine.renderVerdict(p.verdict) });
+          }
+
+          // HMPI07 TransportHealthProbeEngine.
+          case "transport_health_analyze": {
+            const { TransportHealthProbeEngine } = await import("../../engines/TransportHealthProbeEngine.js");
+            const p = params as { transport_id: string; samples: never };
+            return ok({ success: true, health: TransportHealthProbeEngine.analyze(p.transport_id, p.samples) });
+          }
+          case "transport_health_render": {
+            const { TransportHealthProbeEngine } = await import("../../engines/TransportHealthProbeEngine.js");
+            const p = params as { health: never };
+            return ok({ success: true, markdown: TransportHealthProbeEngine.renderHealth(p.health) });
+          }
+
+          // HMPI08 AuthHandshakeEngine.
+          case "auth_handshake_initial": {
+            const { AuthHandshakeEngine } = await import("../../engines/AuthHandshakeEngine.js");
+            const p = params as { handshake_id: string; plugin_id: string; at: string };
+            return ok({ success: true, record: AuthHandshakeEngine.initial(p.handshake_id, p.plugin_id, p.at) });
+          }
+          case "auth_handshake_challenge": {
+            const { AuthHandshakeEngine } = await import("../../engines/AuthHandshakeEngine.js");
+            const p = params as { record: never; nonce: string; at: string };
+            return ok({ success: true, record: AuthHandshakeEngine.challenge(p.record, p.nonce, p.at) });
+          }
+          case "auth_handshake_respond": {
+            const { AuthHandshakeEngine } = await import("../../engines/AuthHandshakeEngine.js");
+            const p = params as { record: never; at: string };
+            return ok({ success: true, record: AuthHandshakeEngine.respond(p.record, p.at) });
+          }
+          case "auth_handshake_verify": {
+            const { AuthHandshakeEngine } = await import("../../engines/AuthHandshakeEngine.js");
+            const p = params as { record: never; ok: boolean; at: string; reason?: string };
+            return ok({ success: true, record: AuthHandshakeEngine.verify(p.record, p.ok, p.at, p.reason) });
+          }
+          case "auth_handshake_render": {
+            const { AuthHandshakeEngine } = await import("../../engines/AuthHandshakeEngine.js");
+            const p = params as { record: never };
+            return ok({ success: true, markdown: AuthHandshakeEngine.renderRecord(p.record) });
+          }
+
+          // HMPI09 PluginInstallManifestEngine.
+          case "plugin_manifest_check": {
+            const { PluginInstallManifestEngine } = await import("../../engines/PluginInstallManifestEngine.js");
+            const p = params as { manifest: never };
+            return ok({ success: true, validation: PluginInstallManifestEngine.check(p.manifest) });
+          }
+          case "plugin_manifest_render": {
+            const { PluginInstallManifestEngine } = await import("../../engines/PluginInstallManifestEngine.js");
+            const p = params as { validation: never };
+            return ok({ success: true, markdown: PluginInstallManifestEngine.renderValidation(p.validation) });
+          }
+
+          // HMPI10 McpResourceLifecycleEngine.
+          case "mcp_resource_validate": {
+            const { McpResourceLifecycleEngine } = await import("../../engines/McpResourceLifecycleEngine.js");
+            const p = params as { resource: unknown };
+            return ok({ success: true, resource: McpResourceLifecycleEngine.validate(p.resource) });
+          }
+          case "mcp_resource_begin_load": {
+            const { McpResourceLifecycleEngine } = await import("../../engines/McpResourceLifecycleEngine.js");
+            const p = params as { resource: never };
+            return ok({ success: true, resource: McpResourceLifecycleEngine.beginLoad(p.resource) });
+          }
+          case "mcp_resource_mark_ready": {
+            const { McpResourceLifecycleEngine } = await import("../../engines/McpResourceLifecycleEngine.js");
+            const p = params as { resource: never; size_bytes: number; at: string };
+            return ok({ success: true, resource: McpResourceLifecycleEngine.markReady(p.resource, p.size_bytes, p.at) });
+          }
+          case "mcp_resource_mark_failed": {
+            const { McpResourceLifecycleEngine } = await import("../../engines/McpResourceLifecycleEngine.js");
+            const p = params as { resource: never; reason: string };
+            return ok({ success: true, resource: McpResourceLifecycleEngine.markFailed(p.resource, p.reason) });
+          }
+          case "mcp_resource_revoke": {
+            const { McpResourceLifecycleEngine } = await import("../../engines/McpResourceLifecycleEngine.js");
+            const p = params as { resource: never };
+            return ok({ success: true, resource: McpResourceLifecycleEngine.revoke(p.resource) });
+          }
+          case "mcp_resource_render": {
+            const { McpResourceLifecycleEngine } = await import("../../engines/McpResourceLifecycleEngine.js");
+            const p = params as { resource: never };
+            return ok({ success: true, markdown: McpResourceLifecycleEngine.renderResource(p.resource) });
+          }
+
+          // HMPI11 PluginUpgradePathEngine.
+          case "plugin_upgrade_classify": {
+            const { PluginUpgradePathEngine } = await import("../../engines/PluginUpgradePathEngine.js");
+            const p = params as { from: string; to: string };
+            return ok({ success: true, verdict: PluginUpgradePathEngine.classify(p.from, p.to) });
+          }
+          case "plugin_upgrade_render": {
+            const { PluginUpgradePathEngine } = await import("../../engines/PluginUpgradePathEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: PluginUpgradePathEngine.renderVerdict(p.verdict) });
+          }
+
+          // HMPI12 WebhookSubscriptionEngine.
+          case "webhook_subscription_check_add": {
+            const { WebhookSubscriptionEngine } = await import("../../engines/WebhookSubscriptionEngine.js");
+            const p = params as { existing?: never[]; proposed: never };
+            return ok({ success: true, verdict: WebhookSubscriptionEngine.checkAdd(p.existing ?? [], p.proposed) });
+          }
+          case "webhook_subscription_render": {
+            const { WebhookSubscriptionEngine } = await import("../../engines/WebhookSubscriptionEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: WebhookSubscriptionEngine.renderVerdict(p.verdict) });
+          }
+
+          // HMPI13 ToolCallAuditLogEngine.
+          case "tool_call_audit_append": {
+            const { ToolCallAuditLogEngine } = await import("../../engines/ToolCallAuditLogEngine.js");
+            const p = params as { ring?: never[]; entry: never; maxEntries?: number };
+            return ok({ success: true, ring: ToolCallAuditLogEngine.append(p.ring ?? [], p.entry, p.maxEntries) });
+          }
+          case "tool_call_audit_summarize": {
+            const { ToolCallAuditLogEngine } = await import("../../engines/ToolCallAuditLogEngine.js");
+            const p = params as { ring?: never[]; tool: string; recent_n?: number };
+            return ok({ success: true, summary: ToolCallAuditLogEngine.summarize(p.ring ?? [], p.tool, p.recent_n) });
+          }
+          case "tool_call_audit_render": {
+            const { ToolCallAuditLogEngine } = await import("../../engines/ToolCallAuditLogEngine.js");
+            const p = params as { summary: never };
+            return ok({ success: true, markdown: ToolCallAuditLogEngine.renderSummary(p.summary) });
+          }
+
+          // HMPI14 PluginSandboxPolicyEngine.
+          case "plugin_sandbox_evaluate": {
+            const { PluginSandboxPolicyEngine } = await import("../../engines/PluginSandboxPolicyEngine.js");
+            const p = params as { request: never };
+            return ok({ success: true, verdict: PluginSandboxPolicyEngine.evaluate(p.request) });
+          }
+          case "plugin_sandbox_render": {
+            const { PluginSandboxPolicyEngine } = await import("../../engines/PluginSandboxPolicyEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: PluginSandboxPolicyEngine.renderVerdict(p.verdict) });
+          }
+
+          // HZP01 HermesParallelFanoutPlannerEngine — decompose a parent task into N parallel agents.
+          case "hermes_fanout_plan": {
+            const { HermesParallelFanoutPlannerEngine } = await import("../../engines/HermesParallelFanoutPlannerEngine.js");
+            const p = params as { request: never };
+            return ok({ success: true, plan: HermesParallelFanoutPlannerEngine.plan(p.request) });
+          }
+          case "hermes_fanout_render": {
+            const { HermesParallelFanoutPlannerEngine } = await import("../../engines/HermesParallelFanoutPlannerEngine.js");
+            const p = params as { plan: never };
+            return ok({ success: true, markdown: HermesParallelFanoutPlannerEngine.renderPlan(p.plan) });
+          }
+          // HZP01.5 auto-trigger gate — decide WHEN a raw task warrants fan-out (was the dormant gap: ~28% Hermes utilization).
+          case "hermes_auto_fanout_gate": {
+            const { HermesParallelFanoutPlannerEngine } = await import("../../engines/HermesParallelFanoutPlannerEngine.js");
+            const p = params as { prompt_text?: string; threshold?: number; max_parallel?: number };
+            return ok({ success: true, assessment: HermesParallelFanoutPlannerEngine.assessAutoTrigger(p.prompt_text, { threshold: p.threshold, maxParallel: p.max_parallel }) });
+          }
+          case "hermes_auto_fanout_render": {
+            const { HermesParallelFanoutPlannerEngine } = await import("../../engines/HermesParallelFanoutPlannerEngine.js");
+            const p = params as { assessment: never };
+            return ok({ success: true, markdown: HermesParallelFanoutPlannerEngine.renderAutoTrigger(p.assessment) });
+          }
+
+          // HZP02 HermesFileScopePartitionerEngine — partition files to prevent index.lock thrash.
+          case "hermes_file_scope_partition": {
+            const { HermesFileScopePartitionerEngine } = await import("../../engines/HermesFileScopePartitionerEngine.js");
+            const p = params as { scopes: never[] };
+            return ok({ success: true, result: HermesFileScopePartitionerEngine.partition(p.scopes) });
+          }
+          case "hermes_file_scope_render": {
+            const { HermesFileScopePartitionerEngine } = await import("../../engines/HermesFileScopePartitionerEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: HermesFileScopePartitionerEngine.renderResult(p.result) });
+          }
+
+          // HZP03 HermesParallelBudgetEnvelopeEngine — token-spend envelope per fan-out.
+          case "hermes_budget_estimate": {
+            const { HermesParallelBudgetEnvelopeEngine } = await import("../../engines/HermesParallelBudgetEnvelopeEngine.js");
+            const p = params as { request: never };
+            return ok({ success: true, verdict: HermesParallelBudgetEnvelopeEngine.estimate(p.request) });
+          }
+          case "hermes_budget_render": {
+            const { HermesParallelBudgetEnvelopeEngine } = await import("../../engines/HermesParallelBudgetEnvelopeEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: HermesParallelBudgetEnvelopeEngine.renderVerdict(p.verdict) });
+          }
+
+          // HZP04 HermesParallelVerdictAggregatorEngine — merge N parallel agent verdicts.
+          case "hermes_verdict_aggregate": {
+            const { HermesParallelVerdictAggregatorEngine } = await import("../../engines/HermesParallelVerdictAggregatorEngine.js");
+            const p = params as { verdicts: never[] };
+            return ok({ success: true, result: HermesParallelVerdictAggregatorEngine.aggregate(p.verdicts) });
+          }
+          case "hermes_verdict_render": {
+            const { HermesParallelVerdictAggregatorEngine } = await import("../../engines/HermesParallelVerdictAggregatorEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: HermesParallelVerdictAggregatorEngine.renderResult(p.result) });
+          }
+
+          // HSE01 SoulFrontmatterReaderEngine — parse slot soul markdown into typed SlotSoul.
+          case "soul_parse": {
+            const { SoulFrontmatterReaderEngine } = await import("../../engines/SoulFrontmatterReaderEngine.js");
+            const p = params as { source: string; slot: string };
+            return ok({ success: true, result: SoulFrontmatterReaderEngine.parse(p.source, p.slot) });
+          }
+          case "soul_summary_render": {
+            const { SoulFrontmatterReaderEngine } = await import("../../engines/SoulFrontmatterReaderEngine.js");
+            const p = params as { soul: never };
+            return ok({ success: true, markdown: SoulFrontmatterReaderEngine.renderSummary(p.soul) });
+          }
+
+          // HSE02 SoulSubagentRouterEngine — wire preferred_subagent_type into Agent-tool routing.
+          case "soul_subagent_route": {
+            const { SoulSubagentRouterEngine } = await import("../../engines/SoulSubagentRouterEngine.js");
+            const p = params as { soul: never; request: never };
+            return ok({ success: true, verdict: SoulSubagentRouterEngine.route(p.soul, p.request) });
+          }
+          case "soul_subagent_render": {
+            const { SoulSubagentRouterEngine } = await import("../../engines/SoulSubagentRouterEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: SoulSubagentRouterEngine.renderVerdict(p.verdict) });
+          }
+
+          // HSE03 SoulEscalationCheckerEngine — enforce escalation_path against edit context.
+          case "soul_escalation_check": {
+            const { SoulEscalationCheckerEngine } = await import("../../engines/SoulEscalationCheckerEngine.js");
+            const p = params as { soul: never; context: never };
+            return ok({ success: true, check: SoulEscalationCheckerEngine.check(p.soul, p.context) });
+          }
+          case "soul_escalation_render": {
+            const { SoulEscalationCheckerEngine } = await import("../../engines/SoulEscalationCheckerEngine.js");
+            const p = params as { check: never };
+            return ok({ success: true, markdown: SoulEscalationCheckerEngine.renderCheck(p.check) });
+          }
+
+          // HSE04 SoulHtmlRenderEngine — emit per-slot soul.html companion.
+          case "soul_html_render": {
+            const { SoulHtmlRenderEngine } = await import("../../engines/SoulHtmlRenderEngine.js");
+            const p = params as { soul: never };
+            return ok({ success: true, html: SoulHtmlRenderEngine.render(p.soul) });
+          }
+
+          // HSE05 SoulFleetRollupEngine — fleet-wide soul rollup + html grid.
+          case "soul_fleet_rollup": {
+            const { SoulFleetRollupEngine } = await import("../../engines/SoulFleetRollupEngine.js");
+            const p = params as { souls: never[] };
+            return ok({ success: true, rollup: SoulFleetRollupEngine.rollup(p.souls) });
+          }
+          case "soul_fleet_html": {
+            const { SoulFleetRollupEngine } = await import("../../engines/SoulFleetRollupEngine.js");
+            const p = params as { rollup: never };
+            return ok({ success: true, html: SoulFleetRollupEngine.renderHtml(p.rollup) });
+          }
+          case "soul_fleet_summary": {
+            const { SoulFleetRollupEngine } = await import("../../engines/SoulFleetRollupEngine.js");
+            const p = params as { rollup: never };
+            return ok({ success: true, markdown: SoulFleetRollupEngine.renderSummary(p.rollup) });
+          }
+
+          // HSE06 DreamLoopProposalEngine — soul-coupled dream loop proposer.
+          case "dream_propose": {
+            const { DreamLoopProposalEngine } = await import("../../engines/DreamLoopProposalEngine.js");
+            const p = params as { request: never };
+            return ok({ success: true, batch: DreamLoopProposalEngine.propose(p.request) });
+          }
+          case "dream_batch_render": {
+            const { DreamLoopProposalEngine } = await import("../../engines/DreamLoopProposalEngine.js");
+            const p = params as { batch: never };
+            return ok({ success: true, markdown: DreamLoopProposalEngine.renderBatch(p.batch) });
+          }
+
+          // HSE07 DreamConsolidationEngine — collapse N nights of dream proposals.
+          case "dream_consolidate": {
+            const { DreamConsolidationEngine } = await import("../../engines/DreamConsolidationEngine.js");
+            const p = params as { request: never };
+            return ok({ success: true, queue: DreamConsolidationEngine.consolidate(p.request) });
+          }
+          case "dream_queue_render": {
+            const { DreamConsolidationEngine } = await import("../../engines/DreamConsolidationEngine.js");
+            const p = params as { queue: never };
+            return ok({ success: true, markdown: DreamConsolidationEngine.renderQueue(p.queue) });
+          }
+
+          // DREAM-RECEIPT-MS0 — DreamArtifactBundleEngine receipt-bundle surface (Hermes Dreaming v0.1.0 interop).
+          // U-DR06 — capability metadata for clients to discover the bundle surface before building.
+          case "dream_status": {
+            const { DreamArtifactBundleEngine } = await import("../../engines/DreamArtifactBundleEngine.js");
+            return ok({ success: true, capabilities: DreamArtifactBundleEngine.getCapabilities() });
+          }
+          // U-DR02 — annotate every proposal with would_change vs no-op against caller-supplied live content map.
+          case "dream_diff": {
+            const { DreamArtifactBundleEngine } = await import("../../engines/DreamArtifactBundleEngine.js");
+            const p = params as { bundle: never; live_content: Record<string, string> };
+            return ok({ success: true, diff: DreamArtifactBundleEngine.diffAgainstLive(p.bundle, p.live_content ?? {}) });
+          }
+          // U-DR03 — validate bundle against schema + cross-field invariants (non-throwing; returns {ok, errors[]}).
+          case "dream_validate": {
+            const { DreamArtifactBundleEngine } = await import("../../engines/DreamArtifactBundleEngine.js");
+            const p = params as { bundle: unknown };
+            return ok({ success: true, validation: DreamArtifactBundleEngine.validateBundle(p.bundle) });
+          }
+          // U-DR04 — compute apply-plan (pure-fn); caller does the I/O (backup → write/delete).
+          case "dream_apply": {
+            const { DreamArtifactBundleEngine } = await import("../../engines/DreamArtifactBundleEngine.js");
+            const p = params as { bundle: never; approve_list: "all" | string[]; backup_root: string };
+            const approve = p.approve_list === "all" ? "all" : (Array.isArray(p.approve_list) ? p.approve_list : []);
+            return ok({ success: true, plan: DreamArtifactBundleEngine.planApply(p.bundle, approve, p.backup_root) });
+          }
+          // U-DR05 — mark bundle discarded + compute archive_path; caller does the actual directory move.
+          case "dream_discard": {
+            const { DreamArtifactBundleEngine } = await import("../../engines/DreamArtifactBundleEngine.js");
+            const p = params as { bundle: never; archive_root: string };
+            return ok({ success: true, ...DreamArtifactBundleEngine.markDiscarded(p.bundle, p.archive_root) });
+          }
+
+          // DREAM-RECEIPT-MS0 / U-DR07 DreamMarkerScannerEngine — pure-core offline `DREAM:` marker
+          // parser (text → markers). No I/O (caller reads files). `dream_markers_to_proposals` is the
+          // adapter to the already-wired DreamArtifactBundleEngine receipt-bundle surface. Closes the
+          // engine's wiring orphan (U-DREAM-SCANNER-WIRE) — built+tested but dispatcher-unwired.
+          case "dream_scan": {
+            const { DreamMarkerScannerEngine } = await import("../../engines/DreamMarkerScannerEngine.js");
+            const p = params as { source: string };
+            return ok({ success: true, result: DreamMarkerScannerEngine.scan(p.source) });
+          }
+          case "dream_markers_to_proposals": {
+            const { DreamMarkerScannerEngine } = await import("../../engines/DreamMarkerScannerEngine.js");
+            const p = params as { markers: never[]; opts: never };
+            return ok({ success: true, proposals: DreamMarkerScannerEngine.markersToProposals(p.markers, p.opts) });
+          }
+
+          // HSE08 SoulConsensusEngine — cross-soul fleet doctrine + divergence detection.
+          case "soul_consensus_analyze": {
+            const { SoulConsensusEngine } = await import("../../engines/SoulConsensusEngine.js");
+            const p = params as { souls: never[] };
+            return ok({ success: true, result: SoulConsensusEngine.analyze(p.souls) });
+          }
+          case "soul_consensus_render": {
+            const { SoulConsensusEngine } = await import("../../engines/SoulConsensusEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: SoulConsensusEngine.renderResult(p.result) });
+          }
+
+          // HZP05 SoulAwareFanoutExtenderEngine — bridges HSE02 router with HZP01 fanout planner.
+          case "soul_aware_fanout_extend": {
+            const { SoulAwareFanoutExtenderEngine } = await import("../../engines/SoulAwareFanoutExtenderEngine.js");
+            const p = params as { request: never; souls: Record<string, never> };
+            return ok({ success: true, result: SoulAwareFanoutExtenderEngine.extend(p.request, p.souls) });
+          }
+          case "soul_aware_fanout_render": {
+            const { SoulAwareFanoutExtenderEngine } = await import("../../engines/SoulAwareFanoutExtenderEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: SoulAwareFanoutExtenderEngine.renderResult(p.result) });
+          }
+
+          // HZP06 ZuluTaskAuctionEngine — soul-weighted sealed-bid task auction.
+          case "zulu_task_auction": {
+            const { ZuluTaskAuctionEngine } = await import("../../engines/ZuluTaskAuctionEngine.js");
+            const p = params as { request: never; souls: Record<string, never> };
+            return ok({ success: true, result: ZuluTaskAuctionEngine.auction(p.request, p.souls) });
+          }
+          case "zulu_task_auction_render": {
+            const { ZuluTaskAuctionEngine } = await import("../../engines/ZuluTaskAuctionEngine.js");
+            const p = params as { result: never };
+            return ok({ success: true, markdown: ZuluTaskAuctionEngine.renderResult(p.result) });
+          }
+
+          // HZD-02 ZuluFleetGovernorEngine — pure-core authority gate. READ-ONLY:
+          // given an AuthorityCheckRequest {slot, task_text, operation} + the slot's
+          // soul, returns the deterministic verdict the control server enforces.
+          // Exposes the governance predicate for query/audit; grants NO control
+          // capability (no assign/veto/state change). Closes the engine's wiring
+          // orphan (U-ZULU-GOVERNOR-WIRE) — it was built+tested but dispatcher-unwired.
+          case "zulu_authority_check": {
+            const { ZuluFleetGovernorEngine } = await import("../../engines/ZuluFleetGovernorEngine.js");
+            const p = params as { request: never; soul: never | null };
+            return ok({ success: true, verdict: ZuluFleetGovernorEngine.checkAuthority(p.request, p.soul ?? null) });
+          }
+          case "zulu_authority_check_render": {
+            const { ZuluFleetGovernorEngine } = await import("../../engines/ZuluFleetGovernorEngine.js");
+            const p = params as { verdict: never };
+            return ok({ success: true, markdown: ZuluFleetGovernorEngine.renderVerdict(p.verdict) });
+          }
+
+          // HZD-06 ModelAttributionEngine — fleet model-provenance ledger. Records which
+          // model/provenance produced each response (+ token/latency), aggregates usage, and
+          // builds the "[model · Nms]" badge the /aware skill surfaces. Pure in-memory singleton
+          // (no I/O — a higher-level sink persists). Closes the engine's wiring orphan
+          // (U-MODEL-ATTRIBUTION-WIRE) — built + unit-tested but dispatcher-unwired (only
+          // consumer was its own test). slot:bravo hermes-zulu mandate (model orchestration).
+          case "model_attribution_record": {
+            const { modelAttributionEngine } = await import("../../engines/ModelAttributionEngine.js");
+            const p = params as { entry: Parameters<typeof modelAttributionEngine.record>[0] };
+            return ok({ success: true, record: modelAttributionEngine.record(p.entry) });
+          }
+          case "model_attribution_summary": {
+            const { modelAttributionEngine } = await import("../../engines/ModelAttributionEngine.js");
+            return ok({ success: true, summary: modelAttributionEngine.summary() });
+          }
+          case "model_attribution_recent": {
+            const { modelAttributionEngine } = await import("../../engines/ModelAttributionEngine.js");
+            const p = params as { limit?: number };
+            return ok({ success: true, records: modelAttributionEngine.recent(p.limit) });
+          }
+          case "model_attribution_find": {
+            const { modelAttributionEngine } = await import("../../engines/ModelAttributionEngine.js");
+            const p = params as { responseId: string };
+            return ok({ success: true, record: modelAttributionEngine.findByResponseId(p.responseId) });
+          }
+          case "model_attribution_badge": {
+            const { modelAttributionEngine } = await import("../../engines/ModelAttributionEngine.js");
+            const p = params as { model: string; provenance: Parameters<typeof modelAttributionEngine.buildBadge>[1]; latencyMs: number };
+            return ok({ success: true, badge: modelAttributionEngine.buildBadge(p.model, p.provenance, p.latencyMs) });
+          }
+
+          // HZD-07 OpusCapabilityEngine — model-tier complexity router. `opus_assess_complexity`
+          // exposes the PURE, deterministic tier-recommendation (haiku/sonnet/opus) for an
+          // OpusRequest (no I/O — heuristic factor scoring). `opus_stats` reads usage counters.
+          // The LLM-backed `execute()` entry is intentionally NOT wired here — it needs a live
+          // Anthropic client + a separate integration-test harness (follow-up
+          // U-OPUS-EXECUTE-WIRE). This closes the engine's wiring orphan (U-OPUS-CAPABILITY-WIRE)
+          // — built but dispatcher-unwired. slot:bravo hermes-zulu mandate (model orchestration).
+          case "opus_assess_complexity": {
+            const { opusCapabilityEngine } = await import("../../engines/OpusCapabilityEngine.js");
+            const p = params as { request: Parameters<typeof opusCapabilityEngine.getComplexityAssessment>[0] };
+            return ok({ success: true, assessment: opusCapabilityEngine.getComplexityAssessment(p.request) });
+          }
+          case "opus_stats": {
+            const { opusCapabilityEngine } = await import("../../engines/OpusCapabilityEngine.js");
+            return ok({ success: true, stats: opusCapabilityEngine.getStats() });
+          }
+
+          // HZP07 HermesSelfCorrectionEngine — failure → corrected approach.
+          case "hermes_self_correct": {
+            const { HermesSelfCorrectionEngine } = await import("../../engines/HermesSelfCorrectionEngine.js");
+            const p = params as { request: never; soul: never | null };
+            return ok({ success: true, proposal: HermesSelfCorrectionEngine.propose(p.request, p.soul) });
+          }
+          case "hermes_self_correct_render": {
+            const { HermesSelfCorrectionEngine } = await import("../../engines/HermesSelfCorrectionEngine.js");
+            const p = params as { proposal: never };
+            return ok({ success: true, markdown: HermesSelfCorrectionEngine.renderProposal(p.proposal) });
+          }
+
+          // HZP08 DoctrineDraftEngine — HSE08 consensus → CLAUDE.md doctrine draft.
+          case "doctrine_draft": {
+            const { DoctrineDraftEngine } = await import("../../engines/DoctrineDraftEngine.js");
+            const p = params as { request: never };
+            return ok({ success: true, draft: DoctrineDraftEngine.draft(p.request) });
+          }
+          case "doctrine_draft_render": {
+            const { DoctrineDraftEngine } = await import("../../engines/DoctrineDraftEngine.js");
+            const p = params as { draft: never };
+            return ok({ success: true, markdown: DoctrineDraftEngine.renderSummary(p.draft) });
+          }
+
+          // HZD-05 ZuluDashboardControlEngine — MCP wrapper around hzp-dash-control HTTP server (:8767, HZP-DASH-MS0).
+          // Server must be running for these to succeed: `node H:/prism/scripts/hzp-dash-control-server.mjs`.
+          case "zulu_dash_assign": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            const p = params as Parameters<typeof ZuluDashboardControlEngine.assign>[0];
+            return ok({ success: true, result: await ZuluDashboardControlEngine.assign(p) });
+          }
+          case "zulu_dash_veto": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            const p = params as Parameters<typeof ZuluDashboardControlEngine.veto>[0];
+            return ok({ success: true, result: await ZuluDashboardControlEngine.veto(p) });
+          }
+          case "zulu_dash_promote_refuse": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            const p = params as Parameters<typeof ZuluDashboardControlEngine.promoteRefuse>[0];
+            return ok({ success: true, result: await ZuluDashboardControlEngine.promoteRefuse(p) });
+          }
+          case "zulu_dash_adopt_doctrine": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            const p = params as Parameters<typeof ZuluDashboardControlEngine.adoptDoctrine>[0];
+            return ok({ success: true, result: await ZuluDashboardControlEngine.adoptDoctrine(p) });
+          }
+          case "zulu_dash_escalate": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            const p = params as Parameters<typeof ZuluDashboardControlEngine.escalate>[0];
+            return ok({ success: true, result: await ZuluDashboardControlEngine.escalate(p) });
+          }
+          case "zulu_dash_bus_send": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            const p = params as Parameters<typeof ZuluDashboardControlEngine.busSend>[0];
+            return ok({ success: true, result: await ZuluDashboardControlEngine.busSend(p) });
+          }
+          case "zulu_dash_state": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            return ok({ success: true, result: await ZuluDashboardControlEngine.state() });
+          }
+          case "zulu_dash_audit_tail": {
+            const { ZuluDashboardControlEngine } = await import("../../engines/ZuluDashboardControlEngine.js");
+            return ok({ success: true, result: await ZuluDashboardControlEngine.auditTail() });
+          }
+
+          // ZULU-OBSIDIAN-LIVE-MS0 — ObsidianRestBridgeEngine: live Obsidian vault over
+          // the Local REST API (:27123). Fail-soft: every action returns
+          // { ok:false, reason } when the vault is down / no key / non-loopback URL —
+          // never throws, never hangs. READ-ONLY v1 (no obsidian_write action).
+          case "obsidian_status": {
+            const { ObsidianRestBridgeEngine } = await import("../../engines/ObsidianRestBridgeEngine.js");
+            return ok({ success: true, result: await ObsidianRestBridgeEngine.status() });
+          }
+          case "obsidian_read": {
+            const { ObsidianRestBridgeEngine } = await import("../../engines/ObsidianRestBridgeEngine.js");
+            const p = params as { path?: string };
+            return ok({ success: true, result: await ObsidianRestBridgeEngine.read(String(p.path ?? "")) });
+          }
+          case "obsidian_search": {
+            const { ObsidianRestBridgeEngine } = await import("../../engines/ObsidianRestBridgeEngine.js");
+            const p = params as { query?: string };
+            return ok({ success: true, result: await ObsidianRestBridgeEngine.search(String(p.query ?? "")) });
+          }
+
+          // ==================================================================
+          // U-BRIDGE-WIRE-AGENT (oscar 2026-05-23) — wire 2 unwired Agent engines
+          // ==================================================================
+          // AgentAutoUpdateEngine — agent-knowledge sync surface
+          case "agent_knowledge_scan": {
+            const { agentAutoUpdate } = await import("../../engines/AgentAutoUpdateEngine.js");
+            const result = await agentAutoUpdate.scanForNewAssets();
+            return ok({ success: true, ...result });
+          }
+          case "agent_knowledge_snapshot": {
+            const { agentAutoUpdate } = await import("../../engines/AgentAutoUpdateEngine.js");
+            const result = await agentAutoUpdate.getKnowledgeSnapshot();
+            return ok({ success: true, ...result });
+          }
+          case "agent_knowledge_recent": {
+            const { agentAutoUpdate } = await import("../../engines/AgentAutoUpdateEngine.js");
+            const count = typeof params.count === "number" ? params.count : 10;
+            const updates = agentAutoUpdate.getRecentUpdates(count);
+            return ok({ success: true, updates, count: updates.length });
+          }
+          case "agent_knowledge_context_string": {
+            const { agentAutoUpdate } = await import("../../engines/AgentAutoUpdateEngine.js");
+            const context = await agentAutoUpdate.getAgentContextString();
+            return ok({ success: true, context });
+          }
+          case "agent_knowledge_rescan": {
+            const { agentAutoUpdate } = await import("../../engines/AgentAutoUpdateEngine.js");
+            const result = await agentAutoUpdate.rescan();
+            return ok({ success: true, ...result });
+          }
+
+          // AgentWorkflowEngine — autonomous workflow lifecycle surface
+          case "agent_workflow_list": {
+            const { agentWorkflowEngine } = await import("../../engines/AgentWorkflowEngine.js");
+            const workflows = agentWorkflowEngine.getWorkflows();
+            return ok({
+              success: true,
+              count: workflows.length,
+              workflows: workflows.map((w) => ({
+                workflow_id: w.workflow_id,
+                name: w.name,
+                type: w.type,
+                description: w.description,
+                step_count: w.steps.length,
+              })),
+            });
+          }
+          case "agent_workflow_start": {
+            const { agentWorkflowEngine } = await import("../../engines/AgentWorkflowEngine.js");
+            const workflowId = String(params.workflow_id ?? params.workflowId ?? "");
+            if (!workflowId) {
+              return ok({ success: false, error: "workflow_id required" });
+            }
+            const context = (params.context && typeof params.context === "object")
+              ? params.context as Record<string, unknown>
+              : {};
+            const options = (params.options && typeof params.options === "object")
+              ? params.options as Record<string, unknown>
+              : {};
+            try {
+              const instance = await agentWorkflowEngine.startWorkflow(workflowId, context, options);
+              return ok({
+                success: true,
+                instance_id: instance.instance_id,
+                workflow_id: instance.workflow_id,
+                status: instance.status,
+                started_at: instance.started_at,
+              });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "agent_workflow_status": {
+            const { agentWorkflowEngine } = await import("../../engines/AgentWorkflowEngine.js");
+            const instanceId = String(params.instance_id ?? params.instanceId ?? "");
+            if (instanceId) {
+              const instance = agentWorkflowEngine.getInstance(instanceId);
+              if (!instance) {
+                return ok({ success: false, error: `Instance not found: ${instanceId}` });
+              }
+              return ok({
+                success: true,
+                instance_id: instance.instance_id,
+                workflow_id: instance.workflow_id,
+                status: instance.status,
+                started_at: instance.started_at,
+                metrics: instance.metrics,
+              });
+            }
+            const running = agentWorkflowEngine.getRunningInstances();
+            const completed = agentWorkflowEngine.getCompletedInstances();
+            return ok({
+              success: true,
+              running_count: running.length,
+              completed_count: completed.length,
+              running: running.map((i) => ({
+                instance_id: i.instance_id,
+                workflow_id: i.workflow_id,
+                status: i.status,
+              })),
+            });
+          }
+          case "agent_workflow_cancel": {
+            const { agentWorkflowEngine } = await import("../../engines/AgentWorkflowEngine.js");
+            const instanceId = String(params.instance_id ?? params.instanceId ?? "");
+            if (!instanceId) {
+              return ok({ success: false, error: "instance_id required" });
+            }
+            const cancelled = agentWorkflowEngine.cancelInstance(instanceId);
+            return ok({ success: cancelled, instance_id: instanceId });
+          }
+
+          // ==================================================================
+          // U-BRIDGE-WIRE-CROSS (oscar 2026-05-23) — wire 2 unwired Cross engines
+          // ==================================================================
+          case "cross_cam_ledger_record": {
+            const { crossCAMComparisonLedgerEngine } = await import("../../engines/CrossCAMComparisonLedgerEngine.js");
+            const acc = crossCAMComparisonLedgerEngine.record({
+              camSystem: params.cam_system as string ?? params.camSystem as string,
+              featureClass: String(params.feature_class ?? params.featureClass ?? ""),
+              materialClass: String(params.material_class ?? params.materialClass ?? ""),
+              machineClass: String(params.machine_class ?? params.machineClass ?? ""),
+              success: ((params.success === 1 || params.success === true) ? 1 : 0) as 0 | 1,
+              observedAt: String(params.observed_at ?? params.observedAt ?? new Date().toISOString()),
+            } as Parameters<typeof crossCAMComparisonLedgerEngine.record>[0]);
+            return ok({ success: true, accumulator: acc });
+          }
+          case "cross_cam_ledger_leaderboard": {
+            const { crossCAMComparisonLedgerEngine } = await import("../../engines/CrossCAMComparisonLedgerEngine.js");
+            const board = crossCAMComparisonLedgerEngine.leaderboard({
+              featureClass: String(params.feature_class ?? params.featureClass ?? ""),
+              materialClass: String(params.material_class ?? params.materialClass ?? ""),
+              machineClass: String(params.machine_class ?? params.machineClass ?? ""),
+            });
+            return ok({ success: true, ...board });
+          }
+          case "cross_cam_ledger_by_cam": {
+            const { crossCAMComparisonLedgerEngine } = await import("../../engines/CrossCAMComparisonLedgerEngine.js");
+            const cam = String(params.cam_system ?? params.camSystem ?? "");
+            if (!cam) return ok({ success: false, error: "cam_system required" });
+            const entries = crossCAMComparisonLedgerEngine.byCAM(
+              cam as Parameters<typeof crossCAMComparisonLedgerEngine.byCAM>[0],
+            );
+            return ok({ success: true, cam_system: cam, count: entries.length, entries });
+          }
+          case "cross_cam_ledger_stats": {
+            const { crossCAMComparisonLedgerEngine } = await import("../../engines/CrossCAMComparisonLedgerEngine.js");
+            return ok({
+              success: true,
+              total_cells: crossCAMComparisonLedgerEngine.totalCells(),
+              total_observations: crossCAMComparisonLedgerEngine.totalObservations(),
+            });
+          }
+          case "cross_cam_ledger_reset": {
+            const { crossCAMComparisonLedgerEngine } = await import("../../engines/CrossCAMComparisonLedgerEngine.js");
+            crossCAMComparisonLedgerEngine.reset();
+            return ok({ success: true });
+          }
+          case "cross_tool_coupling_analyze": {
+            const { crossToolCouplingEngine } = await import("../../engines/CrossToolCouplingEngine.js");
+            const input = params.input ?? params;
+            try {
+              const result = crossToolCouplingEngine.analyze(
+                input as Parameters<typeof crossToolCouplingEngine.analyze>[0],
+              );
+              return ok({ success: true, ...result });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+
+          // ==================================================================
+          // U-BRIDGE-WIRE-LIVE (oscar 2026-05-23 iter3) — 3 unwired Live engines
+          // ==================================================================
+          case "live_tooling_analyze_driven": {
+            const { liveToolingIntelligenceEngine } = await import("../../engines/LiveToolingIntelligenceEngine.js");
+            const operation = params.operation;
+            const config = params.config;
+            if (!operation || !config) {
+              return ok({ success: false, error: "operation and config required" });
+            }
+            try {
+              const result = liveToolingIntelligenceEngine.analyzeDrivenToolCapability(
+                operation as Parameters<typeof liveToolingIntelligenceEngine.analyzeDrivenToolCapability>[0],
+                config as Parameters<typeof liveToolingIntelligenceEngine.analyzeDrivenToolCapability>[1],
+              );
+              // spread result first so the explicit success:true is authoritative
+              // (reaching here means the call succeeded) and not shadowed by result.success
+              return ok({ ...result, success: true });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "live_tooling_controller_capabilities": {
+            const { liveToolingSyntaxEngine } = await import("../../engines/LiveToolingSyntaxEngine.js");
+            const controller = String(params.controller ?? "");
+            if (!controller) return ok({ success: false, error: "controller required" });
+            try {
+              const caps = liveToolingSyntaxEngine.getControllerCapabilities(
+                controller as Parameters<typeof liveToolingSyntaxEngine.getControllerCapabilities>[0],
+              );
+              if (!caps) {
+                return ok({ success: false, error: `Unknown controller: ${controller}` });
+              }
+              return ok({ success: true, controller, capabilities: caps });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "live_turret_validate_kinematics": {
+            const { liveTurretCAxisEngine } = await import("../../engines/LiveTurretCAxisEngine.js");
+            const kinematics = params.kinematics ?? params;
+            try {
+              const result = liveTurretCAxisEngine.validateKinematics(
+                kinematics as Parameters<typeof liveTurretCAxisEngine.validateKinematics>[0],
+              );
+              return ok({ success: true, ...result });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+
+          // ==================================================================
+          // U-BRIDGE-WIRE-INVENTOR (oscar 2026-05-23 iter4) — 3 unwired Inventor engines
+          // ==================================================================
+          case "inventor_cad_list_modules": {
+            const { InventorCADFunctionIndexEngine } = await import("../../engines/InventorCADFunctionIndexEngine.js");
+            try {
+              const modules = InventorCADFunctionIndexEngine.listModules();
+              return ok({ success: true, count: modules.length, modules });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "inventor_cad_get_module_entry": {
+            const { InventorCADFunctionIndexEngine } = await import("../../engines/InventorCADFunctionIndexEngine.js");
+            const moduleId = String(params.module_id ?? params.moduleId ?? "");
+            if (!moduleId) return ok({ success: false, error: "module_id required" });
+            try {
+              const entry = InventorCADFunctionIndexEngine.getModuleEntry(moduleId);
+              if (!entry) return ok({ success: false, error: `Module not registered: ${moduleId}` });
+              return ok({ success: true, module_id: moduleId, entry });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "inventor_cam_list_strategies": {
+            const { inventorCAMStrategyEngine } = await import("../../engines/InventorCAMStrategyEngine.js");
+            const category = params.category as Parameters<typeof inventorCAMStrategyEngine.listStrategies>[0] | undefined;
+            try {
+              const strategies = inventorCAMStrategyEngine.listStrategies(category);
+              return ok({ success: true, count: strategies.length, strategies });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "inventor_cam_get_strategy_params": {
+            const { inventorCAMStrategyEngine } = await import("../../engines/InventorCAMStrategyEngine.js");
+            const strategyName = String(params.strategy_name ?? params.strategyName ?? "");
+            if (!strategyName) return ok({ success: false, error: "strategy_name required" });
+            try {
+              const strategy = inventorCAMStrategyEngine.getParameters(strategyName);
+              if (!strategy) return ok({ success: false, error: `Strategy not found: ${strategyName}` });
+              return ok({ success: true, strategy_name: strategyName, strategy });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+          case "inventor_cam_get_templates": {
+            const { inventorCAMCodeGeneratorEngine } = await import("../../engines/InventorCAMCodeGeneratorEngine.js");
+            const category = params.category as Parameters<typeof inventorCAMCodeGeneratorEngine.getTemplates>[0] | undefined;
+            try {
+              const templates = inventorCAMCodeGeneratorEngine.getTemplates(category);
+              return ok({ success: true, count: templates.length, templates });
+            } catch (err: any) {
+              return ok({ success: false, error: err?.message ?? String(err) });
+            }
+          }
+
+          // ==================================================================
+          // U-BRIDGE-WIRE-PRINT-PARTIAL (oscar 2026-05-23 iter5) — 2 of 4 Print engines
+          // ==================================================================
+          case "print_corpus_all_shas": {
+            const { defaultPrintCorpusTableWriter } = await import("../../engines/PrintCorpusTableWriter.js");
+            const shas = defaultPrintCorpusTableWriter.allShas();
+            return ok({ success: true, count: shas.length, shas });
+          }
+          case "print_corpus_total_count": {
+            const { defaultPrintCorpusTableWriter } = await import("../../engines/PrintCorpusTableWriter.js");
+            return ok({ success: true, total_rows: defaultPrintCorpusTableWriter.totalRowCount() });
+          }
+          case "print_stall_stats": {
+            const { printMatchStallDetectorEngine } = await import("../../engines/PrintMatchStallDetectorEngine.js");
+            const now = typeof params.now_ms === "number" ? params.now_ms : undefined;
+            const stats = now !== undefined
+              ? printMatchStallDetectorEngine.statsAt(now)
+              : printMatchStallDetectorEngine.stats();
+            return ok({ success: true, ...stats });
+          }
+
+          // ── DEA-MS0/U-DEA-november-01 — ContextualBoundaryEngine ──
+          case "context_bound_compute": {
+            const { contextualBoundaryEngine } = await import("../../engines/ContextualBoundaryEngine.js");
+            const bound = contextualBoundaryEngine.calculateBoundary(params.parameter, params.context ?? {});
+            return ok({ success: true, bound });
+          }
+          case "context_bound_all": {
+            const { contextualBoundaryEngine } = await import("../../engines/ContextualBoundaryEngine.js");
+            const all = contextualBoundaryEngine.calculateAllBoundaries(params.context ?? {});
+            return ok({ success: true, bounds: Object.fromEntries(all) });
+          }
+          case "context_bound_check": {
+            const { contextualBoundaryEngine } = await import("../../engines/ContextualBoundaryEngine.js");
+            const verdict = contextualBoundaryEngine.checkValue(params.parameter, params.value, params.context ?? {});
+            return ok({ success: true, verdict });
+          }
+
+          // ── U-WIRE-OPERATOR-PREFS (slot:romeo): OperatorPreferencesEngine → prism_session ──
+          // Per-operator preference store + override applier. Verified GENUINE_ORPHAN (self-contained
+          // zero-arg singleton) via scripts/classify-engine-reachability.mjs (U-CLASSIFIER-AWARE-HUNT).
+          // camelCase params match the engine's native OperatorPreferences type (no normalization).
+          case "operator_prefs_set": {
+            const { operatorPreferencesEngine } = await import("../../engines/OperatorPreferencesEngine.js");
+            const saved = operatorPreferencesEngine.upsertPreferences(
+              params.preferences as Parameters<typeof operatorPreferencesEngine.upsertPreferences>[0],
+            );
+            return ok({ success: true, preferences: saved });
+          }
+          case "operator_prefs_get": {
+            const { operatorPreferencesEngine } = await import("../../engines/OperatorPreferencesEngine.js");
+            const tenantId = String(params.tenantId ?? "");
+            const operatorId = String(params.operatorId ?? "");
+            const existing = operatorPreferencesEngine.getPreferences(tenantId, operatorId);
+            const withDefaults = params.withDefaults === true;
+            const preferences = existing ?? (withDefaults ? operatorPreferencesEngine.getDefaultPreferences(tenantId, operatorId) : null);
+            return ok({ success: true, found: existing !== null, usedDefaults: existing === null && withDefaults, preferences });
+          }
+          case "operator_prefs_apply": {
+            const { operatorPreferencesEngine } = await import("../../engines/OperatorPreferencesEngine.js");
+            const tenantId = String(params.tenantId ?? "");
+            const operatorId = String(params.operatorId ?? "");
+            const base = (params.baseParams ?? {}) as Record<string, unknown>;
+            const result = operatorPreferencesEngine.applyOverrides(tenantId, operatorId, base);
+            return ok({ success: true, ...result });
+          }
+
+          // ── DEA-MS0/U-DEA-november-P06 — PrintAccuracyProofEngine ──
+          case "print_accuracy_audit": {
+            const { defaultPrintCorpusTableWriter } = await import("../../engines/PrintCorpusTableWriter.js");
+            const { PrintAccuracyProofEngine } = await import("../../engines/PrintAccuracyProofEngine.js");
+            const engine = new PrintAccuracyProofEngine(defaultPrintCorpusTableWriter);
+            const report = engine.buildReport({});
+            return ok({ success: true, report });
+          }
+          case "print_accuracy_classify_row": {
+            const { classifyRow } = await import("../../engines/PrintAccuracyProofEngine.js");
+            const verdict = classifyRow(params.row);
+            return ok({ success: true, verdict });
           }
 
           default:

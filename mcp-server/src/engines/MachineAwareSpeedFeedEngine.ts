@@ -184,11 +184,24 @@ class MachineAwareSpeedFeedEngine {
   }
 
   /**
-   * Constrain speed/feed to machine limits
+   * Constrain speed/feed to machine limits.
+   *
+   * @param input       Calculated/requested speed-feed values to clamp.
+   * @param pkg         Machine package with spindle / axes constraints.
+   * @param opts        Optional behavior flags.
+   * @param opts.skipCapture
+   *   When true, suppress the OutcomeCaptureBus emission via captureSFC().
+   *   Use this for operator-explorer dispatcher queries (FEATURE-GAP-AUDIT-MS0
+   *   prism_calc:machine_aware_constrain) so the outcome telemetry channel
+   *   stays scoped to real workflow consumers (SFC outcome-wire middleware,
+   *   proven-param aggregator). Default false (capture preserved) so existing
+   *   SFC middleware integration is unaffected. Added 2026-05-21 per
+   *   U-MACHINE-AWARE-CAPTURE-FLAG follow-up from 2-of-2 scrutiny arm B P1.
    */
   constrain(
     input: SpeedFeedInput,
-    pkg: CanonicalMachinePackage
+    pkg: CanonicalMachinePackage,
+    opts?: { skipCapture?: boolean }
   ): ConstrainedSpeedFeed {
     const constraints = this.extractConstraints(pkg);
     const recommendations: string[] = [];
@@ -340,15 +353,19 @@ class MachineAwareSpeedFeedEngine {
     };
 
     // U-PPG-SFC-01: emit recommendation onto OutcomeCaptureBus.
-    captureSFC({
-      engine: "MachineAwareSpeedFeedEngine",
-      action: "constrain",
-      context: {
-        machine_id: pkg.canonical_id,
-        operation: input.operation,
-      },
-      recommended: result,
-    });
+    // U-MACHINE-AWARE-CAPTURE-FLAG (2026-05-21, slot:juliett): skip when caller
+    // is an operator-explorer dispatcher query (telemetry-pollution guard).
+    if (!opts?.skipCapture) {
+      captureSFC({
+        engine: "MachineAwareSpeedFeedEngine",
+        action: "constrain",
+        context: {
+          machine_id: pkg.canonical_id,
+          operation: input.operation,
+        },
+        recommended: result,
+      });
+    }
 
     return result;
   }

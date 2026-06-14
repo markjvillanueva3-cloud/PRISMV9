@@ -196,7 +196,7 @@ function ToolLifeChart({ cuttingSpeed, materialGroup }: { cuttingSpeed: number; 
             tick={{ fontSize: 10 }}
           />
           <Tooltip
-            formatter={(val: number | undefined) => [`${val ?? 0} min`, "Tool Life"]}
+            formatter={(val: unknown) => [`${val ?? 0} min`, "Tool Life"]}
             labelFormatter={(label) => `${label} m/min`}
           />
           <Line type="monotone" dataKey="life" stroke="#2563eb" strokeWidth={2} dot={false} />
@@ -248,7 +248,7 @@ function PowerChart({ requiredPower, machinePower }: { requiredPower: number; ma
             label={{ value: "Power (kW)", angle: -90, position: "insideLeft", fontSize: 11 }}
             tick={{ fontSize: 10 }}
           />
-          <Tooltip formatter={(val: number | undefined) => [`${(val ?? 0).toFixed(1)} kW`, "Power"]} />
+          <Tooltip formatter={(val: unknown) => [`${Number(val ?? 0).toFixed(1)} kW`, "Power"]} />
           <Bar dataKey="value" radius={[4, 4, 0, 0]}>
             {data.map((d, i) => (
               <Cell key={i} fill={d.fill} />
@@ -286,7 +286,7 @@ function SurfaceFinishChart({ currentFeed, toolDiameter }: { currentFeed: number
             tick={{ fontSize: 10 }}
           />
           <Tooltip
-            formatter={(val: number | undefined) => [`${val ?? 0} \u00b5m`, "Ra"]}
+            formatter={(val: unknown) => [`${val ?? 0} \u00b5m`, "Ra"]}
             labelFormatter={(label) => `${label} mm/tooth`}
           />
           <Line type="monotone" dataKey="ra" stroke="#f59e0b" strokeWidth={2} dot={false} />

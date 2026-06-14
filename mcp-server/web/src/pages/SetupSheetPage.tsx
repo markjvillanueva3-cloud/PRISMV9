@@ -234,9 +234,9 @@ export function SetupSheetPage() {
         include_offsets: true,
         include_safety: true,
       });
-      const data = (response as { result?: SetupSheetResult; data?: SetupSheetResult }).result
-        ?? (response as { data?: SetupSheetResult }).data
-        ?? (response as SetupSheetResult);
+      const data = (response as unknown as { result?: SetupSheetResult; data?: SetupSheetResult }).result
+        ?? (response as unknown as { data?: SetupSheetResult }).data
+        ?? (response as unknown as SetupSheetResult);
       setResult(data);
       setPhase('result');
     } catch (cause) {

@@ -2,8 +2,8 @@
 title: Wiki Stats — architecture tree
 type: architecture
 generated_by: scripts/build-wiki-leaf-index.mjs
-last_verified: 2026-05-15
-total_entries: 23981
+last_verified: 2026-05-19
+total_entries: 28520
 tags: [architecture, wiki, stats, self-awareness]
 ---
 
@@ -14,31 +14,44 @@ tags: [architecture, wiki, stats, self-awareness]
 > `index.md` lines — it does **not** see this tree. This file is the real
 > number. (If you maintain `generate-system-viz.mjs`, count `architecture/**/*.md`.)
 
-**Total recall-index entries:** 23981  (`architecture/` tree: 19375 · tribal tips: 4245 · code-tribal: 185 · memories: 176)
-**Leaf index:** `_leaf-index.jsonl` (6.64 MB) — consumed by `wiki-precheck-inject.mjs` (BM25 + cosine) and `wiki-recall-on-read.mjs` for keyword/path recall
+**Total recall-index entries:** 28520  (`architecture/` tree: 23060 · tribal tips: 4246 · hand-wiki (code-tribal+software-engineering+lessons+…): 697 · memories: 517)
+**Leaf index:** `_leaf-index.jsonl` (7.90 MB) — consumed by `wiki-precheck-inject.mjs` (BM25 + cosine) and `wiki-recall-on-read.mjs` for keyword/path recall
 **Semantic index:** `_embeddings.jsonl` (int8 nomic-embed-text vectors over concept entries; built by `build-wiki-embeddings.mjs` — present iff Ollama was reachable at last regen)
-**Orphan rate:** 182 orphans / 19560 files (0.9%)  (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
-**Last regen:** 2026-05-15T03:30:49.613Z
+**Orphan rate:** 574 orphans / 23749 files (2.4%)  (rescue hub: `_orphans-rescue.md` — every orphan gets an inbound link there, so effective orphan rate ≈ 0)
+**Last regen:** 2026-05-19T00:56:56.090Z
 
 ## Breakdown by entry type
 
 | Type | Count |
 |------|-------|
-| action | 9242 |
-| architecture | 7426 |
-| tribal-tip | 4245 |
-| engine | 1702 |
-| hook | 456 |
-| skill | 276 |
-| code-tribal | 185 |
-| test | 140 |
-| formula | 80 |
-| memory-reference | 68 |
-| memory-feedback | 61 |
-| algorithm | 53 |
+| action | 10291 |
+| architecture | 8094 |
+| tribal-tip | 4246 |
+| engine | 3112 |
+| code-tribal | 613 |
+| hook | 584 |
+| test | 436 |
+| skill | 360 |
+| memory-reference | 293 |
+| formula | 121 |
+| memory-feedback | 86 |
+| memory-_legacy-root | 74 |
+| algorithm | 61 |
 | memory-project | 34 |
-| memory-uncategorized | 7 |
+| os | 28 |
+| memory-scrutiny | 23 |
+| software-engineering | 19 |
+| lessons | 17 |
+| consensus | 11 |
 | memory-user | 6 |
+| lesson | 4 |
+| playbook | 1 |
+| decisions | 1 |
+| coordination | 1 |
+| entity | 1 |
+| entities | 1 |
+| reference | 1 |
+| memory-uncategorized | 1 |
 
 ## How the tree stays fresh
 

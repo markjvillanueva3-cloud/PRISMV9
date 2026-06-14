@@ -1,5 +1,5 @@
-import programmingCatalogJson from "./calculatorProgrammingCatalog.json";
-import { mergeProgrammingCatalog } from "../shared/calculatorProgrammingCatalogExtensions";
+import programmingCatalogJson from "./calculatorProgrammingCatalog.json" with { type: "json" };
+import { mergeProgrammingCatalog } from "../shared/calculatorProgrammingCatalogExtensions.js";
 
 export type CalculatorProgrammingMachineMode =
   | "mill"

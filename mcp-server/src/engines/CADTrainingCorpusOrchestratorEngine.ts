@@ -16,6 +16,8 @@ const SUPPORTED_EXTENSIONS = [
   ".step", ".stp", ".iges", ".igs", ".x_t", ".x_b",
   ".sldprt", ".sldasm", ".ipt", ".iam", ".prt", ".asm",
   ".catpart", ".catproduct", ".3dm", ".sat", ".sab",
+  // CAM-vendor project files (carry geometry + toolpaths) — Mastercam X/2017+, Fusion 360, hyperCAD-S
+  ".mcx", ".mcx-5", ".mcx-6", ".mcx-7", ".mcx-8", ".mcx-9", ".mcam", ".f3d", ".f3z", ".hmc",
 ] as const;
 
 type SupportedExtension = typeof SUPPORTED_EXTENSIONS[number];

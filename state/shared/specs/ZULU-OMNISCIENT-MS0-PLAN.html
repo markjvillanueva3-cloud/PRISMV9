@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="prism-source-hash" content="78007e963ded298549f377bb5785d27eb12f114bfb0b343220244145b983d721">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZEBRA-OMNISCIENT-MS0 Plan</title>
+<style>
+  :root {
+    --bg: #0f1014;
+    --panel: #1a1c23;
+    --panel-2: #232631;
+    --fg: #e4e6eb;
+    --fg-dim: #9aa0a8;
+    --border: #2c303a;
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --fail: #f87171;
+    --info: #60a5fa;
+    --link: #93c5fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 1.5rem; background: var(--bg); color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px; line-height: 1.5; }
+  h1 { font-size: 1.6rem; margin: 0 0 0.25rem 0; }
+  h2 { font-size: 1.15rem; margin: 1.5rem 0 0.5rem 0; padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border); color: var(--fg); }
+  .meta { color: var(--fg-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .headline-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem; }
+  .card { background: var(--panel-2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 0.65rem 0.85rem; }
+  .card .lbl { font-size: 0.8rem; color: var(--fg-dim); }
+  .card .val { font-size: 1.4rem; font-weight: 600; margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+  .card .hint { font-size: 0.75rem; color: var(--fg-dim); }
+  .card.ok    { border-left: 3px solid var(--ok); }
+  .card.warn  { border-left: 3px solid var(--warn); }
+  .card.fail  { border-left: 3px solid var(--fail); }
+  .card.info  { border-left: 3px solid var(--info); }
+  table { width: 100%; border-collapse: collapse; margin: 0.5rem 0 1rem; font-size: 0.9rem;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  caption { text-align: left; padding: 0.4rem 0.65rem; color: var(--fg-dim);
+    background: var(--panel-2); font-weight: 500; }
+  th, td { padding: 0.4rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border);
+    font-variant-numeric: tabular-nums; vertical-align: top; }
+  th { background: var(--panel-2); color: var(--fg-dim); font-weight: 500;
+    text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.04em; }
+  tr:last-child td { border-bottom: none; }
+  td.right { text-align: right; }
+  ul, ol { margin: 0.4rem 0 1rem 1.25rem; }
+  li { margin: 0.15rem 0; }
+  .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 500; background: var(--panel-2); color: var(--fg-dim);
+    border: 1px solid var(--border); }
+  .badge.ok   { background: rgba(74, 222, 128, 0.12); color: var(--ok);   border-color: rgba(74,222,128,0.3); }
+  .badge.warn { background: rgba(251, 191, 36, 0.12); color: var(--warn); border-color: rgba(251,191,36,0.3); }
+  .badge.fail { background: rgba(248, 113, 113, 0.12); color: var(--fail); border-color: rgba(248,113,113,0.3); }
+  .badge.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border-color: rgba(96,165,250,0.3); }
+  .badge-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.3rem 0 1rem 0; }
+  .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 0.85rem;
+    margin: 0.4rem 0 1rem 0; }
+  .kv .k { color: var(--fg-dim); }
+  svg.bar-chart { display: block; max-width: 100%; height: auto; }
+  svg .bar { fill: var(--info); }
+  svg .bar.ok   { fill: var(--ok); }
+  svg .bar.warn { fill: var(--warn); }
+  svg .bar.fail { fill: var(--fail); }
+  svg text { fill: var(--fg); font-family: monospace; font-size: 11px; }
+  svg .axis text { fill: var(--fg-dim); }
+  code { background: var(--panel-2); padding: 0 0.3rem; border-radius: 3px;
+    font-family: "Fira Code", Consolas, Menlo, monospace; font-size: 0.85em; }
+  a { color: var(--link); }
+  footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+    font-size: 0.8rem; color: var(--fg-dim); }
+</style>
+</head>
+<body>
+<h1>ZEBRA-OMNISCIENT-MS0 Plan</h1>
+<div class="meta">rendered from state/shared/specs/ZEBRA-OMNISCIENT-MS0-PLAN.md</div>
+<div class="meta">Generated 2026-05-21T15:16:58.311Z</div>
+<style>
+  .prism-md-body { max-width: 70rem; margin: 0 auto; }
+  .prism-h1 { font-size: 1.6rem; }
+  .prism-h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; }
+  .prism-h3 { font-size: 1.1rem; color: var(--info); }
+  .prism-h4, .prism-h5, .prism-h6 { font-size: 1rem; color: var(--fg-dim); }
+  .prism-md-body p { margin: 0.5rem 0; }
+  .prism-md-list { margin: 0.5rem 0 0.5rem 1.25rem; padding: 0; }
+  .prism-md-list li { margin: 0.15rem 0; }
+  .prism-md-table { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+  .prism-md-table th, .prism-md-table td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; }
+  .prism-md-table th { background: var(--panel-2); }
+  .prism-codeblock { background: var(--panel-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.6rem 0.8rem; overflow-x: auto; font-family: "Cascadia Code", Consolas, monospace; font-size: 13px; }
+  .prism-inline-code { background: var(--panel-2); padding: 0 0.25rem; border-radius: 3px; font-family: "Cascadia Code", Consolas, monospace; font-size: 0.92em; }
+  .prism-quote { border-left: 3px solid var(--info); background: var(--panel-2); padding: 0.5rem 0.85rem; margin: 0.75rem 0; color: var(--fg-dim); }
+  .prism-hr { border: 0; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .prism-link { color: var(--link); text-decoration: none; }
+  .prism-link:hover { text-decoration: underline; }
+  .prism-bad-link { color: var(--fail); text-decoration: line-through; }
+  .prism-unclosed::before { content: "⚠ unterminated code block"; display: block; color: var(--warn); font-size: 0.85em; margin-bottom: 0.25rem; }
+  </style><main class="prism-md-body"><nav class="prism-toc"><strong>Contents</strong><ul><li class="prism-toc-l1">ZEBRA-OMNISCIENT — make Zebra act as the operator with full PRISM substrate context</li><li class="prism-toc-l2">1. What Zebra reads + acts on TODAY (post-13-gap)</li><li class="prism-toc-l2">2. The omniscience gap — full read-context assessment</li><li class="prism-toc-l2">3. The action-domain gap — user-replacement decisions Zebra can&#39;t make</li><li class="prism-toc-l2">4. What the user may have missed in their listing</li><li class="prism-toc-l2">5. Proposed phasing</li><li class="prism-toc-l3">MS0 — Read-side (5 surfaces, no new actions)</li><li class="prism-toc-l3">MS1 — Action-side (richer decider, still operator-gated)</li><li class="prism-toc-l3">MS2 — Goal-aware planner (full omniscience for SUGGESTION quality)</li><li class="prism-toc-l2">6. Risk register</li><li class="prism-toc-l2">7. Acceptance criteria</li><li class="prism-toc-l2">8. Out of scope (deliberate, recorded for traceability)</li><li class="prism-toc-l2">9. See also</li></ul></nav><h1 class="prism-h1">ZEBRA-OMNISCIENT — make Zebra act as the operator with full PRISM substrate context</h1>
+<p><strong>Date:</strong> 2026-05-21 · <strong>Slot:</strong> bravo (<code class="prism-inline-code">claude-eca6e8bb</code>) · <strong>Origin:</strong> user directive immediately following <code class="prism-inline-code">ZEBRA-HERMES-GAP-AUDIT-2026-05-20</code> close-out — <em>&quot;zebra essentially needs to act as me with the full knowledge of the entire system and the goal of prism app so it can properly orchestrate the other chats.&quot;</em></p>
+<p>This spec is the durable plan for graduating Zebra from a 4-input window-actuator (<code class="prism-inline-code">chat-slots</code> PID/HWND + git dirty + handoff freshness + per-slot awareness <code class="prism-inline-code">queueLength</code>) into a goal-aware, substrate-aware fleet orchestrator. The 13-gap campaign that just shipped closed <em>integration leaks</em> in the existing 4-input decider; it did <strong>not</strong> widen Zebra&#39;s read context. This spec measures that wider gap and proposes phasing.</p>
+<p>Advisory plan; no code in this file. Status flips when each unit lands a commit.</p>
+<h2 class="prism-h2">1. What Zebra reads + acts on TODAY (post-13-gap)</h2>
+<table class="prism-md-table"><thead><tr><th>Read input</th><th>Source</th><th>How</th></tr></thead><tbody><tr><td>Slot identity</td><td><code class="prism-inline-code">chat-slots.json[slot]</code></td><td><code class="prism-inline-code">claimedBy</code>, <code class="prism-inline-code">topic</code>, <code class="prism-inline-code">branch</code>, <code class="prism-inline-code">activity</code>, <code class="prism-inline-code">terminalWindowId</code></td></tr>
+<tr><td>Window target</td><td>resolver chain</td><td><code class="prism-inline-code">resolveHwndByTitle(slot.topic)</code> (G1b — title-based, never PID)</td></tr>
+<tr><td>Git state</td><td><code class="prism-inline-code">git status --porcelain</code></td><td><code class="prism-inline-code">readGitDirty()</code> (G2 — saturates true on shared tree)</td></tr>
+<tr><td>Handoff freshness</td><td><code class="prism-inline-code">state/shared/handoffs/HANDOFF-<em>-&lt;slot&gt;-</em>.md</code></td><td><code class="prism-inline-code">readHandoffFresh(slot)</code> (G9 — 6h window)</td></tr>
+<tr><td>Per-slot awareness</td><td><code class="prism-inline-code">state/shared/zebra-awareness/&lt;slot&gt;.json</code></td><td><code class="prism-inline-code">queueLength</code> only (G13 — folded into <code class="prism-inline-code">hasUnresolvedHandoff</code>)</td></tr>
+<tr><td>Pressure level</td><td>sweep-computed</td><td>`level: &quot;critical&quot;</td><td>&quot;high&quot;</td><td>&quot;moderate&quot;</td><td>&quot;low&quot;`</td></tr></tbody></table>
+<table class="prism-md-table"><thead><tr><th>Action emitted</th><th>Surface</th><th>Trigger</th></tr></thead><tbody><tr><td><code class="prism-inline-code">/clear</code></td><td>SendKeys to slot window</td><td>low-pressure idle slot</td></tr>
+<tr><td><code class="prism-inline-code">/compact</code></td><td>SendKeys to slot window</td><td>high-pressure or stale-handoff slot</td></tr>
+<tr><td>(advisory only)</td><td><code class="prism-inline-code">zebra-advisory-inject</code> UserPromptSubmit hook</td><td>G11 — hint, not actuation</td></tr></tbody></table>
+<p>That&#39;s the <strong>entire</strong> decider domain today. Two actions, six inputs, one personality (the operator-gated loop documented in §G4 of the gap audit). Everything below is what Zebra does <strong>not</strong> read or do.</p>
+<h2 class="prism-h2">2. The omniscience gap — full read-context assessment</h2>
+<p>Live-chat substrate surfaces (auto-injected on every UserPromptSubmit / SessionStart for normal Claude chats) that the Zebra sweep does <strong>not</strong> consume:</p>
+<table class="prism-md-table"><thead><tr><th>#</th><th>Surface</th><th>Live chats</th><th>Zebra</th><th>Decision-value</th></tr></thead><tbody><tr><td>1</td><td><strong>Master-index pre-search</strong> — <code class="prism-inline-code">system-graph.json</code> BM25-lite over 110K nodes</td><td>✅ UserPromptSubmit</td><td>❌</td><td>HIGH — &quot;is the unit I&#39;m about to assign already built?&quot;</td></tr>
+<tr><td>2</td><td><strong>Wiki precheck</strong> — top-3 <code class="prism-inline-code">knowledge/wiki/</code> hits by keyword</td><td>✅ UserPromptSubmit</td><td>❌</td><td>HIGH — doctrine recall</td></tr>
+<tr><td>3</td><td><strong>Memory vault top-K</strong> — <code class="prism-inline-code">knowledge/memories/{feedback,reference,project,user,patterns,mistakes}/</code></td><td>✅ UserPromptSubmit</td><td>❌</td><td>HIGH — past decisions, rules</td></tr>
+<tr><td>4</td><td><strong>Tribal-by-domain</strong> — 3,919-tip corpus filtered by slot domain</td><td>✅ UserPromptSubmit</td><td>❌</td><td>MEDIUM — domain-specific guidance</td></tr>
+<tr><td>5</td><td><strong>Auto-memory feed</strong> — Stop-hook propagated <code class="prism-inline-code">knowledge/memories/&lt;type&gt;/*.md</code></td><td>✅ Stop feed</td><td>❌</td><td>HIGH — cross-session brain</td></tr>
+<tr><td>6</td><td><strong>CLAUDE.md doctrine</strong> — global laws + §FAIL-LOUD + §SCRUTINY GATE + 16 feedback rules</td><td>✅ always-loaded</td><td>❌</td><td>CRITICAL — operating rules</td></tr>
+<tr><td>7</td><td><strong>CLAUDE-BRIEF / BUILD-CONTEXT / BUILD-VISION</strong> — 3 auto-regen brief files</td><td>✅ SessionStart</td><td>❌</td><td>CRITICAL — PRISM identity + goal</td></tr>
+<tr><td>8</td><td><strong>/system-viz graph</strong> — ghost roosts, priority queue, bridge synergy, misc-task layer</td><td>✅ on-demand</td><td>❌</td><td>HIGH — &quot;what&#39;s the next-best unit for slot X?&quot;</td></tr>
+<tr><td>9</td><td><strong>ROADMAP-CONSOLIDATED</strong> — 5,826 pending units sorted by bridge-priority</td><td>✅ /pick-unit</td><td>❌ partial</td><td>CRITICAL — work source</td></tr>
+<tr><td>10</td><td><strong>MILESTONE_PROGRESS + envelope drift</strong> — shipped vs claimed, silent close-out debt (51 ms / 329 units)</td><td>✅ injected</td><td>❌</td><td>HIGH — pick-validity gate</td></tr>
+<tr><td>11</td><td><strong>BUILD_STATE</strong> — built / NEEDS_WIRING / NEEDS_BUILDING / NEEDS_FRONTEND</td><td>✅ SessionStart</td><td>❌</td><td>HIGH — wiring-readiness gate</td></tr>
+<tr><td>12</td><td><strong>CLOSE-OUT-CANDIDATES + MISC-TASKS-INVENTORY</strong> — silent debt + 318 orphan tasks</td><td>✅ advisory</td><td>❌</td><td>MEDIUM — close-out prompts</td></tr>
+<tr><td>13</td><td><strong>chat-bus</strong> — recent peer broadcasts, foreign claims, unread messages</td><td>✅ injected</td><td>❌ partial</td><td>HIGH — fleet coordination</td></tr>
+<tr><td>14</td><td><strong>slot-task-claims.json</strong> — who&#39;s building which <code class="prism-inline-code">MILESTONE::U-ID</code></td><td>✅ /pick-unit filter</td><td>❌</td><td>HIGH — avoid double-assignment</td></tr>
+<tr><td>15</td><td><strong>AGENT_CHAT / AGENT_WORKBOARD / AGENT_COORDINATION_STATUS</strong></td><td>✅ injected</td><td>❌</td><td>MEDIUM — coordination state</td></tr>
+<tr><td>16</td><td><strong>HOOK_REGISTRY / STOP_HOOK_REGISTRY</strong> — what fires on which event</td><td>✅ implicit</td><td>❌</td><td>LOW — diagnostic</td></tr>
+<tr><td>17</td><td><strong>MCP dispatcher map</strong> — 80+ dispatchers with action enums</td><td>✅ in tool descriptions</td><td>❌</td><td>MEDIUM — capability awareness</td></tr>
+<tr><td>18</td><td><strong>ENGINE_DIGEST / DISPATCHER_DIGEST / DIRECTORY_DIGEST</strong></td><td>✅ pre-Read injection</td><td>❌</td><td>MEDIUM — dedup check</td></tr>
+<tr><td>19</td><td><strong>Slot souls (Hermes personality)</strong> — refuse_list, voice, domain_filter, escalation</td><td>✅ slot-soul-inject T2</td><td>❌</td><td>CRITICAL — per-slot doctrine</td></tr>
+<tr><td>20</td><td><strong>omega-thresholds.json (safety tiers)</strong> — shop_floor Ω≥0.95, S(x)≥0.98</td><td>✅ doctrine</td><td>❌</td><td>CRITICAL — safety gate before actuation</td></tr>
+<tr><td>21</td><td><strong>TOKEN-AWARENESS-MS0 sidecar</strong> — per-slot ctx%, zone (G/Y/R), bottleneck, offload%</td><td>✅ UserPromptSubmit</td><td>❌ partial</td><td>HIGH — already partially folded via 13-gap G3 /compact wait, but Zebra doesn&#39;t see token-zone directly</td></tr>
+<tr><td>22</td><td><strong>scrutiny ledger</strong> — 3-of-3 PASS/FAIL per session, escalation history</td><td>✅ Stop hook gate</td><td>❌</td><td>MEDIUM — quality signal</td></tr>
+<tr><td>23</td><td><strong>error ledger</strong> — unified <code class="prism-inline-code">error-ledger-append</code>, recall-similar, error patterns</td><td>✅ pre-warn injection</td><td>❌</td><td>MEDIUM — mistake-avoidance</td></tr>
+<tr><td>24</td><td><strong>RGS outcomes + transfer priors + calibration</strong> — per-pipeline learning</td><td>✅ on-demand</td><td>❌</td><td>LOW — too deep for orchestrator</td></tr>
+<tr><td>25</td><td><strong>NN-GRAPH classifier</strong> — GraphSAGE tier-5 for UNKNOWN→domain</td><td>✅ wiring inference</td><td>❌</td><td>LOW — orphan rescue niche</td></tr>
+<tr><td>26</td><td><strong>aiSystemRouterEngine</strong> — task→backend routing (Claude / Ollama / NIM / vLLM)</td><td>✅ on-demand</td><td>❌</td><td>LOW — Zebra&#39;s tasks are tiny</td></tr>
+<tr><td>27</td><td><strong>DOMAIN-PIPELINE-MS0 stage per slot</strong> — 18-stage print-to-part</td><td>✅ on-demand</td><td>❌</td><td>MEDIUM — pipeline-aware suggestions</td></tr>
+<tr><td>28</td><td><strong>Hermes closed-learning-loop verdicts</strong> — <code class="prism-inline-code">state/shared/skill-loop-verdicts.jsonl</code> + auto-pass staging dir (G5/G6)</td><td>✅ Hermes runtime</td><td>❌</td><td>LOW — Zebra IS Hermes&#39; actuator, doesn&#39;t need to read its verdicts</td></tr>
+<tr><td>29</td><td><strong>Per-slot loop state</strong> — <code class="prism-inline-code">state/shared/loop-state/loop-&lt;sid&gt;.json</code> (running, iter, target)</td><td>✅ implicit</td><td>❌ partial</td><td>HIGH — Zebra would <code class="prism-inline-code">/compact</code> an active loop&#39;s window today; misses the loop signal</td></tr>
+<tr><td>30</td><td><strong>Conflict-fork rule + cross-tree-collision advisory</strong> — when slot worktree migration is the right action</td><td>✅ Stop advisory</td><td>❌</td><td>MEDIUM — pickup-failure mode</td></tr></tbody></table>
+<p>Subtotal: <strong>30 substrate surfaces</strong> the live chats see and Zebra doesn&#39;t. CRITICAL: 5. HIGH: 11. MEDIUM: 9. LOW: 5.</p>
+<h2 class="prism-h2">3. The action-domain gap — user-replacement decisions Zebra can&#39;t make</h2>
+<p>Today&#39;s <code class="prism-inline-code">decideClearOrCompact</code> is a 2-action picker. What the <strong>user</strong> does that Zebra would need to emit:</p>
+<table class="prism-md-table"><thead><tr><th>User action</th><th>Today Zebra</th><th>Why blocked</th></tr></thead><tbody><tr><td>Assign a unit to a slot — <code class="prism-inline-code">/checkin-&lt;slot&gt; /loop &lt;task&gt;</code></td><td>❌</td><td>no work-source read (#9 ROADMAP-CONSOLIDATED)</td></tr>
+<tr><td>Pick the next best unit — <code class="prism-inline-code">/pick-unit --slot S</code></td><td>❌</td><td>no priority-queue read (#8 /system-viz)</td></tr>
+<tr><td>Set a goal — <code class="prism-inline-code">/goal &lt;description&gt;</code></td><td>❌</td><td>no goal-state read (#7 BUILD-VISION)</td></tr>
+<tr><td>Force a handoff write — <code class="prism-inline-code">/handoff</code></td><td>❌</td><td>no scrutiny ledger read (#22)</td></tr>
+<tr><td>Surface a relevant skill — auto-trigger <code class="prism-inline-code">/forge-triple</code> etc.</td><td>❌</td><td>no skill-trigger ledger read</td></tr>
+<tr><td>Pivot a chat — kill <code class="prism-inline-code">/loop</code>, start new directive</td><td>❌</td><td>no loop-state read (#29)</td></tr>
+<tr><td>Pattern-spot across slots — &quot;alpha + bravo + charlie all stuck on wiring&quot;</td><td>❌</td><td>no fleet-aggregate read (#13/14/15)</td></tr>
+<tr><td>Recognize hallucination / drift in a slot</td><td>❌</td><td>no scrutiny + error-ledger fusion (#22/23)</td></tr>
+<tr><td>Pick between conflicting approaches (R7 surface-conflicts-don&#39;t-average)</td><td>❌</td><td>no doctrine inference (#6 CLAUDE.md)</td></tr>
+<tr><td>Override safety threshold for explicit reason</td><td>❌</td><td>no safety-tier read (#20) — and rightly so without operator approval</td></tr>
+<tr><td>Halt a runaway /loop</td><td>❌</td><td>no loop-state + token-zone fusion (#29 + #21)</td></tr>
+<tr><td>Force conflict-fork to sibling worktree</td><td>❌</td><td>no cross-tree advisory read (#30)</td></tr></tbody></table>
+<p>Of these, <strong>two are operator-only by design</strong> (set goal, override safety) — the other 10 are mechanically achievable once Zebra reads the right surfaces. The G4 spec note (&quot;operator-gated loop is the design&quot;) stays intact: Zebra emits SUGGESTIONS via the advisory hook (#19 G11 wired); the human approves before keystrokes land. ZEBRA-OMNISCIENT does NOT lift the operator gate — it makes the suggestions richer.</p>
+<h2 class="prism-h2">4. What the user may have missed in their listing</h2>
+<p>The user named: zebra · hermes agent · obsidian brain · system-viz · neural network · ai systems · learning systems · wiki injection · tribal knowledge inject · memories · claude.md · pipelines · orchestrators · prism awareness. The full assessment surfaces <strong>16 additional categories</strong> the operator listing didn&#39;t name:</p>
+<ol class="prism-md-list"><li><strong>CLAUDE-BRIEF / BUILD-CONTEXT / BUILD-VISION</strong> (#7) — the 3 auto-regen brief files; this is *where PRISM&#39;s</li></ol>
+<p>goal lives in disk form*. Without these, Zebra can&#39;t tell &quot;what is PRISM trying to be?&quot;</p>
+<ol class="prism-md-list"><li><strong>omega-thresholds.json + safety tiers</strong> (#20) — shop_floor Ω≥0.95 — a hard gate Zebra MUST honor before</li></ol>
+<p>any actuation suggestion that could land in a real G-code program.</p>
+<ol class="prism-md-list"><li><strong>Slot souls</strong> (#19) — per-slot Hermes personality with <code class="prism-inline-code">refuse_list</code> — Zebra needs to NOT suggest a slot</li></ol>
+<p>do something the soul refuses (e.g., suggesting bravo inline a physics constant).</p>
+<ol class="prism-md-list"><li><strong>ROADMAP-CONSOLIDATED + bridge-priority</strong> (#9) — the 5,826 pending-units inventory + 26 wiring + 16</li></ol>
+<p>deep-integration bridge units. This is the work-source.</p>
+<ol class="prism-md-list"><li><strong>MILESTONE_PROGRESS + envelope drift + silent close-out debt</strong> (#10) — 51 ms / 329 hidden-shipped units.</li></ol>
+<p>Without this, Zebra would suggest a chat work on something already shipped.</p>
+<ol class="prism-md-list"><li><strong>BUILD_STATE</strong> (#11) — built / NEEDS_WIRING / NEEDS_BUILDING / NEEDS_FRONTEND classification.</li><li><strong>chat-bus + foreign claims + slot-task-claims</strong> (#13/14) — fleet-wide coordination state. Without these,</li></ol>
+<p>Zebra would suggest two slots take the same unit.</p>
+<ol class="prism-md-list"><li><strong>Loop-state</strong> (#29) — per-slot active-/loop register. Without this Zebra would <code class="prism-inline-code">/compact</code> mid-loop and</li></ol>
+<p>break the autonomous run.</p>
+<ol class="prism-md-list"><li><strong>TOKEN-AWARENESS-MS0 zone direct read</strong> (#21) — partial today via the G3 /compact wait; Zebra should see</li></ol>
+<p>the per-slot zone explicitly.</p>
+<ol class="prism-md-list"><li><strong>CLOSE-OUT-CANDIDATES + MISC-TASKS-INVENTORY</strong> (#12) — operator-debt surfaces.</li><li><strong>AGENT_CHAT / AGENT_WORKBOARD / AGENT_COORDINATION_STATUS</strong> (#15).</li><li><strong>Conflict-fork rule + cross-tree-collision advisory</strong> (#30) — the working response to multi-chat</li></ol>
+<p>contention; Zebra should suggest fork rather than retry-clear.</p>
+<ol class="prism-md-list"><li><strong>scrutiny ledger</strong> (#22) — has this session passed the 3-of-3 gate?</li><li><strong>Skill-trigger ledger</strong> (#26-adjacent) — when to surface relevant skills mid-loop.</li><li><strong>Engine / dispatcher / directory digests</strong> (#18) — dedup-aware suggestions.</li><li><strong><code class="prism-inline-code">_skill-triggers.jsonl</code> recency</strong> — see lima <code class="prism-inline-code">reference_skill_trigger_ledger_revive_2026_05_20</code>; the</li></ol>
+<p>ledger went to 0 lines on 2026-05-19 fleet-wide; Zebra needs to surface ledger-health, not just consume it.</p>
+<h2 class="prism-h2">5. Proposed phasing</h2>
+<h3 class="prism-h3">MS0 — Read-side (5 surfaces, no new actions)</h3>
+<p>Goal: Zebra&#39;s <code class="prism-inline-code">planSlotAction</code> reads 5 highest-leverage surfaces. Decider stays 2-action; only the <em>inputs</em> widen. Backward-compatible — every surface fail-soft, omitted surface → original boolean path.</p>
+<table class="prism-md-table"><thead><tr><th>Unit</th><th>Surface</th><th>Why first</th></tr></thead><tbody><tr><td>U-ZO-MS0-01</td><td>CLAUDE-BRIEF + BUILD-VISION (#7)</td><td>the goal-anchor; cached single-read per sweep</td></tr>
+<tr><td>U-ZO-MS0-02</td><td>ROADMAP-CONSOLIDATED bridge_units (#9)</td><td>the work-source for future MS1 actions</td></tr>
+<tr><td>U-ZO-MS0-03</td><td>Slot souls refuse_list (#19)</td><td>hard-constraint on any future Zebra suggestion</td></tr>
+<tr><td>U-ZO-MS0-04</td><td>Loop-state per slot (#29)</td><td>stop mid-loop /compact bug</td></tr>
+<tr><td>U-ZO-MS0-05</td><td>TOKEN-AWARENESS zone read (#21)</td><td>replace G3&#39;s coarse <code class="prism-inline-code">/compact wait</code> with zone-aware decide</td></tr>
+<tr><td>U-ZO-MS0-06</td><td>Sweep context-bundle composition + cache layer</td><td>the integration unit; tests for cache-hit + fail-soft + sweep-time bound (&lt;2s per slot at p95)</td></tr></tbody></table>
+<h3 class="prism-h3">MS1 — Action-side (richer decider, still operator-gated)</h3>
+<p>Goal: <code class="prism-inline-code">decideClearOrCompact</code> → <code class="prism-inline-code">decideSlotAction</code> returning a richer ADT (<code class="prism-inline-code">{kind: &quot;clear&quot; | &quot;compact&quot; | &quot;suggest-pick&quot; | &quot;suggest-handoff&quot; | &quot;suggest-fork&quot; | &quot;suggest-skill&quot;, payload}</code>). Zebra still emits SUGGESTIONS only; advisory inject hook renders them; operator approves keystroke. Adds 10 substrate reads.</p>
+<h3 class="prism-h3">MS2 — Goal-aware planner (full omniscience for SUGGESTION quality)</h3>
+<p>Goal: planner reads BUILD-VISION goal-state + cross-fleet bottleneck + scrutiny+error ledger fusion + skill auto-trigger ledger health. Outputs ranked next-action SUGGESTIONS per slot with confidence. Backed by an NN-GRAPH-like prior + RGS outcomes if available; degrades to rule-based when models aren&#39;t loaded.</p>
+<h2 class="prism-h2">6. Risk register</h2>
+<table class="prism-md-table"><thead><tr><th>Risk</th><th>Class</th><th>Mitigation</th></tr></thead><tbody><tr><td>Sweep I/O cost — reading 30 surfaces × 26 slots × 5min cadence → I/O-bound orchestrator</td><td>P0</td><td>Lazy-load + mtime-keyed cache + per-surface TTL; sweep-time budget 2s/slot p95</td></tr>
+<tr><td>Stale surface poisoning decisions (e.g., 6h-old ROADMAP-CONSOLIDATED)</td><td>P1</td><td>Per-surface freshness threshold; degrade-gracefully when stale; surface staleness back to operator via advisory</td></tr>
+<tr><td>Action expansion lifts operator gate by accident</td><td>P0</td><td>MS1 ADT never returns <code class="prism-inline-code">{kind: &quot;execute&quot;}</code>; all richer actions are SUGGESTIONS only; G4 design doc updated</td></tr>
+<tr><td>Cross-tree contention reading shared files</td><td>P1</td><td>Read-only opens; never write; treat ENOENT as fail-soft empty</td></tr>
+<tr><td>Soul refuse_list mis-applied → Zebra refuses to suggest valid work</td><td>P2</td><td>Soul check is post-filter only, never pre-filter; logs rejected suggestions to advisory</td></tr>
+<tr><td>Token-zone misread → Zebra <code class="prism-inline-code">/compact</code>s a YELLOW slot that&#39;s mid-write</td><td>P2</td><td>Zone read + active-write check (<code class="prism-inline-code">git status</code> mtime within 30s) ANDed before /compact</td></tr>
+<tr><td>30-surface read explodes Zebra LOC and breaks the sub-200-line discipline</td><td>P1</td><td>New lib <code class="prism-inline-code">zebra-context-bundle.mjs</code> (read side) — orchestrator-lib stays slim</td></tr>
+<tr><td>Operator surprised by richer suggestions</td><td>P2</td><td>Advisory hook renders suggestions with <code class="prism-inline-code">[ZEBRA-MS1 suggest]:</code> prefix; operator can disable category via <code class="prism-inline-code">PRISM_ZEBRA_SUGGEST_&lt;KIND&gt;=0</code> knob</td></tr></tbody></table>
+<h2 class="prism-h2">7. Acceptance criteria</h2>
+<p><strong>MS0 ships when:</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">zebra-context-bundle.mjs</code> exists with pure <code class="prism-inline-code">loadSlotContext(slot, opts)</code> reader returning the 5-surface</li></ul>
+<p>bundle; tests pin fail-soft + cache-hit + ttl-expiry + stale-mark behavior.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">planSlotAction</code> accepts the bundle via opts; backward-compat preserved when omitted (existing 60/60 tests</li></ul>
+<p>still PASS).</p>
+<ul class="prism-md-list"><li>New tests pin: loop-state-running suppresses <code class="prism-inline-code">/compact</code>; soul refuse_list filters; token-zone overrides G3</li></ul>
+<p>wait length.</p>
+<ul class="prism-md-list"><li>Sweep wall-time under load test (26 slots, all surfaces present, warm cache) ≤ 30s p95.</li><li>Per-file scrutiny gate cleared on every file. End-of-task 3-of-3 PASS.</li></ul>
+<p><strong>MS1 ships when:</strong></p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">decideSlotAction</code> ADT lands; all 6 suggestion-kinds have render paths in <code class="prism-inline-code">zebra-advisory-inject</code>.</li><li>Operator-side disable knobs honored for each suggestion-kind.</li><li>E2E test: scripted slot in 5 states (idle / loop-running / pre-handoff-stale / token-RED / claim-collision)</li></ul>
+<p>produces the right suggestion shape for each.</p>
+<p><strong>MS2 ships when:</strong></p>
+<ul class="prism-md-list"><li>Planner reads goal-state from BUILD-VISION.</li><li>Cross-fleet bottleneck identified from chat-bus + slot-task-claims + scrutiny ledger fusion.</li><li>Output ranked top-3 SUGGESTIONS per slot with confidence + 1-sentence rationale.</li><li>Soak test: 24h continuous sweep, no decision-correctness drift vs operator baseline (sampled).</li></ul>
+<h2 class="prism-h2">8. Out of scope (deliberate, recorded for traceability)</h2>
+<ul class="prism-md-list"><li><strong>Lifting the operator gate</strong> — G4 said operator-gated is the design and stays. ZEBRA-OMNISCIENT enriches</li></ul>
+<p>suggestions; does NOT execute autonomously.</p>
+<ul class="prism-md-list"><li><strong>NN-GRAPH integration into Zebra</strong> — research-only model today (AUROC 0.096); revisit when stratified</li></ul>
+<p>retrain promotes it.</p>
+<ul class="prism-md-list"><li><strong>AGI orchestrator composition</strong> — Zebra calling MillMasterOrchestrator etc. is not in scope; Zebra</li></ul>
+<p>remains a fleet-level orchestrator, not a domain orchestrator.</p>
+<ul class="prism-md-list"><li><strong>Multi-host coordination</strong> — Zebra stays single-host; cross-machine slot lock files (per-host) already</li></ul>
+<p>prevent contention per CLAUDE.md §GOLF SLOT R8.</p>
+<ul class="prism-md-list"><li><strong>Acting as the user for goal-setting</strong> — <code class="prism-inline-code">/goal</code> stays operator-only by design (R6 token-budget +</li></ul>
+<p>operator-final-call principle).</p>
+<h2 class="prism-h2">9. See also</h2>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/ZEBRA-HERMES-GAP-AUDIT-2026-05-20.md</code> — the 13-gap predecessor that closed the</li></ul>
+<p>integration-leak layer.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/HERMES-OBSIDIAN-OS-RESEARCH-2026-05-20.md</code> — companion deep-research deliverable;</li></ul>
+<p>§6 &quot;operator-gated loops are the design&quot; is the doctrinal anchor for keeping MS0/MS1/MS2 suggestion-only.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">state/shared/specs/ZEBRA-ORCHESTRATOR-DESIGN.md</code> — predecessor MS0 backbone (window-actuator).</li><li><code class="prism-inline-code">state/shared/PRISM-BUILD-VISION.md</code> · <code class="prism-inline-code">state/shared/CLAUDE-BRIEF.md</code> · <code class="prism-inline-code">state/shared/PRISM-BUILD-CONTEXT.md</code></li></ul>
+<p>— the 3 surfaces U-ZO-MS0-01 reads.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">knowledge/wiki/architecture/zebra-hermes-gap-audit-campaign.md</code> — the campaign close-out wiki entry.</li><li><code class="prism-inline-code">knowledge/memories/reference/reference_zebra_awareness_ms0_2026_05_20.md</code> — the awareness MS0 backbone</li></ul>
+<p>this spec builds on.</p>
+<ul class="prism-md-list"><li><code class="prism-inline-code">H:/prism/CLAUDE.md</code> §SESSION CONTINUITY STACK · §<code class="prism-inline-code">/checkin-&lt;nato&gt; /loop</code> contract · §SCRUTINY GATE —</li></ul>
+<p>doctrinal anchors for MS0 read-side discipline.</p></main><footer>
+<div>html-report-render schemaVersion 1.0.0</div>
+</footer>
+</body>
+</html>

@@ -1,3 +1,10 @@
+---
+composes_with:
+  - "/continue-roadmap"
+  - "/plan-build"
+consumes:
+  - "prism_dev:foresight_report"
+---
 # /foresight — PSAU-FORESIGHT Pre-Build Report
 
 Surface the foresight stack's go/caution/no_go verdict for a proposed

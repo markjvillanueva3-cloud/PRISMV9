@@ -1,0 +1,200 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "KILO-P2P-RECONCILE-MS0",
+  "version": "1.0.0",
+  "title": "Kilo Print-to-Program Reconcile & Gap-Closure",
+  "brief": "The kilo (print-to-program) slot queue surfaced 138 units that are not autonomous-loop-buildable: DOMAIN-PIPELINE-MS0 print2prog stages carry spec='pending-generator' (no real spec), FEATURE-GAP-AUDIT-MS0 U-GAP-P2P-* units are advisory_only/must_human_verify (audit findings, not specs), and the priority-queue picker surfaces fabricated MS-TRAIN-DEEP IDs (U-TRAIN-P2P-NN) that do not match the envelope's real IDs (U-MS-TRAIN-DEEP-NN). Meanwhile the print-to-program CAPABILITY is heavily built: 16 *PrintToProgram* engines (~600K LOC), PrintToProgramPipelineEngine.ts is 143.7K, and prism_cam exposes print_to_program / _full / _enhanced / _plan / _validate / _regression_run / auto_print_to_program. The genuine gap is reconciliation between built reality and roadmap state, plus one real functional defect: millDispatcher's 'program' bucket lazy-imports the MillPrintToProgramEngine STUB (returns {ok:false,stub:true}) instead of the real MillingPrintToProgramEngine (81.1K, runFullPipeline). This milestone fixes the functional defect, audits/wires the P2P engine set, fixes the dev-tooling picker bug, and reconciles the silent close-out debt so the kilo queue becomes loop-ready. E2E functional-equivalence validation is intentionally OUT OF SCOPE here — it is owned by the existing PrintToProgramRegressionHarnessEngine.ts + prism_cam:print_to_program_regression_run actions + MS-TRAIN-DEEP U-TRAIN-P2P-04/05.",
+  "created_at": "2026-05-22",
+  "created_by": "claude-fee91401 (slot:kilo, /rgs generate)",
+  "track": "KILO-P2P",
+  "roadmap": "domain-pipeline",
+  "roadmap_priority": 1,
+  "status": "complete",
+  "domain": "print2prog",
+  "slot": "kilo",
+  "total_units": 4,
+  "completed_units": 4,
+  "source": "rgs-generate-2026-05-22",
+  "advisory_only": false,
+  "must_human_verify": false,
+  "supersedes_note": "Does NOT delete DOMAIN-PIPELINE-MS0 / FEATURE-GAP-AUDIT-MS0 / MS-TRAIN-DEEP. U-KP2P-04 reconciles their status fields advisory-only; envelopes are preserved per feedback_never_delete_only_disable.",
+  "codebase_audit": {
+    "existing_engines_cited": [
+      "PrintToProgramPipelineEngine.ts (143.7K) — master orchestrator, already built; PIPE-MS0 P1-U01 is silent close-out debt",
+      "MillingPrintToProgramEngine.ts (81.1K) — real mill engine, entry runFullPipeline(MillingInput):MillingProgramResult @ line 2005, singleton millingPrintToProgramEngine",
+      "MillPrintToProgramEngine.ts (542B) — explicit WIRE-EXEMPT stub (U-EFF25), returns {ok:false,stub:true}",
+      "TurningPrintToProgramEngine.ts (81.1K), MultiAxisPrintToProgramEngine.ts (38.5K), WEDMPrintToProgramEngine.ts (38.9K), WireEDMAIPrintToProgramEngine.ts (38.4K), SinkerEDMPrintToProgramEngine.ts (16.7K)",
+      "AutoPrintToProgramBridgeEngine.ts (18.6K), PrintToProgramCoverageAnalyzerEngine.ts (11.4K), PrintToProgramRegressionHarnessEngine.ts (9.3K), PrintToProgramTutorialEngine.ts (11.7K)",
+      "LathePrintToProgramDLIntelligenceEngine.ts, LathePrintToProgramKnowledgeGraphEngine.ts, LathePrintToProgramReasoningEngine.ts"
+    ],
+    "no_new_engines": "This milestone creates ZERO new engines. All work is wiring, dispatcher reconciliation, dev-tooling fix, and roadmap-status reconciliation. Duplication guard not triggered."
+  },
+  "units": [
+    {
+      "id": "U-KP2P-01",
+      "unit_id": "U-KP2P-01",
+      "title": "Rewire millDispatcher program bucket: stub -> real MillingPrintToProgramEngine",
+      "summary": "millDispatcher.ts:126 lazy-imports the MillPrintToProgramEngine stub for the 'program' bucket. mill_print_to_program (line 497, callOrThrow methods [process,generate]) currently RESOLVES the stub's generate() and silently returns {ok:false,stub:true} — a functional failure that does not throw. mill_generate_gcode (line 509, callOrThrow [generateGcode]) THROWS method-not-found — the stub has no generateGcode. Re-point the bucket to the real MillingPrintToProgramEngine (singleton millingPrintToProgramEngine); its sole print-to-program entry method is runFullPipeline (~line 2005). The stub's generate/process names do NOT exist on the real engine.",
+      "status": "complete",
+      "cost": "S",
+      "domain": "print2prog",
+      "slot": "kilo",
+      "depends_on": [],
+      "spec": "1. millDispatcher.ts:126 — change `(await import('../../engines/MillPrintToProgramEngine.js')).millPrintToProgramEngine` to `(await import('../../engines/MillingPrintToProgramEngine.js')).millingPrintToProgramEngine`. 2. Line 497 (mill_print_to_program) — set the callOrThrow method list to ['runFullPipeline'] (the real engine's SOLE print-to-program entry; do NOT carry process/generate — those are stub-only names absent from MillingPrintToProgramEngine, and leaving them would mask a wrong-method regression); update the engine-name label arg from 'MillPrintToProgramEngine' to 'MillingPrintToProgramEngine'. 3. Line 509 (mill_generate_gcode) — verify the real engine's gcode method name (read MillingPrintToProgramEngine method list); if runFullPipeline returns gcode within MillingProgramResult, point mill_generate_gcode at runFullPipeline + document the result shape, else use the real method. 4. MillPrintToProgramEngine.ts — DO NOT DELETE (feedback_never_delete_only_disable). Add a `// SUPERSEDED by MillingPrintToProgramEngine (U-KP2P-01 2026-05-22)` header comment above the existing WIRE-EXEMPT line; keep the file so any other lazy importer does not break.",
+      "acceptance_criteria": [
+        "prism_mill:mill_print_to_program round-trip through the dispatcher returns a real MillingProgramResult, NOT an object with stub:true",
+        "npx tsc --noEmit is clean for millDispatcher.ts (no TS2307 / TS2339)",
+        "A real vitest test invokes the dispatcher (millDispatcher action 'mill_print_to_program') with a realistic mill input and asserts result.stub is undefined/false AND the result contains a program/operations field",
+        "mill_generate_gcode no longer throws method-not-found — it routes to a real method on MillingPrintToProgramEngine",
+        "MillPrintToProgramEngine.ts still exists on disk with a SUPERSEDED marker (not deleted)"
+      ],
+      "files_touched": [
+        "mcp-server/src/tools/dispatchers/millDispatcher.ts (modify — real-engine import + toMillingInput adapter + mill_print_to_program/mill_generate_gcode cases)",
+        "mcp-server/src/schemas/millActionSchemas.ts (modify — mill_generate_gcode schema: stub-era operations[] requirement -> features-based, mirrors mill_print_to_program)",
+        "mcp-server/src/engines/MillPrintToProgramEngine.ts (annotate SUPERSEDED, keep — still imported by MillMasterOrchestratorFacadeEngine)",
+        "mcp-server/src/__tests__/millDispatcher.printToProgram.test.ts (create — 12-case real dispatcher round-trip test, all green)"
+      ],
+      "realized_note": "generateGCode is a PRIVATE engine method; both mill_print_to_program and mill_generate_gcode route to the public runFullPipeline (G-code in result.program_text). mill_generate_gcode's dispatcher schema required operations[] (stub-era) so features-shaped input failed validation before reaching the engine — schema updated to mirror mill_print_to_program. toMillingInput adapter wraps the schema's string `material` into the engine's {material_name,iso_group} object. FINDING for U-KP2P-02: MillMasterOrchestratorFacadeEngine still imports the MillPrintToProgramEngine stub.",
+      "rollback": {
+        "files_created": ["mcp-server/src/__tests__/millDispatcher.printToProgram.test.ts"],
+        "files_modified": ["mcp-server/src/tools/dispatchers/millDispatcher.ts", "mcp-server/src/schemas/millActionSchemas.ts", "mcp-server/src/engines/MillPrintToProgramEngine.ts"],
+        "abort_criteria": [
+          "MillingPrintToProgramEngine has no method that accepts a print/blueprint-shaped input and returns a program (real engine API incompatible) — abort, escalate, keep stub wired",
+          "Re-pointing breaks >0 existing millDispatcher tests that were passing before",
+          "tsc introduces any new error outside millDispatcher.ts"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/src/tools/dispatchers/millDispatcher.ts mcp-server/src/schemas/millActionSchemas.ts mcp-server/src/engines/MillPrintToProgramEngine.ts && rm mcp-server/src/__tests__/millDispatcher.printToProgram.test.ts"
+      },
+      "four_loop": "BUILD (rewire + test) -> SCRUTINIZE (2 parallel reviewers per file) -> GAP FILL (mill_generate_gcode path, edge cases) -> TIE UP (tsc clean, test green, stub annotated)"
+    },
+    {
+      "id": "U-KP2P-02",
+      "unit_id": "U-KP2P-02",
+      "title": "Wiring audit + wire-up of all 16 *PrintToProgram* engines",
+      "summary": "Build a wiring matrix mapping every *PrintToProgram* engine to its dispatcher + action (or UNWIRED). Wire any genuinely-unwired engine into its natural dispatcher per the engine-wiring doctrine (wire to ALL natural consumers). Document any intentional WIRE-EXEMPT.",
+      "status": "complete",
+      "realized_note": "16 disk entries (15 .ts engines + 1 stale extensionless WEDMPrintToProgramEngine-1). 11 were already WIRED. 2 genuinely UNWIRED — PrintToProgramCoverageAnalyzerEngine + PrintToProgramTutorialEngine (both P2P-FULLSTACK-MS0 capstones) — wired into camDispatcher as print_to_program_coverage + print_to_program_tutorial (2 actions, +2 schemas, 18-case round-trip test all green). 2 WIRE-EXEMPT (MillPrintToProgramEngine stub, SinkerEDMPrintToProgramEngine — both pre-tagged). Matrix: state/shared/P2P-WIRING-MATRIX.md. Findings disclosed (R12): (1) MillMasterOrchestratorFacadeEngine still imports the MillPrintToProgramEngine stub — engine→engine defect, out of U-KP2P-02 scope (dispatcher-wiring only), flagged for follow-up; (2) pre-existing tsc error camDispatcher.ts:3606 (LathePostGeneratorDialectEngine parameters mismatch, predates this unit); (3) pre-existing tsc error WEDMPrintToProgramEngine.ts:1000. U-KP2P-02's own code is tsc-clean.",
+      "cost": "M",
+      "domain": "print2prog",
+      "slot": "kilo",
+      "depends_on": ["U-KP2P-01"],
+      "spec": "1. Enumerate every engine file matching *PrintToProgram* in mcp-server/src/engines/ (16 known at audit time; re-glob, do not hardcode). 2. For each, grep mcp-server/src/tools/dispatchers/ for an import reference. 3. Produce state/shared/P2P-WIRING-MATRIX.md: engine | dispatcher | action(s) | status(WIRED/UNWIRED/WIRE-EXEMPT). 4. For each UNWIRED engine: identify the natural dispatcher (mill->millDispatcher, turning->turningDispatcher, wedm->edmDispatcher/wedmDispatcher, multiaxis->the multiaxis dispatcher, generic->camDispatcher), wire it (lazy import + action enum + schema + case), add a round-trip test. 5. Engines genuinely not meant to be dispatcher-reachable (pure internal helpers) get a `// WIRE-EXEMPT: <reason>` tag instead.",
+      "acceptance_criteria": [
+        "state/shared/P2P-WIRING-MATRIX.md exists and covers every *PrintToProgram* engine on disk",
+        "Every engine classified UNWIRED in the matrix is either (a) wired with a dispatcher ref + a real round-trip test, or (b) tagged // WIRE-EXEMPT with a stated reason",
+        "grep -rL for *PrintToProgram*Engine with zero dispatcher reference returns only WIRE-EXEMPT-tagged files",
+        "npx tsc --noEmit clean across all modified dispatchers",
+        "Each newly-wired engine has >=1 vitest test invoking it through the dispatcher (not the singleton)"
+      ],
+      "files_touched": [
+        "state/shared/P2P-WIRING-MATRIX.md (create)",
+        "mcp-server/src/tools/dispatchers/*.ts (modify — only dispatchers receiving newly-wired engines)",
+        "mcp-server/src/__tests__/*.test.ts (create — one per newly-wired engine)"
+      ],
+      "rollback": {
+        "files_created": ["state/shared/P2P-WIRING-MATRIX.md", "per-engine test files"],
+        "files_modified": ["affected dispatcher .ts files"],
+        "abort_criteria": [
+          "A 'newly-wired' engine turns out to be an abstract base / non-instantiable — tag WIRE-EXEMPT instead of forcing a wire",
+          "Wiring an engine introduces a circular import",
+          "Action-count anti-regression fails on any modified dispatcher"
+        ],
+        "rollback_procedure": "git checkout -- the affected dispatcher files && rm the created matrix + test files"
+      },
+      "four_loop": "BUILD (matrix + wire) -> SCRUTINIZE (2 reviewers per dispatcher file) -> GAP FILL (WIRE-EXEMPT reasons, circular-import check) -> TIE UP (tsc clean, anti-regression count check)"
+    },
+    {
+      "id": "U-KP2P-03",
+      "unit_id": "U-KP2P-03",
+      "title": "Fix priority-queue.mjs slot/domain filter — stop peer-slot + ID-drift leakage",
+      "summary": "priority-queue.mjs --pick --slot kilo surfaces units whose envelope slot field is a different slot (e.g. U-DPM0-WIRE-PRINT_OCR is slot:charlie) and fabricated MS-TRAIN-DEEP IDs that do not match the envelope (U-TRAIN-P2P-NN vs U-MS-TRAIN-DEEP-NN). The picker conflates the pipeline STAGE name (PRINT_OCR) with the print2prog DOMAIN. Add a slot-ownership filter: a unit carrying an explicit envelope slot field different from the requested slot is excluded; unassigned-slot and matching-slot units pass through.",
+      "status": "complete",
+      "realized_note": "BOTH abort_criteria conditions were hit during investigation and the fix re-scoped accordingly (still within priority-queue.mjs): (1) ROADMAP-CONSOLIDATED.json pending_units carry NO slot field — the per-unit slot lives on the milestone-envelope units[] entry (verified: U-DPM0-WIRE-PRINT_OCR slot:charlie, MILL slot:alpha, LATHE slot:bravo) and is STRIPPED during consolidation. (2) The picker does not fabricate IDs — U-TRAIN-P2P-NN aliases live in ROADMAP-CONSOLIDATED unconsolidated_prose[] while U-MS-TRAIN-DEEP-NN are in pending_units; both are sourced for the same milestone. ROOT CAUSE of both is upstream in consolidate-roadmaps.mjs (it should carry slot through + dedupe prose against envelopes). Fixed at the picker boundary: new pure helpers buildEnvelopeIndex/resolveUnitSlot/isProseAliasOfEnvelope re-resolve each unit's slot from mcp-server/data/milestones/*.json envelopes and drop unconsolidated_prose units whose milestone has a real envelope. pickNextUnit applies both filters. Verified: --pick --slot kilo no longer surfaces U-DPM0-WIRE-PRINT_OCR (charlie) or any U-TRAIN-P2P-NN alias; echo/cam still returns work (R12 fallback intact). 26/26 tests green (18 anti-regression + 8 new). Follow-up flagged: the upstream consolidate-roadmaps.mjs fix would let this picker-side patch become a no-op. Reviewer-B P1 (pickNextUnit can return [] when the pool is fleet-wide-exhausted) is a pre-existing realistically-unreachable property already fail-loud at the CLI — documented in-code, not new code.",
+      "cost": "M",
+      "domain": "print2prog",
+      "slot": "kilo",
+      "depends_on": [],
+      "spec": "1. Read .claude/helpers/priority-queue.mjs domain/slot filter logic (around line 160-230 — domainFilter / cross-domain fallback). 2. Identify where unit records get their slot/domain — trace back to the source (MILESTONE_PROGRESS / envelopes). 3. Add an ownership predicate: keep a unit IF (unit.slot is falsy/unassigned) OR (unit.slot === requestedSlot). A unit with an explicit foreign slot is excluded from that slot's pick. 4. Investigate the ID-drift: the picker's MS-TRAIN-DEEP entries show U-TRAIN-P2P-NN while the envelope has U-MS-TRAIN-DEEP-NN — find where the picker fabricates/aliases IDs and make it use the envelope's real id field. 5. Preserve the existing R12 cross-domain fallback (no in-domain work -> global ranking) — the slot filter must NOT break that path.",
+      "acceptance_criteria": [
+        "node .claude/helpers/priority-queue.mjs --pick --slot kilo returns ZERO units whose envelope slot field is a slot other than kilo (verified: U-DPM0-WIRE-PRINT_OCR slot:charlie no longer appears)",
+        "Every unit ID the picker emits matches a real id/unit_id in its source envelope (no fabricated U-TRAIN-P2P-NN aliases)",
+        "A new unit test covers: (a) peer-slot unit excluded, (b) unassigned-slot unit passes, (c) matching-slot unit passes, (d) ID-drift detection",
+        "Existing priority-queue tests still pass (anti-regression)",
+        "The R12 cross-domain global fallback still fires when a slot has zero in-domain work"
+      ],
+      "files_touched": [
+        ".claude/helpers/priority-queue.mjs (modify)",
+        ".claude/helpers/priority-queue.test.mjs (create or extend — node:test)"
+      ],
+      "rollback": {
+        "files_created": [".claude/helpers/priority-queue.test.mjs (if newly created)"],
+        "files_modified": [".claude/helpers/priority-queue.mjs"],
+        "abort_criteria": [
+          "The slot field is not actually present on unit records (filter has nothing to key on) — escalate, the fix belongs upstream in build-milestone-progress.mjs",
+          "The ID-drift originates in a different file than priority-queue.mjs — re-scope to that file",
+          "Slot filter empties the kilo pick entirely (over-filtering) — back off, the R12 fallback should still surface global work"
+        ],
+        "rollback_procedure": "git checkout -- .claude/helpers/priority-queue.mjs && rm .claude/helpers/priority-queue.test.mjs (if newly created)"
+      },
+      "four_loop": "BUILD (filter + test) -> SCRUTINIZE (2 reviewers) -> GAP FILL (R12 fallback preserved, ID-drift root cause) -> TIE UP (kilo pick verified clean)"
+    },
+    {
+      "id": "U-KP2P-04",
+      "unit_id": "U-KP2P-04",
+      "title": "Reconcile PIPE-MS0 silent close-out debt + DOMAIN-PIPELINE spec-less placeholders",
+      "summary": "PrintToProgramPipelineEngine.ts (143.7K) plus the Milling/Turning/MultiAxis variants exist on disk, but PIPE-MS0's 12 units are all status not_started (silent close-out debt). DOMAIN-PIPELINE-MS0's print2prog units carry spec='pending-generator'. Verify each against on-disk engines and reconcile envelope status. ADVISORY — every flip must be human-verified per the close-out doctrine; this unit produces a reconciliation report + applies only demonstrably-safe flips.",
+      "status": "complete",
+      "realized_note": "Reconcile report: state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md (advisory, mustHumanVerify). Verified all 12 PIPE-MS0 units against on-disk reality (engine file + dispatcher ref + test file). 4 units demonstrably built+wired+tested → flipped not_started→complete with per-unit evidence citations: P0-U01 PrintToGeometryEngine, P0-U02 InventoryAwareToolSelectorEngine, P0-U03 ROIAdvisorEngine, P1-U01 PrintToProgramPipelineEngine (the brief-named silent debt). PIPE-MS0: completed_units 0→4, status not_started→in_progress (honest partial — 8 units remain genuine backlog: P1-U02/U-03, P2-U01/02/03, P3-U01/02/03; 4 have no named engine on disk, 3 are non-engine page/route/test units conservatively left for human-verify). DOMAIN-PIPELINE-MS0: NO mutation — its sole print2prog unit U-DPM0-PRINT2PROG-ORCHESTRATE_FULL is the adaptive orchestrator, which KILO-P2P-RECONCILE-MS0 does NOT build, so it is not superseded (a false 'superseded' pointer would violate R12). 4-surface sync done: PIPE-MS0 envelope + roadmap-index + MILESTONE_PROGRESS regen (EXIT 0) + BUILD_STATE regen (EXIT 0) + chat-bus.",
+      "cost": "S",
+      "domain": "print2prog",
+      "slot": "kilo",
+      "depends_on": ["U-KP2P-02"],
+      "spec": "1. For each PIPE-MS0 unit, resolve the named engine on disk (PrintToProgramPipelineEngine, PrintToGeometryEngine, etc.); confirm it exists AND is wired (per the U-KP2P-02 matrix). 2. Write state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md: per-unit (PIPE-MS0 + DOMAIN-PIPELINE-MS0 print2prog) — engine exists? wired? recommended status. 3. Apply status flips ONLY where engine demonstrably exists + is wired + has tests (built -> complete). Genuinely-pending units keep their status. 4. For DOMAIN-PIPELINE-MS0 spec-less placeholders that this milestone supersedes, set their note field to point at KILO-P2P-RECONCILE-MS0 (do not delete). 5. Follow the 4-surface close-out protocol: envelope + roadmap-index + MILESTONE_PROGRESS (regen via build-milestone-progress.mjs) + BUILD_STATE (regen via build-state-snapshot.mjs) + chat-bus post.",
+      "acceptance_criteria": [
+        "state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md exists with a per-unit verdict for every PIPE-MS0 unit + every DOMAIN-PIPELINE-MS0 print2prog unit",
+        "Status flips applied ONLY to units whose engine exists on disk AND is wired AND has a test — each flip cites the engine file + dispatcher ref",
+        "Zero envelopes deleted; superseded placeholders carry a note pointer, not a deletion",
+        "node scripts/build-milestone-progress.mjs and node scripts/build-state-snapshot.mjs re-run clean after the flips",
+        "Reconciliation is advisory-flagged: the report header states mustHumanVerify and lists every flip for operator review"
+      ],
+      "files_touched": [
+        "state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md (create)",
+        "mcp-server/data/milestones/PIPE-MS0.json (status reconcile — only safe flips)",
+        "mcp-server/data/milestones/DOMAIN-PIPELINE-MS0.json (note pointers on superseded placeholders)",
+        "mcp-server/data/roadmap-index.json (status sync)"
+      ],
+      "rollback": {
+        "files_created": ["state/shared/specs/KILO-P2P-CLOSEOUT-RECONCILE-2026-05-22.md"],
+        "files_modified": ["PIPE-MS0.json", "DOMAIN-PIPELINE-MS0.json", "roadmap-index.json"],
+        "abort_criteria": [
+          "An engine named in PIPE-MS0 does NOT exist on disk — leave that unit not_started, do not flip",
+          "A named engine exists but is unwired AND untested — leave not_started, log in the report only",
+          "build-milestone-progress.mjs or build-state-snapshot.mjs errors after a flip — revert that flip"
+        ],
+        "rollback_procedure": "git checkout -- mcp-server/data/milestones/PIPE-MS0.json mcp-server/data/milestones/DOMAIN-PIPELINE-MS0.json mcp-server/data/roadmap-index.json && rm the reconcile report"
+      },
+      "four_loop": "BUILD (verify + report + safe flips) -> SCRUTINIZE (2 reviewers — over-flip risk) -> GAP FILL (4-surface sync) -> TIE UP (progress/state regen clean, advisory flag set)"
+    }
+  ],
+  "forge_triple": {
+    "protective_hook": "DECLARED — none new; existing stop_on_unwired_assets + stop-auto-wire already protect U-KP2P-02 wiring",
+    "mcp_action": "CONSUMED — U-KP2P-01 repairs prism_mill:mill_print_to_program + mill_generate_gcode (existing actions, currently stub-backed)",
+    "skill": "CONSUMED — /pick-unit, /pick-dev, /checkin-kilo all consume the U-KP2P-03 picker fix",
+    "built_in": "No new forge-triple artifacts. This milestone repairs + reconciles existing assets only."
+  },
+  "enforcement": {
+    "pre_level": "duplication-hard-block (no new engines so inert), comprehensive-build-enforce",
+    "post_level": "stub detector, test quality, stop_on_unwired_assets, stop-auto-wire",
+    "compact_level": "scrutinize-before-stop 3-of-3, per-file 2-agent gate",
+    "note": "All enforcement hooks are AUTOMATIC. Per-file 2-agent scrutiny fires after every file in every unit."
+  },
+  "exit_gate": {
+    "criteria": [
+      "All 4 units status=complete with passing tests",
+      "npx tsc --noEmit clean across mcp-server/src",
+      "priority-queue --pick --slot kilo returns only genuine kilo-domain, kilo-or-unassigned-slot units",
+      "P2P-WIRING-MATRIX.md shows zero unexplained UNWIRED *PrintToProgram* engines"
+    ],
+    "omega_floor": 0.9
+  }
+}

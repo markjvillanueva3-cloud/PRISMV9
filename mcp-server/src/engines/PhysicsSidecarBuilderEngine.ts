@@ -97,12 +97,20 @@ export class PhysicsSidecarBuilderEngine {
       return "[" + value.map((v) => PhysicsSidecarBuilderEngine._stringify(v)).join(",") + "]";
     }
     if (typeof value === "object") {
-      const keys = Object.keys(value as Record<string, unknown>).sort();
+      // Omit undefined-valued keys before canonicalisation — exactly JSON.stringify semantics
+      // (`{a:undefined}` serialises as `{}`). A schema-valid payload that carries an absent optional
+      // field as an explicit `undefined` must NOT crash the sidecar; the round-trip schema gate in
+      // buildAndSeal still rejects a genuinely-malformed payload. No backward-compat risk: any prior
+      // payload with an undefined value could never have been sealed (it threw here), so none exist.
+      const rec = value as Record<string, unknown>;
+      const keys = Object.keys(rec).filter((k) => rec[k] !== undefined).sort();
       const parts = keys.map((k) => {
-        return JSON.stringify(k) + ":" + PhysicsSidecarBuilderEngine._stringify((value as Record<string, unknown>)[k]);
+        return JSON.stringify(k) + ":" + PhysicsSidecarBuilderEngine._stringify(rec[k]);
       });
       return "{" + parts.join(",") + "}";
     }
+    // A bare `undefined` (top-level or array element) canonicalises as null — JSON-compatible, total.
+    if (value === undefined) return "null";
     throw new Error(`PhysicsSidecarBuilder.canonicalize: unsupported type ${typeof value}`);
   }
 

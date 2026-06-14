@@ -1,0 +1,3886 @@
+{
+ "AI-MAX-MS0::U-AIMAX09": {
+  "title": "Feature Cascade Enhancement",
+  "relatedSubsystems": [
+   "cascade-calibrate",
+   "failure-cascade",
+   "wedm-wire",
+   "cascade-create",
+   "cascade-pending"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ai/aicapabilitymaximizerengine.md",
+    "knowledge/wiki/architecture/engines/ml/learningcascadeengine.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/domain-ai.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "staged pipeline / cascade composition with per-stage gating",
+    "feature-importance scoring and re-ranking",
+    "memoized incremental recompute"
+   ],
+   "buildNote": "Each cascade stage must gate the next on a real confidence threshold — never blend two enhancement passes into one double-applied result."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ai/manufacturingreasoningengine.md",
+    "knowledge/wiki/architecture/domain-intelligence.md"
+   ],
+   "addSeWiki": [
+    "karpathy-12-rule-discipline"
+   ],
+   "systemImpact": "The feature cascade feeds aiReasoningDispatcher and is consumed by AICapabilityMaximizerEngine's recommendation path; a regression here double-applies an enhancement pass so downstream AI-WIRE-MS0 round-trip E2Es and ai-feature-recommend hook injections surface inflated or contradictory scores. AWARE-MS0::U-AWARE06 (feature recommendation injection) depends on a stable cascade ordering.",
+   "csDepth": [
+    "Per-stage gating on a confidence threshold introduces a short-circuit branch — verify the cascade is idempotent under re-entry (a memoized stage must key on the full input hash, not a partial), or a stale memo silently skips a needed recompute.",
+    "Feature-importance re-ranking after each stage is O(n log n) per stage and O(stages·n log n) overall; if stage count grows the re-rank dominates — consider an incremental heap update instead of a full sort."
+   ]
+  }
+ },
+ "AI-MAX-MS0::U-AIMAX11": {
+  "title": "AI Reasoning Skill Commands",
+  "relatedSubsystems": [
+   "ai-capability",
+   "reasoning-chain"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/engines/ai/reasoningchainsharingengine.md",
+    "knowledge/wiki/architecture/engines/ai/prismcreativereasoningengine.md",
+    "knowledge/wiki/architecture/skills/"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "prompt-engineering-rails",
+    "per-file-scrutiny-gate",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "slash-command frontmatter schema + keyword-trigger matching",
+    "reasoning-chain DAG traversal",
+    "command-to-dispatcher-action routing table"
+   ],
+   "buildNote": "Skill commands are thin routers — keep logic in the dispatcher action, and validate command frontmatter against command-frontmatter.schema.json."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/slash-cmd-fidelity-ms0.md",
+    "knowledge/wiki/architecture/skill-auto-loader.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "addSeWiki": [
+    "claude-md-as-pointer-index"
+   ],
+   "systemImpact": "These skill commands are thin routers into aiReasoningDispatcher actions; if their frontmatter drifts from command-frontmatter.schema.json the skill-auto-loader and skill-auto-trigger hooks silently fail to surface them, so the reasoning capability becomes unreachable from the prompt surface even though the dispatcher action still works. Slash-command fidelity tests gate this.",
+   "csDepth": [
+    "Reasoning-chain DAG traversal must detect cycles — a self-referential reasoning chain causes unbounded recursion; use an explicit visited-set with depth cap rather than relying on natural termination.",
+    "The command-to-dispatcher routing table is a hot lookup; a hash map keyed by command name is correct, but keep logic out of the command (R5 — code answers deterministic routing, not the model)."
+   ]
+  }
+ },
+ "AI-MAX-MS0::U-AIMAX12": {
+  "title": "AI Capability Protective Hook",
+  "relatedSubsystems": [
+   "ai-capability"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/ai-feature-recommend.md",
+    "knowledge/wiki/architecture/engines/ai/aicapabilitymaximizerengine.md",
+    "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "PreToolUse hook stdin/stdout JSON contract",
+    "guard/block decision gating",
+    "exit-0-plus-stdout-block vs exit-2 pipe-truncation hazard"
+   ],
+   "buildNote": "A protective hook must exit 0 and signal block via stdout JSON only — exit-2 silently truncates on Windows pipes and bypasses the gate."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/comprehensive-build-enforce.md",
+    "knowledge/wiki/architecture/high-roi-hooks-ms0.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "addSeWiki": [
+    "safety-tier-discipline"
+   ],
+   "systemImpact": "A protective PreToolUse hook sits in the fleet-wide hook chain ahead of the first tool call; if it throws or mis-blocks it stalls every chat, and if it silently passes a bad payload it lets a degraded AI-capability state propagate into AI-MAX-MS0 builds. It must be wired in settings.json (an on-disk-only hook never fires) and respect MINIMAL_ALLOWLIST so a hook profile cannot disable it.",
+   "csDepth": [
+    "The exit-2 pipe-truncation hazard is Windows-specific: a non-zero exit closes the stdout pipe before the JSON block flushes, so the gate is silently bypassed — always exit 0 and signal block via stdout JSON.",
+    "Hook latency is on the critical path of every tool call; bound any file read (size cap before JSON.parse) and avoid synchronous network calls — a slow guard hook degrades the whole fleet."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-ACADEMY-CROSS-DISCIPLINARY-DEEP-LEARNING": {
+  "title": "Train CrossDisciplinaryDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "cam-deep",
+   "pp-ai",
+   "milestone-ghost",
+   "prism-deep",
+   "prism-phase3"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/courses/mit-6-s191-introduction-to-deep-learning.md",
+    "knowledge/wiki/architecture/engines/intelligence/deepaiintelligenceengine.md",
+    "knowledge/wiki/architecture/jmdie/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with train/validation split",
+    "feature extraction from a heterogeneous corpus (CAD + course + kernel)",
+    "checkpoint serialization with embedded training metadata"
+   ],
+   "buildNote": "Train against a held-out validation slice — a model that hardcodes corpus answers is worthless; verify it generalizes before promoting the checkpoint."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+    "knowledge/wiki/architecture/courses-index.md",
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md"
+   ],
+   "addSeWiki": [
+    "physics-constants-discipline"
+   ],
+   "systemImpact": "CrossDisciplinaryDeepLearningEngine is PRISM's cross-domain synthesis entry point (15 scientific domains); a checkpoint that overfits the JM-DIE corpus poisons every consumer of prismCreativeReasoningEngine and the recommendAIFeatures path. Per the pre-revenue doctrine, all revenue milestones are gated behind this training pass landing correctly.",
+   "csDepth": [
+    "A heterogeneous corpus (CAD + course + kernel) needs per-source feature normalization before the train/validation split — splitting raw then normalizing leaks validation statistics into training (the NN-GRAPH stratified-negative lesson).",
+    "Checkpoint serialization must embed training metadata (corpus fingerprint, split seed, epoch) so the U2 self-retrain lifecycle can decide promote/decline deterministically; an undated checkpoint cannot be drift-compared."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-ACADEMY-MIT-COURSE-DEEP-LEARNING": {
+  "title": "Train MITCourseDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "mit-6",
+   "academy-course",
+   "academy-start"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/courses/mit-6-s191-introduction-to-deep-learning.md",
+    "knowledge/wiki/architecture/courses/220-course-knowledge-base-extracted.md",
+    "knowledge/wiki/architecture/courses-index.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "corpus tokenization and chunking",
+    "supervised training loop with validation split",
+    "course-content to KnowledgeTip routing"
+   ],
+   "buildNote": "Probe the course-corpus JSON schema before ingesting — assuming a shape without reading the file is the recurring schema-blindness bug."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/knowledge-conversion-ms0.md",
+    "knowledge/wiki/architecture/tribal-corpus-index.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "physics-constants-discipline"
+   ],
+   "systemImpact": "MITCourseDeepLearningEngine feeds the course-content-to-KnowledgeTip routing that the cad-engine knowledge_store auto-loads; a bad checkpoint degrades tribal-tip recommendations across /pdf-learn and /video-learn outputs. KNOWLEDGE-CONVERSION-MS0's Lane A/B/C router consumes the same corpus, so schema agreement matters.",
+   "csDepth": [
+    "Corpus chunking choice (fixed-window vs semantic) determines feature granularity — fixed-window is O(n) and reproducible; semantic chunking risks non-determinism that breaks the regression oracle.",
+    "Probe the course-corpus JSON schemaVersion before ingest — the recurring schema-blindness bug is assuming totals.* vs top-level field placement without reading the file."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-CAM-CAM-DEEP-LEARNING": {
+  "title": "Train CAMDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "pp-ai",
+   "cam-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/jmdie/"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with train/validation split",
+    "CAM toolpath feature vectorization",
+    "k-NN / similarity index over training examples"
+   ],
+   "buildNote": "Hold out a validation slice from the 76K JM-DIE corpus and assert real accuracy before promoting — never train and evaluate on the same data."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+   ],
+   "addSeWiki": [
+    "physics-constants-discipline"
+   ],
+   "systemImpact": "CAMDeepLearningEngine's strategy predictions are consumed by camDispatcher toolpath selection; a checkpoint that memorizes JM-DIE answers ships wrong CAM strategy recommendations into the print-to-program pipeline, breaking DOMAIN-PIPELINE-MS0's TOOLPATH_GEN stage. The CAM orchestrator unit (sibling) wraps this engine.",
+   "csDepth": [
+    "A k-NN similarity index over training examples is O(n) per query without an ANN structure — for a 76K corpus build a ball-tree / HNSW index or queries dominate inference latency.",
+    "CAM toolpath feature vectorization must be order-invariant where toolpath operations commute; encoding operation order into the vector causes the model to learn a spurious sequencing signal."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-CAM-CAM-DEEP-LEARNING-ORCHESTRATOR": {
+  "title": "Train CAMDeepLearningOrchestratorEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "pp-ai",
+   "cam-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md",
+    "knowledge/wiki/architecture/domain-cam.md",
+    "knowledge/wiki/architecture/engines/auto/automaticpipelinecomposerengine.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "orchestration of multiple sub-model training stages",
+    "supervised training loop with validation split",
+    "ensemble aggregation of per-engine predictions"
+   ],
+   "buildNote": "An orchestrator must fail loud if any wrapped CAM deep-learning engine is missing — never silently skip a sub-model and report success."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/domain-pipeline-ms0.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "The CAM orchestrator ensembles per-engine CAM deep-learning predictions; if a wrapped engine is missing it must fail loud, not silently drop a sub-model — a silent skip degrades the ensemble's accuracy invisibly and the DOMAIN-PIPELINE-MS0 orchestrator stage that depends on it ships wrong toolpaths with full confidence.",
+   "csDepth": [
+    "Ensemble aggregation must define a tie/abstain policy — if sub-models disagree at equal weight, returning an arbitrary winner hides genuine uncertainty; surface it (R12).",
+    "Orchestrating multiple training stages introduces a partial-failure mode: a crash on stage 3 of 5 leaves stages 1-2 checkpoints written — make stage writes atomic and resumable, not all-or-nothing in memory."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-CAM-FUSION-DEEP-LEARNING": {
+  "title": "Train FusionDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "pp-ai",
+   "cam-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/fusion/fusion360aiorchestrationengine.md",
+    "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md",
+    "knowledge/wiki/architecture/domain-fusion.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "Fusion 360 .f3d feature extraction",
+    "checkpoint serialization with training metadata"
+   ],
+   "buildNote": "FusionDeepLearningEngine is a ghost/unbuilt engine — build it before training; verify generalization on a held-out slice."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "FusionDeepLearningEngine is a ghost/unbuilt engine — it must be built before training, and once built it feeds Fusion360AIOrchestrationEngine and the CAD-automation Fusion bridge. The cad-fusion-training-ms0 wiki records that Fusion cloud is unreachable without Forge creds, so the corpus pivots to Inventor/STEP — this unit must use that same transferable B-rep corpus.",
+   "csDepth": [
+    "Building a ghost engine first means running duplicationGuardEngine.mustCheckBeforeCreating — a 'ghost' flag is sometimes digest-staleness, the engine may already exist unwired.",
+    ".f3d feature extraction must handle the proprietary binary format gracefully; a parse failure on one file must not abort the whole corpus ingest — collect-and-continue with a logged skip count."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-CAM-HYPER-MILL-DEEP-LEARNING": {
+  "title": "Train HyperMillDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "pp-ai",
+   "cam-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/hyper/hypermillfunctionindexengine.md",
+    "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md",
+    "knowledge/wiki/architecture/domain-hyper.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "hyperMILL strategy feature vectorization",
+    "k-NN similarity over training examples"
+   ],
+   "buildNote": "HyperMillDeepLearningEngine is a ghost engine — build then train; assert real accuracy on held-out hyperMILL programs."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/domain-hyper.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "HyperMillDeepLearningEngine (ghost) once built feeds hyperMILL strategy selection through camDispatcher and the hyperMILL automation bridge (CAD-AUTOMATION-MS0::U-CAUT07). hyperMILL has 25 already-extracted assets — do not re-extract; the model should consume the existing function index.",
+   "csDepth": [
+    "hyperMILL strategy feature vectorization shares structure with the generic CAM engine — extract a shared vectorizer to avoid two divergent feature spaces that the orchestrator cannot ensemble.",
+    "k-NN over a sparse strategy space risks empty neighborhoods for rare strategies; fall back to a class-prior rather than returning a nearest-but-irrelevant match."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-CAM-MASTERCAM-DEEP-LEARNING": {
+  "title": "Train MastercamDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "mastercam-deep",
+   "pp-ai",
+   "cam-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/cam/mastercammultiaxisengine.md",
+    "knowledge/wiki/architecture/engines/cam/camdeeplearningengine.md",
+    "knowledge/wiki/architecture/domain-mastercam.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "Mastercam strategy-selection feature extraction",
+    "softmax classification over strategy classes"
+   ],
+   "buildNote": "MastercamDeepLearningEngine is a ghost engine — build it, then train on JM-DIE Mastercam programs; verify strategy-prediction accuracy on a held-out set."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/u-bridge-wire-mastercam-2026-05-18.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "MastercamDeepLearningEngine (ghost) feeds Mastercam strategy selection consumed by camDispatcher and MastercamMultiAxisEngine. Mastercam has 45 already-extracted assets — the model trains on those, not a re-extraction. A bad checkpoint mis-routes the most-used CAM vendor's strategy.",
+   "csDepth": [
+    "Softmax classification over strategy classes needs class-balanced sampling — a JM-DIE corpus heavily skewed toward a few strategies trains a model that always predicts the majority class with high softmax confidence.",
+    "Validate prediction accuracy with a stratified held-out set so each strategy class is represented in evaluation, not just the common ones."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-DATABASE-TOOL-DATABASE-DEEP-LEARNING": {
+  "title": "Train ToolDatabaseDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "prism-tool",
+   "prism-cutting",
+   "stat-learning"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/tool/tooldatabasebridgeengine.md",
+    "knowledge/wiki/architecture/domain-tool.md",
+    "knowledge/wiki/architecture/engines/intelligence/deepaiintelligenceengine.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "tool-database record embedding / feature vectorization",
+    "similarity search over the tool catalog"
+   ],
+   "buildNote": "ToolDatabaseDeepLearningEngine is a ghost engine — build it, train on the tool catalog, and validate recommendations against held-out tool usage."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/domain-tool.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "schema-read-discipline"
+   ],
+   "systemImpact": "ToolDatabaseDeepLearningEngine (ghost) once built recommends tools consumed by speed/feed and CAM toolpath units; a checkpoint that overfits poisons tool selection across the print-to-program TOOLING_SELECT stage. The tool catalog is the ground-truth source — schema-probe it before embedding.",
+   "csDepth": [
+    "Tool-record embedding must handle mixed categorical (material, coating) and continuous (diameter, flute count) features — one-hot the categoricals or the model treats nominal codes as ordinal.",
+    "Similarity search over the tool catalog is a nearest-neighbor query; for an updatable catalog choose an index that supports incremental insert, or every catalog update forces a full rebuild."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-LATHE-LATHE-DEEP-LEARNING": {
+  "title": "Train LatheDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "lathe-deep",
+   "lathe-full",
+   "ai-lathe",
+   "ai-training",
+   "lathe-erp"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/lathe/lathedeeplearningengine.md",
+    "knowledge/wiki/architecture/engines/lathe/lathedeepreasoningengine.md",
+    "knowledge/wiki/architecture/domain-lathe.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with train/validation split",
+    "lathe-program feature extraction",
+    "checkpoint serialization with training metadata"
+   ],
+   "buildNote": "Train LatheDeepLearningEngine on a held-out validation slice of the lathe archive — assert real prediction accuracy before promoting the checkpoint."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-turning.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/predict-with-trend-method.md"
+   ],
+   "addSeWiki": [
+    "physics-constants-discipline"
+   ],
+   "systemImpact": "LatheDeepLearningEngine feeds turningDispatcher and the lathe studio pipeline; a regression mis-predicts lathe program parameters consumed by DOMAIN-PIPELINE-MS0's lathe FULL_PIPELINE. LatheDeepReasoningEngine (sibling) shares the lathe corpus, so feature-space agreement matters.",
+   "csDepth": [
+    "Lathe-program feature extraction must canonicalize G-code dialect first (Okuma S[Vnn] vs Fanuc S-numeric) — the regex trap documented in PRISM regressions causes the model to learn dialect noise as signal.",
+    "Train/validation split should be by program (not by line) so a held-out program is wholly unseen — line-level splitting leaks the same program's structure into both sets."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-LATHE-LATHE-DEEP-LEARNING-INTELLIGENCE": {
+  "title": "Train LatheDeepLearningIntelligenceEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "lathe-deep",
+   "lathe-full",
+   "ai-lathe",
+   "ai-training",
+   "lathe-erp"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/lathe/lathedeepreasoningengine.md",
+    "knowledge/wiki/architecture/engines/intelligence/deepaiintelligenceengine.md",
+    "knowledge/wiki/architecture/domain-lathe.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "reasoning-chain feature vectorization",
+    "k-NN similarity over training examples"
+   ],
+   "buildNote": "LatheDeepLearningIntelligenceEngine is a ghost engine — build then train; verify generalization on held-out lathe programs."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-turning.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "physics-constants-discipline"
+   ],
+   "systemImpact": "LatheDeepLearningIntelligenceEngine (ghost) once built layers reasoning-chain inference over LatheDeepReasoningEngine; it is consumed by the lathe AGI master path. A ghost-build must dedup-check first — the intelligence-tier engine may overlap an existing reasoning engine.",
+   "csDepth": [
+    "Reasoning-chain feature vectorization over variable-length chains needs a fixed-dimension encoding (pooling or attention) — padding to a max length wastes capacity and biases toward short chains.",
+    "k-NN similarity over training examples must define a distance metric appropriate to the embedding space — cosine for normalized embeddings, not Euclidean, or magnitude dominates."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-LATHE-LATHE-KINEMATICS-DEEP-LEARNING": {
+  "title": "Train LatheKinematicsDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "lathe-deep",
+   "lathe-full",
+   "ai-lathe",
+   "ai-training",
+   "lathe-erp"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/lathe/lathekinematicsdeeplearningengine.md",
+    "knowledge/wiki/architecture/engines/five/inversekinematicssolverengine.md",
+    "knowledge/wiki/architecture/domain-kinematic.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "kinematic-chain feature representation",
+    "forward/inverse kinematics ground-truth labelling"
+   ],
+   "buildNote": "Kinematics labels must come from canonical FK/IK math — never let the model invent kinematics; validate against analytically-computed ground truth."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/domain-kinematic.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-turning.md"
+   ],
+   "addSeWiki": [
+    "safety-tier-discipline",
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "LatheKinematicsDeepLearningEngine predictions feed the lathe kinematic-validity path; if the model invents kinematics rather than deferring to canonical FK/IK math, downstream collision and work-envelope checks accept physically impossible programs. Kinematics labels are safety-relevant ground truth.",
+   "csDepth": [
+    "Forward/inverse kinematics ground-truth labelling must come from the deterministic InverseKinematicsSolverEngine — never let the trained model become the authority on kinematics; it is an accelerator over math, not a replacement.",
+    "IK can have multiple valid solutions (elbow-up/elbow-down); the labelling must pick a canonical branch consistently or the model trains on contradictory labels for identical inputs."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-LATHE-LATHE-META-LEARNING": {
+  "title": "Train LatheMetaLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "ai-lathe",
+   "ai-training",
+   "lathe-erp",
+   "lathe-postgen",
+   "lathe-sf"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/milling/millingmetalearningengine.md",
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/domain-lathe.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "meta-learning (learn-to-learn) inner/outer loop",
+    "MAML-style gradient adaptation",
+    "task-distribution sampling"
+   ],
+   "buildNote": "Meta-learning needs a distribution of tasks, not one dataset — partition the lathe corpus into distinct tasks and validate fast-adaptation on unseen tasks."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-turning.md"
+   ],
+   "addSeWiki": [
+    "test-design-real-values"
+   ],
+   "systemImpact": "LatheMetaLearningEngine produces fast-adapting models for new lathe tasks; its meta-learned initialization feeds LatheDeepLearningEngine fine-tuning. If the task partition is wrong it learns a single-task model masquerading as a meta-learner — every downstream fast-adapt claim is then false.",
+   "csDepth": [
+    "Meta-learning needs a distribution of tasks — partition the lathe corpus by material/operation/machine into distinct tasks; treating one dataset as one task collapses MAML to ordinary training.",
+    "MAML's inner/outer loop is second-order (gradient through a gradient); first-order approximation (FOMAML) is cheaper — choose explicitly and document the accuracy/cost tradeoff."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-LATHE-LATHE-SPEED-FEED-DEEP-LEARNING-ADVISOR": {
+  "title": "Train LatheSpeedFeedDeepLearningAdvisorEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "speed-feed",
+   "auto-speed",
+   "lathe-deep",
+   "lathe-speed",
+   "ai-lathe"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/auto/autospeedfeedcalculatorengine.md",
+    "knowledge/wiki/architecture/engines/lathe/lathedeeplearningengine.md",
+    "knowledge/wiki/architecture/domain-lathe.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "supervised regression for speed/feed prediction",
+    "feature extraction (material, tool, depth-of-cut)",
+    "Kienzle/Taylor physics ground-truth labelling"
+   ],
+   "buildNote": "Speed/feed predictions must stay bounded by canonical Kienzle/Taylor physics — never inline constants; cross-check ML output against the physics envelope."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/domain-calc.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "LatheSpeedFeedDeepLearningAdvisorEngine output feeds the lathe speed/feed advisory consumed by /auto-speed-feed-lathe and the SPEED_FEED pipeline stage; an ML prediction outside the Kienzle/Taylor physics envelope produces unsafe spindle/feed values that the SAFETY_VALIDATE stage must catch — but the advisor must self-clamp first.",
+   "csDepth": [
+    "ML speed/feed output must be clamped to the canonical physics envelope post-prediction — the model is an interpolator within the safe region, never an extrapolator past it.",
+    "Speed/feed is a regression target with heteroscedastic noise (variance grows with cut depth) — a plain MSE loss underweights high-DOC error; consider a relative or quantile loss."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MILL-FIVE-AXIS-AI-ULTRA-INTELLIGENCE": {
+  "title": "Train FiveAxisAIUltraIntelligenceEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "five-axis"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/five/tiltangleoptimizationengine.md",
+    "knowledge/wiki/architecture/engines/five/workenvelopevalidatorengine.md",
+    "knowledge/wiki/architecture/dispatcher-fiveaxis.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "5-axis collision-avoidance feature representation",
+    "tilt-angle optimization labelling"
+   ],
+   "buildNote": "FiveAxisAIUltraIntelligenceEngine is a ghost engine — build it; collision-avoidance predictions must defer to the deterministic collision engine, never override it."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-fiveaxis.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-five.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "FiveAxisAIUltraIntelligenceEngine (ghost) once built feeds 5-axis tilt/collision advisory; its collision-avoidance predictions must DEFER to the deterministic collision engine, never override it — a model that overrides a deterministic safety check ships a crash. fiveAxisDispatcher consumers depend on this hierarchy.",
+   "csDepth": [
+    "Collision-avoidance is a hard safety constraint, not a learned objective — the ML layer proposes tilt candidates, the deterministic WorkEnvelopeValidatorEngine vetoes; this two-tier design must be enforced structurally, not by convention.",
+    "5-axis collision feature representation is high-dimensional (tool + part + fixture geometry); dimensionality reduction risks discarding the exact feature that distinguishes a near-miss from a crash."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MILL-FIVE-AXIS-DEEP-LEARNING": {
+  "title": "Train FiveAxisDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "five-axis",
+   "mill-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/five/tiltangleoptimizationengine.md",
+    "knowledge/wiki/architecture/engines/milling/millingdeepreasoningengine.md",
+    "knowledge/wiki/architecture/dispatcher-fiveaxis.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "schema-read-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "5-axis toolpath feature vectorization",
+    "checkpoint serialization with training metadata"
+   ],
+   "buildNote": "FiveAxisDeepLearningEngine is a ghost engine — build then train; validate on held-out 5-axis programs and keep collision logic deterministic."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-fiveaxis.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-five.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "safety-tier-discipline"
+   ],
+   "systemImpact": "FiveAxisDeepLearningEngine (ghost) feeds 5-axis toolpath optimization through fiveAxisDispatcher; collision logic must stay deterministic — the model optimizes within the validated region only. Downstream the FiveAxis ultra-intelligence engine (sibling) ensembles this.",
+   "csDepth": [
+    "5-axis toolpath feature vectorization must encode the rotary-axis pair correctly (the rotation_order 2-char rotary-pair convention from PRISM regressions) — mislabeling A/B/C pairs trains the model on inconsistent kinematics.",
+    "Validation on held-out 5-axis programs must check no predicted toolpath enters a collision state — accuracy alone is insufficient for a safety-adjacent model."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MILL-MILL-DEEP-LEARNING": {
+  "title": "Train MillDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "mill-deep",
+   "pp-ai",
+   "milestone-ghost",
+   "prism-deep"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/milling/millingdeepreasoningengine.md",
+    "knowledge/wiki/architecture/engines/milling/millingdeepintegrationengine.md",
+    "knowledge/wiki/architecture/domain-mill.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with train/validation split",
+    "milling-program feature extraction",
+    "checkpoint serialization with training metadata"
+   ],
+   "buildNote": "MillDeepLearningEngine is a ghost engine — build then train on the 76K corpus; assert real accuracy on a held-out mill-program slice."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-mill.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/predict-with-trend-method.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "MillDeepLearningEngine (ghost) feeds milling program prediction through millDispatcher and the mill studio; a ghost-build must dedup-check against MillingDeepReasoningEngine and MillingDeepIntegrationEngine first — the milling domain has dense engine coverage. DOMAIN-PIPELINE-MS0's mill FULL_PIPELINE consumes it.",
+   "csDepth": [
+    "Milling-program feature extraction over a 76K corpus is the memory bottleneck — stream the corpus and accumulate features incrementally rather than loading all programs into memory.",
+    "Train/validation split by program with a fixed seed makes the regression oracle reproducible; an unseeded split makes accuracy non-comparable across runs."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MILL-MILLING-AI-ULTRA-INTELLIGENCE": {
+  "title": "Train MillingAIUltraIntelligenceEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "mill-milling",
+   "milling-lora",
+   "milling-head",
+   "process-full",
+   "xproc-neural"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/milling/millingdeepknowledgesynthesisengine.md",
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/domain-milling.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "LoRA fine-tuning (low-rank adapter)",
+    "supervised training loop with validation split",
+    "knowledge synthesis / ensemble fusion"
+   ],
+   "buildNote": "MillingAIUltraIntelligenceEngine is a ghost engine — build it; if using LoRA adapters, verify rank allocation and validate on held-out tasks."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ml/federatedloraengine.md",
+    "knowledge/wiki/architecture/engines/ml/adalorarankallocatorengine.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "MillingAIUltraIntelligenceEngine (ghost) is the top-tier milling intelligence consumed by the milling AGI master path; if it uses LoRA adapters, the AdaLoRARankAllocatorEngine and FederatedLoRAEngine govern rank — a mis-sized adapter underfits or wastes capacity, degrading every milling reasoning consumer.",
+   "csDepth": [
+    "LoRA rank allocation is a capacity/cost tradeoff — too low underfits the milling-strategy manifold, too high erases the parameter-efficiency benefit; let AdaLoRARankAllocatorEngine decide rather than hardcoding rank.",
+    "Knowledge synthesis / ensemble fusion across sub-models needs a fusion weight that is itself validated — uniform averaging assumes equal sub-model competence, which is rarely true."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MILL-MILLING-META-LEARNING": {
+  "title": "Train MillingMetaLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "mill-meta",
+   "mill-milling",
+   "milling-lora",
+   "millingmetalearningengine"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/milling/millingmetalearningengine.md",
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/domain-milling.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "meta-learning inner/outer loop",
+    "MAML-style gradient adaptation",
+    "task-distribution sampling"
+   ],
+   "buildNote": "Partition the milling corpus into distinct tasks for the meta-learner — validate fast-adaptation on tasks held out of the meta-training set."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-mill.md"
+   ],
+   "addSeWiki": [
+    "test-design-real-values"
+   ],
+   "systemImpact": "MillingMetaLearningEngine produces fast-adapting milling models; its meta-learned init feeds MillDeepLearningEngine fine-tuning and is referenced by the milling tribal-corpus bridge. A bad task partition collapses the meta-learner to single-task training, invalidating all fast-adapt claims downstream.",
+   "csDepth": [
+    "Partition the milling corpus into distinct tasks (by material/feature/machine) — the meta-learner's value is fast adaptation to an UNSEEN task, so the held-out validation tasks must not overlap meta-training tasks.",
+    "MAML inner/outer loop second-order gradients are memory-heavy on a large corpus — batch task sampling and consider FOMAML to bound memory."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MILL-VIRTUAL-MACHINING-DEEP-LEARNING": {
+  "title": "Train VirtualMachiningDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "mill-deep",
+   "virtual-machining",
+   "pp-ai",
+   "milestone-ghost"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/milling/millingdeepintegrationengine.md",
+    "knowledge/wiki/architecture/engines/milling/millingdeepreasoningengine.md",
+    "knowledge/wiki/architecture/domain-mill.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "virtual-machining simulation feature extraction",
+    "checkpoint serialization with metadata"
+   ],
+   "buildNote": "VirtualMachiningDeepLearningEngine is a ghost engine — build then train; validate simulated predictions against real machining outcomes."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-mill.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-mill.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "VirtualMachiningDeepLearningEngine (ghost) once built predicts machining-simulation outcomes consumed by the SIMULATE pipeline stage; predictions that diverge from real machining outcomes give operators false confidence at the pre-machine gate.",
+   "csDepth": [
+    "Simulated predictions must be validated against REAL machining outcomes, not against the simulator that generated the training labels — a sim-to-sim loop just learns the simulator's biases.",
+    "Virtual-machining simulation feature extraction is high-dimensional spatiotemporal data; choose a representation (voxel grid vs feature summary) that the downstream model can consume without OOM."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-MISC-META-LEARNING-OPTIMIZER": {
+  "title": "Train MetaLearningOptimizerEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "meta-learning"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/engines/ml/gradientoptimizationengine.md",
+    "knowledge/wiki/architecture/domain-ai.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "meta-learning (learn-to-learn) inner/outer loop",
+    "gradient-based optimizer state",
+    "task-distribution sampling"
+   ],
+   "buildNote": "The meta-learning optimizer trains over a task distribution — validate that learned hyperparameters transfer to unseen tasks, not just memorize the training tasks."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ml/gradientoptimizationengine.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "addSeWiki": [
+    "test-design-real-values"
+   ],
+   "systemImpact": "MetaLearningOptimizerEngine is the shared meta-learning substrate referenced by every domain meta-learning unit (lathe, milling, post-processor) — a regression here propagates to all of them. It is the highest-leverage AI-training unit because it is a common dependency.",
+   "csDepth": [
+    "The optimizer learns hyperparameters over a task distribution — validate that learned hyperparameters TRANSFER to unseen tasks, not just minimize loss on the training tasks (the overfit-to-task-set failure mode).",
+    "Gradient-based optimizer state (momentum, adaptive LR) must be serialized with the checkpoint so a resumed meta-training run does not silently restart the optimizer from cold."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-POST-CNC-CONTROLLER-DEEP-LEARNING": {
+  "title": "Train CNCControllerDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "master-post",
+   "post-get",
+   "hobby-cnc",
+   "pp-ai",
+   "milestone-ghost"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/post/postprocessordeepcognitionengine.md",
+    "knowledge/wiki/architecture/engines/cam/masterpostprocessorengine.md",
+    "knowledge/wiki/architecture/dispatcher-pp.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "CNC controller-dialect feature extraction (G/M-code grammar)",
+    "classification over controller families"
+   ],
+   "buildNote": "CNCControllerDeepLearningEngine is a ghost engine — build then train on multi-controller G-code; validate dialect classification on held-out programs."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-pp.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-pp.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "CNCControllerDeepLearningEngine (ghost) once built classifies controller dialects feeding the post-processor pipeline; a mis-classified dialect routes G-code through the wrong post-processor template, producing NC output the machine rejects. ppDispatcher and the master post-processor consume this.",
+   "csDepth": [
+    "Controller-dialect classification over G/M-code grammar — extract grammar-level features (canned-cycle codes, address-word patterns), not raw text, or the model learns comment-style noise.",
+    "Controller families are imbalanced in any real corpus (Fanuc/Haas dominate); class-balance the training set or the model never learns rare dialects."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-POST-POST-PROCESSOR-DEEP-LEARNING": {
+  "title": "Train PostProcessorDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "sampling-post",
+   "post-full",
+   "post-validate",
+   "post-processor",
+   "prism-post"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/post/postprocessordeepcognitionengine.md",
+    "knowledge/wiki/architecture/engines/post/postprocessorunifieddeepreasoningengine.md",
+    "knowledge/wiki/architecture/dispatcher-pp.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "post-processor template feature extraction",
+    "checkpoint serialization with metadata"
+   ],
+   "buildNote": "PostProcessorDeepLearningEngine is a ghost engine — build then train; validate generated post-processor logic against rendered NC output."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-pp.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/domain-pp.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "PostProcessorDeepLearningEngine (ghost) feeds post-processor logic generation consumed by ppDispatcher and the POST_PROCESS pipeline stage; generated logic must be validated against rendered NC output — a model that produces plausible-but-wrong post logic ships broken NC programs.",
+   "csDepth": [
+    "Validate generated post-processor logic by RENDERING it and parsing the NC output, not by string-similarity to a reference — the post-processor's correctness is in the rendered program, not the template text.",
+    "Post-processor template feature extraction must capture the template's control-flow structure (conditionals, blocks), not just token frequency."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-POST-POST-PROCESSOR-META-LEARNING": {
+  "title": "Train PostProcessorMetaLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "sampling-post",
+   "post-full",
+   "post-validate",
+   "post-processor",
+   "postprocessormetalearningengine"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/post/postprocessormetalearningengine.md",
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/dispatcher-pp.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "meta-learning inner/outer loop",
+    "MAML-style gradient adaptation",
+    "per-controller task partitioning"
+   ],
+   "buildNote": "Partition the post-processor corpus by controller family as distinct tasks — validate fast-adaptation to a new controller held out of meta-training."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/dispatcher-pp.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "test-design-real-values"
+   ],
+   "systemImpact": "PostProcessorMetaLearningEngine produces fast-adapting post-processor models; its value is adapting to a NEW controller with few examples. The task partition is by controller family — if a held-out controller leaks into meta-training, the fast-adapt claim consumed by ppDispatcher is false.",
+   "csDepth": [
+    "Partition the post-processor corpus by controller family as distinct meta-learning tasks — fast-adaptation must be validated on a controller family entirely held out of meta-training.",
+    "A new controller often has very few examples — the inner-loop adaptation must be stable in the few-shot regime; verify it does not diverge with a tiny support set."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-SPEEDFEED-SPEED-FEED-DEEP-LEARNING": {
+  "title": "Train SpeedFeedDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "speed-feed",
+   "ai-resource",
+   "ultimate-speed",
+   "auto-speed"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/auto/autospeedfeedcalculatorengine.md",
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/domain-calc.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "supervised regression for speed/feed prediction",
+    "feature extraction (material ISO group, tool, DOC)",
+    "Kienzle/Taylor physics ground-truth labelling"
+   ],
+   "buildNote": "SpeedFeedDeepLearningEngine output must be clamped to the canonical physics envelope — import constants from constants.ts, never inline kc1.1 values."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-vibrationphysics.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "SpeedFeedDeepLearningEngine output feeds calcDispatcher speed/feed advisory and the SPEED_FEED pipeline stage across all domains; it is a cross-domain consumer, so a regression affects mill, lathe, and CAM pipelines. Output must be clamped to the canonical physics envelope (constants.ts kc1.1 values).",
+   "csDepth": [
+    "Never inline kc1.1 / Kienzle / Taylor constants — import from constants.ts; the ML output is bounded by physics, and the bound's source of truth must be the canonical file (P=1800, M=2100, K=1100, N=700, S=2800, H=3200).",
+    "Feature extraction must key material on the ISO group, not free-text material name — a name-string feature fragments the same material across spelling variants."
+   ]
+  }
+ },
+ "AI-TRAINING-FIRST-MS0::U-AITRAIN-WIRE-ELECTRODE-DEEP-LEARNING": {
+  "title": "Train ElectrodeDeepLearningEngine on full pre-revenue corpus (JM-DIE 76K + MIT-OCW + v8.89 MIT kernels)",
+  "relatedSubsystems": [
+   "electrode-deep",
+   "pp-ai",
+   "milestone-ghost",
+   "prism-deep",
+   "prism-phase3"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-training-first-ms0.md",
+    "knowledge/wiki/architecture/engines/wedm/electrodedeeplearningengine.md",
+    "knowledge/wiki/architecture/engines/wedm/electrodedesignengine.md",
+    "knowledge/wiki/architecture/domain-wedm.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "supervised training loop with validation split",
+    "electrode-geometry feature extraction",
+    "EDM physics ground-truth labelling"
+   ],
+   "buildNote": "Train ElectrodeDeepLearningEngine on a held-out validation slice; electrode-design predictions must respect EDM physics constants, not be invented by the model."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/domain-wedm.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-edm.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "ElectrodeDeepLearningEngine feeds electrode-design recommendations through edmDispatcher consumed by ElectrodeDesignEngine and the WEDM/sinker EDM pipeline; predictions must respect EDM physics constants — a model that invents electrode geometry ships unmachinable electrode designs into APPW-MS8's sinker EDM bridge.",
+   "csDepth": [
+    "Electrode-geometry feature extraction must encode the geometric envelope (overburn, spark gap) as physics-bounded features, not free parameters the model can extrapolate past.",
+    "EDM physics ground-truth labelling must come from canonical EDM constants — the WEDM domain has 62 engines; the trained model is an accelerator over that physics, never the authority."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW01": {
+  "title": "Wire AI Core Engines to aiReasoningDispatcher",
+  "relatedSubsystems": [
+   "aireasoningdispatcher-lora",
+   "aireasoningdispatcher-tier10",
+   "Wire",
+   "edm-wire",
+   "wire-drawing"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/engines/ai/manufacturingreasoningengine.md",
+    "knowledge/wiki/architecture/domain-ai.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "Zod schema validation at the MCP boundary",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Wiring is incomplete unless the action appears in the z.enum(ACTIONS) gate AND has a real executor body — a ghost-wired enum entry 100% fails in production."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/wiring-potential.md",
+    "knowledge/wiki/architecture/u-wire-energy.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring AI core engines to aiReasoningDispatcher makes them reachable from the MCP surface; an enum-only ghost-wire 100% fails in production and the stop_on_unwired_assets hook will block the Stop. Every AI-MAX-MS0 and AWARE-MS0 consumer that calls aiReasoningDispatcher actions depends on these wires being real executors.",
+   "csDepth": [
+    "A wiring is incomplete unless the action is BOTH in the z.enum(ACTIONS) gate AND backed by an executor body — the ghost-wired-orphan class (enum entry + slimResponse but no executor) passes naive tests and 100%-fails live.",
+    "A MockMCPServer that bypasses the z.enum() SDK gate false-greens a missing-from-enum action — the round-trip E2E must drive the real dispatcher, not a mock."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW02": {
+  "title": "Create Schema Definitions for AI Core Actions",
+  "relatedSubsystems": [
+   "context-create",
+   "create-key",
+   "billing-create"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/registries/",
+    "knowledge/wiki/architecture/domain-ai.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Zod schema definition (object/discriminated-union)",
+    "schemaVersion field discipline",
+    "input/output contract typing"
+   ],
+   "buildNote": "Read the engine's actual input shape before writing the schema — a schema that disagrees with the engine produces a silent runtime mismatch."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "addSeWiki": [
+    "mcp-tool-design",
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "These schema definitions are the contract between the MCP boundary and the AI core engines; a schema that disagrees with the engine's actual input shape produces a silent runtime mismatch that U-AIW01's wiring then routes — schema drift here breaks every consumer downstream.",
+   "csDepth": [
+    "Read the engine's actual input signature before authoring the Zod schema — a schema written from an assumed shape is the recurring schema-blindness bug; the engine source is the source of truth.",
+    "A discriminated union schema must have an exhaustive discriminant — a missing variant makes Zod reject a valid payload at runtime, not at type-check time."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW03": {
+  "title": "Wire Safety/Guard Engines to guardDispatcher",
+  "relatedSubsystems": [
+   "wedm-wire",
+   "agi-safety",
+   "guard",
+   "bayes-safety"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-guard.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/engines/safety/agisafetycontainmentengine.md",
+    "knowledge/wiki/architecture/engines/guard/buildguardchainengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "safety-tier-discipline",
+    "per-file-scrutiny-gate",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "safety-gate guard pattern (block/allow decision)",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Guard engines must fail closed — a wiring error should default to BLOCK, never silently allow an unsafe operation through."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/domain-guard.md",
+    "knowledge/wiki/architecture/domain-safety.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring safety/guard engines to guardDispatcher makes the safety gates reachable; these are the engines AGISafetyContainmentEngine and BuildGuardChainEngine expose, so a wiring error that defaults to ALLOW silently disables a safety gate fleet-wide. Guard engines must fail closed.",
+   "csDepth": [
+    "A guard wiring must fail closed — if the dispatcher cannot reach the guard engine the default decision is BLOCK, never silent ALLOW; a fail-open guard is worse than no guard because it gives false assurance.",
+    "Safety-gate guards are on the critical path of build operations — keep the guard's executor bounded and synchronous-fast, or it becomes a fleet-wide latency sink."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW03b": {
+  "title": "Create Schema Definitions for Guard Actions",
+  "relatedSubsystems": [
+   "audit-create",
+   "osha-create",
+   "context-create",
+   "create-key",
+   "billing-create"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-guard.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/registries/",
+    "knowledge/wiki/architecture/engines/guard/buildguardchainengine.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "mcp-tool-design",
+    "safety-tier-discipline",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "Zod schema definition (object/discriminated-union)",
+    "schemaVersion field discipline",
+    "guard input/output contract typing"
+   ],
+   "buildNote": "Read each guard engine's real input shape before authoring the schema — a loose schema lets unsafe payloads reach a safety gate."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-guard.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "addSeWiki": [
+    "mcp-tool-design",
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Guard-action schemas validate payloads before they reach a safety gate; a loose schema lets a malformed or hostile payload through to the guard engine, defeating U-AIW03's fail-closed wiring. This is the input-validation layer for the safety tier.",
+   "csDepth": [
+    "Read each guard engine's real input shape before authoring the schema — a loose schema (z.any(), optional-everything) at a safety boundary is an unvalidated-input hole.",
+    "Schema validation of a safety-gate payload should reject unknown keys (strict mode), not silently strip them — a stripped key may be the one carrying the unsafe instruction."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW04": {
+  "title": "Wire Agent/Cognitive Engines to agentDispatcher",
+  "relatedSubsystems": [
+   "agent",
+   "Wire",
+   "edm-wire",
+   "wire-drawing",
+   "wire-rope"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-agent.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/engines/auto/autonomousgoalsynthesisengine.md",
+    "knowledge/wiki/architecture/domain-agent.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "agent/cognitive engine invocation contract",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Wire every agent engine to its dispatcher action with an executor body, and assert the round-trip with a real E2E — enum-only wiring is a ghost."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/domain-agent.md",
+    "knowledge/wiki/architecture/wiring-potential.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring agent/cognitive engines to agentDispatcher makes autonomous-goal and cognitive capabilities reachable; AutonomousGoalSynthesisEngine and the agent layer are consumed by orchestration units. An enum-only wire ghost-fails and the stop_on_unwired_assets hook blocks the Stop.",
+   "csDepth": [
+    "Each agent engine needs an enum entry plus a real executor body — verify with a round-trip E2E that drives the real dispatcher, not a mock that skips the enum gate.",
+    "Agent engines may have long-running invocations; the dispatcher contract should define a timeout and a cancellation path, or a wedged agent invocation blocks the dispatcher."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW04b": {
+  "title": "Create Schema Definitions for Agent Actions",
+  "relatedSubsystems": [
+   "rl-create",
+   "context-create",
+   "create-key",
+   "billing-create"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-agent.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/registries/",
+    "knowledge/wiki/architecture/domain-agent.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "Zod schema definition (object/discriminated-union)",
+    "schemaVersion field discipline",
+    "agent action input/output contract typing"
+   ],
+   "buildNote": "Read each agent engine's actual signature before writing its schema — schema drift produces a silent contract mismatch at runtime."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-agent.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "addSeWiki": [
+    "mcp-tool-design",
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Agent-action schemas are the contract between the MCP boundary and the agent engines; schema drift produces a silent runtime mismatch that U-AIW04's wiring routes — the schema must match each agent engine's actual signature.",
+   "csDepth": [
+    "Read each agent engine's actual signature before writing its schema — schema drift surfaces as a runtime contract mismatch, not a compile error.",
+    "Agent action input often nests structured goal/context objects — model these as explicit Zod object schemas with schemaVersion, not free-form records, so a version bump has a migration path."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW05": {
+  "title": "Wire Neural/Deep Learning Engines",
+  "relatedSubsystems": [
+   "ai-wedm",
+   "pp-ai",
+   "prism-deep",
+   "prism-phase3"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/engines/ai/wireedmdeepneuralreasoningengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "neural/deep-learning engine invocation contract",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Wire each neural engine to its dispatcher action AND every dispatcher that would naturally consume it — verify with a real round-trip E2E."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/nn-graph-ms0.md",
+    "knowledge/wiki/architecture/u-nng-pipeline-stratified-wire.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring neural/deep-learning engines makes the trained models from AI-TRAINING-FIRST-MS0 reachable from the MCP surface — this unit is the bridge between the training milestone and any consumer; if the wires are ghosts the trained checkpoints are unreachable. Wire to every dispatcher that would naturally consume each engine.",
+   "csDepth": [
+    "Per the WIRE-TO-ALL-SOURCES doctrine, a neural engine wires to its primary dispatcher AND every dispatcher that would naturally consume it — single-dispatcher wiring leaves the engine half-orphaned.",
+    "Verify each wire with a real round-trip E2E; a neural engine that loads a heavy checkpoint should lazy-load on first invocation so the dispatcher startup is not blocked."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW06": {
+  "title": "Wire Physics Engines to calcDispatcher/vibrationPhysicsDispatcher",
+  "relatedSubsystems": [
+   "calcdispatcher-campaign",
+   "calcdispatcher-quick",
+   "calcdispatcher-peck",
+   "calcdispatcher-roughness",
+   "calcdispatcher-smart"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/dispatcher-vibrationphysics.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/domain-physics.md"
+   ],
+   "seWiki": [
+    "physics-constants-discipline",
+    "safety-tier-discipline",
+    "test-design-real-values",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "physics-engine invocation contract",
+    "real-reference-value test assertion"
+   ],
+   "buildNote": "Physics engines wire to BOTH calc and safety/vibration dispatchers — never inline constants in the wiring layer; import from constants.ts."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/dispatcher-vibrationphysics.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring physics engines to BOTH calcDispatcher and vibrationPhysicsDispatcher (the WIRE-TO-ALL-SOURCES rule for physics) makes manufacturing physics reachable; physics engines are consumed by speed/feed, safety, and chatter units. A wiring layer that inlines a constant fragments the canonical-constants source of truth.",
+   "csDepth": [
+    "Never inline physics constants in the wiring layer — import from constants.ts; the wiring is a router, not a place for kc1.1 values.",
+    "Physics engine tests must use real reference values and algebraic invariants — a toBeDefined() stub for a physics result is hook-rejected and proves nothing about the computed force/temperature."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW07a": {
+  "title": "Comprehensive Test Coverage for All New Actions",
+  "relatedSubsystems": [
+   "dev-test",
+   "test-coverage",
+   "blueprint-coverage",
+   "xproc-causal"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/engines/dev/testcoverageindexengine.md",
+    "knowledge/wiki/architecture/engines/dev/autotestgeneratorengine.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "mcp-tool-design"
+   ],
+   "csKnowledge": [
+    "coverage instrumentation (line/branch)",
+    "real-reference-value test assertion",
+    "round-trip E2E through every wired dispatcher"
+   ],
+   "buildNote": "Tests must encode why the behavior matters with real reference values — toBeDefined() stubs are hook-rejected and prove nothing."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/dev/autotestgeneratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "addSeWiki": [
+    "per-file-scrutiny-gate"
+   ],
+   "systemImpact": "Comprehensive test coverage for all new AI-WIRE-MS0 actions is the regression oracle for the whole milestone; without real-value round-trip E2Es a ghost-wired action ships green. The scrutinize-before-stop 3-of-3 gate and stop_on_failing_tests hook depend on these tests being real.",
+   "csDepth": [
+    "Tests must encode WHY the behavior matters with real reference values — toBeDefined() stubs are hook-rejected; a test that passes against a hardcoded return value verifies nothing (R9).",
+    "Round-trip E2E through every wired dispatcher (not only the primary one) is the WIRE-TO-ALL-SOURCES acceptance criterion — coverage of one dispatcher leaves the other wires unverified."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW07b": {
+  "title": "Documentation Update + Index Refresh",
+  "relatedSubsystems": [
+   "wedm-full",
+   "belief-update",
+   "xproc-bandit",
+   "xproc-online",
+   "xproc-outcome"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md",
+    "knowledge/wiki/architecture/master-index-surface.md"
+   ],
+   "seWiki": [
+    "doc-reflection-rule",
+    "wiki-automation-discipline",
+    "claude-md-as-pointer-index",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "index regeneration (idempotent rebuild)",
+    "doc-surface synchronization (4 surfaces)",
+    "atomic file write for generated indexes"
+   ],
+   "buildNote": "Update all four doc surfaces (CLAUDE.md + MEMORY.md + wiki + Obsidian) in the same session and regenerate the index — stale indexes rot within days."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/master-index-surface.md",
+    "knowledge/wiki/architecture/obsidian-memory-feed-hook.md",
+    "knowledge/wiki/architecture/wiki-propagation-watchdog-stop.md"
+   ],
+   "addSeWiki": [
+    "memory-curation-discipline"
+   ],
+   "systemImpact": "The doc + index refresh propagates the AI-WIRE-MS0 changes into the four doc surfaces and regenerates the master index; a stale index means subagent pre-search and master-index-precheck-inject miss the new actions, so future chats re-derive or duplicate them. This closes the milestone's awareness loop.",
+   "csDepth": [
+    "Index regeneration must be idempotent — a non-idempotent rebuild that appends duplicates corrupts the master index; check existing entries before write.",
+    "Generated indexes must be written atomically (temp + rename) — a reader hitting a half-written index sees truncated JSON; the system-graph multi-writer race is the cautionary case."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW08": {
+  "title": "Wire Reasoning Engines to aiReasoningDispatcher",
+  "relatedSubsystems": [
+   "aireasoningdispatcher-lora",
+   "aireasoningdispatcher-tier10",
+   "orchestrationdispatcher-cog",
+   "Wire",
+   "edm-wire"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/engines/ai/prismcreativereasoningengine.md",
+    "knowledge/wiki/architecture/domain-ai.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "reasoning-engine invocation contract",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Each reasoning engine needs an action-enum entry plus an executor body — verify the round-trip with a real E2E, not a mock that bypasses the enum gate."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ai/manufacturingreasoningengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/wiring-potential.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring reasoning engines to aiReasoningDispatcher makes PRISMCreativeReasoningEngine's cross-domain synthesis reachable; AI-MAX-MS0 skill commands and the ai-feature-recommend hook depend on these actions resolving to real executors.",
+   "csDepth": [
+    "Each reasoning engine needs an action-enum entry plus an executor body — a mock that bypasses the enum gate false-greens a missing action; the E2E must hit the real dispatcher.",
+    "Reasoning-engine invocations can be token-heavy; the dispatcher contract should expose a mode/effort parameter so callers can scope cost (R6 — token budgets are not advisory)."
+   ]
+  }
+ },
+ "AI-WIRE-MS0::U-AIW09": {
+  "title": "Wire Learning Engines to aiReasoningDispatcher",
+  "relatedSubsystems": [
+   "aireasoningdispatcher-lora",
+   "aireasoningdispatcher-tier10",
+   "orchestrationdispatcher-cog",
+   "Wire",
+   "edm-wire"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-ai-wire-ms0.md",
+    "knowledge/wiki/architecture/engines/ai/metalearningoptimizerengine.md",
+    "knowledge/wiki/architecture/engines/ml/learningcascadeengine.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "learning-engine invocation contract",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Wire learning engines to the reasoning dispatcher with real executor bodies — a mock MCP server that skips z.enum() will false-green a missing action."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ml/learningcascadeengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/nn-graph-ms0.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring learning engines to aiReasoningDispatcher makes MetaLearningOptimizerEngine and LearningCascadeEngine reachable; the AUTO-LEARNING-LOOP-MS0 milestone's auto-learning actions consume these wires, so a ghost-wire breaks the closed-loop learning pipeline.",
+   "csDepth": [
+    "A mock MCP server that skips z.enum() will false-green a missing learning action — the round-trip E2E must exercise the real enum gate (the recurring MS0-false-green class).",
+    "Learning engines may carry mutable training state; the dispatcher invocation must be explicit about whether a call mutates the engine (train) or is read-only (infer), or concurrent calls race the state."
+   ]
+  }
+ },
+ "APPW-MS8::U-APPW39": {
+  "title": "Execution Surface Materialization + /page-sweep Preflight + Coordination Sync",
+  "relatedSubsystems": [
+   "page-sweep",
+   "cad-esprit",
+   "cad-hypercads",
+   "cad-inventor",
+   "cad-mastercam"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-appw-ms8.md",
+    "knowledge/wiki/architecture/skills/",
+    "knowledge/wiki/architecture/layer-l9.md",
+    "knowledge/wiki/architecture/frontends/"
+   ],
+   "seWiki": [
+    "doc-reflection-rule",
+    "handoff-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "execution-surface materialization (route → page mapping)",
+    "preflight verification of page existence",
+    "coordination state sync across surfaces"
+   ],
+   "buildNote": "Run /page-sweep preflight before claiming a surface is materialized — verify the route actually renders, do not trust the manifest."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/layer-l9.md",
+    "knowledge/wiki/architecture/system-viz.md",
+    "knowledge/wiki/architecture/skill-auto-loader.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "Execution-surface materialization maps routes to renderable L9 frontend pages; if a surface is claimed materialized but the route 404s, every APPW-MS8 sibling that links to it ships a dead link. /page-sweep preflight is the verification gate — coordination sync keeps the surface manifest consistent with what other chats have built.",
+   "csDepth": [
+    "Verifying a surface is materialized means a real render check, not trusting the manifest — a manifest entry is an assertion, the rendered page is the evidence (R12 — 'feature works' is a lie if the page 404s).",
+    "Coordination state sync across surfaces is a concurrent-write hazard — two chats materializing surfaces simultaneously must use a lock or atomic merge, or one overwrites the other's manifest entry."
+   ]
+  }
+ },
+ "APPW-MS8::U-APPW40": {
+  "title": "Calculator Design Contract + Shell Surface Extraction",
+  "relatedSubsystems": [
+   "prism-calculator"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-appw-ms8.md",
+    "knowledge/wiki/architecture/engines/calc/",
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/frontends/"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "physics-constants-discipline"
+   ],
+   "csKnowledge": [
+    "design-contract / interface extraction",
+    "calculator shell surface composition",
+    "input/output contract typing"
+   ],
+   "buildNote": "The calculator design contract must pin the exact input/output shape — extract the shell surface from the real engine API, not an assumed one."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/domain-calc.md",
+    "knowledge/wiki/architecture/layer-l9.md"
+   ],
+   "addSeWiki": [
+    "schema-read-discipline"
+   ],
+   "systemImpact": "The calculator design contract pins the input/output shape between the L9 calculator UI and calcDispatcher; if the contract is extracted from an assumed engine API rather than the real one, the shell surface and the engine disagree and the calculator UI renders wrong results. Downstream APPW-MS8 viewer units depend on this contract.",
+   "csDepth": [
+    "Extract the shell surface from the REAL engine API signature — a contract written against an assumed shape is the schema-blindness bug at the UI/engine boundary.",
+    "The calculator contract must pin units and physics-constant provenance — a calculator that inlines a constant diverges from constants.ts and silently produces stale results."
+   ]
+  }
+ },
+ "APPW-MS8::U-APPW41B": {
+  "title": "Sinker EDM Electrode Macro/Reference Bridge + Legacy Archive Activation",
+  "relatedSubsystems": [
+   "sinker-edm",
+   "reference-post",
+   "edm-sinker"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-appw-ms8.md",
+    "knowledge/wiki/architecture/engines/wedm/sinkeredmelectrodegeometryengine.md",
+    "knowledge/wiki/architecture/engines/wedm/taptiteelectrodemacrobridgeengine.md",
+    "knowledge/wiki/architecture/domain-edm.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "macro/reference bridge adapter pattern",
+    "legacy archive activation (lazy load)",
+    "EDM electrode geometry feature mapping"
+   ],
+   "buildNote": "Bridge the legacy electrode macro archive without rewriting it — wrap with an adapter and verify the reference path resolves before activation."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-edm.md",
+    "knowledge/wiki/architecture/domain-wedm.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "git-shared-index-hazards"
+   ],
+   "systemImpact": "The electrode macro/reference bridge activates the legacy electrode-macro archive without rewriting it; SinkerEDMElectrodeGeometryEngine and the sinker EDM pipeline consume the bridged macros. If the reference path does not resolve at activation the bridge silently serves no macros — verify the path before claiming activation.",
+   "csDepth": [
+    "The bridge is an adapter over a legacy archive — wrap, do not rewrite (R8); a rewrite risks losing the macro semantics the legacy archive encodes.",
+    "Legacy archive activation should be lazy-load with a resolved-path check at activation time — a missing archive directory must fail loud, not return an empty macro set."
+   ]
+  }
+ },
+ "APPW-MS8::U-APPW43A": {
+  "title": "Viewer Contract Verification + Backplot Result Hardening",
+  "relatedSubsystems": [
+   "frontend-prism",
+   "l9-p2",
+   "api-contract",
+   "master-index"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-appw-ms8.md",
+    "knowledge/wiki/architecture/hooks/runtime/api-contract-enforcer.md",
+    "knowledge/wiki/architecture/frontends/",
+    "knowledge/wiki/architecture/layer-l9.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "API contract verification (request/response shape)",
+    "backplot result data structure validation",
+    "viewer state hardening against malformed input"
+   ],
+   "buildNote": "Verify the viewer contract by parsing real backplot results — assert concrete params, not that the response is merely defined."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/layer-l9.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "schema-read-discipline"
+   ],
+   "systemImpact": "Viewer contract verification hardens the request/response shape between the L9 backplot viewer and the CAM/toolpath backend; a viewer that accepts malformed backplot results renders garbage or crashes. The api-contract-enforcer hook depends on the contract being precisely specified.",
+   "csDepth": [
+    "Verify the viewer contract by parsing REAL backplot results and asserting concrete params — 'the response is defined' is not verification (R9/R12); assert the actual toolpath segment count, coordinates, etc.",
+    "Backplot result data structures can be large; the viewer must validate shape before deep traversal and bound memory — a malformed-but-huge payload is a DoS vector."
+   ]
+  }
+ },
+ "APPW-MS8::U-APPW44": {
+  "title": "Authoritative /page-sweep Browser Verification + Benchmark Truth Closeout",
+  "relatedSubsystems": [
+   "page-sweep",
+   "benchmark-extended",
+   "benchmark-parametric",
+   "benchmark-formula",
+   "wron-get"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-appw-ms8.md",
+    "knowledge/wiki/architecture/skills/",
+    "knowledge/wiki/architecture/frontends/",
+    "knowledge/wiki/architecture/layer-l9.md"
+   ],
+   "seWiki": [
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "browser-driven page verification (headless render check)",
+    "benchmark truth reconciliation",
+    "deterministic fixture comparison"
+   ],
+   "buildNote": "Authoritative /page-sweep means a real browser render check — fail loud if any page 404s or the benchmark numbers disagree."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/layer-l9.md",
+    "knowledge/wiki/architecture/system-viz.md",
+    "knowledge/wiki/architecture/skill-auto-loader.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Authoritative /page-sweep is the milestone's truth gate — a real headless-browser render check of every APPW-MS8 page plus benchmark reconciliation; it is the closeout verification for the whole APPW milestone. If it false-passes, dead pages and wrong benchmark numbers ship as 'done'.",
+   "csDepth": [
+    "An authoritative page-sweep must drive a real browser render, not parse the route manifest — fail loud on any 404 or benchmark disagreement (R12 — silence is not success).",
+    "Benchmark truth reconciliation needs deterministic fixtures — a benchmark that varies run-to-run cannot be reconciled; pin the fixture and the comparison tolerance."
+   ]
+  }
+ },
+ "ARCH-MS2::U-ARCH01": {
+  "title": "ARCH-MS2 — Coordinator",
+  "relatedSubsystems": [
+   "milestone-ghost",
+   "state/QA-MS2"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-arch-ms2.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-arch-ms3.md",
+    "knowledge/wiki/architecture/layer-stack-overview.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "seWiki": [
+    "handoff-discipline",
+    "doc-reflection-rule",
+    "claude-md-as-pointer-index",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "milestone coordinator / unit-orchestration pattern",
+    "dependency ordering (topological)",
+    "QA-state aggregation"
+   ],
+   "buildNote": "A coordinator unit sequences sibling units — verify dependency order and that each unit's deliverable actually shipped before closing the milestone."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/silent-close-out-drift.md",
+    "knowledge/wiki/architecture/roadmap-consolidation.md"
+   ],
+   "addSeWiki": [
+    "handoff-discipline"
+   ],
+   "systemImpact": "The ARCH-MS2 coordinator sequences sibling units and closes the milestone; if it closes the milestone while a sibling's deliverable never shipped, MILESTONE_PROGRESS and BUILD_STATE record false completion — the silent-close-out-debt class. Downstream milestones that list ARCH-MS2 as a dependency then build on phantom foundations.",
+   "csDepth": [
+    "Dependency ordering across sibling units is a topological sort — a cycle in the unit dependency graph makes the coordinator non-terminating; detect cycles explicitly.",
+    "Before closing, the coordinator must verify each unit's deliverable exists on disk AND its status is reconciled in MILESTONE_PROGRESS — file presence alone is not spec correctness (close-out-audit is advisory, human-verify)."
+   ]
+  }
+ },
+ "ARCH-MS3::U-ARCH01": {
+  "title": "ARCH-MS3 — Coordinator",
+  "relatedSubsystems": [
+   "milestone-ghost",
+   "state/QA-MS3",
+   "state/SYS-MS3"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-arch-ms3.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-arch-ms2.md",
+    "knowledge/wiki/architecture/layer-stack-overview.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "seWiki": [
+    "handoff-discipline",
+    "doc-reflection-rule",
+    "claude-md-as-pointer-index",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "milestone coordinator / unit-orchestration pattern",
+    "dependency ordering (topological)",
+    "QA-state aggregation"
+   ],
+   "buildNote": "A coordinator unit sequences sibling units — verify dependency order and shipped deliverables before declaring the milestone done."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/silent-close-out-drift.md",
+    "knowledge/wiki/architecture/roadmap-consolidation.md"
+   ],
+   "addSeWiki": [
+    "handoff-discipline"
+   ],
+   "systemImpact": "The ARCH-MS3 coordinator sequences ARCH-MS3 units and is itself a dependency of ARCH-MS4 (which references ms3); a premature close cascades a false-complete state forward into ARCH-MS4's coordinator, which then sequences against a foundation that may not exist.",
+   "csDepth": [
+    "QA-state aggregation across units must define how a partial-pass aggregates — if one unit is in_progress the milestone is not complete; never average a pass/fail into a misleading 'mostly done'.",
+    "Topological dependency ordering must be recomputed if units are added mid-milestone — a cached order goes stale and sequences a new unit before its prerequisite."
+   ]
+  }
+ },
+ "ARCH-MS4::U-ARCH01": {
+  "title": "ARCH-MS4 — Coordinator",
+  "relatedSubsystems": [
+   "milestone-ghost",
+   "state/QA-MS4",
+   "state/SYS-MS4"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-arch-ms4.md",
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-arch-ms3.md",
+    "knowledge/wiki/architecture/layer-stack-overview.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "seWiki": [
+    "handoff-discipline",
+    "doc-reflection-rule",
+    "claude-md-as-pointer-index",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "milestone coordinator / unit-orchestration pattern",
+    "dependency ordering (topological)",
+    "QA-state aggregation"
+   ],
+   "buildNote": "A coordinator unit sequences sibling units — verify dependency order and shipped deliverables before declaring the milestone done."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/silent-close-out-drift.md",
+    "knowledge/wiki/architecture/roadmap-consolidation.md"
+   ],
+   "addSeWiki": [
+    "handoff-discipline"
+   ],
+   "systemImpact": "The ARCH-MS4 coordinator sequences ARCH-MS4 units and depends on ARCH-MS3's coordinator having genuinely closed; it is the terminal architecture-milestone coordinator, so its close declares the ARCH track done. A false close here misreports the entire architecture line as complete in ROADMAP-CONSOLIDATED.",
+   "csDepth": [
+    "Verify dependency order and shipped deliverables — the silent-close-out-drift detector exists because pre-tagged ship commits are not credited to MILESTONE_PROGRESS; reconcile via close-out-milestone.mjs, do not trust shipped:0.",
+    "A coordinator is pure orchestration — it should hold no domain logic; keep it a thin sequencer (R8 — read the sibling units, do not reimplement them)."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL02": {
+  "title": "Build `NoveltyDetectionEngine` (diff vs catalog)",
+  "relatedSubsystems": [
+   "lathe-po",
+   "cad-class",
+   "cad-freecad"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ml/jmdieprogramlearningengine.md",
+    "knowledge/wiki/architecture/engines/ml/regressionbaselineengine.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "diff against a reference catalog (set difference)",
+    "content hashing for change detection",
+    "novelty / outlier scoring"
+   ],
+   "buildNote": "Novelty = diff vs catalog — hash-normalize entries first so a re-ordered-but-identical item is not flagged as new."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ml/jmdieprogramlearningengine.md",
+    "knowledge/wiki/architecture/engines/ml/regressionbaselineengine.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "NoveltyDetectionEngine diffs new programs against the catalog; it is the front gate of the AUTO-LEARNING-LOOP — only novel items proceed to learning. A false positive (flagging a re-ordered duplicate as new) wastes the token budget; a false negative (missing genuine novelty) starves the learning loop. The weekly review surface (U-ALL10) consumes its output.",
+   "csDepth": [
+    "Hash-normalize entries before diffing — content hashing must canonicalize ordering (sort keys, normalize whitespace) so a re-ordered-but-identical item hashes equal; a naive hash flags every reorder as novel.",
+    "Set-difference against a reference catalog is O(n) with a hash set; the catalog hash set must be kept current — a stale catalog mis-classifies recently-added items as novel."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL05": {
+  "title": "Build `VizAutoAugmentationEngine` (emit augmentation file)",
+  "relatedSubsystems": [
+   "lathe-po",
+   "cad-class",
+   "cad-freecad"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/loop-inject-dedup.md",
+    "knowledge/wiki/architecture/misc-tasks-extraction.md",
+    "knowledge/wiki/architecture/feature-gap-audit-2026-05-17.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "augmentation-file emission (system-viz ghost roost)",
+    "atomic file write (temp + rename)",
+    "idempotent regeneration"
+   ],
+   "buildNote": "Emit the augmentation file atomically and register it in BOTH regen-viz FAST[] and the merge-augmentations splice — one without the other drops it silently."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/system-viz.md",
+    "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+    "knowledge/wiki/architecture/priority-queue.md"
+   ],
+   "addSeWiki": [
+    "git-shared-index-hazards"
+   ],
+   "systemImpact": "VizAutoAugmentationEngine emits a system-viz ghost-roost augmentation file; it must be registered in BOTH regen-viz.mjs FAST[] AND the merge-augmentations splice — one without the other silently drops the roost from /system-viz. The system-graph.json has multiple writers, so the augmentation write is a known race surface.",
+   "csDepth": [
+    "Atomic file write (temp + rename) is mandatory — system-graph.json has three independent writers and a non-atomic augmentation write can be read mid-write as truncated JSON.",
+    "Idempotent regeneration: re-emitting the augmentation must not append duplicate ghost nodes — dedupe by stable node id before splice."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL07": {
+  "title": "Wire 6 auto-learning actions",
+  "relatedSubsystems": [
+   "stop-auto",
+   "edm-wire",
+   "wire-drawing",
+   "wire-rope"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/auto-learn-budget-guard.md",
+    "knowledge/wiki/architecture/engines/auto/autowiringengine.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "engine-to-action wiring contract",
+    "round-trip E2E assertion"
+   ],
+   "buildNote": "Wiring is incomplete unless the action is in the z.enum() gate with a real executor body — verify each of the 6 actions round-trips."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/auto/autowiringengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/wiring-potential.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Wiring the 6 auto-learning actions to devDispatcher makes the AUTO-LEARNING-LOOP-MS0 capabilities reachable; the cron registration (U-ALL09) invokes these actions on schedule, so a ghost-wire makes the scheduled learning loop a no-op that reports success.",
+   "csDepth": [
+    "Each of the 6 actions must be in the z.enum() gate with a real executor — verify each one round-trips; partial wiring (4 of 6) leaves the loop incomplete.",
+    "Auto-learning actions mutate persistent state — the dispatcher contract must serialize concurrent invocations of the same action or two cron fires race the learning ledger."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL08": {
+  "title": "Wire 6 auto-learning actions",
+  "relatedSubsystems": [
+   "stop-auto",
+   "edm-wire",
+   "wire-drawing",
+   "wire-rope"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/auto-learn-budget-guard.md",
+    "knowledge/wiki/architecture/engines/auto/autowiringengine.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "engine-to-action wiring contract",
+    "round-trip E2E assertion"
+   ],
+   "buildNote": "Wiring is incomplete unless each of the 6 actions is in the enum gate with a real executor and a passing round-trip E2E."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/auto/autowiringengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/wiring-potential.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "U-ALL08 is the second wiring unit for the auto-learning actions (paired with U-ALL07); together they complete the 6-action surface that the cron schedule and the weekly review surface depend on. Incomplete wiring here breaks the closed-loop learning pipeline downstream.",
+   "csDepth": [
+    "Wiring is incomplete unless each action is in the enum gate with a real executor and a passing round-trip E2E — a mock that skips z.enum() false-greens a missing action.",
+    "Verify the 6 actions across U-ALL07 + U-ALL08 are disjoint and exhaustive — overlapping or missing actions between the two units leave a gap or a duplicate-route hazard."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL09": {
+  "title": "Cron registration: 6 entries",
+  "relatedSubsystems": [
+   "lathe-lora",
+   "prism-icp",
+   "wedm-hook",
+   "wiki index",
+   "Materials (live)"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/engine/cadencedefinitions.md",
+    "knowledge/wiki/architecture/hooks/engine/hookregistration.md",
+    "knowledge/wiki/architecture/hooks/runtime/auto-learn-budget-guard.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "schema-read-discipline",
+    "atomic-write-idempotency-patterns",
+    "regression-prevention-doctrine",
+    "doc-reflection-rule"
+   ],
+   "csKnowledge": [
+    "cron expression scheduling (5-field)",
+    "idempotent registration (no duplicate entries)",
+    "off-peak minute selection"
+   ],
+   "buildNote": "Cron registration must be idempotent — re-running it must not add 6 duplicate entries; check existing entries before appending."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/engine/specialtycadences.md",
+    "knowledge/wiki/architecture/loop-inject-token-budget.md"
+   ],
+   "addSeWiki": [
+    "atomic-write-idempotency-patterns"
+   ],
+   "systemImpact": "The 6 cron entries drive the AUTO-LEARNING-LOOP on schedule; idempotent registration is critical — re-running the registrar must not add 6 duplicate cron entries, which would fire the learning loop 2x and double the token spend that U-ALL11's budget guard must then absorb.",
+   "csDepth": [
+    "Idempotent registration: check existing cron entries by a stable key before appending — a non-idempotent registrar accumulates duplicates on every re-run.",
+    "Off-peak minute selection avoids fleet-wide cron pile-up — every job at minute 0 lands simultaneously; stagger to off-:00/:30 minutes (the documented cron-fleet pattern)."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL10": {
+  "title": "Human-in-loop weekly review surface",
+  "relatedSubsystems": [
+   "prism-human",
+   "wedm-human",
+   "ppg-sfc",
+   "xproc-maml",
+   "feedback-loop"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/loop-inject-dedup.md",
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/frontends/",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "doc-reflection-rule",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "atomic-write-idempotency-patterns"
+   ],
+   "csKnowledge": [
+    "human-in-the-loop review queue",
+    "weekly aggregation window",
+    "approve/reject state machine"
+   ],
+   "buildNote": "The weekly review surface must present concrete diffs for human approval — never auto-apply learned changes without the explicit gate."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/layer-l9.md",
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/silent-close-out-drift.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "The weekly human-in-loop review surface is the safety gate of the entire AUTO-LEARNING-LOOP — it presents NoveltyDetectionEngine's diffs for explicit approval; no learned change reaches the catalog without passing through it. If it auto-applies, the loop becomes an unsupervised self-modification path.",
+   "csDepth": [
+    "The review surface must present concrete diffs for human approval — never auto-apply learned changes; the approve/reject gate is the only thing separating closed-loop learning from uncontrolled drift.",
+    "Approve/reject is a state machine — model pending/approved/rejected/expired explicitly; an item with no terminal state silently lingers in the queue forever."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL11": {
+  "title": "Token-budget guard (12/day, $20/day)",
+  "relatedSubsystems": [
+   "token-budget",
+   "token-economy"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/auto-learn-budget-guard.md",
+    "knowledge/wiki/architecture/loop-inject-token-budget.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/domain-ml.md"
+   ],
+   "seWiki": [
+    "token-budget-management",
+    "fail-loud-r12-patterns",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "budget-counter accumulation with daily reset",
+    "atomic read-modify-write of the budget ledger",
+    "can-afford gating check"
+   ],
+   "buildNote": "The 12/day, $20/day guard must atomically RMW the budget ledger and fail closed when over budget — never push through a spiral."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/loop-inject-token-budget.md",
+    "knowledge/wiki/architecture/backend-dev-token-efficiency.md",
+    "knowledge/wiki/architecture/audit-token-savings-2026-05-17.md"
+   ],
+   "addSeWiki": [
+    "atomic-write-idempotency-patterns"
+   ],
+   "systemImpact": "The 12/day, $20/day token-budget guard is the cost ceiling of the AUTO-LEARNING-LOOP; if it fails open, the cron-driven loop (U-ALL09) can spiral unbounded token spend. Every auto-learning action (U-ALL07/08) should check the guard before running.",
+   "csDepth": [
+    "The budget ledger is a concurrent read-modify-write target — multiple cron fires racing the ledger can both see 'under budget' and both spend; use an atomic RMW (lockfile or compare-and-swap), not naive read-then-write.",
+    "Fail closed when over budget — the guard must DENY when the ledger says over, never push through (R6 — token budgets are not advisory); also handle the daily-reset boundary correctly so a stale day's count does not leak."
+   ]
+  }
+ },
+ "AUTO-LEARNING-LOOP-MS0::U-ALL12": {
+  "title": "Source-poisoning sanitizer (allowlist + content-hash)",
+  "relatedSubsystems": [
+   "source-poisoning",
+   "feature-tree",
+   "cam-transfer",
+   "source-sweep",
+   "learn-course"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/safety/safetypatternminerengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/anti-pattern-detector.md",
+    "knowledge/wiki/architecture/dispatcher-security.md",
+    "knowledge/wiki/architecture/domain-security.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "allowlist-based input validation",
+    "SHA-256 content hashing for provenance",
+    "source-poisoning / prompt-injection detection"
+   ],
+   "buildNote": "Sanitize learned sources against an allowlist + content-hash before ingest — an unvalidated source poisons the whole learning loop."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/safety/safetypatternminerengine.md",
+    "knowledge/wiki/architecture/dispatcher-security.md",
+    "knowledge/wiki/architecture/domain-security.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "prompt-engineering-rails"
+   ],
+   "systemImpact": "The source-poisoning sanitizer is the security gate of the AUTO-LEARNING-LOOP — every learned source passes through it before ingest. An unvalidated source poisons the whole loop: a prompt-injection payload in a learned source can corrupt every downstream model and the catalog. This is the loop's trust boundary.",
+   "csDepth": [
+    "Allowlist-based validation is fail-closed by construction — only allowlisted sources pass; an unknown source is rejected, never default-allowed.",
+    "SHA-256 content hashing provides provenance — pin the hash of an approved source so a later silent content change is detected; prompt-injection detection must scan content, not just the source URL."
+   ]
+  }
+ },
+ "AWARE-MS0::U-AWARE01": {
+  "title": "PreToolUse Hook — Build/Create Detection",
+  "relatedSubsystems": [
+   "build-hook",
+   "orphan-detection",
+   "cam-fusion",
+   "build-create"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/build-create-detector.md",
+    "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md",
+    "knowledge/wiki/architecture/dispatcher-hook.md",
+    "knowledge/wiki/architecture/domain-hook.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "PreToolUse hook stdin/stdout JSON contract",
+    "intent classification (build/create keyword detection)",
+    "exit-0-plus-stdout vs exit-2 pipe-truncation hazard"
+   ],
+   "buildNote": "A PreToolUse hook must exit 0 and emit decisions via stdout JSON — keyword classification must strip quoted regions before matching."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/engine/enforcementhooks.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md",
+    "knowledge/wiki/architecture/high-roi-hooks-ms0.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "The build/create-detection PreToolUse hook is the trigger for the whole self-awareness gate stack — inventory-check-guard, master-index-search-gate, dedup-auto-invoke, and duplication-hard-block all key off detecting build intent. If it mis-classifies, the entire mandatory-self-awareness chain either over-fires (noise) or silently fails to fire (duplicate engines ship).",
+   "csDepth": [
+    "Keyword classification must strip quoted regions before matching — a build/create word inside a quoted string or a comment is not build intent; the documented magic-number-scan and stopword fixes apply here.",
+    "Exit 0 and emit decisions via stdout JSON — exit-2 truncates the stdout pipe on Windows and silently bypasses the gate (the recurring hook-contract bug)."
+   ]
+  }
+ },
+ "AWARE-MS0::U-AWARE03": {
+  "title": "Master Index Search Gate Hook",
+  "relatedSubsystems": [
+   "master-index",
+   "cad-software"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/master-index-search-gate.md",
+    "knowledge/wiki/architecture/hooks/runtime/master-index-precheck-inject.md",
+    "knowledge/wiki/architecture/master-index-surface.md",
+    "knowledge/wiki/architecture/master-index-filter-contract-fix.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "BM25 / inverted-index ranking",
+    "graph-node keyword search",
+    "PreToolUse hook stdin/stdout JSON contract"
+   ],
+   "buildNote": "The search gate must cap graph-file size before JSON.parse — a 370MB graph OOMs the hook and silently disables the gate fleet-wide."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/master-index-surface.md",
+    "knowledge/wiki/architecture/master-index-filter-contract-fix.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "addSeWiki": [
+    "schema-read-discipline"
+   ],
+   "systemImpact": "The master-index search gate runs a graph keyword search on every build-intent prompt; if it OOMs on the ~370MB system-graph.json it silently disables the gate fleet-wide, so duplicate engines slip past. The master-index-filter-contract-fix wiki documents the min_confidence post-blend filter bug that affects ranking here.",
+   "csDepth": [
+    "Cap graph-file size BEFORE JSON.parse — the documented 200MB/80MB caps exist because the full graph OOMs the hook; an OOM kills the gate silently (the F1 silent-degrade class).",
+    "BM25 / inverted-index ranking over graph nodes — the min_confidence filter must apply POST-blend (after the confidence × utilization-floor blend), not pre-blend, or the user sees a score below the threshold they filtered on."
+   ]
+  }
+ },
+ "AWARE-MS0::U-AWARE05": {
+  "title": "Auto /dedup Invocation",
+  "relatedSubsystems": [
+   "dedup-auto",
+   "Auto",
+   "auto-research",
+   "roadmap-auto",
+   "viz-auto"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/dedup-auto-invoke.md",
+    "knowledge/wiki/architecture/hooks/runtime/ai-duplication-guard.md",
+    "knowledge/wiki/architecture/engines/guard/duplicationguardengine.md",
+    "knowledge/wiki/architecture/domain-dedup.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "PreToolUse hook stdin/stdout JSON contract",
+    "fuzzy similarity matching (keyword overlap)",
+    "silent auto-invocation of a sub-skill"
+   ],
+   "buildNote": "Auto-/dedup must run silently and only surface on a real match — exit 0 always, signal via stdout, never block on a false positive."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/duplication-hard-block.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "Auto-/dedup invocation runs DuplicationGuardEngine silently on build intent; it is the soft-warning tier ahead of the duplication-hard-block (U-AWARE07). A false positive that surfaces noisily annoys every chat; a false negative lets a duplicate engine reach the hard-block or, worse, ship.",
+   "csDepth": [
+    "Fuzzy similarity matching (keyword overlap) needs a calibrated threshold — too loose floods false matches, too tight misses near-duplicates; the soft tier should err toward surfacing, the hard-block toward exactness.",
+    "Auto-invocation must be silent on no-match and exit 0 always — signal via stdout, never block on a fuzzy match (only the hard-block blocks)."
+   ]
+  }
+ },
+ "AWARE-MS0::U-AWARE06": {
+  "title": "AI Feature Recommendation Injection",
+  "relatedSubsystems": [
+   "feedback-recommendation",
+   "wedm-get",
+   "post-recommendation",
+   "prism-recommendation",
+   "asset-recommendation"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/ai-feature-recommend.md",
+    "knowledge/wiki/architecture/engines/ai/aicapabilitymaximizerengine.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/domain-ai.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "prompt-engineering-rails"
+   ],
+   "csKnowledge": [
+    "UserPromptSubmit hook additionalContext injection",
+    "relevance ranking of recommendations",
+    "keyword-gated trigger matching"
+   ],
+   "buildNote": "Inject feature recommendations via hookSpecificOutput.additionalContext on relevance only — noisy unconditional injection burns the token budget."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/ai/aicapabilitymaximizerengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md",
+    "knowledge/wiki/architecture/loop-inject-dedup.md"
+   ],
+   "addSeWiki": [
+    "token-budget-management"
+   ],
+   "systemImpact": "AI feature recommendation injection surfaces relevant engines via UserPromptSubmit additionalContext; it depends on AICapabilityMaximizerEngine's recommendations. Unconditional injection burns the token budget on every prompt — it must be keyword-gated and relevance-ranked, and the loop-inject-dedup gate suppresses byte-identical re-injection across /loop iterations.",
+   "csDepth": [
+    "Inject on relevance only via hookSpecificOutput.additionalContext — a noisy unconditional injection is a per-prompt token tax (the loop-inject cost-audit measured ~518 tok/iter of stable-redundant inject).",
+    "Relevance ranking over recommendations is a top-K selection — bound K small; an unbounded recommendation list defeats the purpose of a focused injection."
+   ]
+  }
+ },
+ "AWARE-MS0::U-AWARE07": {
+  "title": "Duplication Guard Hard Block",
+  "relatedSubsystems": [
+   "duplication-hard",
+   "ai-duplication",
+   "duplication-guard",
+   "managed-block"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/duplication-hard-block.md",
+    "knowledge/wiki/architecture/hooks/runtime/duplication-guard-stop.md",
+    "knowledge/wiki/architecture/engines/guard/duplicationguardengine.md",
+    "knowledge/wiki/architecture/domain-dedup.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "PreToolUse hard-block hook (deny decision)",
+    "exact-duplicate detection (name + keyword match)",
+    "exit-0-plus-stdout-block contract"
+   ],
+   "buildNote": "A hard-block hook denies via stdout JSON with exit 0 — only block on an EXACT duplicate; a false hard-block stalls every chat."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/hooks/runtime/dedup-auto-invoke.md",
+    "knowledge/wiki/architecture/engines/guard/duplicationguardengine.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "The duplication hard-block is the terminal gate of the self-awareness stack — it DENIES creation of an exact-duplicate engine via PreToolUse. A false hard-block stalls every chat trying to do legitimate work; a missed block lets a true duplicate ship and fragment the codebase. duplicationGuardEngine.mustCheckBeforeCreating throws to back it.",
+   "csDepth": [
+    "Block ONLY on an EXACT duplicate (name + keyword match) — a fuzzy match must route to the soft tier (U-AWARE05), never the hard-block; a false hard-block is a fleet-wide stall.",
+    "Hard-block via stdout JSON deny decision with exit 0 — exit-2 truncates the pipe and the block silently does not fire, which is the worst failure mode for a guard."
+   ]
+  }
+ },
+ "AWARE-MS0::U-AWARE08": {
+  "title": "Test Suite & Documentation",
+  "relatedSubsystems": [
+   "Test Suite (3,871)",
+   "state/test-results",
+   "xproc-causal",
+   "cad-regen",
+   "cmm-acceptance"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/dev/testcoverageindexengine.md",
+    "knowledge/wiki/architecture/engines/dev/autotestgeneratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "doc-reflection-rule",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "test suite organization and coverage instrumentation",
+    "real-reference-value test assertion",
+    "documentation index regeneration"
+   ],
+   "buildNote": "Tests must encode why behavior matters with real values — and reflect the change across all four doc surfaces in the same session."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/knowledge-vault-schema.md",
+    "knowledge/wiki/architecture/hook-synergy-ms0.md",
+    "knowledge/wiki/architecture/master-index-surface.md"
+   ],
+   "addSeWiki": [
+    "doc-reflection-rule"
+   ],
+   "systemImpact": "The AWARE-MS0 test suite is the regression oracle for the self-awareness hook stack; if the hook contracts (build-create-detector, search-gate, dedup, hard-block) are not covered with real-value tests, a silent hook regression disables the whole mandatory-self-awareness layer without anyone noticing.",
+   "csDepth": [
+    "Hook tests must drive the real stdin/stdout JSON contract via subprocess fixtures — a pure-function test of the classifier misses the exit-code and pipe-truncation behavior where the bugs actually live.",
+    "Tests must encode why behavior matters with real values, and the change must reflect across all four doc surfaces in the same session — a hook documented in only one surface rots."
+   ]
+  }
+ },
+ "BENCH-MS0::P0-U00": {
+  "title": "BenchmarkSuiteEngine: Core infrastructure audit",
+  "relatedSubsystems": [
+   "benchmarksuiteengine",
+   "core",
+   "milestone-ghost",
+   "category-core",
+   "prism-core"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-bench-ms0.md",
+    "knowledge/wiki/architecture/engines/dev/testcoverageindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/layer-stack-overview.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "benchmark-suite infrastructure (test harness)",
+    "fixture / scenario registry",
+    "core-infrastructure audit traversal"
+   ],
+   "buildNote": "BenchmarkSuiteEngine is a ghost engine — audit what core infrastructure exists before building; do not re-extract already-built test infra."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/dev/autotestgeneratorengine.md",
+    "knowledge/wiki/architecture/dispatcher-dev.md",
+    "knowledge/wiki/architecture/tests-index.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "BenchmarkSuiteEngine is the core infrastructure for BENCH-MS0; the sibling units (P0-U06 geometries, P0-U07 parametric sweep) plug fixtures and scenarios into it. As a ghost engine it must be dedup-checked first — TestCoverageIndexEngine and the existing test harness may already provide the infra.",
+   "csDepth": [
+    "Audit existing test infrastructure before building — a 'ghost' BenchmarkSuiteEngine flag is often digest-staleness; Glob the engines/dev tree and run duplicationGuardEngine first (R8).",
+    "A benchmark-suite harness needs a fixture/scenario registry that is deterministic and content-addressable so benchmark runs are reproducible across sessions."
+   ]
+  }
+ },
+ "BENCH-MS0::P0-U06": {
+  "title": "15-Part Benchmark Suite: Representative geometries",
+  "relatedSubsystems": [
+   "camx-ms0",
+   "wedm-erp",
+   "tool-cost",
+   "cad-part"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-bench-ms0.md",
+    "knowledge/wiki/architecture/domain-geometry.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/engines/cad/cadclassfeaturelibraryengine.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "representative-geometry fixture design",
+    "parametric geometry generation",
+    "deterministic test-case construction"
+   ],
+   "buildNote": "The 15 benchmark geometries must be deterministic, representative fixtures — each must exercise a distinct machining feature, not just vary cosmetically."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/domain-geometry.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "The 15 representative geometries are the fixture set BenchmarkSuiteEngine (P0-U00) runs and the parametric sweep (P0-U07) varies over; if a geometry is not deterministic or two cover the same feature, the benchmark numbers are non-comparable and the BENCH-MS0 closeout has no truth.",
+   "csDepth": [
+    "Each of the 15 geometries must exercise a DISTINCT machining feature — a fixture set where geometries vary only cosmetically gives redundant coverage and a false sense of breadth.",
+    "Parametric geometry generation must be deterministic (fixed seed, no float-nondeterminism) — a fixture that drifts run-to-run cannot be a regression oracle."
+   ]
+  }
+ },
+ "BENCH-MS0::P0-U07": {
+  "title": "Parametric Sweep Infrastructure: 8,640 S/F combinations",
+  "relatedSubsystems": [
+   "benchmark-parametric",
+   "camx-ms0",
+   "wedm-erp",
+   "f360-parametric",
+   "parametric-surface"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-bench-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/domain-calc.md",
+    "knowledge/wiki/architecture/engines/auto/autospeedfeedcalculatorengine.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "physics-constants-discipline",
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "parametric sweep / Cartesian-product enumeration",
+    "8640-combination grid construction",
+    "result aggregation and tabulation"
+   ],
+   "buildNote": "An 8,640-combination sweep needs a bounded, deterministic enumeration — guard memory and write results atomically per chunk, not all at once."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-calc.md",
+    "knowledge/wiki/architecture/domain-calc.md",
+    "knowledge/wiki/architecture/audit-token-savings-2026-05-17.md"
+   ],
+   "addSeWiki": [
+    "physics-constants-discipline"
+   ],
+   "systemImpact": "The 8,640-combination parametric sweep stresses AutoSpeedFeedCalculatorEngine across the full speed/feed grid; its results are the benchmark dataset BenchmarkSuiteEngine reports. A sweep that OOMs or writes non-atomically corrupts the benchmark output that BENCH-MS0 closeout depends on.",
+   "csDepth": [
+    "An 8,640-combination Cartesian product must be a bounded, lazy enumeration — materializing all 8,640 result objects in memory before write risks OOM; stream and write atomically per chunk.",
+    "Each combination's speed/feed result is bounded by canonical Kienzle/Taylor physics — the sweep must import constants from constants.ts so the benchmark grid is anchored to the canonical envelope."
+   ]
+  }
+ },
+ "BIZ-MS2::U-BIZ17": {
+  "title": "Add Timecard Audit Trail with SOX/ISO compliance and HR audit viewer",
+  "relatedSubsystems": [
+   "audit-trail",
+   "add",
+   "audit-status",
+   "record-audit",
+   "context-add"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-biz-ms2.md",
+    "knowledge/wiki/architecture/dispatcher-business.md",
+    "knowledge/wiki/architecture/dispatcher-compliance.md",
+    "knowledge/wiki/architecture/engines/guard/operatoractionaudittrailengine.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "fail-loud-r12-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "append-only audit log (immutable trail)",
+    "tamper-evidence via hash chaining",
+    "SOX/ISO compliance record schema"
+   ],
+   "buildNote": "A SOX/ISO audit trail must be append-only and tamper-evident — never overwrite a timecard record; record every mutation as a new entry."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-business.md",
+    "knowledge/wiki/architecture/dispatcher-compliance.md",
+    "knowledge/wiki/architecture/ledger-store.md",
+    "knowledge/wiki/architecture/ledger-projector.md"
+   ],
+   "addSeWiki": [
+    "atomic-write-idempotency-patterns"
+   ],
+   "systemImpact": "The timecard audit trail is the SOX/ISO compliance record for BIZ-MS2; the HR audit viewer reads it and BIZ-MS5's AS9100 audit manager shares the append-only-ledger pattern. If a timecard mutation overwrites rather than appends, the compliance trail is broken and an auditor finding is unrecoverable.",
+   "csDepth": [
+    "An append-only audit log must be truly immutable — never overwrite a timecard record; every mutation is a new entry with a prior-value reference, so the full history is reconstructable.",
+    "Tamper-evidence via hash chaining: each entry hashes the previous entry's hash — a single altered record breaks the chain and is detectable; this is the SOX requirement, not optional."
+   ]
+  }
+ },
+ "BIZ-MS5::U-BIZ41": {
+  "title": "Add ISO/AS9100 Audit Manager",
+  "relatedSubsystems": [
+   "context-add",
+   "xproc-attention",
+   "xproc-replay",
+   "employee-add",
+   "hr-training"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-biz-ms5.md",
+    "knowledge/wiki/architecture/dispatcher-compliance.md",
+    "knowledge/wiki/architecture/dispatcher-business.md",
+    "knowledge/wiki/architecture/engines/guard/oshacomplianceengine.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "fail-loud-r12-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "compliance-state machine (audit lifecycle)",
+    "append-only finding ledger",
+    "ISO/AS9100 clause-to-control mapping"
+   ],
+   "buildNote": "An AS9100 audit manager must track findings as an append-only ledger with explicit clause references — never silently drop a non-conformance."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-compliance.md",
+    "knowledge/wiki/architecture/dispatcher-business.md",
+    "knowledge/wiki/architecture/ledger-store.md"
+   ],
+   "addSeWiki": [
+    "atomic-write-idempotency-patterns"
+   ],
+   "systemImpact": "The ISO/AS9100 audit manager tracks compliance findings as an append-only ledger; it shares the ledger-store/projector pattern with BIZ-MS2's timecard trail and the OSHA compliance engine. A silently-dropped non-conformance is an audit failure with legal exposure — every finding must be a durable ledger entry.",
+   "csDepth": [
+    "The compliance lifecycle is a state machine (open → in-review → closed/non-conformance) — model every state explicitly; a finding with no terminal state is a silently-dropped non-conformance.",
+    "ISO/AS9100 clause-to-control mapping is a many-to-many relation — a control may satisfy multiple clauses; store the mapping explicitly so a control change re-evaluates every affected clause."
+   ]
+  }
+ },
+ "BOX-AUDIT::U-BOXX01": {
+  "title": "BOX-AUDIT — Coordinator",
+  "relatedSubsystems": [
+   "box-full",
+   "part-template",
+   "cad-kernel",
+   "box-batch"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadclassfeaturelibraryengine.md",
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/close-out-audit.md"
+   ],
+   "seWiki": [
+    "per-file-scrutiny-gate",
+    "regression-prevention-doctrine",
+    "test-design-real-values",
+    "handoff-discipline"
+   ],
+   "csKnowledge": [
+    "full-program audit traversal",
+    "part-template parameterization",
+    "batch macro conversion"
+   ],
+   "buildNote": "A coordinator unit sequences the box-audit sub-units — verify each box-program deliverable exists on disk before closing the audit."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/close-out-audit.md",
+    "knowledge/wiki/architecture/silent-close-out-drift.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "addSeWiki": [
+    "handoff-discipline",
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "The BOX-AUDIT coordinator sequences the box-program audit sub-units; it closes the milestone only when each box-program deliverable exists on disk. A premature close records box-audit work as complete in MILESTONE_PROGRESS when the box programs were never converted — the silent-close-out-debt class.",
+   "csDepth": [
+    "Verify each box-program deliverable exists on disk before closing — file presence is necessary but not sufficient; the close-out-audit is advisory and every candidate must be human-verified.",
+    "Batch macro conversion across box programs is an embarrassingly-parallel workload — but the coordinator must aggregate per-program success/failure honestly; one failed conversion in a batch is a milestone-incomplete signal."
+   ]
+  }
+ },
+ "BP-MS0::U-APPR2": {
+  "title": "Record timeline + comments + attachments",
+  "relatedSubsystems": [
+   "exception-record",
+   "lora-drift",
+   "meta-learning",
+   "pattern-record",
+   "xproc-calibration"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-bp-ms0.md",
+    "knowledge/wiki/architecture/ledger-store.md",
+    "knowledge/wiki/architecture/ledger-projector.md",
+    "knowledge/wiki/architecture/dispatcher-business.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "schema-read-discipline",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "append-only timeline / event log",
+    "comment thread + attachment association",
+    "atomic record-with-outcome write"
+   ],
+   "buildNote": "Timeline, comments, and attachments are an append-only event stream — write each event atomically and key attachments to a stable record id."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-business.md",
+    "knowledge/wiki/architecture/action-trace-engine.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "The timeline + comments + attachments record is the event-stream substrate for the BP-MS0 approval workflow; it is built on the ledger-store/projector. Other BP-MS0 units project the approval state from this event stream — if an event write is lost or non-atomic, the projected approval state diverges from reality.",
+   "csDepth": [
+    "An append-only timeline is an event-sourced log — the current approval state is a projection over the event stream; never mutate a past event, append a correcting one.",
+    "Attachments must be keyed to a STABLE record id, not an array index — a re-ordered timeline would otherwise orphan attachments; write each event atomically so a crash mid-write does not leave a partial event."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT01": {
+  "title": "CADInstallationProbeEngine — detect installed CAD software",
+  "relatedSubsystems": [
+   "cadinstallationprobeengine",
+   "cad-kg",
+   "cad-route",
+   "cad-assembly",
+   "cad-cas"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "Windows registry probing (installed-software detection)",
+    "filesystem path discovery",
+    "graceful fail-soft when software is absent"
+   ],
+   "buildNote": "Detect installed CAD software by probing the registry and known install paths — fail soft (return not-installed), never throw, when nothing is found."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "CADInstallationProbeEngine is the first stage of CAD-AUTOMATION-MS0 — every bridge (U-CAUT02..07) and the router (U-CAUT10) keys off which CAD software it reports as installed. If it throws when software is absent rather than returning not-installed, the whole automation dispatcher fails to initialize on a machine missing one CAD package.",
+   "csDepth": [
+    "Windows registry probing must fail soft — a missing registry key is the expected 'not installed' case, not an exception; return a structured not-installed result, never throw (R12 honest, but soft for an expected-absent case).",
+    "Registry + filesystem path discovery should cross-check — a registry entry without a resolvable install path means a broken/uninstalled package; report that distinctly from cleanly-absent."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT02": {
+  "title": "SolidWorksAutomationBridge — COM-based .sldprt/.sldasm/.slddrw access",
+  "relatedSubsystems": [
+   "solidworksautomationbridge-di...",
+   "solidworksautomationbridge",
+   "cam-hypermill",
+   "prism-clamping",
+   "prism-toolpath"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-solid.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "COM automation / IDispatch interop",
+    "process lifecycle management",
+    "error handling across the COM boundary"
+   ],
+   "buildNote": "COM access to SolidWorks must release the IDispatch reference and surface COM HRESULT failures loudly — leaked COM objects wedge the app."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-solid.md",
+    "knowledge/wiki/architecture/fleet-reaper.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "SolidWorksAutomationBridge is the COM access path consumed by CADAutomationRouter (U-CAUT10) for .sldprt/.sldasm/.slddrw files; it sets the COM-lifecycle convention that the Inventor bridge (U-CAUT03) explicitly mirrors. A leaked IDispatch reference wedges the SolidWorks process and accumulates orphans the CADProcessSpawner (U-CAUT08) must reap.",
+   "csDepth": [
+    "COM/IDispatch interop must release every reference deterministically — a leaked COM object keeps the SolidWorks process alive; use a try/finally release pattern, not GC-dependent cleanup.",
+    "COM HRESULT failures must be surfaced loudly with the HRESULT code — a swallowed COM error looks like a clean no-op but left a wedged process."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT03": {
+  "title": "InventorAutomationBridge — COM-based .ipt/.iam/.idw access",
+  "relatedSubsystems": [
+   "inventorautomationbridge",
+   "cam-hypermill",
+   "prism-clamping",
+   "prism-toolpath",
+   "rgs-tool"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-inventor.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "COM automation / IDispatch interop",
+    "Inventor .ipt/.iam/.idw document model",
+    "error handling across the COM boundary"
+   ],
+   "buildNote": "COM access to Inventor must release references and surface HRESULT failures — match the SolidWorks bridge's COM lifecycle convention."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-inventor.md",
+    "knowledge/wiki/architecture/fleet-reaper.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "InventorAutomationBridge is the COM path for .ipt/.iam/.idw consumed by CADAutomationRouter; it must match the SolidWorks bridge's COM lifecycle convention (U-CAUT02) so the router treats both uniformly. The cad-fusion-training-ms0 wiki notes Inventor/STEP is the transferable corpus when Fusion cloud is unreachable — this bridge is on that path.",
+   "csDepth": [
+    "Match the SolidWorks bridge's COM lifecycle convention — divergent COM cleanup between two bridges makes the router's process management inconsistent and one bridge will leak.",
+    "Inventor's .iam assembly model loads referenced .ipt files lazily — the bridge must handle a missing referenced part gracefully, not crash the whole assembly open."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT04": {
+  "title": "FreeCADAutomationBridge — Python-based .FCStd access",
+  "relatedSubsystems": [
+   "freecadautomationbridge",
+   "hypercad-python",
+   "python-api",
+   "portable-python"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "subprocess spawn of a Python interpreter",
+    "stdin/stdout IPC with the FreeCAD process",
+    "subprocess lifecycle + timeout handling"
+   ],
+   "buildNote": "FreeCAD access spawns a Python subprocess — set a timeout, capture stderr, and kill the orphan if the .FCStd parse hangs."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/fleet-reaper.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "FreeCADAutomationBridge spawns a Python subprocess for .FCStd access; it is consumed by CADAutomationRouter and its orphan-Python processes are exactly what CADProcessSpawner (U-CAUT08) and the fleet-reaper must clean up. A hung FreeCAD parse with no timeout accumulates orphans that OOM the host.",
+   "csDepth": [
+    "Subprocess spawn must set a hard timeout and capture stderr — a .FCStd parse that hangs with no timeout leaves an orphan Python process; kill it on timeout, do not wait indefinitely.",
+    "stdin/stdout IPC with the FreeCAD process needs a framed protocol (length-prefixed or delimiter) — raw stream parsing can fuse two messages or split one across reads."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT05": {
+  "title": "MastercamAutomationBridge — NET-Hook for .mcx* / .mcam",
+  "relatedSubsystems": [
+   "mastercamautomationbridge",
+   "hook",
+   "wiki/.hook-cache",
+   "ai-hook",
+   "hook-controller"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-mastercam.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    ".NET-hosted addin / interop bridge",
+    "Mastercam .mcx*/.mcam document access",
+    "cross-language process boundary IPC"
+   ],
+   "buildNote": "Mastercam access goes through a .NET hook — surface .NET exceptions loudly and verify the addin host process exits cleanly."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-mastercam.md",
+    "knowledge/wiki/architecture/fleet-reaper.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "MastercamAutomationBridge is the .NET-hook path for .mcx*/.mcam consumed by CADAutomationRouter; Mastercam is the most-used CAM vendor, so this bridge is high-traffic. A .NET exception swallowed at the cross-language boundary looks like a clean failure but left a wedged addin host the fleet-reaper must reap.",
+   "csDepth": [
+    "Surface .NET exceptions across the process boundary loudly — a cross-language IPC boundary swallows exceptions easily; serialize the .NET exception type and message back to the Node caller.",
+    "Verify the .NET addin host process exits cleanly after each operation — a host that lingers is an orphan; track its PID with CADProcessSpawner."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT06": {
+  "title": "Fusion360AutomationBridge — HTTP bridge for .f3d/.f3z",
+  "relatedSubsystems": [
+   "cad-f3d",
+   "fusion360automationbridge",
+   "cam-addin",
+   "prism-http",
+   "mcp-auth"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-fusion.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "HTTP bridge / local server client",
+    "Fusion 360 .f3d/.f3z document access",
+    "request timeout + retry on connection refused"
+   ],
+   "buildNote": "Fusion 360 access is an HTTP bridge — handle connection-refused (bridge not started), set timeouts, and never assume the local server is up."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-fusion.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "Fusion360AutomationBridge is the HTTP-bridge path for .f3d/.f3z consumed by CADAutomationRouter; the cad-fusion-training-ms0 wiki documents that Fusion cloud is unreachable without Forge creds, so this bridge must degrade gracefully when the local server is down rather than blocking the whole router.",
+   "csDepth": [
+    "Handle connection-refused explicitly — the Fusion HTTP bridge server may not be started; never assume the local server is up, set a request timeout, and report bridge-unavailable distinctly from a parse failure.",
+    "An HTTP bridge needs idempotent retry on transient connection errors but NOT on a 4xx — distinguish a not-started server (retry) from a bad request (fail fast)."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT07": {
+  "title": "HyperMILLAutomationBridge — AC Python for .hmc",
+  "relatedSubsystems": [
+   "hypermillautomationbridge",
+   "hypercad-python",
+   "python-api",
+   "portable-python"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-hyper.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "AC Python automation interop",
+    "hyperMILL/hyperCAD .hmc document access",
+    "subprocess lifecycle + timeout handling"
+   ],
+   "buildNote": "hyperMILL access uses AC Python — set a timeout, capture stderr, and reap the orphan interpreter if the .hmc operation hangs."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-hyper.md",
+    "knowledge/wiki/architecture/fleet-reaper.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "HyperMILLAutomationBridge is the AC-Python path for .hmc consumed by CADAutomationRouter; like the FreeCAD bridge it spawns an interpreter subprocess whose orphans the CADProcessSpawner and fleet-reaper must reap. hyperMILL has 25 already-extracted assets — the bridge reads existing files, no re-extraction.",
+   "csDepth": [
+    "AC Python automation spawns an interpreter subprocess — set a timeout, capture stderr, and reap the orphan on a hung .hmc operation; match the FreeCAD bridge's subprocess lifecycle convention.",
+    "Subprocess timeout handling must distinguish a slow-but-progressing operation from a true hang — a fixed timeout that is too short kills a large legitimate .hmc file."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT08": {
+  "title": "CADProcessSpawner — subprocess lifecycle manager",
+  "relatedSubsystems": [
+   "cadprocessspawner",
+   "coolant-cost",
+   "coolant-lifecycle",
+   "cutting-fluid",
+   "sustainability-coolant"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/fleet-reaper.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "regression-prevention-doctrine"
+   ],
+   "csKnowledge": [
+    "subprocess lifecycle manager (spawn/track/kill)",
+    "PID tracking and orphan reaping",
+    "timeout-driven process termination"
+   ],
+   "buildNote": "The process spawner must track every PID and reap orphans on timeout/crash — a leaked CAD process accumulates and OOMs the host."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/fleet-reaper.md",
+    "knowledge/wiki/architecture/fleet-memory-monitor.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns"
+   ],
+   "systemImpact": "CADProcessSpawner is the shared subprocess-lifecycle manager that every CAD bridge (U-CAUT02..07) routes its spawns through; it is the single chokepoint preventing CAD-process orphan accumulation. If it leaks a PID, the fleet-reaper's slot-attribution layer is the only backstop, and a leaked CAD process can OOM the memory-pressured host.",
+   "csDepth": [
+    "Track every spawned PID in a registry and reap on timeout/crash — a leaked CAD process accumulates; this is the same orphan class the fleet-reaper handles, so the spawner should be the first line of defense.",
+    "PID tracking has a reuse hazard — the OS recycles PIDs; track spawn time alongside PID so a recycled PID is not mistaken for the original process (the fleet-reaper PID-reuse edge case)."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT09": {
+  "title": "CADAutomationMockLayer — deterministic fixtures for CI",
+  "relatedSubsystems": [
+   "cadautomationmocklayer",
+   "pp-ck",
+   "ppg-corpus"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/jmdie/",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "deterministic test fixtures (recorded responses)",
+    "dependency injection for the bridge layer",
+    "hermetic mock that mirrors the real producer shape"
+   ],
+   "buildNote": "The CI mock layer must mirror the REAL bridge response shape — hermetic fakes that fabricate a shape the producer never emits false-green the tests."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/tests-index.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "CADAutomationMockLayer provides deterministic fixtures so CAD-AUTOMATION-MS0's CI runs without real CAD software installed; if the mock fabricates a response shape the real bridge never emits, every CI test false-greens and a production bridge bug ships. This is the documented 'hermetic fakes don't prove wiring' hazard.",
+   "csDepth": [
+    "The mock MUST mirror the REAL bridge response shape — record real bridge responses as fixtures; a hand-fabricated shape that diverges from the producer false-greens the tests (the RGS-TOOL-AUTOINVOKE MS0 false-green class).",
+    "Dependency injection for the bridge layer lets CI swap the mock in — but the suite must ALSO ship at least one real-bridge E2E (gated on software presence) so the mock-vs-real divergence is caught."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT10": {
+  "title": "CADAutomationRouter — unified format → bridge selector",
+  "relatedSubsystems": [
+   "prism-unified",
+   "cadautomationrouter",
+   "tool-unified",
+   "unified-machining",
+   "cam-unified"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "format-to-handler dispatch table (strategy pattern)",
+    "file-extension to bridge mapping",
+    "unified-interface adapter"
+   ],
+   "buildNote": "The router selects a bridge by file format — make the format→bridge table explicit and exhaustive; fail loud on an unknown extension."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "schema-read-discipline"
+   ],
+   "systemImpact": "CADAutomationRouter is the unified format→bridge selector that CADAutomationDispatcher (U-CAUT11) invokes; it is the single dispatch point over all six bridges. An unhandled file extension that silently no-ops, rather than failing loud, makes the dispatcher return empty for a whole CAD format class.",
+   "csDepth": [
+    "The format→bridge dispatch table (strategy pattern) must be explicit and exhaustive — fail loud on an unknown extension; a default-case that silently returns empty hides an unsupported-format bug.",
+    "The router should consult CADInstallationProbeEngine — routing a .sldprt to the SolidWorks bridge is futile if SolidWorks is not installed; surface installed-but-absent distinctly."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT11": {
+  "title": "CADAutomationDispatcher — MCP action wiring",
+  "relatedSubsystems": [
+   "combo-cadautomationdispatcher",
+   "cadautomationdispatcher-cgt0607",
+   "cadautomationdispatcher-dimsig",
+   "cadautomationdispatcher-featu...",
+   "cadautomationdispatcher-gtreg..."
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/actions/cadautomation/",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "schema-read-discipline",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "dispatcher action-enum routing",
+    "Zod schema validation at the MCP boundary",
+    "round-trip E2E assertion through the dispatcher"
+   ],
+   "buildNote": "Each CAD-automation action must be in the z.enum() gate with a real executor — verify the round-trip; an enum-only entry is a ghost."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/hooks/runtime/stop-auto-wire.md",
+    "knowledge/wiki/architecture/knowledge-vault-schema.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "CADAutomationDispatcher is the MCP surface for CAD-AUTOMATION-MS0 — it exposes the router (U-CAUT10) and bridges as dispatcher actions; an enum-only ghost-wire makes the whole CAD-automation capability unreachable from the MCP surface and stop_on_unwired_assets blocks the Stop. The 30-file smoke test (U-CAUT12) drives this dispatcher.",
+   "csDepth": [
+    "Each CAD-automation action must be in the z.enum() gate with a real executor — verify the round-trip; an enum-only entry is a ghost that 100%-fails live.",
+    "Zod validation at the MCP boundary must match the router's actual input shape — read the router signature before authoring the schema (schema-blindness)."
+   ]
+  }
+ },
+ "CAD-AUTOMATION-MS0::U-CAUT12": {
+  "title": "Integration test: 30-file multi-format automation smoke",
+  "relatedSubsystems": [
+   "integration-test",
+   "prism-file",
+   "test-smoke",
+   "dev-test",
+   "file-format"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/milestones/milestone-ghost-ms-cad-automation-ms0.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/tests/",
+    "knowledge/wiki/architecture/domain-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate",
+    "schema-read-discipline"
+   ],
+   "csKnowledge": [
+    "integration / smoke test harness",
+    "multi-format fixture sweep",
+    "real-data E2E (not hermetic-only)"
+   ],
+   "buildNote": "A 30-file multi-format smoke test must drive the real router+bridges — at least one real-file E2E, not only hermetic mocks."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/tests-index.md",
+    "knowledge/wiki/architecture/rgs-tool-autoinvoke-ms1.md"
+   ],
+   "addSeWiki": [
+    "regression-prevention-doctrine"
+   ],
+   "systemImpact": "The 30-file multi-format smoke test is the integration regression oracle for the whole CAD-AUTOMATION-MS0 milestone — it drives the real router + bridges + dispatcher end to end. If it runs only hermetic mocks, a production bridge or router bug ships green; it must include at least one real-file E2E.",
+   "csDepth": [
+    "A smoke test must drive the REAL router + bridges, not only the mock layer — at least one real-file E2E per format, gated on software presence, is the only thing that proves the mock matches the producer.",
+    "A 30-file sweep is a fixture-management problem — store fixtures content-addressably and assert concrete per-file results, not just 'no exception thrown' (R9)."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-AI-11": {
+  "title": "SecondOpinionConsensusEngine — 2+ models + disagreement surfacing",
+  "relatedSubsystems": [
+   "cv-compare",
+   "cam-serve",
+   "machine-list",
+   "math-thermal",
+   "math-wear"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/ai/consensusneuralfeedbackengine.md",
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/dispatcher-aireasoning.md",
+    "knowledge/wiki/architecture/codex-review-arm.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "prompt-engineering-rails"
+   ],
+   "csKnowledge": [
+    "multi-model consensus / quorum voting",
+    "disagreement detection (Jaccard / divergence)",
+    "ensemble inference"
+   ],
+   "buildNote": "Consensus must surface disagreement explicitly — when 2+ models diverge, return the conflict, do not pick silently or average."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/orchestration/metaaiorchestrationengine.md",
+    "knowledge/wiki/architecture/codex-review-arm.md",
+    "knowledge/wiki/architecture/ollama-pipeline-ms0.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "token-budget-management"
+   ],
+   "systemImpact": "SecondOpinionConsensusEngine is the multi-model disagreement-surfacing layer that other AI-routed CAD/CAM units lean on for high-stakes decisions — its design mirrors the 3-of-3 scrutiny gate doctrine. If it silently picks or averages when models diverge (R7 violation), a confidently-wrong single model overrides a correct dissent and the conflict never reaches a human.",
+   "csDepth": [
+    "Quorum voting needs a tie-breaking and abstention policy — with 2 models a disagreement is a 1-1 tie that MUST escalate, not coin-flip; with N models define whether a non-strict majority counts and whether a low-confidence vote abstains rather than votes.",
+    "Disagreement detection on free-text outputs is not exact-equality — use semantic divergence (Jaccard over normalized tokens, or embedding cosine distance) with a calibrated threshold; raw string inequality flags trivial paraphrases as disagreement and floods the human queue."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-CAD-APP-03": {
+  "title": "CreoIntegrationTestSuite — headless fixtures",
+  "relatedSubsystems": [
+   "frontend-cqask",
+   "T3: CAD AI",
+   "cad",
+   "assembly-to"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "headless integration test fixture / harness",
+    "COM automation mocking",
+    "deterministic fixture setup-teardown"
+   ],
+   "buildNote": "Headless Creo fixtures must run without GUI — verify each fixture exercises the real automation API, not a stub that returns hardcoded geometry."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "doc-reflection-rule"
+   ],
+   "systemImpact": "CreoIntegrationTestSuite is the regression net for the Creo CAD bridge — it is what CAD-UNIVERSAL-CONTROL-MS0's coverage exit gate (U-CUC18) counts toward the 95%-by-bridge threshold. If its fixtures secretly return hardcoded geometry instead of driving the real Creo automation API, the suite passes green while the Creo bridge is actually broken in production, and the coverage gate certifies a false positive.",
+   "csDepth": [
+    "Headless integration fixtures must be suite-lifetime in setup/teardown — a per-test backup/restore on a real Creo session file is the documented footgun that deleted a live system-viz graph; back up once at suite start, restore once at suite exit.",
+    "COM automation mocking is a hermetic-fakes hazard: a mock that bypasses the real COM marshalling proves nothing about production wiring — at least one fixture must drive the actual Creo API end-to-end as a real-data oracle."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-CAD-APP-06": {
+  "title": "CATIAIntegrationTestSuite — headless CAA fixtures",
+  "relatedSubsystems": [
+   "frontend-cqask",
+   "T3: CAD AI",
+   "cad",
+   "assembly-to"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "headless CAA fixture harness",
+    "COM/CAA automation mocking",
+    "suite-lifetime fixture setup-teardown"
+   ],
+   "buildNote": "CATIA CAA headless fixtures must be suite-lifetime (not per-test) so backup/restore is symmetric — asymmetric per-test teardown is a footgun on real files."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "doc-reflection-rule"
+   ],
+   "systemImpact": "CATIAIntegrationTestSuite is the regression net for the CATIA bridge and feeds the CAD-UNIVERSAL-CONTROL-MS0 coverage exit gate (U-CUC18). If its CAA fixtures pass against a fake harness, the coverage gate certifies CATIA support that does not actually work, and CAM/quote pipelines that route CATIA parts fail silently downstream.",
+   "csDepth": [
+    "Suite-lifetime fixture setup/teardown is mandatory on real CAA session files — asymmetric per-test teardown that unlinks then can't restore is the exact bug class that wiped a real fixture file; gate the backup on a once-per-process flag and restore in a beforeExit handler.",
+    "CAA automation is process-affine and slow — fixtures should share one CATIA process across the suite (one COM connect/disconnect) rather than spawn per test, but then test isolation must be enforced by explicit document-close between tests or state leaks between cases."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-CAD-APP-13": {
+  "title": "CADCrashRecoveryEngine — per-app watchdog + re-attach + replay",
+  "relatedSubsystems": [
+   "cadcrashrecoveryengine",
+   "frontend-cqask",
+   "T3: CAD AI",
+   "cad"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadcrashrecoveryengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadinstallationprobeengine.md",
+    "knowledge/wiki/architecture/hooks/runtime/agent-watchdog.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+   ],
+   "seWiki": [
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "atomic-write-idempotency-patterns",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "watchdog process supervision",
+    "checkpoint-and-replay recovery",
+    "idempotent re-attach handshake"
+   ],
+   "buildNote": "Crash recovery must be idempotent — re-attach + replay can't double-apply commands; checkpoint the command log atomically before each replay."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/fleet-reaper.md",
+    "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+    "knowledge/wiki/architecture/session-continuity-stack.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "regression-prevention-doctrine",
+    "schema-read-discipline"
+   ],
+   "systemImpact": "CADCrashRecoveryEngine is what keeps a long CAD automation job (e.g. the 20K-file GroundTruthBatchExtractor) survivable across a crash — its watchdog + re-attach + replay is depended on by every long-running CAD bridge operation. If replay double-applies commands, the recovered CAD model diverges from the intended one and silently corrupts whatever pipeline consumes it.",
+   "csDepth": [
+    "Idempotent re-attach requires the command log to carry a monotonic sequence id and the engine to record the last-successfully-applied id atomically before each replay — without it, a crash between 'command applied' and 'log advanced' replays the command and double-applies (an extrude becomes a double-extrude).",
+    "Watchdog process supervision must distinguish a wedged-but-alive CAD process from a genuinely dead one — killing a slow-but-progressing process is as harmful as missing a hung one; use a liveness heartbeat plus a progress signal, not PID-existence alone (PID reuse hazard)."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-CAD-APP-16": {
+  "title": "CADPluginTamperAuditLogEngine — hash-chained command log",
+  "relatedSubsystems": [
+   "cad-geometry",
+   "cadplugintamperauditlogengine",
+   "frontend-cqask",
+   "T3: CAD AI"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadplugintamperauditlogengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+    "knowledge/wiki/architecture/engines/cad/cadpluginmtlssecurityengine.md",
+    "knowledge/wiki/architecture/dispatcher-security.md"
+   ],
+   "seWiki": [
+    "atomic-write-idempotency-patterns",
+    "fail-loud-r12-patterns",
+    "per-file-scrutiny-gate",
+    "test-design-real-values"
+   ],
+   "csKnowledge": [
+    "hash-chained / Merkle append-only log",
+    "SHA-256 cryptographic linking",
+    "tamper-evident audit trail"
+   ],
+   "buildNote": "Each log entry hashes the prior entry's hash — any gap or mismatch in the chain must fail loud as tamper detection, never be silently skipped."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/engines/cad/cadcontentaddressablestoreengine.md",
+    "knowledge/wiki/architecture/dispatcher-security.md",
+    "knowledge/wiki/architecture/ledger-store.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "regression-prevention-doctrine",
+    "safety-tier-discipline"
+   ],
+   "systemImpact": "CADPluginTamperAuditLogEngine is the tamper-evidence layer for CAD plugin command history — security audits and CADAccessControlRBACABACEngine incident review depend on its hash chain being verifiable. If a chain gap is silently skipped instead of failing loud, tampering becomes undetectable and the audit log's entire security value is void.",
+   "csDepth": [
+    "A hash-chained / Merkle log is append-only by construction — concurrent appenders must be serialized through a single writer or a lock, because two writers each hashing the current tip produce a fork; an append-only .jsonl with one canonical writer is the safer data structure than a mutable JSON file.",
+    "Chain verification is O(n) over the whole log — for a long-lived CAD plugin this grows unboundedly; checkpoint the chain (periodic signed Merkle roots) so verification can start from the last trusted root rather than genesis, while keeping any gap a hard fail."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-CAD-APP-19": {
+  "title": "MastercamHeadlessIntegrationTestSuite — filling cap-11 gap for #1 app",
+  "relatedSubsystems": [
+   "frontend-cqask",
+   "feature-gap",
+   "T3: CAD AI",
+   "cad"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/engines/mastercam/mastercamheadlessintegrationtestengine.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md",
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md"
+   ],
+   "seWiki": [
+    "test-design-real-values",
+    "regression-prevention-doctrine",
+    "per-file-scrutiny-gate"
+   ],
+   "csKnowledge": [
+    "headless integration test harness",
+    "Mastercam NET-Hook / API fixtures",
+    "deterministic golden-output comparison"
+   ],
+   "buildNote": "Headless Mastercam suite must drive the real NET-Hook API — a test that passes against a fake harness does not prove production wiring."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/dispatcher-cam.md",
+    "knowledge/wiki/architecture/system-viz-fs-coverage.md",
+    "knowledge/wiki/architecture/engines/mastercam/mastercamfunctionindexengine.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "doc-reflection-rule"
+   ],
+   "systemImpact": "MastercamHeadlessIntegrationTestSuite fills the cap-11 gap for the #1 CAM app — it is the regression net the CAD-UNIVERSAL-CONTROL-MS0 coverage exit gate (U-CUC18) counts most heavily, since Mastercam is the highest-volume bridge. A suite passing against a fake NET-Hook harness means the most-used CAM bridge is unverified while the coverage gate reports green.",
+   "csDepth": [
+    "Golden-output comparison must be deterministic — Mastercam NET-Hook output can carry timestamps, GUIDs, and machine-specific paths; the golden comparator must normalize those volatile fields or every run false-fails.",
+    "The suite must drive the real NET-Hook API in at least one E2E fixture — a 'hermetic fakes don't prove wiring' violation here is high-cost because a missing-from-enum dispatcher action passes a mock 100% while production is 100% broken."
+   ]
+  }
+ },
+ "CAD-COMPLETE-MS0::U-CADC-AI03": {
+  "title": "CADCapabilityNegotiatorEngine — resolves intent vs adapter capability; falls back or fails-fast per policy",
+  "relatedSubsystems": [
+   "cadcapabilitynegotiatorengine",
+   "cad-intent",
+   "decompose-intent",
+   "orchestrate-intent",
+   "post-detect"
+  ],
+  "pass1": {
+   "archWiki": [
+    "knowledge/wiki/architecture/domain-cad.md",
+    "knowledge/wiki/architecture/dispatcher-cadautomation.md",
+    "knowledge/wiki/architecture/domain-intelligence.md",
+    "knowledge/wiki/architecture/cad-fusion-training-ms0.md"
+   ],
+   "seWiki": [
+    "mcp-tool-design",
+    "per-file-scrutiny-gate",
+    "test-design-real-values",
+    "fail-loud-r12-patterns"
+   ],
+   "csKnowledge": [
+    "capability set intersection (intent requirements vs adapter feature set)",
+    "policy-driven fallback decision tree (fallback vs fail-fast)",
+    "feature negotiation / capability matrix lookup"
+   ],
+   "buildNote": "Fail-fast path must surface the exact unmet capability (R12) — never silently degrade an unsupported intent; test both fallback and fail-fast policies with real capability gaps."
+  },
+  "pass2": {
+   "addArchWiki": [
+    "knowledge/wiki/architecture/domain-ai.md",
+    "knowledge/wiki/architecture/dispatcher-cad.md",
+    "knowledge/wiki/architecture/domain-bridge.md"
+   ],
+   "addSeWiki": [
+    "fail-loud-r12-patterns",
+    "mcp-tool-design",
+    "safety-tier-discipline"
+   ],
+   "systemImpact": "The capability negotiator is the gatekeeper between an abstract CAD intent and a concrete vendor adapter (Fusion/Inventor/SolidWorks/hyperCAD-S) — every CAD generation request routed through prism_cad / prism_cadautomation passes through it. If it silently degrades an unsupported intent instead of failing fast, downstream adapters receive an under-specified request and produce wrong geometry that propagates into CAM and the print-to-program pipeline undetected.",
+   "csDepth": [
+    "Capability-set intersection is a subset test, but the result must be a three-valued outcome (fully-supported / partially-supported-with-fallback / unsupported) — collapsing partial-support into a boolean loses the information needed to choose between fallback and fail-fast.",
+    "The fallback decision tree is a policy-driven branch; the policy itself must be data, not hardcoded conditionals — otherwise adding a fifth CAD adapter forces an engine edit and a code review instead of a config change."
+   ]
+  }
+ }
+}

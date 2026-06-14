@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="18a35a4483a8e677f140ce3de983c1645fd50fa811f6b561de32a979638c6563">
+<title>PRISM Feature-Gap Audit + 12-Chat Domain Allocation — 2026-05-17</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">PRISM Feature-Gap Audit + 12-Chat Domain Allocation — 2026-05-17</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.482Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#prism-feature-gap-audit-12-chat-domain-allocation-2026-05-17">PRISM Feature-Gap Audit + 12-Chat Domain Allocation — 2026-05-17</a></li>
+<li class="toc-l2"><a href="#scope-statement">Scope statement</a></li>
+<li class="toc-l2"><a href="#method">Method</a></li>
+<li class="toc-l2"><a href="#the-12-chat-domain-allocation-applied">The 12-chat domain allocation (APPLIED)</a></li>
+<li class="toc-l2"><a href="#feature-gap-inventory-features-not-in-the-task-queue">Feature-gap inventory — features NOT in the task queue</a></li>
+<li class="toc-l3"><a href="#the-headline-gap-674-unwired-engines-595-absent-from-any-roadmap">The headline gap — 674 unwired engines, ~595 absent from any roadmap</a></li>
+<li class="toc-l3"><a href="#v889-monolith-extracted-digest0-features-absent-from-current-prism">v8.89 monolith (extracted/) — digest=0 features absent from current PRISM</a></li>
+<li class="toc-l3"><a href="#resources-jm-die-corpus-ingestion-gaps">Resources/ + JM DIE/ — corpus-ingestion gaps</a></li>
+<li class="toc-l2"><a href="#gap-units-injected">Gap units injected</a></li>
+<li class="toc-l2"><a href="#verification-channel">Verification channel</a></li>
+<li class="toc-l2"><a href="#meta-artifact-compounding-gains">META artifact (compounding-gains)</a></li>
+<li class="toc-l2"><a href="#caveats">Caveats</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="prism-feature-gap-audit-12-chat-domain-allocation-2026-05-17"><a class="anchor" href="#prism-feature-gap-audit-12-chat-domain-allocation-2026-05-17" aria-label="Permalink to PRISM Feature-Gap Audit + 12-Chat Domain Allocation — 2026-05-17">#</a>PRISM Feature-Gap Audit + 12-Chat Domain Allocation — 2026-05-17</h1>
+<blockquote>
+<p><code>/forge-audit-v2</code> run by slot juliett (claude-9f57075a). Advisory, <code>mustHumanVerify</code>. Scope: read all chat handoffs, plans/specs, orphan/unwired system-viz nodes, the v8.89 <code>extracted/</code> monolith, <code>Resources/</code>, and <code>JM DIE/</code> — surface PRISM features NOT in the task queue, then break all remaining work into 12 chats by domain.</p>
+</blockquote>
+<h2 id="scope-statement"><a class="anchor" href="#scope-statement" aria-label="Permalink to Scope statement">#</a>Scope statement</h2>
+<p>Audited PRISM&#39;s planned-work surfaces — <code>ROADMAP-CONSOLIDATED.json</code> (3196 pending</p>
+<ul>
+<li>969 prose units, 849 milestones), <code>slot-task-queues.json</code>, 729 unwired engines,</li>
+</ul>
+<p>693 handoff artifacts, 77 specs, the 895-file v8.89 monolith decomposition (<code>extracted/</code>), and the <code>Resources/</code> (164K files) + <code>JM DIE/</code> (174K files) asset archives — for features absent from the task queue. <strong>Verification channel:</strong> <code>node scripts/system-viz-query.mjs coverage-by-domain</code> + grep against <code>ROADMAP-CONSOLIDATED.json</code> + re-run <code>node scripts/allocate-domains-to-slots.mjs --dry-run</code>.</p>
+<h2 id="method"><a class="anchor" href="#method" aria-label="Permalink to Method">#</a>Method</h2>
+<p>6 parallel enumeration agents: (1) specs, (2) handoffs, (3) orphan/unwired engines, (4) <code>extracted/</code> v8.89 monolith file-by-file, (5) <code>Resources/</code>, (6) <code>JM DIE/</code>. Findings classified into 13 domains by keyword.</p>
+<h2 id="the-12-chat-domain-allocation-applied"><a class="anchor" href="#the-12-chat-domain-allocation-applied" aria-label="Permalink to The 12-chat domain allocation (APPLIED)">#</a>The 12-chat domain allocation (APPLIED)</h2>
+<p><code>scripts/allocate-domains-to-slots.mjs</code> re-keyed <code>state/shared/slot-task-queues.json</code> from priority round-robin to a <strong>domain partition</strong> — each slot owns one PRISM system domain. 3235 units allocated (3171 from ROADMAP-CONSOLIDATED + 64 audit-discovered feature-gap units leading each queue).</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Slot</th><th>Domain</th><th>Units (gap)</th></tr></thead>
+<tbody>
+<tr><td>alpha</td><td>mill</td><td>73 (2)</td></tr>
+<tr><td>bravo</td><td>lathe</td><td>362 (3)</td></tr>
+<tr><td>charlie</td><td>wire (WEDM)</td><td>117 (2)</td></tr>
+<tr><td>delta</td><td>cad</td><td>290 (9)</td></tr>
+<tr><td>echo</td><td>cam</td><td>181 (7)</td></tr>
+<tr><td>foxtrot</td><td>machining-knowhow + tribal</td><td>16 (4)</td></tr>
+<tr><td>hotel</td><td>erp/business + hr</td><td>131 (9)</td></tr>
+<tr><td>india</td><td>post-processor + master post</td><td>366 (4)</td></tr>
+<tr><td>juliett</td><td>speed-feed calculator</td><td>80 (3)</td></tr>
+<tr><td>kilo</td><td>print-to-program pipelines</td><td>14 (3)</td></tr>
+<tr><td>lima</td><td>prism-academy + learning-pipelines</td><td>55 (6)</td></tr>
+<tr><td>mike</td><td>misc features</td><td>1491 (5)</td></tr>
+<tr><td>golf</td><td>database build/maintenance + hygiene</td><td>59 (7)</td></tr>
+</tbody>
+</table></div>
+<p>Each <code>/checkin-&lt;slot&gt; /loop</code> chat now pulls its domain&#39;s backlog via <code>scripts/slot-queue.mjs --pick --slot &lt;slot&gt;</code>. Classification is keyword-based and <strong>advisory</strong> — an operator may re-tag any unit and re-run the allocator.</p>
+<p><strong>Distribution note:</strong> <code>mike</code>/misc holds 1491 units — PRISM&#39;s roadmap is infra/devtools-heavy and that work is genuinely domain-agnostic. <code>foxtrot</code> (tribal, 16) and <code>kilo</code> (print-to-program, 14) are thin in the <em>consolidated roadmap</em> — their real depth is in the unwired-engine backlog + the Resources/JM-DIE corpora (see gap inventory below), surfaced as <code>U-WIRE-BACKLOG-*</code> and corpus-ingestion gap units.</p>
+<h2 id="feature-gap-inventory-features-not-in-the-task-queue"><a class="anchor" href="#feature-gap-inventory-features-not-in-the-task-queue" aria-label="Permalink to Feature-gap inventory — features NOT in the task queue">#</a>Feature-gap inventory — features NOT in the task queue</h2>
+<h3 id="the-headline-gap-674-unwired-engines-595-absent-from-any-roadmap"><a class="anchor" href="#the-headline-gap-674-unwired-engines-595-absent-from-any-roadmap" aria-label="Permalink to The headline gap — 674 unwired engines, ~595 absent from any roadmap">#</a>The headline gap — 674 unwired engines, ~595 absent from any roadmap</h3>
+<p>Built engines with no dispatcher wiring AND no roadmap unit — the clearest &quot;shipped capability that never entered the task queue&quot; debt:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Domain</th><th>unwired / absent</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td>lathe</td><td>80 / 77</td><td>LatheThermodynamics, LatheUnifiedPhysicsOrchestration, LatheOpusReasoning, LatheMetaLearning</td></tr>
+<tr><td>wire</td><td>83 / 73</td><td>WEDMNeuralTraining, WireEDMDeepAIHardening, ElectrodeUltimateAI, WEDMProgramOptimizer</td></tr>
+<tr><td>misc</td><td>370 / 328</td><td>AS9100TraceabilityEngine (P0-CRITICAL), MacroProgramIntelligence, ResourceHarvestingIntelligence</td></tr>
+<tr><td>cam</td><td>35 / 26</td><td>CimatronCAMBridge, SprutCAMBridge, FiveAxisToolpathSynthesis</td></tr>
+<tr><td>mill</td><td>20 / 16</td><td>MillingAIUltraIntelligence, FiveAxisAIUltraIntelligence, MillingUltimateAI</td></tr>
+<tr><td>erp</td><td>18 / 17</td><td>BusinessIntelligence, CustomerKnowledge, BusinessDocumentExtractor</td></tr>
+<tr><td>database</td><td>17 / 12</td><td>PDFSourceRegistry, PhysicsPluginRegistry, WetRunDeviationRegistry</td></tr>
+<tr><td>speedfeed</td><td>14 / 12</td><td>SpeedFeedUltimateAI/AdvancedAI/DeepLearning (the SF-AI L1-L3 ladder)</td></tr>
+<tr><td>tribal</td><td>12 / 12</td><td>PlaybookRulesEngine (133KB — largest single unwired engine)</td></tr>
+<tr><td>post</td><td>10 / 8</td><td>RealTimeAdaptiveController, GapEscalationController, DNCGenerate</td></tr>
+<tr><td>academy</td><td>9 / 9</td><td>VideoELearningAI, MITCourseIntegration, ToolDatabaseDeepLearning</td></tr>
+<tr><td>print2prog</td><td>5 / 3</td><td>PrintToProgramTutorial, CoverageAnalyzer, RegressionHarness</td></tr>
+<tr><td>cad</td><td>1 / 1</td><td>OkumaMachineStepIngester (cad is well-wired)</td></tr>
+</tbody>
+</table></div>
+<p>Each domain&#39;s <code>U-WIRE-BACKLOG-&lt;domain&gt;</code> unit (in the gap-units file) points the owning slot at this backlog; the slot expands it via <code>/wire-unwired</code>.</p>
+<h3 id="v889-monolith-extracted-digest0-features-absent-from-current-prism"><a class="anchor" href="#v889-monolith-extracted-digest0-features-absent-from-current-prism" aria-label="Permalink to v8.89 monolith (extracted/) — digest=0 features absent from current PRISM">#</a>v8.89 monolith (<code>extracted/</code>) — digest=0 features absent from current PRISM</h3>
+<p>The 895-file monolith decomposition holds substantial features never re-modularized. Highest-confidence absent (verified digest=0):</p>
+<ul>
+<li><strong>cad geometry kernel:</strong> Geodesic-Distance, Mesh-Decimation, Surface-Reconstruction, Spectral-Graph-CAD, BRep-Tessellator, Voronoi, Isosurface, Curvature-Analysis</li>
+<li><strong>cam toolpath:</strong> Adaptive-Clearing, Clipper2-offsetting, Aircut-Elimination, Rest-Machining, Voxel-Stock, Multiaxis-Toolpath</li>
+<li><strong>erp/business:</strong> Subscription-System, Lean-Six-Sigma/Kaizen, Quoting, Job-Costing, Job-Shop-Scheduling, Purchasing, Inventory, Financial, Shop-Analytics</li>
+<li><strong>academy:</strong> 220-Courses-Master curriculum, Course-Gateway-Generator, University-Algorithms, MIT kernels (NumericalMethods/NURBS/ODESolvers/ControlSystems/DigitalControl/DFM)</li>
+<li><strong>database:</strong> MASTER_ALARM_DATABASE (2500 controller alarms + 68 vendor files), VERIFIED_FIX_PROCEDURES, GCODE_MCODE_DATABASE</li>
+<li><strong>optimization/data-structures:</strong> Policy-Gradient, Differential-Evolution, MOEA/D, Interval-arithmetic, KDTree, Octree, Bezier, Trust-Region, Interior-Point</li>
+<li><strong>lathe:</strong> Nose-Radius-Compensation, Live-Tooling</li>
+<li><strong>post:</strong> RL-Post-Processor, G-code-Backplot</li>
+</ul>
+<h3 id="resources-jm-die-corpus-ingestion-gaps"><a class="anchor" href="#resources-jm-die-corpus-ingestion-gaps" aria-label="Permalink to Resources/ + JM DIE/ — corpus-ingestion gaps">#</a>Resources/ + JM DIE/ — corpus-ingestion gaps</h3>
+<p><code>Resources/</code> (164K files) and <code>JM DIE/</code> (174K files) capability gaps are <strong>largely covered by the existing <code>RES-ROADMAP.json</code> (RES-MS0-27)</strong> prose units — already in ROADMAP-CONSOLIDATED, classified into the <code>database</code> domain. The net-new corpus signals captured as gap units: JM DIE <code>_PART LIBRARY/</code> (76K blueprint↔program pairs — print-to-program + speed-feed training set), the WEDM program corpus (4058 files), the macro-program corpus, and the reverse-engineering job set.</p>
+<h2 id="gap-units-injected"><a class="anchor" href="#gap-units-injected" aria-label="Permalink to Gap units injected">#</a>Gap units injected</h2>
+<p>64 curated feature-gap units written to <code>state/shared/specs/FEATURE-GAP-UNITS-2026-05-17.json</code> (milestone <code>FEATURE-GAP-AUDIT-MS0</code>), each domain-tagged and merged by the allocator to lead its slot&#39;s queue (<code>wave: &quot;GAP&quot;</code>). They are <strong>proposals</strong> — <code>advisoryOnly</code>, <code>mustHumanVerify</code>; each still passes <code>duplicationGuardEngine.mustCheckBeforeCreating()</code> before any <code>/forge-triple</code>.</p>
+<h2 id="verification-channel"><a class="anchor" href="#verification-channel" aria-label="Permalink to Verification channel">#</a>Verification channel</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Claim</th><th>Re-measure</th></tr></thead>
+<tbody>
+<tr><td>13 domain-keyed slot queues, 3235 units</td><td><code>node scripts/slot-queue.mjs --status --json</code></td></tr>
+<tr><td>allocation reproducible</td><td><code>node scripts/allocate-domains-to-slots.mjs --dry-run</code></td></tr>
+<tr><td>unwired-engine counts</td><td><code>node scripts/system-viz-query.mjs coverage-by-domain</code></td></tr>
+<tr><td>gap units present</td><td>`jq &#39;.units</td></tr>
+</tbody>
+</table></div>
+<h2 id="meta-artifact-compounding-gains"><a class="anchor" href="#meta-artifact-compounding-gains" aria-label="Permalink to META artifact (compounding-gains)">#</a>META artifact (compounding-gains)</h2>
+<p><code>scripts/allocate-domains-to-slots.mjs</code> — re-runnable: any time the roadmap or the gap-units file changes, re-run to regenerate the domain-keyed queues. The allocator + <code>FEATURE-GAP-UNITS-*.json</code> are the durable outputs; this audit doc is the one-time snapshot.</p>
+<h2 id="caveats"><a class="anchor" href="#caveats" aria-label="Permalink to Caveats">#</a>Caveats</h2>
+<ul>
+<li>Keyword classification is approximate — expect some misfiles; operators re-tag.</li>
+<li>Gap units are audit <em>proposals</em>, not verified roadmap units — human-verify.</li>
+<li><code>mike</code>/misc at 1491 is correct, not a bug — PRISM&#39;s roadmap is devtools-heavy.</li>
+<li>This is a one-time allocation, not a recurring audit — no <code>/loop</code> re-run registered (the forge-audit-v2 self-schedule rule targets recurring quality audits; re-run <code>allocate-domains-to-slots.mjs</code> manually when the roadmap shifts).</li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="FEATURE-GAP-AUDIT-2026-05-17.md">FEATURE-GAP-AUDIT-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

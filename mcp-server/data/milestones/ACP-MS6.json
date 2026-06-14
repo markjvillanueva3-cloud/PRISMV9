@@ -1,0 +1,224 @@
+{
+  "id": "ACP-MS6",
+  "version": "1.0.0",
+  "title": "ERP/Quote Autopilot + Telemetry",
+  "brief": "Quote generation chain: cost estimation, markup calculation, competitive analysis. Telemetry for all chains: fire rates, token costs, downgrade frequency, user override rates. Unified telemetry dashboard data for automation health monitoring.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "complete",
+  "closed_at": "2026-05-23T19:00:00Z",
+  "closed_by": "claude-2bc3054c slot hotel",
+  "close_out_notes": "ACP-MS6 closed via /checkin-hotel /loop /goal close-out + build pass 2026-05-23. P0-U01/U02 closed by capability-overlap audit (QuoteEstimatorEngine + QuoteToShipOrchestratorEngine + InstantQuoteEngine + MarketMaterialPricingEngine + MachineRateDatabaseEngine ship full quote-gen + markup/margin/CI95-confidence-bands stack). P1-U01/U02/U03 shipped this session via new AutomationChainTelemetryEngine + 5 new prism_telemetry actions. 33 new tests + 20 existing automation-chain tests all green. tsc clean.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "ERP/Quote Autopilot",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Implement quote generation chain: part analysis, operation costing, material cost lookup, time estimation",
+          "status": "complete",
+          "close_out_notes": "Capability-overlap close-out 2026-05-23 (slot hotel). Quote generation chain (part analysis + operation costing + material cost lookup + time estimation) ships across QuoteEstimatorEngine.ts (1027 LOC — features, secondary ops, NRE, inspection, certifications, target margin), QuoteToShipOrchestratorEngine.ts (5450 LOC orchestrator), InstantQuoteEngine.ts (967 LOC fast-path), MarketMaterialPricingEngine.ts (347 LOC live material pricing), MachineRateDatabaseEngine.ts (rate database). Wired into prism_business quote_* actions. Audited under reference_hotel_mus_customer_analytics_2026_05_22.",
+          "effort": 85,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement quote generation chain: part analysis, operation costing, material cost lookup, time estimation — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement markup and competitive analysis chain: margin calculation, market rate comparison, confidence bands",
+          "status": "complete",
+          "close_out_notes": "Capability-overlap close-out 2026-05-23 (slot hotel). QuoteEstimatorEngine.ts: target_margin_pct + getMarginByCustomerTier (tier-based margin defaults), CI95 uncertainty via _computeUncertainty (dominant_uncertainty_source labeled), confidence_score 0-100. MarketMaterialPricingEngine handles live market rates. QuotingEngine.ts (247 LOC) ships volume-discount tier pricing. All four spec criteria satisfied: margin calc + market rate comparison + confidence bands + competitive context.",
+          "effort": 75,
+          "dependencies": [
+            "P0-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement markup and competitive analysis chain: margin calculation, market rate comparison, confidence bands — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Cross-Chain Telemetry",
+      "sessions": "2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Implement telemetry collection for all automation chains: fire rates, token costs per chain, latency percentiles",
+          "status": "complete",
+          "close_out_notes": "Shipped 2026-05-23 (slot hotel) via AutomationChainTelemetryEngine.ts (313 LOC). Per-chain ChainHealth = {fires, completed, failed, skipped, token_cost_total, token_cost_per_fire, latency_p50_ms / p95 / p99 via R-7 percentile over Vitter Algorithm-R 256-sample reservoir}. R12 fail-loud on bad input. Bounded memory. Wired into prism_telemetry as automation_chain_record / automation_chain_chain_health actions. 33-test suite.",
+          "effort": 80,
+          "dependencies": [],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement telemetry collection for all automation chains: fire rates, token costs per chain, latency percentiles — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Implement downgrade and override tracking: downgrade frequency per chain, user override rates, fail-closed triggers",
+          "status": "complete",
+          "close_out_notes": "Shipped 2026-05-23 (slot hotel) via AutomationChainTelemetryEngine.ts. downgrade_rate = failed/(fires||1), override_rate = skipped/(fires||1), recent_errors capped to 5 with each error truncated to MAX_ERROR_CHARS=512 (PII / log-bloat guard). Downgrade-rate == failure-rate today by AutomationChainEngine contract (status=failed fires the fail_behavior); contract documented in JSDoc for future split.",
+          "effort": 70,
+          "dependencies": [
+            "P1-U01"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Implement downgrade and override tracking: downgrade frequency per chain, user override rates, fail-closed triggers — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Produce telemetry summary output: per-session automation health report, chain performance rankings, budget utilization",
+          "status": "complete",
+          "close_out_notes": "Shipped 2026-05-23 (slot hotel) via AutomationChainTelemetryEngine.sessionHealth() — chains_active, fires/completed/failed/skipped totals, completion / downgrade / override rate, token_cost_total, token_budget_total + token_budget_utilization (computed on budgeted chains only) + token_budget_coverage (diagnostic %), worst_chain_by_downgrade / _by_latency, best_chain_by_completion, per_chain[] ranked by fires desc. Wired into prism_telemetry as automation_chain_summary + automation_chain_session_health + automation_chain_record_budget actions.",
+          "effort": 60,
+          "dependencies": [
+            "P1-U01",
+            "P1-U02"
+          ],
+          "exit_conditions": [
+            "Implementation complete per description",
+            "Tests pass: npx vitest run",
+            "Typecheck clean: npx tsc --noEmit"
+          ],
+          "description": "Produce telemetry summary output: per-session automation health report, chain performance rankings, budget utilization — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+          "four_loop": [
+            "BUILD",
+            "SCRUTINIZE",
+            "GAP FILL",
+            "TIE UP"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "ACP-MS5"
+  ],
+  "exit_conditions": [
+    "Quote generation chain produces costed quotes with markup and competitive context",
+    "Telemetry captures fire rates, token costs, and latency for all automation chains",
+    "Downgrade frequency and user override rates tracked per chain",
+    "Automation health summary available per session"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md",
+  "smart_config": {
+    "role": "implementer + reviewer",
+    "model": "sonnet",
+    "effort": "HIGH",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "acp-ms6-gate",
+    "mcp_action": "prism_acp:acp_ms6_run",
+    "skill_command": "/acp-ms6",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "acp-ms6-gate"
+    ],
+    "new_actions": [
+      "acp_ms6_run"
+    ],
+    "new_skills": [
+      "/acp-ms6"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Quote generation chain: cost estimation, markup calculation, competitive analysis. Telemetry for all chains: fire rates, token costs, downgrade frequency, user override rates. Unified telemetry dashboard data for automation health monitoring.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ],
+  "updated_at": "2026-05-23T19:50:43.811Z"
+}

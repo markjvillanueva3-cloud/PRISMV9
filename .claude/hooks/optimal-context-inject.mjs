@@ -16,7 +16,11 @@ import { readFileSync, existsSync } from 'node:fs';
 import { request } from 'node:http';
 
 const QDRANT_URL = 'http://localhost:6333';
-const OLLAMA_URL = 'http://localhost:11434';
+// 127.0.0.1 NOT localhost: Windows resolves localhost to IPv6 ::1 but Ollama binds IPv4 127.0.0.1
+// -> localhost:11434 unreachable (the systemic fleet bug; reference_ollama_localhost_systemic_2026_06_09).
+// Env-overridable so the settings.json OLLAMA_URL also governs this hook. This hook is wired + fires on
+// every prompt but its /api/embeddings call silently failed (fail-soft -> {continue:true}, no context).
+const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const AGENT_MEMORY_PATH = 'H:/prism/mcp-server/data/state/agent-memory.json';
 const EMBED_MODEL = 'nomic-embed-text';
 

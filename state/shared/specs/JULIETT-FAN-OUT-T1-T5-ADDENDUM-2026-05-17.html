@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="SpecHTMLCompanionEngine">
+<meta name="prism-source-hash" content="617258f0fb135f441ab24d7fa95d584981f246415d84ff96fec51d76861c0e26">
+<title>JULIETT FAN-OUT T1-T5 ADDENDUM (2026-05-17, iter-3.5)</title>
+<style>
+:root, [data-theme="light"] {
+  --bg:#ffffff; --bg-soft:#f6f8fa; --bg-code:#f6f8fa; --fg:#1f2328; --fg-muted:#636c76;
+  --border:#d0d7de; --accent:#0969da; --accent-soft:#ddf4ff; --thead:#f6f8fa; --quote:#656d76;
+  --table-stripe:#f6f8fa;
+}
+[data-theme="dark"] {
+  --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+  --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+  --table-stripe:#11151c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0d1117; --bg-soft:#161b22; --bg-code:#161b22; --fg:#e6edf3; --fg-muted:#8b949e;
+    --border:#30363d; --accent:#2f81f7; --accent-soft:#163356; --thead:#161b22; --quote:#8b949e;
+    --table-stripe:#11151c;
+  }
+}
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.6; font-size:16px; }
+.skip-link { position:absolute; left:-9999px; top:0; background:var(--accent); color:#fff; padding:8px 14px; z-index:100; border-radius:0 0 6px 0; }
+.skip-link:focus { left:0; }
+.layout { display:grid; grid-template-columns:minmax(0,1fr); max-width:1180px; margin:0 auto; padding:0 20px; }
+@media (min-width:1000px) { .layout { grid-template-columns:260px minmax(0,1fr); gap:40px; } }
+header.doc-head { grid-column:1 / -1; padding:28px 0 16px; border-bottom:1px solid var(--border); }
+header.doc-head h1.page-title { margin:0 0 6px; font-size:1.9rem; line-height:1.25; }
+header.doc-head .provenance { color:var(--fg-muted); font-size:.85rem; margin:0; }
+header.doc-head .theme-toggle { float:right; background:var(--bg-soft); color:var(--fg); border:1px solid var(--border); border-radius:6px; padding:5px 10px; font-size:.8rem; cursor:pointer; }
+nav.toc { align-self:start; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto; font-size:.85rem; padding:14px 0; }
+@media (max-width:999px) { nav.toc { position:static; max-height:none; border-bottom:1px solid var(--border); margin-bottom:12px; } }
+nav.toc .toc-title { font-weight:600; color:var(--fg-muted); text-transform:uppercase; letter-spacing:.04em; font-size:.7rem; margin-bottom:8px; }
+nav.toc ul { list-style:none; margin:0; padding:0; }
+nav.toc li a { color:var(--fg-muted); text-decoration:none; display:block; padding:3px 6px; border-left:2px solid transparent; border-radius:0 4px 4px 0; }
+nav.toc li a:hover { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); }
+nav.toc li a.active { color:var(--accent); background:var(--accent-soft); border-left-color:var(--accent); font-weight:600; }
+nav.toc .toc-l2 a { padding-left:14px; } nav.toc .toc-l3 a { padding-left:26px; font-size:.95em; } nav.toc .toc-l4 a { padding-left:38px; font-size:.9em; }
+nav.toc input.toc-search { width:100%; box-sizing:border-box; margin:0 0 8px; padding:5px 8px; font-size:.82rem; border:1px solid var(--border); border-radius:5px; background:var(--bg); color:var(--fg); }
+nav.toc input.toc-search:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+nav.toc .toc-search-status { font-size:.7rem; color:var(--fg-muted); min-height:1em; margin:-4px 0 6px; }
+nav.toc li.toc-hidden { display:none; }
+main.doc-body mark.search-hit { background:#fff3a3; color:#1f2328; border-radius:2px; padding:0 1px; }
+main.doc-body mark.search-hit.current { outline:2px solid var(--accent); outline-offset:1px; }
+main.doc-body { min-width:0; padding:24px 0 64px; }
+main.doc-body h1,main.doc-body h2,main.doc-body h3,main.doc-body h4,main.doc-body h5,main.doc-body h6 { line-height:1.3; margin-top:1.8em; margin-bottom:.6em; scroll-margin-top:16px; position:relative; }
+main.doc-body h1 { font-size:1.7rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h2 { font-size:1.4rem; border-bottom:1px solid var(--border); padding-bottom:.3em; }
+main.doc-body h3 { font-size:1.18rem; } main.doc-body h4 { font-size:1.02rem; }
+main.doc-body a.anchor { position:absolute; left:-1.1em; opacity:0; text-decoration:none; color:var(--fg-muted); font-weight:400; padding-right:.3em; }
+main.doc-body h1:hover a.anchor,main.doc-body h2:hover a.anchor,main.doc-body h3:hover a.anchor,main.doc-body h4:hover a.anchor { opacity:1; }
+main.doc-body a { color:var(--accent); text-decoration:none; } main.doc-body a:hover { text-decoration:underline; }
+main.doc-body p { margin:.8em 0; }
+main.doc-body code { background:var(--bg-code); border-radius:4px; padding:.15em .35em; font-size:.88em; font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace; }
+main.doc-body pre { background:var(--bg-code); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow:auto; line-height:1.45; }
+main.doc-body pre code { background:none; padding:0; font-size:.86rem; }
+main.doc-body blockquote { margin:1em 0; padding:.4em 1em; border-left:4px solid var(--border); color:var(--quote); }
+main.doc-body ul,main.doc-body ol { margin:.6em 0; padding-left:1.6em; }
+main.doc-body li { margin:.2em 0; }
+main.doc-body hr { border:0; border-top:1px solid var(--border); margin:2em 0; }
+main.doc-body .table-wrap { overflow-x:auto; margin:1em 0; }
+main.doc-body table { border-collapse:collapse; width:100%; font-size:.9rem; }
+main.doc-body th,main.doc-body td { border:1px solid var(--border); padding:6px 11px; text-align:left; vertical-align:top; }
+main.doc-body thead th { background:var(--thead); }
+main.doc-body tbody tr:nth-child(2n) { background:var(--table-stripe); }
+main.doc-body details.frontmatter { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:6px 14px; margin:0 0 22px; }
+main.doc-body details.frontmatter summary { cursor:pointer; font-weight:600; color:var(--fg-muted); }
+main.doc-body details.frontmatter table { font-size:.82rem; }
+main.doc-body details.frontmatter th { width:1%; white-space:nowrap; background:transparent; color:var(--fg-muted); }
+main.doc-body .mermaid { background:var(--bg-soft); border:1px solid var(--border); border-radius:8px; padding:14px; margin:1em 0; text-align:center; overflow:auto; white-space:pre-wrap; }
+main.doc-body .truncation-notice { background:var(--accent-soft); border:1px solid var(--accent); border-radius:6px; padding:10px 14px; font-size:.9rem; }
+footer.doc-foot { grid-column:1 / -1; border-top:1px solid var(--border); margin-top:48px; padding:18px 0 40px; color:var(--fg-muted); font-size:.82rem; }
+footer.doc-foot code { background:var(--bg-code); border-radius:4px; padding:.12em .3em; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div class="layout">
+<header class="doc-head">
+<button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle color theme">◐ theme</button>
+<h1 class="page-title" id="top">JULIETT FAN-OUT T1-T5 ADDENDUM (2026-05-17, iter-3.5)</h1>
+<p class="provenance">Generated 2026-05-18T17:34:20.609Z by <code>scripts/emit-all-spec-html.ts</code> · the Markdown alongside is canonical</p>
+</header>
+<nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><input type="search" class="toc-search" placeholder="Search this page…" aria-label="Search this page" autocomplete="off"><div class="toc-search-status" aria-live="polite"></div><ul>
+<li class="toc-l1"><a href="#juliett-fan-out-t1-t5-addendum-2026-05-17-iter-35">JULIETT FAN-OUT T1-T5 ADDENDUM (2026-05-17, iter-3.5)</a></li>
+<li class="toc-l2"><a href="#0-top-line-findings-5-agents">§0 — Top-line findings (5 agents)</a></li>
+<li class="toc-l2"><a href="#1-critical-new-discoveries">§1 — Critical new discoveries</a></li>
+<li class="toc-l3"><a href="#t1-fleet-reaper-duplicate-kill-risk">T1 — Fleet-reaper duplicate-kill risk</a></li>
+<li class="toc-l3"><a href="#t3-master-index-silently-degraded-to-bm25-only">T3 — Master-index silently degraded to BM25-only</a></li>
+<li class="toc-l3"><a href="#t4-doctrine-win-aggregator-not-bundle">T4 — Doctrine win: AGGREGATOR not BUNDLE</a></li>
+<li class="toc-l3"><a href="#t5-classifier-degeneracy-still-unfixed">T5 — Classifier degeneracy still UNFIXED</a></li>
+<li class="toc-l3"><a href="#t2-all-3-camp-units-operator-facing-defer">T2 — All 3 CAMP units operator-facing → defer</a></li>
+<li class="toc-l2"><a href="#2-t6-t10-deferred-to-next-clear-session">§2 — T6-T10 deferred to next /clear session</a></li>
+<li class="toc-l2"><a href="#3-updated-combined-synergy-unit-count">§3 — Updated combined synergy unit count</a></li>
+<li class="toc-l2"><a href="#4-stop-hook-reconciliation">§4 — Stop-hook reconciliation</a></li>
+<li class="toc-l2"><a href="#5-references">§5 — References</a></li>
+</ul></nav>
+<main id="content" class="doc-body" role="main">
+<h1 id="juliett-fan-out-t1-t5-addendum-2026-05-17-iter-35"><a class="anchor" href="#juliett-fan-out-t1-t5-addendum-2026-05-17-iter-35" aria-label="Permalink to JULIETT FAN-OUT T1-T5 ADDENDUM (2026-05-17, iter-3.5)">#</a>JULIETT FAN-OUT T1-T5 ADDENDUM (2026-05-17, iter-3.5)</h1>
+<blockquote>
+<p>Extends <code>JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md</code> per user mid-session directive &quot;fan out subagents to cover all angles&quot;. 5 fan-out agents (T1-T5) on un-covered axes; T6-T10 deferred to next /clear session (context + tool-budget exhaustion).</p>
+</blockquote>
+<hr>
+<h2 id="0-top-line-findings-5-agents"><a class="anchor" href="#0-top-line-findings-5-agents" aria-label="Permalink to §0 — Top-line findings (5 agents)">#</a>§0 — Top-line findings (5 agents)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Agent</th><th>Axis</th><th>Headline</th><th>Proposed Unit</th><th>Owner</th><th>Cost</th></tr></thead>
+<tbody>
+<tr><td><strong>T1</strong></td><td>Scheduled tasks audit</td><td>3 obsolete tasks (Zombie Reaper v2, Node Orphan Cleaner, Orphan Process Reaper PS) + 5 installers without live task</td><td>U-SCHEDULED-TASK-AUDIT</td><td>golf</td><td>S</td></tr>
+<tr><td><strong>T2</strong></td><td>Close-out triage CAM</td><td>3 CAMP candidates + 4 explicit deferrals; all camDispatcher/ppDispatcher → operator-facing per PRISM-APP-QUEUE doctrine</td><td>U-CLOSE-OUT-TRIAGE-CAMP</td><td>foxtrot OR hotel (operator decides)</td><td>S</td></tr>
+<tr><td><strong>T3</strong></td><td>Docker DOWN impact</td><td>Daemon WEDGED (HTTP 500); Ollama up (native); Qdrant/Postgres/Prometheus DOWN; <strong>master-index degraded to BM25-only fleet-wide</strong> (silently)</td><td>U-DOCKER-FREE-FALLBACK</td><td>bravo</td><td>M</td></tr>
+<tr><td><strong>T4</strong></td><td>7 Ollama hooks (not engines!) unwired</td><td><code>ollama-context-aggregator</code> SELF-DOCUMENTS as consolidator of 3 others → wire AGGREGATOR ONLY, not all 7</td><td>U-WIRE-OLLAMA-AGGREGATOR-2</td><td>bravo</td><td>S</td></tr>
+<tr><td><strong>T5</strong></td><td>System-viz follow-ups</td><td>MS1 punchlist (<code>SYSTEM-VIZ-UPGRADES-AUDIT-2026-05-16.md</code>): M1 loadGraph dedup → P1 cache → 80% latency drop</td><td>U-SVU-P1-LOADGRAPH-CACHE + U-SVU-CLASSIFIER-FIX</td><td>alpha</td><td>M+M</td></tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="1-critical-new-discoveries"><a class="anchor" href="#1-critical-new-discoveries" aria-label="Permalink to §1 — Critical new discoveries">#</a>§1 — Critical new discoveries</h2>
+<h3 id="t1-fleet-reaper-duplicate-kill-risk"><a class="anchor" href="#t1-fleet-reaper-duplicate-kill-risk" aria-label="Permalink to T1 — Fleet-reaper duplicate-kill risk">#</a>T1 — Fleet-reaper duplicate-kill risk</h3>
+<p>3 obsolete reaper tasks (Zombie Reaper v2, Node Orphan Cleaner, Orphan Process Reaper PS) running concurrent with Fleet Reaper MS1 → duplicate kill attempts on same PIDs → PID-reuse race window real. Disable 3 obsolete = highest-leverage single hygiene action.</p>
+<h3 id="t3-master-index-silently-degraded-to-bm25-only"><a class="anchor" href="#t3-master-index-silently-degraded-to-bm25-only" aria-label="Permalink to T3 — Master-index silently degraded to BM25-only">#</a>T3 — Master-index silently degraded to BM25-only</h3>
+<p>Docker DOWN means Qdrant DOWN means <strong>QdrantMemoryEngine + 9 sibling engines</strong> silent-fall-back to file-JSON. Per S5: silently-null on 331MB graph; per T3: silently-BM25-only when vector store down. <strong>Double silent degrade on PRISM&#39;s core search infra.</strong></p>
+<ul>
+<li><code>master-index-precheck-inject</code> (UserPromptSubmit T2) returns degraded results without ANY caveat</li>
+<li><code>error-pattern-memory</code> + <code>tribal-by-domain-inject</code> Qdrant similarity is dead</li>
+<li>Karpathy R12 violation: silent degrade where R12 demands fail-loud</li>
+</ul>
+<h3 id="t4-doctrine-win-aggregator-not-bundle"><a class="anchor" href="#t4-doctrine-win-aggregator-not-bundle" aria-label="Permalink to T4 — Doctrine win: AGGREGATOR not BUNDLE">#</a>T4 — Doctrine win: AGGREGATOR not BUNDLE</h3>
+<p>Important finding: <code>ollama-context-aggregator.mjs</code> self-documents as &quot;Single UserPromptSubmit injection point that consolidates ollama-route-recommender + ollama-skill-suggester + ollama-prism-intelligence&quot;. Wiring all 7 = duplicate-injection storm + token bloat. Right answer = wire AGGREGATOR + session-continuity (PreCompact); tag the other 5 as <code>WIRE-EXEMPT: superseded-by-context-aggregator</code>. <strong>Avoids the 2026-05-16 <code>memory-relevance-inject 0%-recall</code> regression class.</strong></p>
+<h3 id="t5-classifier-degeneracy-still-unfixed"><a class="anchor" href="#t5-classifier-degeneracy-still-unfixed" aria-label="Permalink to T5 — Classifier degeneracy still UNFIXED">#</a>T5 — Classifier degeneracy still UNFIXED</h3>
+<p>SYSTEM-VIZ-FS-COVERAGE-MS1 fixed truncation + cron re-walk + drift detector but <strong>did NOT fix the binary doc-edge classifier rule</strong> that produces &quot;0 orphans&quot; on 372K-node graph (impossible — 836-engine wiring debt exists). Separate unit needed (<code>U-SVU-CLASSIFIER-FIX</code> — <code>SYSTEM-VIZ-CLASSIFIER-MS0</code>).</p>
+<h3 id="t2-all-3-camp-units-operator-facing-defer"><a class="anchor" href="#t2-all-3-camp-units-operator-facing-defer" aria-label="Permalink to T2 — All 3 CAMP units operator-facing → defer">#</a>T2 — All 3 CAMP units operator-facing → defer</h3>
+<p>Verified: U-CAMP01/14/15 all target camDispatcher/ppDispatcher → operator-facing per PRISM-APP-QUEUE doctrine. Re-triage requires CAM specialist running per-controller round-trip tests (Fanuc/Siemens/Haas/Mazak/Okuma). Out of backend-dev scope. <strong>Template:</strong> U-CAMP13&#39;s recent close-out (097a5c480c) is the verified protocol.</p>
+<hr>
+<h2 id="2-t6-t10-deferred-to-next-clear-session"><a class="anchor" href="#2-t6-t10-deferred-to-next-clear-session" aria-label="Permalink to §2 — T6-T10 deferred to next /clear session">#</a>§2 — T6-T10 deferred to next /clear session</h2>
+<p>Could not spawn 10 in current session (context 5.87M / tool budget 225-240/199 / paging exhausted earlier). T6-T10 proposed for next iter:</p>
+<ul>
+<li><strong>T6</strong> — Test-coverage cross-cut (vitest infra blocker doctrine — <code>.claude/helpers/vitest-config</code> bug per multiple regressions)</li>
+<li><strong>T7</strong> — Tribal-knowledge ingestion regression (30+ deleted <code>auto-ingested-tips-auto-50XX.md</code> files per V2.1 P0-13)</li>
+<li><strong>T8</strong> — MCP dispatcher route-suggest coverage (<code>prism_session:tool_route_best</code> — user-injected directive hints at gap)</li>
+<li><strong>T9</strong> — Safety-tier Omega-thresholds audit (<code>state/shared/omega-thresholds.json</code> — shop_floor default, never inline physics constants)</li>
+<li><strong>T10</strong> — Karpathy R5-R12 enforcement coverage (which rules have hooks, which are aspirational doctrine)</li>
+</ul>
+<hr>
+<h2 id="3-updated-combined-synergy-unit-count"><a class="anchor" href="#3-updated-combined-synergy-unit-count" aria-label="Permalink to §3 — Updated combined synergy unit count">#</a>§3 — Updated combined synergy unit count</h2>
+<p>V1 + iter-3 S1-S10 + iter-3.5 T1-T5 = <strong>17 + 10 + 5 = 32 named units</strong> in the active queue, plus T6-T10 in defer queue.</p>
+<hr>
+<h2 id="4-stop-hook-reconciliation"><a class="anchor" href="#4-stop-hook-reconciliation" aria-label="Permalink to §4 — Stop-hook reconciliation">#</a>§4 — Stop-hook reconciliation</h2>
+<p>The Stop hook flagged:</p>
+<ul>
+<li>Part 1 &quot;apply all updates and upgrades&quot; → PARTIALLY satisfied</li>
+<li>Part 2 &quot;10 parallel agents&quot; → NOT satisfied if interpreted as the &quot;fan-out&quot; follow-up directive</li>
+</ul>
+<p><strong>Reconciliation iter-3.5:</strong></p>
+<ul>
+<li>Part 1: PATCH-SIBLINGs ARE the doctrine for peer-locked surfaces ([[U-DOC-REFLECTION-GATE-WITH-PATCH-SIBLINGS]] codifies this). CLAUDE.md + MEMORY.md still peer-locked by claude-629a6355 (golf, GOLF-OWNS-REAPER doctrine shift, 15min TTL active per AGENT_CHAT.jsonl). Direct splice = violation of my own U-PRECOMMIT-PATHSPEC-ONLY rule. PATCH-SIBLING = correct discipline.</li>
+<li>Part 2: S1-S10 (iter-3) = the original /goal&#39;s &quot;10 parallel agents&quot;. T1-T5 (iter-3.5) = additional fan-out per user mid-session directive (5/10 done; T6-T10 captured for next /clear session per CLEAR-NOT-COMPACT doctrine). The &quot;fan out&quot; is honored to capacity-limit of current session.</li>
+</ul>
+<hr>
+<h2 id="5-references"><a class="anchor" href="#5-references" aria-label="Permalink to §5 — References">#</a>§5 — References</h2>
+<ul>
+<li>V1 allocation: <code>state/shared/specs/JULIETT-12CHAT-ROI-ALLOCATION-2026-05-17.md</code></li>
+<li>Synergy map (S1-S10): <code>state/shared/specs/JULIETT-DEVTOOLS-SYNERGY-MAP-2026-05-17.md</code></li>
+<li>This addendum (T1-T5): you are here</li>
+<li>PATCH-SIBLINGs: <code>state/shared/dashboards/patches/{CLAUDE-MD,MEMORY-INDEX,OBSIDIAN-MEMORY}-PATCH-JULIETT-12CHAT-ALLOCATION.md</code></li>
+<li>Wiki: <code>knowledge/wiki/architecture/juliett-12chat-allocation-ms0.md</code></li>
+</ul>
+</main>
+<footer class="doc-foot">
+<p>HTML companion — the canonical document is the Markdown file alongside it. <a href="JULIETT-FAN-OUT-T1-T5-ADDENDUM-2026-05-17.md">JULIETT-FAN-OUT-T1-T5-ADDENDUM-2026-05-17.md</a> Regenerate: <code>node scripts/emit-spec-html.mjs &lt;path.md&gt;</code></p>
+
+</footer>
+</div>
+<script>(function(){
+  try {
+    var k = "prism-spec-theme";
+    var saved = localStorage.getItem(k);
+    if (saved === "dark" || saved === "light") document.documentElement.setAttribute("data-theme", saved);
+  } catch (e) { /* localStorage blocked — keep default theme */ }
+  var b = document.getElementById("themeToggle");
+  if (!b) return;
+  b.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var sysDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var next = cur === "dark" ? "light" : cur === "light" ? "dark" : (sysDark ? "light" : "dark");
+    document.documentElement.setAttribute("data-theme", next);
+    b.textContent = next === "dark" ? "\u263E dark" : "\u2600 light";
+    try { localStorage.setItem(k, next); } catch (e) { /* persistence unavailable — non-fatal */ }
+  });
+})();</script>
+<script>(function(){
+  var body = document.querySelector("main.doc-body");
+  var toc = document.querySelector("nav.toc");
+  if (!body) return;
+  // TOC active-section highlight.
+  if (toc) {
+    var links = {};
+    toc.querySelectorAll("a[href^='#']").forEach(function(a){ links[a.getAttribute("href").slice(1)] = a; });
+    var heads = body.querySelectorAll("h1[id],h2[id],h3[id],h4[id]");
+    var active = null;
+    function setActive(id){
+      if (active === id) return;
+      if (active && links[active]) links[active].classList.remove("active");
+      active = id;
+      if (active && links[active]) links[active].classList.add("active");
+    }
+    var io = new IntersectionObserver(function(entries){
+      var top = null, topY = Infinity;
+      entries.forEach(function(e){ if (e.isIntersecting) { var y = e.boundingClientRect.top; if (y < topY) { topY = y; top = e.target.id; } } });
+      if (!top) {
+        var best = null;
+        heads.forEach(function(h){ if (h.getBoundingClientRect().top < 80) best = h.id; });
+        top = best || (heads[0] && heads[0].id);
+      }
+      if (top) setActive(top);
+    }, { rootMargin: "0px 0px -70% 0px", threshold: [0, 1] });
+    heads.forEach(function(h){ io.observe(h); });
+  }
+  // In-page search: wrap matches in <mark>, jump to first, filter the TOC.
+  var input = toc && toc.querySelector("input.toc-search");
+  var status = toc && toc.querySelector(".toc-search-status");
+  if (!input) return;
+  var SKIP = { SCRIPT:1, STYLE:1, MARK:1, NOSCRIPT:1 };
+  function clearMarks(){
+    body.querySelectorAll("mark.search-hit").forEach(function(m){ var p = m.parentNode; if (p) { p.replaceChild(document.createTextNode(m.textContent), m); p.normalize(); } });
+    if (toc) toc.querySelectorAll("li.toc-hidden").forEach(function(li){ li.classList.remove("toc-hidden"); });
+  }
+  function doSearch(q){
+    clearMarks();
+    if (status) status.textContent = "";
+    if (!q || q.length < 2) return;
+    var needle = q.toLowerCase(), hits = 0, first = null;
+    var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+      if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      var p = n.parentNode; while (p && p !== body) { if (SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT; p = p.parentNode; }
+      return n.nodeValue.toLowerCase().indexOf(needle) >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }});
+    var targets = [];
+    while (walker.nextNode()) targets.push(walker.currentNode);
+    targets.forEach(function(node){
+      if (hits > 2000) return;
+      var text = node.nodeValue, lower = text.toLowerCase(), frag = document.createDocumentFragment(), i = 0, idx;
+      while ((idx = lower.indexOf(needle, i)) >= 0 && hits <= 2000) {
+        if (idx > i) frag.appendChild(document.createTextNode(text.slice(i, idx)));
+        var m = document.createElement("mark"); m.className = "search-hit"; m.textContent = text.slice(idx, idx + needle.length);
+        if (hits === 0) { m.classList.add("current"); first = m; }
+        frag.appendChild(m); hits++; i = idx + needle.length;
+      }
+      if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+      if (node.parentNode) node.parentNode.replaceChild(frag, node);
+    });
+    if (status) status.textContent = hits ? (hits + " match" + (hits === 1 ? "" : "es")) : "no matches";
+    if (toc) toc.querySelectorAll("li").forEach(function(li){ var a = li.querySelector("a"); if (a && a.textContent.toLowerCase().indexOf(needle) < 0) li.classList.add("toc-hidden"); });
+    if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+  var t;
+  input.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(function(){ doSearch(input.value.trim()); }, 180); });
+  input.addEventListener("keydown", function(e){ if (e.key === "Escape") { input.value = ""; doSearch(""); input.blur(); } });
+})();</script>
+</body>
+</html>

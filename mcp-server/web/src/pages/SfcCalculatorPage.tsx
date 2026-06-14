@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import SmartMaterialSelector from "../components/sfc/SmartMaterialSelector";
 import OperationSelector from "../components/sfc/OperationSelector";
 import SmartToolSelector from "../components/sfc/SmartToolSelector";
@@ -52,6 +52,16 @@ export default function SfcCalculatorPage() {
   const [fullHistory, setFullHistory] = useState<CalcSnapshot[]>(loadFullHistory);
   const [rightTab, setRightTab] = useState<RightTab>("charts");
   const calc = useSfcCalculate();
+
+  // SF Studio compact density (2026-05-21, slot:juliett) — opt this dense
+  // calculator route into the −15% page zoom (index.css
+  // body[data-sf-density="compact"]). Set on mount, cleared on unmount so
+  // lighter routes keep the default density. See index.css for the rationale
+  // + the measured +67% above-fold control gain.
+  useEffect(() => {
+    document.body.setAttribute("data-sf-density", "compact");
+    return () => document.body.removeAttribute("data-sf-density");
+  }, []);
 
   const handleOperationChange = useCallback((op: OperationType) => {
     setOperation(op);

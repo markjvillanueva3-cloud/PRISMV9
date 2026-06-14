@@ -74,7 +74,71 @@ import { tmpdir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { snapshotFleet } from "../.claude/helpers/process-slot-map.mjs";
+import { snapshotFleet, enumerateProcesses, getLastEnumerationError } from "../.claude/helpers/process-slot-map.mjs";
+// FLEET-REAPER-MS2/U-FR-S2: enumeration cache cuts duplicate PS5.1
+// Get-CimInstance cost ~70% under burst load (12-chat × 2-PC fleet with
+// scheduled-task + Stop-hook + Monitor overlapping). Per-host keyed,
+// atomic write, fail-soft stale fallback. Kill switch:
+// PRISM_FLEET_REAPER_ENUM_CACHE_DISABLE=1. TTL knob:
+// PRISM_FLEET_REAPER_ENUM_CACHE_TTL_SEC (default 60, clamped 5..3600).
+import { enumerateProcessesCached } from "../.claude/helpers/fleet-reaper-enum-cache.mjs";
+// FLEET-REAPER-MS3/U-FR-HOST-PRESETS: per-PC env overlay so the same code does
+// the right thing on dissimilar PCs (home: 16GB GPU + 7B model + 90% mem floor;
+// work: 8GB GPU + 3B model + 85% mem floor). Loaded ONCE at module top so the
+// scheduled task (which has no shell env-init step) picks up the preset on
+// every run. Env always wins over preset (operator override preserved). The
+// /fleet-reaper-home and /fleet-reaper-work skills are the operator-facing
+// writers for this file.
+import { applyHostPresetForCurrent } from "../.claude/helpers/fleet-reaper-host-presets.mjs";
+const _hostPresetResult = applyHostPresetForCurrent();
+if (_hostPresetResult.applied && process.env.PRISM_FLEET_REAPER_VERBOSE === "1") {
+  console.error(`[fleet-reaper] host-preset "${_hostPresetResult.label}" applied for ${_hostPresetResult.host}: ${_hostPresetResult.appliedKeys.length} env key(s)`);
+}
+// FLEET-REAPER-MS3/U-FR-MS3-D: drop reaper self CPU priority during sweep so
+// its file-I/O does not compete with claude.exe for the disk-queue on a
+// memory-pressured host. Reversible (try/finally + beforeExit hook), idempotent,
+// fail-soft. Skipped on non-Windows, dry-run, status mode, or with the
+// PRISM_FR_SELF_BG_IO_DISABLE=1 / PRISM_FLEET_REAPER_DISABLE=1 kill switches.
+import {
+  beginBackgroundMode as _beginSelfIoGuard,
+  endBackgroundMode as _endSelfIoGuard,
+  registerExitRestore as _registerSelfIoExitRestore,
+} from "./lib/reaper-self-io-priority.mjs";
+// FLEET-REAPER-MS3/U-FR-MS3-B: Tier-1.5 bg-app throttle wedged BETWEEN
+// soft-relief (Tier-1) and serviceRestart (Tier-2). Under pressure, drop
+// top-N non-Claude heavy processes to BelowNormal; hysteresis-restore at
+// memPressurePct-5. Pure helper + injected setter. Stamp file at
+// state/shared/.fleet-reaper-bg-throttle.json carries the prior pids.
+import {
+  decideAction as _bgThrottleDecide,
+  pickThrottleCandidates as _bgPickThrottleCandidates,
+  buildStamp as _bgBuildStamp,
+  readStamp as _bgReadStamp,
+  clampTopN as _bgClampTopN,
+  clampMinRssMb as _bgClampMinRssMb,
+} from "./lib/bg-app-throttle.mjs";
+import { setPriorityForPids as _setPriorityForPidsExternal } from "../.claude/helpers/claude-tree-priority.mjs";
+
+/**
+ * Default enumerator for CLI entry points (main + monitorLoop).
+ *
+ * The cache helper is OPT-OUT, not opt-in: any direct `runSweep({enumerator})`
+ * caller (existing tests, advisory mode, hermetic harness) bypasses the cache
+ * because they pre-set cfg.enumerator. Only the CLI defaults to cached.
+ *
+ * Cache misses (TTL elapsed, different host, corrupt, first run) fall through
+ * to the raw `enumerateProcesses` — identical to pre-MS2 behavior. The result
+ * is byte-identical for cache miss vs. no-cache; the win is only the bypass
+ * on the cache hit path.
+ */
+function cachedEnumerate() {
+  const result = enumerateProcessesCached({ enumerator: enumerateProcesses });
+  // We discard fromCache/fromStaleCache/reason here — the snapshotFleet
+  // contract only needs the procs array. The reason is observable in the
+  // cache file's mtime + the sidecar's writtenAt field if an operator wants
+  // to debug. Adding it to the sweep result struct is a future Tier-S task.
+  return result.procs;
+}
 // Shared Ollama telemetry writer — best-effort, never throws (see its header).
 // Sibling helper, ships together, no side effects on import. The coordinator
 // records prewarm/hint decisions here so `/ollama-offload-dashboard` captures
@@ -85,6 +149,23 @@ import { snapshotFleet } from "../.claude/helpers/process-slot-map.mjs";
 // still reports into the one canonical dashboard, not a worktree-local copy.
 // Do not "fix" this to a worktree-relative path.
 import { recordOllamaEvent } from "../.claude/hooks/lib/ollama-stats.mjs";
+// U-FR-CRASH-WATCH: detect chat-slot crashes (heartbeat froze + chatId
+// unchanged) and write a postmortem. STRICTLY ADDITIVE — never changes a
+// reap decision. Pure-core + injected-IO; sibling lib, no import side effects.
+import {
+  snapshotSlotState, detectCrashes, formatPostmortemRow,
+  readPrevSnapshot, writeSnapshot, appendPostmortems,
+} from "./lib/fleet-reaper-crash-watch.mjs";
+// U-FR-STUCK-HUNT (2026-05-21, slot:golf): stuck shells + fsmonitor orphans +
+// stale slot PIDs. Pure-core sibling lib; the sweep owns the kill side-effect
+// via the existing reapProcesses helper. Strictly additive; default-on but
+// each hunter gates on its own PRISM_FR_HUNT_*_DISABLE env knob.
+import { runStuckHunters, buildProtectedPidSet } from "./lib/fleet-reaper-stuck-hunters.mjs";
+import { findMcpZombies, findStaleOrphanedNodes, buildStaleNodeProtectRegex } from "./lib/fleet-reaper-mcp-zombie-hunter.mjs";
+// FLEET-REAPER cry-wolf fix (golf 2026-06-04): read-only preview of the CANONICAL
+// reclaim so the stale-slot advisory reports the ACTUALLY-reclaimable subset
+// (heartbeat-crashed AND window-pid-dead) instead of the weaker recorded-pid count.
+import { previewReclaimable } from "../.claude/helpers/chat-slots.mjs";
 
 // ─── Paths & constants ──────────────────────────────────────────────────────
 
@@ -101,6 +182,13 @@ const DEFAULT_LOG_PATH = join(SHARED_DIR, "fleet-reaper.log");
 // `{ts,pid,ppid,name,reason}` core so a forensic parser can read both with one
 // schema, plus `ownerSlot` + `rssReclaimedBytes` extras.
 const DEFAULT_AUDIT_LOG_PATH = join(SHARED_DIR, ".fleet-reaper-actions.jsonl");
+// U-FR-CRASH-WATCH: per-sweep slot-state snapshot (for crash diffing) +
+// append-only chat-crash postmortem trail. Both under SHARED_DIR so a sweep
+// from any worktree records into the one canonical fleet-wide forensic set.
+const DEFAULT_CRASH_WATCH_SNAPSHOT_PATH = join(SHARED_DIR, "fleet-reaper-crash-watch-snapshot.json");
+const DEFAULT_CRASH_POSTMORTEM_PATH = join(SHARED_DIR, "chat-crash-postmortems.jsonl");
+// chat-slots.json canonical path (per chat-slots.mjs DEFAULT_STATE_PATH).
+const DEFAULT_CHAT_SLOTS_PATH = join(SHARED_DIR, "chat-slots.json");
 // TTL'd routing hint written by the Ollama coordinator, read by
 // .claude/hooks/ollama-task-offloader.mjs. See knowledge/wiki/architecture/
 // ollama-routing-hint.md for the full contract.
@@ -125,7 +213,7 @@ export const DEFAULT_MEM_PRESSURE_PCT = 90;
 // critical band (>= MEM_CRITICAL_PCT) collapses it to zero — a candidate that
 // is still a candidate at a critical-pressure sweep is reaped THIS tick rather
 // than after another interval. Knob: PRISM_FLEET_REAPER_MEM_CRITICAL_PCT.
-export const DEFAULT_MEM_CRITICAL_PCT = 95;
+export const DEFAULT_MEM_CRITICAL_PCT = 88;  // 2026-05-17: lowered 95→88 (OPT-2) so critical-mode immediate-reap kicks in earlier — relieves host commit BEFORE Ollama CUDA-pinned-host alloc fails fleet-wide.
 // FLEET-REAPER-MS1 Tier 1: critical-pressure memory ballast. A Buffer reserved
 // at CLI boot and released the first time a sweep reports the critical band.
 // On Windows commit charge is taken at allocation (not first touch), so a held
@@ -145,6 +233,17 @@ const MAX_BALLAST_MB = 4096;
 export const DEFAULT_SOFT_RELIEF_AGE_SEC = 180; // min process age before a nudge
 export const DEFAULT_SOFT_RELIEF_PRESSURE_PCT = 90; // mem% gate (mirrors mem-pressure)
 const MAX_SOFT_RELIEF_AGE_SEC = 86400;
+// 2026-05-17 SOFT-RELIEF-V2: under critical pressure, also trim large helper
+// processes of ALIVE slots. Investigation showed `owned-by-stale` is transient
+// (`chat-slots reclaim` immediately converts it to free → unowned), so the
+// stale-only filter fired `targets:0` on every sweep this session despite
+// 99% commit pressure. Working-set trim is REVERSIBLE — Windows pages back
+// what's actively touched. Trimming a 100MB+ idle hook/bash subproc of a
+// live chat is safe: working procs page back in ms; idle ones return RAM to
+// the pool. Gate is criticalPressure ONLY (not warn) — preserves the prior
+// "never touch live work unless it's the actual emergency" invariant.
+export const DEFAULT_SOFT_RELIEF_ALIVE_RSS_MB = 100; // per-proc RSS floor for alive-slot trim
+const MAX_SOFT_RELIEF_ALIVE_RSS_MB = 32768;
 
 // ── FLEET-REAPER-MS1 Layer 2/3: GPU + Ollama coordinator ──
 // The RTX-class GPU sits near-idle while commit memory is critical. When the
@@ -153,8 +252,21 @@ const MAX_SOFT_RELIEF_AGE_SEC = 86400;
 // ollama-task-offloader.mjs to absorb more hook-eligible work — converting
 // idle VRAM into Claude-CLI throughput instead of adding more kills.
 export const DEFAULT_OLLAMA_URL = "http://127.0.0.1:11434";
-export const DEFAULT_OLLAMA_PREWARM_MODEL = "qwen2.5-coder:7b";
-export const DEFAULT_OLLAMA_KEEP_ALIVE = "10m";
+export const DEFAULT_OLLAMA_PREWARM_MODEL = "qwen2.5-coder:32b";
+// 2026-05-17 U-FR-OLLAMA-KEEP-ALIVE-1H set "-1" (never unload) on the 16GB RTX
+// 4080 box to kill a 7B cold-load loop — pinning 4.4GB of idle VRAM was cheap there.
+// 2026-06-08 (golf, R7 override — hardware changed): the box is now the 96GB
+// Blackwell. A pinned model's HOST private bytes count against the COMMIT limit
+// (RAM+pagefile), NOT just VRAM. With OLLAMA_MAX_LOADED_MODELS up to 6 LARGE models
+// (qwen2.5-coder:32b=37GB + gpt-oss:20b=13GB + qwen3-vl:8b + embed) the daemon
+// pinned ~70GB of host commit FOREVER → the PRESSURE GATE hit 96-98% and blocked
+// session-end (crash-cascade risk) every turn. "30m" keeps the ACTIVE prewarm model
+// warm (no cold-load loop for live work) while idle models evict and release commit.
+// The original cold-load concern is moot: a 30m TTL only evicts after 30m idle, and
+// the Blackwell loads a 32B in seconds, not 40s. Override: env
+// PRISM_FLEET_REAPER_OLLAMA_KEEP_ALIVE="-1" to restore pin-forever.
+// See reference_ollama_keepalive_commit_leak_2026_06_08 + 05-soft-config-tweaks.ps1 (blackwell tier).
+export const DEFAULT_OLLAMA_KEEP_ALIVE = "30m";
 export const DEFAULT_HINT_TTL_SEC = 300;          // hint validity == one sweep interval
 export const DEFAULT_GPU_FREE_MIN_MB = 2048;      // GPU headroom floor to act
 export const DEFAULT_HINT_THRESHOLD_DELTA = 0.15; // magnitude; applied negatively
@@ -409,53 +521,92 @@ export function shouldReap(entry, candidate, cfg, now) {
 
 // ─── Process killing ────────────────────────────────────────────────────────
 
+/**
+ * Classify a process-kill failure message into a stable category. Lets the
+ * report explain WHY a kill failed and — crucially — distinguish an "access
+ * denied" failure (this runner lacks the privilege; the SYSTEM-principal
+ * scheduled task WILL reap it on its next sweep, or an elevated run will) from
+ * a genuine error or an already-gone process. Pure + total: any input, never
+ * throws.
+ *
+ * @param {*} errMsg  the `.error` string from windowsKill / posixKill (or null)
+ * @returns {"ok"|"access-denied"|"not-found"|"other"}
+ */
+export function classifyKillError(errMsg) {
+  if (errMsg == null || errMsg === "") return "ok";
+  const m = String(errMsg).toLowerCase();
+  // Access denied — Stop-Process against a higher-integrity / cross-security-
+  // context process, or a POSIX EPERM. The non-SYSTEM runners (the in-session
+  // Monitor, --hunt, the Stop-hook sweep) hit this; a SYSTEM-principal
+  // scheduled task does not. This is the orphan class that piled up.
+  if (
+    m.includes("access is denied") || m.includes("accessdenied") ||
+    m.includes("permissiondenied") || m.includes("eperm") ||
+    m.includes("operation not permitted") || m.includes("denied")
+  ) return "access-denied";
+  // Process already gone — Stop-Process "Cannot find a process", POSIX ESRCH.
+  // Not a real failure: the goal ("not running") already holds.
+  if (
+    m.includes("cannot find a process") || m.includes("no running process") ||
+    m.includes("no process") || m.includes("esrch")
+  ) return "not-found";
+  return "other";
+}
+
+// WHY per-PID and not batched (regression of 2026-05-17, golf claude-339c8ff7):
+//   The original windowsKill batched all PIDs into one PS foreach driven by a
+//   single execFileSync with PS_TIMEOUT_MS + killSignal:SIGKILL. Under 95-98%
+//   commit pressure (the exact state in which orphans MOST need reaping) the
+//   batch PS process ran slow enough that Node's timeout fired mid-loop and
+//   SIGKILLed PS BEFORE the trailing PIDs flushed an "ok"/"err" result. Those
+//   PIDs fell through to the line-454 fallback labelled "no result returned by
+//   Stop-Process" — but they were ALIVE. Verified live: claude-339c8ff7 found
+//   PIDs 15116 (48MB) + 24736 (633MB) surviving the batched kill for 30-49
+//   minutes; both were killable instantly by a direct single-PID Stop-Process
+//   -Force. The batch was a premature optimization — typical N is 1-5 PIDs
+//   per sweep (10-min confirm window gates reaping), so the saved spawns
+//   never paid for themselves. Per-PID spawn eliminates the race: each PID
+//   gets its own PS_TIMEOUT_MS budget, its own ok/err result, no cross-PID
+//   contamination possible. ESRCH-equivalent on Windows (Stop-Process throws
+//   on missing PID) intentionally surfaces as "err" same as the original;
+//   aligning that with POSIX's already-gone-as-success is a separate concern.
 function windowsKill(pids) {
-  const psFile = join(
-    tmpdir(), `prism-fleet-reaper-kill-${process.pid}-${randomBytes(4).toString("hex")}.ps1`,
-  );
-  // pids originate from Win32_Process.ProcessId (always integers); String(Number())
-  // double-coerces so nothing but a numeric literal can land inside @(...).
-  const idLiteral = pids.map((p) => String(Number(p))).join(",");
-  writeFileSync(psFile, [
-    "$ErrorActionPreference='SilentlyContinue'",
-    `foreach ($id in @(${idLiteral})) {`,
-    "  try { Stop-Process -Id $id -Force -ErrorAction Stop; \"ok $id\" }",
-    "  catch { \"err $id \" + $_.Exception.Message }",
-    "}",
-  ].join("\n"), "utf-8");
-  try {
-    let raw = "";
+  return pids.map((p) => {
+    const id = Number(p);
+    if (!Number.isFinite(id) || !Number.isInteger(id) || id <= 0) {
+      return { pid: p, killed: false, error: `invalid PID: ${String(p)}` };
+    }
+    // -Command + numeric-only interpolation avoids the temp-file dance and any
+    // shell-injection surface. id is a finite positive integer at this point;
+    // String coercion is implicit and safe.
+    const psCmd = `try { Stop-Process -Id ${id} -Force -ErrorAction Stop; "ok" } catch { "err " + $_.Exception.Message }`;
+    let raw;
     try {
       raw = execFileSync(
         resolvePowershell(),
-        ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", psFile],
+        ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", psCmd],
         {
           timeout: PS_TIMEOUT_MS, encoding: "utf-8", windowsHide: true,
           maxBuffer: PS_MAX_BUFFER, killSignal: "SIGKILL",
         },
       );
     } catch (err) {
-      // PowerShell spawn failure / timeout — report every PID as not-killed
-      // rather than throwing. runSweep is called from a Stop hook that must
-      // never crash; the next sweep retries these PIDs.
-      return pids.map((p) => ({
-        pid: p, killed: false, error: `kill subprocess failed: ${err?.message || err}`,
-      }));
+      // Per-PID PS spawn failure (timeout, ENOMEM, etc.) — surface the precise
+      // failure for THIS PID without poisoning any other PID's result, and
+      // never throw out of runSweep (which is called from the Stop hook and
+      // must not crash). The next sweep retries this PID independently.
+      return { pid: p, killed: false, error: `kill subprocess failed: ${err?.message || err}` };
     }
-    const result = new Map();
-    for (const line of String(raw || "").split("\n")) {
-      const m = line.match(/^(ok|err)\s+(\d+)\s*(.*)$/);
-      if (!m) continue;
-      result.set(Number(m[2]), { killed: m[1] === "ok", error: m[1] === "err" ? (m[3] || "kill failed") : null });
-    }
-    return pids.map((p) => ({
-      pid: p,
-      killed: result.has(p) ? result.get(p).killed : false,
-      error: result.has(p) ? result.get(p).error : "no result returned by Stop-Process",
-    }));
-  } finally {
-    try { unlinkSync(psFile); } catch { /* best-effort */ }
-  }
+    const line = String(raw || "").trim();
+    if (line === "ok") return { pid: p, killed: true, error: null };
+    if (line.startsWith("err ")) return { pid: p, killed: false, error: line.slice(4) || "kill failed" };
+    if (line === "err") return { pid: p, killed: false, error: "kill failed" };
+    // Empty / unexpected line: PS finished cleanly but emitted nothing
+    // parseable. Treat as a kill that may or may not have happened — surface
+    // honestly rather than the misleading "no result returned" of the
+    // batched implementation (which described a DIFFERENT failure mode).
+    return { pid: p, killed: false, error: `unexpected PS output: ${line.slice(0, 200)}` };
+  });
 }
 
 function posixKill(pids) {
@@ -475,11 +626,141 @@ function defaultKiller(pids) {
   return process.platform === "win32" ? windowsKill(pids) : posixKill(pids);
 }
 
-/** @returns {Array<{pid,killed,error}>} */
+/**
+ * BRIDGE-PROTECT (2026-05-25, slot:golf, MCP-RESILIENCE/U-BRIDGE-PROTECT):
+ * Never reap an mcp-http-bridge / mcp-server-supervisor / mcp dist server / the
+ * fleet-reaper itself / the standalone MCP watchdog — regardless of how a PID
+ * arrived on the kill list. The classify path treats bridges whose parent
+ * claude.exe is gone as "owned-by-crashed"; killing those bridges drops the
+ * chat's `prism` connection for the rest of its session, which is the actual
+ * user-facing "chats keep disconnecting" pattern.
+ *
+ * The bridge process is allowed to outlive its claude.exe parent — Claude Code
+ * re-spawns it on the next session; in the gap, leaving the bridge alive is
+ * harmless (no chat is holding it).
+ *
+ * 30 s in-process cache to keep cost bounded on big kill batches. Cache miss
+ * during PS error returns the previous cache (fail-safe: skip-kill > wrong-kill).
+ *
+ * LONG-RUNNER-PROTECT (2026-06-10, slot:zulu, OBSIDIAN-2ND-BRAIN): the detached
+ * overnight vault pipeline (overnight-vault-compound.mjs and the multi-hour
+ * children it execFileSync's: mine-galaxy-transcripts, the memory index/embedding
+ * sidecars, galaxy-synthesis-refresh) is launched via Start-Process so its parent
+ * exits immediately -- to the orphan classifier it is indistinguishable from a
+ * dead chat's leftovers, and the reaper killed it TWICE on 2026-06-10 (pids
+ * 56680, 18952; both died mid-round with no log line -- hard external kill right
+ * after a Stop-event sweep). These are intentional services, same class as the
+ * MCP bridge. PRISM_REAPER_PROTECT_EXTRA lets future long-runners register a
+ * pattern via env without editing this file (validated: only [\w .\\/|-]
+ * chars are accepted so a malformed value cannot break the PS regex or be
+ * abused for injection).
+ */
+const _PROTECT_EXTRA = (() => {
+  const raw = process.env.PRISM_REAPER_PROTECT_EXTRA || "";
+  return /^[\w .\\/|-]+$/.test(raw) ? `|${raw}` : "";
+})();
+const _MCP_PROTECT_REGEX = "mcp-http-bridge|mcp-server-supervisor|dist[\\\\/]index\\.js|fleet-reaper-sweep|mcp-health-watchdog|mcp-server-watchdog"
+  + "|overnight-vault-compound|mine-galaxy-transcripts|build-memory-index-sidecar|build-memory-embeddings-sidecar|galaxy-synthesis-refresh"
+  + _PROTECT_EXTRA;
+const PROTECT_CACHE_TTL_MS = 30 * 1000; // 30 s — bounds CIM-query cost on big kill batches
+const PROTECT_PS_TIMEOUT_MS = 8 * 1000; // 8 s PowerShell budget
+let _protectedPidCache = { ts: 0, pids: new Set() };
+function getProtectedPids() {
+  if (process.platform !== "win32") return new Set();
+  const now = Date.now();
+  if (now - _protectedPidCache.ts < PROTECT_CACHE_TTL_MS) return _protectedPidCache.pids;
+  try {
+    const out = execFileSync(
+      resolvePowershell(),
+      [
+        "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command",
+        `Get-CimInstance Win32_Process -Filter "Name='node.exe' OR Name='powershell.exe'" | Where-Object { $_.CommandLine -match '${_MCP_PROTECT_REGEX}' } | Select-Object -ExpandProperty ProcessId`,
+      ],
+      { timeout: PROTECT_PS_TIMEOUT_MS, encoding: "utf-8", windowsHide: true, maxBuffer: 1024 * 1024 },
+    );
+    const pids = new Set(String(out).split(/\s+/).map(Number).filter((n) => Number.isFinite(n) && n > 0));
+    _protectedPidCache = { ts: now, pids };
+    return pids;
+  } catch {
+    return _protectedPidCache.pids; // fail-safe: better to skip a kill than wrongly kill a bridge
+  }
+}
+
+/** @returns {Array<{pid,killed,error,errorClass}>} */
 export function reapProcesses(pids, { dryRun = false, killer = defaultKiller } = {}) {
   if (!Array.isArray(pids) || pids.length === 0) return [];
-  if (dryRun) return pids.map((pid) => ({ pid, killed: false, error: null, dryRun: true }));
-  return killer(pids);
+  if (dryRun) return pids.map((pid) => ({ pid, killed: false, error: null, dryRun: true, errorClass: "ok" }));
+  // BRIDGE-PROTECT: filter the kill list against the MCP-bridge protect set.
+  // Anything matching gets a synthesized "skipped" result with errorClass
+  // "protected" — visible in the report, never harms the chat fleet.
+  const protect = getProtectedPids();
+  const killable = [];
+  const protectedResults = [];
+  for (const p of pids) {
+    if (protect.has(Number(p))) {
+      protectedResults.push({ pid: p, killed: false, error: "mcp-bridge-protected (BRIDGE-PROTECT)", errorClass: "protected" });
+    } else {
+      killable.push(p);
+    }
+  }
+  // Tag every kill result with a stable failure category (see classifyKillError) so
+  // the report can name an access-denied kill explicitly — that PID is the
+  // class a SYSTEM-principal scheduled task reaps when an unprivileged runner
+  // (in-session Monitor, --hunt, Stop hook) cannot.
+  const killed = killer(killable).map((r) => ({
+    ...r,
+    errorClass: r && r.killed ? "ok" : classifyKillError(r && r.error),
+  }));
+  return [...killed, ...protectedResults];
+}
+
+/**
+ * Build the `--hunt` report — a Task-Manager-style view of every node/bash/git
+ * target process with its slot classification and reap verdict, heaviest-RSS
+ * first. This is the Claude-Code-invokable "check task manager and hunt down
+ * the orphans the scheduled reaper left" surface: it shows ALL targets (not
+ * just reap candidates), so an operator sees what is protected, what is a
+ * candidate held by the confirm window, and what reaps this sweep.
+ * Pure + total — never throws, tolerates a non-array input.
+ *
+ * @param {Array} classified       snapshotFleet().classified (all target procs)
+ * @param {Array} candidateReport  runSweep per-candidate decisions (willReap/decision)
+ * @returns {{rows:Array, summary:object}}
+ */
+export function buildHuntReport(classified, candidateReport) {
+  const safe = Array.isArray(classified) ? classified : [];
+  const decisionByPid = new Map(
+    (Array.isArray(candidateReport) ? candidateReport : [])
+      .filter((c) => c && c.pid != null)
+      .map((c) => [c.pid, c]),
+  );
+  const rows = safe.map((c) => {
+    const d = decisionByPid.get(c.pid);
+    return {
+      pid: c.pid,
+      name: c.name || "?",
+      class: c.class || "unknown",
+      ownerSlot: c.ownerSlot || null,
+      ownerStatus: c.ownerStatus || null,
+      ageMs: Number.isFinite(c.ageMs) ? c.ageMs : null,
+      rssBytes: Number.isFinite(c.rssBytes) ? c.rssBytes : null,
+      isCandidate: !!c.isCandidate,
+      willReap: d ? !!d.willReap : false,
+      verdict: d
+        ? d.decision
+        : (c.isCandidate
+          ? "candidate (no ledger decision this sweep)"
+          : "protected — owning slot alive, self, or unresolved"),
+    };
+  }).sort((a, b) => (b.rssBytes || 0) - (a.rssBytes || 0));
+  const summary = {
+    totalTargets: rows.length,
+    candidates: rows.filter((r) => r.isCandidate).length,
+    willReap: rows.filter((r) => r.willReap).length,
+    protectedCount: rows.filter((r) => !r.isCandidate).length,
+    totalRssBytes: rows.reduce((s, r) => s + (r.rssBytes || 0), 0),
+  };
+  return { rows, summary };
 }
 
 // ─── Audit trail (shared with node-process-janitor.mjs) ─────────────────────
@@ -552,26 +833,62 @@ export function countSlotsByStatus(snap) {
 /**
  * Select processes eligible for a soft (reversible) pressure nudge. Pure.
  *
- * Targets: processes whose classified `class` is `owned-by-stale` — a slot that
- * hasn't heartbeated in 2-10 min. NOT alive slots (live work), NOT crashed
- * (those are the reap path), NOT protected (classifyProcess already excluded
- * them), NOT reap candidates (defense-in-depth — the reap path owns those).
- * Age-gated so a just-spawned helper of a briefly-stale slot is left alone.
+ * Two target sets, merged:
  *
- * @returns {{targets:Array<{pid,name,ownerSlot,ageMs,rssBytes}>, skipped:number}}
+ * (1) STALE-OWNED (always): processes whose classified `class` is
+ *     `owned-by-stale` — a slot that hasn't heartbeated in 2-10 min. NOT
+ *     alive slots (live work), NOT crashed (those are the reap path), NOT
+ *     protected (classifyProcess already excluded them), NOT reap candidates
+ *     (defense-in-depth — the reap path owns those). Age-gated so a
+ *     just-spawned helper of a briefly-stale slot is left alone.
+ *
+ * (2) ALIVE-OWNED LARGE HELPERS (criticalPressure ONLY — SOFT-RELIEF-V2):
+ *     under critical memory pressure (tier === "critical"), also include
+ *     `owned-by-alive` helper processes whose individual RSS exceeds
+ *     `aliveRssThresholdBytes` AND ageMs >= ageFloorMs. The trim is
+ *     reversible — actively working procs page back in within ms; idle ones
+ *     return RAM to the OS pool. Investigation 2026-05-17: stale-only filter
+ *     fired `targets:0` on every sweep this session despite 99% commit
+ *     pressure because `chat-slots reclaim` immediately converts stale
+ *     slots to free → unowned, so `owned-by-stale` is essentially
+ *     transient. V2 closes the gap by trimming live-but-bloated helpers
+ *     ONLY during the actual emergency.
+ *
+ * @param snap                                — output of snapshotFleet
+ * @param softReliefAgeSec                    — min process age before any trim
+ * @param now                                 — wall-clock ms
+ * @param criticalPressure                    — true ⇒ apply set (2)
+ * @param aliveRssThresholdBytes              — per-proc RSS floor for set (2)
+ * @returns {{targets:Array<{pid,name,ownerSlot,ageMs,rssBytes,sourceClass}>, skipped:number}}
  */
-export function selectSoftReliefTargets(snap, { softReliefAgeSec, now } = {}) {
+export function selectSoftReliefTargets(snap, {
+  softReliefAgeSec,
+  now,
+  criticalPressure = false,
+  aliveRssThresholdBytes = null,
+} = {}) {
   const ageFloorMs = (Number.isFinite(softReliefAgeSec)
     ? softReliefAgeSec : DEFAULT_SOFT_RELIEF_AGE_SEC) * 1000;
+  // null/undefined/non-finite ⇒ V2 disabled (back-compat — caller didn't opt in).
+  const rssFloorBytes = Number.isFinite(aliveRssThresholdBytes) && aliveRssThresholdBytes > 0
+    ? aliveRssThresholdBytes : null;
+  const v2Enabled = criticalPressure === true && rssFloorBytes !== null;
   const targets = [];
   let skipped = 0;
   for (const c of (snap && snap.classified) || []) {
-    if (c.class !== "owned-by-stale") continue;
     if (c.isCandidate) { skipped += 1; continue; } // never double-act with the reap path
     if (!Number.isFinite(c.ageMs) || c.ageMs < ageFloorMs) { skipped += 1; continue; }
+    let sourceClass = null;
+    if (c.class === "owned-by-stale") {
+      sourceClass = "owned-by-stale";
+    } else if (v2Enabled && c.class === "owned-by-alive"
+               && Number.isFinite(c.rssBytes) && c.rssBytes >= rssFloorBytes) {
+      sourceClass = "owned-by-alive-large";
+    }
+    if (!sourceClass) continue;
     targets.push({
       pid: c.pid, ppid: c.ppid, name: c.name, ownerSlot: c.ownerSlot,
-      ageMs: c.ageMs, rssBytes: c.rssBytes,
+      ageMs: c.ageMs, rssBytes: c.rssBytes, sourceClass,
     });
   }
   return { targets, skipped };
@@ -1108,6 +1425,17 @@ export function runSweep(opts = {}) {
   const disabled = process.env.PRISM_FLEET_REAPER_DISABLE === "1";
   const dryRun = !!opts.dryRun || process.env.PRISM_FLEET_REAPER_DRY_RUN === "1";
 
+  // FLEET-REAPER-MS3/U-FR-MS3-D: engage self-I/O priority guard for the
+  // sweep body. Idempotent + reversible. The guard is a no-op when the kill
+  // switch is set, when running outside Windows, when status/dry-run, or
+  // when an outer scope already engaged it (re-entrancy returns engaged:false).
+  // registerExitRestore ensures restoration even if a sweep exits via
+  // process.exit() (Tier-1 ballast release exit path).
+  const _ioGuard = _beginSelfIoGuard({ dryRun, mode });
+  if (_ioGuard.engaged) _registerSelfIoExitRestore(_ioGuard);
+
+  try {
+
   const intervalSec = clampInt(opts.intervalSec, DEFAULT_INTERVAL_SEC, MIN_INTERVAL_SEC, MAX_INTERVAL_SEC);
   const ageFloorSec = clampInt(opts.ageFloorSec, DEFAULT_AGE_FLOOR_SEC, 0, MAX_AGE_FLOOR_SEC);
   const killAfter = clampInt(opts.killAfter, DEFAULT_KILL_AFTER, 1, MAX_KILL_AFTER);
@@ -1202,6 +1530,7 @@ export function runSweep(opts = {}) {
           pid: c.pid, name: c.name, class: c.class, ownerSlot: c.ownerSlot,
           ownerStatus: c.ownerStatus, rssBytes: c.rssBytes,
           killed: !!k.killed, dryRun: !!k.dryRun, error: k.error || null,
+          errorClass: k.errorClass || (k.killed ? "ok" : classifyKillError(k.error)),
         };
       });
     } catch (err) {
@@ -1233,6 +1562,14 @@ export function runSweep(opts = {}) {
     opts.softReliefPressurePct ?? envInt("PRISM_FLEET_REAPER_SOFT_RELIEF_PRESSURE_PCT"),
     DEFAULT_SOFT_RELIEF_PRESSURE_PCT, 1, 100,
   );
+  // SOFT-RELIEF-V2 (2026-05-17): per-proc RSS floor for trimming alive-slot
+  // helpers under CRITICAL pressure. Default 100MB ⇒ a 100MB+ idle node hook
+  // or bash subproc of a live chat is trimmed; smaller ones left alone.
+  // Knob: PRISM_FLEET_REAPER_SOFT_RELIEF_ALIVE_RSS_MB (0 disables V2 entirely).
+  const softReliefAliveRssMb = clampInt(
+    opts.softReliefAliveRssMb ?? envInt("PRISM_FLEET_REAPER_SOFT_RELIEF_ALIVE_RSS_MB"),
+    DEFAULT_SOFT_RELIEF_ALIVE_RSS_MB, 0, MAX_SOFT_RELIEF_ALIVE_RSS_MB,
+  );
   // Side-effecting actions (kills already done above; soft-relief nudges +
   // prewarm + hint-write below) are suppressed in status / disabled / dry-run.
   const actionsAllowed = !isStatus && !disabled && !dryRun;
@@ -1240,13 +1577,24 @@ export function runSweep(opts = {}) {
 
   // 6. Layer 1 — soft RAM/CPU relief. Under pressure, nudge stale-slot processes
   //    (reversible: BelowNormal priority + working-set trim). Never a kill.
+  //    V2: under CRITICAL pressure, also trim large alive-slot helpers
+  //    (gated by criticalPressure flag from tierFromPressure above).
   let softRelief = {
     attempted: false, priorityDemoted: 0, workingSetTrimmed: 0,
     rssReclaimedBytes: 0, targets: 0, skipped: 0, dryRun, error: null,
+    v2Engaged: false, v2TargetCount: 0,
   };
   if (!noRelief && softUnderPressure) {
     try {
-      const { targets, skipped } = selectSoftReliefTargets(snap, { softReliefAgeSec, now });
+      const v2Engaged = criticalPressure && softReliefAliveRssMb > 0;
+      const aliveRssThresholdBytes = v2Engaged ? softReliefAliveRssMb * 1024 * 1024 : null;
+      const { targets, skipped } = selectSoftReliefTargets(snap, {
+        softReliefAgeSec, now,
+        criticalPressure: v2Engaged,
+        aliveRssThresholdBytes,
+      });
+      softRelief.v2Engaged = v2Engaged;
+      softRelief.v2TargetCount = targets.filter((t) => t.sourceClass === "owned-by-alive-large").length;
       softRelief.targets = targets.length;
       softRelief.skipped = skipped;
       if (targets.length > 0 && (actionsAllowed || dryRun)) {
@@ -1293,6 +1641,73 @@ export function runSweep(opts = {}) {
     }
   }
 
+  // 6.5 — FLEET-REAPER-MS3/U-FR-MS3-B Tier-1.5 — background-app throttle.
+  //       Under warn-band pressure, drop top-N non-Claude heavy processes
+  //       (Chrome/Discord/Steam) to BelowNormal. Hysteresis-restore at
+  //       memPressurePct-5. Strictly additive; honors PRISM_FR_BG_THROTTLE_DISABLE
+  //       + PRISM_FLEET_REAPER_DISABLE master. Skipped on --no-relief (the relief
+  //       knob covers all Tier-1.x reversible throttles) and on status mode.
+  const BG_THROTTLE_STAMP_PATH = join(SHARED_DIR, ".fleet-reaper-bg-throttle.json");
+  let bgThrottle = { action: "noop", reason: "skipped-mode", throttled: [], restored: [], stampPath: BG_THROTTLE_STAMP_PATH };
+  if (!isStatus && !noRelief) {
+    try {
+      const priorStamp = (opts.readBgStamp || _bgReadStamp)(BG_THROTTLE_STAMP_PATH);
+      const priorPids = Array.isArray(priorStamp?.pids) ? priorStamp.pids : [];
+      const topN = _bgClampTopN(process.env.PRISM_FR_BG_THROTTLE_TOP_N);
+      const minRssMb = _bgClampMinRssMb(process.env.PRISM_FR_BG_THROTTLE_MIN_RSS_MB);
+      const decision = _bgThrottleDecide({
+        usedPct: mem.usedPct,
+        memPressurePct,
+        priorStampPids: priorPids,
+        env: process.env,
+      });
+      bgThrottle.action = decision.action;
+      bgThrottle.reason = decision.reason;
+      bgThrottle.restoreAt = decision.restoreAt;
+
+      if (decision.action === "throttle" && (actionsAllowed || dryRun)) {
+        const procIndex = new Map((snap.procs || []).map(p => [p.pid, p]));
+        const alreadyThrottled = new Set(priorPids);
+        const candidates = _bgPickThrottleCandidates(snap.procs || [], procIndex, { topN, minRssMb, alreadyThrottled });
+        if (candidates.length > 0) {
+          const pids = candidates.map(c => c.pid);
+          const setter = opts.bgSetPriority || _setPriorityForPidsExternal;
+          const setResult = dryRun
+            ? pids.map(pid => ({ pid, ok: false, error: "dry-run" }))
+            : setter(pids, "BelowNormal");
+          const okPids = setResult.filter(r => r.ok).map(r => r.pid);
+          bgThrottle.throttled = okPids;
+          const allPids = Array.from(new Set([...priorPids, ...okPids]));
+          const stamp = _bgBuildStamp({
+            nowMs: now, topN, minRssMb,
+            usedPctAtThrottle: mem.usedPct, memPressurePct,
+            pids: allPids,
+            pidDetails: candidates.map(c => ({ pid: c.pid, name: c.name, rssBytes: c.rssBytes })),
+          });
+          if (actionsAllowed) {
+            try {
+              mkdirSync(dirname(BG_THROTTLE_STAMP_PATH), { recursive: true });
+              writeFileSync(BG_THROTTLE_STAMP_PATH, JSON.stringify(stamp), "utf8");
+            } catch { /* best-effort */ }
+          }
+        }
+      } else if (decision.action === "restore" && priorPids.length > 0 && (actionsAllowed || dryRun)) {
+        const setter = opts.bgSetPriority || _setPriorityForPidsExternal;
+        const setResult = dryRun
+          ? priorPids.map(pid => ({ pid, ok: false, error: "dry-run" }))
+          : setter(priorPids, "Normal");
+        bgThrottle.restored = setResult.filter(r => r.ok).map(r => r.pid);
+        if (actionsAllowed) {
+          try { unlinkSync(BG_THROTTLE_STAMP_PATH); } catch { /* best-effort */ }
+        }
+      }
+    } catch (err) {
+      // Defense in depth — never abort the sweep on a Tier-1.5 helper crash.
+      bgThrottle.error = err && err.message ? err.message : String(err);
+      caveats.push(`bg-throttle step failed: ${bgThrottle.error}`);
+    }
+  }
+
   // 7. Layer 2 — GPU + Ollama probes. Read-only; run even in status mode so the
   //    verdict surfaces GPU/Ollama state. Skipped entirely when --no-coord.
   let gpu = { available: false, reason: "coordinator skipped (--no-coord)" };
@@ -1332,6 +1747,11 @@ export function runSweep(opts = {}) {
       serviceRestart = restartWedgedServices(dockerHealth, pressureTier, {
         actionsAllowed,
         runDockerRestart: opts.runDockerRestart,
+        // U-FR-T1 production wire: explicitly opt into the phantom-service
+        // filter so non-deployed advisories (e.g. postgres/prometheus when
+        // the host doesn't deploy them) are dropped. Tests don't pass this
+        // so they preserve pre-T1 behavior automatically.
+        getExistingContainers: opts.getExistingContainers || defaultGetExistingContainers,
       });
       if (serviceRestart.state === "advised") {
         const t = serviceRestart.advise.join(", ");
@@ -1343,6 +1763,124 @@ export function runSweep(opts = {}) {
         for (const f of serviceRestart.failed) {
           caveats.push(`service restart FAILED: ${f.name} — ${f.error}`);
         }
+      }
+
+      // 7b. Tier-3 (FLEET-REAPER-MS2) — NIM keepalive + scheduled-task self-heal.
+      // Fires regardless of pressureTier (unlike Tier-2 which only fires
+      // critical) because NIM/task should always be up if the operator has
+      // them configured. Uses mtime of a cooldown-marker file for cross-sweep
+      // NIM restart throttling (no persistent state file needed).
+      const nimDisabled = process.env.PRISM_FLEET_REAPER_NIM_KEEPALIVE_DISABLE === "1";
+      const taskSelfHealDisabled = process.env.PRISM_FLEET_REAPER_TASK_SELFHEAL_DISABLE === "1";
+      const nimUrl = (process.env.PRISM_FLEET_REAPER_NIM_URL || DEFAULT_NIM_URL).replace(/\/+$/, "");
+      const nimCooldownSec = Math.max(60, Number(process.env.PRISM_FLEET_REAPER_NIM_COOLDOWN_SEC) || DEFAULT_NIM_RESTART_COOLDOWN_SEC);
+      const nimMarkerPath = "H:/prism/.claude/cache/fleet-reaper-nim-restart.marker";
+
+      const nimProbe = nimDisabled
+        ? { up: null, error: "disabled" }
+        : probeNimDaemon({ url: nimUrl, timeoutMs: PROBE_TIMEOUT_MS });
+      const nimLastRestartMs = (() => {
+        try { return existsSync(nimMarkerPath) ? statSync(nimMarkerPath).mtimeMs : 0; }
+        catch { return 0; }
+      })();
+      const nimDecision = nimKeepaliveAction({
+        nimProbe, lastRestartMs: nimLastRestartMs, cooldownSec: nimCooldownSec,
+        nowMs: Date.now(), disabled: nimDisabled, actionsAllowed,
+      });
+      if (nimDecision.action === "restart") {
+        const r = restartNimDaemon({});
+        if (r.ok) {
+          try {
+            mkdirSync(dirname(nimMarkerPath), { recursive: true });
+            writeFileSync(nimMarkerPath, JSON.stringify({ ts: Date.now(), pid: r.pid }));
+          } catch { /* mtime is the load-bearing signal — even if writeFileSync fails the spawn happened */ }
+          caveats.push(`NIM keepalive: restarted (pid=${r.pid || "?"})`);
+        } else {
+          caveats.push(`NIM keepalive: restart FAILED — ${r.error}`);
+        }
+      } else if (nimDecision.action === "advise") {
+        caveats.push(`NIM keepalive ADVISED: ${nimDecision.reason}`);
+      }
+
+      // Task self-heal: probe the scheduled task. The existing
+      // probeFleetReaperTask isn't a function here — re-implement inline using
+      // the same schtasks /Query + parseTaskQueryStatus pattern.
+      const taskName = "PRISM Fleet Reaper";
+      let taskStatusStr = "unknown";
+      let taskNextRunMs = null;
+      try {
+        const r = execFileSync("schtasks", ["/Query", "/TN", taskName, "/V", "/FO", "LIST"], {
+          timeout: PROBE_TIMEOUT_MS, encoding: "utf-8", windowsHide: true, maxBuffer: PROBE_MAX_BUFFER,
+        });
+        taskStatusStr = parseTaskQueryStatus(r);
+        taskNextRunMs = parseTaskNextRun(r);
+      } catch (e) {
+        taskStatusStr = "unknown";
+      }
+      const taskCadenceMs =
+        Math.max(30, Number(process.env.PRISM_FLEET_REAPER_TASK_CADENCE_SEC) || DEFAULT_TASK_CADENCE_SEC) * 1000;
+      const taskSelfHealCooldownSec =
+        Math.max(60, Number(process.env.PRISM_FLEET_REAPER_TASK_SELFHEAL_COOLDOWN_SEC) || DEFAULT_TASK_SELFHEAL_COOLDOWN_SEC);
+      const taskSelfHealMarker = "H:/prism/.claude/cache/fleet-reaper-task-selfheal.marker";
+      const taskSelfHealLastMs = (() => {
+        try { return existsSync(taskSelfHealMarker) ? statSync(taskSelfHealMarker).mtimeMs : 0; }
+        catch { return 0; }
+      })();
+      const taskNowMs = Date.now();
+      const taskTriggerStalled = isTriggerStalled(taskNextRunMs, taskNowMs, taskCadenceMs);
+      const taskDecision = taskSelfHealAction({
+        taskStatus: taskStatusStr, disabled: taskSelfHealDisabled, actionsAllowed,
+        triggerStalled: taskTriggerStalled, lastSelfHealMs: taskSelfHealLastMs,
+        cooldownSec: taskSelfHealCooldownSec, nowMs: taskNowMs,
+      });
+      if (taskDecision.action === "run") {
+        const r = runScheduledTaskNow(taskName, {});
+        if (r.ok) {
+          // Stamp the cooldown marker — mtime is the load-bearing signal so the
+          // next sweep won't re-fire /Run on a stall that /Run could not re-arm.
+          try {
+            mkdirSync(dirname(taskSelfHealMarker), { recursive: true });
+            writeFileSync(taskSelfHealMarker, JSON.stringify({ ts: taskNowMs, reason: taskDecision.reason }));
+          } catch { /* even if the write fails the /Run happened — cooldown just won't gate */ }
+          caveats.push(`fleet-reaper-task self-heal: re-run — ${taskDecision.reason}`);
+        } else {
+          caveats.push(`fleet-reaper-task self-heal FAILED — ${r.error}`);
+        }
+      } else if (taskDecision.action === "advise") {
+        caveats.push(`fleet-reaper-task: ${taskDecision.reason}`);
+      }
+
+      // 7c. Tier-4 (FLEET-REAPER-MS2.4) — global claude/node working-set
+      // compaction under CRITICAL pressure only. Calls Win32 EmptyWorkingSet
+      // on every claude/node/bash process — Windows refaults pages on access,
+      // so active chats see a brief stutter while inactive chats reclaim
+      // full RSS. Cooldown-gated to prevent thrashing.
+      const globalCompactDisabled = process.env.PRISM_FLEET_REAPER_GLOBAL_COMPACT_DISABLE === "1";
+      const globalCompactCooldownSec = Math.max(30, Number(process.env.PRISM_FLEET_REAPER_GLOBAL_COMPACT_COOLDOWN_SEC) || DEFAULT_GLOBAL_COMPACT_COOLDOWN_SEC);
+      const globalCompactMarker = "H:/prism/.claude/cache/fleet-reaper-global-compact.marker";
+      const globalCompactLastMs = (() => {
+        try { return existsSync(globalCompactMarker) ? statSync(globalCompactMarker).mtimeMs : 0; }
+        catch { return 0; }
+      })();
+      const compactDecision = decideGlobalCompaction({
+        pressureTier, lastCompactionMs: globalCompactLastMs,
+        cooldownSec: globalCompactCooldownSec, nowMs: Date.now(),
+        disabled: globalCompactDisabled, actionsAllowed,
+      });
+      if (compactDecision.action === "compact") {
+        const r = executeGlobalCompaction({});
+        if (r.ok) {
+          try {
+            mkdirSync(dirname(globalCompactMarker), { recursive: true });
+            writeFileSync(globalCompactMarker, JSON.stringify({ ts: Date.now(), count: r.count, approxBytes: r.approxBytes }));
+          } catch { /* mtime-of-marker is enough; the write is best-effort */ }
+          const mb = Math.round((r.approxBytes || 0) / 1024 / 1024);
+          caveats.push(`global compaction: trimmed ${r.count} process(es) (~${mb}MB working-set returned to standby)`);
+        } else {
+          caveats.push(`global compaction FAILED — ${r.error}`);
+        }
+      } else if (compactDecision.action === "advise") {
+        caveats.push(`global compaction ADVISED: ${compactDecision.reason}`);
       }
 
       // 8. Layer 3 — coordinator decision (pure) + actions.
@@ -1433,6 +1971,304 @@ export function runSweep(opts = {}) {
   // verdict — an Ollama glitch can't be allowed to exit-1 a scheduled task.
   const ok = reapFailed === 0;
 
+  // ── U-FR-CRASH-WATCH — detect chat-slot crashes (heartbeat froze + chatId
+  //    unchanged), write a postmortem. STRICTLY ADDITIVE: wrapped so any
+  //    failure is a caveat, never an abort and never flips `ok`. Skipped in
+  //    status/disabled/dry-run (no snapshot write → no false diff next run)
+  //    and via PRISM_FR_CRASH_WATCH_DISABLE=1.
+  let crashWatch = { engaged: false, detected: 0, postmortemPath: null, error: null };
+  if (process.env.PRISM_FR_CRASH_WATCH_DISABLE !== "1" && actionsAllowed) {
+    try {
+      const slotsPath = opts.chatSlotsPath || DEFAULT_CHAT_SLOTS_PATH;
+      const readImpl = opts.crashWatchReadImpl
+        || ((p) => readFileSync(p, "utf-8"));
+      let slotsData = null;
+      try { slotsData = JSON.parse(readImpl(slotsPath)); } catch { slotsData = null; }
+      const curr = snapshotSlotState(slotsData, now);
+      const snapPath = opts.crashWatchSnapshotPath || DEFAULT_CRASH_WATCH_SNAPSHOT_PATH;
+      const pmPath = opts.crashWatchPostmortemPath || DEFAULT_CRASH_POSTMORTEM_PATH;
+      const prev = readPrevSnapshot(snapPath, (p) => readFileSync(p, "utf-8"));
+      if (prev) {
+        const crashes = detectCrashes(prev, curr, now);
+        if (crashes.length > 0) {
+          const rows = crashes.map((c) => formatPostmortemRow(c, {
+            memUsedPct: mem.usedPct, pressureTier, now,
+          }));
+          const ap = appendPostmortems(rows, pmPath, {
+            size: (p) => statSync(p).size,
+            append: (p, b) => appendFileSync(p, b),
+            rotate: (a, b) => renameSync(a, b),
+          });
+          if (!ap.ok) caveats.push(`crash-watch postmortem write failed: ${ap.error}`);
+          crashWatch.detected = crashes.length;
+          // U-FR-T2 (FLEET-REAPER-MS2): collapse N stale-slot crash caveats
+          // into ONE summary line. Pre-T2 emitted one caveat per crashed slot,
+          // producing N lines of identical noise every 5-min sweep (window-PID-
+          // alive gate already blocks reclaim; the caveats are advisory only).
+          // At 12 chats × 24h that's thousands of redundant log lines.
+          // Per-slot detail is preserved in chat-crash-postmortems.jsonl.
+          if (crashes.length === 1) {
+            const c = crashes[0];
+            caveats.push(`CHAT CRASH DETECTED: slot ${c.slot} (${c.chatId}) — heartbeat frozen ${Math.round(c.frozenMs / 60000)}m`);
+          } else if (crashes.length > 1) {
+            const summary = crashes
+              .map((c) => `${c.slot}/${c.chatId}(${Math.round(c.frozenMs / 60000)}m)`)
+              .join(", ");
+            caveats.push(
+              `CHAT CRASH DETECTED (${crashes.length} slots): ${summary} — postmortems written, manual reclaim if window-pid also dead`,
+            );
+          }
+        }
+      }
+      const ws = writeSnapshot(snapPath, curr, {
+        pid: process.pid,
+        write: (p, c) => writeFileSync(p, c),
+        rename: (a, b) => renameSync(a, b),
+      });
+      if (!ws.ok) caveats.push(`crash-watch snapshot persist failed: ${ws.error}`);
+      crashWatch.engaged = true;
+      crashWatch.postmortemPath = pmPath;
+    } catch (err) {
+      crashWatch.error = err && err.message ? err.message : String(err);
+      caveats.push(`crash-watch step failed: ${crashWatch.error}`);
+    }
+  }
+
+  // ── U-FR-STUCK-HUNT — find stuck bash shells / fsmonitor orphans / stale
+  //    slot PIDs. STRICTLY ADDITIVE: any failure is a caveat, never flips
+  //    `ok` and never aborts the sweep. Each hunter has its own disable knob;
+  //    a single PRISM_FR_HUNT_DISABLE=1 also masks the whole block. Skipped
+  //    in status/dry-run/disabled (consistent with crash-watch gating above).
+  let stuckHunt = {
+    engaged: false, stuckBashesReaped: 0, fsmonitorReaped: 0,
+    staleSlots: 0, freedMb: 0, error: null,
+  };
+  const stuckHuntFullyDisabled = process.env.PRISM_FR_HUNT_DISABLE === "1" || (
+    process.env.PRISM_FR_HUNT_STUCK_BASH_DISABLE === "1" &&
+    process.env.PRISM_FR_HUNT_FSMONITOR_DISABLE === "1" &&
+    process.env.PRISM_FR_HUNT_STALE_SLOT_DISABLE === "1"
+  );
+  // Run detection in dry-run too (reapProcesses already honors dryRun flag) so
+  // operators can audit "what WOULD be reaped" without killing. Only fully
+  // skipped when the sweep is status-mode or globally disabled.
+  if (!isStatus && !disabled && !stuckHuntFullyDisabled) {
+    try {
+      const procs = snap.procs || [];
+      const livePidSet = new Set(procs.map((p) => p.pid));
+      // SELF-PROTECTION (scrutiny BLOCKER, reviewer C, 2026-05-21): the sweep
+      // runs FROM a bash.exe hook — its own parent shell + any bash it spawned
+      // this run would otherwise match findStuckBashes and be reaped mid-sweep.
+      // buildProtectedPidSet collects self + ancestors + descendants; both
+      // kill-emitting hunters exclude every PID in it.
+      const protectedPids = buildProtectedPidSet(procs, process.pid);
+      const procByPid = new Map(procs.map((p) => [p.pid, p]));
+      const slotsPath = opts.chatSlotsPath || DEFAULT_CHAT_SLOTS_PATH;
+      let slotsData = null;
+      try { slotsData = JSON.parse(readFileSync(slotsPath, "utf-8")); } catch { slotsData = null; }
+      const stuckBashAgeSec = opts.stuckBashAgeSec ?? envInt("PRISM_FR_HUNT_STUCK_BASH_AGE_SEC");
+      const fsmonitorAgeSec = opts.fsmonitorAgeSec ?? envInt("PRISM_FR_HUNT_FSMONITOR_AGE_SEC");
+      const orphanGraceSec = opts.orphanGraceSec ?? envInt("PRISM_FR_HUNT_ORPHAN_GRACE_SEC");
+      const report = runStuckHunters({
+        procs, livePidSet, slotsData, now,
+        stuckBashAgeSec, fsmonitorAgeSec, orphanGraceSec,
+        protectedPids, procByPid,
+        enableStuckBash: process.env.PRISM_FR_HUNT_STUCK_BASH_DISABLE !== "1",
+        enableFsmonitor: process.env.PRISM_FR_HUNT_FSMONITOR_DISABLE !== "1",
+        enableStaleSlot: process.env.PRISM_FR_HUNT_STALE_SLOT_DISABLE !== "1",
+      });
+      const killer = opts.killer || defaultKiller;
+      // reapProcesses returns Array<{pid, killed, error, errorClass}> — count by
+      // filtering, not by reading a non-existent summary object. Dry-run flags
+      // every entry `killed: false, dryRun: true`; the caveat still names the
+      // would-be count so an operator auditing dry-run output sees the impact.
+      const sumKills = (results) => ({
+        killed: results.filter((r) => r.killed === true).length,
+        failed: results.filter((r) => r.killed === false && r.dryRun !== true).length,
+        wouldKill: results.length,
+      });
+      if (report.stuckBashes.length > 0) {
+        const pids = report.stuckBashes.map((b) => b.pid);
+        const rss = report.stuckBashes.reduce((s, b) => s + (b.rssBytes || 0), 0);
+        const freedMb = Math.round(rss / 1024 / 1024);
+        const r = sumKills(reapProcesses(pids, { dryRun, killer }));
+        stuckHunt.stuckBashesReaped = r.killed;
+        stuckHunt.freedMb += freedMb;
+        const verb = dryRun ? `would reap ${r.wouldKill}` : `reaped ${r.killed}/${r.wouldKill}`;
+        caveats.push(
+          `stuck-bash hunter: ${verb} (~${freedMb}MB freed)` +
+          (r.failed > 0 ? ` — ${r.failed} kill failure(s)` : ""),
+        );
+      }
+      if (report.fsmonitorOrphans.length > 0) {
+        const pids = report.fsmonitorOrphans.map((o) => o.pid);
+        const rss = report.fsmonitorOrphans.reduce((s, o) => s + (o.rssBytes || 0), 0);
+        const freedMb = Math.round(rss / 1024 / 1024);
+        const r = sumKills(reapProcesses(pids, { dryRun, killer }));
+        stuckHunt.fsmonitorReaped = r.killed;
+        stuckHunt.freedMb += freedMb;
+        const verb = dryRun ? `would reap ${r.wouldKill}` : `reaped ${r.killed}/${r.wouldKill}`;
+        caveats.push(
+          `fsmonitor hunter: ${verb} stale daemon(s) (~${freedMb}MB freed)`,
+        );
+      }
+      if (report.staleSlotEntries.length > 0) {
+        const summary = report.staleSlotEntries.map((s) => `${s.slot}(${s.deadPid})`).join(", ");
+        stuckHunt.staleSlots = report.staleSlotEntries.length;
+        // ADVISORY only — chat-slots.mjs owns the canonical reclaim path. We
+        // surface the names so an operator runs `chat-slots reclaim` deliberately
+        // (clobbering live slot state from inside the reaper is a class of bug
+        // we deliberately don't introduce — see feedback_conflict_fork_rule).
+        //
+        // Cry-wolf fix (golf 2026-06-04): the dead-recorded-PID count OVER-reports
+        // — a slot's recorded pid dies across /compact while the chat + its window
+        // live on. Cross-reference the CANONICAL reclaim criteria (heartbeat-crashed
+        // AND window-pid-dead) via previewReclaimable so the caveat names the
+        // ACTUALLY-reclaimable subset (verified live: 11 dead-recorded-pid → 0
+        // reclaimable). Fail-soft: any error falls back to the raw recorded-pid line.
+        let preview = null;
+        try { preview = previewReclaimable(); } catch { /* fail-soft — keep raw advisory */ }
+        if (preview && preview.reclaimable.length === 0) {
+          caveats.push(
+            `stale-slot hunter: ${report.staleSlotEntries.length} slot(s) with a stale recorded PID (${summary}) — 0 actually reclaimable (all have live windows / fresh heartbeats; recorded PID dies across /compact). No action needed.`,
+          );
+        } else if (preview) {
+          const rs = preview.reclaimable.map((s) => s.slot).join(", ");
+          caveats.push(
+            `stale-slot hunter: ${preview.reclaimable.length} reclaimable slot(s) (${rs}) of ${report.staleSlotEntries.length} with a stale recorded PID — run \`node .claude/helpers/chat-slots.mjs reclaim\` to free them.`,
+          );
+        } else {
+          caveats.push(
+            `stale-slot hunter: ${report.staleSlotEntries.length} slot(s) with dead PID (${summary}) — run \`node .claude/helpers/chat-slots.mjs reclaim\` to clean`,
+          );
+        }
+      }
+      stuckHunt.engaged = true;
+    } catch (err) {
+      stuckHunt.error = err && err.message ? err.message : String(err);
+      caveats.push(`stuck-hunt step failed: ${stuckHunt.error}`);
+    }
+  }
+
+  // ── MCP-ZOMBIE HUNT (MCP-PERMANENT-FIX-MS0 / U-MCP-ZOMBIE-HUNTER, 2026-05-23) ──
+  // PRISM MCP server (node.exe running mcp-server/dist/index.js) accumulates
+  // zombies when claude-code does not reap on parent-exit. Real-world finding
+  // (slot:golf, 2026-05-23): 46 orphans holding 38.8 GB RSS at 81% memory
+  // pressure on 128 GB. Pure-core detection in fleet-reaper-mcp-zombie-hunter.mjs;
+  // sweep owns the kill side-effect via reapProcesses().
+  //
+  // STRICTLY ADDITIVE — fail-soft caveats only. Disable: PRISM_FR_HUNT_MCP_ZOMBIE_DISABLE=1.
+  // Tune age floor: PRISM_FR_HUNT_MCP_ZOMBIE_AGE_SEC=N (default 600s; clamped 60..86400).
+  let mcpZombieHunt = {
+    engaged: false, reaped: 0, freedMb: 0, candidates: 0,
+    byReason: { "dead-parent": 0, "non-claude-parent": 0, "no-parent-info": 0 },
+    error: null,
+  };
+  const mcpZombieDisabled = process.env.PRISM_FR_HUNT_MCP_ZOMBIE_DISABLE === "1"
+    || process.env.PRISM_FR_HUNT_DISABLE === "1";
+  if (!isStatus && !disabled && !mcpZombieDisabled) {
+    try {
+      const procs = snap.procs || [];
+      const livePidSet = new Set(procs.map((p) => p.pid));
+      const procByPid = new Map(procs.map((p) => [p.pid, p]));
+      const protectedPids = buildProtectedPidSet(procs, process.pid);
+      const ageSec = opts.mcpZombieAgeSec
+        ?? envInt("PRISM_FR_HUNT_MCP_ZOMBIE_AGE_SEC");
+      const cands = findMcpZombies(procs, livePidSet, now, {
+        ageSec, procByPid, protectedPids,
+      });
+      mcpZombieHunt.candidates = cands.length;
+      for (const c of cands) {
+        if (mcpZombieHunt.byReason[c.reason] !== undefined) {
+          mcpZombieHunt.byReason[c.reason]++;
+        }
+      }
+      if (cands.length > 0) {
+        const pids = cands.map((c) => c.pid);
+        const rss = cands.reduce((s, c) => s + (c.rssBytes || 0), 0);
+        const freedMb = Math.round(rss / 1024 / 1024);
+        const killer = opts.killer || defaultKiller;
+        const results = reapProcesses(pids, { dryRun, killer });
+        mcpZombieHunt.reaped = results.filter((r) => r.killed === true).length;
+        mcpZombieHunt.freedMb = freedMb;
+        const wouldKill = results.length;
+        const failed = results.filter((r) => r.killed === false && r.dryRun !== true).length;
+        const verb = dryRun ? `would reap ${wouldKill}` : `reaped ${mcpZombieHunt.reaped}/${wouldKill}`;
+        caveats.push(
+          `mcp-zombie hunter: ${verb} (~${freedMb}MB freed)` +
+          (failed > 0 ? ` — ${failed} kill failure(s)` : ""),
+        );
+      }
+      mcpZombieHunt.engaged = true;
+    } catch (err) {
+      mcpZombieHunt.error = err && err.message ? err.message : String(err);
+      caveats.push(`mcp-zombie hunt step failed: ${mcpZombieHunt.error}`);
+    }
+  }
+
+  // Second-pass hunter (2026-05-26, slot:golf) — catches RSS=0/sub-5MB stale
+  // node.exe zombies that the MCP-server regex missed. Reaped 209 such procs
+  // (11 GB freed) in the prompt that drove this upgrade — the gap was
+  // npx-wrapper children (chrome-devtools-mcp, claude-flow, etc) and abandoned
+  // bash-subagent node procs, none matching the mcp-server/dist/index.js shape.
+  let staleNodeHunt = {
+    engaged: false, reaped: 0, freedMb: 0, candidates: 0,
+    byReason: { "dead-parent": 0, "non-claude-parent": 0, "no-parent-info": 0 },
+    error: null,
+  };
+  const staleNodeDisabled = process.env.PRISM_FR_HUNT_STALE_NODE_DISABLE === "1"
+    || process.env.PRISM_FR_HUNT_DISABLE === "1";
+  if (!isStatus && !disabled && !staleNodeDisabled) {
+    try {
+      const procs = snap.procs || [];
+      const livePidSet = new Set(procs.map((p) => p.pid));
+      const procByPid = new Map(procs.map((p) => [p.pid, p]));
+      const protectedPids = buildProtectedPidSet(procs, process.pid);
+      const ageSec = opts.staleNodeAgeSec
+        ?? envInt("PRISM_FR_HUNT_STALE_NODE_AGE_SEC");
+      const rssMaxBytes = opts.staleNodeRssMaxBytes
+        ?? envInt("PRISM_FR_HUNT_STALE_NODE_RSS_MAX_BYTES");
+      const cands = findStaleOrphanedNodes(procs, livePidSet, now, {
+        ageSec, rssMaxBytes, procByPid, protectedPids,
+        // CMDLINE-ALLOWLIST (2026-06-11 incident fix): the lib's
+        // DEFAULT_PRISM_WORKER_PROTECT_REGEX is the SINGLE source of truth for
+        // named PRISM/fleet workers (it is a superset of the sweep's named
+        // _MCP_PROTECT_REGEX patterns -- galaxy-/vault-/fleet-/build-memory/
+        // watchdog/mcp-* all covered). We fold in ONLY the operator-extensible
+        // PRISM_REAPER_PROTECT_EXTRA (strip its leading '|'), so a legit detached
+        // fleet worker (RSS~0, dead parent) is never classified a stale orphan,
+        // WITHOUT re-importing the bare `dist/index.js` that would shield foreign
+        // npm zombies the hunter must reap (reviewer-C BLOCKER-1/-2).
+        protectCmdRegex: buildStaleNodeProtectRegex(_PROTECT_EXTRA.replace(/^\|/, "")),
+      });
+      staleNodeHunt.candidates = cands.length;
+      for (const c of cands) {
+        if (staleNodeHunt.byReason[c.reason] !== undefined) {
+          staleNodeHunt.byReason[c.reason]++;
+        }
+      }
+      if (cands.length > 0) {
+        const pids = cands.map((c) => c.pid);
+        const rss = cands.reduce((s, c) => s + (c.rssBytes || 0), 0);
+        const freedMb = Math.round(rss / 1024 / 1024);
+        const killer = opts.killer || defaultKiller;
+        const results = reapProcesses(pids, { dryRun, killer });
+        staleNodeHunt.reaped = results.filter((r) => r.killed === true).length;
+        staleNodeHunt.freedMb = freedMb;
+        const wouldKill = results.length;
+        const failed = results.filter((r) => r.killed === false && r.dryRun !== true).length;
+        const verb = dryRun ? `would reap ${wouldKill}` : `reaped ${staleNodeHunt.reaped}/${wouldKill}`;
+        caveats.push(
+          `stale-node hunter: ${verb} (~${freedMb}MB freed)` +
+          (failed > 0 ? ` — ${failed} kill failure(s)` : ""),
+        );
+      }
+      staleNodeHunt.engaged = true;
+    } catch (err) {
+      staleNodeHunt.error = err && err.message ? err.message : String(err);
+      caveats.push(`stale-node hunt step failed: ${staleNodeHunt.error}`);
+    }
+  }
+
   return {
     ok,
     now,
@@ -1452,18 +2288,32 @@ export function runSweep(opts = {}) {
     slotsResolved: snap.slotsResolved !== false,
     caveats,
     candidates: candidateReport,
+    // --hunt: full Task-Manager view of every target process. Built only for
+    // the hunt mode so the normal/JSON sweep output is not bloated.
+    huntReport: mode === "hunt" ? buildHuntReport(snap.classified, candidateReport) : null,
     pending: candidateReport.filter((c) => !c.willReap).length,
     reaped,
     reapedOk,
     reapFailed,
     softRelief,
+    bgThrottle,
     gpu,
     ollama,
     dockerHealth,
     coordinator,
+    mcpZombieHunt,
+    staleNodeHunt,
     serviceRestart,
+    crashWatch,
+    stuckHunt,
     ledgerPath,
   };
+  } finally {
+    // FLEET-REAPER-MS3/U-FR-MS3-D: always restore self priority.
+    // Idempotent — endBackgroundMode on a not-engaged guard is a no-op.
+    // The beforeExit hook handles the process.exit() escape path.
+    _endSelfIoGuard(_ioGuard);
+  }
 }
 
 /**
@@ -1601,6 +2451,36 @@ const RESTARTABLE_CONTAINERS = Object.freeze({
 let _serviceRestartActed = false; // one-shot latch (per process)
 
 /**
+ * U-FR-T1 (FLEET-REAPER-MS2): default reader of "containers actually deployed
+ * on this host", used to filter out phantom service-restart advisories for
+ * services that PRISM never deployed.
+ *
+ * Live evidence on MARKV 2026-05-18: the docker-health probe reports
+ * `services.postgres = {up:false}` and `services.prometheus = {up:false}`
+ * because the probe's expected-services list is hardcoded, but those
+ * containers don't exist as `docker ps -a` entries on this machine.
+ * Pre-T1, the advisor emitted `service relief ADVISED: postgres, prometheus`
+ * — false-positive caveats on every critical sweep.
+ *
+ * Returns:
+ *   - Array of container names if `docker ps -a` succeeded (may be empty list)
+ *   - `null` if probe failed (timeout, docker CLI missing, etc.)
+ * Caller treats `null` as "couldn't tell" → preserves pre-T1 behavior (advise
+ * for any down-flagged service). Empty array → fully filters (no host
+ * containers known, every advisory is suspect).
+ */
+function defaultGetExistingContainers() {
+  try {
+    const out = execFileSync("docker", ["ps", "-a", "--format", "{{.Names}}"], {
+      timeout: PROBE_TIMEOUT_MS, encoding: "utf-8", windowsHide: true, maxBuffer: PROBE_MAX_BUFFER,
+    });
+    return String(out || "").split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Pure service-restart state machine. No I/O, env, or clock.
  *   not critical                         → noop
  *   already acted (latched)              → noop
@@ -1612,7 +2492,7 @@ let _serviceRestartActed = false; // one-shot latch (per process)
  * @returns {{action:'noop'|'advise'|'restart', restartTargets:string[],
  *            adviseTargets:string[], reason:string}}
  */
-export function serviceRestartAction({ pressureTier, dockerHealth, restartEnabled, acted }) {
+export function serviceRestartAction({ pressureTier, dockerHealth, restartEnabled, acted, existingContainers }) {
   const none = (reason) => ({ action: "noop", restartTargets: [], adviseTargets: [], reason });
   if (acted) return none("already-acted-this-process");
   if (pressureTier !== "critical") return none("not-critical");
@@ -1621,10 +2501,20 @@ export function serviceRestartAction({ pressureTier, dockerHealth, restartEnable
     return none("no-service-health");
   }
   const isDown = (name) => svc[name] && svc[name].up === false;
+  // U-FR-T1 (FLEET-REAPER-MS2): filter to containers ACTUALLY deployed on
+  // this host. `existingContainers` is the result of `docker ps -a`
+  // container-name enumeration. When the caller supplies it as an array
+  // (even empty), we filter; when it's null/undefined, we preserve pre-T1
+  // behavior (no filter — backward-compat for tests + fail-soft when the
+  // docker ps probe itself fails). Maps probe-service-name → expected
+  // container-name via RESTARTABLE_CONTAINERS.
+  const deployedFilter = Array.isArray(existingContainers)
+    ? (name) => existingContainers.includes(RESTARTABLE_CONTAINERS[name])
+    : () => true; // null/undefined → no filter (pre-T1 behavior)
   // Docker daemon down → every dependent container is unreachable AND
   // `docker restart` cannot run. Advise only, name the daemon.
   if (svc.docker && svc.docker.up === false) {
-    const collateral = Object.keys(RESTARTABLE_CONTAINERS).filter(isDown);
+    const collateral = Object.keys(RESTARTABLE_CONTAINERS).filter(isDown).filter(deployedFilter);
     return {
       action: "advise",
       restartTargets: [],
@@ -1633,10 +2523,17 @@ export function serviceRestartAction({ pressureTier, dockerHealth, restartEnable
     };
   }
   const downContainers = Object.keys(RESTARTABLE_CONTAINERS).filter(isDown);
-  if (downContainers.length === 0) return none("no-restartable-service-down");
+  const deployedDown = downContainers.filter(deployedFilter);
+  if (deployedDown.length === 0) {
+    return none(
+      downContainers.length > 0
+        ? `no-restartable-service-deployed-here (probe flagged ${downContainers.length} down — none present in docker ps)`
+        : "no-restartable-service-down",
+    );
+  }
   return restartEnabled
-    ? { action: "restart", restartTargets: downContainers, adviseTargets: [], reason: "critical-pressure + restartable service down" }
-    : { action: "advise", restartTargets: [], adviseTargets: downContainers, reason: "service down (advise-only — set PRISM_FLEET_REAPER_SERVICE_RESTART=1 to auto-restart)" };
+    ? { action: "restart", restartTargets: deployedDown, adviseTargets: [], reason: "critical-pressure + restartable service down" }
+    : { action: "advise", restartTargets: [], adviseTargets: deployedDown, reason: "service down (advise-only — set PRISM_FLEET_REAPER_SERVICE_RESTART=1 to auto-restart)" };
 }
 
 function defaultRunDockerRestart(container) {
@@ -1659,9 +2556,23 @@ export function restartWedgedServices(dockerHealth, pressureTier, {
   restartEnabled = process.env.PRISM_FLEET_REAPER_SERVICE_RESTART === "1",
   actionsAllowed = true,
   runDockerRestart = defaultRunDockerRestart,
+  getExistingContainers = null,
 } = {}) {
+  // U-FR-T1: enumerate actually-deployed containers so the pure decision
+  // function can filter out phantom advisories. The filter is OPT-IN at
+  // the API boundary: when getExistingContainers is null (the default),
+  // restartWedgedServices passes `existingContainers: null` through to the
+  // pure decision function, which treats it as "couldn't tell" and
+  // preserves pre-T1 fail-soft behavior (no advisory dropped). This makes
+  // hermetic tests (which don't inject the probe) keep pre-T1 behavior.
+  // The production CLI in runSweep wires `getExistingContainers:
+  // defaultGetExistingContainers` explicitly to opt into filtering.
+  const existingContainers = typeof getExistingContainers === "function"
+    ? getExistingContainers()
+    : null;
   const decision = serviceRestartAction({
     pressureTier, dockerHealth, restartEnabled, acted: _serviceRestartActed,
+    existingContainers,
   });
   if (decision.action === "noop") {
     return { state: "noop", reason: decision.reason, attempted: [], succeeded: [], failed: [], advise: [] };
@@ -1806,6 +2717,37 @@ function fmtBytes(bytes) {
   if (n >= 1024 * 1024 * 1024) return `${(n / (1024 * 1024 * 1024)).toFixed(1)}G`;
   if (n >= 1024 * 1024) return `${Math.round(n / (1024 * 1024))}M`;
   return `${Math.round(n / 1024)}K`;
+}
+
+/**
+ * Render the `--hunt` report (buildHuntReport output) as a Task-Manager-style
+ * text table — heaviest-RSS first, one line per node/bash/git process, with
+ * the reap verdict spelled out. Best-effort: tolerates a missing/empty report.
+ */
+function formatHuntReport(huntReport) {
+  const rows = (huntReport && Array.isArray(huntReport.rows)) ? huntReport.rows : [];
+  const s = (huntReport && huntReport.summary) || {};
+  const lines = [];
+  lines.push(
+    `  ── hunt: ${s.totalTargets ?? rows.length} node/bash/git target(s) · ` +
+    `${s.candidates ?? 0} orphan candidate(s) · ${s.willReap ?? 0} reaping this sweep · ` +
+    `${s.protectedCount ?? 0} protected · ~${fmtBytes(s.totalRssBytes)} total RSS ──`,
+  );
+  if (rows.length === 0) {
+    lines.push("  (no node/bash/git processes enumerated — see caveats above)");
+    return lines.join("\n");
+  }
+  for (const r of rows) {
+    const age = Number.isFinite(r.ageMs) ? `${Math.round(r.ageMs / 1000)}s` : "age?";
+    const owner = r.ownerSlot ? `${r.ownerSlot}/${r.ownerStatus || "?"}` : "—";
+    const mark = r.willReap ? "→ REAP" : r.isCandidate ? "· hold" : "  keep";
+    lines.push(
+      `  ${mark} pid ${String(r.pid).padEnd(7)} ${String(r.name).padEnd(9)} ` +
+      `${fmtBytes(r.rssBytes).padStart(6)} ${age.padStart(7)}  ${String(r.class).padEnd(18)} ` +
+      `owner=${owner}  ${r.verdict}`,
+    );
+  }
+  return lines.join("\n");
 }
 
 // ─── Human summary ──────────────────────────────────────────────────────────
@@ -1966,7 +2908,7 @@ async function monitorLoop(cfg) {
   for (;;) {
     let result;
     try {
-      result = runSweep({ ...cfg, mode: "once" });
+      result = runSweep({ ...cfg, mode: "once", enumerator: cfg.enumerator || cachedEnumerate });
     } catch (err) {
       // A sweep must never kill the monitor — emit the error as an event and continue.
       process.stdout.write(`[${new Date().toISOString()}] fleet-reaper ERROR: ${err?.message || err}\n`);
@@ -1983,12 +2925,330 @@ async function monitorLoop(cfg) {
   }
 }
 
+// ─── Tier-3 (FLEET-REAPER-MS2): NIM keepalive + scheduled-task self-heal ──
+//
+// User directive 2026-05-19 ([GOLF]/U-WAVE3): "make sure fleet-reaper stays
+// running along with nvidia NIM + docker + ollama to relieve pressure of the
+// pc so we maintain stability for 12+ chats" + "add watchdog to fleet reaper".
+//
+// Tier-2 already handles Docker SERVICES (qdrant/postgres/prometheus) and
+// keeps the daemon as advise-only (auto-restart would kill every container).
+// Tier-3 adds two orthogonal keepalives:
+//   • NIM daemon (auto-restart safe — single GPU process)
+//   • PRISM Fleet Reaper scheduled task (auto-run safe — schtasks /Run is idempotent)
+// Both default ON. NIM disable: PRISM_FLEET_REAPER_NIM_KEEPALIVE_DISABLE=1.
+// Task disable: PRISM_FLEET_REAPER_TASK_SELFHEAL_DISABLE=1.
+//
+// Why NOT in fleet-services-watchdog.mjs (the parallel script also written this
+// session): the user explicitly asked for INTEGRATION into fleet-reaper so the
+// existing 5-min cadence task does both jobs. The standalone script is a thin
+// debugging mirror (`node scripts/fleet-services-watchdog.mjs --status`).
+//
+// Safety invariants:
+//   • NIM restart is cooldown-gated (default 300s) — never restart-loop a
+//     flapping NIM process.
+//   • Task self-heal NEVER touches the task definition, only `schtasks /Run`
+//     (which is a no-op if task is already Running).
+
+const DEFAULT_NIM_URL = "http://127.0.0.1:8000";
+const DEFAULT_NIM_RESTART_COOLDOWN_SEC = 300;
+const NIM_START_SCRIPT = "H:/Tools/nim/start.ps1";
+/** The "PRISM Fleet Reaper" scheduled-task repetition interval — install-fleet-reaper-task.ps1
+ *  registers a 5-min trigger. Used to judge whether the task's NextRunTime has stalled
+ *  (State:Ready but the trigger frozen in the past). Override: PRISM_FLEET_REAPER_TASK_CADENCE_SEC. */
+const DEFAULT_TASK_CADENCE_SEC = 300;
+/** Cooldown between scheduled-task self-heal re-runs. `schtasks /Run` does NOT reliably
+ *  re-arm a stalled repetition trigger — without this gate a genuinely-stalled trigger
+ *  would be re-run every sweep forever, each /Run launching a fresh reaper instance
+ *  (a self-spawn storm under memory pressure). Override: PRISM_FLEET_REAPER_TASK_SELFHEAL_COOLDOWN_SEC. */
+const DEFAULT_TASK_SELFHEAL_COOLDOWN_SEC = 900;
+
+/** Pure: parse `schtasks /Query /TN ... /V /FO LIST` stdout → lower-cased status. */
+export function parseTaskQueryStatus(stdout) {
+  if (!stdout || typeof stdout !== "string") return "unknown";
+  for (const l of stdout.split(/\r?\n/)) {
+    const m = l.match(/^\s*Status:\s*(.+?)\s*$/i);
+    if (m) {
+      const s = m[1].trim().toLowerCase();
+      if (s === "ready" || s === "running" || s === "disabled" || s === "queued") return s;
+      return s; // pass through unknown values
+    }
+  }
+  return "unknown";
+}
+
+/**
+ * Pure: parse `Next Run Time:` from `schtasks /Query /V /FO LIST` stdout → epoch ms.
+ * Returns null when the field is absent, "N/A", "Disabled", "Never", or unparseable —
+ * i.e. "cannot tell", NOT "stalled". A concrete past timestamp is what isTriggerStalled
+ * acts on; an unknown NextRun is left to the State-based checks.
+ *
+ * Locale note: schtasks emits the timestamp in the host's locale (`M/D/YYYY h:mm:ss AM/PM`
+ * on a US-locale host). On a non-US locale Date.parse may return NaN → null → false:
+ * a graceful no-op (the detector silently disables, never a false stall). PRISM's fleet
+ * runs US-locale Windows; a non-US host simply doesn't get trigger-stall detection.
+ */
+export function parseTaskNextRun(stdout) {
+  if (!stdout || typeof stdout !== "string") return null;
+  for (const l of stdout.split(/\r?\n/)) {
+    const m = l.match(/^\s*Next Run Time:\s*(.+?)\s*$/i);
+    if (m) {
+      const raw = m[1].trim();
+      if (!raw || /^(N\/A|Disabled|Never)$/i.test(raw)) return null;
+      const ms = Date.parse(raw);
+      return Number.isFinite(ms) ? ms : null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Pure: is a scheduled task's trigger stalled? A task can be State:Ready yet have its
+ * NextRunTime frozen in the past — the trigger stopped advancing and the task will
+ * never fire again. Every State-only health check (golf-guardian, fleet-task-health
+ * classifyTask, this script's taskSelfHealAction) is blind to that; this closes it.
+ * True only when nextRun is a concrete timestamp more than `mult × cadence` in the past.
+ *
+ * @param {number|null} nextRunMs  — epoch ms of the task's Next Run Time (null = unknown → false)
+ * @param {number} nowMs
+ * @param {number} cadenceMs       — the task's repetition interval (ms)
+ * @param {number} [mult=1.5]      — slack multiplier (clock jitter / an in-progress sweep)
+ * @returns {boolean}
+ */
+export function isTriggerStalled(nextRunMs, nowMs, cadenceMs, mult = 1.5) {
+  if (!Number.isFinite(nextRunMs)) return false; // unknown NextRun → cannot assert a stall
+  if (!Number.isFinite(nowMs) || !Number.isFinite(cadenceMs) || cadenceMs <= 0) return false;
+  const m = Number.isFinite(mult) && mult > 0 ? mult : 1.5;
+  return (nowMs - nextRunMs) > cadenceMs * m;
+}
+
+/**
+ * Pure decision: should we restart NIM?
+ *
+ * @param {object} args
+ * @param {{up:boolean|null, error?:string, httpStatus?:number}} args.nimProbe
+ * @param {number} args.lastRestartMs   — 0 if never restarted in this state
+ * @param {number} args.cooldownSec
+ * @param {number} args.nowMs
+ * @param {boolean} args.disabled       — env knob says skip
+ * @param {boolean} args.actionsAllowed — false on --status/--dry-run
+ * @returns {{action:'noop'|'advise'|'restart', reason:string}}
+ */
+export function nimKeepaliveAction({ nimProbe, lastRestartMs = 0, cooldownSec, nowMs, disabled, actionsAllowed }) {
+  if (disabled) return { action: "noop", reason: "disabled-via-knob" };
+  if (!nimProbe || typeof nimProbe !== "object") return { action: "noop", reason: "no-probe" };
+  if (nimProbe.up === true) return { action: "noop", reason: "nim-up" };
+  if (nimProbe.up === null) return { action: "noop", reason: "probe-skipped" };
+  // Only "down" remains. Check cooldown.
+  if (lastRestartMs && (nowMs - lastRestartMs) < cooldownSec * 1000) {
+    const ageSec = Math.round((nowMs - lastRestartMs) / 1000);
+    return { action: "noop", reason: `cooldown-active (${ageSec}s < ${cooldownSec}s)` };
+  }
+  if (!actionsAllowed) return { action: "advise", reason: "nim-down (status/dry-run — would restart)" };
+  return { action: "restart", reason: `nim-down (${nimProbe.error || "no-error"})` };
+}
+
+/**
+ * Pure decision: should we re-run the scheduled task?
+ *
+ * @param {object} args
+ * @param {string} args.taskStatus       — "ready" | "running" | "disabled" | "queued" | "unknown"
+ * @param {boolean} args.disabled
+ * @param {boolean} args.actionsAllowed
+ * @param {boolean} [args.triggerStalled] — State is healthy but NextRunTime is frozen
+ *                                          in the past (see isTriggerStalled). Default false.
+ * @param {number}  [args.lastSelfHealMs] — epoch ms of the last self-heal re-run (0 = never).
+ * @param {number}  [args.cooldownSec]    — min seconds between self-heal re-runs.
+ * @param {number}  [args.nowMs]          — clock (injectable for tests).
+ * @returns {{action:'noop'|'advise'|'run', reason:string}}
+ */
+export function taskSelfHealAction({
+  taskStatus, disabled, actionsAllowed, triggerStalled = false,
+  lastSelfHealMs = 0, cooldownSec = DEFAULT_TASK_SELFHEAL_COOLDOWN_SEC, nowMs = Date.now(),
+}) {
+  if (disabled) return { action: "noop", reason: "disabled-via-knob" };
+  const s = String(taskStatus || "").toLowerCase();
+  if (s === "ready" || s === "running" || s === "queued") {
+    // Healthy STATE — but a Ready task can still have a stalled trigger (NextRunTime
+    // frozen in the past). That is the one failure a State-only check cannot see.
+    if (triggerStalled) {
+      // `schtasks /Run` does not reliably re-arm a stalled trigger, so an unfixable
+      // stall must NOT re-run every sweep (each /Run spawns a fresh reaper). Gate it.
+      if (lastSelfHealMs && Number.isFinite(lastSelfHealMs) &&
+          Number.isFinite(nowMs) && (nowMs - lastSelfHealMs) < cooldownSec * 1000) {
+        const agoSec = Math.round((nowMs - lastSelfHealMs) / 1000);
+        return {
+          action: "advise",
+          reason: `trigger-stalled, self-heal cooldown active (re-ran ${agoSec}s ago < ${cooldownSec}s) — stall persists, schtasks /Run did not re-arm the trigger`,
+        };
+      }
+      if (!actionsAllowed) {
+        return { action: "advise", reason: `trigger-stalled (status=${s}; status/dry-run — would re-run)` };
+      }
+      return { action: "run", reason: `trigger-stalled (status=${s} but NextRunTime frozen in the past)` };
+    }
+    return { action: "noop", reason: `task-healthy (status=${s})` };
+  }
+  if (s === "disabled") {
+    return { action: "advise", reason: "task-disabled (operator-only re-enable — refusing to flip without consent)" };
+  }
+  if (s === "unknown" || s === "") {
+    return { action: "advise", reason: "task-status-unknown (likely uninstalled — run install-fleet-reaper-task.ps1)" };
+  }
+  // Some other unexpected state — advise only.
+  if (!actionsAllowed) return { action: "advise", reason: `task-status=${s} (status/dry-run)` };
+  return { action: "run", reason: `task-status=${s} — running it now to surface fresh status` };
+}
+
+/**
+ * Side-effect: probe NIM /v1/models endpoint via curl (sync — matches the
+ * runSweep sync calling convention, same pattern as ollama-docker-health probe).
+ * `curl -s -m 2 -o NUL -w '%{http_code}' <url>/v1/models` → "200" if up, "000" if refused.
+ */
+export function probeNimDaemon({ url, timeoutMs, curlImpl = execFileSync } = {}) {
+  if (!url) return { up: null, error: "no-url" };
+  try {
+    const timeoutSec = Math.max(1, Math.ceil((timeoutMs || 1500) / 1000));
+    const out = curlImpl("curl", [
+      "-s", "-m", String(timeoutSec), "-o", "NUL", "-w", "%{http_code}",
+      `${url}/v1/models`,
+    ], { timeout: (timeoutMs || 1500) + 500, encoding: "utf-8", windowsHide: true, maxBuffer: 4096 });
+    const code = String(out || "").trim();
+    if (code === "000" || code === "") return { up: false, error: "connection-refused" };
+    const status = parseInt(code, 10);
+    if (Number.isFinite(status) && status >= 200 && status < 500) {
+      return { up: true, httpStatus: status };
+    }
+    return { up: false, httpStatus: status, error: `HTTP ${code}` };
+  } catch (e) {
+    return { up: false, error: e?.code || e?.message || "spawn-failed" };
+  }
+}
+
+/** Side-effect: spawn NIM start.ps1 detached. Returns {ok, pid|error}. */
+export function restartNimDaemon({ spawnImpl = spawn, startScript = NIM_START_SCRIPT, existsImpl = existsSync } = {}) {
+  if (!existsImpl(startScript)) {
+    return { ok: false, error: `NIM start script not found at ${startScript} (likely no NIM on this PC)` };
+  }
+  try {
+    const child = spawnImpl("powershell", [
+      "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", startScript,
+    ], { detached: true, stdio: "ignore", windowsHide: true });
+    if (child && typeof child.unref === "function") child.unref();
+    return { ok: true, pid: child?.pid || null };
+  } catch (e) {
+    return { ok: false, error: e?.message || "spawn-failed" };
+  }
+}
+
+/** Side-effect: `schtasks /Run /TN <task>`. Sync. NOTE: each call launches a FRESH
+ *  task instance — `/Run` is no-op-on-*error* but not harmless to repeat. A caller that
+ *  may fire it every sweep MUST cooldown-gate (see taskSelfHealAction's lastSelfHealMs). */
+export function runScheduledTaskNow(taskName, { spawnImpl = execFileSync, timeoutMs = 5000 } = {}) {
+  try {
+    spawnImpl("schtasks", ["/Run", "/TN", taskName], {
+      timeout: timeoutMs, encoding: "utf-8", windowsHide: true, maxBuffer: 65536,
+    });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e?.message || "spawn-failed" };
+  }
+}
+
+// ─── Tier-4 (FLEET-REAPER-MS2.4): global claude/node working-set compaction ──
+//
+// User directive 2026-05-19 ([GOLF]/U-WAVE4): "find a way to relieve memory
+// pressure for this pc with 12 concurrent chats. windows level and pc system
+// level".
+//
+// Tier-1 ballast + Tier-2 service-restart cover physical-RAM relief paths but
+// don't touch the largest consumers: claude.exe (~700MB-1GB RSS each × 12 =
+// 8-12GB) and node.exe descendants (hook runners, MCP server, agents). At
+// critical pressure (≥88% commit), the highest-leverage cheap action is calling
+// the Win32 EmptyWorkingSet API on every claude/node/bash process — Windows
+// will refault pages only as they're actually touched, so active chats see a
+// brief stutter on the next request but inactive chats reclaim full RSS.
+//
+// Safety invariants:
+//   • Fires ONLY at pressureTier === "critical" (matches Tier-2's gate)
+//   • Cooldown-gated via mtime of a marker file (default 120s — pages refault
+//     fast, no point trimming twice in quick succession)
+//   • Idempotent — EmptyWorkingSet on a process with already-trimmed WS is a no-op
+//   • Fail-soft — PowerShell errors never flip result.ok
+//   • Operator can disable: PRISM_FLEET_REAPER_GLOBAL_COMPACT_DISABLE=1
+
+const DEFAULT_GLOBAL_COMPACT_COOLDOWN_SEC = 120;
+const DEFAULT_GLOBAL_COMPACT_TARGETS = ["claude", "node", "bash"];
+
+/**
+ * Pure decision: should we run global working-set compaction?
+ *
+ * @param {object} args
+ * @param {'normal'|'warn'|'critical'} args.pressureTier
+ * @param {number} args.lastCompactionMs — 0 if never compacted
+ * @param {number} args.cooldownSec
+ * @param {number} args.nowMs
+ * @param {boolean} args.disabled
+ * @param {boolean} args.actionsAllowed
+ * @returns {{action:'noop'|'advise'|'compact', reason:string}}
+ */
+export function decideGlobalCompaction({ pressureTier, lastCompactionMs = 0, cooldownSec, nowMs, disabled, actionsAllowed }) {
+  if (disabled) return { action: "noop", reason: "disabled-via-knob" };
+  if (pressureTier !== "critical") return { action: "noop", reason: `not-critical (tier=${pressureTier})` };
+  if (lastCompactionMs && (nowMs - lastCompactionMs) < cooldownSec * 1000) {
+    const ageSec = Math.round((nowMs - lastCompactionMs) / 1000);
+    return { action: "noop", reason: `cooldown-active (${ageSec}s < ${cooldownSec}s)` };
+  }
+  if (!actionsAllowed) return { action: "advise", reason: "would-compact (status/dry-run)" };
+  return { action: "compact", reason: "critical-pressure + cooldown-expired" };
+}
+
+/**
+ * Side-effect: call Win32 EmptyWorkingSet on every claude/node/bash process.
+ * Trim is best-effort per-process; failure of one doesn't abort the rest.
+ *
+ * @returns {{ok:boolean, count?:number, approxBytes?:number, error?:string}}
+ */
+export function executeGlobalCompaction({ targetNames = DEFAULT_GLOBAL_COMPACT_TARGETS, spawnImpl = execFileSync, timeoutMs = 30000 } = {}) {
+  // PS1 command using $ProcessHandle to get the C# handle directly, avoiding
+  // Add-Type compilation (slow under memory pressure). MinWorkingSet=-1 +
+  // MaxWorkingSet=-1 is the documented way to trigger EmptyWorkingSet without
+  // needing P/Invoke from PowerShell — kernel handles the syscall internally.
+  // Source: docs.microsoft.com/dotnet/api/system.diagnostics.process.minworkingset
+  const targetList = targetNames.map((n) => `'${n}'`).join(",");
+  const psCmd = [
+    "$count = 0; $bytes = 0;",
+    `foreach ($p in Get-Process | Where-Object { $_.ProcessName -in @(${targetList}) }) {`,
+    "  try {",
+    "    $beforeWS = $p.WorkingSet64;",
+    // Setting MinWorkingSet to -1 then back tells Windows to trim the working
+    // set to the bare minimum. No Add-Type needed — purely .NET property
+    // access, ~10× faster than the Add-Type approach.
+    "    $p.MinWorkingSet = [System.IntPtr]::new(-1);",
+    "    $count++;",
+    "    $bytes += $beforeWS;",
+    "  } catch {}",
+    "}",
+    "Write-Output ('{ \"count\": ' + $count + ', \"approxBytes\": ' + $bytes + ' }')",
+  ].join(" ");
+  try {
+    const out = spawnImpl("powershell", ["-NoProfile", "-Command", psCmd], {
+      timeout: timeoutMs, encoding: "utf-8", windowsHide: true, maxBuffer: 65536,
+    });
+    const trimmed = String(out || "").trim();
+    const j = JSON.parse(trimmed);
+    return { ok: true, count: Number(j.count) || 0, approxBytes: Number(j.approxBytes) || 0 };
+  } catch (e) {
+    return { ok: false, error: e?.message?.split("\n")[0] || "spawn-failed" };
+  }
+}
+
 // ─── CLI ────────────────────────────────────────────────────────────────────
 
 export function parseArgs(argv) {
   const args = {
     once: false, monitorLoop: false, status: false, stopEvent: false,
-    detach: false, dryRun: false, json: false, help: false,
+    detach: false, dryRun: false, json: false, help: false, hunt: false,
     noCoord: false, noRelief: false,
     intervalSec: null, ageFloorSec: null, killAfter: null,
   };
@@ -1996,7 +3256,7 @@ export function parseArgs(argv) {
   const takesValue = { "--interval": "intervalSec", "--age-floor": "ageFloorSec", "--kill-after": "killAfter" };
   const boolFlags = new Set([
     "--once", "--monitor-loop", "--status", "--stop-event", "--detach",
-    "--dry-run", "--json", "--help", "-h", "--no-coord", "--no-relief",
+    "--dry-run", "--json", "--help", "-h", "--no-coord", "--no-relief", "--hunt",
   ]);
   for (let i = 0; i < argv.length; i += 1) {
     let raw = argv[i];
@@ -2022,6 +3282,7 @@ export function parseArgs(argv) {
     else if (raw === "--json") args.json = true;
     else if (raw === "--no-coord") args.noCoord = true;
     else if (raw === "--no-relief") args.noRelief = true;
+    else if (raw === "--hunt") args.hunt = true;
     else if (raw === "--help" || raw === "-h") args.help = true;
     else if (takesValue[raw]) {
       const v = inlineValue != null ? inlineValue : argv[++i];
@@ -2046,6 +3307,12 @@ export function parseArgs(argv) {
   }
   if (args.monitorLoop && args.detach) {
     errors.push("--monitor-loop cannot be combined with --detach (would orphan a silent daemon)");
+  }
+  if (args.hunt && (args.monitorLoop || args.status)) {
+    errors.push("--hunt cannot be combined with --monitor-loop / --status (it is a one-shot Task-Manager report)");
+  }
+  if (args.hunt && args.detach) {
+    errors.push("--hunt cannot be combined with --detach (the hunt report would be discarded)");
   }
   return { args, errors };
 }
@@ -2079,6 +3346,7 @@ function usage() {
     "Usage:",
     "  node fleet-reaper-sweep.mjs [--once] [--json] [--dry-run]   one sweep (default)",
     "  node fleet-reaper-sweep.mjs --status                       report only, no write/reap",
+    "  node fleet-reaper-sweep.mjs --hunt [--json] [--dry-run]     Task-Manager scan: every node/bash/git + reap verdict",
     "  node fleet-reaper-sweep.mjs --monitor-loop [--interval SEC] poll forever (Monitor tool)",
     "  node fleet-reaper-sweep.mjs --once --stop-event --detach    Stop-hook seam (returns at once)",
     "",
@@ -2143,8 +3411,12 @@ async function main() {
   // `stop-event` runs the IDENTICAL sweep as `once` — the distinct mode is a
   // telemetry label only (it tags the log line so Stop-triggered sweeps are
   // attributable). It is intentionally neither more nor less aggressive.
-  const mode = args.status ? "status" : args.stopEvent ? "stop-event" : "once";
-  const result = runSweep({ ...cfg, mode });
+  const mode = args.status
+    ? "status"
+    : args.hunt
+      ? "hunt"
+      : args.stopEvent ? "stop-event" : "once";
+  const result = runSweep({ ...cfg, mode, enumerator: cfg.enumerator || cachedEnumerate });
 
   // Hand the ballast back the first time a sweep reports the critical band —
   // ~256MB freed exactly when the box (and the reaper itself) needs headroom.
@@ -2157,6 +3429,10 @@ async function main() {
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");
   } else {
     process.stdout.write(summarize(result) + "\n");
+    // --hunt: append the full per-process Task-Manager table after the summary.
+    if (mode === "hunt" && result.huntReport) {
+      process.stdout.write(formatHuntReport(result.huntReport) + "\n");
+    }
   }
   if (mode !== "status" && isNoteworthy(result)) logSweep(result);
 

@@ -1043,10 +1043,15 @@ export class LatheThermodynamicsEngine {
     const melting_canonical = base.melting_point_C;
 
     return {
+      // base is a MaterialEntry (extends MaterialPhysics) — spread it so every
+      // MaterialPhysics field (kc1_1, mc, vc_base_*, machinability_factor,
+      // E_GPa, sigma_y_MPa, hardness_HB, Vc_typical/Vc_max ...) is carried
+      // through with its canonical value; explicit fields below override.
+      ...base,
       // MaterialPhysics required fields (kc1_1, mc, taylor_C, taylor_n, iso_group)
       iso_group: base.iso_group,
-      kc1_1: 0, // not used by thermo path; populated by callers if needed
-      mc: 0,
+      kc1_1: base.kc1_1, // canonical Kienzle; thermo path does not use it directly
+      mc: base.mc,
       taylor_C: base.taylor_C,
       taylor_n: base.taylor_n,
       // Engine-level shorthands (legacy names mapped from MaterialEntry SI fields)

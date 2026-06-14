@@ -1,0 +1,551 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated_at": "2026-06-03T19:17:32.781Z",
+  "rung": "B — TRUE print→program→post roundtrip (regenerate via bound lathe adapter, diff vs JM .MIN)",
+  "honest_note": "Accuracy = PARAMETER-ENVELOPE AGREEMENT (op-coverage + SFM + IPR within ±band), NOT byte-match. Features are derived from the .MIN itself (no paired print PDF), so a miss reflects PRISM physics/data OR .MIN-derived-input divergence — the per-category punch list says which. This is the real measured number; it is NOT asserted as 100% unless the data earns it (R12).",
+  "KNOWN_LIMITATION_material_default": "Every part is regenerated as 1018 steel / ISO-P (no per-.MIN material inference yet). Real JM die-shop lathe parts are frequently tool-steel / stainless / hardened, whose true cutting speeds run 2-4x LOWER than 1018. PRISM therefore recommends aggressive P-group speeds against ground-truth cut in harder material, so the SFM (and to a lesser extent IPR) axis SYSTEMATICALLY UNDER-SCORES. The headline % is a LOWER BOUND on PRISM's print->program fidelity, NOT a 'PRISM is X% correct' verdict. Closing this needs material inference (next rung) + a JM shop-profile speed/feed calibration override.",
+  "config": {
+    "band_pct": 35,
+    "sample_mode": "stratified",
+    "seed": 1337,
+    "material_default": "1018 / ISO-P (FORCED — not print-derived; see KNOWN_LIMITATION_material_default)"
+  },
+  "corpus": {
+    "root": "H:/PRISM/JM DIE/CNC LATHE",
+    "scanned_total": 16558,
+    "regenerated": 24,
+    "regen_failures": 0,
+    "parse_errors": 0,
+    "skipped_no_groundtruth": 0,
+    "reconciliation": "scanned_total ≈ regenerated + regen_failures + parse_errors + skipped_no_groundtruth (− unsampled when not --all)"
+  },
+  "runtime_ms": 28479,
+  "headline": {
+    "mean_accuracy_pct": 41.6,
+    "median_accuracy_pct": 37.5,
+    "p25": 37.5,
+    "p75": 42.9,
+    "programs_scored": 24
+  },
+  "axes": {
+    "op_coverage_pct": 100,
+    "sfm_in_band_pct": 8.5,
+    "ipr_in_band_pct": 6.3,
+    "op_n": 66,
+    "sfm_n": 47,
+    "ipr_n": 63
+  },
+  "punch_list_by_category": {
+    "finish": {
+      "sfm": 23,
+      "ipr": 23,
+      "op": 0
+    },
+    "rough": {
+      "sfm": 19,
+      "ipr": 19,
+      "op": 0
+    },
+    "drill": {
+      "sfm": 1,
+      "ipr": 17,
+      "op": 0
+    }
+  },
+  "programs_sampled": [
+    {
+      "file": "G3004-201769.MIN",
+      "customer": "_root",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "CASE1500.MIN",
+      "customer": "ACME",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 7,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "1/3",
+      "accuracy": 50,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "OP1-FULL-PROGRAM-MACHINE4.MIN",
+      "customer": "ADDISON FASTENERS",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 7,
+      "op_coverage": "3/3",
+      "sfm_match": "1/2",
+      "ipr_match": "1/2",
+      "accuracy": 71.4,
+      "master_cats": [
+        "rough",
+        "drill",
+        "finish"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "CS246E008.MIN",
+      "customer": "AEROTECH",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 7,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "FULL-PROGRAM-MACHINE5.MIN",
+      "customer": "AFI INDUSTRIES INC",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 6,
+      "op_coverage": "3/3",
+      "sfm_match": "1/2",
+      "ipr_match": "0/2",
+      "accuracy": 57.1,
+      "master_cats": [
+        "rough",
+        "drill",
+        "finish"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "A9099772.MIN",
+      "customer": "AGRATI",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 7,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "A57-CC-56PB-A.MIN",
+      "customer": "AIR",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 4,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "WAFER630X200X130.MIN",
+      "customer": "AJ",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "HE-014-02.MIN",
+      "customer": "AKKO",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 9,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "FP14-31HXS-03.MIN",
+      "customer": "ALCOA",
+      "regen_ok": false,
+      "regen_tools": 3,
+      "master_tools": 3,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/2",
+      "accuracy": 42.9,
+      "master_cats": [
+        "finish",
+        "rough",
+        "thread"
+      ],
+      "regen_cats": [
+        "rough",
+        "finish",
+        "thread"
+      ]
+    },
+    {
+      "file": "10-016-021-1405.MIN",
+      "customer": "ALLFAST",
+      "regen_ok": false,
+      "regen_tools": 2,
+      "master_tools": 1,
+      "op_coverage": "1/1",
+      "sfm_match": "0/1",
+      "ipr_match": "0/1",
+      "accuracy": 33.3,
+      "master_cats": [
+        "finish"
+      ],
+      "regen_cats": [
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "WAFER630X173X085.MIN",
+      "customer": "ALLSTAR",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "10-016-021-1405 - Copy.MIN",
+      "customer": "AMGLO",
+      "regen_ok": false,
+      "regen_tools": 2,
+      "master_tools": 1,
+      "op_coverage": "1/1",
+      "sfm_match": "0/1",
+      "ipr_match": "0/1",
+      "accuracy": 33.3,
+      "master_cats": [
+        "finish"
+      ],
+      "regen_cats": [
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "A2554-89-02-1.MIN",
+      "customer": "ANDERSON",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "A34-PH43.MIN",
+      "customer": "ARCHER",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 8,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "1/3",
+      "accuracy": 50,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "189A0043.MIN",
+      "customer": "ARCONIC",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 7,
+      "op_coverage": "3/3",
+      "sfm_match": "1/3",
+      "ipr_match": "1/3",
+      "accuracy": 55.6,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "T1641-155-2D.MIN",
+      "customer": "ATF",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 9,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "BLANK-2766.MIN",
+      "customer": "BELVIDERE",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 4,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "BH-1108-B.MIN",
+      "customer": "BIRMINGHAM FASTENER",
+      "regen_ok": false,
+      "regen_tools": 2,
+      "master_tools": 3,
+      "op_coverage": "2/2",
+      "sfm_match": "0/2",
+      "ipr_match": "0/2",
+      "accuracy": 33.3,
+      "master_cats": [
+        "rough",
+        "finish"
+      ],
+      "regen_cats": [
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "B5819-HEADER-DEPH-054.MIN",
+      "customer": "BRAINARD RIVET",
+      "regen_ok": false,
+      "regen_tools": 2,
+      "master_tools": 5,
+      "op_coverage": "2/2",
+      "sfm_match": "0/2",
+      "ipr_match": "0/2",
+      "accuracy": 33.3,
+      "master_cats": [
+        "finish",
+        "rough"
+      ],
+      "regen_cats": [
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "WAFER630X361X75A.MIN",
+      "customer": "BRICO",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "UPSET1237.MIN",
+      "customer": "BRISTOL",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 7,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "finish",
+        "rough",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "DBB6-2-400-A.MIN",
+      "customer": "CAMCAR",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 5,
+      "op_coverage": "3/3",
+      "sfm_match": "0/2",
+      "ipr_match": "0/3",
+      "accuracy": 37.5,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    },
+    {
+      "file": "HOLDER2498-A.MIN",
+      "customer": "CFC",
+      "regen_ok": false,
+      "regen_tools": 4,
+      "master_tools": 4,
+      "op_coverage": "3/3",
+      "sfm_match": "1/2",
+      "ipr_match": "0/3",
+      "accuracy": 50,
+      "master_cats": [
+        "rough",
+        "finish",
+        "drill"
+      ],
+      "regen_cats": [
+        "drill",
+        "rough",
+        "finish"
+      ]
+    }
+  ]
+}

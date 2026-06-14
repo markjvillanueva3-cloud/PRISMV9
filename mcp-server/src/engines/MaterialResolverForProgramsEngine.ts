@@ -93,7 +93,7 @@ const SFM_RANGES: Array<{
 ];
 
 /** Material keyword patterns for comment parsing */
-const MATERIAL_KEYWORDS: Array<{
+export const MATERIAL_KEYWORDS: Array<{
   pattern: RegExp; iso_group: ISOGroup; name: string; hardness_hb: number;
 }> = [
   // Aluminum alloys
@@ -195,6 +195,94 @@ export class MaterialResolverForProgramsEngine {
       source: "default",
       details,
     }, details);
+  }
+
+  /**
+   * Resolve a bare material designation string to ISO 513 group + Kienzle + Taylor
+   * constitutive constants — without a CNC program. Surfaced as prism_calc:material_resolve
+   * (MS-CRITWIRE/U-CW-10) so force / speed-feed / tool-life actions can resolve a material
+   * in one call instead of constructing a parsed program first.
+   *
+   * Matches the designation against the MATERIAL_KEYWORDS table — AISI grades plus
+   * standard-agnostic family tokens (ALUMINUM, STAINLESS, TITANIUM, INCONEL, TOOL STEEL,
+   * CAST IRON, BRASS, hardened). Physics is projected from the canonical per-ISO-group
+   * tables in physics/constants.ts (CANONICAL_KIENZLE / CANONICAL_TAYLOR) — never inlined.
+   * Pure DIN/JIS numeric codes lacking a recognizable family token resolve at confidence 0
+   * (honest miss-signal): pair with prism_calc:material_equivalent for cross-standard name
+   * resolution first, then re-resolve the AISI equivalent here.
+   *
+   * @param designation Material designation or family name (e.g. "4140", "6061-T6", "304 stainless", "H13 tool steel").
+   * @returns ResolvedMaterial — iso_group, kc1_1, mc, taylor_C, taylor_n, confidence (0 when unresolved).
+   */
+  resolveDesignation(designation: string): ResolvedMaterial {
+    const details: string[] = [];
+    const text = (designation ?? "").trim().toUpperCase();
+
+    if (text.length === 0) {
+      details.push("Empty designation — defaulted to ISO P (medium-carbon steel) at confidence 0");
+      return {
+        name: "Unknown — empty designation",
+        iso_group: "P",
+        hardness_hb: 200,
+        kc1_1: CANONICAL_KIENZLE.P.kc1_1,
+        mc: CANONICAL_KIENZLE.P.mc,
+        taylor_C: CANONICAL_TAYLOR.P.C,
+        taylor_n: CANONICAL_TAYLOR.P.n,
+        confidence: 0,
+        source: "unresolved",
+        details,
+      };
+    }
+
+    let bestMatch: ResolvedMaterial | null = null;
+    for (const kw of MATERIAL_KEYWORDS) {
+      if (!kw.pattern.test(text)) continue;
+      const isoGroup = kw.iso_group;
+      const hardness = this._extractHardness(text) ?? kw.hardness_hb;
+      // Direct designation match — the caller named the exact material, so this is
+      // higher-confidence than the fuzzy program-comment scan in _resolveFromComments.
+      // H group keeps the usual priority boost so hardened variants win over base alloy.
+      const conf = isoGroup === "H" ? 0.95 : 0.9;
+      const candidate: ResolvedMaterial = {
+        name: kw.name,
+        iso_group: isoGroup,
+        hardness_hb: hardness,
+        kc1_1: CANONICAL_KIENZLE[isoGroup].kc1_1,
+        mc: CANONICAL_KIENZLE[isoGroup].mc,
+        taylor_C: CANONICAL_TAYLOR[isoGroup].C,
+        taylor_n: CANONICAL_TAYLOR[isoGroup].n,
+        confidence: conf,
+        source: "designation",
+        details: [],
+      };
+      if (!bestMatch || candidate.confidence > bestMatch.confidence) {
+        bestMatch = candidate;
+        details.push(`Matched "${kw.name}" (ISO ${isoGroup}) via designation keyword`);
+      }
+    }
+
+    if (bestMatch) {
+      bestMatch.details = details;
+      return bestMatch;
+    }
+
+    details.push(
+      `Designation "${designation}" matched no AISI grade or material-family keyword — ` +
+      `defaulted to ISO P at confidence 0. For DIN/JIS designations, resolve cross-standard ` +
+      `via prism_calc:material_equivalent first.`,
+    );
+    return {
+      name: `Unresolved — "${designation}"`,
+      iso_group: "P",
+      hardness_hb: 200,
+      kc1_1: CANONICAL_KIENZLE.P.kc1_1,
+      mc: CANONICAL_KIENZLE.P.mc,
+      taylor_C: CANONICAL_TAYLOR.P.C,
+      taylor_n: CANONICAL_TAYLOR.P.n,
+      confidence: 0,
+      source: "unresolved",
+      details,
+    };
   }
 
   // ── Comment parsing ──────────────────────────────────────────────────

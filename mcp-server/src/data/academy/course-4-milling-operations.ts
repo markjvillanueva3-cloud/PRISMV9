@@ -420,6 +420,55 @@ Tools smaller than 1mm diameter (down to 0.1mm). Features measured in microns.
 3. **Air blast or MQL only** — flood coolant can break micro tools
 4. **Maximum 2 flutes** — chip evacuation in tiny spaces
 5. **Program in microns** if controller supports it (G21 → G20.1 on some controls)` }] }],
+
+  13: [{ id: `${CID}-m13-l1`, moduleId: `${CID}-mod-13`, title: "Citation Discipline — Milling Strategy Sources", order: 1, content: [{ type: "text",
+    body: `# Citation Discipline — Milling Operations
+
+**Prerequisite:** Modules 1-12 of this course (face/pocket/slotting/HSM/rest/3D/thread/drill/tap/micro).
+**Learning objective:** For every milling strategy choice (face vs end, climb vs conventional, roughing path, finishing stepover, plunge entry, helical entry), cite the *handbook recommendation* + the *test standard* the recommendation was measured against.
+**Assessment:** For one operation in your last setup, cite the strategy source + the matching test standard.
+
+## Why Milling Strategy Needs Cited Sources
+
+Every milling textbook gives slightly different stepover/stepdown rules; every tool vendor gives slightly different chip-load recommendations. A "best practice" without a source is just "what the last programmer did". An audit-trail of cited sources lets you debug, defend, and improve.
+
+## Citation Pattern (Milling Variant)
+
+\`<strategy/value> [per <handbook/catalog/standard>, <year>, <chapter/page>]\`
+
+Examples revisiting modules of THIS course:
+
+- **"Face milling lead angle 45° for general roughing"** [per Sandvik Coromant, *Modern Metal Cutting* — Section: Milling, Face Mill Geometry. Lead angle affects chip thickness via cos(lead) factor.]
+- **"Pocket milling stepover ae ≤ 0.5×Ø for full slotting, ≤ 0.75×Ø for finishing"** [per Iscar *Milling Catalog*, current edition, Solid Carbide End Mill section.]
+- **"HSM adaptive radial engagement 5-20% Ø"** [per CGTech *Vericut Knowledge Base* + Mastercam *Dynamic Motion* documentation — note: trochoidal/adaptive recommendations are vendor-CAM-specific; consult the CAM strategy doc.]
+- **"Climb milling preferred over conventional for finishing"** [per ASM Metals Handbook Vol. 16 (Machining), 1989, §Face and End Milling — climb reduces work-hardening on entry on rigid setups.]
+- **"Drilling cycle peck depth ≤ 3×Ø for ductile, ≤ 1×Ø for stainless"** [per Sumitomo *Drill Catalog* + Sandvik *CoroDrill* technical guide — both consult the vendor catalog for the specific drill grade.]
+- **"Tap drill diameter calculation"** [per Machinery's Handbook 31st ed., 2020 — Industrial Press; Section: Tapping. Also: ANSI B94.9 (tap dimensions) + ISO 529 (taps — general purpose).]
+- **"Milling test standard"** [per ISO 8688-1:1989 (face milling tool-life test) + ISO 8688-2:1989 (end milling). These define the conditions under which vendor T-values are measured.]
+- **"Tool-data exchange format"** [per ISO 13399 series, *Cutting tool data representation and exchange* — when importing tool data from a vendor catalog, use the ISO 13399 schema for traceability.]
+
+## Doctrine vs Technique vs Reference (Milling Lens)
+
+| Category | In milling | Examples |
+|----------|------------|----------|
+| **Doctrine** | Universal mechanics. | Climb vs conventional definition · chip thickness ∝ fz·sin(engagement) · MRR = ae·ap·feed |
+| **Technique** | Path-planning + entry/exit. | Helical entry depth · trochoidal radius selection · rest-machining sweeps |
+| **Reference** | Per-tool, per-material, per-CAM. | Sandvik/Iscar/Sumitomo chip-load tables · Mastercam/hyperMILL strategy presets · post-processor canned cycles |
+
+## The Strategy-Mismatch Failure Mode
+
+A programmer applies an HSM adaptive strategy with ae=20% Ø — correct per Sandvik for steel. But the part is *thin-wall aluminum*; the same strategy chatters at 18 kHz because no one cited the *material-specific* HSM guideline (for thin-wall Al, ae should drop to 5-10% Ø with chip thinning compensation). **Defense:** every strategy decision cites both the *strategy source* AND the *material-group qualifier*.
+
+## Practice
+
+For one operation in your last setup, write the citation chain:
+
+1. **Strategy type** (face/pocket/slot/contour/adaptive) — source + material qualifier
+2. **Stepover ae + stepdown ap** — vendor table + ISO group
+3. **Entry method** (plunge/ramp/helix) — CAM strategy doc + tool catalog plunge limits
+4. **Chip-evacuation method** (coolant/MQL/air blast) — material requirement source
+
+If any link is "I just always do it that way" → flag as candidate for audit + documented standard.` }] }],
 };
 
 // Quizzes
@@ -461,6 +510,23 @@ export const COURSE_4_QUIZZES: Record<string, Question[]> = {
       tags: ["tapping", "feed", "threading"],
     },
   ],
+  [`${CID}-mod-13-quiz`]: [
+    {
+      id: "c4-q4", type: "multiple_choice", difficulty: 2,
+      text: "An HSM strategy with adaptive ae=20% Ø chatters violently on a thin-wall aluminum part. The recommendation came from a Sandvik general-steel guide. What was the lima-discipline citation gap?",
+      options: [
+        { id: "a", text: "Missing material-group qualifier — Sandvik steel guidance does not apply unchanged to thin-wall aluminum", isCorrect: true },
+        { id: "b", text: "Sandvik tables are outdated", isCorrect: false,
+          explanation: "Tables are valid for their qualifier; using them outside the qualifier is the error." },
+        { id: "c", text: "ae should always be ≤ 5% Ø regardless of material", isCorrect: false,
+          explanation: "5% is too conservative for rigid setups in steel; the right number depends on the material + setup." },
+        { id: "d", text: "HSM only works on Sandvik tooling", isCorrect: false,
+          explanation: "Iscar, Sumitomo, Mitsubishi all publish HSM guidance; vendor doesn't restrict the technique." },
+      ],
+      explanation: "Citation: every cutting-strategy claim cites BOTH the source AND the material-group qualifier (ISO 513 N for aluminum vs P for steel). The Sandvik guide was correct for its scope; the application outside scope was the error.",
+      tags: ["citation_discipline", "milling", "hsm", "material_qualifier"],
+    },
+  ],
 };
 
 const mk = (i: number, t: string, m: number): Module => ({
@@ -488,4 +554,5 @@ export const COURSE_4_MODULES: Module[] = [
   mk(10, "Drilling Strategies", 45),
   mk(11, "Tapping", 40),
   mk(12, "Micro-Machining", 35),
+  mk(13, "Citation Discipline — Milling Strategy Sources", 35),
 ];

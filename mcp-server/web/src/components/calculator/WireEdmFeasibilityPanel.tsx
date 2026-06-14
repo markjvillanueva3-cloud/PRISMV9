@@ -154,6 +154,22 @@ function assessFeasibility(
   };
 }
 
+// 2026-05-26 (slot golf, tsc-fix): test-only stub exports — same pattern as
+// WireEdmCostBreakdownPanel: helpers never extracted. R12 fail-loud at runtime so the
+// surfacing happens in the test failure log, not under a silent skip.
+// Same `any` rationale as WireEdmCostBreakdownPanel — Record<string,unknown> cascaded
+// 38 TS2339 errors in the test file. Permissive type + thrown stub body = honest fail-loud.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type FeasibilityPanelInputs = any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function buildFeasibilityInput(..._args: any[]): any {
+  throw new Error('NOT_IMPLEMENTED: buildFeasibilityInput was never extracted from WireEdmFeasibilityPanel — see U-WEB-WIREDM-EXTRACT-HELPERS');
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function mapFeasibilityResponse(..._args: any[]): any {
+  throw new Error('NOT_IMPLEMENTED: mapFeasibilityResponse was never extracted from WireEdmFeasibilityPanel — see U-WEB-WIREDM-EXTRACT-HELPERS');
+}
+
 export function WireEdmFeasibilityPanel() {
   const [material, setMaterial] = useState('D2');
   const [thickness, setThickness] = useState(25);

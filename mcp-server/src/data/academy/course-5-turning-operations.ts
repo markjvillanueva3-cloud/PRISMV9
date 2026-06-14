@@ -366,6 +366,55 @@ Before Cycle Start:
 - [ ] Coolant aimed at the cutting zone
 - [ ] Chip guard closed
 - [ ] First run: single-block mode, 50% rapid override` }] }],
+
+  11: [{ id: `${CID}-m11-l1`, moduleId: `${CID}-mod-11`, title: "Citation Discipline — Turning Strategy Sources", order: 1, content: [{ type: "text",
+    body: `# Citation Discipline — Turning Operations
+
+**Prerequisite:** Modules 1-10 of this course (OD, facing, grooving, threading, boring, live tools, swiss, sub-spindle).
+**Learning objective:** For every turning insert grade, geometry choice, feed/depth combination, and threading method, cite the *turning handbook* + *test standard* it derives from.
+**Assessment:** For one turning operation in your last setup, cite the insert grade + geometry + recommended cutting data.
+
+## Why Turning Needs Cited Sources
+
+Turning insert geometry codes (CNMG, DNMG, VBMT, TPMR, etc.) follow ISO 1832 and have specific implication for entering angle, nose radius, chip control. A "CNMG 432" used incorrectly without citing its scope produces poor surface finish, vibration, or chipped edges.
+
+## Citation Pattern (Turning Variant)
+
+\`<insert/geometry/strategy> [per <handbook/standard>, <year>, <section>]\`
+
+Examples revisiting modules of THIS course:
+
+- **"Turning insert ISO code (e.g., CNMG 120408)"** [per ISO 1832:2017, *Indexable inserts for cutting tools — Designation* — ISO. Decoded: C=80° rhombic, N=0° clearance, M=tolerance class, G=chip-breaker, 12=12 mm IC, 04=4.76 mm thickness, 08=0.8 mm nose radius.]
+- **"Constant surface speed control G96"** [per ISO 6983-1:2009 + Fanuc/Okuma/Haas controller manuals — base ISO + vendor extensions for G50 spindle-cap behavior.]
+- **"Turning tool-life test method"** [per ISO 3685:1993, *Tool-life testing with single-point turning tools* — ISO. Defines V-T conditions for Taylor equation T = (C/V)^(1/n).]
+- **"Threading infeed methods (radial, flank, modified flank)"** [per Sandvik Coromant *Turning Application Guide* — current revision. Modified-flank infeed reduces force on the trailing edge for stainless and high-temp alloys.]
+- **"Single-point threading feed = pitch"** [per Machinery's Handbook 31st ed., 2020, Industrial Press — Threading section. Feed per rev = thread pitch (not per-tooth feed).]
+- **"OD turning chip control via geometry breakers"** [per Sandvik *Modern Metal Cutting* + Iscar *Turning Catalog* — chip-breaker selection by material group + ap range.]
+- **"Boring bar L/D rigidity recommendations"** [per Sandvik *CoroBore* + Kennametal *Boring Bar Selection Guide* — typical limits L/D ≤ 3 (steel bar), ≤ 4 (heavy metal), ≤ 7 (anti-vib damped bars).]
+- **"Swiss-type guide bushing concentricity"** [per Tornos / Citizen / Star machine manuals — guide bushing concentricity is machine-specific; consult the OEM manual.]
+
+## Doctrine vs Technique vs Reference (Turning Lens)
+
+| Category | In turning | Examples |
+|----------|-----------|----------|
+| **Doctrine** | Universal turning mechanics. | Vc = π·D·N/1000 · constant-surface-speed concept · feed = pitch for threading |
+| **Technique** | Tool-path + insert orientation. | Sign convention for tool nose radius compensation (G41/G42 on a lathe) · selecting an entering angle for chip flow |
+| **Reference** | Per-insert, per-machine, per-material. | ISO 1832 insert codes · Sandvik turning chip-control charts · Okuma OSP G-code dialect · Swiss machine manuals |
+
+## The Insert-Code Failure Mode
+
+A programmer specifies "CNMG insert" without specifying geometry (-MM medium machining vs -PR finishing). The setup gets the wrong chip-breaker and the chips become birds-nest. **Defense:** every insert spec cites the full ISO 1832 code AND the chip-breaker suffix (Sandvik -PM, -MM, -PR; or Iscar grade code).
+
+## Practice
+
+For one turning operation in your last setup, cite:
+
+1. **Insert ISO code** (full, e.g., CNMG 120408-PM 4325) — manufacturer + grade + chip-breaker
+2. **Cutting data** (Vc, fn, ap) — Sandvik/Iscar handbook + ISO material group
+3. **Coolant strategy** (flood, high-pressure, MQL) — material requirement + machine capability
+4. **Tool-life expectation T** — ISO 3685 test condition + manufacturer expected life
+
+If insert is specified without grade/chip-breaker → flag for re-spec.` }] }],
 };
 
 // Quizzes
@@ -390,6 +439,23 @@ export const COURSE_5_QUIZZES: Record<string, Question[]> = {
       ],
       explanation: "SEQ-008: Thread AFTER bore finishing. Finish boring generates forces that could damage existing threads.",
       tags: ["threading", "sequence", "playbook"],
+    },
+  ],
+  [`${CID}-mod-11-quiz`]: [
+    {
+      id: "c5-m11-q1", type: "multiple_choice", difficulty: 2,
+      text: "A programmer specifies 'CNMG insert' on a setup sheet without the geometry or chip-breaker code. Birds-nest chips appear immediately. What lima-discipline citation was skipped?",
+      options: [
+        { id: "a", text: "Full ISO 1832 code + chip-breaker suffix (e.g., CNMG 120408-PM 4325) — the rough code alone leaves chip-breaker selection ambiguous", isCorrect: true },
+        { id: "b", text: "Spindle speed in RPM, not surface speed", isCorrect: false,
+          explanation: "Vc vs RPM is a unit choice, not the root cause of chip-breaking failure." },
+        { id: "c", text: "Coolant code", isCorrect: false,
+          explanation: "Coolant influences chip evacuation but does not change chip-breaker geometry." },
+        { id: "d", text: "Tool length offset H number", isCorrect: false,
+          explanation: "H-offsets are about Z position, not chip-control geometry." },
+      ],
+      explanation: "Citation: ISO 1832:2017 defines the insert designation; vendors (Sandvik, Iscar) extend it with grade + chip-breaker suffix. Setup sheets must cite the FULL code so the operator can verify the insert matches the cutting-data assumption.",
+      tags: ["citation_discipline", "iso_1832", "insert_geometry"],
     },
   ],
 };
@@ -417,4 +483,5 @@ export const COURSE_5_MODULES: Module[] = [
   mk(8, "Sub-Spindle Operations", 40),
   mk(9, "Swiss-Type Turning", 45),
   mk(10, "Turning Safety & Best Practices", 35),
+  mk(11, "Citation Discipline — Turning Strategy Sources", 35),
 ];

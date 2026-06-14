@@ -91,7 +91,7 @@ type OrchestrationEnvelope<T> = {
   error?: string;
 };
 
-async function requestUnified<T>(path: string, body: Record<string, unknown>, fallbackMessage: string) {
+async function requestUnified<T>(path: string, body: unknown, fallbackMessage: string) {
   const response = await fetchJson<OrchestrationEnvelope<T>>(`${API_BASE}${path}`, {
     method: 'POST',
     headers: getRequestHeaders(),

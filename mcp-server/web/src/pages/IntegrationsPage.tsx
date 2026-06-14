@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { callIntegrationRoute, OrphanRouteError } from '../api/orphanRoutes';
 
 type IntegrationAction = {
-  id: 'cam' | 'dnc' | 'erp' | 'mobile' | 'measurement';
+  id: 'cam' | 'dnc' | 'erp' | 'mobile' | 'measurement' | 'e2_sync' | 'qbo_invoices' | 'qbo_payments' | 'qbo_reconcile';
   label: string;
   detail: string;
 };

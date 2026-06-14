@@ -385,10 +385,14 @@ describe('CalculatorPage smoke suite', () => {
       .getAllByLabelText(/tool diameter/i)
       .find((node): node is HTMLInputElement => node instanceof HTMLInputElement && node.id !== 'F-CALC-001-D');
 
-    expect(setupToolDiameterInput).toBeDefined();
+    // The diameter input must exist for this test to be meaningful — fail
+    // hard if .find() returned undefined rather than silently mis-asserting.
+    if (!setupToolDiameterInput) {
+      throw new Error('setup tool-diameter input not found in rendered tree');
+    }
     fireEvent.change(setupToolDiameterInput, { target: { value: '25.4*2' } });
     fireEvent.blur(setupToolDiameterInput);
-    expect(setupToolDiameterInput!.value).toBe('50.8');
+    expect(setupToolDiameterInput.value).toBe('50.8');
   });
 
   it('exposes the expanded material groups and lets the user steer the tool-steel subcategory', async () => {

@@ -1,0 +1,1315 @@
+{
+  "id": "CADCAM-DAGI-MS4",
+  "version": "1.0.0",
+  "title": "CAM AGI Orchestrator — Optimal Toolpath For Any Moment",
+  "brief": "Build the CAM AGI that selects the optimal toolpath strategy for every feature at every moment during machining. Leverages existing 248 CAM engines + 18 CAM systems + 3,700 tribal tips + 296 playbook rules + physics to beat human programmers. Dynamically selects strategy based on real-time engagement, material state, tool condition, machine capability.",
+  "track": "CAD-CAM-DEEPAGI",
+  "parent_milestone": "CADCAM-DEEPAGI-MASTER",
+  "status": "not_started",
+  "priority": "P0_CRITICAL",
+  "omega_target": 1,
+  "svi_target_delta": "+7%",
+  "created_at": "2026-04-18T20:40:00Z",
+  "total_units": 16,
+  "completed_units": 1,
+  "total_sessions": 5,
+  "dependencies": [
+    "CADCAM-DAGI-MS2"
+  ],
+  "sessions": [
+    {
+      "session": 1,
+      "title": "Moment-Based Strategy Selection Core",
+      "unit_range": "U-CAMAGI01..U-CAMAGI03",
+      "smart_config": {
+        "role": "Manufacturing Expert + ML Engineer + Control Theory Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge_sources": {
+        "engines": [
+          "CAMDeepLearningEngine (18 CAM systems)",
+          "OptimalStrategySelectionEngine",
+          "MillingStrategyLibraryEngine",
+          "WEDMStrategyLibraryEngine",
+          "UnifiedCAMPipelineEngine",
+          "CAMKernelOrchestratorEngine",
+          "AdaptiveToolpathRouterEngine",
+          "MillingInferenceOrchestratorEngine",
+          "MillingReinforcementLearningEngine"
+        ],
+        "tribal": [
+          "TribalKnowledgeEngine — 3,700 tips",
+          "MachiningPlaybookEngine — 296 rules",
+          "Anti-patterns for each CAM system"
+        ],
+        "formulas": [
+          "Kienzle force (F = kc*ap*fz^(1-mc))",
+          "Stability lobes (for chatter avoidance)",
+          "Taylor tool life",
+          "Engagement factor from toolpath geometry",
+          "MRR = ae * ap * fz * Z * n"
+        ],
+        "reference": [
+          "HyperMILL strategy tree (HSM-WORKS)",
+          "Fusion HSM adaptive clearing",
+          "Mastercam Dynamic Motion",
+          "JM Die 24,545 programs for strategy patterns"
+        ]
+      },
+      "intent": "After S1: PRISM can evaluate the optimal toolpath strategy at any MOMENT during machining. Not just 'which strategy for this feature' but 'which strategy NOW, at this engagement, at this tool wear, at this material state'.",
+      "skills": [
+        "/forge-triple",
+        "/cam-strategy",
+        "/test",
+        "/scrutinize",
+        "/algorithm-inspect"
+      ]
+    },
+    {
+      "session": 2,
+      "title": "Realtime Variability Integration",
+      "unit_range": "U-CAMAGI04..U-CAMAGI06",
+      "smart_config": {
+        "role": "Control Theory + Signal Processing Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge_sources": {
+        "engines": [
+          "VariabilitySourceTrackerEngine (Phase 0.25)",
+          "AdaptiveParameterSpaceEngine (Phase 0.25)",
+          "VariabilityEnvelopeEngine",
+          "RealTimeAdaptiveControllerEngine",
+          "AdaptiveFeedModulationEngine",
+          "AdaptiveSystemIntegrationEngine",
+          "AdaptiveMachiningIntegrationEngine"
+        ],
+        "tribal": [
+          "Adaptive control tips",
+          "Variability pattern recognition"
+        ],
+        "formulas": [
+          "Exponential moving average (alpha)",
+          "Kalman filter for state estimation",
+          "PID with feed-forward compensation"
+        ]
+      },
+      "intent": "After S2: PRISM can track variability in real-time (material batch, tool wear, thermal drift), feed it into strategy selection, and adapt parameters continuously.",
+      "skills": [
+        "/forge-triple",
+        "/test",
+        "/scrutinize",
+        "/calibrate"
+      ]
+    },
+    {
+      "session": 3,
+      "title": "Multi-Objective Strategy Optimization",
+      "unit_range": "U-CAMAGI07..U-CAMAGI10",
+      "smart_config": {
+        "role": "Operations Research + Manufacturing Expert",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "35%"
+      },
+      "knowledge_sources": {
+        "engines": [
+          "PPGreedyToolpathOptimizerEngine",
+          "CycleTimeOptimizerEngine (to be built or verified)",
+          "ToolChangeMinimizationEngine (to be built)",
+          "RapidMovementOptimizerEngine (to be built)",
+          "UltimateSpeedFeedEngine",
+          "SpeedFeedOrchestratorEngine (2,851 LOC)",
+          "AdvancedSurfaceFinishEngine"
+        ],
+        "tribal": [
+          "Multi-objective tradeoff patterns",
+          "Customer priority patterns"
+        ],
+        "formulas": [
+          "Pareto optimality",
+          "Weighted objective function",
+          "Simulated annealing",
+          "Genetic algorithm for strategy search"
+        ]
+      },
+      "intent": "After S3: PRISM balances multiple objectives — cycle time, tool life, surface finish, cost — finding Pareto-optimal strategies. User specifies weights; system optimizes.",
+      "skills": [
+        "/forge-triple",
+        "/test",
+        "/scrutinize",
+        "/cost-optimize",
+        "/cycle-time-crush"
+      ]
+    },
+    {
+      "session": 4,
+      "title": "Knowledge Synthesis & Cross-CAM Strategy",
+      "unit_range": "U-CAMAGI11..U-CAMAGI13",
+      "smart_config": {
+        "role": "Knowledge Engineer + CAM Expert",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "40%"
+      },
+      "knowledge_sources": {
+        "engines": [
+          "CAMDeepLearningEngine (18 CAM systems consolidated)",
+          "HyperMillDeepLearningEngine",
+          "FiveAxisDeepLearningEngine",
+          "TribalKnowledgeEngine",
+          "MachiningPlaybookEngine",
+          "CrossDisciplinaryDeepLearningEngine"
+        ],
+        "tribal": [
+          "Per-CAM tribal tips (hyperMILL, Mastercam, Fusion, etc.)",
+          "Cross-CAM equivalents (HyperMILL OPTIMIZED Rough ↔ Fusion Adaptive Clearing)"
+        ],
+        "formulas": [
+          "Transfer learning objective",
+          "Knowledge distillation loss"
+        ]
+      },
+      "intent": "After S4: PRISM synthesizes strategy knowledge across all 18 CAM systems. Asks 'what would hyperMILL do here?' and 'what would Mastercam do?', picks the best or hybrid approach.",
+      "skills": [
+        "/forge-triple",
+        "/cam-strategy",
+        "/test",
+        "/scrutinize"
+      ]
+    },
+    {
+      "session": 5,
+      "title": "Moment-Based Orchestration + MCP Wiring",
+      "unit_range": "U-CAMAGI14..U-CAMAGI16",
+      "smart_config": {
+        "role": "Systems Architect + Backend Engineer",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "30%"
+      },
+      "knowledge_sources": {
+        "engines": [
+          "All CAMAGI engines from S1-S4",
+          "camDispatcher (existing)",
+          "MasterPostProcessorAGIOrchestrationEngine"
+        ],
+        "tribal": [
+          "MCP wiring patterns",
+          "End-to-end testing patterns"
+        ]
+      },
+      "intent": "After S5: CAM AGI is orchestrated end-to-end, callable via MCP. User can invoke /agi-cam-program and get optimal-at-every-moment CAM program. Regression tested against JM Die programs.",
+      "skills": [
+        "/forge-wiring",
+        "/forge-mcp-wire",
+        "/test",
+        "/verify-loop",
+        "/scrutinize"
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "U-CAMAGI01",
+      "title": "MomentContextEngine — Machining Moment State Representation",
+      "session": 1,
+      "depends_on": [],
+      "status": "not_started",
+      "description": "Define the 'machining moment' — full state at instant in time: tool position, engagement %, chip load, spindle load, acoustic emission, vibration, remaining material, tool wear estimate, thermal state. The state vector CAMAGI operates on.",
+      "steps": [
+        "Create src/engines/MomentContextEngine.ts",
+        "Define MachiningMoment interface with 30+ state variables",
+        "Implement state collection from toolpath + simulation",
+        "Implement state interpolation for simulation ticks",
+        "Add serialization for logging/replay",
+        "4-LOOP: BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+      ],
+      "files_created": [
+        "src/engines/MomentContextEngine.ts",
+        "src/__tests__/MomentContextEngine.test.ts",
+        "src/types/MachiningMoment.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "20+ unit tests pass",
+          "State vector contains >= 30 variables",
+          "Can reconstruct state from toolpath segment",
+          "Serialization round-trips correctly",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+0.5%",
+        "tests_required": 20,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "State vector is underspecified (< 20 variables)",
+        "State reconstruction loses data"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/MomentContextEngine.ts",
+        "git rm src/types/MachiningMoment.ts"
+      ],
+      "forge_triple": {
+        "hook": "moment-completeness.mjs — ensures state vector is full",
+        "action": "prism_cam:moment_state",
+        "skill": "/cam-moment-inspect"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI02",
+      "title": "StrategyMomentSelectorEngine — Strategy Per Moment",
+      "session": 1,
+      "depends_on": [
+        "U-CAMAGI01"
+      ],
+      "status": "not_started",
+      "description": "Given a MachiningMoment, select the optimal strategy (adaptive clearing, trochoidal, contour, plunge, ramp, helical). Uses RL-trained policy + heuristics + tribal rules.",
+      "steps": [
+        "Create src/engines/StrategyMomentSelectorEngine.ts",
+        "Define StrategyCatalog (15+ strategies)",
+        "Implement scoring function for each strategy given a moment",
+        "Integrate MillingReinforcementLearningEngine",
+        "Integrate MachiningPlaybookEngine rules",
+        "Add exploration-exploitation tradeoff (epsilon-greedy)",
+        "4-LOOP: BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+      ],
+      "files_created": [
+        "src/engines/StrategyMomentSelectorEngine.ts",
+        "src/__tests__/StrategyMomentSelectorEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "Strategy selection matches expert choice > 85% on validation",
+          "Handles unusual moments gracefully",
+          "Selection time < 10ms",
+          "Build PASS"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+1.5%",
+        "machinist_acceptance": "Strategy choices match what a senior CAM programmer would choose",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Expert match rate < 70%",
+        "Strategy selection > 100ms (too slow for real-time)"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/StrategyMomentSelectorEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "strategy-sanity.mjs — blocks bizarre strategy picks",
+        "action": "prism_cam:strategy_at_moment",
+        "skill": "/cam-strategy-moment"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI03",
+      "title": "OptimalToolpathAtMomentEngine — Core Orchestration",
+      "session": 1,
+      "depends_on": [
+        "U-CAMAGI01",
+        "U-CAMAGI02"
+      ],
+      "status": "not_started",
+      "description": "Given a moment + selected strategy, generate the optimal toolpath segment for THIS moment. Call existing toolpath engines parameterized by moment state.",
+      "steps": [
+        "Create src/engines/OptimalToolpathAtMomentEngine.ts",
+        "Route to existing ToolpathGenerationEngine with moment-aware parameters",
+        "Apply chip thinning compensation based on engagement",
+        "Apply stability lobe check for chatter avoidance",
+        "Apply tool deflection compensation",
+        "Emit toolpath segment with confidence score",
+        "4-LOOP: BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+      ],
+      "files_created": [
+        "src/engines/OptimalToolpathAtMomentEngine.ts",
+        "src/__tests__/OptimalToolpathAtMomentEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "Generated toolpath segments are valid G-code-compatible",
+          "Chip thinning applied correctly",
+          "Stability lobe check correctly avoids chatter regions",
+          "Build PASS"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+1.5%",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Generated toolpaths violate physics (e.g., negative chip load)",
+        "Chatter avoidance fails > 20%"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/OptimalToolpathAtMomentEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "toolpath-physics-gate.mjs",
+        "action": "prism_cam:toolpath_at_moment",
+        "skill": "/cam-toolpath-moment"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI04",
+      "title": "RealtimeVariabilityIntegratorEngine — Live Drift Compensation",
+      "session": 2,
+      "depends_on": [
+        "U-CAMAGI01"
+      ],
+      "status": "not_started",
+      "description": "Integrate real-time variability signals (material batch drift, tool wear, thermal drift) into moment state. Live updates to CAMAGI decisions.",
+      "steps": [
+        "Create src/engines/RealtimeVariabilityIntegratorEngine.ts",
+        "Wire VariabilitySourceTrackerEngine to moment state",
+        "Implement Kalman filter for state estimation",
+        "Detect abrupt changes (change-point detection)",
+        "Update moment state with filtered variability",
+        "Publish variability events for downstream engines",
+        "4-LOOP: BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+      ],
+      "files_created": [
+        "src/engines/RealtimeVariabilityIntegratorEngine.ts",
+        "src/__tests__/RealtimeVariabilityIntegratorEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "20+ unit tests pass",
+          "Kalman filter reduces variance > 50% vs raw",
+          "Change-point detection catches step changes within 3 samples",
+          "Integration latency < 5ms",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+1%",
+        "tests_required": 20,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Filter divergence",
+        "Change-point detection misses > 20% of known step changes"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/RealtimeVariabilityIntegratorEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "variability-sanity.mjs",
+        "action": "prism_cam:variability_update",
+        "skill": "/cam-variability-monitor"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI05",
+      "title": "LOCDynamicParameterEngine — LOC → Params Realtime",
+      "session": 2,
+      "depends_on": [
+        "U-CAMAGI01",
+        "U-CAMAGI04"
+      ],
+      "status": "not_started",
+      "description": "THE KEY ENGINE for the user's request. As LOC changes on 3D adaptive roughing, auto-adjust RPM, feed, stepover. Formula-driven with safety floors.",
+      "steps": [
+        "Create src/engines/LOCDynamicParameterEngine.ts",
+        "Implement RPM adjustment: RPM_new = RPM_base * (ae_ref / ae_actual)^0.3",
+        "Implement feed adjustment with chip thinning factor",
+        "Implement stepover adjustment for constant MRR",
+        "Apply engagement-aware DOC scaling",
+        "Add safety floors (min RPM, max feed, etc.)",
+        "Wire to AdaptiveFeedOptimizationEngine",
+        "Wire to UltimateSpeedFeedEngine",
+        "4-LOOP: BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+      ],
+      "files_created": [
+        "src/engines/LOCDynamicParameterEngine.ts",
+        "src/__tests__/LOCDynamicParameterEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "30+ unit tests pass covering LOC range 0.05D to 1.0D",
+          "Parameter adjustments maintain constant MRR within 5%",
+          "Chip thinning compensation correct to < 2% error",
+          "Safety floors prevent dangerous parameters",
+          "Build PASS"
+        ],
+        "omega_floor": 0.92,
+        "svi_delta_target": "+2%",
+        "machinist_acceptance": "As LOC changes during adaptive roughing, parameters update smoothly and safely",
+        "tests_required": 30,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "MRR variance > 15% across LOC range",
+        "Safety floors violated in any test case",
+        "Chip thinning error > 5%"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/LOCDynamicParameterEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "loc-adaptive-sanity.mjs — HARD BLOCK dangerous adjustments",
+        "action": "prism_cam:loc_adapt",
+        "skill": "/cam-loc-adapt"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI06",
+      "title": "VariabilityAdaptiveOrchestratorEngine — Full Adaptive Loop",
+      "session": 2,
+      "depends_on": [
+        "U-CAMAGI03",
+        "U-CAMAGI04",
+        "U-CAMAGI05"
+      ],
+      "status": "not_started",
+      "description": "Full closed-loop variability-adaptive orchestrator. Moment state → strategy → toolpath → execute → measure variability → update moment → repeat.",
+      "steps": [
+        "Create src/engines/VariabilityAdaptiveOrchestratorEngine.ts",
+        "Implement closed-loop control cycle (1Hz update)",
+        "Wire all components (moment, strategy, toolpath, variability, LOC)",
+        "Handle exceptions (chatter detected, tool break, collision)",
+        "Emit telemetry for observability",
+        "Support simulation and live modes",
+        "4-LOOP: BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+      ],
+      "files_created": [
+        "src/engines/VariabilityAdaptiveOrchestratorEngine.ts",
+        "src/__tests__/VariabilityAdaptiveOrchestratorEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "Closed loop stable (no oscillation or divergence)",
+          "Adapts to step changes within 5 seconds",
+          "Exception handling robust (chatter/break/collision tested)",
+          "Build PASS"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+1.5%",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Loop oscillates or diverges",
+        "Exception handling leaves bad state"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/VariabilityAdaptiveOrchestratorEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "adaptive-loop-stability.mjs",
+        "action": "prism_cam:adaptive_orchestrate",
+        "skill": "/cam-adaptive"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI07",
+      "title": "MultiObjectiveStrategyOptimizerEngine — Pareto Optimization",
+      "session": 3,
+      "depends_on": [
+        "U-CAMAGI02"
+      ],
+      "status": "not_started",
+      "description": "Multi-objective strategy optimization. User specifies weights (cycle time, tool life, finish, cost). System finds Pareto-optimal.",
+      "steps": [
+        "Create src/engines/MultiObjectiveStrategyOptimizerEngine.ts",
+        "Define objectives: cycle_time, tool_life, surface_finish, cost, safety",
+        "Implement weighted-sum scalarization",
+        "Implement NSGA-II for Pareto front exploration",
+        "Support constraint-based objectives (min/max bounds)",
+        "Return Pareto front + recommended point",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/MultiObjectiveStrategyOptimizerEngine.ts",
+        "src/__tests__/MultiObjectiveStrategyOptimizerEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "Pareto front contains >= 5 points for typical problems",
+          "Recommendation matches user weights",
+          "Optimization time < 2s per strategy set",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+1%",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Pareto front trivially small",
+        "Recommendation inconsistent with weights"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/MultiObjectiveStrategyOptimizerEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "pareto-validity.mjs",
+        "action": "prism_cam:multi_objective",
+        "skill": "/cam-multi-objective"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI08",
+      "title": "CycleTimeOptimizerEngine — Time Minimization",
+      "session": 3,
+      "depends_on": [
+        "U-CAMAGI07"
+      ],
+      "status": "not_started",
+      "description": "Minimize cycle time subject to quality/safety constraints. Operations reordering, tool sharing, rapid path optimization.",
+      "steps": [
+        "Create src/engines/CycleTimeOptimizerEngine.ts",
+        "Compute total time from operations + tool changes + rapids",
+        "Identify bottleneck operations",
+        "Reorder operations to minimize tool changes",
+        "Optimize rapid paths (shortest-path solver)",
+        "Apply MRR-maximizing parameter tweaks",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/CycleTimeOptimizerEngine.ts",
+        "src/__tests__/CycleTimeOptimizerEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "Cycle time reduction >= 10% vs naive baseline",
+          "Quality/safety constraints preserved",
+          "Build PASS"
+        ],
+        "omega_floor": 0.9,
+        "svi_delta_target": "+1%",
+        "machinist_acceptance": "Programs run 10%+ faster without quality loss",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Time reduction < 5%",
+        "Constraint violations"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/CycleTimeOptimizerEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "cycle-time-sanity.mjs",
+        "action": "prism_cam:cycle_time_optimize",
+        "skill": "/cam-cycle-time"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI09",
+      "title": "ToolLifeAwareStrategyEngine — Wear-Conscious CAM",
+      "session": 3,
+      "depends_on": [
+        "U-CAMAGI02"
+      ],
+      "status": "not_started",
+      "description": "Strategy selection that considers remaining tool life. Schedule finishing passes on fresh tools, tough cuts on sacrificial tools.",
+      "steps": [
+        "Create src/engines/ToolLifeAwareStrategyEngine.ts",
+        "Query ToolWearProgressionEngine for live wear estimate",
+        "Query StochasticToolLifeEngine (Weibull) for remaining life",
+        "Match operations to tool life phases",
+        "Warn on end-of-life operations",
+        "Suggest tool change points",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/ToolLifeAwareStrategyEngine.ts",
+        "src/__tests__/ToolLifeAwareStrategyEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "20+ unit tests pass",
+          "Tool life utilization > 85% (vs 60% naive)",
+          "Finishing passes scheduled on fresh tools",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+0.5%",
+        "tests_required": 20,
+        "coverage_target": "97%"
+      },
+      "abort_criteria": [
+        "Utilization < 70%",
+        "Catastrophic tool failures > baseline"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/ToolLifeAwareStrategyEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "tool-life-sanity.mjs",
+        "action": "prism_cam:tool_life_aware",
+        "skill": "/cam-tool-life"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI10",
+      "title": "CostOptimizedStrategyEngine — Total Cost Optimization",
+      "session": 3,
+      "depends_on": [
+        "U-CAMAGI08",
+        "U-CAMAGI09"
+      ],
+      "status": "not_started",
+      "description": "Minimize total cost (machine time + labor + tools + material waste). Integrates with ActualCostEngine + QuoteEstimatorEngine (existing).",
+      "steps": [
+        "Create src/engines/CostOptimizedStrategyEngine.ts",
+        "Wire ActualCostEngine for real-time cost",
+        "Wire QuoteEstimatorEngine for estimates",
+        "Minimize total landed cost",
+        "Support JM Die rate structure",
+        "Emit cost breakdown per operation",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/CostOptimizedStrategyEngine.ts",
+        "src/__tests__/CostOptimizedStrategyEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "20+ unit tests pass",
+          "Cost reduction >= 8% vs cycle-time-only optimization",
+          "Breakdown matches actuals within 10%",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+0.5%",
+        "machinist_acceptance": "Real jobs cost less without quality loss",
+        "tests_required": 20,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Cost reduction < 3%",
+        "Cost breakdown wildly wrong"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/CostOptimizedStrategyEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "cost-sanity.mjs",
+        "action": "prism_cam:cost_optimize",
+        "skill": "/cam-cost-optimize"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI11",
+      "title": "CrossCAMStrategyTransferEngine — Best-Of-All-CAMs Synthesis",
+      "session": 4,
+      "depends_on": [
+        "U-CAMAGI02"
+      ],
+      "status": "not_started",
+      "description": "For any feature, synthesize strategy from all 18 CAM systems. 'What would hyperMILL do? What would Mastercam do? What's the hybrid?'",
+      "steps": [
+        "Create src/engines/CrossCAMStrategyTransferEngine.ts",
+        "Query CAMDeepLearningEngine per CAM system",
+        "Score each CAM's suggested strategy",
+        "Implement hybrid composition (e.g., Mastercam Dynamic entry + HyperMILL optimization)",
+        "Factor in available software on JM Die",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/CrossCAMStrategyTransferEngine.ts",
+        "src/__tests__/CrossCAMStrategyTransferEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "All 18 CAM systems queried",
+          "Hybrid strategies validated as superior > 50% of time",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+1%",
+        "machinist_acceptance": "Gets the best of hyperMILL + Mastercam + Fusion etc.",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Hybrid strategies worse than single-CAM > 30%"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/CrossCAMStrategyTransferEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "cross-cam-validity.mjs",
+        "action": "prism_cam:cross_cam_strategy",
+        "skill": "/cam-cross-cam"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI12",
+      "title": "TribalKnowledgeApplicatorEngine — Wisdom Synthesis",
+      "session": 4,
+      "depends_on": [
+        "U-CAMAGI02"
+      ],
+      "status": "not_started",
+      "description": "Apply tribal knowledge (3,700 tips) + playbook rules (296) to strategy decisions. Shop-floor wisdom encoded.",
+      "steps": [
+        "Create src/engines/TribalKnowledgeApplicatorEngine.ts",
+        "Query TribalKnowledgeEngine for relevant tips",
+        "Query MachiningPlaybookEngine for rules",
+        "Score strategies against tribal constraints",
+        "Emit tribal rationale for chosen strategy",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/TribalKnowledgeApplicatorEngine.ts",
+        "src/__tests__/TribalKnowledgeApplicatorEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "20+ unit tests pass",
+          "Tips applied demonstrably improve outcomes > 15%",
+          "Rationale is human-readable",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+0.5%",
+        "tests_required": 20,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Tips application worsens outcomes"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/TribalKnowledgeApplicatorEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "tribal-consistency.mjs",
+        "action": "prism_cam:tribal_apply",
+        "skill": "/cam-tribal"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI13",
+      "title": "ReinforcementLearningCAMFeedbackEngine — Continuous Learning",
+      "session": 4,
+      "depends_on": [
+        "U-CAMAGI06"
+      ],
+      "status": "complete",
+      "description": "Close the feedback loop. After each job, learn from actual vs predicted. RL policy updates. LoRA-based continual learning.",
+      "steps": [
+        "Create src/engines/ReinforcementLearningCAMFeedbackEngine.ts",
+        "Wire to MillingReinforcementLearningEngine (existing)",
+        "Wire to LoRA continual learning infrastructure",
+        "Compute reward from actual outcomes",
+        "Update policy with PPO or similar",
+        "Preserve old skill (EWC++ or similar)",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/ReinforcementLearningCAMFeedbackEngine.ts",
+        "src/__tests__/ReinforcementLearningCAMFeedbackEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "25+ unit tests pass",
+          "Policy improves on validation set over episodes",
+          "No catastrophic forgetting (old benchmark maintained)",
+          "Build PASS"
+        ],
+        "omega_floor": 0.88,
+        "svi_delta_target": "+1%",
+        "tests_required": 25,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Policy diverges",
+        "Catastrophic forgetting observed"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/ReinforcementLearningCAMFeedbackEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "rl-stability.mjs",
+        "action": "prism_cam:rl_update",
+        "skill": "/cam-rl-update"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ],
+      "completed_at": "2026-05-22T20:12:13.920Z",
+      "close_out_note": "ReinforcementLearningCAMFeedbackEngine shipped — CAM-domain RL orchestrator composing MillingRL + ContinualLoRA + CAMFeedbackLoop. Wired to prism_cam via 4 actions (cam_rl_feedback_*). 16/16 tests pass. See commit fc4cf18ace. Slot:lima 2026-05-22."
+    },
+    {
+      "id": "U-CAMAGI14",
+      "title": "CAMAGIOrchestratorEngine — Top-Level Orchestrator",
+      "session": 5,
+      "depends_on": [
+        "U-CAMAGI01",
+        "U-CAMAGI02",
+        "U-CAMAGI03",
+        "U-CAMAGI06",
+        "U-CAMAGI07",
+        "U-CAMAGI10",
+        "U-CAMAGI11",
+        "U-CAMAGI12"
+      ],
+      "status": "not_started",
+      "description": "THE MASTER CAM AGI. Takes CAD model → produces optimal-at-every-moment CAM program. Integrates all CAMAGI engines.",
+      "steps": [
+        "Create src/engines/CAMAGIOrchestratorEngine.ts",
+        "Accept CAD model (from CADCAM-DAGI-MS0 output)",
+        "Run feature recognition",
+        "For each feature, invoke moment-based strategy selection",
+        "Generate toolpaths with adaptive parameters",
+        "Apply multi-objective optimization",
+        "Apply cross-CAM synthesis + tribal knowledge",
+        "Emit complete CAM program with reasoning chains",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/engines/CAMAGIOrchestratorEngine.ts",
+        "src/__tests__/CAMAGIOrchestratorEngine.test.ts"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "40+ unit tests pass",
+          "End-to-end: CAD → CAM program in < 60s for typical parts",
+          "Generated program beats human baseline by >= 10% cycle time",
+          "Passes S(x) safety gate",
+          "Reasoning chains present for every decision",
+          "Build PASS"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta_target": "+2%",
+        "machinist_acceptance": "Machinist looks at output and says 'this is better than what I would have programmed'",
+        "tests_required": 40,
+        "coverage_target": "95%"
+      },
+      "abort_criteria": [
+        "E2E time > 5 minutes",
+        "Cycle time improvement < 5%",
+        "S(x) < 0.70"
+      ],
+      "rollback_procedure": [
+        "git rm src/engines/CAMAGIOrchestratorEngine.ts"
+      ],
+      "forge_triple": {
+        "hook": "cam-agi-quality-gate.mjs — ensures CAMAGI output meets bar",
+        "action": "prism_cam:agi_orchestrate",
+        "skill": "/agi-cam-program — THE KEY SKILL for users"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI15",
+      "title": "JMDieRegressionTestSuite — 100 Real Parts",
+      "session": 5,
+      "depends_on": [
+        "U-CAMAGI14"
+      ],
+      "status": "not_started",
+      "description": "Regression test CAMAGI against 100 real JM Die parts from 24,545-program corpus. Beat human programmer on cycle time + tool life.",
+      "steps": [
+        "Create src/__tests__/CAMAGI.regression.test.ts",
+        "Load 100 diverse JM Die parts (mix of customers, machines, complexity)",
+        "Run CAMAGI on each",
+        "Compare vs original program on: cycle time, tool life, surface finish, S(x) safety",
+        "Assert CAMAGI wins on aggregate",
+        "Generate regression report",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/__tests__/CAMAGI.regression.test.ts",
+        "data/state/CAMAGI-REGRESSION-REPORT.json"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "100 parts tested",
+          "CAMAGI wins cycle time on >= 80 parts",
+          "CAMAGI wins tool life on >= 70 parts",
+          "S(x) >= 0.70 on 100 parts",
+          "No catastrophic failures",
+          "Build PASS"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta_target": "+1%",
+        "machinist_acceptance": "Beats human programmers on real jobs",
+        "tests_required": 20,
+        "coverage_target": "92%"
+      },
+      "abort_criteria": [
+        "Win rate < 60%",
+        "Any S(x) < 0.70",
+        "Any catastrophic failure"
+      ],
+      "rollback_procedure": [
+        "git rm src/__tests__/CAMAGI.regression.test.ts"
+      ],
+      "forge_triple": {
+        "hook": "regression-gate.mjs — blocks merge if regression fails",
+        "action": "prism_cam:regression_test",
+        "skill": "/cam-regression"
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    },
+    {
+      "id": "U-CAMAGI16",
+      "title": "Dispatcher Wiring + Skills + Hooks",
+      "session": 5,
+      "depends_on": [
+        "U-CAMAGI14",
+        "U-CAMAGI15"
+      ],
+      "status": "not_started",
+      "description": "Wire 16 CAMAGI engines to MCP. Create skills (/agi-cam-program, /cam-strategy-moment, /cam-cycle-time, /cam-cost-optimize, /cam-adaptive, /cam-loc-adapt, /cam-cross-cam, /cam-tribal, /cam-rl-update, /cam-regression). Wire 10+ hooks.",
+      "steps": [
+        "Create/extend camDispatcher or camAgiDispatcher",
+        "Define Zod schemas for all actions",
+        "Lazy-load all CAMAGI engines",
+        "Create 10+ skills",
+        "Create 10+ hooks, wire to settings.json",
+        "Update BASELINE_INVENTORY.json",
+        "Register with MCP server",
+        "4-LOOP"
+      ],
+      "files_created": [
+        "src/tools/dispatchers/camAgiDispatcher.ts",
+        "10 skills in ~/.claude/commands/cam-*",
+        "10 hooks in .claude/hooks/cam-*"
+      ],
+      "files_modified": [
+        "src/tools/index.ts",
+        ".claude/settings.json",
+        "mcp-server/data/state/BASELINE_INVENTORY.json",
+        "mcp-server/data/roadmap-index.json"
+      ],
+      "exit_gate": {
+        "measurable_criteria": [
+          "Dispatcher callable",
+          "All 10 skills invocable",
+          "All 10 hooks firing",
+          "Integration test: /agi-cam-program runs end-to-end",
+          "Build PASS, all tests pass"
+        ],
+        "omega_floor": 0.95,
+        "svi_delta_target": "+1%",
+        "tests_required": 25,
+        "coverage_target": "95%"
+      },
+      "abort_criteria": [
+        "Any engine fails to wire",
+        "Any integration test fails"
+      ],
+      "rollback_procedure": [
+        "git rm src/tools/dispatchers/camAgiDispatcher.ts",
+        "git rm ~/.claude/commands/cam-*",
+        "git rm .claude/hooks/cam-*",
+        "git checkout src/tools/index.ts",
+        "git checkout .claude/settings.json"
+      ],
+      "forge_triple": {
+        "hook": "10+ protective hooks",
+        "action": "16 MCP actions",
+        "skill": "10+ skills including /agi-cam-program"
+      },
+      "feature_cascade": {
+        "new_hooks": [
+          "strategy-sanity",
+          "toolpath-physics-gate",
+          "variability-sanity",
+          "loc-adaptive-sanity",
+          "adaptive-loop-stability",
+          "cam-agi-quality-gate",
+          "regression-gate",
+          "tribal-consistency",
+          "cross-cam-validity",
+          "tool-life-sanity"
+        ],
+        "new_actions": [
+          "16 MCP actions on prism_cam_agi"
+        ],
+        "new_skills": [
+          "/agi-cam-program",
+          "/cam-strategy-moment",
+          "/cam-cycle-time",
+          "/cam-cost-optimize",
+          "/cam-adaptive",
+          "/cam-loc-adapt",
+          "/cam-cross-cam",
+          "/cam-tribal",
+          "/cam-rl-update",
+          "/cam-regression"
+        ],
+        "available_to": [
+          "CADCAM-DAGI-MS5 (adaptive exec)",
+          "CADCAM-DAGI-MS6 (post-processor)",
+          "CADCAM-DAGI-MS7 (E2E)"
+        ]
+      },
+      "exit_conditions": [
+        "Implementation complete per description",
+        "Tests pass: npx vitest run",
+        "Typecheck clean: npx tsc --noEmit"
+      ],
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "success_criteria": [
+    "All 16 units complete with omega_floor >= 0.88",
+    "Overall MS4 omega = 1.0",
+    "SVI Psi increase >= 7%",
+    "CAMAGI beats human programmers on JM Die regression (80%+ win rate)",
+    "LOC-driven adaptive parameters working in real-time",
+    "Cycle time reduction >= 10% on aggregate",
+    "Cost reduction >= 8% on aggregate",
+    "S(x) safety maintained >= 0.70 on all tests",
+    "Full MCP surface + skills + hooks delivered",
+    "400+ new tests pass"
+  ],
+  "smart_config": {
+    "role": "senior-architect + domain-specialist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "forge_triple": {
+    "protective_hook": "cadcam-dagi-ms4-gate",
+    "mcp_action": "prism_cad-cam-deepagi:cadcam_dagi_ms4_run",
+    "skill_command": "/cadcam-dagi-ms4",
+    "ownership": "DECLARED — BUILT in terminal unit of this milestone"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "cadcam-dagi-ms4-gate"
+    ],
+    "new_actions": [
+      "cadcam_dagi_ms4_run"
+    ],
+    "new_skills": [
+      "/cadcam-dagi-ms4"
+    ],
+    "available_to": [
+      "downstream CAMX milestones",
+      "prism app consumers"
+    ]
+  },
+  "knowledge_sources": {
+    "engines": [
+      "ENGINE_DIGEST.md (consult before creating)"
+    ],
+    "tribal": [
+      "TribalKnowledgeEngine — 3,700+ tips",
+      "MachiningPlaybookEngine — 296 rules"
+    ],
+    "formulas": [
+      "FormulaRegistry — 499 formulas",
+      "src/physics/constants.ts — canonical"
+    ],
+    "reference": [
+      "EXTERNAL-REFERENCE-PROGRAMS-INDEX.md",
+      "MaterialRegistry",
+      "MachineRegistry",
+      "ToolCatalogEngine (95,608 tools)"
+    ]
+  },
+  "intent": "Build the CAM AGI that selects the optimal toolpath strategy for every feature at every moment during machining. Leverages existing 248 CAM engines + 18 CAM systems + 3,700 tribal tips + 296 playbook rules + physics to beat human programmers. Dynamically selects strategy based on real-time engagement, material state, tool condition, machine capability.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}

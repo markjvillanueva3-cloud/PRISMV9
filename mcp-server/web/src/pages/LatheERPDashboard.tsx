@@ -118,7 +118,7 @@ function PipelineTile({ data }: { data: PipelineSummary | null }) {
   const states: Array<keyof PipelineSummary> = [
     "draft", "quoted", "accepted", "scheduled", "in_production", "shipped", "invoiced", "closed",
   ];
-  const total = states.reduce((s, k) => s + (data[k] ?? 0), 0);
+  const total = states.reduce<number>((s, k) => s + (data[k] ?? 0), 0);
   return (
     <div className="space-y-1 text-sm">
       <p className="text-lg font-bold text-white">{total} orders</p>

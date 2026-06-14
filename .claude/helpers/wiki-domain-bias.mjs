@@ -97,6 +97,24 @@ export function getDomainTokens({ chatId } = {}) {
   return [...tokens];
 }
 
+// Resolve the active slot's NAME (the chat-slots.json key, e.g. "oscar") for a
+// chatId. The slot object carries no name field — the name IS the key. chatId-gated
+// (no freshest-peer fallback — leaking a peer's identity would mis-domain THIS chat's
+// tribal routing). Used by tribal-by-domain-inject to map a slot to its canonical
+// galaxy domain, resolving the slot-token hijack (U-TRIBAL-SLOT-DOMAIN-WIRE 2026-06-01).
+export function activeSlotName(chatId) {
+  if (!chatId) return null;
+  try {
+    if (!existsSync(SLOTS_FILE)) return null;
+    const j = JSON.parse(readFileSync(SLOTS_FILE, "utf8"));
+    const slots = j.slots || {};
+    for (const [name, s] of Object.entries(slots)) {
+      if (s && s.chatId === chatId) return name;
+    }
+    return null;
+  } catch { return null; }
+}
+
 // Score boost a candidate entry should receive given its domain overlap.
 // Returns 0 when no domain context. Each unique domain-token hit on entry.toks
 // adds BOOST_PER_HIT; a match on source-path / category counts at half weight

@@ -185,6 +185,24 @@ export interface UnifiedPostResult {
   processing_time_ms: number;
 }
 
+/**
+ * Per-dialect signal regexes for quality scorers. When omitted, falls back to
+ * DEFAULT_DIALECT_SIGNALS (Fanuc-family). Heidenhain/Mitsubishi MUST override
+ * because their canonical safe-start / work-offset / HSM tokens differ from
+ * Fanuc and were silently invisible to dialect-blind regex literals — the bug
+ * pinned them to a quality=75 ceiling (60 base + 15 HSM only) on the corpus
+ * validator while Fanuc/Haas/Okuma scored 85+. Closes the dialect asymmetry
+ * surfaced by echo's overnight POST-PROCESSOR-CONSOLIDATION close (2026-05-26).
+ */
+export interface DialectSignals {
+  /** Safe-start block: G28/G30/G53 for Fanuc-family; M91/M92/END PGM for Heidenhain. */
+  safe_start: RegExp;
+  /** Work-offset selection: G54-G59 for Fanuc-family; CYCL DEF 7 / TRANS DATUM for Heidenhain. */
+  work_offset: RegExp;
+  /** HSM / smoothing call: dialect HSM trigger plus common variants. */
+  hsm: RegExp;
+}
+
 /** Controller profile information */
 export interface ControllerProfile {
   id: UnifiedControllerType;
@@ -194,7 +212,19 @@ export interface ControllerProfile {
   rtcp_mode?: string;
   hsm_code?: string;
   market_share?: number;
+  signals?: DialectSignals;
 }
+
+/**
+ * Fanuc-family default signals. Mitsubishi accepts both `G5.1` and `G05.1`
+ * forms — the optional leading zero is critical to detect Mitsubishi-emitted
+ * output (which prior regex `/G5\.1/` missed).
+ */
+export const DEFAULT_DIALECT_SIGNALS: DialectSignals = {
+  safe_start: /G28|G30|G53/i,
+  work_offset: /G5[4-9]/i,
+  hsm: /G0?5\.1\s*Q1|G187|CYCLE832|M120|G08\s*P1/i,
+};
 
 /** Kinematics validation result */
 export interface KinematicsValidation {
@@ -413,6 +443,11 @@ const CONTROLLER_PROFILES: Record<UnifiedControllerType, ControllerProfile> = {
     rtcp_mode: "TCPM",
     hsm_code: "M120",
     market_share: 0.05,
+    signals: {
+      safe_start: /M9[12]\s+Z|END\s+PGM|TOOL\s+CALL\s+\d+\s+Z|L\s+Z\+[\d.]+\s+R0\s+FMAX/i,
+      work_offset: /CYCL\s+DEF\s+7|TRANS\s+DATUM/i,
+      hsm: /M120/i,
+    },
   },
   mitsubishi: {
     id: "mitsubishi",
@@ -426,6 +461,11 @@ const CONTROLLER_PROFILES: Record<UnifiedControllerType, ControllerProfile> = {
     rtcp_mode: "G43.4",
     hsm_code: "G05.1 Q1",
     market_share: 0.03,
+    signals: {
+      safe_start: /G28|G30|G53/i,
+      work_offset: /G5[4-9]/i,
+      hsm: /G0?5\.1\s*Q1/i,
+    },
   },
   fagor: {
     id: "fagor",
@@ -696,13 +736,23 @@ export class MasterPostProcessorUnifiedAGIEngine {
     const warnings: string[] = [];
 
     if (input.segments && input.segments.length > 0) {
+      // FEATURE-GAP-AUDIT-MS0/U-BRIDGE-MASTERPOST-CAM: a caller that names only
+      // its source CAM bridge still gets that CAM's signature optimization —
+      // one post surface emits controller-correct NC for every CAM bridge
+      // without the caller hand-picking each cross_cam_features flag. An
+      // explicit cross_cam_features always wins (caller override).
+      const autoCrossCam = input.cross_cam_features
+        ? undefined
+        : this.deriveCrossCamFeatures(input.source_cam);
+      const effectiveCrossCam = input.cross_cam_features ?? autoCrossCam;
+
       // Process toolpath segments via MasterPostProcessorEngine
       const masterConfig: MasterPostConfig = {
         controller: this.mapControllerToMaster(input.controller),
         enable_hsm: true,
         enable_feed_optimization: true,
-        enable_cross_cam_features: !!input.cross_cam_features,
-        cross_cam_features: input.cross_cam_features,
+        enable_cross_cam_features: !!effectiveCrossCam,
+        cross_cam_features: effectiveCrossCam,
         ...input.config_overrides,
       };
 
@@ -712,6 +762,11 @@ export class MasterPostProcessorUnifiedAGIEngine {
       estimatedTime = masterResult.estimated_time_sec;
       segmentsProcessed = masterResult.segments_processed;
       enhancements.push(...masterResult.enhancements_applied);
+      // Surface the auto-derivation so callers (and tests) can see that the
+      // CAM-bridge identity drove feature selection — R12: no silent behavior.
+      if (autoCrossCam) {
+        enhancements.push(`cross_cam_auto_${input.source_cam}`);
+      }
       warnings.push(...masterResult.warnings);
       provenance.knowledge_sources.push(...masterResult.knowledge_sources);
 
@@ -810,16 +865,16 @@ export class MasterPostProcessorUnifiedAGIEngine {
     if (/G187|G5\.1|CYCLE832|M120|G08 P1/i.test(gcode)) detectedOps.push("hsm");
     if (detectedOps.length === 0) detectedOps.push("general_milling");
 
-    // Score dimensions
+    // Score dimensions — all dialect-aware via getDialectSignals().
     const dimensions = {
-      safety: this.scoreSafety(gcode),
+      safety: this.scoreSafety(gcode, detectedController),
       efficiency: this.scoreEfficiency(gcode, rapidMoves, feedMoves),
       accuracy: this.scoreAccuracy(gcode, detectedController),
       maintainability: this.scoreMaintainability(gcode, comments, lines.length),
       controller_optimization: this.scoreControllerOptimization(gcode, detectedController),
       physics_compliance: this.scorePhysicsCompliance(gcode, material_iso),
       tribal_adherence: this.scoreTribalAdherence(gcode, detectedController),
-      best_practices: this.scoreBestPractices(gcode),
+      best_practices: this.scoreBestPractices(gcode, detectedController),
     };
 
     // Overall score (weighted average)
@@ -1025,6 +1080,30 @@ PROVENANCE TRACKING:
     });
   }
 
+  /**
+   * Map a source CAM bridge to the cross-CAM feature it is known for, so a
+   * caller that names only `source_cam` still gets controller-correct NC with
+   * that CAM's signature optimization injected — the U-BRIDGE-MASTERPOST-CAM
+   * unification: one post surface, every CAM bridge. Returns undefined for CAM
+   * sources with no specific feature flag (they take the generic post path).
+   *
+   * @param source - source CAM bridge identifier (optional)
+   * @returns cross-CAM feature flags for that CAM, or undefined
+   * FEATURE-GAP-AUDIT-MS0/U-BRIDGE-MASTERPOST-CAM
+   */
+  private deriveCrossCamFeatures(
+    source?: UnifiedCamSource,
+  ): UnifiedPostInput["cross_cam_features"] | undefined {
+    switch (source) {
+      case "mastercam": return { mastercam_dynamic_chip_load: true };
+      case "fusion360": return { fusion360_adaptive: true };
+      case "solidcam":  return { solidcam_chip_thinning: true };
+      case "hypermill": return { hypermill_collision_check: true };
+      case "nx":        return { nx_advanced_rtcp: true };
+      default:          return undefined;
+    }
+  }
+
   private mapControllerToMaster(controller: UnifiedControllerType): "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma" {
     const mapping: Record<UnifiedControllerType, "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma"> = {
       fanuc: "fanuc",
@@ -1131,12 +1210,19 @@ PROVENANCE TRACKING:
     const enhancements: string[] = [];
     const warnings: string[] = [];
 
-    // Inject HSM if not present
+    // Inject HSM if not present.
+    // Dialect-aware first-motion detection — Fanuc/Okuma/Haas/Mitsubishi
+    // use G00/G01 linear moves; Heidenhain uses `L X+...` linear moves
+    // (TNC dialect). Without this branch the HSM enhancement silently
+    // skipped Heidenhain output (surfaced 2026-05-26 echo iter17 —
+    // Heidenhain/Mitsubishi were quality=75 vs Fanuc-family 85 because
+    // `hsm_injected` + `coolant_off_added` enhancements never fired).
     const profile = this.getControllerProfile(input.controller);
     if (profile.hsm_code && !gcode.includes(profile.hsm_code)) {
-      // Find first G0/G1 and inject HSM before it
       const hsmLine = this.formatComment(input.controller, `HSM SMOOTHING ENABLED`) + "\n" + profile.hsm_code;
-      const insertIndex = lines.findIndex(l => /G0[01]?\s/i.test(l));
+      // Heidenhain TNC: linear move pattern is `L X+...`, `L Y+...`, `L Z+...`, `L A+...` etc.
+      // Fanuc/Okuma/Haas/Mitsubishi: `G0`, `G00`, `G01`.
+      const insertIndex = lines.findIndex(l => /G0[01]?\s/i.test(l) || /^\s*L\s+[XYZABC]/i.test(l));
       if (insertIndex > 0) {
         lines.splice(insertIndex, 0, hsmLine);
         enhancements.push("hsm_injected");
@@ -1149,13 +1235,14 @@ PROVENANCE TRACKING:
       warnings.push("Missing safe start block - recommend adding G28 G91 Z0");
     }
 
-    // Check for coolant off at end
+    // Check for coolant off at end — dialect-aware program-end detection.
+    // Fanuc/Okuma/Haas/Mitsubishi: M30 (rewind+stop) or M02 (stop).
+    // Heidenhain TNC: `END PGM <name> MM` (no M-code program end).
     const hasCoolantOff = /M0?9/i.test(lines.slice(-10).join("\n"));
     if (!hasCoolantOff) {
-      // Inject M9 before M30
-      const m30Index = lines.findIndex(l => /M30/i.test(l));
-      if (m30Index > 0 && !lines[m30Index - 1].includes("M9")) {
-        lines.splice(m30Index, 0, "M9");
+      const endIndex = lines.findIndex(l => /M30|^M0?2\b/i.test(l) || /\bEND\s+PGM\b/i.test(l));
+      if (endIndex > 0 && !lines[endIndex - 1].includes("M9")) {
+        lines.splice(endIndex, 0, "M9");
         enhancements.push("coolant_off_added");
       }
     }
@@ -1225,6 +1312,21 @@ PROVENANCE TRACKING:
       : `(${text})`;
   }
 
+  /**
+   * Resolve the per-dialect signal regex set. Heidenhain/Mitsubishi profiles
+   * supply explicit overrides (see CONTROLLER_PROFILES); every other dialect
+   * inherits the Fanuc-family defaults that the scorers historically assumed.
+   *
+   * This indirection IS the dialect-symmetry fix: prior to it, the scorers
+   * hardcoded Fanuc regex (`G28|G30|G53` for safe-start, `G5[4-9]` for work
+   * offset, `G5\.1` for HSM) and Heidenhain/Mitsubishi-emitted programs scored
+   * 75 ceiling because none of their canonical tokens (`M91 Z`, `CYCL DEF 7`,
+   * `G05.1 Q1` with leading 0) matched.
+   */
+  private getDialectSignals(controller: UnifiedControllerType): DialectSignals {
+    return this.getControllerProfile(controller).signals ?? DEFAULT_DIALECT_SIGNALS;
+  }
+
   private runDeepLearningAnalysis(
     gcode: string,
     input: UnifiedPostInput,
@@ -1233,11 +1335,13 @@ PROVENANCE TRACKING:
     // Simulate deep learning analysis
     this.trackEngineInvocation(provenance, "PostProcessorDeepLearningEngine", "deep-learning", 25, 0.87, "Quality scoring");
 
-    // Calculate quality based on patterns
-    const hasHSM = /G187|G5\.1|CYCLE832|M120|G08 P1/i.test(gcode);
-    const hasSafeStart = /G28|G30|G53/i.test(gcode);
+    // Calculate quality based on patterns — dialect-aware via getDialectSignals().
+    const signals = this.getDialectSignals(input.controller);
+    const hasHSM = signals.hsm.test(gcode);
+    const hasSafeStart = signals.safe_start.test(gcode);
+    // Comments are already dialect-symmetric: Fanuc-style (...) OR Heidenhain ;-prefix.
     const hasComments = (gcode.match(/\([^)]+\)|;.+/g) || []).length > 5;
-    const hasWorkOffset = /G5[4-9]/i.test(gcode);
+    const hasWorkOffset = signals.work_offset.test(gcode);
 
     let score = 60;
     if (hasHSM) score += 15;
@@ -1253,12 +1357,14 @@ PROVENANCE TRACKING:
 
   private quickQualityScore(gcode: string, input: UnifiedPostInput): number {
     let score = 50;
+    const signals = this.getDialectSignals(input.controller);
 
-    // Basic checks
-    if (/G28|G30|G53/i.test(gcode)) score += 10;
+    // Basic checks — dialect-aware
+    if (signals.safe_start.test(gcode)) score += 10;
     if (/M0?9/i.test(gcode)) score += 5;
-    if (/G5[4-9]/i.test(gcode)) score += 5;
-    if ((gcode.match(/\(/g) || []).length > 5) score += 5;
+    if (signals.work_offset.test(gcode)) score += 5;
+    // Comment-count check accepts BOTH Fanuc-style ( and Heidenhain ;-prefix.
+    if ((gcode.match(/\(|^;/gm) || []).length > 5) score += 5;
 
     // Controller-specific
     const profile = this.getControllerProfile(input.controller);
@@ -1291,8 +1397,10 @@ PROVENANCE TRACKING:
     // RTCP suggestion for 5-axis
     if (/G43\.4|TRAORI|TCPM|G234/i.test(gcode) && profile.rtcp_mode && !gcode.includes(profile.rtcp_mode)) {
       suggestions.push({
+        // category must be one of safety|performance|quality|efficiency —
+        // "accuracy" was an invalid category string (pre-existing TS2322).
         priority: "high",
-        category: "accuracy",
+        category: "quality",
         description: `Use ${input.controller} native RTCP mode`,
         impact_estimate: "Better tool vector control, reduced axis reversal",
         suggested_action: `Replace generic RTCP with ${profile.rtcp_mode}`,
@@ -1347,9 +1455,11 @@ PROVENANCE TRACKING:
     return "fanuc"; // Default to Fanuc dialect
   }
 
-  private scoreSafety(gcode: string): number {
+  private scoreSafety(gcode: string, controller: UnifiedControllerType): number {
     let score = 100;
-    if (!/G28|G30|G53/i.test(gcode.slice(0, 500))) score -= 30;
+    const signals = this.getDialectSignals(controller);
+    // Safe-start at program head — Fanuc: G28/G30/G53; Heidenhain: M91/M92/TOOL CALL Z.
+    if (!signals.safe_start.test(gcode.slice(0, 500))) score -= 30;
     if (!/M0?5/i.test(gcode)) score -= 10; // No spindle stop
     if (!/M0?9/i.test(gcode.slice(-500))) score -= 10; // No coolant off at end
     if (/M0?6(?!.*M0?5)/i.test(gcode)) score -= 20; // Tool change without spindle stop
@@ -1372,6 +1482,7 @@ PROVENANCE TRACKING:
   private scoreAccuracy(gcode: string, controller: UnifiedControllerType): number {
     let score = 70;
     const profile = this.getControllerProfile(controller);
+    const signals = this.getDialectSignals(controller);
 
     // HSM/smoothing bonus
     if (profile.hsm_code && gcode.includes(profile.hsm_code)) score += 15;
@@ -1379,8 +1490,8 @@ PROVENANCE TRACKING:
     // Tolerance specifications
     if (/E[0-9.]+|R[0-9.]+|TOLERANCE/i.test(gcode)) score += 10;
 
-    // Work offset precision
-    if (/G54\.1|G5[4-9]\.[1-9]/i.test(gcode)) score += 5;
+    // Work offset precision: Fanuc/Mitsubishi extended (G54.1 P#) OR any dialect-canonical work offset.
+    if (/G54\.1|G5[4-9]\.[1-9]/i.test(gcode) || signals.work_offset.test(gcode)) score += 5;
 
     return Math.min(100, score);
   }
@@ -1436,27 +1547,29 @@ PROVENANCE TRACKING:
 
   private scoreTribalAdherence(gcode: string, controller: UnifiedControllerType): number {
     let score = 50;
+    const signals = this.getDialectSignals(controller);
 
-    // Check for tribal tip patterns
+    // Check for tribal tip patterns — dialect-aware (was Fanuc-only, broke for Heidenhain/Mitsubishi).
     const tips = CONTROLLER_TRIBAL_TIPS.filter(t => t.controllers?.includes(controller));
     for (const tip of tips) {
-      // Simple pattern matching for tip adherence
-      if (tip.category === "hsm" && /G187|G5\.1|CYCLE832/i.test(gcode)) score += 10;
-      if (tip.category === "5axis" && /G43\.4|TRAORI|TCPM/i.test(gcode)) score += 10;
+      if (tip.category === "hsm" && signals.hsm.test(gcode)) score += 10;
+      if (tip.category === "5axis" && /G43\.4|TRAORI|TCPM|G169|G143|G234/i.test(gcode)) score += 10;
     }
 
     return Math.min(100, score);
   }
 
-  private scoreBestPractices(gcode: string): number {
+  private scoreBestPractices(gcode: string, controller: UnifiedControllerType): number {
     let score = 50;
+    const signals = this.getDialectSignals(controller);
 
-    if (/G5[4-9]/i.test(gcode)) score += 15; // Work offset
-    if (/G28 G91/i.test(gcode)) score += 10; // Incremental safe retract
+    if (signals.work_offset.test(gcode)) score += 15; // Work offset (dialect-aware)
+    // Incremental safe retract — Fanuc: G28 G91; Heidenhain: M91 Z / TOOL CALL Z.
+    if (/G28\s+G91|M91\s+Z|TOOL\s+CALL\s+0\s+Z|END\s+PGM/i.test(gcode)) score += 10;
     if (/M0?1/i.test(gcode)) score += 5; // Optional stop
     if (!/G[0-9]+.*G[0-9]+.*G[0-9]+/i.test(gcode)) score += 10; // Not too many G-codes per line
-    if (/T[0-9]+.*M0?6/i.test(gcode)) score += 5; // Tool call with tool change
-    if (/\(TOOL:|TOOL #|T[0-9]+ /i.test(gcode)) score += 5; // Tool descriptions
+    if (/T[0-9]+.*M0?6|TOOL\s+CALL\s+\d+/i.test(gcode)) score += 5; // Tool call with tool change
+    if (/\(TOOL:|TOOL #|T[0-9]+ |TOOL\s+CALL/i.test(gcode)) score += 5; // Tool descriptions
 
     return Math.min(100, score);
   }
@@ -1496,12 +1609,20 @@ PROVENANCE TRACKING:
   private calculateTotalConfidence(provenance: ProvenanceRecord): number {
     if (provenance.engines_invoked.length === 0) return 0.5;
 
+    // Weight each invocation by 1/time_ms (faster invocations weight more)
+    // with a 0.01 fallback for zero-time entries. The previous form
+    // `(1 / inv.invocation_time_ms || 0.01)` returned `Infinity` whenever
+    // `invocation_time_ms === 0` (because `Infinity` is truthy and `||` short-
+    // circuits before reaching `0.01`), poisoning the sum and yielding NaN.
+    // The orchestrator entry-point always has time=0, so this triggered on
+    // every call. Surfaced by U-CAMP14 test, 2026-05-17.
+    const safeWeight = (t: number): number => (t > 0 ? 1 / t : 0.01);
     const weightedSum = provenance.engines_invoked.reduce(
-      (sum, inv) => sum + inv.confidence * (1 / inv.invocation_time_ms || 0.01),
+      (sum, inv) => sum + inv.confidence * safeWeight(inv.invocation_time_ms),
       0
     );
     const totalWeight = provenance.engines_invoked.reduce(
-      (sum, inv) => sum + (1 / inv.invocation_time_ms || 0.01),
+      (sum, inv) => sum + safeWeight(inv.invocation_time_ms),
       0
     );
 

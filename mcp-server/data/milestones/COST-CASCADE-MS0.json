@@ -6,14 +6,15 @@
   "brief": "Multi-LLM cost discipline: probe cascades, register all tentacles in the cost model, build the MoA layer-2 aggregator, wrap dispatcher calls with two-pass logic, fallback chain, dashboard, alarm, token-budget guard. Lane-C owns this — strictly serial with K2-CLOUD-MS0 (K2 must be transport-callable before cascade calibration probes it).",
   "parent_roadmap": "BACKEND-DEVTOOLS-RGS6-MEGA-ROADMAP-2026-05-10.md",
   "created_at": "2026-05-11T19:27:19.879Z",
-  "updated_at": "2026-05-11T19:27:19.879Z",
+  "updated_at": "2026-05-16T22:56:42.901Z",
   "created_by": "claude-0f522935 (register-devtools-roadmap-envelopes.mjs — BACKEND-DEVTOOLS-RGS6 combine)",
   "track": "COST-CASCADE",
   "track_name": "BACKEND-DEVTOOLS-RGS6 MEGA-ROADMAP",
   "roadmap_priority": 0,
   "tier": 1,
   "priority": "P1",
-  "status": "not_started",
+  "status": "in_progress",
+  "status_note": "7/8 units complete (close_out_notes cite real commits). U-CASCADE-CALIBRATE remains not_started — externally blocked by K2-CLOUD-MS0::K2-K0 (K2 must be transport-callable before cascade calibration probes it). Drift-fixed from not_started 2026-05-20 (slot:hotel) — unit-level statuses were already complete.",
   "assigned_lane": "lane-C-octopus-cost",
   "commit_prefix": "[lane-C-octopus-cost][COST-CASCADE-MS0]",
   "critical_path_role": "multi-LLM cost discipline — calibrate cascades, register K2 mid-tier, build MoA layer-2, two-pass wrap; depends on K2-CLOUD landing first",
@@ -96,7 +97,7 @@
           "viz_node_id": "core.engine.multiagentcosttelemetry",
           "viz_node_status": "needs_creation",
           "loop_schedule": "continuous (every call); rotation hourly",
-          "status": "not_started",
+          "status": "complete",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -112,7 +113,8 @@
             "doc_propagation done (CLAUDE.md / GSD / wiki / system-viz / memories updated where the unit changes their surface)"
           ],
           "source_atomized": "state/shared/specs/atomized/BACKEND-DEVTOOLS-RGS6-COST-CASCADE-MS0-ATOMIZED-2026-05-10.md",
-          "atomized_anchor": "## U-MULTI-AGENT-COST-TELEMETRY"
+          "atomized_anchor": "## U-MULTI-AGENT-COST-TELEMETRY",
+          "completedAt": "2026-05-16T22:56:42.901Z"
         },
         {
           "id": "U-BUILD-MOA-LAYER2",
@@ -132,9 +134,11 @@
             "U-DISPATCHER-ACTION-TWO-PASS"
           ],
           "viz_node_id": "core.engine.moalayer2",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": null,
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-20T15:55:00.000Z",
+          "close_out_note": "R8 DEDUP-WIN: MoaLayer2Engine shipped under OCTOPUS-NEURAL-MS0/U-OCN02. Engine at mcp-server/src/engines/MoaLayer2Engine.ts (15.6K, 2026-05-12) + test at mcp-server/src/__tests__/MoaLayer2Engine.test.ts (14.9K). Dispatcher wired in aiReasoningDispatcher.ts:2416 case 'moa_aggregate' (lazy-import + Zod schema at aiReasoningActionSchemas.ts:457). Same engine satisfies BOTH milestones — additive close-out, no duplicate build.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -170,9 +174,11 @@
             "U-BUILD-MOA-LAYER2"
           ],
           "viz_node_id": "core.dispatcher.aitwopass",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": null,
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-20T15:55:00.000Z",
+          "close_out_note": "Shipped originally at 0d9d79bc89 (Mon May 18 21:10) — engine+test ORPHANED by subsequent rebase (commit NOT in HEAD ancestry; 162 commits diverged). Dispatcher case at aiReasoningDispatcher.ts:2524 + schema entry at aiReasoningActionSchemas.ts:489 survived to HEAD via cherry-pick path. Engine file (TwoPassCascadeEngine.ts, 489 LOC) + test (aiReasoning.twoPass.test.ts, 51 tests) restored via `git checkout 0d9d79bc89 -- <files>` this session (2026-05-20). 51/51 tests PASS through the live dispatcher (cheap→quality-gate→strong; degraded fallback flag; both-fail error envelope). `prism_ai:two_pass` action now genuinely live.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -212,7 +218,9 @@
           "viz_node_id": "core.engine.cascadefallback",
           "viz_node_status": "needs_creation",
           "loop_schedule": null,
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-20T17:00:00.000Z",
+          "close_out_note": "CascadeFallbackChainEngine (cheap→mid→strong + per-tentacle circuit-breaker closed/open/half-open) shipped via STUB_CALIBRATION (U-CASCADE-CALIBRATE remains externally blocked by K2-CLOUD-MS0::K2-K0). 17/17 vitest, 7 R12 invariants pinned, wired into aiReasoningDispatcher as cascade_run + cascade_status + cost_alarm_check.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -248,9 +256,11 @@
             "U-TOKEN-BUDGET-GUARD"
           ],
           "viz_node_id": "core.web.costdashboard",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": null,
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-20T16:25:00.000Z",
+          "close_out_note": "Built 2026-05-20 hotel-loop iter 3. Routes/cost.ts extended with buildCostAggregate() pure-ish aggregator + GET /aggregate (JSON) + GET /dashboard (HTML, COST_DASHBOARD_HTML const). 10/10 tests PASS (3 spec cases: empty/full/partial-outage + 4 safety + 4 HTML-content). Top-level aliases /cost-dashboard + /api/cost-aggregate registered in routes/index.ts as 302 redirects to /api/v1/cost/dashboard|aggregate. Dashboard is vanilla HTML/SVG/inline-JS, no CDN deps (adversarial 'CDN down → bundle locally' satisfied), XSS-safe DOM ops (replaceChildren + textContent — no innerHTML sinks), same-origin only (relative fetch). Test-tentacle records excluded by default config. windowHours clamped [1, 720]. Failure_modes per spec: aggregator throw → warning banner + dashboard still loads; file unreadable → 503 + reason.",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -286,9 +296,11 @@
             "U-TOKEN-BUDGET-GUARD"
           ],
           "viz_node_id": "core.engine.costalarm",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": "15min (cron `*/15 * * * *`)",
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-20T16:10:00.000Z",
+          "close_out_note": "Built 2026-05-20 hotel-loop iter 2. 5 files (config + engine + 30-case test + cron runner + scheduled-task installer). 30/30 tests PASS, tsc clean. Engine: pure-core (normalizeConfig + aggregateTelemetry + lookupThresholds + decideAlarms + lastFiredAt + isCoolDownActive) + injected-deps CostAlarmEngine.check() shell. 7 R12 invariants pinned with fail-on-revert oracles: aggregator-throw safety, config-malformed fallback, test-tentacle filter, telemetry-ts cool-down (NOT wall-clock), channel-fail isolation, cap=0 strict-gt semantics, truncatedTailLines surfacing. Cron: SYSTEM-principal scheduled task at */15 (phase offset +540s clear of fleet-reaper/memory-monitor/task-health). Surface: scripts/cost-alarm-tick.mjs (exit 0=clean/1=fired/2=errors/3=fatal).",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -324,9 +336,11 @@
             "U-COST-ALARM"
           ],
           "viz_node_id": "core.hook.tokenbudgetguard",
-          "viz_node_status": "needs_creation",
+          "viz_node_status": "built",
           "loop_schedule": null,
-          "status": "not_started",
+          "status": "complete",
+          "completedAt": "2026-05-20T15:55:00.000Z",
+          "close_out_note": "Shipped at daed65a6df (Mon May 18 23:45) per HOTEL-PUNCH-LIST-2026-05-19. PreToolUse daily-token-budget gate: reads cost-telemetry.jsonl today-totals + tool-name→tokens estimate → allow/warn/block decision. R12 invariants: fail-OPEN on infra errors, cap=0 explicit refuse path (BUDGET_ZERO_REFUSE), torn-tail JSONL counted (not corrupt). 43 node:test cases. 2-reviewer per-file scrutiny PASS round 2 after R12 fixes. Surface: PreToolUse hook (distinct from existing token-budget-gate.mjs UserPromptSubmit context discipline).",
           "four_loop": [
             "BUILD",
             "SCRUTINIZE",
@@ -349,5 +363,5 @@
   ],
   "total_units": 8,
   "declared_total_units": 8,
-  "completed_units": 0
+  "completed_units": 7
 }

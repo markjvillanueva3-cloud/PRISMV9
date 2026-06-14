@@ -1,0 +1,102 @@
+{
+  "id": "POST-TOOLING-IMPROVEMENTS-MS1-BATCH",
+  "version": "1.0.0",
+  "title": "Post-Processor + Tool Library MS1 Improvements (batched)",
+  "brief": "Three MS1 ships covering the 8-gap punch list from HURCO-VM30I-SCENARIOS-MS0's capability assessment + the Fusion tool extractor improvements + a false-positive fix in the post-processor coverage audit. Closes user directive 'do them all as your goal and loop them' (2026-05-24, slot echo).",
+  "created_at": "2026-05-24T05:00:00Z",
+  "created_by": "claude-64f03cee (slot echo)",
+  "track": "POST",
+  "track_name": "Post-Processor Proving-Out",
+  "status": "complete",
+  "completed_at": "2026-05-24T05:30:00Z",
+  "completed_by": "claude-64f03cee (slot echo)",
+  "close_out_log": [
+    {
+      "unit": "P0-U01-HURCO-MS1",
+      "status": "shipped",
+      "note": "mcp-server/src/__tests__/HurcoV11GapFillMS1.test.ts (9/9 PASS) — closes 3 highest-value gaps from MS0 capability assessment: (Gap #4) tribal_tips_applied[] non-zero on face/pocket/tap ops — engine's 20+ JM Die tribal tips are now verified to fire; (Gap #5) estimated_cycle_min in plausible range, monotone-decreasing in feed rate, additive across 3-op chain — feeds JM Die quote estimator; (Gap #3) drill/tap/bore canned-cycle structural assertions — T+M06+S+M03+Z-depth+M30 all verified per op type. Same engine, no API change."
+    },
+    {
+      "unit": "P0-U02-FUSION-MS1",
+      "status": "shipped",
+      "note": "scripts/extract-jm-milling-tools-fusion.mjs MS1 enhancement: (a) pickHolder() — type-aware holder selection (BT40 face-mill holder / BT40 endmill / ER32 / ER20 micro); (b) pickStartValues() — per-ISO group preset table (aluminum 6061 @ 500 SFM, steel 4140 @ 350 SFM, stainless 304 @ 200 SFM) with chipload scaled by tool diameter (mm/tooth); (c) unknown-vendor quarantine — 3376 tools without manufacturer attribution split into state/shared/jm-fusion-tools/unknown-vendor-tools.json so they don't pollute the main Fusion library. Final attributed library: 15994 milling tools (down from 19370 — quarantined the unprovenance set)."
+    },
+    {
+      "unit": "P0-U03-COVERAGE-MS1",
+      "status": "shipped",
+      "note": "scripts/audit-post-processor-coverage.mjs — broadened listEngineFiles() filter to catch *PostEngine.ts (canonical PRISM naming), not only *PostProcessorEngine + *PostGeneratorEngine. R12 fail-loud win: PPSinkerEDMPostEngine (Mitsubishi EA12V — the actual JM Die sinker EDM) was MS0-invisible because its filename matched neither prior pattern. Re-run: coverage 64/84→66/84 (Mitsubishi wedm-sinker + Okuma wedm-sinker flipped ❌→✓1). Audit-side correction, not engine work — closes false-positive class in MS0 envelope's R1 (heuristic loose)."
+    }
+  ],
+  "linked_roadmap": "state/shared/specs/ROADMAP-CONSOLIDATED.md",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Three MS1 ships (Hurco gaps + Fusion improvements + audit fix)",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01-HURCO-MS1",
+          "title": "HurcoV11GapFillMS1.test.ts — 9/9 PASS closing tribal-tips + cycle-time + canned-cycle gaps",
+          "effort": 25,
+          "dependencies": ["HURCO-VM30I-SCENARIOS-MS0"],
+          "exit_conditions": [
+            "tribal_tips_applied[].length >= 1 on face/pocket/tap ops",
+            "estimated_cycle_min in (0.05, 5) for baseline op",
+            "estimated_cycle_min monotone-decreasing in feed_mm_min",
+            "estimated_cycle_min additive across 3-op chain",
+            "drill/tap/bore each emit T+M06+S+M03+Z-depth+M30",
+            "9/9 vitest assertions PASS"
+          ],
+          "description": "Closes the 3 highest-value gaps from MS0's 8-item gap list.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U02-FUSION-MS1",
+          "title": "extract-jm-milling-tools-fusion.mjs MS1 — holder picker + ISO presets + quarantine",
+          "effort": 20,
+          "dependencies": ["JM-FUSION-TOOLS-MS0"],
+          "exit_conditions": [
+            "pickHolder(type, sfd) picks BT40-face / BT40-endmill / ER32 / ER20 by type+shank size",
+            "pickStartValues(type, dia) emits per-ISO presets (aluminum/steel/stainless) with SFM + chipload",
+            "unknown-vendor tools split to state/shared/jm-fusion-tools/unknown-vendor-tools.json",
+            "Main library count reflects only attributed tools (15994 not 19370)"
+          ],
+          "description": "Three of the named JM-FUSION-TOOLS-MS1 gaps from prior MS0 envelope R1/R2 are now closed in the extractor — Fusion 360 import gets meaningful presets + holders out of the box.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        },
+        {
+          "id": "P0-U03-COVERAGE-MS1",
+          "title": "audit-post-processor-coverage.mjs filter fix — *PostEngine.ts now scanned",
+          "effort": 10,
+          "dependencies": ["POST-PROCESSOR-COVERAGE-MS0"],
+          "exit_conditions": [
+            "PPSinkerEDMPostEngine.ts is matched by listEngineFiles()",
+            "Re-run produces wedm-sinker ≥1 on Mitsubishi (PPSinkerEDM matches both)",
+            "Coverage % rises from 76% (64/84) to 78%+ (66/84)",
+            "False-positive class from MS0 R1 closed"
+          ],
+          "description": "MS0 R1 closed: my own audit was silently miscategorizing the universe of engines because the file filter regex was too narrow. Same R12 fail-loud class as iter1 PSN-Synergy collector blind-spot — eat your own dog food, fix the gap your audit surfaces.",
+          "four_loop": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+        }
+      ]
+    }
+  ],
+  "acceptance": "9/9 + Fusion extractor 15994 attributed + coverage matrix 66/84 with wedm-sinker no longer universal-gap. The 4th user-named deliverable (operator-side validation) is operator-action — drag proveout-latest.hnc into WinMax + jm-milling-tools.tools into Fusion.",
+  "risks": [
+    {
+      "id": "R1",
+      "description": "POST-PROCESSOR-COVERAGE-MS1 doesn't fix the heuristic loose-coupling — brand+machineClass co-occurrence still counts. MS2 would need explicit @brand / @machine JSDoc annotation parsing for hard accuracy."
+    },
+    {
+      "id": "R2",
+      "description": "5 of the 8 named MS0 gaps remain open: G65 conversational mode, tool_change_position, advanced_aggressiveness arithmetic, add_optional_stops M01, MillTool stickout deflection. MS2 picks these up as a focused 5-test batch."
+    },
+    {
+      "id": "R3",
+      "description": "Fusion start-values presets use textbook SFM × chipload (not JM Die calibrated values). Operator may need to dial them in for the specific machine/material/tool combo. Mitigation: presets are starting points the Fusion dialog populates — operator tunes from there, same as a hand-keyed entry."
+    }
+  ],
+  "blocks": [],
+  "blocked_by": ["HURCO-VM30I-SCENARIOS-MS0", "JM-FUSION-TOOLS-MS0", "POST-PROCESSOR-COVERAGE-MS0"],
+  "updated_at": "2026-05-24T05:35:00Z"
+}

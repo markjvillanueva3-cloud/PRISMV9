@@ -174,9 +174,9 @@ saveRate(rateState);
 // budget. Target: ~280 tokens.
 
 const lines = [];
-lines.push("━".repeat(70));
+lines.push("---"); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was "━".repeat(70) — 67 chars/line typography saved × 3 lines × 53 fires/session ≈ 2.7k tokens.
 lines.push("COMPREHENSIVE-BUILD ENFORCEMENT — injected by UserPromptSubmit hook");
-lines.push("━".repeat(70));
+lines.push("---"); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was "━".repeat(70) — 67 chars/line typography saved × 3 lines × 53 fires/session ≈ 2.7k tokens.
 lines.push("");
 lines.push(
   "The user has repeatedly been shipped partial work. For THIS prompt, " +
@@ -246,7 +246,7 @@ lines.push(
   "  • Use the duplication guard before creating anything " +
     "(duplicationGuardEngine.checkBeforeCreating).",
 );
-lines.push("━".repeat(70));
+lines.push("---"); // U-A7-SEPARATOR-TYPOGRAPHY-TRIM (slot:alpha 2026-05-26): was "━".repeat(70) — 67 chars/line typography saved × 3 lines × 53 fires/session ≈ 2.7k tokens.
 
 const additionalContext = lines.join("\n");
 

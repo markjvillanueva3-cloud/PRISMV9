@@ -373,6 +373,7 @@ export class BusinessIntelligenceEngine {
 
       make_analysis: {
         ...makeCosts,
+        break_even_volume: breakEvenVolume,
         pros: this.getMakeProsCons(makeOption, strategicFactors).pros,
         cons: this.getMakeProsCons(makeOption, strategicFactors).cons,
       },

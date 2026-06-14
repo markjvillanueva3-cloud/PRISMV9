@@ -22,9 +22,11 @@ import express from "express";
 import dotenv from "dotenv";
 import path from "node:path";
 import fs from "node:fs";
+import net from "node:net";
 
 import { SERVER_NAME, SERVER_VERSION, SERVER_DESCRIPTION } from "./constants.js";
 import { log } from "./utils/Logger.js";
+import { respondTransportError } from "./utils/transportError.js";
 
 // MCP Primitives — Resources, Prompts, Logging, Tasks
 import {
@@ -47,6 +49,10 @@ import { registerSafetyDispatcher } from "./tools/dispatchers/safetyDispatcher.j
 import { registerThreadDispatcher } from "./tools/dispatchers/threadDispatcher.js";
 import { registerToolpathDispatcher } from "./tools/dispatchers/toolpathDispatcher.js";
 import { registerCalcDispatcher } from "./tools/dispatchers/calcDispatcher.js";
+// OBSERVABILITY-MS0 (slot:bravo 2026-05-30): in-process MCP request telemetry singleton.
+import { metrics, metricsViewHtml } from "./observability/metrics-collector.js";
+// MCP-CONCURRENCY-HARDEN (slot golf 2026-06-09): bounded-concurrency gate for /mcp.
+import { RequestSemaphore, acquireRequestSlot } from "./mcp/request-semaphore.js";
 // BATCH 2 DONE: dataDispatcher imported above with other tool imports
 
 // Phase 2A Batch 3: Quick Wins (9 dispatchers, 61 tools → 9)
@@ -59,9 +65,11 @@ import { createIntakeRouter } from "./routes/intake.js";
 import { registerRalphDispatcher } from "./tools/dispatchers/ralphDispatcher.js";
 import { registerKnowledgeDispatcher } from "./tools/dispatchers/knowledgeDispatcher.js";
 import { registerDevDispatcher } from "./tools/dispatchers/devDispatcher.js";
+import { registerQuotingDispatcher } from "./tools/dispatchers/quotingDispatcher.js";
 import { registerGsdDispatcher } from "./tools/dispatchers/gsdDispatcher.js";
 import { registerManusDispatcher } from "./tools/dispatchers/manusDispatcher.js";
 import { registerAutoPilotDispatcher } from "./tools/dispatchers/autoPilotDispatcher.js";
+import { registerCimcoDispatcher } from "./tools/dispatchers/cimcoDispatcher.js"; // prism_cimco — CIMCO verification/sim oracle (CIMCO-INTEGRATION-MS0)
 
 // Phase 2B: Dispatcher Imports (128 tools → 8 dispatchers)
 import { registerOrchestrationDispatcher } from "./tools/dispatchers/orchestrationDispatcher.js";
@@ -89,6 +97,10 @@ import { pfpEngine } from "./engines/PFPEngine.js";
 
 // MEMORY GRAPH: Cross-Session Memory (Dispatcher #27) — F2
 import { registerMemoryDispatcher } from "./tools/dispatchers/memoryDispatcher.js";
+// MCP-BOOT-FIX (2026-06-13, slot:bravo): registerAIDispatcher import removed -- it duplicated the
+// "prism_ai" tool name owned by registerAIReasoningDispatcher and crashed boot under the stricter SDK.
+// aiDispatcher.ts preserved on disk, just no longer registered. See bindDispatchers() for full note.
+import { registerClaudeAccountDispatcher } from "./tools/dispatchers/claudeAccountDispatcher.js";
 import { memoryGraphEngine } from "./engines/MemoryGraphEngine.js";
 
 // CERTIFICATES: Formal Verification (auto-generated) — F4
@@ -115,6 +127,18 @@ import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligence
 
 // AI Reasoning — Claude-powered intelligence across all features (Dispatcher #83)
 import { registerAIReasoningDispatcher } from "./tools/dispatchers/aiReasoningDispatcher.js";
+
+// OUTCOME: Closed-loop learning backbone — 40 actions, 8 engines (PSN-SYNERGY/OUTCOME-WIRING)
+import { registerOutcomeDispatcher } from "./tools/dispatchers/outcomeDispatcher.js";
+
+// SHOP: Shop-floor operations — 53 actions, 8 engines (PSN-SYNERGY/SHOP-WIRING)
+import { registerShopDispatcher } from "./tools/dispatchers/shopDispatcher.js";
+
+// PROCESS: Process-domain intelligence — 18 actions, 7 engines (PSN-SYNERGY/PROCESS-WIRING)
+import { registerProcessDispatcher } from "./tools/dispatchers/processDispatcher.js";
+
+// MULTI: Multi-* domain (coordinator, knowledge, pareto, path, setup, rollback, spindle, turret, cam-strategy) — 49 actions, 9 engines (PSN-SYNERGY/MULTI-WIRING)
+import { registerMultiDispatcher } from "./tools/dispatchers/multiDispatcher.js";
 
 // Agent — AGENT-MS1-5 unified agent surface (chat, memory, capabilities, context)
 // import { registerAgentDispatcher } from "./tools/dispatchers/agentDispatcher.js"; // NOT ON THIS BRANCH
@@ -206,8 +230,10 @@ import { registerCADDrawingKnowledgeDispatcher } from "./tools/dispatchers/cadDr
 import { registerFeasibilityDispatcher } from "./tools/dispatchers/feasibilityDispatcher.js";
 import { registerProvenPipelineDispatcher } from "./tools/dispatchers/provenPipelineDispatcher.js";
 
-// PP-DISPATCHER: Dedicated PostProcessor dispatcher — 50 actions
-// import { registerPPDispatcher } from "./tools/dispatchers/ppDispatcher.js"; // NOT ON THIS BRANCH
+// PP-DISPATCHER: Dedicated PostProcessor dispatcher (prism_pp) -- 807 actions.
+// Re-enabled by ECHO-FINALIZE-MS0/U-PP-DISPATCHER-REGISTER (2026-06-10): the "NOT ON THIS BRANCH"
+// guard was a stale branch-scoping artifact (file grew 50->807 cases; all 150 lazy engines present).
+import { registerPPDispatcher } from "./tools/dispatchers/ppDispatcher.js";
 
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
@@ -391,6 +417,18 @@ const server = new McpServer({
   version: SERVER_VERSION
 });
 
+// MCP-CONCURRENCY-FIX (2026-05-31): the official MCP SDK enforces ONE transport per
+// McpServer instance (sdk/shared/protocol.js:217 — "Already connected to a transport").
+// The HTTP /mcp handler used to call server.connect(transport) on this MODULE-LEVEL
+// shared server per request; two overlapping requests collided and the 2nd threw before
+// handleRequest, leaving the client with NO response → "MCP DISCONNECTED". Fix: build a
+// FRESH McpServer per /mcp request (SDK stateless pattern). bootstrapServices() runs the
+// heavy global I/O ONCE; bindDispatchers() is side-effect-free tool registration that runs
+// per-server; postBindOnce() runs the once-per-process tail (bridge handler, SVI, synergies,
+// startup event) against the shared server (still needed for REST routes + /health + bridge).
+let _bootstrapped = false;
+let _postBindDone = false;
+
 /** Internal access to McpServer internals for proxy/routing */
 type McpServerInternal = McpServer & {
   tool: (...args: unknown[]) => unknown;
@@ -402,11 +440,16 @@ type McpServerInternal = McpServer & {
 // ============================================================================
 
 /**
- * Register all PRISM tools with the MCP server
+ * GLOBAL one-time bootstrap — heavy I/O + process-level side effects.
+ * Idempotent: a second call early-returns. MUST run exactly once per process
+ * (registry/formula/machine load, XProc autofire, DB init+migrations+seed,
+ * domain-hook registration, process-level engine inits).
  */
-async function registerTools(): Promise<void> {
-  log.info("Registering PRISM MCP tools...");
-  
+async function bootstrapServices(): Promise<void> {
+  if (_bootstrapped) return;
+  _bootstrapped = true;
+  log.info("Bootstrapping PRISM services (one-time)...");
+
   // Initialize registries first
   log.info("Initializing data registries...");
   await registryManager.initialize();
@@ -475,6 +518,22 @@ async function registerTools(): Promise<void> {
     log.warn(`[HOOKS] Domain hook registration failed (non-fatal): ${hookErr.message}`);
   }
 
+  // Process-level engine inits — hoisted out of the per-server binding region
+  // (these are NOT per-server and must not re-run on every /mcp request).
+  try { telemetryEngine?.init(); } catch (e) { log.warn(`[INIT] TelemetryEngine skipped: ${(e as Error).message}`); }
+  try { pfpEngine?.init(); } catch (e) { log.warn(`[INIT] PFPEngine skipped: ${(e as Error).message}`); }
+  try { memoryGraphEngine?.init(); } catch (e) { log.warn(`[INIT] MemoryGraphEngine skipped: ${(e as Error).message}`); }
+  try { certificateEngine?.init(); } catch (e) { log.warn(`[INIT] CertificateEngine skipped: ${(e as Error).message}`); }
+}
+
+/**
+ * Per-server tool BINDING — side-effect-free beyond server.tool(...) registration.
+ * Safe to call ONCE on the shared server (REST + /health + bridge) AND repeatedly
+ * on fresh per-request servers built by buildRequestServer(). The temporary
+ * server.tool proxy is installed and restored within this function, scoped to the
+ * passed `server`, so concurrent calls on distinct server instances never interfere.
+ */
+async function bindDispatchers(server: McpServer): Promise<void> {
   // =========================================================================
   // UNIVERSAL AUTO-HOOK PROXY: Wraps ALL prism_* dispatchers with:
   //   1. Before/after dispatch hooks (DISPATCH-ACTION-VALIDATE, DISPATCH-PERF-TRACK)
@@ -513,7 +572,27 @@ async function registerTools(): Promise<void> {
         args[handlerIndex] = wrapped;
       }
     }
-    
+
+    // MCP-DEDUP guard (2026-06-13, slot:bravo): @modelcontextprotocol/sdk drifted 1.27.1 -> 1.29.0
+    // through the unpinned caret in package.json. 1.29.0's tool() HARD-THROWS
+    // "Tool <name> is already registered" where the previously-installed version silently
+    // overwrote (last-wins). Several dispatchers have long registered the SAME tool name
+    // (verified: prism_ai via aiDispatcher+aiReasoningDispatcher; prism_auth via Auth+ClaudeAccount),
+    // which had been harmless for 3+ weeks of boots -- the drift turned every such collision into a
+    // fleet-wide boot crash. Restore the historical last-wins behavior (delete the prior entry so the
+    // later registration overwrites) AND surface each duplicate LOUDLY so the offending dispatcher
+    // pair can be cleaned up properly, instead of crashing the whole server on a name collision.
+    // NOTE: both known collisions are now ALSO fixed at source this commit (aiDispatcher unwired;
+    // claudeAccountDispatcher renamed prism_auth -> prism_claude_account), so this guard now stands
+    // as a forward safety-net + early-warning for any FUTURE accidental duplicate tool name.
+    if (typeof toolName === 'string') {
+      const registry = (server as any)._registeredTools;
+      if (registry && registry[toolName]) {
+        delete registry[toolName];
+        log.warn(`[MCP-DEDUP] tool "${toolName}" registered more than once -- keeping the latest (last-wins, matches pre-1.29.0 SDK behavior). A duplicate dispatcher still claims this name; clean up the redundant registration.`);
+      }
+    }
+
     return originalTool(...args);
   };
   
@@ -534,7 +613,10 @@ async function registerTools(): Promise<void> {
   
   // Manufacturing Calculations (21 actions) — Hooked: pre/post-calculation
   registerCalcDispatcher(server);
-  
+
+  // CIMCO Edit 2026 + Machine Simulation bridge (6 actions) — fleet program/post verification + sim oracle
+  registerCimcoDispatcher(server);
+
   // Session State + Lifecycle (20 actions) — Hooked: lifecycle events
   registerSessionDispatcher(server);
   
@@ -596,6 +678,9 @@ async function registerTools(): Promise<void> {
   
   // Dev Workflow (7 actions)
   registerDevDispatcher(server);
+
+  // QUOTING-PIPELINE-MS0 / U-QP08 — camera-intake + insert-catalog + service-tag + parts BOM + vendor pricing + live chat
+  registerQuotingDispatcher(server);
   
   // Guard: Reasoning + Enforcement + AutoHook (8 actions)
   registerGuardDispatcher(server);
@@ -611,17 +696,21 @@ async function registerTools(): Promise<void> {
   
   // F1: Predictive Failure Prevention (6 actions)
   registerPFPDispatcher(server);
-  
-  // Initialize engines safely — some .ts sources may be empty (file_write bug recovery)
-  try { telemetryEngine?.init(); } catch (e) { log.warn(`[INIT] TelemetryEngine skipped: ${(e as Error).message}`); }
-  try { pfpEngine?.init(); } catch (e) { log.warn(`[INIT] PFPEngine skipped: ${(e as Error).message}`); }
-  
+  // NOTE: telemetryEngine/pfpEngine .init() moved to bootstrapServices() (process-level, once-only).
+
   // F2: Cross-Session Memory Graph (6 actions)
   registerMemoryDispatcher(server);
-  
-  try { memoryGraphEngine?.init(); } catch (e) { log.warn(`[INIT] MemoryGraphEngine skipped: ${(e as Error).message}`); }
-  try { certificateEngine?.init(); } catch (e) { log.warn(`[INIT] CertificateEngine skipped: ${(e as Error).message}`); }
-  
+  // MCP-BOOT-FIX (2026-06-13, slot:bravo): removed the duplicate `registerAIDispatcher(server)` here.
+  // It registered the SAME MCP tool name "prism_ai" as registerAIReasoningDispatcher (the canonical
+  // 12-action dispatcher, below). The @modelcontextprotocol/sdk now HARD-THROWS
+  // "Tool prism_ai is already registered" on the 2nd registration (previously silent last-wins),
+  // crashing boot fleet-wide (verified in .claude/cache/mcp-daemon.log). aiDispatcher.ts is a stub
+  // ("would normally call the Python ModelRouterEngine; for now return a structured decision") and
+  // was already overwritten at runtime by the reasoning dispatcher (last-wins), so removing its
+  // registration is behavior-preserving. File preserved on disk (asset-preservation), just unwired.
+  registerClaudeAccountDispatcher(server);
+  // NOTE: memoryGraphEngine/certificateEngine .init() moved to bootstrapServices() (process-level, once-only).
+
   // F6: Natural Language Hook Authoring (8 actions)
   registerNLHookDispatcher(server);
 
@@ -642,6 +731,18 @@ async function registerTools(): Promise<void> {
 
   // AI Reasoning — Claude-powered intelligence across all features (12 actions)
   registerAIReasoningDispatcher(server);
+
+  // OUTCOME: Closed-loop learning backbone — 40 actions, 8 engines (PSN-SYNERGY/OUTCOME-WIRING)
+  registerOutcomeDispatcher(server);
+
+  // SHOP: Shop-floor operations — 53 actions, 8 engines (PSN-SYNERGY/SHOP-WIRING)
+  registerShopDispatcher(server);
+
+  // PROCESS: Process-domain intelligence — 18 actions, 7 engines (PSN-SYNERGY/PROCESS-WIRING)
+  registerProcessDispatcher(server);
+
+  // MULTI: Multi-* domain — 49 actions, 9 engines (PSN-SYNERGY/MULTI-WIRING)
+  registerMultiDispatcher(server);
 
   // Agent — chat/memory/capabilities/context/self_awareness/stats (8 actions)
   // registerAgentDispatcher(server); // NOT ON THIS BRANCH
@@ -670,8 +771,9 @@ async function registerTools(): Promise<void> {
   registerCADRegressionDispatcher(server);
   registerCamDispatcher(server);
 
-  // PP-DISPATCHER: PostProcessor-specific operations — 50 actions (generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics)
-  // registerPPDispatcher(server); // NOT ON THIS BRANCH
+  // PP-DISPATCHER: PostProcessor operations (prism_pp) -- 807 actions (generate, analyze, optimize,
+  // validate, physics, neural, tribal, controller, kinematics). Re-enabled U-PP-DISPATCHER-REGISTER.
+  registerPPDispatcher(server);
   registerQualityDispatcher(server);
   registerProcessControlDispatcher(server);
   registerSchedulingDispatcher(server);
@@ -717,7 +819,7 @@ async function registerTools(): Promise<void> {
   registerFluidThermalDispatcher(server);   // 35 actions: pumps, piping, hydraulics, heat exchangers, valves, compressors...
   // PIPE-MS2: Print-to-Program pipeline
   registerTurningProgramDispatcher(server);    // 2 actions: turning_print_to_program, turning_process_plan
-  registerMultiAxisProgramDispatcher(server);  // 2 actions: multiaxis_print_to_program, multiaxis_process_plan
+  registerMultiAxisProgramDispatcher(server);  // 5 actions: multiaxis_print_to_program, multiaxis_process_plan, replicate_from_print, replicate_similarity_search, replicate_corpus_index
   registerHolePatternDispatcher(server);       // 3 actions: hole_pattern_program, hole_pattern_detect, hole_pattern_optimize
   registerMachiningKnowledgeBaseDispatcher(server); // 25 actions: kb_lookup_*/physics corrections/workholding/toolpath/stock/setups/magazine
   registerThreadingPipelineDispatcher(server);      // 3 actions: threading_pipeline, threading_plan, threading_pass_schedule
@@ -739,6 +841,14 @@ async function registerTools(): Promise<void> {
     log.warn(`[MCP] Primitives init failed (non-fatal): ${mcpErr.message}`);
   }
 
+  // ── ONCE-ONLY post-bind tail (MCP-CONCURRENCY-FIX) ──────────────────────────
+  // Synergies, SVI auto-watch, the protocol-bridge dispatch handler (which captures the
+  // SHARED server's _registeredTools), module-health, and the SYSTEM_STARTUP event are
+  // PROCESS / shared-server-level side effects. They MUST run exactly once — on the shared
+  // server's bindDispatchers() call — and must NOT re-run on the fresh per-request servers
+  // built by buildRequestServer(). Guarded by _postBindDone (the first call = shared server).
+  if (!_postBindDone) {
+    _postBindDone = true;
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {
     const synResult = initSynergies();
@@ -812,6 +922,20 @@ async function registerTools(): Promise<void> {
       dispatchers_registered: true,
     }, { category: "system", priority: "high", source: "index" });
   } catch { /* startup event is best-effort */ }
+  } // end once-only post-bind tail (guarded by _postBindDone)
+}
+
+/**
+ * Build a FRESH McpServer for a single HTTP /mcp request (MCP SDK stateless pattern).
+ * bindDispatchers() registers all tools onto it; the once-only post-bind tail is skipped
+ * via the _postBindDone guard (already run on the shared server). A fresh server per request
+ * is what eliminates the "Already connected to a transport" collision under concurrency —
+ * each request owns its own McpServer + transport, so server.connect() never contends.
+ */
+async function buildRequestServer(): Promise<McpServer> {
+  const s = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION });
+  await bindDispatchers(s);
+  return s;
 }
 
 // ============================================================================
@@ -827,12 +951,20 @@ async function runStdio(): Promise<void> {
   log.info(`Starting ${SERVER_NAME} v${SERVER_VERSION} (stdio mode) [${process.env.SESSION_ID}]`);
   log.info(SERVER_DESCRIPTION);
   
-  await registerTools();
+  await bootstrapServices();
+  await bindDispatchers(server);
   
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
   log.info("Server running on stdio");
+
+  // Fleet-OOM hardening (slot:bravo 2026-05-29): exit promptly when the parent
+  // MCP client closes the stdio pipe, so a stdio child never lingers as a ~750MB
+  // orphan after its chat dies/compacts. Pairs with the fleet-wide prism_safe drop
+  // (which removes the per-chat stdio server entirely). stdio branch only.
+  process.stdin.on("end", () => process.exit(0));
+  process.stdin.on("close", () => process.exit(0));
 
   // H1-MS3: Boot smoke tests (non-blocking)
   try {
@@ -847,8 +979,33 @@ async function runStdio(): Promise<void> {
 async function runHTTP(): Promise<void> {
   log.info(`Starting ${SERVER_NAME} v${SERVER_VERSION} (HTTP mode)`);
   log.info(SERVER_DESCRIPTION);
-  
-  await registerTools();
+
+  // HARDEN (golf 2026-06-02 MCP-HARDEN) FIX 2 — pre-bootstrap port preflight.
+  // The heavy bootstrapServices() below loads every engine (~700MB RSS). It must
+  // NOT run if :PORT is already owned by a peer — that is exactly how the
+  // 11-instance / ~7.8GB leak formed: bind-race losers loaded all engines then
+  // hung portless instead of exiting. Probe the port cheaply (~50MB) and exit
+  // FIRST if a peer owns it. FIX 1 (httpServer 'error' handler at app.listen)
+  // closes the residual TOCTOU window between this probe closing and the real listen.
+  {
+    const pfPort = parseInt(process.env.PORT || "3000", 10);
+    const pfHost = process.env.PRISM_BIND_HOST || "127.0.0.1";
+    await new Promise<void>((resolve) => {
+      const probe = net.createServer();
+      probe.once("error", (e: NodeJS.ErrnoException) => {
+        if (e.code === "EADDRINUSE") {
+          log.warn(`[PREFLIGHT] :${pfPort} already bound by a peer MCP server — exiting pre-bootstrap (no engine load, no leak)`);
+          process.exit(0);
+        }
+        resolve(); // non-EADDRINUSE probe error: proceed; the real listen will surface it
+      });
+      probe.once("listening", () => probe.close(() => resolve()));
+      probe.listen(pfPort, pfHost);
+    });
+  }
+
+  await bootstrapServices();
+  await bindDispatchers(server);
   
   const app = express();
   // OBSIDIAN-COMPOUND-MS1/S3/U-CAPTURE-WEBHOOK — MUST mount BEFORE
@@ -857,9 +1014,26 @@ async function runHTTP(): Promise<void> {
   // consume the body stream first and break HMAC verification).
   app.use("/api/intake", createIntakeRouter());
 
-  app.use(express.json());
+  // express.json defaults to a 100KB body limit -> the server silently 413s any
+  // larger dispatcher/CAD payload. Raise to a generous, env-overridable cap.
+  // Strictly beneficial: existing <100KB requests are unaffected; only LARGER
+  // valid bodies now succeed. Tune down via PRISM_MCP_BODY_LIMIT for a DoS floor.
+  app.use(express.json({ limit: process.env.PRISM_MCP_BODY_LIMIT || "50mb" }));
   registerOAuthHttpRoutes(app);
-  
+
+  // MCP-CONCURRENCY-HARDEN (slot golf 2026-06-09): one shared gate for the /mcp
+  // choke point. Each /mcp POST builds a FRESH McpServer (binds the full dispatcher
+  // graph) via buildRequestServer(), so N concurrent requests = N concurrent servers
+  // = an unbounded memory spike under an ultracode parallel-agent burst. The gate
+  // caps simultaneous builds (PRISM_MCP_MAX_CONCURRENCY) and queues the overflow
+  // (PRISM_MCP_QUEUE_MAX); excess sheds with HTTP 503 so a burst applies backpressure
+  // to clients instead of OOMing the process. Defaults are sized for the Blackwell box
+  // (96GB VRAM / 136GB RAM) against the 300-400 concurrent peak modeled in
+  // MCP-FLEET-CAPACITY-MS0: 64 active builds + 512 queued.
+  const MCP_MAX_CONCURRENCY = Math.max(1, Number(process.env.PRISM_MCP_MAX_CONCURRENCY) || 64);
+  const MCP_QUEUE_MAX = Math.max(0, Number(process.env.PRISM_MCP_QUEUE_MAX) || 512);
+  const mcpSem = new RequestSemaphore(MCP_MAX_CONCURRENCY, MCP_QUEUE_MAX);
+
   // R6: Enhanced health check endpoint with registry stats
   app.get("/health", async (_, res) => {
     const memUsage = process.memoryUsage();
@@ -887,12 +1061,87 @@ async function runHTTP(): Promise<void> {
       memory: { heap_used_mb: heapUsedMB, heap_total_mb: heapTotalMB, rss_mb: rssMB },
       registries: registryStats,
       total_entries: totalEntries,
+      // MCP-CONCURRENCY-HARDEN (slot golf 2026-06-09): live concurrency so the
+      // watchdog can DEFER a preemptive RSS restart while a parallel-agent burst is
+      // in flight (restarting mid-burst disconnects every live agent call at once).
+      // `inflight` = total requests in the /mcp handler (incl. queued); `active` =
+      // request-servers currently building/handling; `queued` = waiting for a slot.
+      concurrency: {
+        inflight: metrics.inflight,
+        peak_inflight: metrics.peakInflight,
+        active: mcpSem.inUse,
+        queued: mcpSem.queued,
+        max_concurrency: mcpSem.maxConcurrency,
+        max_queue: mcpSem.maxQueue,
+      },
       timestamp: new Date().toISOString()
     });
   });
 
+  // MCP-READINESS (slot alpha 2026-05-28 — U-MCPR01): /ready is a STRICTER
+  // probe than /health. /health = "port bound + registries non-empty + heap OK";
+  // /ready adds a canary lazy-import that surfaces ESM/JSON-import bugs (the
+  // exact BUG-1 / BUG-2 class from reference_mcp_server_3100_crash_fix_2026_05_22)
+  // BEFORE any chat's tool call triggers the crash. The bridge calls /ready
+  // (not /health) before forwarding the first MCP message, so a chat that
+  // initializes during the server's ~30s cold start blocks until the dispatcher
+  // module graph is verified — closing the "session-permanent drop" failure
+  // mode that the existing INIT_RETRY_BUDGET_MS retry only partially solves.
+  //
+  // Why a canary import: Node ESM module cache means the FIRST successful
+  // import warms the dispatcher for the entire process lifetime. After the
+  // first /ready 200, the import returns instantly from cache (~microseconds).
+  // We pick toolpathDispatcher.js because (a) it was the actual May 22 crash,
+  // (b) it touches a representative slice of the engine graph, (c) it's
+  // already lazy-loaded so importing here doesn't add steady-state cost.
+  let canaryImportPromise: Promise<unknown> | null = null;
+  function canaryImport(): Promise<unknown> {
+    if (canaryImportPromise) return canaryImportPromise;
+    canaryImportPromise = import("./tools/dispatchers/toolpathDispatcher.js")
+      .catch((e) => {
+        // Reset so next /ready call retries — a transient FS issue at startup
+        // shouldn't permanently mark the server as not-ready.
+        canaryImportPromise = null;
+        throw e;
+      });
+    return canaryImportPromise;
+  }
+  app.get("/ready", async (_, res) => {
+    const memUsage = process.memoryUsage();
+    const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+    const totalEntries =
+      registryManager.materials.size +
+      registryManager.machines.size +
+      registryManager.tools.size +
+      registryManager.alarms.size +
+      registryManager.formulas.size;
+    const reasons: string[] = [];
+    if (totalEntries === 0) reasons.push("registries empty");
+    if (heapUsedMB >= 3500) reasons.push(`heap pressure (${heapUsedMB}MB)`);
+    let canaryOk = true;
+    try {
+      await canaryImport();
+    } catch (e) {
+      canaryOk = false;
+      const msg = e instanceof Error ? e.message : String(e);
+      reasons.push(`canary import failed: ${msg.slice(0, 120)}`);
+    }
+    const ready = reasons.length === 0;
+    res.status(ready ? 200 : 503).json({
+      status: ready ? "ready" : "not-ready",
+      server: SERVER_NAME,
+      version: SERVER_VERSION,
+      uptime_seconds: Math.round(process.uptime()),
+      memory: { heap_used_mb: heapUsedMB },
+      total_entries: totalEntries,
+      canary_dispatcher_ok: canaryOk,
+      reasons,
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   // R6: Prometheus-compatible metrics endpoint
-  app.get("/metrics", async (_, res) => {
+  app.get("/metrics", async (req, res) => {
     const mem = process.memoryUsage();
     const up = process.uptime();
     const rs = {
@@ -924,10 +1173,22 @@ async function runHTTP(): Promise<void> {
       `prism_registry_total ${Object.values(rs).reduce((a, b) => a + b, 0)}`,
     ];
     
+    // OBSERVABILITY-MS0 (slot:bravo 2026-05-30): GET /metrics?format=json returns a
+    // richer per-tool snapshot (counts, p50/p95/p99 latency, error rate, concurrency).
+    if (req.query && req.query.format === "json") {
+      res.json({ registries: rs, ...metrics.snapshot() });
+      return;
+    }
     res.set('Content-Type', 'text/plain; version=0.0.4');
-    res.send(lines.join('\n') + '\n');
+    res.send(lines.join('\n') + '\n' + metrics.prometheus() + '\n');
   });
   
+  // OBSERVABILITY-MS0 (slot:bravo 2026-05-30): live auto-refreshing HTML view of /metrics.
+  app.get("/metrics/view", (_, res) => {
+    res.set("Content-Type", "text/html; charset=utf-8");
+    res.send(metricsViewHtml());
+  });
+
   // .well-known/mcp.json — MCP Registry Discovery (RFC 9110 §4.1)
   app.get("/.well-known/mcp.json", (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
@@ -943,15 +1204,130 @@ async function runHTTP(): Promise<void> {
 
   // MCP Streamable HTTP — POST (JSON-RPC requests)
   app.post("/mcp", async (req, res) => {
+    // OBSERVABILITY-MS0 (slot:bravo 2026-05-30): instrument every MCP request at the
+    // single choke point — per-tool count/latency + live/peak concurrency. Wrapped so
+    // a telemetry bug can never alter dispatch behavior (collector never throws).
+    const _m0 = Date.now();
+    const _method = (req.body && typeof req.body.method === "string") ? req.body.method : "(none)";
+    const _tool = (_method === "tools/call" && req.body && req.body.params && typeof req.body.params.name === "string")
+      ? req.body.params.name
+      : _method;
+    metrics.recordMethod(_method);
+    metrics.incInflight();
+    // Error capture (tools/call only): tap the response body to detect JSON-RPC
+    // protocol errors AND MCP isError results (both return HTTP 200). Bounded to
+    // 128KB and fully fail-safe — always calls the original write/end, never throws.
+    const _isCall = _method === "tools/call";
+    const _chunks: Buffer[] = [];
+    let _blen = 0;
+    const _CAP = 131072;
+    if (_isCall) {
+      const _ow = res.write.bind(res);
+      const _oe = res.end.bind(res);
+      const _grab = (c: unknown) => {
+        try {
+          if (c && typeof c !== "function" && _blen < _CAP) {
+            const b = Buffer.isBuffer(c) ? c : typeof c === "string" ? Buffer.from(c) : null;
+            if (b) {
+              _chunks.push(b);
+              _blen += b.length;
+            }
+          }
+        } catch {
+          /* never break the response */
+        }
+      };
+      (res as any).write = (c: any, ...a: any[]) => {
+        _grab(c);
+        return _ow(c, ...a);
+      };
+      (res as any).end = (c: any, ...a: any[]) => {
+        _grab(c);
+        return _oe(c, ...a);
+      };
+    }
+    res.on("finish", () => {
+      let _ok = res.statusCode < 400;
+      try {
+        if (_isCall && _blen > 0 && _blen < _CAP) {
+          const p = JSON.parse(Buffer.concat(_chunks).toString("utf8"));
+          if (p && (p.error || (p.result && p.result.isError === true))) _ok = false;
+        }
+      } catch {
+        /* unparseable / oversized body -> fall back to statusCode */
+      }
+      metrics.recordTool(_tool, Date.now() - _m0, _ok);
+    });
+    res.on("close", () => metrics.decInflight());
+
+    // MCP-CONCURRENCY-HARDEN (slot golf 2026-06-09): bound the number of fresh
+    // McpServers built/handled at once (see mcpSem above). acquireRequestSlot() caps
+    // + queues the builds and load-sheds (503) past the queue so a burst applies
+    // backpressure instead of OOMing the process, and frees the slot exactly once
+    // even when the client disconnects WHILE queued (the close-while-queued leak
+    // caught by the 3-of-3 reviewers B + C on the first cut). Outcomes: "shed" -> 503;
+    // "abandoned" -> client already gone, slot released, just return; "proceed" -> do
+    // the work (release is wired to res 'close' inside the helper).
+    const _slot = await acquireRequestSlot(mcpSem, res);
+    if (_slot.outcome === "shed") {
+      if (!res.headersSent) {
+        res.status(503).json({
+          jsonrpc: "2.0",
+          error: {
+            code: -32000,
+            message: `server busy: concurrency ${mcpSem.maxConcurrency} + queue ${mcpSem.maxQueue} saturated, retry`,
+          },
+          id: (req.body && (req.body as any).id) ?? null,
+        });
+      } else {
+        try { res.end(); } catch { /* best-effort */ }
+      }
+      return; // res.on("close") metrics.decInflight() above still fires
+    }
+    if (_slot.outcome === "abandoned") {
+      // Client disconnected while queued; the granted slot was already released and
+      // decInflight fired on the earlier 'close'. Skip the wasted buildRequestServer().
+      return;
+    }
+
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true
     });
-    
-    res.on("close", () => transport.close());
-    
-    await server.connect(transport);
-    await transport.handleRequest(req, res, req.body);
+
+    // MCP-CONCURRENCY-FIX (2026-05-31): build a FRESH McpServer per request instead of
+    // connecting the shared module-level server. The SDK allows ONE transport per server;
+    // a shared server + overlapping requests => the 2nd server.connect() throws "Already
+    // connected" before handleRequest => client gets NO response => "MCP DISCONNECTED".
+    let reqServer: McpServer;
+    try {
+      reqServer = await buildRequestServer();
+    } catch (e) {
+      if (!res.headersSent) {
+        res.status(500).json({
+          jsonrpc: "2.0",
+          error: { code: -32000, message: `server build failed: ${(e as Error).message}` },
+          id: (req.body && (req.body as any).id) ?? null,
+        });
+      }
+      return; // the res.on("close") metrics.decInflight() wired above still fires
+    }
+
+    res.on("close", () => {
+      try { transport.close(); } catch { /* best-effort */ }
+      try { (reqServer as any).close?.(); } catch { /* best-effort */ }
+    });
+
+    try {
+      await reqServer.connect(transport);
+      await transport.handleRequest(req, res, req.body);
+    } catch (e) {
+      // Transport errors were previously the LAST statements of this async
+      // handler with no catch -> escaped as process-level unhandledRejections
+      // (invisible to operators; mid-write left a half-emitted response). The
+      // res.on("close") cleanup above still fires for slot release.
+      respondTransportError(res, e, (req.body && (req.body as any).id) ?? null);
+    }
   });
 
   // MCP Streamable HTTP — GET (SSE stream for server-initiated messages)
@@ -989,6 +1365,10 @@ async function runHTTP(): Promise<void> {
       const text = result?.content?.[0]?.text;
       return text ? JSON.parse(text) : result;
     } catch (e: any) {
+      // callTool backs ALL 42 REST routes; a dispatcher/engine throw here
+      // previously returned a bare {error} to the client with ZERO server-side
+      // record of which tool/action failed or the stack. Log, shape unchanged.
+      log.error("[CALL_TOOL] dispatcher error", { toolName, action, message: e?.message, stack: e?.stack });
       return { error: e.message };
     }
   }
@@ -1026,6 +1406,36 @@ async function runHTTP(): Promise<void> {
     log.info(`MCP server running on http://${host}:${port}/mcp`);
   });
 
+  // HARDEN (golf 2026-06-02 MCP-HARDEN) FIX 1 — bind-fail-fast. Without this an
+  // EADDRINUSE on a bind-race loser was unhandled and the process hung resident
+  // (~700MB, all engines loaded) instead of exiting → the 11-instance pileup that
+  // took :3100 down fleet-wide. exit(0) on EADDRINUSE = "a peer already owns the
+  // port, which is success for the fleet" → does NOT trip the supervisor backoff/
+  // respawn loop. Any other listen error is fatal (exit 1) so the supervisor restarts.
+  httpServer.on("error", (e: NodeJS.ErrnoException) => {
+    if (e.code === "EADDRINUSE") {
+      log.warn(`[BIND] :${port} already owned by a peer MCP server — exiting cleanly (no leak)`);
+      process.exit(0);
+    }
+    log.error(`[BIND] listen failed on :${port}: ${e?.message ?? e}`);
+    process.exit(1);
+  });
+
+  // §4b HTTP keep-alive tuning (MCP-CONCURRENCY-FIX): hold idle keep-alive connections
+  // longer than typical client idle, no per-request timeout (long-running tool calls must
+  // not be severed mid-flight), and raise the concurrent-connection cap for the 26-chat fleet.
+  // maxConnections sizing (MCP-FLEET-CAPACITY-MS0, 2026-06-08): 26 slots × ~4 concurrent
+  // /mcp calls ≈ 104, PLUS spawned subagents/workflows (a workflow fans out up to 16
+  // concurrent agents, each able to call MCP, across multiple looping slots) → realistic
+  // peak 300-400. 512 gives clean headroom; idle keep-alive sockets are cheap (~few KB
+  // each, far below the 384MB-capped heap). The per-request buildRequestServer() factory
+  // (above) already isolates concurrent requests, so this is purely a socket ceiling.
+  // Override fleet-wide via PRISM_MCP_MAX_CONNECTIONS.
+  httpServer.keepAliveTimeout = 65_000;
+  httpServer.headersTimeout = 70_000;
+  httpServer.requestTimeout = 0;
+  httpServer.maxConnections = Number(process.env.PRISM_MCP_MAX_CONNECTIONS) || 512;
+
   // RT-MS0: Attach WebSocket server alongside HTTP
   const { webSocketEngine } = await import("./engines/WebSocketEngine.js");
   webSocketEngine.attach(httpServer);
@@ -1059,7 +1469,15 @@ async function main(): Promise<void> {
       await runStdio();
     }
   } catch (error) {
-    log.error("Server startup failed", error);
+    // R12 fail-loud (2026-06-13, slot:bravo): an Error object passed as the 2nd
+    // arg serialized to `{}` in the logs, hiding every boot-crash cause fleet-wide.
+    // Embed the real stack/message in the message string so the actual failure
+    // is always visible (this swallow took the whole fleet's :3100 MCP down blind).
+    const detail =
+      error instanceof Error
+        ? (error.stack || `${error.name}: ${error.message}`)
+        : (typeof error === "string" ? error : JSON.stringify(error));
+    log.error(`Server startup failed: ${detail}`);
     process.exit(1);
   }
 }
@@ -1072,6 +1490,13 @@ process.on("uncaughtException", (error) => {
 
 process.on("unhandledRejection", (reason) => {
   log.error("Unhandled rejection", reason as Error);
+  // Opt-in fail-loud (R12): an unhandled rejection is usually a real bug. Default
+  // OFF -> log-only (byte-identical to prior behavior). Set
+  // PRISM_MCP_FATAL_REJECTIONS=1 to treat it as fatal -> graceful shutdown +
+  // supervisor restart, matching the uncaughtException handler above.
+  if (process.env.PRISM_MCP_FATAL_REJECTIONS === "1") {
+    gracefulShutdown("unhandledRejection");
+  }
 });
 
 // H1-1: Graceful shutdown — persist MemGraph + telemetry on exit

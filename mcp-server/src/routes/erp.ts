@@ -145,6 +145,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   router.post("/job-time-stop", verifyToken, validateTimestamp, requireSelfOrAdmin, bizRoute(callTool, "job_time_stop"));
   router.post("/timecard", verifyToken, bizRoute(callTool, "timecard_summary"));
   router.post("/attendance", verifyToken, bizRoute(callTool, "attendance_report"));
+  router.post("/commission-report", verifyToken, bizRoute(callTool, "commission_report"));
   router.get("/who-clocked-in", verifyToken, bizGet(callTool, "who_clocked_in"));
   router.get("/active-jobs/:employeeId", verifyToken, async (req, res) => {
     try {

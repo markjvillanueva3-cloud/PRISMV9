@@ -465,3 +465,42 @@ describe("calc: torque", () => {
     }
   });
 });
+
+// ============================================================================
+// tool_catalog_corpus_stats / tool_catalog_load_corpus — CatalogCorpusLoader
+// (R15: round-trip the keystone THROUGH the dispatcher, not just the singleton)
+// ============================================================================
+
+describe("calc: tool_catalog_corpus_stats", () => {
+  it("returns the real declared corpus size through the dispatcher", async () => {
+    const r = await callAction(calc, "tool_catalog_corpus_stats", {});
+    expect(r.error ?? null).toBeNull(); // dispatcher must not error on this action
+    // WHY: proves the corpus manifest is reachable via prism_calc, not just the engine.
+    expect(r.declaredFiles).toBeGreaterThanOrEqual(48);
+    expect(r.declaredEntries).toBeGreaterThanOrEqual(50_000);
+    expect(r.manufacturers).toBeGreaterThanOrEqual(20);
+  });
+});
+
+describe("calc: tool_catalog_load_corpus", () => {
+  it("dry-run loads the full vendor corpus through the dispatcher (>=45K deduped real tools)", async () => {
+    const r = await callAction(calc, "tool_catalog_load_corpus", { dryRun: true });
+    expect(r.error ?? null).toBeNull();
+    // WHY: the literal goal — corpus reaches a dispatcher action that app exports + SFC can call.
+    expect(r.filesFailed).toBe(0);
+    // U-DBCON-DEDUP (2026-06-12): corpus normalizes ~49,789 now (was ~67K) — the loader skips the
+    // 3 *-extracted.json twins that were 100%-redundant with their richer .ts-getter caches
+    // (17,389 exact dups). Floor kept meaningfully above the deduped size, not the old inflated 60K.
+    expect(r.toolsNormalized).toBeGreaterThanOrEqual(45_000);
+    // no fabrication / no silent drop, end-to-end through the dispatcher
+    const totalRead = r.perFile.reduce((a: number, f: any) => a + f.read, 0);
+    expect(r.toolsNormalized + r.skipped).toBe(totalRead);
+  });
+
+  it("a single-vendor load feeds the runtime catalog (Korloy — previously dormant)", async () => {
+    const r = await callAction(calc, "tool_catalog_load_corpus", { onlyManufacturer: "Korloy" });
+    expect(r.error ?? null).toBeNull();
+    // added>0 OR (added==0 && duplicates>0) — either way the vendor reached the catalog.
+    expect(r.added + r.duplicates).toBeGreaterThan(0);
+  });
+});

@@ -173,6 +173,96 @@ const metric_export = z.object({}).passthrough().describe("Export all metrics as
 const metric_reset = z.object({}).passthrough().describe("Clear ALL metrics state (counters/gauges/histograms/labels) — destructive, no params");
 
 // ============================================================================
+// PAGERDUTY ALERTS (9 actions) — incident alerting / RACI / escalation / runbook
+// PagerDutyAlertsEngine wired by WIRE-UNWIRED loop (U-PD-WIRE, 2026-05-17 foxtrot)
+// Engine origin: LATHE-PROD-READY-MS0/U-LPR-OBS3 (PHASE-10 Observability + SLO)
+// ============================================================================
+
+const pdAlertSeverity = z.enum(["critical", "error", "warning", "info"]);
+const pdAlertStatus = z.enum(["triggered", "acknowledged", "resolved"]);
+
+const pdRaci = z.object({
+  responsible: z.array(z.string()).describe("Who does the work"),
+  accountable: z.string().describe("Who is ultimately accountable"),
+  consulted: z.array(z.string()).describe("Who should be asked for input"),
+  informed: z.array(z.string()).describe("Who should be notified"),
+});
+
+const pdCondition = z.object({
+  metric: z.string().min(1).describe("Metric identifier"),
+  operator: z.enum(["gt", "lt", "eq", "ne", "gte", "lte"]).describe("Comparison operator"),
+  threshold: z.number().describe("Threshold value the metric is compared against"),
+  duration: z.number().optional().describe("Required sustained duration in seconds"),
+  labels: z.record(z.string(), z.string()).optional().describe("Label-set filter"),
+});
+
+const pdAlertRule = z.object({
+  id: z.string().min(1).describe("Stable rule identifier"),
+  name: z.string().min(1).describe("Human-readable rule name"),
+  description: z.string().describe("Rule purpose / what it catches"),
+  condition: pdCondition.describe("Trigger condition (metric/operator/threshold)"),
+  severity: pdAlertSeverity.describe("Alert severity tier"),
+  routingKey: z.string().describe("PagerDuty routing key for this rule"),
+  escalationPolicy: z.string().optional().describe("Escalation policy id (defaults to engine default)"),
+  runbookUrl: z.string().optional().describe("URL to runbook for responders"),
+  raci: pdRaci.describe("RACI assignment for this alert"),
+  tags: z.array(z.string()).describe("Searchable tag set"),
+  enabled: z.boolean().describe("Whether rule fires (false = disabled, retained for audit)"),
+  suppressDuplicatesFor: z.number().optional().describe("Dedup window in seconds"),
+  maintenanceWindows: z.array(z.string()).optional().describe("Window IDs to skip during"),
+});
+
+const pd_register_rule = z.object({
+  rule: pdAlertRule.describe("AlertRule payload to register"),
+}).passthrough();
+
+const pd_register_standard_rules = z.object({}).passthrough().describe(
+  "Bulk-register the 6 PRISM-canonical rules (lora-autorollback, tenant-isolation-breach, sim-false-negative, mtconnect-stream-loss, program-gen-slo-breach, safety-score-critical). Idempotent — already-registered rules are skipped. No params.",
+);
+
+const pd_trigger_alert = z.object({
+  ruleId: z.string().min(1).describe("Rule id to trigger (must be previously registered)"),
+  summary: z.string().min(1).describe("Short human-readable description of the incident"),
+  source: z.string().min(1).describe("Where the alert originated (hostname, engine name, pipeline id)"),
+  component: z.string().optional().describe("Sub-system inside the source"),
+  group: z.string().optional().describe("Grouping label (often a fleet/cluster name)"),
+  customDetails: z.record(z.string(), z.any()).optional().describe("Free-form payload for the alert"),
+  links: z.array(z.object({
+    href: z.string().min(1).describe("Link target URL"),
+    text: z.string().min(1).describe("Display text for the link"),
+  })).optional().describe("Additional links to surface on the incident"),
+}).passthrough();
+
+const pd_acknowledge_alert = z.object({
+  dedupKey: z.string().min(1).describe("Dedup key of the alert to acknowledge"),
+  acknowledgedBy: z.string().min(1).describe("Identifier of the human/agent acknowledging"),
+}).passthrough();
+
+const pd_resolve_alert = z.object({
+  dedupKey: z.string().min(1).describe("Dedup key of the alert to resolve"),
+  resolvedBy: z.string().min(1).describe("Identifier of the human/agent resolving"),
+}).passthrough();
+
+const pd_list_active_alerts = z.object({
+  status: pdAlertStatus.optional().describe("Restrict to alerts with this status"),
+  severity: pdAlertSeverity.optional().describe("Restrict to alerts with this severity"),
+  ruleId: z.string().optional().describe("Restrict to alerts produced by this rule"),
+}).passthrough();
+
+const pd_get_stats = z.object({}).passthrough().describe(
+  "Snapshot of aggregate alert stats (total/active/acknowledged/resolved counts, per-severity, per-rule, mean ack/resolve times, suppressed count). No params.",
+);
+
+const pd_build_event_payload = z.object({
+  dedupKey: z.string().min(1).describe("Dedup key of the alert whose payload is being built"),
+  eventAction: z.enum(["trigger", "acknowledge", "resolve"]).describe("PagerDuty event action this payload represents"),
+}).passthrough();
+
+const pd_get_runbook = z.object({
+  ruleId: z.string().min(1).describe("Rule id whose runbook URL is being requested"),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -195,4 +285,14 @@ export const ACTION_MONITORING_SCHEMAS: ActionSchemaMap = {
   metric_get_histogram,
   metric_export,
   metric_reset,
+  // ── PagerDuty Alerts (9) — U-PD-WIRE
+  pd_register_rule,
+  pd_register_standard_rules,
+  pd_trigger_alert,
+  pd_acknowledge_alert,
+  pd_resolve_alert,
+  pd_list_active_alerts,
+  pd_get_stats,
+  pd_build_event_payload,
+  pd_get_runbook,
 };

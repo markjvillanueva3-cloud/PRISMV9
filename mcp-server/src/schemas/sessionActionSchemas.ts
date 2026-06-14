@@ -60,6 +60,30 @@ const state_reconstruct = z.object({
 }).passthrough();
 
 // ============================================================================
+// SESSION REPLAY (4 actions — git-backed context reconstruction)
+// Backed by SessionReplayEngine. Complements state_reconstruct/quick_resume
+// (which read JSON state files) by sourcing context from git history — the
+// source of truth when JSON state is stale after /compact or crash.
+// Token win: ~200-token replay summaries replace 2000+ token transcript reads.
+// ============================================================================
+
+/** replay_context — Compact "where was I?" object from recent git activity */
+const replay_context = z.object({
+  max_commits: z.number().int().positive().max(50).optional().describe(
+    "Max recent commits to summarize (default 5; max 50)"
+  ),
+}).passthrough();
+
+/** replay_resume_line — One-liner resume summary derived from git */
+const replay_resume_line = z.object({}).passthrough();
+
+/** replay_working_set — Current uncommitted changes (staged/modified/untracked) */
+const replay_working_set = z.object({}).passthrough();
+
+/** replay_diff_summary — git diff --stat for the last 3 commits */
+const replay_diff_summary = z.object({}).passthrough();
+
+// ============================================================================
 // SESSION LIFECYCLE (6 actions)
 // ============================================================================
 
@@ -475,6 +499,45 @@ const cross_session_get_status_line = z.object({}).passthrough();
 // EXPORT MAP
 // ============================================================================
 
+// ============================================================================
+// OPERATOR PREFERENCES (3 actions — U-WIRE-OPERATOR-PREFS, slot:romeo)
+// ============================================================================
+
+const operatorPreferencesObject = z.object({
+  operatorId: z.string().min(1),
+  tenantId: z.string().min(1),
+  speedFeedBias: z.enum(["conservative", "balanced", "aggressive"]),
+  surfaceFinishPriority: z.enum(["low", "medium", "high", "critical"]),
+  cycleTimeVsToolLife: z.enum(["favor_cycle", "balanced", "favor_tool_life"]),
+  coolantPreference: z.enum(["flood", "mist", "air", "through_tool", "machine_default"]),
+  safetyMarginPercent: z.number(),
+  maxSpindleRpmOverride: z.number().optional(),
+  maxFeedrateOverride_mmpm: z.number().optional(),
+  chipBreakStrategy: z.enum(["standard", "aggressive_peck", "high_pressure_coolant"]),
+  notificationPreferences: z.object({
+    toolChangeAlerts: z.boolean(),
+    cycleCompleteAlerts: z.boolean(),
+    qualityCheckReminders: z.boolean(),
+    maintenanceReminders: z.boolean(),
+  }),
+  machineNotes: z.record(z.string(), z.string()),
+}).passthrough();
+
+/** operator_prefs_set — store/update per-operator preferences */
+const operator_prefs_set = z.object({ preferences: operatorPreferencesObject }).passthrough();
+/** operator_prefs_get — fetch operator preferences (optionally fall back to engine defaults) */
+const operator_prefs_get = z.object({
+  tenantId: z.string().min(1),
+  operatorId: z.string().min(1),
+  withDefaults: optBool,
+}).passthrough();
+/** operator_prefs_apply — apply operator preference overrides to base calc params */
+const operator_prefs_apply = z.object({
+  tenantId: z.string().min(1),
+  operatorId: z.string().min(1),
+  baseParams: z.record(z.string(), z.unknown()),
+}).passthrough();
+
 export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   // State management
   state_load,
@@ -493,6 +556,16 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   handoff_prepare,
   handoff_write,
   handoff_read,
+  // U-WIRE-OPERATOR-PREFS (slot:romeo)
+  operator_prefs_set,
+  operator_prefs_get,
+  operator_prefs_apply,
+
+  // Session replay (SessionReplayEngine — git-backed, complements quick_resume)
+  replay_context,
+  replay_resume_line,
+  replay_working_set,
+  replay_diff_summary,
 
   // Memory
   memory_save,
@@ -622,6 +695,27 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
    * BUILD_STATE classification. Each hit carries provenance + utilization
    * (log-normalized in-degree) + buildClass. Use INSTEAD OF Grep/Glob/Agent.
    */
+  // PSN-ENHANCE-MS0/U-PSN-HYBRID-MCP-WIRE (sierra iter26 2026-05-25):
+  // wraps scripts/lib/hybrid-retrieval.mjs::hybridSearch — one query, four PSN
+  // retrieval substrates (memory-index BM25 + master-index BM25 + graphiti
+  // episode + Qdrant dense), Reciprocal Rank Fusion k=60.
+  hybrid_search: z.object({
+    query: optStr.describe("Natural-language search text (required)"),
+    q: optStr.describe("Alias for query"),
+    top_k: z.union([z.string(), z.number()]).optional()
+      .describe("Final result count (default 10)"),
+    per_source: z.union([z.string(), z.number()]).optional()
+      .describe("Cap per substrate before fusion (default 20)"),
+    no_memory: z.boolean().optional().describe("Drop memory-index leg"),
+    no_master: z.boolean().optional().describe("Drop master-index leg"),
+    no_episode: z.boolean().optional().describe("Drop episode-store leg"),
+    no_vector: z.boolean().optional().describe("Drop Qdrant dense vector leg"),
+    collection: z.string().optional().describe("Qdrant collection (default prism_engines)"),
+    qdrant_url: z.string().optional().describe("Qdrant base URL (default http://localhost:6333)"),
+    ollama_url: z.string().optional().describe("Ollama embeddings URL (default http://localhost:11434/api/embeddings)"),
+    model: z.string().optional().describe("Embedding model (default nomic-embed-text)"),
+  }),
+
   master_index_query: z.object({
     query: optStr.describe("Natural-language search text (capped at 500 chars)"),
     q: optStr.describe("Alias for query"),
@@ -639,6 +733,16 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     build_classes: z.array(z.enum([
       "wired", "unwired", "pending", "frontend", "unknown",
     ])).optional().describe("Filter by BUILD_STATE classification"),
+    // BACKEND-DEV-LOOP/U-MIQ-STOPWORDS-CONFIG (iter-2, 2026-05-18):
+    // Default behavior unchanged when unset (full STOPWORDS_DEFAULT). 'minimal'
+    // drops only English noise so PRISM-meta tokens (engine/system/wiki/memory/
+    // prism/feature/node/label/info) reach the inverted index — required for
+    // queries that actually want to find an engine called "Engine". 'off'
+    // disables filtering. A `string[]` defines a custom set.
+    stopwords: z.union([
+      z.enum(["default", "minimal", "off"]),
+      z.array(z.string()),
+    ]).optional().describe("Tokenization stopword mode: 'default'|'minimal'|'off'|string[]"),
   }).passthrough(),
 
   /**
@@ -663,6 +767,23 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
       .describe("Restrict to graph layers (e.g., ['L4','L5'])"),
     exclude_layers: z.array(z.string()).optional()
       .describe("Exclude layers (default ['L9','L11'] — fs noise)"),
+  }).passthrough(),
+
+  /**
+   * doc_nodes — REVERSE of node_card (CHEAP-NODE-ACCESS-MS0 · U-VBL-DISPATCHER).
+   * Given a vault doc, list the live graph node(s) that document it (then
+   * node_card <id> for the node's state). Reads the inverted vault-backlinks.json
+   * via the single-source CLI — never the 644MB graph. `doc` is the canonical
+   * field; query/q/key/path/slug are accepted aliases (resolved in the action).
+   */
+  doc_nodes: z.object({
+    doc: z.string().min(1).optional()
+      .describe("Vault doc key — a wiki path ('architecture/foo' or full 'knowledge/wiki/...md') or a memory slug ('feedback_psn_definition')"),
+    query: optStr.describe("Alias for doc"),
+    q: optStr.describe("Alias for doc"),
+    key: optStr.describe("Alias for doc"),
+    path: optStr.describe("Alias for doc"),
+    slug: optStr.describe("Alias for doc"),
   }).passthrough(),
 
   /**
@@ -832,4 +953,142 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
     policy: z.enum(["last-writer", "first-writer", "human-arbitrate"]).optional()
       .describe("Resolution policy (default last-writer)"),
   }).strict(),
+
+  // ==========================================================================
+  // U-BRIDGE-WIRE-AGENT (oscar 2026-05-23) — 9 actions for 2 unwired Agent engines
+  // ==========================================================================
+  // AgentAutoUpdateEngine — agent-knowledge sync surface (5 actions)
+  agent_knowledge_scan: z.object({}).passthrough(),
+  agent_knowledge_snapshot: z.object({}).passthrough(),
+  agent_knowledge_recent: z.object({
+    count: z.number().int().positive().max(1000).optional()
+      .describe("Max recent update events to return (default 10)"),
+  }).passthrough(),
+  agent_knowledge_context_string: z.object({}).passthrough(),
+  agent_knowledge_rescan: z.object({}).passthrough(),
+
+  // AgentWorkflowEngine — autonomous workflow lifecycle surface (4 actions)
+  agent_workflow_list: z.object({}).passthrough(),
+  agent_workflow_start: z.object({
+    workflow_id: z.string().min(1)
+      .describe("Workflow template id (see agent_workflow_list)"),
+    context: z.record(z.string(), z.unknown()).optional()
+      .describe("Initial workflow context (free-form key/value)"),
+    options: z.record(z.string(), z.unknown()).optional()
+      .describe("Execution options (e.g., auto_approval_threshold)"),
+  }).passthrough(),
+  agent_workflow_status: z.object({
+    instance_id: z.string().min(1).optional()
+      .describe("Workflow instance id — omit to list running+completed counts"),
+  }).passthrough(),
+  agent_workflow_cancel: z.object({
+    instance_id: z.string().min(1)
+      .describe("Workflow instance id to cancel"),
+  }).passthrough(),
+
+  // ==========================================================================
+  // U-BRIDGE-WIRE-CROSS (oscar 2026-05-23) — 6 actions for 2 unwired Cross engines
+  // ==========================================================================
+  // CrossCAMComparisonLedgerEngine — per-cell Wilson-bound CAM leaderboard (5 actions)
+  cross_cam_ledger_record: z.object({
+    cam_system: z.string().min(1)
+      .describe("CAM system identifier (e.g., mastercam, hyperMILL, fusion360)"),
+    feature_class: z.string().min(1)
+      .describe("Feature classification (e.g., pocket, contour, drill)"),
+    material_class: z.string().min(1)
+      .describe("Material classification (e.g., aluminum, steel, titanium)"),
+    machine_class: z.string().min(1)
+      .describe("Machine classification (e.g., 3axis_mill, lathe, 5axis)"),
+    success: z.union([z.literal(0), z.literal(1), z.boolean()])
+      .describe("1/true if CAM matched observed reality within tolerance; 0/false otherwise"),
+    observed_at: z.string().min(1).optional()
+      .describe("ISO-8601 observation timestamp (defaults to now)"),
+  }).passthrough(),
+  cross_cam_ledger_leaderboard: z.object({
+    feature_class: z.string().min(1)
+      .describe("Feature class of the cell"),
+    material_class: z.string().min(1)
+      .describe("Material class of the cell"),
+    machine_class: z.string().min(1)
+      .describe("Machine class of the cell"),
+  }).passthrough(),
+  cross_cam_ledger_by_cam: z.object({
+    cam_system: z.string().min(1)
+      .describe("CAM system identifier to fetch all cells for"),
+  }).passthrough(),
+  cross_cam_ledger_stats: z.object({}).passthrough(),
+  cross_cam_ledger_reset: z.object({}).passthrough(),
+
+  // CrossToolCouplingEngine — multi-tool modal coupling analysis (1 action)
+  cross_tool_coupling_analyze: z.object({
+    input: z.object({
+      tools: z.array(z.unknown()).min(1)
+        .describe("Tool stations (>=1; analyze() falls back to single-tool for n<2)"),
+      workpiece: z.record(z.string(), z.unknown())
+        .describe("WorkpieceProperties (material, modulus, geometry, dimensions)"),
+      fixture: z.record(z.string(), z.unknown())
+        .describe("FixtureProperties (type, stiffness, damping, support points)"),
+    }).optional().describe("Wrapped CouplingInput (or pass tools/workpiece/fixture at root)"),
+    tools: z.array(z.unknown()).optional()
+      .describe("Tool stations (alternative root-level path; preferred when no input wrapper)"),
+    workpiece: z.record(z.string(), z.unknown()).optional()
+      .describe("WorkpieceProperties (root-level alternative)"),
+    fixture: z.record(z.string(), z.unknown()).optional()
+      .describe("FixtureProperties (root-level alternative)"),
+  }).passthrough(),
+
+  // ==========================================================================
+  // U-BRIDGE-WIRE-LIVE (oscar 2026-05-23 iter3) — 3 actions for 3 unwired Live engines
+  // ==========================================================================
+  live_tooling_analyze_driven: z.object({
+    operation: z.record(z.string(), z.unknown())
+      .describe("LiveToolingOperation: { material, type, diameter_mm, depth_mm, width_mm, ... }"),
+    config: z.record(z.string(), z.unknown())
+      .describe("LiveToolingConfig: { maxDrivenRpm, drivenPower_kW, drivenTorque_Nm, ... }"),
+  }).passthrough(),
+  live_tooling_controller_capabilities: z.object({
+    controller: z.enum(["okuma", "fanuc", "mazak", "dmg", "haas", "doosan"])
+      .describe("Lathe controller type"),
+  }).passthrough(),
+  live_turret_validate_kinematics: z.object({
+    kinematics: z.record(z.string(), z.unknown()).optional()
+      .describe("MachineKinematics: { hasCAxis, maxLiveToolRpm, cAxisRange_deg, ... }"),
+    hasCAxis: z.boolean().optional()
+      .describe("Root-level alternative: C-axis capability"),
+    maxLiveToolRpm: z.number().optional()
+      .describe("Root-level alternative: max live-tool RPM"),
+    cAxisRange_deg: z.number().optional()
+      .describe("Root-level alternative: C-axis range in degrees"),
+  }).passthrough(),
+
+  // ==========================================================================
+  // U-BRIDGE-WIRE-INVENTOR (oscar 2026-05-23 iter4) — 5 actions for 3 unwired Inventor engines
+  // ==========================================================================
+  inventor_cad_list_modules: z.object({}).passthrough(),
+  inventor_cad_get_module_entry: z.object({
+    module_id: z.string().min(1)
+      .describe("Inventor CAD module identifier (e.g., sketch_operations)"),
+  }).passthrough(),
+  inventor_cam_list_strategies: z.object({
+    category: z.string().min(1).optional()
+      .describe("Optional HSMCategory filter (2d, 3d, drilling, multiaxis, turning)"),
+  }).passthrough(),
+  inventor_cam_get_strategy_params: z.object({
+    strategy_name: z.string().min(1)
+      .describe("HSM strategy name (e.g., adaptive2d, contour, pocket)"),
+  }).passthrough(),
+  inventor_cam_get_templates: z.object({
+    category: z.string().min(1).optional()
+      .describe("Optional TemplateCategory filter (sketch, feature, assembly, ilogic, post)"),
+  }).passthrough(),
+
+  // ==========================================================================
+  // U-BRIDGE-WIRE-PRINT-PARTIAL (oscar 2026-05-23 iter5) — 3 actions for 2 Print engines
+  // ==========================================================================
+  print_corpus_all_shas: z.object({}).passthrough(),
+  print_corpus_total_count: z.object({}).passthrough(),
+  print_stall_stats: z.object({
+    now_ms: z.number().nonnegative().optional()
+      .describe("Optional epoch-ms — when supplied, statsAt(now) populates currently_stalled"),
+  }).passthrough(),
 };

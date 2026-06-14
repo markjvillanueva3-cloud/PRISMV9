@@ -13,17 +13,17 @@
 // ::1, but Ollama binds IPv4-only → ECONNREFUSED. Override with OLLAMA_URL.
 const OLLAMA_BASE_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
 const DEFAULT_TIMEOUT_MS = 500;
-const DEFAULT_MODEL = 'qwen2.5-coder:7b';
+const DEFAULT_MODEL = 'qwen2.5-coder:32b';
 
 // Model selection per hook type (matches OllamaHookBridgeEngine)
 const HOOK_MODELS = {
-  grep_index: 'qwen2.5-coder:7b',
-  mcp_route: 'qwen2.5-coder:7b',
-  ai_feature: 'qwen2.5-coder:14b',
-  code_explain: 'qwen2.5-coder:14b',
-  pattern_match: 'qwen2.5-coder:7b',
-  validation: 'qwen2.5-coder:7b',
-  general: 'qwen2.5-coder:7b',
+  grep_index: 'qwen2.5-coder:32b',
+  mcp_route: 'qwen2.5-coder:32b',
+  ai_feature: 'qwen2.5-coder:32b',
+  code_explain: 'qwen2.5-coder:32b',
+  pattern_match: 'qwen2.5-coder:32b',
+  validation: 'qwen2.5-coder:32b',
+  general: 'qwen2.5-coder:32b',
 };
 
 // System prompts per hook type (matches OllamaHookBridgeEngine)

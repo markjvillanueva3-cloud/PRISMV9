@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>CNC-Calc Post Processor_Basic configuration</title>
+<style>body{font:14px/1.5 system-ui,-apple-system,sans-serif;max-width:960px;margin:2em auto;padding:0 1em;background:#0d1117;color:#c9d1d9}h1{font-size:1.4em;border-bottom:1px solid #30363d;padding-bottom:.4em}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3em 1em}dt{font-weight:600;color:#8b949e}pre{white-space:pre-wrap;word-wrap:break-word;background:#161b22;padding:1em;border:1px solid #30363d;border-radius:6px;font-size:13px}</style>
+</head><body>
+<h1>CNC-Calc Post Processor_Basic configuration</h1>
+<dl>
+<dt>Domain</dt><dd>cam</dd>
+<dt>Software</dt><dd>mastercam</dd>
+<dt>Path</dt><dd><code>MasterCam/MASTERCAM/mcamX8/compressed/common/Editors/CIMCOEdit7/Posts/CNC-Calc Post Processor_Basic configuration.pdf</code></dd>
+<dt>Pages</dt><dd>4</dd>
+<dt>Text chars</dt><dd>6597</dd>
+</dl>
+<h2>Extracted text</h2>
+<pre>Page 1 of 4
+Basic conϐiguration of the CNC-Calc post processor using the Global
+variables section
+One of the new features in CNC-Calc ver. 7 is the addiƟŽŶ of a Post Processor. This makes it possible
+for the end user to format the created NC program.
+The Post Processors are ǁƌŝƩĞŶ in Java Script. Java script was selected because it made it possible to
+ĚĞĮŶĞ variables with both global and local scopes. It also gives the end user the possibility to declare
+and deĮne funcƟons that can be used in ĨŽƌŵĂƫng and calculaƟŽŶ͘ The writer of the post processor
+has access to all standard matheŵĂƟĐal ĨƵŶĐƟŽŶƐ deĮŶĞĚ in standard Java Script and all the
+standard features that this language contains.
+CNC-Calc and the post processor cooperate to format and create the correct NC program. This
+coopeƌĂƟŽŶ is established with various fƵŶĐƟŽŶƐ that are called from CNC-Calc with the necessary
+parameters. The parameters are then used to calculate and output one or more lines of code in the
+NC program.
+At the start of the Post Processor there is a ƐĞĐƟŽŶ called Globals. This secƟŽŶ contains variables
+that enables the end user to ĐŽŶĮgure a post processor to handle the most common setup changes.
+The following table lists these variables and describes how they Ăīect the output:
+Name Normal Values DĞƐĐƌŝƉƟŽŶ
+decimalMark ‘.’ Or ‘,’ This variable ĚĞĮŶĞƐ the decimal mark that should
+be used when decimal values are shown.
+linebreak &quot;\n&quot; DĞĮŶĞƐ the character sequence that should be
+used to terminate the lines in the NC program.
+variableDelimeter &quot; &quot; When more than one variable is shown in a single
+line the variableDelimeter ĚĞĮnes how they
+should be separated.
+tolerance 0.02 The toleraŶce is normally used in the user
+program to deĮne the smallest enƟty that should
+be handled. If for instance a very small circular
+movement is made, the controller may mistake
+this as being a 360 degree movement.
+showSequenceNumbers true/false If showSequeŶĐĞNƵŵďĞrs is set to true, all blocks
+in the NC program will be foƌŵĂƩĞĚ with a line
+number. This is used in the ĨƵŶĐƟŽŶ writeBlock
+that can be ŵŽĚŝĮĞĚ by the programmer.
+sequenceNumberStart 10 If showSequeŶĐĞNƵŵďĞrs is set to true
+sequeŶĐĞNumberStart will ĚĞĮne the ƐƚĂƌƟŶŐ
+number used for the Įrst block. This is used in the
+ĨƵŶĐƟŽŶ writeBlock that can be modiĮed by the
+programmer.
+
+-- 1 of 4 --
+
+Page 2 of 4
+sequenceNumberIncrement 5 sequenceNumberIncrement is only used if
+showSequenceNumbers is set to true. The
+sequenceNumberIncrement deĮnes the jump in
+block numbers between blocks. This is used in the
+ĨƵŶĐƟŽŶ writeBlock that can be modiĮed by the
+programmer.
+useRadius true/false Circular moves are normally wrŝƩen using the R
+(radius) or I, J, and K values (center coordinates).
+When useRadius is set to true circular moves it
+will use the R value. This is used in the fƵŶĐƟŽŶ
+onCircular that can be moĚŝĮĞĚ by the
+programmer.
+absoluteArcCenter true/false If useRadius is set to false, the circular moves will
+use the I, J, and K values. The value of
+absoluteArcCenter determines whether these
+values should be given as absolute center
+coordinates or reůĂƟǀĞ to the start of the move.
+This is used in the ĨƵŶĐƟŽn onCircular that can be
+ŵŽĚŝĮĞĚ by the programmer
+xDiameterProg true/false This ĮĞůĚ is only in post processors for lathes. The
+value of xDiameterProg determines whether the
+X values should be output as diameter values. If it
+is set to true, the X values will be output as
+diameter, otherwise they will be output as radius.
+iDiameterProg true/false This ĮĞůĚ is for post processing for lathes only. If
+useRadius is set to false, the circular moves will
+use the I, J, and K values. The value of
+iDiameterProg indicates how I values of circular
+moves should be ĨŽƌŵĂƩed. If iDiameterProg is
+true, the I values will be given as diameter values,
+otherwise they will be given as radius. This is used
+in the ĨƵŶĐƟŽn onCircular that can be modiĮed by
+the programmer
+In the Globals ƐĞĐƟŽŶ it is thus possible to take one of the post processors included with CNC-Calc
+and make it comply with a given machine.
+
+-- 2 of 4 --
+
+Page 3 of 4
+How to set up backplot to reϐlect the settings in the Globals section
+Figure 1 ISO Milling Setup Backplot
+Figure 1 shows the Backplot ConĮguraƟŽŶ for ISO Milling, and we will now see how we need to
+change the setup to reŇect the variables in the Globals ƐĞĐƟŽŶ͘
+The only part of the milling setup that can be inŇuenced by the variables in the Globals ƐĞĐƟŽŶ is the
+Arc Type drŽƉĚŽǁŶ͘ The Arc Type is the dropdown that is shown as dropped in Figure 1͘ The choice
+in this dropdown depends on the Globals variables useRadius and absoluteArcCenter, and in the
+table below the values of the variables and the corresponding Arc Type are ƐŚŽǁŶ͘
+Variable values Correct Arc Type SelĞĐƟŽŶ
+useRadius = true absoluteArcCenter = false Radius Value
+useRadius = true absoluteArcCenter = true Radius Value
+useRadius = false absoluteArcCenter = false RĞůĂƟǀĞ to Start
+useRadius = false absoluteArcCenter = true Absolute Arc Center
+In turning there are two more values in the Globals secƟon that will ŝŶŇƵence the setup of the
+backƉůŽƚ͘ Figure 2 below shows the backplot cŽŶĮgurĂƟŽŶ for ISO TurniŶŐ͘
+
+-- 3 of 4 --
+
+Page 4 of 4
+Figure 2 ISO Turning Backplot Setup
+The ISO turning Arc Type should be selected from the Arc Type dropdown based on the Globals
+variables useRadius and absoluteArcCenter, exactly as described under milling. When looking at
+turning we also have to consider the ƉŽƐƐŝďŝůŝƟĞƐ regarding diameter programming. In the post
+processor, the diameter programming are handled by the Globals variables xDiameterProg and
+iDiameterProg. These variables correspond to the Įelds Diameter programming and Arc Center is
+speci ed as diameter. The following table shows how the values of the Globals variables correspond
+to the Įelds in the turning setup.
+Variable Values Correct Backplot Setup
+xDiameterProg = false
+iDiameterProg = false
+Diameter programming is unchecked
+Arc Center is speci ed as diameter is unchecked
+xDiameterProg = false
+iDiameterProg = true
+Diameter programming is unchecked
+Arc Center is speci ed as diameter is unchecked
+xDiameterProg = true
+iDiameterProg = false
+Diameter programming is checked
+Arc Center is speci ed as diameter is unchecked
+xDiameterProg = true
+iDiameterProg = true
+Diameter programming is checked
+Arc Center is speci ed as diameter is checked
+If the Arc Type dropdown seleĐƟŽŶ and the checkboxes Diameter programming and Arc Center is
+speci ed as diameter are checked respĞĐƟǀĞůǇ unchecked as described above, the backplot should
+show the correct tool paths.
+
+-- 4 of 4 --
+
+</pre>
+</body></html>

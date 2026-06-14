@@ -17,7 +17,6 @@
  */
 
 import * as crypto from "crypto";
-import { log } from "../utils/Logger.js";
 
 // ============================================================================
 // Types
@@ -109,6 +108,136 @@ export interface DeduplicateResult {
   duplicates: { part_a: string; part_b: string; similarity: number; reason: string }[];
   total_checked: number;
   warnings: string[];
+}
+
+// ============================================================================
+// JM-DOC-POPULATION-MS0 / U-JMDOC05 — part_library/other metadata seed
+// ----------------------------------------------------------------------------
+// Bulk-seeds the 30,890 STRUCTURAL `part_library/other` rows of the JM-Die
+// document ledger into this catalog as revision-controlled parts (disposition
+// = metadata). part.json files are GONE from disk (the inventory is a
+// 2026-05-27 snapshot); identity is derived from the PATH + the inventory
+// `customer` field, NEVER from part.json content. The 133 NON-structural
+// part_library/other rows are explicitly deferred to unrouted-misc (counted by
+// the accountability gate, not seeded here). seed_method per the bridge
+// registry (R7 correction: PartsLibraryEngine, not JobTravelerEngine).
+// ============================================================================
+
+/** A jm-file-inventory.jsonl row — the U-JMDOC05 metadata-disposition source. */
+export interface JMPartSeedRecord {
+  path: string;
+  source: string;
+  bucket: string;
+  customer?: string | null;
+  material?: string | null;
+  machine_class?: string | null;
+}
+
+/**
+ * Result of a JM part-library metadata seed pass. The five counters PARTITION
+ * the input — every row lands in exactly one — so the campaign's "zero silent
+ * drops" accountability invariant holds exactly:
+ *   `total_records === parts_created + revisions_added + skipped_existing
+ *                      + skipped_out_of_scope + skipped_invalid`
+ * `revisions_added` counts ONLY revisions added to ALREADY-EXISTING parts; a new
+ * part's initial (and any carried) revision is accounted under `parts_created`,
+ * so a single row is never counted twice.
+ */
+export interface JMPartSeedResult {
+  total_records: number;
+  /** Rows that created a brand-new part (initial + any carried revision included here). */
+  parts_created: number;
+  /** Rows that added a NEW revision to a part already in the catalog. */
+  revisions_added: number;
+  /** Rows whose (part, rev) was already catalogued (idempotent re-hit / duplicate). */
+  skipped_existing: number;
+  /** Rows outside scope: not a structural part_library/other row. */
+  skipped_out_of_scope: number;
+  /** Malformed rows (missing path/source/bucket) or paths that yield no identity. */
+  skipped_invalid: number;
+  /** Distinct customers seen across the seeded (in-scope) rows. */
+  distinct_customers: number;
+  part_ids: string[];
+}
+
+/** Derived part identity from a `_PART LIBRARY/<CUSTOMER>/<PART>[/<REV>]/...` path. */
+export interface JMPartIdentity {
+  customer: string;
+  part: string;
+  rev: string | null;
+}
+
+/** A folder segment that looks like a die-shop revision folder (R2, R12, R7A). */
+const JM_REV_FOLDER_RE = /^R\d+[A-Z]?$/i;
+
+/**
+ * Mirror of the ledger builder's `part_library|other` STRUCTURAL classifier
+ * (scripts/build-jm-document-ledger.mjs `classify()`): a row is structural iff
+ * its basename is `part.json` (case-insensitive) OR its path contains a `/R\d+/`
+ * REV-folder segment. Everything else in the tuple is non-structural and routes
+ * to unrouted-misc (deferred). Keeping this byte-for-byte equivalent to the
+ * builder is what makes the seeded count reconcile against the ledger's 30,890.
+ */
+export function isStructuralPartLibraryOther(rec: JMPartSeedRecord): boolean {
+  if (!rec || rec.source !== "part_library" || rec.bucket !== "other") return false;
+  const p = String(rec.path ?? "").replace(/\\/g, "/");
+  if (p.length === 0) return false;
+  const base = p.split("/").pop() ?? "";
+  const isPartJson = /^part\.json$/i.test(base);
+  const isRevStructure = /\/R\d+\//i.test(p);
+  return isPartJson || isRevStructure;
+}
+
+/**
+ * Derive `{customer, part, rev}` from a JM part-library path + the inventory
+ * customer field. The customer field (when present) is authoritative for the
+ * customer; the part folder is the segment immediately under the customer, and
+ * a deeper `R\d+`-shaped folder (if any) is the revision. Returns null for paths
+ * that cannot yield a customer + part (caller counts these as skipped_invalid).
+ */
+export function derivePartIdentity(path: string, customerField?: string | null): JMPartIdentity | null {
+  const norm = String(path ?? "").replace(/\\/g, "/").trim();
+  if (norm.length === 0) return null;
+  const segs = norm.split("/").filter(Boolean);
+  if (segs.length < 2) return null;
+
+  const anchorPos = segs.findIndex((s) => /^_part library$/i.test(s));
+  const customerFromField = typeof customerField === "string" ? customerField.trim() : "";
+
+  let customer: string;
+  let partSegs: string[];
+  if (anchorPos >= 0 && anchorPos + 1 < segs.length) {
+    customer = customerFromField || segs[anchorPos + 1];
+    // folders strictly between the customer folder and the filename
+    partSegs = segs.slice(anchorPos + 2, segs.length - 1);
+  } else {
+    // No `_PART LIBRARY` anchor — best-effort from the tail of the path.
+    customer = customerFromField || segs[0];
+    partSegs = segs
+      .slice(0, segs.length - 1)
+      .filter((s) => s.toLowerCase() !== customer.toLowerCase())
+      .slice(-2);
+  }
+
+  customer = customer.trim();
+  if (customer.length === 0) return null;
+
+  let part: string;
+  let rev: string | null = null;
+  if (partSegs.length === 0) {
+    // Structural row directly under the customer (no part folder) — fall back to
+    // the filename stem so the row is still catalogued, not dropped.
+    const stem = (segs[segs.length - 1] || "").replace(/\.[^.]+$/, "").trim();
+    part = stem || customer;
+  } else {
+    part = partSegs[0];
+    const revSeg = partSegs.slice(1).find((s) => JM_REV_FOLDER_RE.test(s));
+    if (revSeg) rev = revSeg.toUpperCase();
+  }
+
+  part = part.trim();
+  if (part.length === 0) return null;
+  return { customer, part, rev };
 }
 
 function generateId(): string {
@@ -209,6 +338,150 @@ class PartsLibraryEngine {
     }
 
     return { part, revision, warnings };
+  }
+
+  /**
+   * seedFromJMCorpus — U-JMDOC05 metadata seed (JM-DOC-POPULATION-MS0, slot:hotel).
+   *
+   * Bulk-seeds the STRUCTURAL `part_library/other` ledger rows into this catalog
+   * as revision-controlled parts. One part per derived (customer, part) pair;
+   * extra `R\d+` REV folders become additional revisions on that part. Identity
+   * is derived from the PATH + the inventory `customer` field (part.json content
+   * is gone from disk). Part numbers are namespaced `<CUSTOMER>/<PART>` so two
+   * customers sharing a part folder name never collide in the global index, and
+   * `customer_id` carries a `jm:<CUSTOMER>` association key (NOT a UUID — these
+   * are metadata catalog entries; a future unit can cross-link to the seeded
+   * CustomerManagementEngine UUIDs). The raw customer is also a search tag.
+   *
+   * Contract (matches the proven DocumentInboxEngine seed bridges):
+   *   - Allowlist-gated: only structural part_library/other rows are seeded;
+   *     every other tuple (and the 133 non-structural part_library/other rows)
+   *     is `skipped_out_of_scope` — they are accounted as unrouted by the gate.
+   *   - Idempotent: re-seeding the same rows creates nothing new; a (part, rev)
+   *     already present is `skipped_existing`.
+   *   - Fail-soft: non-array input -> all-zero result; invalid rows skipped, the
+   *     pass never throws. Every in-scope row lands in exactly one counter.
+   *
+   * @param records jm-file-inventory.jsonl rows (pre-filtered or raw — re-filtered here).
+   * @returns row-accounted {@link JMPartSeedResult}.
+   */
+  seedFromJMCorpus(records: JMPartSeedRecord[]): JMPartSeedResult {
+    const result: JMPartSeedResult = {
+      total_records: 0,
+      parts_created: 0,
+      revisions_added: 0,
+      skipped_existing: 0,
+      skipped_out_of_scope: 0,
+      skipped_invalid: 0,
+      distinct_customers: 0,
+      part_ids: [],
+    };
+    if (!Array.isArray(records)) return result;
+    result.total_records = records.length;
+
+    const customersSeen = new Set<string>();
+    // partNumber -> set of revision labels already represented (built lazily from
+    // the live catalog the first time a part is revisited, so re-seed is idempotent).
+    const revsByPart = new Map<string, Set<string>>();
+
+    for (const rec of records) {
+      if (!rec || typeof rec !== "object") { result.skipped_invalid++; continue; }
+      const path = typeof rec.path === "string" ? rec.path.trim() : "";
+      const source = typeof rec.source === "string" ? rec.source.trim() : "";
+      const bucket = typeof rec.bucket === "string" ? rec.bucket.trim() : "";
+      if (!path || !source || !bucket) { result.skipped_invalid++; continue; }
+
+      if (!isStructuralPartLibraryOther({ path, source, bucket, customer: rec.customer })) {
+        result.skipped_out_of_scope++;
+        continue;
+      }
+
+      const ident = derivePartIdentity(path, rec.customer);
+      if (!ident) { result.skipped_invalid++; continue; }
+
+      const partNumber = `${ident.customer}/${ident.part}`.toUpperCase().trim();
+      const revLabel = (ident.rev ?? "A").toUpperCase();
+      customersSeen.add(ident.customer.toUpperCase());
+
+      const material = typeof rec.material === "string" && rec.material.trim().length > 0
+        ? rec.material.trim()
+        : undefined;
+      const tags = Array.from(new Set([
+        "jm-die", "part-library", "u-jmdoc05", ident.customer.toLowerCase(),
+      ]));
+
+      const existing = this.getByPartNumber(partNumber);
+      if (!existing) {
+        try {
+          const created = this.create({
+            part_number: partNumber,
+            name: ident.part,
+            customer_id: `jm:${ident.customer}`,
+            material_name: material,
+            tags,
+            status: "active",
+            created_by: "JM-DOC-POPULATION-MS0/U-JMDOC05",
+            initial_change_description: ident.rev
+              ? `JM-Die metadata seed (rev ${revLabel}, path-derived)`
+              : "JM-Die metadata seed (path-derived)",
+          });
+          // This row IS fully accounted by parts_created (the partition counter).
+          // The carried rev is established on the new part as a side-effect but is
+          // NOT counted in revisions_added — that counter is reserved for revisions
+          // added to ALREADY-EXISTING parts, so the 5-way partition stays exact
+          // (one input row -> exactly one of parts_created/revisions_added/
+          // skipped_existing/skipped_out_of_scope/skipped_invalid).
+          result.parts_created++;
+          result.part_ids.push(created.part.id);
+          const revSet = new Set<string>([created.part.current_revision]); // "A"
+          if (ident.rev && revLabel !== created.part.current_revision) {
+            try {
+              this.addRevision({
+                part_id: created.part.id,
+                revision: revLabel,
+                change_description: `JM-Die metadata seed (rev ${revLabel}, path-derived)`,
+                changed_by: "JM-DOC-POPULATION-MS0/U-JMDOC05",
+              });
+              revSet.add(revLabel);
+            } catch { /* rev clash on a brand-new part — leave base 'A' */ }
+          }
+          revsByPart.set(partNumber, revSet);
+        } catch {
+          // create() throws on a duplicate part_number. If the part exists now
+          // (a prior seed persisted it into this singleton), the row is an
+          // idempotent re-hit -> skipped_existing, NOT invalid. Otherwise the row
+          // is genuinely degenerate -> skipped_invalid. Exactly one partition
+          // counter either way (no double-count, no silent drop).
+          if (this.getByPartNumber(partNumber)) result.skipped_existing++;
+          else result.skipped_invalid++;
+        }
+      } else {
+        let revSet = revsByPart.get(partNumber);
+        if (!revSet) {
+          revSet = new Set(existing.revisions.map((r) => r.revision.toUpperCase()));
+          revsByPart.set(partNumber, revSet);
+        }
+        if (ident.rev && !revSet.has(revLabel)) {
+          try {
+            this.addRevision({
+              part_id: existing.part.id,
+              revision: revLabel,
+              change_description: `JM-Die metadata seed (rev ${revLabel}, path-derived)`,
+              changed_by: "JM-DOC-POPULATION-MS0/U-JMDOC05",
+            });
+            revSet.add(revLabel);
+            result.revisions_added++;
+          } catch {
+            result.skipped_existing++; // revision already present / unaddable
+          }
+        } else {
+          result.skipped_existing++; // duplicate row, or same rev already catalogued
+        }
+      }
+    }
+
+    result.distinct_customers = customersSeen.size;
+    return result;
   }
 
   /**

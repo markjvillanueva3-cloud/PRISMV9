@@ -7,6 +7,7 @@
   useRef,
   useState,
   type ComponentType,
+  type LazyExoticComponent,
   type ReactNode,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -181,13 +182,17 @@ import { buildWorkflowPath } from '../utils/workflowRouteContext';
 
 export { scoreToolForToolpath, selectPreferredToolForToolpath, toolSupportsToolpath } from '../utils/calculatorTooling';
 
-function lazyNamed<TModule extends Record<string, unknown>, TKey extends keyof TModule>(
+// 2026-05-26 (slot golf, tsc-fix): preserve the imported component's PROP TYPES
+// via TModule[TKey] inference. Previous `as ComponentType` cast erased the props
+// (became `ComponentType<{}>`, zero-props), surfacing 6 false-positive
+// IntrinsicAttributes errors in CalculatorPage on every lazy-loaded component.
+function lazyNamed<TModule extends Record<string, ComponentType<any>>, TKey extends keyof TModule>(
   loader: () => Promise<TModule>,
   key: TKey,
-) {
+): LazyExoticComponent<TModule[TKey]> {
   return lazy(async () => {
     const module = await loader();
-    return { default: module[key] as ComponentType };
+    return { default: module[key] };
   });
 }
 
@@ -238,6 +243,23 @@ const LatheCostPanel = lazyNamed(
 const LatheSketch2D = lazyNamed(
   () => import('../components/calculator/LatheSketch2D'),
   'LatheSketch2D',
+);
+// MILL-STUDIO-MS0/U-MSTUD-A1 (oscar 2026-05-23) — wire the 3 existing mill stub
+// panels via the new components/mill barrel. JSX rendering inside mill-mode
+// blocks lands in a follow-up edit (per spec §9 pickup order). Importing here
+// makes them appear in the system-viz graph + ensures the bundler treats them
+// as reachable lazy chunks (was: L0/unreachable orphans).
+const MillStrategyPanel = lazyNamed(
+  () => import('../components/mill'),
+  'StrategyPanel',
+);
+const MillProgramPreview = lazyNamed(
+  () => import('../components/mill'),
+  'ProgramPreview',
+);
+const MillSimPanel = lazyNamed(
+  () => import('../components/mill'),
+  'SimPanel',
 );
 const WireEdmSurfaceIntegrityPanel = lazyNamed(
   () => import('../components/calculator/WireEdmSurfaceIntegrityPanel'),
@@ -794,7 +816,7 @@ function estimateToolPrice(tool: Pick<ToolCatalogItem, 'geometryClass' | 'operat
   return DEFAULT_TOOL_PRICE_BY_TYPE[inferToolInventoryType(tool)] ?? 96;
 }
 
-function inferInventoryCondition(status: 'ready' | 'watch') {
+function inferInventoryCondition(status: 'ready' | 'watch'): 'worn' | 'good' {
   return status === 'watch' ? 'worn' : 'good';
 }
 
@@ -1398,6 +1420,8 @@ const EXPERIENCE_STYLES: Record<ExperienceLevel, string> = {
   beginner: 'border-emerald-500/40 bg-emerald-950/30 text-emerald-400',
   journeyman: 'border-amber-500/40 bg-amber-950/30 text-amber-400',
   master: 'border-rose-500/40 bg-rose-950/30 text-rose-400',
+  // 2026-05-27 iter8: 'expert' alias of 'master' (added to ExperienceLevel for test compat).
+  expert: 'border-rose-500/40 bg-rose-950/30 text-rose-400',
 };
 
 const MACHINE_MODE_LED_TONES: Record<
@@ -2120,7 +2144,7 @@ function defaultHolderPackageForMachine(
     if (profile.hasMillingHead && profile.turretTypeId === 'turret-standard') return 'generic-vtl-milling-head';
     if (profile.hasMillingHead) return 'okuma-capto-c6-milling-head';
     if (profile.turretCount >= 2) return 'nakamura-vdi30-twin';
-    if (['vdi30', 'vdi40', 'vdi50', 'vdi60', 'vdi80'].includes(profile.turretTypeId)) {
+    if ((['vdi30', 'vdi40', 'vdi50', 'vdi60', 'vdi80'] as string[]).includes(profile.turretTypeId ?? '')) {
       return CANONICAL_JM_DIE_HOLDER_IDS.lathe[0] ?? 'sandvik-vdi-turn';
     }
     if (profile.turretTypeId === 'capto-c6') return 'okuma-capto-c6-turn';
@@ -4657,6 +4681,9 @@ export function CalculatorPage() {
             condition: inferCurrentToolCondition(selectedTool, inventoryWorkspace),
             holder_type: selectedHolderPackage?.label ?? holderStyle,
             notes: 'Active calculator setup tool',
+            // 2026-05-27 iter28: ToolRoiAnalysisParams.user_inventory requires
+            // price; estimate from the catalog like buildToolRoiInventory does.
+            price: estimateToolPrice(selectedTool),
           }]
         : [];
       const inventoryCandidates = [...(inventory ?? [])];
@@ -5716,10 +5743,15 @@ export function CalculatorPage() {
     : guidedModeEnabled
       ? 'Guided setup lane'
       : 'Calculator Studio';
+  // 2026-05-26 (slot golf, tsc-fix): removed guide-detail enrichment here —
+  // `currentGuideMeta` and `currentGuideStep` are declared 659 lines later
+  // (line 6398/6394). The original `currentGuideMeta?.detail ?? currentGuideStep?.detail`
+  // expression was a TDZ-violating real runtime bug (would throw on first guided-mode render).
+  // Guided mode falls through to toolbarOptimizationSummary — same as it would have anyway.
   const activeCalculatorLaneDetail = prismModeEnabled
     ? toolbarPrismTone.detail
     : guidedModeEnabled
-      ? currentGuideMeta?.detail ?? currentGuideStep?.detail ?? toolbarOptimizationSummary
+      ? toolbarOptimizationSummary
       : `${toolbarOptimizationSummary} ${resultSafety.summary}`;
   const resultSolveSourceLabel = resultSolveSource === 'quick'
     ? 'Quick estimate'
@@ -7918,7 +7950,9 @@ export function CalculatorPage() {
                 options={MATERIAL_GROUPS.filter((item) => (machineMode === 'mill' || machineMode === 'lathe' ? item.id !== 'nontraditional' : true)).map((item) => ({
                   id: item.id,
                   label: item.label,
-                  detail: item.detail,
+                  // MATERIAL_GROUPS rows are {id,label} today; future catalog
+                  // versions may add `detail` — coalesce via index-access.
+                  detail: (item as { detail?: string }).detail,
                 }))}
                 guideHint="Start with the material family so PRISM narrows speed, wear, and finish behavior into the right band."
               />
@@ -9210,6 +9244,45 @@ export function CalculatorPage() {
                             </div>
                           )}
 
+                          {/* MILL-STUDIO-MS0/U-MSTUD-A1 (oscar 2026-05-23) — wire the 3 mill stub panels.
+                              Phase A: render the existing stubs with safe default props so they show up
+                              in mill mode. Phase B (U-MSTUD-B1..B8) will replace these with the 8 mill-
+                              specific panels per spec §6. Feature-class chips + g-code preview + sim
+                              cards are the minimal-viable mill calculator surface. */}
+                          {machineMode === 'mill' && (
+                            <div className="col-span-full mt-2">
+                              <DeferredCalculatorSurface label="Loading mill strategy panelâ€¦">
+                                <MillStrategyPanel
+                                  selectedStrategies={[]}
+                                  onStrategiesChange={() => { /* Phase B: wire to calculatorStore */ }}
+                                  materialIsoGroup="P"
+                                />
+                              </DeferredCalculatorSurface>
+                            </div>
+                          )}
+                          {machineMode === 'mill' && (
+                            <div className="col-span-full mt-2">
+                              <DeferredCalculatorSurface label="Loading mill program previewâ€¦">
+                                <MillProgramPreview
+                                  gcode=""
+                                  annotations={[]}
+                                />
+                              </DeferredCalculatorSurface>
+                            </div>
+                          )}
+                          {machineMode === 'mill' && (
+                            <div className="col-span-full mt-2">
+                              <DeferredCalculatorSurface label="Loading mill simulationâ€¦">
+                                <MillSimPanel
+                                  isRunning={false}
+                                  progress={0}
+                                  onStartSim={() => { /* Phase B: wire to program_simulate */ }}
+                                  onStopSim={() => { /* Phase B */ }}
+                                />
+                              </DeferredCalculatorSurface>
+                            </div>
+                          )}
+
                           {/* Wire EDM calculator panels */}
                           {machineMode === 'wire_edm' && (
                             <div className="col-span-full mt-2">
@@ -9667,7 +9740,7 @@ export function CalculatorPage() {
                       selectedProgramming={selectedProgramming?.label}
                       workflowPacketId={calculatorPacketId}
                       workflowFocusId={calculatorFocusId}
-                      releaseSupported={calculatorRouteAuthority.releaseSupported}
+                      releaseSupported={Boolean(calculatorRouteAuthority.releaseSupported)}
                       toolpathSupported={calculatorRouteAuthority.toolpathSupported}
                       releaseNote={calculatorRouteAuthority.releaseNote}
                       toolpathNote={calculatorRouteAuthority.toolpathNote}
@@ -10516,7 +10589,7 @@ export function CalculatorPage() {
                           key={action.title}
                           type="button"
                           aria-label={action.title}
-                          onClick={() => navigate(action.href, action.state ? { state: action.state } : undefined)}
+                          onClick={() => navigate(action.href ?? '#', action.state ? { state: action.state } : undefined)}
                           className="rounded-xl border border-slate-700/50 bg-[#0f1f36] px-4 py-4 text-left transition hover:border-slate-700/50 hover:bg-[#162742]"
                         >
                           <div className="text-sm font-semibold text-slate-100">{action.title}</div>
@@ -10712,6 +10785,14 @@ const COMMON_TOOLING_STATION_OPTIONS = {
   magazine: [24, 30, 40, 48, 60, 80, 120],
   turret: [8, 10, 12, 16, 24],
   gang: [6, 8, 10, 12],
+  // 2026-05-27 iter28: lasers don't carry physical stations (single beam +
+  // nozzle), but the lookup must cover every MachineToolingLayoutKind value or
+  // the TS index access throws TS7053. Treat as a degenerate 1-station rig.
+  laser: [1],
+  // 2026-05-27 iter28: same rationale as laser (single-process non-traditional rig).
+  waterjet: [1],
+  wire: [1],
+  electrode: [1, 4, 8, 16],
 } as const;
 type ToolingLayoutKind = NonNullable<MachineCatalogItem['toolingLayout']>['kind'];
 

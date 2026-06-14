@@ -9,8 +9,12 @@ trigger_phrases:
   - "validate my skill"
   - "run the three-scenario test"
   - "does this skill pass its fixtures"
+composes_with:
+  - "/skill-lint"
+consumes:
+  - "prism_dev:skill_quality_registry_build"
+  - "prism_dev:skill_test"
 ---
-
 # /skill-test — three-scenario skill test (U-SKU02)
 
 @eng_khairallah1's Phase-3 production-grade bar: a skill is production-grade only

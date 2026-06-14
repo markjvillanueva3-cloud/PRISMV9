@@ -14,6 +14,7 @@ import {
   isDisabled,
   classifyReadTarget,
   decideRoute,
+  isGistSafe,
   runRoute,
 } from "../ollama-route-pretooluse.mjs";
 
@@ -149,5 +150,56 @@ describe("runRoute — end to end (IO injected)", () => {
     const env = { PRISM_OLLAMA_ROUTE_MIN_KB: "100" };
     expect((await runRoute({ stdin: { tool_input: { file_path: "x.log" } }, env, ...base, statFn: statOf(80 * KB) })).action).toBe("pass");      // under 100KB
     expect((await runRoute({ stdin: { tool_input: { file_path: "x.log" } }, env, ...base, statFn: statOf(150 * KB) })).action).toBe("suggest"); // over 100KB
+  });
+});
+
+// BLACKWELL-TOKEN-SYNERGY-MS0/U-BW-AUTO-ROUTE-ALLOWLIST: curated gist-only
+// allowlist. Auto mode may summary-substitute ONLY logs/dumps/archives;
+// decision-bearing data (digests/inventory/state/audit) stays suggest-only.
+describe("isGistSafe — curated auto-route allowlist", () => {
+  it("raw log/text/dump extensions are gist-safe", () => {
+    expect(isGistSafe("/p/logs/session.log")).toBe(true);
+    expect(isGistSafe("/p/notes/scratch.txt")).toBe(true);
+    expect(isGistSafe("/p/run.out")).toBe(true);
+  });
+
+  it("files under a logs/ or archive/ path are gist-safe", () => {
+    expect(isGistSafe("H:/prism/logs/whatever.bak")).toBe(true);
+    expect(isGistSafe("H:/prism/archive/old-run")).toBe(true);
+    expect(isGistSafe("/x/core.dump.bin")).toBe(true); // dump marker
+  });
+
+  it("structured / decision-bearing data is NEVER gist-safe (exact-value class)", () => {
+    expect(isGistSafe("H:/prism/PRISM-INVENTORY-LATEST.md")).toBe(false);
+    expect(isGistSafe("/p/state/build-state-digest.json")).toBe(false);
+    expect(isGistSafe("/p/state/AGENT_CHAT.jsonl")).toBe(false);
+    expect(isGistSafe("/p/state/audit-report.csv")).toBe(false);
+    // even a .json physically under logs/ stays exact-value
+    expect(isGistSafe("H:/prism/logs/metrics-snapshot.json")).toBe(false);
+  });
+
+  it("empty / non-string input is not gist-safe", () => {
+    expect(isGistSafe("")).toBe(false);
+    expect(isGistSafe(null)).toBe(false);
+  });
+});
+
+describe("decideRoute — auto mode honours the gist allowlist", () => {
+  const D = (filePath, mode) =>
+    decideRoute({ filePath, exists: true, sizeBytes: 50 * KB, mode, ollamaReachable: true, modelOk: true, minBytes: 8 * KB });
+
+  it("auto mode REROUTES a gist-safe log", () => {
+    expect(D("H:/prism/logs/session.log", "auto").action).toBe("reroute");
+  });
+
+  it("auto mode DOWNGRADES an exact-value data-doc to suggest (never silently summarized)", () => {
+    const d = D("H:/prism/state/shared/some-audit-report.json", "auto");
+    expect(d.action).toBe("suggest");
+    expect(d.reason).toMatch(/curated gist allowlist/);
+  });
+
+  it("suggest mode is unchanged for both file classes (back-compat)", () => {
+    expect(D("H:/prism/logs/session.log", "suggest").action).toBe("suggest");
+    expect(D("H:/prism/state/shared/some-audit-report.json", "suggest").action).toBe("suggest");
   });
 });

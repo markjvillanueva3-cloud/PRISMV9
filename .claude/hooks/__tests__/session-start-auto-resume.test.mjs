@@ -23,7 +23,10 @@ import {
   SLOT_NAMES,
   parseSlotAndTopic,
   buildCheckinDirective,
+  buildBootResumeContext,
+  buildSlotWrapperDirective,
   extractResume,
+  extractMemorySeed,
   ageMinutesFromFrontmatter,
   stableIdFromSession,
 } from "../session-start-auto-resume.mjs";
@@ -84,19 +87,26 @@ const VALID_UUID = "549c9f4f-854a-47df-aad4-1783f66f881c";
 
 // ─── SLOT_NAMES catalog ──────────────────────────────────────────────────────
 
-describe("SLOT_NAMES — canonical 10-slot fleet", () => {
-  test("includes all 9 NATO work slots + golf hygiene", () => {
-    const expected = ["alpha", "bravo", "charlie", "delta", "echo",
-                      "foxtrot", "golf", "hotel", "india", "juliett"];
+describe("SLOT_NAMES — canonical 26-slot fleet", () => {
+  test("includes all 26 NATO phonetic slots (alpha..zulu)", () => {
+    // SLOT-RECLAIM (2026-05-19): realigned 10→13→26. The canonical
+    // chat-slots.mjs SLOT_NAMES is the full NATO alphabet (alpha..zulu); the
+    // hook's hardcoded copy and this test had drifted (10 → 13). Realigned to
+    // 26 so november..zulu pass SLOT_NAMES.has() membership checks.
+    const expected = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot",
+                      "golf", "hotel", "india", "juliett", "kilo", "lima",
+                      "mike", "november", "oscar", "papa", "quebec", "romeo",
+                      "sierra", "tango", "uniform", "victor", "whiskey",
+                      "xray", "yankee", "zulu"];
     for (const name of expected) assert.equal(SLOT_NAMES.has(name), true, `missing slot ${name}`);
     assert.equal(SLOT_NAMES.size, expected.length, "exact size match");
   });
 
-  test("rejects non-canonical names operators may type (kilo, juliet, none)", () => {
-    // "kilo" is the operator's repeated mis-type — must NOT be canonical.
-    assert.equal(SLOT_NAMES.has("kilo"), false);
+  test("rejects non-canonical names operators may type (misspellings, format errors)", () => {
     // "juliet" is the common misspelling of "juliett" (NATO double-T).
     assert.equal(SLOT_NAMES.has("juliet"), false);
+    // chat-slots.mjs uses "xray" — the hyphenated "x-ray" is NOT canonical.
+    assert.equal(SLOT_NAMES.has("x-ray"), false);
     // empty + uppercase + numeric all rejected.
     assert.equal(SLOT_NAMES.has(""), false);
     assert.equal(SLOT_NAMES.has("ALPHA"), false);
@@ -168,7 +178,10 @@ describe("extractResume", () => {
     const out = extractResume(huge);
     assert.ok(out);
     assert.ok(out.length <= 6000 + 100, `length ${out.length} should be near 6000`);
-    assert.match(out, /\.\.\.\[truncated/);
+    // SLOT-RECLAIM (2026-05-19): regex realigned. extractResume emits a
+    // Unicode-ellipsis marker "…[truncated — full RESUME in handoff file]";
+    // the stale test matched three ASCII dots "...[truncated" and never did.
+    assert.match(out, /\[truncated — full RESUME in handoff file\]/);
   });
 });
 
@@ -233,9 +246,13 @@ describe("parseSlotAndTopic — Gap 3", () => {
     assert.equal(parseSlotAndTopic(fm).slot, "charlie");
   });
 
-  test("all canonical 10 slots accepted as prefix in fallback path", () => {
-    for (const slot of ["alpha","bravo","charlie","delta","echo",
-                        "foxtrot","golf","hotel","india","juliett"]) {
+  test("all canonical 26 slots accepted as prefix in fallback path", () => {
+    // SLOT-RECLAIM (2026-05-19): realigned to the full 26-slot NATO fleet.
+    for (const slot of ["alpha","bravo","charlie","delta","echo","foxtrot",
+                        "golf","hotel","india","juliett","kilo","lima","mike",
+                        "november","oscar","papa","quebec","romeo","sierra",
+                        "tango","uniform","victor","whiskey","xray","yankee",
+                        "zulu"]) {
       const fm = `slot: \ntopic: ${slot}-suffix\n`;
       const r = parseSlotAndTopic(fm);
       assert.equal(r.slot, slot, `${slot} should lift`);
@@ -243,8 +260,11 @@ describe("parseSlotAndTopic — Gap 3", () => {
     }
   });
 
-  test("non-canonical prefix rejected (kilo, lima, mike, juliet-misspelled)", () => {
-    for (const bad of ["kilo", "lima", "mike", "juliet"]) {
+  test("non-canonical prefix rejected (juliet-misspelled, x-ray-hyphenated, fixture)", () => {
+    // SLOT-RECLAIM (2026-05-19): kilo/lima/mike are now CANONICAL (26-slot
+    // fleet) — they MUST lift. Replaced with genuinely non-canonical prefixes:
+    // a misspelling, the hyphenated form of "xray", and a non-NATO word.
+    for (const bad of ["juliet", "x-ray", "fixture"]) {
       const fm = `slot: \ntopic: ${bad}-x\n`;
       const r = parseSlotAndTopic(fm);
       assert.equal(r.slot, "", `${bad} prefix must NOT be lifted`);
@@ -321,5 +341,215 @@ describe("buildCheckinDirective — Gap 3", () => {
       buildCheckinDirective(fallback),
       "both paths must yield identical /checkin invocation",
     );
+  });
+});
+
+// ─── buildBootResumeContext — SESSION-CONTINUITY-MS0 full-restart boot ────────
+//
+// Covers the pure builder behind main()'s `startup` branch: the full-terminal-
+// restart resume path where the launcher passes PRISM_BOOT_SLOT. main() wraps
+// this with an env read + a getHandoffBySlot subprocess; end-to-end stdin
+// invocation is exercised by _smoke-auto-resume.mjs.
+
+describe("buildBootResumeContext — SESSION-CONTINUITY-MS0", () => {
+  // A handoff is "fresh" when written_at is recent, "stale" when older than
+  // MAX_AGE_MIN (default 720 = 12h, F5 2026-06-08; was 240/4h). Dynamic
+  // timestamps so the freshness boundary is exercised regardless of when the
+  // suite runs.
+  const freshHandoff = (slot, resumeBody = "Resume the work - finish U-SC01.") => {
+    const recent = new Date(Date.now() - 5 * 60_000).toISOString();
+    return `---
+slot: ${slot}
+topic: ${slot}-test-topic
+written_at: ${recent}
+status: active
+---
+
+## STATE
+prior state
+
+## RESUME
+
+${resumeBody}
+
+## CONTEXT
+`;
+  };
+  const staleHandoff = (slot) => {
+    const old = new Date(Date.now() - 24 * 60 * 60_000).toISOString(); // 24h ago — stale under the 12h default
+    return `---
+slot: ${slot}
+written_at: ${old}
+---
+
+## RESUME
+
+stale body that must not be auto-resumed
+`;
+  };
+
+  test("happy: fresh handoff + canonical slot → resume block with slot + /checkin", () => {
+    const out = buildBootResumeContext({
+      content: freshHandoff("bravo"), slot: "bravo", file: "HANDOFF-x-bravo-y.md",
+    });
+    assert.ok(out, "non-null");
+    assert.match(out, /AUTO-RESUME on fleet boot/);
+    assert.match(out, /slot `bravo`/);
+    assert.match(out, /finish U-SC01/, "resume body included verbatim");
+    assert.match(out, /\/startup-bravo \/loop \[10m\] \/goal/, "names the slot's auto-start sequence");
+    assert.match(out, /HANDOFF-x-bravo-y\.md/, "handoff file name surfaced");
+  });
+
+  test("stale handoff (older than maxAgeMin) → null", () => {
+    const out = buildBootResumeContext({
+      content: staleHandoff("bravo"), slot: "bravo", file: "h.md",
+    });
+    assert.equal(out, null, "a 24h handoff is stale under the 12h default → must not auto-resume");
+  });
+
+  test("default window is now 12h (F5) — a 10h handoff resumes by DEFAULT (no explicit maxAgeMin)", () => {
+    // Regression guard for the 240→720 bump: a 10h-old handoff was stale under
+    // the old 4h default but is FRESH under the new 12h default. New-PC GPU/OCR
+    // bakes routinely exceed 4h — this is the silent-resume-loss F5 fixes.
+    const tenHoursOld = new Date(Date.now() - 10 * 60 * 60_000).toISOString();
+    const content = `---\nslot: bravo\nwritten_at: ${tenHoursOld}\n---\n\n## RESUME\n\nresume body within the 12h window\n`;
+    const out = buildBootResumeContext({ content, slot: "bravo" });
+    assert.ok(out, "a 10h handoff must resume under the new 12h default");
+    assert.match(out, /AUTO-RESUME on fleet boot/);
+  });
+
+  test("custom maxAgeMin honored — a 24h handoff resumes within a 48h window", () => {
+    const out = buildBootResumeContext({
+      content: staleHandoff("bravo"), slot: "bravo", maxAgeMin: 48 * 60,
+    });
+    assert.ok(out, "within the widened window the handoff resumes");
+  });
+
+  test("fresh handoff with no RESUME section → null", () => {
+    const noResume = `---\nslot: bravo\nwritten_at: ${new Date().toISOString()}\n---\n\n## STATE\nonly state\n`;
+    assert.equal(buildBootResumeContext({ content: noResume, slot: "bravo" }), null);
+  });
+
+  test("non-canonical slot → null (never resume on a misspelled/blank/uppercase slot)", () => {
+    assert.equal(buildBootResumeContext({ content: freshHandoff("juliet"), slot: "juliet" }), null);
+    assert.equal(buildBootResumeContext({ content: freshHandoff("bravo"), slot: "" }), null);
+    assert.equal(buildBootResumeContext({ content: freshHandoff("bravo"), slot: "ALPHA" }), null);
+  });
+
+  test("null / non-string content → null (adversarial)", () => {
+    assert.equal(buildBootResumeContext({ content: null, slot: "bravo" }), null);
+    assert.equal(buildBootResumeContext({ content: 42, slot: "bravo" }), null);
+    assert.equal(buildBootResumeContext(), null);
+    assert.equal(buildBootResumeContext({}), null);
+  });
+
+  test("handoff with no written_at (age unknown) still resumes — age null is not stale", () => {
+    const noTs = `---\nslot: bravo\n---\n\n## RESUME\n\nbody with no timestamp at all\n`;
+    const out = buildBootResumeContext({ content: noTs, slot: "bravo" });
+    assert.ok(out, "a missing written_at must not block resume");
+    assert.match(out, /age unknown/);
+  });
+
+  test("missing file param → '?' placeholder, never throws", () => {
+    const out = buildBootResumeContext({ content: freshHandoff("echo"), slot: "echo" });
+    assert.ok(out);
+    assert.match(out, /Handoff: \? \(age/);
+  });
+
+  test("all 26 canonical slots produce a resume block naming their auto-start sequence", () => {
+    for (const slot of SLOT_NAMES) {
+      const out = buildBootResumeContext({ content: freshHandoff(slot), slot });
+      assert.ok(out, `${slot} must resume`);
+      assert.match(out, new RegExp(`/startup-${slot} /loop \\[10m\\] /goal`), `${slot} auto-start named`);
+    }
+  });
+});
+
+// ─── extractMemorySeed (HIGHVALUE-DISCOVERY #2) ──────────────────────────────
+describe("extractMemorySeed", () => {
+  test("extracts the MEMORY_SEED section body", () => {
+    const c = "## RESUME\nDo the work.\n\n## MEMORY_SEED\n- err X fixed abc123\n- tribal: never inline constants\n";
+    assert.equal(extractMemorySeed(c), "- err X fixed abc123\n- tribal: never inline constants");
+  });
+  test("null when no MEMORY_SEED section", () => {
+    assert.equal(extractMemorySeed("## RESUME\nbody here long enough"), null);
+    assert.equal(extractMemorySeed("# Handoff\n\nnothing"), null);
+  });
+  test("null on empty/too-short seed body (sentinel preserved)", () => {
+    assert.equal(extractMemorySeed("## MEMORY_SEED\n\n\n## NEXT\nx"), null);
+    assert.equal(extractMemorySeed("## MEMORY_SEED\n  \n## RESUME\nx"), null);
+  });
+  test("guards non-string input", () => {
+    assert.equal(extractMemorySeed(null), null);
+    assert.equal(extractMemorySeed(undefined), null);
+    assert.equal(extractMemorySeed(42), null);
+  });
+  test("caps an oversized seed body", () => {
+    const huge = "## MEMORY_SEED\n" + "z".repeat(5000) + "\n";
+    const out = extractMemorySeed(huge);
+    assert.ok(out.length <= 2100, "capped near 2000 bytes");
+    assert.match(out, /truncated/);
+  });
+  test("does not disturb extractResume on the same content (both sections coexist)", () => {
+    const c = "## RESUME\nResume directive body.\n\n## MEMORY_SEED\n- seed line one here\n";
+    assert.equal(extractResume(c), "Resume directive body.");
+    assert.equal(extractMemorySeed(c), "- seed line one here");
+  });
+  test("boot resume block includes the seed when present, omits it when absent", () => {
+    const slot = [...SLOT_NAMES][0];
+    // No frontmatter → age null → not stale; RESUME present → resumable.
+    const withSeed = "## RESUME\nResume directive body long enough.\n\n## MEMORY_SEED\n- distilled signal alpha\n";
+    const out = buildBootResumeContext({ content: withSeed, slot });
+    assert.ok(out, "resumable");
+    assert.match(out, /Memory seed/, "seed block present");
+    assert.match(out, /distilled signal alpha/, "seed body present");
+    const noSeed = buildBootResumeContext({ content: "## RESUME\nResume directive body long enough.\n", slot });
+    assert.ok(noSeed && !/Memory seed/.test(noSeed), "no seed → no seed block");
+  });
+});
+
+// ─── buildSlotWrapperDirective (2026-06-10 AUTO-START) ───────────────────────
+// The post-/compact NEXT-ACTION directive. Default flips the slot to re-enter
+// the full autonomous sequence; loopGoal:false reverts to the heartbeat. R9 —
+// assert the exact emitted command for BOTH branches so a regression that drops
+// the /loop /goal auto-start (the operator's ask) fails the test.
+describe("buildSlotWrapperDirective", () => {
+  test("default (loopGoal on) emits /startup-<slot> /loop [10m] /goal", () => {
+    const out = buildSlotWrapperDirective("alpha", "compact");
+    assert.match(out, /\/startup-alpha \/loop \[10m\] \/goal/, "auto-start sequence");
+    assert.doesNotMatch(out, /^\/checkin-alpha$/m, "not the bare heartbeat");
+    assert.match(out, /NEXT ACTION/, "framed as the next action");
+    assert.match(out, /100%/, "carries the 100%-completion build doctrine");
+  });
+
+  test("explicit loopGoal:true is identical to the default", () => {
+    assert.equal(
+      buildSlotWrapperDirective("bravo", "compact", { loopGoal: true }),
+      buildSlotWrapperDirective("bravo", "compact"),
+    );
+  });
+
+  test("loopGoal:false reverts to the /checkin-<slot> heartbeat (knob OFF)", () => {
+    const out = buildSlotWrapperDirective("bravo", "compact", { loopGoal: false });
+    assert.match(out, /\/checkin-bravo/, "heartbeat wrapper");
+    assert.doesNotMatch(out, /\/loop \[10m\] \/goal/, "no auto-start loop when reverted");
+  });
+
+  test("clear vs compact source only changes prose, not the command", () => {
+    const c = buildSlotWrapperDirective("delta", "clear");
+    assert.match(c, /\/startup-delta \/loop \[10m\] \/goal/, "same auto-start on /clear");
+  });
+
+  test("non-canonical / empty slot → '' (caller falls back to buildCheckinDirective)", () => {
+    assert.equal(buildSlotWrapperDirective("", "compact"), "");
+    assert.equal(buildSlotWrapperDirective("not-a-slot", "compact"), "");
+    assert.equal(buildSlotWrapperDirective("ALPHA", "compact"), "", "uppercase is non-canonical");
+  });
+
+  test("all 26 canonical slots emit their own slot-keyed auto-start", () => {
+    for (const slot of SLOT_NAMES) {
+      const out = buildSlotWrapperDirective(slot, "compact");
+      assert.match(out, new RegExp(`/startup-${slot} /loop \\[10m\\] /goal`), `${slot} auto-start`);
+    }
   });
 });

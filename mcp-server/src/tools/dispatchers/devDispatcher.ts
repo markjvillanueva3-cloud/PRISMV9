@@ -19,6 +19,13 @@ import { safeWriteSync } from "../../utils/atomicWrite.js";
 import { applySessionBootTruthfulness, buildSessionBootInstanceId } from "../../utils/sessionBootTruth.js";
 import * as TaskClaimService from "../../services/TaskClaimService.js";
 import type { Primitive } from "../../engines/CompactFormatterEngine.js";
+import type { DisasterTier, DisasterCategory } from "../../engines/DisasterRecoveryEngine.js";
+import type { BackupTier, BackupCategory } from "../../engines/BackupRestoreDrillEngine.js";
+import type { ChaosCategory, ChaosCadence, ChaosSeverity, ChaosEnvironment, ExecutionStatus } from "../../engines/ChaosDrillSchedulerEngine.js";
+import type { LogLevel } from "../../engines/LokiLogSinkEngine.js";
+import type { TenantTier, TenantStatus } from "../../engines/TenantOnboardingRunbookEngine.js";
+import type { AssetDistribution, DomainDistribution } from "../../engines/EntropyTrackerEngine.js";
+import type { ProofInput, SatInput } from "../../engines/FormalVerificationEngine.js";
 
 // Use configured roots so source-run (tsx) and built-run (dist) resolve the same PRISM files.
 const MCP_ROOT = PATHS.MCP_SERVER;
@@ -27,7 +34,7 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(MCP_ROOT, "data", "docs");
 const STATE_DIR = PATHS.STATE_DIR;
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_highlights_extract", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "program_for_print", "print_for_program",
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "shop_outcome_ingest", "gcode_material_parse", "dependency_cycle_analyze", "psn_health_check", "msa_analyze", "sim_stall_start_tracking", "sim_stall_mark_progress", "sim_stall_scan", "sim_stall_stats", "sim_stall_complete", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "formula_harvest", "formula_harvest_sources", "formula_harvest_audit", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "schema_coverage_audit", "schema_coverage_audit_read", "schema_coverage_audit_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_highlights_extract", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "blueprint_ingest_phase8", "blueprint_ingest_phase15", "print_program_join", "program_for_print", "print_for_program",
 // U-DOCU-05 / MS-DOCU-INGEST: JMDieArchiveBackAnnotationEngine surfaces (3 actions).
 "back_annotate_archive", "back_annotate_gap_report", "read_print_pointer",
 // U-PPL-D1 / MS-PRINT-PROGRAM-LOOP Track D: ProgramPrintLinkIndexEngine surfaces (2 actions).
@@ -37,6 +44,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "roadmap_intel_assess_complexity", "roadmap_intel_optimize", "roadmap_intel_predict_effort", "roadmap_intel_record_outcome", "roadmap_intel_build_vs_integrate", "roadmap_intel_health", "roadmap_tool_plan_query", "roadmap_tool_plan_build", "roadmap_tool_plan_coverage",
 // HOOK-SYNERGY-MS0/U-HOOK-REGISTRY (H2): query state/shared/HOOK_REGISTRY.json
 "hook_registry",
+// RAG-UPGRADE-MS0/U-RAG-5: RetrievalEvalEngine — precision@k/recall@k/MRR/mAP.
+"rag_eval_score", "rag_eval_run",
 // HOOK-SYNERGY-MS0/U-HOOK-ENVELOPE (H4): query state/shared/hook-latency.jsonl
 "hook_latency",
 // ACP-MS0/P0-U02: hook lifecycle inventory — map each hook to an automation-lifecycle stage
@@ -73,6 +82,11 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "model_telemetry_report",
 "model_telemetry_log",
 "model_telemetry_purge",
+// BLACKWELL-AI-MS0/U-PYGPU-HEALTH: fail-loud GPU training-stack readiness gate.
+// Runs scripts/py/gpu_health.py via GpuStackHealthEngine and returns whether the
+// host can run a GPU backward pass right now (torch cu129/sm_120 + real matmul +
+// optional bitsandbytes 4-bit). Every BLACKWELL training consumer gates on this.
+"gpu_stack_health",
 // INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02: read the adaptive routing state
 // written by `scripts/adapt-router-thresholds.mjs`. Returns the on-disk
 // router-adaptation-state.json contents + (optional) recent decisions
@@ -171,6 +185,47 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "bash_classify",
 // WIRE-UNWIRED-MS0/U-WIRE03: SVIRankedBacklogEngine — rank backlog by Ψ-delta/hour.
 "svi_ranked_backlog",
+// WIRE-UNWIRED-PAPA/U-WIRE-SVI-IMPACT (slot:papa 2026-05-26): SVIImpactProjectorEngine — project Ψ-delta for a proposed creation.
+"svi_impact_project",
+// WIRE-UNWIRED-PAPA/U-WIRE-ATOMIC-MULTIFILE (slot:papa 2026-05-26): AtomicMultiFileWriteEngine — 2-phase commit for multi-file writes.
+"atomic_write_all",
+"atomic_cleanup_stale",
+// WIRE-UNWIRED-PAPA/U-WIRE-DISTRIBUTED-LOCK (slot:papa 2026-05-26): DistributedLockEngine — file-based cross-session locking.
+"lock_acquire",
+"lock_release",
+"lock_info",
+"lock_cleanup_stale",
+// WIRE-UNWIRED-PAPA/U-WIRE-SELF-WORLD-ABSTRACTION (slot:papa 2026-05-26): 3 cognitive engines.
+"self_model_declare_capability",
+"self_model_record_action",
+"self_model_snapshot",
+"world_model_set_count",
+"world_model_get_count",
+"world_model_snapshot",
+"abstraction_add_tip",
+"abstraction_hierarchy",
+"abstraction_at_level",
+// WIRE-UNWIRED-PAPA iter5 (slot:papa 2026-05-27): 4 AGI cluster engines
+"complexity_route",
+"composition_synthesize",
+"regret_select",
+"cusum_analyze",
+// WIRE-UNWIRED-PAPA iter6 (slot:papa 2026-05-27): 3 AGI sim/recommend/synergy engines
+"predictive_world_simulate",
+"asset_recommend",
+"asset_synergy_top",
+// WIRE-UNWIRED-PAPA iter7 (slot:papa 2026-05-27): 2 material/coating engines
+"coating_select",
+"material_harvest_audit",
+"material_harvest_sources",
+// WIRE-UNWIRED-PAPA iter8 (slot:papa 2026-05-27): DOE + wear + JM Die machine config
+"doe_taguchi_compute",
+"archard_wear_calculate",
+"jm_die_machines_query",
+// WIRE-UNWIRED-PAPA iter9 (slot:papa 2026-05-27): spreadsheet + thinking + certificate
+"spreadsheet_parse_csv",
+"thinking_assess",
+"certificate_query",
 // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: wire EdgeCaseCaptureEngine
 // (Phase 0.25 Adaptive Variability — captures + learns from boundary operations,
 // drives envelope expansion via VariabilityEnvelopeEngine integration).
@@ -241,6 +296,8 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 // WIRE-UNWIRED-MS0/U-WIRE-MIT-COURSES: MitCourseIndexEngine
 // (all methods are pure filesystem reads — no mutating writes on this engine)
 "mit_courses_sources", "mit_courses_audit", "mit_courses_harvest", "mit_courses_filter",
+// MIT-COURSE-INTEGRATION/U-MIT-OCW-RESOURCE-RESOLVER (slot:india 2026-05-23) — pure URL resolver (3 actions)
+"mit_ocw_resolve_course_urls", "mit_ocw_resolve_batch", "mit_ocw_default_pages",
 // WIRE-UNWIRED-MS0/U-WIRE-CONSENSUS-CACHE: ConsensusRecallCacheEngine
 // (read-only — recall() is pure I/O over the wiki second-brain consensus
 //  artifacts; the ConsensusObsidianPersistenceEngine owns the write path)
@@ -487,10 +544,132 @@ const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_
 "cap_bank_calculate", "crys_calculate",
 "jss_single_machine", "jss_johnson", "jss_job_shop", "jss_critical_path",
 "lshp_calculate", "lshp_compare_static_vs_dynamic", "lshp_calculate_by_material_name", "lshp_get_material_properties",
+"wpl_calculate_duty_cycle", "wpl_calculate_frequency", "wpl_calculate_pulse_energy",
+"wpl_get_max_ton", "wpl_validate", "wpl_calculate_safe_pulse", "wpl_get_config",
 "hyp_get_prior", "hyp_prioritize", "hyp_get_tribal_endorsements",
 "plug_get", "plug_list", "plug_list_by_kind", "plug_list_by_health",
 "plug_summary", "plug_size",
-"ccd_check_move", "ccd_validate_rapid_moves", "ccd_compare_with_discrete"] as const;
+"ccd_check_move", "ccd_validate_rapid_moves", "ccd_compare_with_discrete",
+// WIRE-UNWIRED-MS0/U-WIRE-WASTE-DETECTOR: WasteDetectorEngine surfaces (op-discriminator
+// over 7 methods record/check_read/check_search/check_output_size/report/oneliner/reset
+// — single ACTIONS entry keeps the enum tight; per-op fail-loud via ok({error}). Sibling
+// of token_detect_waste (TokenEconomyTrackerEngine macro accounting) but DISTINCT:
+// this engine fires real-time pattern detection over 8 WasteType values
+// (unused-read | empty-search | reverted-edit | duplicate-fetch | oversized-output
+//  | abandoned-chain | wrong-tool | stale-recheck).
+"waste_detector",
+// WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-THROTTLE: ToolCallThrottleEngine surfaces (op-
+// discriminator over 5 methods check/set_rule/stats/oneliner/reset). Singleton
+// (toolCallThrottleEngine) accumulates per-tool call-log + cooldowns across MCP server
+// lifetime — preserves rate-limit/burst-limit state across calls. Distinct from
+// tool_call_record/tool_call_analyze/tool_call_reset (ToolCallTracker — observability);
+// this is the active rate-limiter / throttle decision surface.
+"tool_call_throttle",
+// WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-DEDUP: ToolCallDeduplicatorEngine surfaces (op-
+// discriminator over 4 methods check/record/stats/reset). Detects exact + near-
+// duplicate (>0.9 similarity) tool calls within a configurable time window
+// (default 120s). Singleton (toolCallDeduplicatorEngine) preserves the call log
+// across MCP server lifetime — `new ToolCallDeduplicatorEngine()` per call would
+// silently start a fresh log, defeating dedup. Distinct from waste_detector's
+// duplicate-fetch type (single-event flag): this is the explicit query surface
+// hooks call BEFORE execution to short-circuit duplicate work.
+"tool_call_dedup",
+// WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-BATCH-OPTIMIZE (slot:foxtrot 2026-05-19):
+// ToolCallBatchOptimizerEngine surfaces (op-discriminator over 4 methods
+// plan/analyze/estimate_cost/summary). Computes optimal parallelization
+// batches over a tool-call sequence (dependency-aware + write-conflict-safe),
+// detects redundant reads, estimates token cost. Sibling to tool_call_record/
+// _analyze (parallelization observability) — this is the FORWARD-LOOKING
+// planner: given N planned calls, return the dependency-respecting batch plan
+// that minimizes total rounds. Singleton (toolCallBatchOptimizerEngine).
+"tool_call_batch_optimize",
+// WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-HISTOGRAM: ToolCallHistogramEngine surfaces
+// (op-discriminator over 6 methods record/report/format/oneliner/window/reset).
+// Per-tool token-COST distribution — records (tool, tokens) and renders a
+// percent-of-session ASCII histogram with top-consumer identification. Singleton
+// (toolCallHistogramEngine) preserves the call-cost log across MCP server
+// lifetime. Distinct from tool_call_throttle (active rate-limiter), tool_call_dedup
+// (duplicate detector), tool_call_batch_optimize (parallelization planner) — this
+// is the passive token-cost distribution / awareness surface.
+"tool_call_histogram",
+// WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-PIPELINE: ToolCallPipelineEngine surfaces (op-
+// discriminator over 7 methods register/get/list/dry_run/stats/oneliner/reset).
+// Declarative reusable tool-call pipelines with built-in defs (read-edit-verify,
+// search-then-read, glob-then-grep). Singleton (toolCallPipelineEngine) preserves
+// registered pipelines + execution log across MCP server lifetime. recordExecution
+// is intentionally NOT surfaced — its PipelineResult arg carries Map<> fields that
+// do not round-trip through a JSON dispatcher boundary (see case comment).
+"tool_call_pipeline",
+// WIRE-UNWIRED: OutputTruncatorEngine — pure-fn token-savings truncator.
+// Smart truncation preserving head/tail/JSON shape + savings estimator + auto-detect.
+// Distinct from compact_truncate (CompactFormatterEngine) which is a word-boundary cut.
+"output_truncate", "output_truncate_json", "output_truncate_savings", "output_truncate_auto",
+  // iter9 wire-unwired-loop: infra/dev engines
+  "plugin_manage",
+  "webhook_manage",
+  "batch_query_exec",
+  "tool_redirect_suggest",
+  "file_access_pattern_track",
+  "master_index_generate",
+  "response_cache_manage",
+  "cache_manage",
+  "rate_limit_check",
+  "engine_registry_query",
+  "frequent_path_track",
+  "dead_letter_queue_manage",
+  "utilization_contract_audit",
+  "capability_index_search",
+  "report_render",
+  "standard_dimension_lookup",
+  "troubleshoot_diagnose_cnc",
+  "execution_verification_run",
+  "vision_action_analyze",
+  "qt_validation_run",
+  "pdf_handbook_batch_process",
+  "pdf_source_registry_manage",
+  "pdf_table_extract",
+  "resource_extraction_state_track",
+  "post_processor_matrix_test",
+  "speed_feed_at_scale_test",
+  "domain_wizard_pipeline_test",
+  "cad_cam_generation_test",
+  "post_processor_numeric_dialect_test",
+  "code_integrity_quick_validate",
+  "code_integrity_validate",
+  "code_integrity_stats",
+  // U-WIRE-DR / WIRE-UNWIRED-PAPA: DisasterRecoveryEngine surfaces (3 read actions, slot:papa 2026-06-11).
+  "dr_plan",
+  "dr_stats",
+  "dr_scenarios",
+  // U-WIRE-BACKUP / WIRE-UNWIRED-PAPA: BackupRestoreDrillEngine surfaces (4 read actions, slot:papa 2026-06-11).
+  "backup_plan",
+  "backup_stats",
+  "backup_drill_compliance",
+  "backup_assets",
+  // U-WIRE-CHAOS / WIRE-UNWIRED-PAPA: ChaosDrillSchedulerEngine surfaces (4 read actions, slot:papa 2026-06-11).
+  "chaos_stats",
+  "chaos_scenarios",
+  "chaos_executions",
+  "chaos_coverage",
+  // U-WIRE-LOKI / WIRE-UNWIRED-PAPA: LokiLogSinkEngine read surfaces (4 read actions, slot:papa 2026-06-13).
+  "loki_stats",
+  "loki_config",
+  "loki_retention",
+  "loki_query",
+  // U-WIRE-TENANT-ONBOARD / WIRE-UNWIRED-PAPA: TenantOnboardingRunbookEngine read surfaces (4 read actions, slot:papa 2026-06-13).
+  "tenant_onboarding_stats",
+  "tenant_onboarding_runbook",
+  "tenant_onboarding_report",
+  "tenant_onboarding_tenants",
+  // U-WIRE-ENTROPY / WIRE-UNWIRED-PAPA: EntropyTrackerEngine compute surfaces (3 read actions, slot:papa 2026-06-13).
+  "entropy_report",
+  "entropy_measure_asset",
+  "entropy_recommend",
+  // U-WIRE-FORMAL / WIRE-UNWIRED-PAPA: FormalVerificationEngine (Z3 SAT/SMT) compute surfaces (3 actions, slot:papa 2026-06-13).
+  "formal_prove",
+  "formal_satisfy",
+  "formal_ready",
+] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1153,6 +1332,359 @@ export function registerDevDispatcher(server: any): void {
             result = { tool_files: toolFiles, dispatcher_files: dispFiles, mcp_root: MCP_ROOT };
             break;
           }
+          // BLACKWELL-DB-GEN-MS0 / U-WIRE-SHOP-OUTCOME-INGEST (slot:romeo, 2026-06-04):
+          // wire the orphan ShopOutcomeIngestProcessorEngine (0 dispatcher refs, 0 consumers).
+          // It is the HEAD of the self-improving data pipeline: reads a JSONL outcome ledger,
+          // ingests each row via the PSN loop, and — when sink_path is given — GENERATES the
+          // outcome DB by appending one LoopIngestResult per processed row. Producer-first
+          // wiring (R13): the SFC + quoting learners consume this outcome DB downstream.
+          case "shop_outcome_ingest": {
+            const { shopOutcomeIngestProcessorEngine } = await import("../../engines/ShopOutcomeIngestProcessorEngine.js");
+            // params arrive snake_case (normalizeParams is alias-only, not generic snake→camel).
+            const inputPath = typeof params.input_path === "string" ? params.input_path : "";
+            if (!inputPath) {
+              result = { error: "shop_outcome_ingest requires params.input_path (a JSONL outcome ledger)" };
+              break;
+            }
+            // PATH SAFETY (mirrors case "file_write" — this is an MCP-exposed action): confine
+            // the READ to the repo root and the WRITE to MCP_ROOT; reject path-traversal escapes.
+            const repoRoot = path.resolve(MCP_ROOT, "..");
+            const resolvedInput = path.resolve(repoRoot, inputPath);
+            if (!resolvedInput.startsWith(repoRoot)) {
+              result = { error: "input_path escapes the repo root — access denied" };
+              break;
+            }
+            // Read through the dispatcher's fs (robust regardless of the engine's lazy require).
+            const ingestDeps: { readFileImpl: (p: string) => string; sinkWriter?: (line: string) => void } = {
+              readFileImpl: (p: string) => fs.readFileSync(p, "utf8"),
+            };
+            const sinkPath = typeof params.sink_path === "string" ? params.sink_path : "";
+            if (sinkPath) {
+              const resolvedSink = path.resolve(MCP_ROOT, sinkPath);
+              if (!resolvedSink.startsWith(path.resolve(MCP_ROOT))) {
+                result = { error: "sink_path escapes MCP_ROOT — access denied" };
+                break;
+              }
+              // GENERATE the outcome DB: one LoopIngestResult JSONL line per processed row.
+              ingestDeps.sinkWriter = (line: string) => fs.appendFileSync(resolvedSink, line + "\n");
+            }
+            result = await shopOutcomeIngestProcessorEngine.processLedger(resolvedInput, ingestDeps);
+            break;
+          }
+          // [WIRING]/U-WIRE-GCODE-MATERIAL-PARSE (slot:romeo, 2026-06-04): wire the orphan
+          // GCodeMaterialParserEngine (0 dispatcher refs). Pure static parser: extracts the
+          // workpiece material + ISO group (P/M/K/N/S/H) from a G-code program header — the
+          // material lookup that feeds SFC cutting-data when the NC corpus is parsed. No I/O
+          // (takes the program inline), so no path surface.
+          case "gcode_material_parse": {
+            const { GCodeMaterialParserEngine } = await import("../../engines/GCodeMaterialParserEngine.js");
+            const program = typeof params.program === "string" ? params.program : "";
+            const opts: { headerWindowLines?: number; scanFullProgram?: boolean } = {};
+            if (Number.isFinite(Number(params.header_window_lines))) opts.headerWindowLines = Number(params.header_window_lines);
+            if (typeof params.scan_full_program === "boolean") opts.scanFullProgram = params.scan_full_program;
+            result = GCodeMaterialParserEngine.parse(program, opts);
+            break;
+          }
+          // ── U-WIRE-DEPENDENCY-CYCLE-ANALYZE (slot:romeo): CircularDependencyEngine → prism_dev ──
+          // Tarjan's SCC (cycle detection) + Kahn's topo-sort over a supplied dependency graph.
+          // reset → build → analyze runs SYNCHRONOUSLY (no await between reset and analyze) so
+          // concurrent dispatcher calls never interleave on the shared singleton. CRITICAL: addEdge
+          // does NOT populate the nodes map but findSCCs iterates nodes.keys(), so EVERY edge
+          // endpoint is addNode'd here — otherwise edge-only nodes are silently dropped from SCC
+          // detection and a real cycle reads as acyclic. Verified GENUINE_ORPHAN via
+          // scripts/classify-engine-reachability.mjs (U-CLASSIFIER-AWARE-HUNT).
+          case "dependency_cycle_analyze": {
+            const { circularDependencyEngine } = await import("../../engines/CircularDependencyEngine.js");
+            const nodesIn = Array.isArray(params.nodes) ? (params.nodes as Array<{ id: string; type?: string; path?: string }>) : [];
+            const edgesIn = Array.isArray(params.edges) ? (params.edges as Array<{ from: string; to: string; type?: string }>) : [];
+            const criticalIn = Array.isArray(params.critical) ? (params.critical as string[]) : [];
+            circularDependencyEngine.reset();
+            const declaredType = new Map(nodesIn.map((n) => [n.id, n.type]));
+            const declaredPath = new Map(nodesIn.map((n) => [n.id, n.path]));
+            const allIds = new Set<string>();
+            for (const n of nodesIn) allIds.add(n.id);
+            for (const e of edgesIn) { allIds.add(e.from); allIds.add(e.to); }
+            for (const id of allIds) {
+              const t = (declaredType.get(id) ?? "file") as "engine" | "hook" | "dispatcher" | "file" | "action" | "skill";
+              circularDependencyEngine.addNode({ id, type: t, path: declaredPath.get(id) });
+            }
+            for (const e of edgesIn) circularDependencyEngine.addEdge(e.from, e.to, (e.type ?? "imports") as "imports" | "calls" | "triggers" | "writes" | "reads");
+            for (const c of criticalIn) circularDependencyEngine.markCritical(c);
+            result = circularDependencyEngine.analyze();
+            break;
+          }
+          // ── U-WIRE-PSN-HEALTH-CHECK (slot:romeo): PSNHealthCheckEngine → prism_dev ──
+          // Pure static 11-leg PSN-leg health classifier. The CALLER assembles signal inputs from
+          // disk into the LegInputs shape; this engine does the deterministic classification only
+          // (no I/O). Missing legs render { status: "unknown" } — never fail-loud. The engine's
+          // check() runs LegInputsSchema.parse internally, so invalid per-leg shapes throw a ZodError
+          // that we convert to a structured error (the engine does NOT throw on valid/empty input, so
+          // this is not a throws-on-every-call wire). Verified GENUINE_ORPHAN via
+          // scripts/classify-engine-reachability.mjs (U-CLASSIFIER-AWARE-HUNT).
+          case "psn_health_check": {
+            const { PSNHealthCheckEngine } = await import("../../engines/PSNHealthCheckEngine.js");
+            const inputs = (params.inputs ?? {}) as Parameters<typeof PSNHealthCheckEngine.check>[0];
+            try {
+              const report = PSNHealthCheckEngine.check(inputs);
+              result = { ...report, summary_line: PSNHealthCheckEngine.renderSummary(report) };
+            } catch (e) {
+              result = { error: "invalid_leg_inputs", message: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          // ── U-WIRE-MSA-ANALYZE (slot:romeo): MeasurementSystemAnalysisEngine → prism_dev ──
+          // Pure static Gage R&R via crossed ANOVA (AIAG MSA 4th ed). analyze() runs MsaStudySchema.parse
+          // + throws on insufficient/non-rectangular data (<2 parts, <2 trials, ragged) — converted to a
+          // structured error here (valid data returns fine, so not a throws-on-every-call wire). Verified
+          // GENUINE_ORPHAN via scripts/classify-engine-reachability.mjs (U-CLASSIFIER-AWARE-HUNT).
+          case "msa_analyze": {
+            const { MeasurementSystemAnalysisEngine } = await import("../../engines/MeasurementSystemAnalysisEngine.js");
+            const study = {
+              measurements: params.measurements,
+              tolerance: params.tolerance,
+              processVariation: params.processVariation,
+            } as Parameters<typeof MeasurementSystemAnalysisEngine.analyze>[0];
+            try {
+              result = MeasurementSystemAnalysisEngine.analyze(study);
+            } catch (e) {
+              result = { error: "invalid_msa_study", message: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          // ── U-WIRE-SIM-STALL (slot:romeo): SimulationStallDetectorEngine → prism_dev ──
+          // Watchdog for the lathe-sim pipeline: converts silent stage hangs into typed stall events
+          // (stage budgets gcode_parse 5s / kinematics 10s / collision_check 30s / physics_validate 20s
+          // / finalize 5s). now_ms is injected so the watchdog is deterministic + testable. Stateful
+          // singleton (tracks jobs in-process); each call is self-contained. startTracking/markProgress
+          // throw on unknown/duplicate/untracked job → converted to structured errors. Verified
+          // GENUINE_ORPHAN via scripts/classify-engine-reachability.mjs (U-CLASSIFIER-AWARE-HUNT).
+          case "sim_stall_start_tracking": {
+            const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+            try {
+              simulationStallDetectorEngine.startTracking(
+                String(params.job_id ?? ""),
+                params.stage as Parameters<typeof simulationStallDetectorEngine.startTracking>[1],
+                Number(params.now_ms),
+                (params.context ?? {}) as Record<string, unknown>,
+              );
+              result = { tracked: true, job_id: params.job_id };
+            } catch (e) {
+              result = { error: "sim_stall_start_failed", message: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "sim_stall_mark_progress": {
+            const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+            try {
+              simulationStallDetectorEngine.markProgress(String(params.job_id ?? ""), Number(params.now_ms));
+              result = { ok: true, job_id: params.job_id };
+            } catch (e) {
+              result = { error: "sim_stall_mark_failed", message: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "sim_stall_scan": {
+            const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+            const now = Number(params.now_ms);
+            if (typeof params.job_id === "string" && params.job_id) {
+              const ev = simulationStallDetectorEngine.scanOne(params.job_id, now);
+              result = { stalled: ev !== undefined, event: ev ?? null };
+            } else {
+              const events = simulationStallDetectorEngine.scan(now);
+              result = { count: events.length, events };
+            }
+            break;
+          }
+          case "sim_stall_stats": {
+            const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+            result = simulationStallDetectorEngine.statsAt(Number(params.now_ms));
+            break;
+          }
+          case "sim_stall_complete": {
+            const { simulationStallDetectorEngine } = await import("../../engines/SimulationStallDetectorEngine.js");
+            result = { completed: simulationStallDetectorEngine.completeJob(String(params.job_id ?? "")) };
+            break;
+          }
+          // ── PSN-INCORPORATION-MS0/U-AUTOMATE-WIRE (charlie /goal-7 iter4) — wire PSNIncorporationOrchestratorEngine ──
+          // Closes the orphan-engine gate flagged by stop_on_unwired_assets after commit 58a480d778.
+          // Doctrine: feedback_psn_definition leg #11, CLAUDE.md §ENGINE WIRING.
+          case "psn_incorp_list_eligible": {
+            const { psnIncorporationOrchestratorEngine } = await import("../../engines/PSNIncorporationOrchestratorEngine.js");
+            result = psnIncorporationOrchestratorEngine.listEligible();
+            break;
+          }
+          case "psn_incorp_plan_coverage": {
+            const { psnIncorporationOrchestratorEngine } = await import("../../engines/PSNIncorporationOrchestratorEngine.js");
+            result = psnIncorporationOrchestratorEngine.planCoverage();
+            break;
+          }
+          case "psn_incorp_pick_for_slot": {
+            const { psnIncorporationOrchestratorEngine } = await import("../../engines/PSNIncorporationOrchestratorEngine.js");
+            result = psnIncorporationOrchestratorEngine.pickForSlot(String(params.slot ?? ""));
+            break;
+          }
+          case "psn_incorp_get_unit": {
+            const { psnIncorporationOrchestratorEngine } = await import("../../engines/PSNIncorporationOrchestratorEngine.js");
+            result = psnIncorporationOrchestratorEngine.getUnit(String(params.unitId ?? ""));
+            break;
+          }
+          case "psn_incorp_read_plan": {
+            const { psnIncorporationOrchestratorEngine } = await import("../../engines/PSNIncorporationOrchestratorEngine.js");
+            const plan = psnIncorporationOrchestratorEngine.readPlan(String(params.unitId ?? ""));
+            result = { unitId: String(params.unitId ?? ""), found: plan !== null, plan };
+            break;
+          }
+          // ── PSN-AUTONOMY-R4 Primitives 2-5 (charlie /goal-9 iter4) — closes Stop-gate ──
+          case "psn_autonomy_score_event": {
+            const { psnAutonomyLoopEngine } = await import("../../engines/PSNAutonomyLoopEngine.js");
+            result = psnAutonomyLoopEngine.scoreEvent(params.event as any);
+            break;
+          }
+          case "psn_autonomy_trainer_manifest": {
+            const { psnAutonomyLoopEngine } = await import("../../engines/PSNAutonomyLoopEngine.js");
+            result = psnAutonomyLoopEngine.buildTrainerManifest((params.events as any) || []);
+            break;
+          }
+          case "psn_autonomy_shadow_compare": {
+            const { psnAutonomyLoopEngine } = await import("../../engines/PSNAutonomyLoopEngine.js");
+            result = psnAutonomyLoopEngine.shadowCompare((params.pairs as any) || []);
+            break;
+          }
+          case "psn_autonomy_ewc_regularize": {
+            const { psnAutonomyLoopEngine } = await import("../../engines/PSNAutonomyLoopEngine.js");
+            result = psnAutonomyLoopEngine.ewcRegularizeWeights(
+              (params.current as number[]) || [],
+              (params.reference as number[]) || [],
+              (params.fisher as number[]) || []
+            );
+            break;
+          }
+          // ── SVI-ENHANCE-MS0 U-SVI-E01 + U-SVI-E07 (charlie /goal-12 iter1) ──
+          case "svi_enhanced_compute": {
+            const { sviEnhancedCalculatorEngine, DEFAULT_MOAT_WEIGHTS } = await import("../../engines/SVIEnhancedCalculatorEngine.js");
+            const moatWeights = (params.moat_weights as any) ?? DEFAULT_MOAT_WEIGHTS;
+            result = sviEnhancedCalculatorEngine.compute(params.signals as any, moatWeights);
+            break;
+          }
+          case "svi_moat_score": {
+            const { sviEnhancedCalculatorEngine } = await import("../../engines/SVIEnhancedCalculatorEngine.js");
+            result = {
+              moat_score: sviEnhancedCalculatorEngine.computeMoatScore(
+                (params.axes as number[]) || [],
+                (params.weights as number[]) || []
+              ),
+            };
+            break;
+          }
+          case "svi_kolmogorov_bound": {
+            const { sviEnhancedCalculatorEngine } = await import("../../engines/SVIEnhancedCalculatorEngine.js");
+            result = sviEnhancedCalculatorEngine.computeKolmogorovBound(
+              Number(params.artifactsBits ?? 0),
+              Number(params.validationDensity ?? 0.5),
+              Number(params.nonDerivableFraction ?? 0.5),
+              params.productivityBitsPerDevYear ? Number(params.productivityBitsPerDevYear) : undefined
+            );
+            break;
+          }
+          case "svi_kolmogorov_live": {
+            const { sviEnhancedCalculatorEngine } = await import("../../engines/SVIEnhancedCalculatorEngine.js");
+            result = sviEnhancedCalculatorEngine.computeLiveKolmogorov(params.stats as any);
+            break;
+          }
+          case "svi_mi_weight_learner": {
+            const { sviEnhancedCalculatorEngine } = await import("../../engines/SVIEnhancedCalculatorEngine.js");
+            result = {
+              weights: sviEnhancedCalculatorEngine.learnMutualInfoWeights(params.componentTimeseries as any),
+            };
+            break;
+          }
+          case "svi_competitor_simulation": {
+            const { sviEnhancedCalculatorEngine } = await import("../../engines/SVIEnhancedCalculatorEngine.js");
+            result = sviEnhancedCalculatorEngine.competitorSimulation(
+              Number(params.prismSviMoat ?? 0),
+              params.profile as any,
+              params.nSamples ? Number(params.nSamples) : 10000,
+              params.seed ? Number(params.seed) : 42,
+            );
+            break;
+          }
+          // ── PROGRAM-PROOF-MS0 / U-PP01 (charlie /goal-12 iter5) ──
+          case "jm_die_envelope_catalog": {
+            const { jmDieMachineEnvelopeCatalogEngine } = await import("../../engines/JMDieMachineEnvelopeCatalogEngine.js");
+            result = { catalog: jmDieMachineEnvelopeCatalogEngine.catalog(), counts: jmDieMachineEnvelopeCatalogEngine.classCounts() };
+            break;
+          }
+          case "jm_die_envelope_lookup": {
+            const { jmDieMachineEnvelopeCatalogEngine } = await import("../../engines/JMDieMachineEnvelopeCatalogEngine.js");
+            result = { envelope: jmDieMachineEnvelopeCatalogEngine.lookup(String(params.machineId ?? "")) };
+            break;
+          }
+          case "jm_die_envelope_query": {
+            const { jmDieMachineEnvelopeCatalogEngine } = await import("../../engines/JMDieMachineEnvelopeCatalogEngine.js");
+            result = { matches: jmDieMachineEnvelopeCatalogEngine.query(params as any) };
+            break;
+          }
+          case "jm_die_envelope_point_inside": {
+            const { jmDieMachineEnvelopeCatalogEngine } = await import("../../engines/JMDieMachineEnvelopeCatalogEngine.js");
+            result = jmDieMachineEnvelopeCatalogEngine.pointInsideEnvelope(
+              String(params.machineId ?? ""),
+              params.point as any,
+            );
+            break;
+          }
+          // ── PROGRAM-PROOF-MS0 / U-PP02 (charlie /goal-12 iter6) — interval predicate primitive ──
+          case "program_proof_interval_predicate": {
+            const { intervalArithmeticPredicateEngine } = await import("../../engines/IntervalArithmeticPredicateEngine.js");
+            const op = String(params.op ?? "");
+            const args = (params.args as any) || {};
+            switch (op) {
+              case "pointInBox":
+                result = { predicate: intervalArithmeticPredicateEngine.pointInBox(args.pt, args.box) };
+                break;
+              case "segmentDistance":
+                result = { predicate: intervalArithmeticPredicateEngine.segmentDistancePredicate(args.distLowerBound, Number(args.safetyMarginMm ?? 0)) };
+                break;
+              case "combine":
+                result = { predicate: intervalArithmeticPredicateEngine.combine(args.predicates || []) };
+                break;
+              default:
+                result = { error: `unknown op: ${op}; expected pointInBox | segmentDistance | combine` };
+            }
+            break;
+          }
+          // ── CODE-INTEGRITY-WIRE (slot:bravo) — CodeGenerationIntegrityEngine. Was a
+          // stop_on_unwired_assets orphan (0 dispatcher refs; the only mention in
+          // AIDeepKnowledgeIntegrationEngine is a DOC COMMENT, not a call — so it is a true
+          // orphan, not WIRE-EXEMPT). Pure validators that detect corrupted generated code
+          // (binary signatures, sourcemap leakage, invalid TS starts, structural corruption)
+          // BEFORE it is written to disk. Natural prism_dev home (code-quality tooling).
+          case "code_integrity_quick_validate": {
+            const { codeGenerationIntegrityEngine } = await import("../../engines/CodeGenerationIntegrityEngine.js");
+            const p = params as { content: string };
+            result = codeGenerationIntegrityEngine.quickValidate(p.content);
+            break;
+          }
+          case "code_integrity_validate": {
+            const { codeGenerationIntegrityEngine } = await import("../../engines/CodeGenerationIntegrityEngine.js");
+            const p = params as { input: Parameters<typeof codeGenerationIntegrityEngine.validateBeforeWrite>[0] };
+            result = codeGenerationIntegrityEngine.validateBeforeWrite(p.input);
+            break;
+          }
+          case "code_integrity_stats": {
+            const { codeGenerationIntegrityEngine } = await import("../../engines/CodeGenerationIntegrityEngine.js");
+            result = codeGenerationIntegrityEngine.getStatistics();
+            break;
+          }
+          // ── PROGRAM-PROOF-MS0 / U-PP03 (charlie /goal-12 iter6) — cert orchestrator ──
+          case "program_proof_certify": {
+            const { programProofCertificateEngine } = await import("../../engines/ProgramProofCertificateEngine.js");
+            const cert = programProofCertificateEngine.certify(
+              String(params.machineId ?? ""),
+              (params.points as any[]) || [],
+            );
+            result = { certificate: cert, header: programProofCertificateEngine.formatHeader(cert) };
+            break;
+          }
           case "test_smoke": {
             const mode = params.mode || "run";
             if (mode === "atcs") {
@@ -1250,6 +1782,41 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          case "rag_eval_score": {
+            // RAG-UPGRADE-MS0/U-RAG-5: score one query's retrieval against ground truth.
+            const { retrievalEvalEngine } = await import("../../engines/RetrievalEvalEngine.js");
+            const retrieved = Array.isArray(params.retrieved) ? params.retrieved : [];
+            const relevant = Array.isArray(params.relevant) ? params.relevant : [];
+            if (!retrieved.length && !relevant.length) {
+              result = { error: "Missing required params: retrieved[] and relevant[]" };
+              break;
+            }
+            const ks = Array.isArray(params.ks) && params.ks.length ? params.ks : undefined;
+            result = retrievalEvalEngine.evaluateQuery(
+              String(params.query || "query"), retrieved, relevant, ks,
+            );
+            break;
+          }
+          case "rag_eval_run": {
+            // RAG-UPGRADE-MS0/U-RAG-5: score a query SET. `retrieved` is a
+            // { [query]: string[] } map of already-fetched results, so the pure
+            // scoring path round-trips through JSON params (no live retrieveFn).
+            const { retrievalEvalEngine } = await import("../../engines/RetrievalEvalEngine.js");
+            const queries = Array.isArray(params.queries) ? params.queries : [];
+            if (!queries.length) {
+              result = { error: "Missing required param: queries[] of {query, relevantIds}" };
+              break;
+            }
+            const retrievedMap = (params.retrieved && typeof params.retrieved === "object")
+              ? params.retrieved : {};
+            const ksRun = Array.isArray(params.ks) && params.ks.length ? params.ks : undefined;
+            result = await retrievalEvalEngine.evaluateQuerySet(
+              queries,
+              (q: string) => (Array.isArray(retrievedMap[q]) ? retrievedMap[q] : []),
+              ksRun,
+            );
+            break;
+          }
           case "svi_compute": {
             const { systemVariabilityIndexEngine } = await import("../../engines/SystemVariabilityIndexEngine.js");
             const drift = await systemVariabilityIndexEngine.inspectDrift();
@@ -1877,6 +2444,16 @@ export function registerDevDispatcher(server: any): void {
           case "mit_courses_harvest": {
             const { MitCourseIndexEngine } = await import("../../engines/MitCourseIndexEngine.js");
             result = { harvest: await MitCourseIndexEngine.harvest() };
+            break;
+          }
+          // ── MIT-COURSE-INTEGRATION/U-MIT-OCW-RESOURCE-RESOLVER (slot:india 2026-05-23) ────
+          // Pure URL resolver — caller wraps returned URLs with Playwright MCP
+          // (per feedback_playwright_for_online_sources) to actually fetch resources.
+          case "mit_ocw_resolve_course_urls":
+          case "mit_ocw_resolve_batch":
+          case "mit_ocw_default_pages": {
+            const { mitOcwResourceResolverEngine } = await import("../../engines/MitOcwResourceResolverEngine.js");
+            result = mitOcwResourceResolverEngine.execute(action, params);
             break;
           }
           // ── WIRE-UNWIRED-MS0/U-WIRE-ISA: InverseStackupAllocatorEngine ────
@@ -4125,6 +4702,76 @@ export function registerDevDispatcher(server: any): void {
             };
             break;
           }
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WPL: WEDMPulseLimitEngine ────────
+          case "wpl_calculate_duty_cycle": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const p = params as { ton_us: number; toff_us: number };
+            try {
+              const r = wedmPulseLimitEngine.calculateDutyCycle(p.ton_us, p.toff_us);
+              result = { duty_cycle: r };
+            } catch (e: unknown) {
+              result = { error: e instanceof Error ? e.message : String(e) };
+            }
+            break;
+          }
+          case "wpl_calculate_frequency": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const p = params as { ton_us: number; toff_us: number };
+            const r = wedmPulseLimitEngine.calculateFrequency(p.ton_us, p.toff_us);
+            result = { frequency_Hz: r };
+            break;
+          }
+          case "wpl_calculate_pulse_energy": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const p = params as { peak_current_A: number; ton_us: number; gap_voltage_V?: number };
+            const r = wedmPulseLimitEngine.calculatePulseEnergy(p.peak_current_A, p.ton_us, p.gap_voltage_V);
+            result = { energy_mJ: r };
+            break;
+          }
+          case "wpl_get_max_ton": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const p = params as { operation_type?: "roughing" | "finishing" | "skim" };
+            const r = wedmPulseLimitEngine.getMaxTon(p.operation_type);
+            result = { max_ton_us: r };
+            break;
+          }
+          case "wpl_validate": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const r = wedmPulseLimitEngine.validate(
+              params as Parameters<typeof wedmPulseLimitEngine.validate>[0],
+            );
+            // PulseLimitResult: safe + duty_cycle + frequency_Hz +
+            // validations[] + warnings[] + optional block_reason.
+            result = {
+              result: r,
+              safe: r.safe,
+              duty_cycle: r.duty_cycle,
+              frequency_Hz: r.frequency_Hz,
+              validation_count: r.validations.length,
+              fail_count: r.validations.filter((v) => v.status === "fail").length,
+              warning_count: r.warnings.length,
+              has_block_reason: typeof r.block_reason === "string",
+            };
+            break;
+          }
+          case "wpl_calculate_safe_pulse": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const p = params as { target_mrr: "high" | "medium" | "low"; wire_diameter_mm: number; operation_type?: "roughing" | "finishing" | "skim" };
+            const r = wedmPulseLimitEngine.calculateSafePulse(p.target_mrr, p.wire_diameter_mm, p.operation_type);
+            result = {
+              result: r,
+              ton_us: r.ton_us,
+              toff_us: r.toff_us,
+              peak_current_A: r.peak_current_A,
+            };
+            break;
+          }
+          case "wpl_get_config": {
+            const { wedmPulseLimitEngine } = await import("../../engines/WEDMPulseLimitEngine.js");
+            const r = wedmPulseLimitEngine.getConfig();
+            result = { result: r, max_duty_cycle: r.max_duty_cycle };
+            break;
+          }
           // ── WIRE-UNWIRED-MS0/U-WIRE-CRYS: CrystallizationEngine ──────
           case "crys_calculate": {
             const { crystallizationEngine } = await import("../../engines/CrystallizationEngine.js");
@@ -5287,6 +5934,24 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // ── P8-U05: Schema coverage audit (z.any() + .describe() density) ──
+          case "schema_coverage_audit": {
+            const { schemaCoverageAuditEngine: scaAudit } = await import("../../engines/SchemaCoverageAuditEngine.js");
+            result = scaAudit.audit();
+            break;
+          }
+          case "schema_coverage_audit_read": {
+            const { schemaCoverageAuditEngine: scaRead } = await import("../../engines/SchemaCoverageAuditEngine.js");
+            const cached = scaRead.read();
+            result = cached ?? { error: "No schema coverage audit found. Run schema_coverage_audit first." };
+            break;
+          }
+          case "schema_coverage_audit_summary": {
+            const { schemaCoverageAuditEngine: scaSum } = await import("../../engines/SchemaCoverageAuditEngine.js");
+            result = { summary: scaSum.summary() };
+            break;
+          }
+
           // ── AUTO-3: Test generation ──
           case "test_generate": {
             const { autoTestGeneratorEngine } = await import("../../engines/AutoTestGeneratorEngine.js");
@@ -5346,6 +6011,23 @@ export function registerDevDispatcher(server: any): void {
           case "formula_accuracy_summary": {
             const { formulaValidationEngine: fvSum } = await import("../../engines/FormulaValidationEngine.js");
             result = { summary: fvSum.summary() };
+            break;
+          }
+
+          // ── RES-MS1: Formula harvest from JS knowledge files (U-GAP-TRIBAL-FORMULA-REGISTRY) ──
+          case "formula_harvest": {
+            const { FormulaHarvesterEngine } = await import("../../engines/FormulaHarvesterEngine.js");
+            result = await FormulaHarvesterEngine.harvest();
+            break;
+          }
+          case "formula_harvest_sources": {
+            const { FormulaHarvesterEngine: fhSrc } = await import("../../engines/FormulaHarvesterEngine.js");
+            result = fhSrc.getSources();
+            break;
+          }
+          case "formula_harvest_audit": {
+            const { FormulaHarvesterEngine: fhAudit } = await import("../../engines/FormulaHarvesterEngine.js");
+            result = await fhAudit.audit();
             break;
           }
 
@@ -5838,6 +6520,263 @@ export function registerDevDispatcher(server: any): void {
             const tracker = new TokenEconomyTrackerEngine();
             tracker.reset();
             result = { success: true, message: "Token economy state reset" };
+            break;
+          }
+
+          // ── WIRE-UNWIRED-MS0/U-WIRE-WASTE-DETECTOR ────────────────────
+          // WasteDetectorEngine — 8-WasteType real-time tool-call pattern detector.
+          // Sibling of token_detect_waste (above) but distinct: that one wraps
+          // TokenEconomyTrackerEngine macro budget accounting. This one fires on
+          // micro per-call patterns. Singleton (wasteDetectorEngine) accumulates
+          // events across MCP server lifetime — matches the ToolCall* family
+          // convention. Op-discriminator over 7 methods; per-op required-field
+          // checks fail loud via ok({error}) per WIRE-UNWIRED contract.
+          case "waste_detector": {
+            const { wasteDetectorEngine } = await import("../../engines/WasteDetectorEngine.js");
+            const op = params.op;
+            switch (op) {
+              case "record": {
+                if (!params.type || !params.tool || params.tokens_wasted === undefined) {
+                  result = { error: "record requires {type, tool, detail?, tokens_wasted}" };
+                  break;
+                }
+                wasteDetectorEngine.record(params.type, params.tool, params.detail ?? "", params.tokens_wasted);
+                result = { success: true };
+                break;
+              }
+              case "check_read": {
+                if (!params.file || params.tokens_returned === undefined) {
+                  result = { error: "check_read requires {file, tokens_returned}" };
+                  break;
+                }
+                result = { event: wasteDetectorEngine.checkRead(params.file, params.tokens_returned) };
+                break;
+              }
+              case "check_search": {
+                if (!params.pattern || params.match_count === undefined || params.tokens_used === undefined) {
+                  result = { error: "check_search requires {pattern, match_count, tokens_used}" };
+                  break;
+                }
+                result = { event: wasteDetectorEngine.checkSearch(params.pattern, params.match_count, params.tokens_used) };
+                break;
+              }
+              case "check_output_size": {
+                if (!params.tool || params.tokens_returned === undefined) {
+                  result = { error: "check_output_size requires {tool, tokens_returned, expected_max?}" };
+                  break;
+                }
+                result = { event: wasteDetectorEngine.checkOutputSize(params.tool, params.tokens_returned, params.expected_max) };
+                break;
+              }
+              case "report":   result = wasteDetectorEngine.report(); break;
+              case "oneliner": result = { line: wasteDetectorEngine.oneLiner() }; break;
+              case "reset":    wasteDetectorEngine.reset(); result = { success: true }; break;
+              default:         result = { error: `unknown waste_detector op: ${String(op)}` };
+            }
+            break;
+          }
+
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-THROTTLE ────────────────
+          // ToolCallThrottleEngine — active rate-limit + burst-limit + cooldown gate.
+          // Sibling to tool_call_record/_analyze/_reset (ToolCallTracker — passive
+          // observability) but DISTINCT: this engine makes the active throttle
+          // decision. Singleton (toolCallThrottleEngine) preserves call-log + per-
+          // tool cooldown timers across MCP server lifetime — `new ToolCallThrottleEngine()`
+          // per call would silently start a fresh log, defeating rate-limit purpose.
+          // Op-discriminator: 5 methods (check / set_rule / stats / oneliner / reset).
+          case "tool_call_throttle": {
+            const { toolCallThrottleEngine } = await import("../../engines/ToolCallThrottleEngine.js");
+            const op = params.op;
+            switch (op) {
+              case "check": {
+                if (!params.tool) {
+                  result = { error: "check requires {tool}" };
+                  break;
+                }
+                result = toolCallThrottleEngine.check(params.tool);
+                break;
+              }
+              case "set_rule": {
+                if (!params.tool || params.max_per_minute === undefined) {
+                  result = { error: "set_rule requires {tool, max_per_minute, burst_limit?, cooldown_ms?}" };
+                  break;
+                }
+                toolCallThrottleEngine.setRule(
+                  params.tool,
+                  params.max_per_minute,
+                  params.burst_limit,
+                  params.cooldown_ms,
+                );
+                result = { success: true };
+                break;
+              }
+              case "stats":    result = toolCallThrottleEngine.stats(); break;
+              case "oneliner": result = { line: toolCallThrottleEngine.oneLiner() }; break;
+              case "reset":    toolCallThrottleEngine.reset(); result = { success: true }; break;
+              default:         result = { error: `unknown tool_call_throttle op: ${String(op)}` };
+            }
+            break;
+          }
+
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-DEDUP ───────────────────
+          // ToolCallDeduplicatorEngine — exact + near-duplicate detector.
+          // Hooks call check() BEFORE execution; record() AFTER. The engine
+          // hashes a sorted-key JSON of params for the exact-match path AND
+          // does a 0.9-similarity fallback over the stringified form for
+          // near-match. 120s rolling window, max 200 records. Singleton
+          // (toolCallDeduplicatorEngine) — `new` per call defeats dedup.
+          case "tool_call_dedup": {
+            const { toolCallDeduplicatorEngine } = await import("../../engines/ToolCallDeduplicatorEngine.js");
+            const op = params.op;
+            switch (op) {
+              case "check": {
+                if (!params.tool) {
+                  result = { error: "check requires {tool, params?}" };
+                  break;
+                }
+                // 'params.params' is the inner call-params record. Default
+                // to {} when absent so the engine hashes a stable empty key
+                // instead of throwing on undefined.
+                result = toolCallDeduplicatorEngine.check(params.tool, params.params ?? {});
+                break;
+              }
+              case "record": {
+                if (!params.tool) {
+                  result = { error: "record requires {tool, params?}" };
+                  break;
+                }
+                toolCallDeduplicatorEngine.record(params.tool, params.params ?? {});
+                result = { success: true };
+                break;
+              }
+              case "stats":  result = toolCallDeduplicatorEngine.stats(); break;
+              case "reset":  toolCallDeduplicatorEngine.reset(); result = { success: true }; break;
+              default:       result = { error: `unknown tool_call_dedup op: ${String(op)}` };
+            }
+            break;
+          }
+
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-BATCH-OPTIMIZE (foxtrot 2026-05-19) ─
+          // ToolCallBatchOptimizerEngine — dependency-aware batch planner +
+          // sequence analyzer for forward-planned tool calls. Op-discriminator
+          // over 4 methods: plan / analyze / estimate_cost / summary. Singleton
+          // (toolCallBatchOptimizerEngine) is stateless — no call log preserved.
+          case "tool_call_batch_optimize": {
+            const { toolCallBatchOptimizerEngine } = await import("../../engines/ToolCallBatchOptimizerEngine.js");
+            const op = params.op;
+            // calls must be an array of {tool, params, dependsOn?}. Reject
+            // non-array (R12) — silently coercing would hide caller bugs.
+            // Guard fires on EITHER absent input: a missing/non-array calls
+            // OR a missing op. `&&` here would let {calls:null} with no op
+            // fall through to the op-switch default and emit a misleading
+            // "unknown op: undefined" instead of the real "requires {...}".
+            const calls = Array.isArray(params.calls) ? params.calls : null;
+            if (!calls || op === undefined) {
+              result = { error: `tool_call_batch_optimize requires {calls: ToolCall[], op: "plan"|"analyze"|"estimate_cost"|"summary"}` };
+              break;
+            }
+            switch (op) {
+              case "plan":          result = { success: true, plan: toolCallBatchOptimizerEngine.plan(calls!) }; break;
+              case "analyze":       result = { success: true, analysis: toolCallBatchOptimizerEngine.analyze(calls!) }; break;
+              case "estimate_cost": result = { success: true, estimatedTokens: toolCallBatchOptimizerEngine.estimateCost(calls!) }; break;
+              case "summary":       result = { success: true, summary: toolCallBatchOptimizerEngine.summary(calls!) }; break;
+              default:              result = { error: `unknown tool_call_batch_optimize op: ${String(op)} (expected plan|analyze|estimate_cost|summary)` };
+            }
+            break;
+          }
+
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-HISTOGRAM ──────────────
+          // ToolCallHistogramEngine — per-tool token-cost distribution
+          // visualizer. record(tool, tokens) accumulates a call-cost log;
+          // report/format/oneliner render the percent-of-session ASCII
+          // histogram + top-consumer. Singleton (toolCallHistogramEngine)
+          // preserves the log across MCP server lifetime — `new
+          // ToolCallHistogramEngine()` per call would silently start a fresh
+          // log, losing the distribution. Op-discriminator: 6 methods
+          // (record/report/format/oneliner/window/reset). Distinct from
+          // tool_call_throttle (active rate-limiter), tool_call_dedup
+          // (duplicate detector), tool_call_batch_optimize (parallelization
+          // planner) — this is the passive token-cost distribution surface.
+          case "tool_call_histogram": {
+            const { toolCallHistogramEngine } = await import("../../engines/ToolCallHistogramEngine.js");
+            const op = params.op;
+            switch (op) {
+              case "record": {
+                if (!params.tool || params.tokens === undefined) {
+                  result = { error: "record requires {tool, tokens}" };
+                  break;
+                }
+                toolCallHistogramEngine.record(params.tool, params.tokens);
+                result = { success: true };
+                break;
+              }
+              case "report":   result = { success: true, report: toolCallHistogramEngine.report() }; break;
+              case "format":   result = { success: true, histogram: toolCallHistogramEngine.format(params.max_tools) }; break;
+              case "oneliner": result = { success: true, line: toolCallHistogramEngine.oneLiner() }; break;
+              case "window": {
+                if (params.minutes === undefined) {
+                  result = { error: "window requires {minutes}" };
+                  break;
+                }
+                result = { success: true, calls: toolCallHistogramEngine.window(params.minutes) };
+                break;
+              }
+              case "reset":    toolCallHistogramEngine.reset(); result = { success: true }; break;
+              default:         result = { error: `unknown tool_call_histogram op: ${String(op)} (expected record|report|format|oneliner|window|reset)` };
+            }
+            break;
+          }
+
+          // ── WIRE-UNWIRED-MS0/U-WIRE-TOOL-CALL-PIPELINE ────────────────
+          // ToolCallPipelineEngine — declarative reusable tool-call pipelines.
+          // Singleton (toolCallPipelineEngine) preserves registered pipelines +
+          // execution log across MCP lifetime. 7 ops surfaced; recordExecution
+          // is intentionally NOT wired — its PipelineResult arg carries Map<>
+          // fields (results) that cannot round-trip a JSON dispatcher boundary.
+          // register accepts declarative steps only (no condition/transform
+          // closures — those cannot cross the boundary either; an absent
+          // closure is valid per the optional PipelineStep contract).
+          case "tool_call_pipeline": {
+            const { toolCallPipelineEngine } = await import("../../engines/ToolCallPipelineEngine.js");
+            const op = params.op;
+            switch (op) {
+              case "register": {
+                if (!params.name || !Array.isArray(params.steps)) {
+                  result = { error: "register requires {name, steps: [{name, tool, params}], description?}" };
+                  break;
+                }
+                toolCallPipelineEngine.register({
+                  name: params.name,
+                  steps: params.steps,
+                  description: params.description,
+                });
+                result = { success: true, registered: params.name };
+                break;
+              }
+              case "get": {
+                if (!params.name) {
+                  result = { error: "get requires {name}" };
+                  break;
+                }
+                const def = toolCallPipelineEngine.get(params.name);
+                result = def ? { definition: def } : { error: `pipeline not found: ${params.name}` };
+                break;
+              }
+              case "list":     result = { pipelines: toolCallPipelineEngine.list() }; break;
+              case "dry_run": {
+                if (!params.name) {
+                  result = { error: "dry_run requires {name, params?}" };
+                  break;
+                }
+                const plan = toolCallPipelineEngine.dryRun(params.name, params.params);
+                result = plan ? plan : { error: `pipeline not found: ${params.name}` };
+                break;
+              }
+              case "stats":    result = toolCallPipelineEngine.stats(); break;
+              case "oneliner": result = { line: toolCallPipelineEngine.oneLiner() }; break;
+              case "reset":    toolCallPipelineEngine.reset(); result = { success: true }; break;
+              default:         result = { error: `unknown tool_call_pipeline op: ${String(op)} (expected register|get|list|dry_run|stats|oneliner|reset)` };
+            }
             break;
           }
 
@@ -8545,6 +9484,21 @@ export function registerDevDispatcher(server: any): void {
             result = { success: true, data: { removed, olderThanMs } };
             break;
           }
+          // BLACKWELL-AI-MS0/U-PYGPU-HEALTH — fail-loud GPU training-stack readiness.
+          case "gpu_stack_health": {
+            const { gpuStackHealthEngine } = await import("../../engines/GpuStackHealthEngine.js");
+            const health = await gpuStackHealthEngine.check({
+              requireBnb: params.requireBnb === true,
+              force: params.force === true,
+              pythonPath: typeof params.pythonPath === "string" ? params.pythonPath : undefined,
+              timeoutMs:
+                typeof params.timeoutMs === "number" && Number.isFinite(params.timeoutMs) && params.timeoutMs > 0
+                  ? params.timeoutMs
+                  : undefined,
+            });
+            result = { success: true, data: health };
+            break;
+          }
           // INTEL-OLLAMA-OBSIDIAN-MS0/P23-U02 — apply the on-disk adaptation
           // state to the live ModelRoutingEngine singleton. Closes the
           // feedback loop: tuner writes router-adaptation-state.json,
@@ -8926,6 +9880,32 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // WIRE-UNWIRED: OutputTruncatorEngine — smart head+tail/JSON-shape/file-list/search truncation
+          case "output_truncate": {
+            const { outputTruncatorEngine } = await import("../../engines/OutputTruncatorEngine.js");
+            const opts = (params.opts || {}) as Record<string, unknown>;
+            result = { success: true, text: outputTruncatorEngine.truncate(String(params.text ?? ""), opts) };
+            break;
+          }
+          case "output_truncate_json": {
+            const { outputTruncatorEngine } = await import("../../engines/OutputTruncatorEngine.js");
+            const maxChars = typeof params.max_chars === "number" ? params.max_chars : 4000;
+            result = { success: true, text: outputTruncatorEngine.truncateJson(params.data, maxChars) };
+            break;
+          }
+          case "output_truncate_savings": {
+            const { outputTruncatorEngine } = await import("../../engines/OutputTruncatorEngine.js");
+            const maxChars = typeof params.max_chars === "number" ? params.max_chars : 4000;
+            result = { success: true, savings: outputTruncatorEngine.savings(String(params.original ?? ""), maxChars) };
+            break;
+          }
+          case "output_truncate_auto": {
+            const { outputTruncatorEngine } = await import("../../engines/OutputTruncatorEngine.js");
+            const maxChars = typeof params.max_chars === "number" ? params.max_chars : 4000;
+            result = { success: true, text: outputTruncatorEngine.auto(String(params.content ?? ""), maxChars) };
+            break;
+          }
+
           // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-PROMPT-TPL: PromptTemplateEngine wire (2026-05-15)
           case "prompt_template_get": {
             const { promptTemplateEngine } = await import("../../engines/PromptTemplateEngine.js");
@@ -9173,6 +10153,715 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // WIRE-UNWIRED-PAPA/U-WIRE-SVI-IMPACT (slot:papa 2026-05-26):
+          // SVIImpactProjectorEngine — project the Ψ-delta for a proposed asset
+          // (engine/action/route/schema/dispatcher/skill/hook). Pure engine, no I/O.
+          // Returns {psiDelta, rationale, risk, badge}. Used by the PreTool hook to
+          // gate new-surface creation and emit +Ψ badges on likely wins.
+          // Params: { proposal: ProposedAsset, weights?: ProjectionWeights }.
+          case "svi_impact_project": {
+            const { SVIImpactProjectorEngine } = await import("../../engines/SVIImpactProjectorEngine.js");
+            const p = params as Record<string, unknown>;
+            const proposal = p.proposal as Record<string, unknown> | undefined;
+            if (!proposal || typeof proposal !== "object") {
+              result = { error: "svi_impact_project requires a 'proposal' object {type, name, ...}" };
+              break;
+            }
+            if (typeof proposal.type !== "string" || typeof proposal.name !== "string") {
+              result = { error: "svi_impact_project: proposal.type and proposal.name are required strings" };
+              break;
+            }
+            try {
+              const engine = p.weights
+                ? new SVIImpactProjectorEngine(p.weights as ConstructorParameters<typeof SVIImpactProjectorEngine>[0])
+                : new SVIImpactProjectorEngine();
+              const projection = engine.project(proposal as unknown as Parameters<typeof engine.project>[0]);
+              result = { success: true, projection };
+            } catch (e: any) {
+              result = { error: `svi_impact_project: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-ATOMIC-MULTIFILE (slot:papa 2026-05-26):
+          // AtomicMultiFileWriteEngine — 2-phase commit for multi-file writes
+          // (prepare → fsync → rename; partial failure leaves zero visible changes).
+          // Params: { operations: FileOperation[] } for atomic_write_all.
+          //         { maxAgeMs?: number } for atomic_cleanup_stale.
+          case "atomic_write_all": {
+            const { atomicMultiFileWriteEngine } = await import("../../engines/AtomicMultiFileWriteEngine.js");
+            const p = params as Record<string, unknown>;
+            const ops = p.operations;
+            if (!Array.isArray(ops) || ops.length === 0) {
+              result = { error: "atomic_write_all requires a non-empty 'operations' array of {path, content, encoding?}" };
+              break;
+            }
+            try {
+              const writeResult = await atomicMultiFileWriteEngine.writeAll(
+                ops as Parameters<typeof atomicMultiFileWriteEngine.writeAll>[0],
+              );
+              result = { ...writeResult };
+            } catch (e: any) {
+              result = { error: `atomic_write_all: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          case "atomic_cleanup_stale": {
+            const { atomicMultiFileWriteEngine } = await import("../../engines/AtomicMultiFileWriteEngine.js");
+            const p = params as Record<string, unknown>;
+            try {
+              const cleaned = await atomicMultiFileWriteEngine.cleanupStale(
+                typeof p.maxAgeMs === "number" ? p.maxAgeMs : undefined,
+              );
+              result = { success: true, cleaned };
+            } catch (e: any) {
+              result = { error: `atomic_cleanup_stale: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-DISTRIBUTED-LOCK (slot:papa 2026-05-26):
+          // DistributedLockEngine — file-based advisory locks with heartbeat for
+          // cross-session safety. Lock TTL + retry are configurable via options.
+          // Params: { resource: string, options?: LockOptions } for lock_acquire.
+          //         { resource: string } for lock_release + lock_info.
+          case "lock_acquire": {
+            const { distributedLockEngine } = await import("../../engines/DistributedLockEngine.js");
+            const p = params as Record<string, unknown>;
+            if (typeof p.resource !== "string" || p.resource.trim() === "") {
+              result = { error: "lock_acquire requires a non-empty 'resource' string" };
+              break;
+            }
+            try {
+              const lr = await distributedLockEngine.acquire(
+                p.resource,
+                (p.options ?? {}) as Parameters<typeof distributedLockEngine.acquire>[1],
+              );
+              result = { success: lr.acquired, ...lr };
+            } catch (e: any) {
+              result = { error: `lock_acquire: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          case "lock_release": {
+            const { distributedLockEngine } = await import("../../engines/DistributedLockEngine.js");
+            const p = params as Record<string, unknown>;
+            if (typeof p.resource !== "string" || p.resource.trim() === "") {
+              result = { error: "lock_release requires a non-empty 'resource' string" };
+              break;
+            }
+            try {
+              const released = await distributedLockEngine.release(p.resource);
+              result = { success: released, released };
+            } catch (e: any) {
+              result = { error: `lock_release: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          case "lock_info": {
+            const { distributedLockEngine } = await import("../../engines/DistributedLockEngine.js");
+            const p = params as Record<string, unknown>;
+            if (typeof p.resource !== "string" || p.resource.trim() === "") {
+              result = { error: "lock_info requires a non-empty 'resource' string" };
+              break;
+            }
+            try {
+              const info = distributedLockEngine.getLockInfo(p.resource);
+              const isLocked = distributedLockEngine.isLocked(p.resource);
+              const holdsLock = distributedLockEngine.holdsLock(p.resource);
+              result = { success: true, info, isLocked, holdsLock };
+            } catch (e: any) {
+              result = { error: `lock_info: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          case "lock_cleanup_stale": {
+            const { distributedLockEngine } = await import("../../engines/DistributedLockEngine.js");
+            try {
+              const cleaned = await distributedLockEngine.cleanupStaleLocks();
+              result = { success: true, cleaned };
+            } catch (e: any) {
+              result = { error: `lock_cleanup_stale: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-SELF-MODEL (slot:papa 2026-05-26):
+          // SelfModelEngine — per-session capability + action log + confidence.
+          // Engine takes sessionId in constructor; cache one instance per session.
+          // Params: { sessionId, name, initialConfidence? } for declare_capability.
+          //         { sessionId, action, outcome, note? } for record_action.
+          //         { sessionId } for snapshot.
+          case "self_model_declare_capability":
+          case "self_model_record_action":
+          case "self_model_snapshot": {
+            const { SelfModelEngine } = await import("../../engines/SelfModelEngine.js");
+            const p = params as Record<string, unknown>;
+            if (typeof p.sessionId !== "string" || p.sessionId.trim() === "") {
+              result = { error: `${action}: 'sessionId' required (string)` };
+              break;
+            }
+            // Lightweight per-call instance — engine is in-memory only.
+            const engine = new SelfModelEngine(p.sessionId);
+            try {
+              if (action === "self_model_declare_capability") {
+                if (typeof p.name !== "string") { result = { error: "self_model_declare_capability: 'name' required" }; break; }
+                const cap = engine.declareCapability(p.name, typeof p.initialConfidence === "number" ? p.initialConfidence : undefined);
+                result = { success: true, capability: cap };
+              } else if (action === "self_model_record_action") {
+                if (typeof p.action !== "string" || typeof p.outcome !== "string") {
+                  result = { error: "self_model_record_action: 'action' + 'outcome' required" };
+                  break;
+                }
+                engine.recordAction(p.action, p.outcome as Parameters<typeof engine.recordAction>[1], {
+                  note: typeof p.note === "string" ? p.note : undefined,
+                });
+                result = { success: true, recorded: true };
+              } else {
+                const snap = engine.snapshot();
+                result = { success: true, snapshot: snap };
+              }
+            } catch (e: any) {
+              result = { error: `${action}: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-WORLD-MODEL (slot:papa 2026-05-26):
+          // WorldModelEngine — singleton tracking world counts + query history
+          // by category (engine/action/hook/formula/algorithm).
+          // Params: { category, count } for set_count.
+          //         { category } for get_count.
+          //         {} for snapshot.
+          case "world_model_set_count":
+          case "world_model_get_count":
+          case "world_model_snapshot": {
+            const { worldModelEngine } = await import("../../engines/WorldModelEngine.js");
+            const p = params as Record<string, unknown>;
+            try {
+              if (action === "world_model_set_count") {
+                if (typeof p.category !== "string" || typeof p.count !== "number") {
+                  result = { error: "world_model_set_count: 'category' + 'count' required" };
+                  break;
+                }
+                const entry = worldModelEngine.setCount(p.category as Parameters<typeof worldModelEngine.setCount>[0], p.count);
+                result = { success: true, entry };
+              } else if (action === "world_model_get_count") {
+                if (typeof p.category !== "string") { result = { error: "world_model_get_count: 'category' required" }; break; }
+                const count = worldModelEngine.getCount(p.category as Parameters<typeof worldModelEngine.getCount>[0]);
+                result = { success: true, count };
+              } else {
+                result = { success: true, snapshot: worldModelEngine.snapshot() };
+              }
+            } catch (e: any) {
+              result = { error: `${action}: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-ABSTRACTION (slot:papa 2026-05-26):
+          // AbstractionHierarchyEngine — tip→rule→principle→law lift.
+          // Params: { text, tags? } for add_tip.
+          //         { id } for hierarchy.
+          //         { level } for at_level.
+          // WIRE-UNWIRED-PAPA/U-WIRE-CURIOSITY (slot:papa 2026-05-26 iter4):
+          // CuriosityDrivenExplorerEngine — proactive knowledge-gap hunter.
+          // Observe runs idle, rank returns top-K exploration targets sorted
+          // by score (priority high/medium/low). Singleton via new-per-call
+          // since callers may want isolated queues.
+          // Params: { observations: Observation[] } for curiosity_observe_batch.
+          //         { limit?: number } for curiosity_rank.
+          case "curiosity_observe_batch":
+          case "curiosity_rank": {
+            const { CuriosityDrivenExplorerEngine } = await import("../../engines/CuriosityDrivenExplorerEngine.js");
+            const p = params as Record<string, unknown>;
+            try {
+              const engine = new CuriosityDrivenExplorerEngine();
+              if (action === "curiosity_observe_batch") {
+                const observations = p.observations;
+                if (!Array.isArray(observations)) {
+                  result = { error: "curiosity_observe_batch requires 'observations' array of {kind, target, ageDays?, context?}" };
+                  break;
+                }
+                const added = engine.observeBatch(observations as Parameters<typeof engine.observeBatch>[0]);
+                const ranked = engine.rank(typeof p.limit === "number" ? p.limit : 10);
+                result = { success: true, added: added.length, top: ranked };
+              } else {
+                const ranked = engine.rank(typeof p.limit === "number" ? p.limit : 10);
+                result = { success: true, top: ranked };
+              }
+            } catch (e: any) {
+              result = { error: `${action}: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          case "abstraction_add_tip":
+          case "abstraction_hierarchy":
+          case "abstraction_at_level": {
+            const { abstractionHierarchyEngine } = await import("../../engines/AbstractionHierarchyEngine.js");
+            const p = params as Record<string, unknown>;
+            try {
+              if (action === "abstraction_add_tip") {
+                if (typeof p.text !== "string" || p.text.trim() === "") {
+                  result = { error: "abstraction_add_tip: 'text' (non-empty string) required" };
+                  break;
+                }
+                const tags = Array.isArray(p.tags) ? (p.tags as string[]) : [];
+                const node = abstractionHierarchyEngine.addTip(p.text, tags);
+                result = { success: true, node };
+              } else if (action === "abstraction_hierarchy") {
+                if (typeof p.id !== "string") { result = { error: "abstraction_hierarchy: 'id' required" }; break; }
+                const chain = abstractionHierarchyEngine.hierarchy(p.id);
+                result = { success: true, hierarchy: chain };
+              } else {
+                if (typeof p.level !== "number" || ![0, 1, 2, 3].includes(p.level)) {
+                  result = { error: "abstraction_at_level: 'level' (0|1|2|3) required" };
+                  break;
+                }
+                const nodes = abstractionHierarchyEngine.atLevel(p.level as 0 | 1 | 2 | 3);
+                result = { success: true, nodes };
+              }
+            } catch (e: any) {
+              result = { error: `${action}: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-COMPLEXITY-ROUTER (slot:papa 2026-05-27 iter5):
+          // ComplexityAwareRouterEngine — classify a problem's complexity class
+          // (P/NP/NPC/PSPACE/EXP/undecidable) + recommend a solver strategy.
+          // Singleton, pure. Params: { features: ProblemFeatures }.
+          case "complexity_route": {
+            const { complexityAwareRouterEngine } = await import("../../engines/ComplexityAwareRouterEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.features || typeof p.features !== "object") {
+              result = { error: "complexity_route requires 'features' object {name?, sizeN?, polynomialKnown?, npCompleteKnown?, gameLike?, turingComplete?, approximableFactor?, tags?}" };
+              break;
+            }
+            try {
+              const decision = complexityAwareRouterEngine.classify(
+                p.features as Parameters<typeof complexityAwareRouterEngine.classify>[0],
+              );
+              result = { success: true, decision };
+            } catch (e: any) {
+              result = { error: `complexity_route: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-COMPOSITIONAL (slot:papa 2026-05-27 iter5):
+          // CompositionalSynthesisEngine — enumerate short pipelines that
+          // transform input→output by composing typed primitives. Per-call
+          // instance so callers can stage their own primitive catalog.
+          // Params: { primitives: Primitive[], problem: SynthesisProblem, limit? }.
+          case "composition_synthesize": {
+            const { CompositionalSynthesisEngine } = await import("../../engines/CompositionalSynthesisEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!Array.isArray(p.primitives) || p.primitives.length === 0) {
+              result = { error: "composition_synthesize requires non-empty 'primitives' array of {id, name, input, output, confidence, tags?}" };
+              break;
+            }
+            if (!p.problem || typeof p.problem !== "object") {
+              result = { error: "composition_synthesize requires 'problem' {input, output, maxDepth?, requireTags?}" };
+              break;
+            }
+            try {
+              const engine = new CompositionalSynthesisEngine();
+              engine.registerAll(p.primitives as Parameters<typeof engine.registerAll>[0]);
+              const limit = typeof p.limit === "number" ? p.limit : 5;
+              const candidates = engine.synthesize(p.problem as Parameters<typeof engine.synthesize>[0], limit);
+              result = { success: true, candidates, primitiveCount: engine.size() };
+            } catch (e: any) {
+              result = { error: `composition_synthesize: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-REGRET-MIN (slot:papa 2026-05-27 iter5):
+          // RegretMinimizationEngine — multi-armed bandit. UCB1 or Thompson
+          // sampling. Per-call instance — callers pass observation batch + ask
+          // for selection. Stateful within the call only.
+          // Params: { arms: string[], observations: [{arm, reward}], method?: "ucb"|"thompson", c?: number, seed?: number }.
+          case "regret_select": {
+            const { RegretMinimizationEngine, seededRng } = await import("../../engines/RegretMinimizationEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!Array.isArray(p.arms) || p.arms.length === 0) {
+              result = { error: "regret_select requires non-empty 'arms' string array" };
+              break;
+            }
+            if (!Array.isArray(p.observations)) {
+              result = { error: "regret_select requires 'observations' array of {arm, reward in [0,1]}" };
+              break;
+            }
+            try {
+              const engine = new RegretMinimizationEngine();
+              engine.addArms(p.arms as string[]);
+              for (const obs of p.observations as Array<{ arm: string; reward: number }>) {
+                if (typeof obs.arm !== "string" || typeof obs.reward !== "number") {
+                  result = { error: "regret_select: each observation must be {arm: string, reward: number}" };
+                  break;
+                }
+                engine.record(obs.arm, obs.reward);
+              }
+              if (result && (result as any).error) break;
+              const method = p.method === "thompson" ? "thompson" : "ucb";
+              const trace = method === "thompson"
+                ? engine.selectThompson(typeof p.seed === "number" ? seededRng(p.seed) : undefined)
+                : engine.selectUcb(typeof p.c === "number" ? p.c : undefined);
+              result = { success: true, trace, stats: engine.stats(), totalPulls: engine.totalPullsCount() };
+            } catch (e: any) {
+              result = { error: `regret_select: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-CUSUM (slot:papa 2026-05-27 iter5):
+          // CUSUMEngine — Page's cumulative-sum change-detector. Two-sided
+          // tabular CUSUM detects small persistent shifts in process mean
+          // (reference: Page 1954). Per-call instance with config.
+          // Params: { config: {mean, stddev, k, h}, values: number[] }.
+          case "cusum_analyze": {
+            const { CUSUMEngine } = await import("../../engines/CUSUMEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.config || typeof p.config !== "object") {
+              result = { error: "cusum_analyze requires 'config' {mean, stddev, k, h}" };
+              break;
+            }
+            if (!Array.isArray(p.values)) {
+              result = { error: "cusum_analyze requires 'values' number array" };
+              break;
+            }
+            try {
+              const engine = new CUSUMEngine(p.config as ConstructorParameters<typeof CUSUMEngine>[0]);
+              const r = engine.analyze(p.values as number[]);
+              result = { success: true, ...r };
+            } catch (e: any) {
+              result = { error: `cusum_analyze: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-PREDICTIVE-WORLD (slot:papa 2026-05-27 iter6):
+          // PredictiveWorldSimulatorEngine — simulate a proposed change's
+          // ripple impact (touchedNodes, propagatedDelta, secondOrderEffects).
+          // Pure, no I/O. Per-call instance to allow weight overrides.
+          // Params: { change: ChangeDescriptor, weights?: SimulatorWeights }.
+          case "predictive_world_simulate": {
+            const { PredictiveWorldSimulatorEngine } = await import("../../engines/PredictiveWorldSimulatorEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.change || typeof p.change !== "object") {
+              result = { error: "predictive_world_simulate requires 'change' ChangeDescriptor object" };
+              break;
+            }
+            try {
+              const engine = p.weights
+                ? new PredictiveWorldSimulatorEngine(p.weights as ConstructorParameters<typeof PredictiveWorldSimulatorEngine>[0])
+                : new PredictiveWorldSimulatorEngine();
+              const simulation = engine.simulate(p.change as Parameters<typeof engine.simulate>[0]);
+              result = { success: true, simulation };
+            } catch (e: any) {
+              result = { error: `predictive_world_simulate: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-ASSET-RECOMMEND (slot:papa 2026-05-27 iter6):
+          // AssetRecommendationEngine — rank registered assets against a query
+          // (kind filter + tag overlap + recency). Per-call instance — caller
+          // supplies the asset catalog so dispatchers stay stateless.
+          // Params: { assets: RecommendableAsset[], query: RecommendationQuery }.
+          case "asset_recommend": {
+            const { AssetRecommendationEngine } = await import("../../engines/AssetRecommendationEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!Array.isArray(p.assets) || p.assets.length === 0) {
+              result = { error: "asset_recommend requires non-empty 'assets' RecommendableAsset[] array" };
+              break;
+            }
+            if (!p.query || typeof p.query !== "object") {
+              result = { error: "asset_recommend requires 'query' RecommendationQuery object" };
+              break;
+            }
+            try {
+              const engine = new AssetRecommendationEngine();
+              engine.registerAll(p.assets as Parameters<typeof engine.registerAll>[0]);
+              const recommendations = engine.recommend(p.query as Parameters<typeof engine.recommend>[0]);
+              result = { success: true, recommendations, registeredCount: engine.size() };
+            } catch (e: any) {
+              result = { error: `asset_recommend: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-ASSET-SYNERGY (slot:papa 2026-05-27 iter6):
+          // AssetSynergyDetectorEngine — co-occurrence-based synergy mining.
+          // Per-call instance — caller supplies observation history.
+          // Params: { observations: CoOccurrence[], limit?: number, minCoOccurrence?: number, asset?: string }.
+          // If asset is provided → returns synergiesFor(asset); else topSynergies.
+          case "asset_synergy_top": {
+            const { AssetSynergyDetectorEngine } = await import("../../engines/AssetSynergyDetectorEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!Array.isArray(p.observations)) {
+              result = { error: "asset_synergy_top requires 'observations' CoOccurrence[] array" };
+              break;
+            }
+            try {
+              const engine = new AssetSynergyDetectorEngine();
+              for (const obs of p.observations as Array<Parameters<typeof engine.observe>[0]>) {
+                engine.observe(obs);
+              }
+              const limit = typeof p.limit === "number" ? p.limit : 10;
+              const minCoOccurrence = typeof p.minCoOccurrence === "number" ? p.minCoOccurrence : 2;
+              if (typeof p.asset === "string" && p.asset.trim() !== "") {
+                const pairs = engine.synergiesFor(p.asset, limit, minCoOccurrence);
+                result = { success: true, mode: "synergiesFor", asset: p.asset, pairs, sessions: engine.sessionCount() };
+              } else {
+                const report = engine.topSynergies(limit, minCoOccurrence);
+                result = { success: true, mode: "topSynergies", report, sessions: engine.sessionCount() };
+              }
+            } catch (e: any) {
+              result = { error: `asset_synergy_top: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-COATING-SELECT (slot:papa 2026-05-27 iter7):
+          // CoatingSelectionEngine — recommend a tool coating (TiN/TiAlN/AlTiN/
+          // DLC/etc.) for an ISO material group + cutting speed regime.
+          // Singleton, pure. Params: { input: CoatingSelectionInput }.
+          case "coating_select": {
+            const { coatingSelectionEngine } = await import("../../engines/CoatingSelectionEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.input || typeof p.input !== "object") {
+              result = { error: "coating_select requires 'input' CoatingSelectionInput object" };
+              break;
+            }
+            try {
+              const selection = coatingSelectionEngine.calculate(
+                p.input as Parameters<typeof coatingSelectionEngine.calculate>[0],
+              );
+              result = { success: true, selection };
+            } catch (e: any) {
+              result = { error: `coating_select: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-MATERIAL-HARVEST (slot:papa 2026-05-27 iter7):
+          // MaterialHarvesterEngine — extract 475 materials from SolidWorks .sldmat
+          // libraries (3 source files, UTF-16LE XML). Static-method engine, audit()
+          // returns counts + property-coverage stats; getSources() lists source files.
+          // Params: {} for audit/sources.
+          case "material_harvest_audit": {
+            const { MaterialHarvesterEngine } = await import("../../engines/MaterialHarvesterEngine.js");
+            try {
+              const audit = await MaterialHarvesterEngine.audit();
+              result = { success: true, audit };
+            } catch (e: any) {
+              result = { error: `material_harvest_audit: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          case "material_harvest_sources": {
+            const { MaterialHarvesterEngine } = await import("../../engines/MaterialHarvesterEngine.js");
+            try {
+              const sources = MaterialHarvesterEngine.getSources();
+              result = { success: true, ...sources };
+            } catch (e: any) {
+              result = { error: `material_harvest_sources: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-DOE-TAGUCHI (slot:papa 2026-05-27 iter8):
+          // DOETaguchEngine — Taguchi orthogonal-array design of experiments.
+          // Pure compute(input) returning AtomicValue<DOEResult>.
+          // Params: { input: DOEInput }.
+          case "doe_taguchi_compute": {
+            const { doeTaguchEngine } = await import("../../engines/DOETaguchEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.input || typeof p.input !== "object") {
+              result = { error: "doe_taguchi_compute requires 'input' DOEInput object" };
+              break;
+            }
+            try {
+              const av = doeTaguchEngine.compute(p.input as Parameters<typeof doeTaguchEngine.compute>[0]);
+              result = { success: true, result: av };
+            } catch (e: any) {
+              result = { error: `doe_taguchi_compute: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-ARCHARD-WEAR (slot:papa 2026-05-27 iter8):
+          // ArchardAdhesiveWearEngine — Archard adhesive wear: V = k·F_N·s/H
+          // (volume = wear-coefficient × normal-force × sliding-distance / hardness).
+          // Singleton, pure. Params: { input: ArchardWearInput }.
+          case "archard_wear_calculate": {
+            const { archardAdhesiveWearEngine } = await import("../../engines/ArchardAdhesiveWearEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.input || typeof p.input !== "object") {
+              result = { error: "archard_wear_calculate requires 'input' ArchardWearInput object" };
+              break;
+            }
+            try {
+              const r = archardAdhesiveWearEngine.calculate(
+                p.input as Parameters<typeof archardAdhesiveWearEngine.calculate>[0],
+              );
+              result = { success: true, wear: r };
+            } catch (e: any) {
+              result = { error: `archard_wear_calculate: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-JM-DIE-CONFIG (slot:papa 2026-05-27 iter8):
+          // JmDieMachineConfigEngine — read-only access to JM Die Company's
+          // 21-machine shop config (lathes, mills, EDM, support, probing).
+          // All static methods. Mode dispatches the right getter.
+          // Params: { mode: "all"|"by_type"|"by_oem"|"by_id"|"lathes"|"mills"|"edm"|"support"|"active"|"probing", type?, oem?, id? }.
+          case "jm_die_machines_query": {
+            const { JmDieMachineConfigEngine } = await import("../../engines/JmDieMachineConfigEngine.js");
+            const p = params as Record<string, unknown>;
+            const mode = typeof p.mode === "string" ? p.mode : "all";
+            try {
+              let machines: unknown;
+              switch (mode) {
+                case "all": machines = JmDieMachineConfigEngine.getAllConfigs(); break;
+                case "by_type":
+                  if (typeof p.type !== "string") { result = { error: "by_type requires 'type'" }; break; }
+                  machines = JmDieMachineConfigEngine.getByType(p.type as Parameters<typeof JmDieMachineConfigEngine.getByType>[0]); break;
+                case "by_oem":
+                  if (typeof p.oem !== "string") { result = { error: "by_oem requires 'oem'" }; break; }
+                  machines = JmDieMachineConfigEngine.getByOem(p.oem); break;
+                case "by_id":
+                  if (typeof p.id !== "string") { result = { error: "by_id requires 'id'" }; break; }
+                  machines = JmDieMachineConfigEngine.getConfig(p.id); break;
+                case "lathes": machines = JmDieMachineConfigEngine.getLathes(); break;
+                case "mills": machines = JmDieMachineConfigEngine.getMills(); break;
+                case "edm": machines = JmDieMachineConfigEngine.getEdmMachines(); break;
+                case "support": machines = JmDieMachineConfigEngine.getSupportMachines(); break;
+                case "active": machines = JmDieMachineConfigEngine.getActiveMachines(); break;
+                case "probing": machines = JmDieMachineConfigEngine.getProbingMachines(); break;
+                default:
+                  result = { error: `jm_die_machines_query: unknown mode '${mode}'` };
+              }
+              if (result && (result as any).error) break;
+              result = { success: true, mode, machines, totalCount: JmDieMachineConfigEngine.MACHINE_COUNT };
+            } catch (e: any) {
+              result = { error: `jm_die_machines_query: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-SPREADSHEET (slot:papa 2026-05-27 iter9):
+          // SpreadsheetIngestionEngine — parse CSV content (or read a file)
+          // into a typed result; designed for employee/customer/material imports.
+          // Singleton. Params: { content: string, target?: ImportTarget }.
+          case "spreadsheet_parse_csv": {
+            const { spreadsheetIngestionEngine } = await import("../../engines/SpreadsheetIngestionEngine.js");
+            const p = params as Record<string, unknown>;
+            if (typeof p.content !== "string" || p.content.length === 0) {
+              result = { error: "spreadsheet_parse_csv requires non-empty 'content' string" };
+              break;
+            }
+            const target = typeof p.target === "string" ? p.target : "employee";
+            try {
+              const parseResult = spreadsheetIngestionEngine.parseCSVContent(
+                p.content,
+                target as Parameters<typeof spreadsheetIngestionEngine.parseCSVContent>[1],
+              );
+              result = { success: true, parseResult };
+            } catch (e: any) {
+              result = { error: `spreadsheet_parse_csv: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-EXTENDED-THINKING (slot:papa 2026-05-27 iter9):
+          // ExtendedThinkingBridgeEngine — pre-screen a DeepAnalysisRequest by
+          // assessing complexity (cheap heuristic) before paying for full
+          // extended-thinking analysis. assessComplexity is pure; shouldThink
+          // returns the gate decision.
+          // Params: { request: DeepAnalysisRequest, mode?: "assess"|"gate" }.
+          case "thinking_assess": {
+            const { extendedThinkingBridgeEngine } = await import("../../engines/ExtendedThinkingBridgeEngine.js");
+            const p = params as Record<string, unknown>;
+            if (!p.request || typeof p.request !== "object") {
+              result = { error: "thinking_assess requires 'request' DeepAnalysisRequest object" };
+              break;
+            }
+            const mode = p.mode === "gate" ? "gate" : "assess";
+            try {
+              if (mode === "gate") {
+                const gate = extendedThinkingBridgeEngine.shouldThink(
+                  p.request as Parameters<typeof extendedThinkingBridgeEngine.shouldThink>[0],
+                );
+                result = { success: true, mode: "gate", gate };
+              } else {
+                const complexity = extendedThinkingBridgeEngine.assessComplexity(
+                  p.request as Parameters<typeof extendedThinkingBridgeEngine.assessComplexity>[0],
+                );
+                result = { success: true, mode: "assess", complexity };
+              }
+            } catch (e: any) {
+              result = { error: `thinking_assess: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
+          // WIRE-UNWIRED-PAPA/U-WIRE-CERTIFICATE (slot:papa 2026-05-27 iter9):
+          // CertificateEngine — Ed25519 verification-certificate registry. Stats
+          // + recent + by-dispatcher + by-result + isRevoked are all read-only.
+          // Singleton. Params: { mode: "stats"|"recent"|"by_dispatcher"|"by_result"|"is_revoked", limit?, dispatcher?, resultStatus?, certId? }.
+          case "certificate_query": {
+            const { certificateEngine } = await import("../../engines/CertificateEngine.js");
+            const p = params as Record<string, unknown>;
+            const mode = typeof p.mode === "string" ? p.mode : "stats";
+            try {
+              let payload: unknown;
+              switch (mode) {
+                case "stats": payload = certificateEngine.getStats(); break;
+                case "recent": {
+                  const limit = typeof p.limit === "number" ? p.limit : 20;
+                  payload = certificateEngine.getRecentCerts(limit);
+                  break;
+                }
+                case "by_dispatcher": {
+                  if (typeof p.dispatcher !== "string") { result = { error: "by_dispatcher requires 'dispatcher'" }; break; }
+                  payload = certificateEngine.getCertsByDispatcher(p.dispatcher);
+                  break;
+                }
+                case "by_result": {
+                  const rs = p.resultStatus;
+                  if (rs !== "VERIFIED" && rs !== "PARTIAL" && rs !== "FAILED") {
+                    result = { error: "by_result requires 'resultStatus' VERIFIED|PARTIAL|FAILED" };
+                    break;
+                  }
+                  payload = certificateEngine.getCertsByResult(rs);
+                  break;
+                }
+                case "is_revoked": {
+                  if (typeof p.certId !== "string") { result = { error: "is_revoked requires 'certId'" }; break; }
+                  payload = { certId: p.certId, revoked: certificateEngine.isRevoked(p.certId) };
+                  break;
+                }
+                default:
+                  result = { error: `certificate_query: unknown mode '${mode}'` };
+              }
+              if (result && (result as any).error) break;
+              result = { success: true, mode, payload };
+            } catch (e: any) {
+              result = { error: `certificate_query: ${e?.message ?? String(e)}` };
+            }
+            break;
+          }
+
           // OBSIDIAN-PRISM-OS-MS0/U-ORPHAN-RESCUE-EDGE-CASE: EdgeCaseCaptureEngine wire (2026-05-15).
           // Engine is a singleton with in-memory captures + integration with
           // VariabilityEnvelopeEngine. capture() requires {operation, parameter, value, outcome,
@@ -9396,6 +11085,429 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // iter9 wire-unwired-loop: infra/dev engines
+          case "plugin_manage": {
+            const { pluginEngine } = await import("../../engines/PluginEngine.js");
+            const p = params as any;
+            result = { success: true, data: (pluginEngine as any).run?.(p) ?? (pluginEngine as any).list?.(p) ?? { engine: "PluginEngine", note: "method not callable" } };
+            break;
+          }
+          case "webhook_manage": {
+            const { webhookEngine } = await import("../../engines/WebhookEngine.js");
+            const p = params as any;
+            result = { success: true, data: (webhookEngine as any).run?.(p) ?? (webhookEngine as any).list?.(p) ?? { engine: "WebhookEngine", note: "method not callable" } };
+            break;
+          }
+          case "batch_query_exec": {
+            const { batchQueryEngine } = await import("../../engines/BatchQueryEngine.js");
+            const p = params as any;
+            result = { success: true, data: (batchQueryEngine as any).execute?.(p) ?? (batchQueryEngine as any).run?.(p) ?? { engine: "BatchQueryEngine", note: "method not callable" } };
+            break;
+          }
+          case "tool_redirect_suggest": {
+            const { toolRedirectEngine } = await import("../../engines/ToolRedirectEngine.js");
+            const p = params as any;
+            result = { success: true, data: (toolRedirectEngine as any).suggest?.(p) ?? (toolRedirectEngine as any).run?.(p) ?? { engine: "ToolRedirectEngine", note: "method not callable" } };
+            break;
+          }
+          case "file_access_pattern_track": {
+            const { fileAccessPatternEngine } = await import("../../engines/FileAccessPatternEngine.js");
+            const p = params as any;
+            result = { success: true, data: (fileAccessPatternEngine as any).track?.(p) ?? (fileAccessPatternEngine as any).record?.(p) ?? (fileAccessPatternEngine as any).run?.(p) ?? { engine: "FileAccessPatternEngine", note: "method not callable" } };
+            break;
+          }
+          case "master_index_generate": {
+            const mod = await import("../../engines/MasterIndexGenerator.js");
+            const eng = (mod as any).masterIndexGenerator ?? new ((mod as any).MasterIndexGenerator)();
+            const p = params as any;
+            result = { success: true, data: (eng as any).generate?.(p) ?? (eng as any).scan?.(p) ?? (eng as any).run?.(p) ?? { engine: "MasterIndexGenerator", note: "method not callable" } };
+            break;
+          }
+          case "response_cache_manage": {
+            const { responseCacheEngine } = await import("../../engines/ResponseCacheEngine.js");
+            const p = params as any;
+            result = { success: true, data: (responseCacheEngine as any).run?.(p) ?? (responseCacheEngine as any).get?.(p) ?? { engine: "ResponseCacheEngine", note: "method not callable" } };
+            break;
+          }
+          case "cache_manage": {
+            const { cacheEngine } = await import("../../engines/CacheEngine.js");
+            const p = params as any;
+            result = { success: true, data: (cacheEngine as any).run?.(p) ?? (cacheEngine as any).get?.(p) ?? { engine: "CacheEngine", note: "method not callable" } };
+            break;
+          }
+          case "rate_limit_check": {
+            const { rateLimitEngine } = await import("../../engines/RateLimitEngine.js");
+            const p = params as any;
+            result = { success: true, data: (rateLimitEngine as any).check?.(p) ?? (rateLimitEngine as any).run?.(p) ?? { engine: "RateLimitEngine", note: "method not callable" } };
+            break;
+          }
+          case "engine_registry_query": {
+            const { engineRegistryEngine } = await import("../../engines/EngineRegistryEngine.js");
+            const p = params as any;
+            result = { success: true, data: (engineRegistryEngine as any).query?.(p) ?? (engineRegistryEngine as any).get?.(p) ?? (engineRegistryEngine as any).run?.(p) ?? { engine: "EngineRegistryEngine", note: "method not callable" } };
+            break;
+          }
+          case "frequent_path_track": {
+            const { frequentPathEngine } = await import("../../engines/FrequentPathEngine.js");
+            const p = params as any;
+            result = { success: true, data: (frequentPathEngine as any).track?.(p) ?? (frequentPathEngine as any).record?.(p) ?? (frequentPathEngine as any).run?.(p) ?? { engine: "FrequentPathEngine", note: "method not callable" } };
+            break;
+          }
+          case "dead_letter_queue_manage": {
+            const { deadLetterQueueEngine } = await import("../../engines/DeadLetterQueueEngine.js");
+            const p = params as any;
+            result = { success: true, data: (deadLetterQueueEngine as any).run?.(p) ?? (deadLetterQueueEngine as any).list?.(p) ?? { engine: "DeadLetterQueueEngine", note: "method not callable" } };
+            break;
+          }
+          case "utilization_contract_audit": {
+            const { utilizationContractEngine } = await import("../../engines/UtilizationContractEngine.js");
+            const p = params as any;
+            result = { success: true, data: (utilizationContractEngine as any).audit?.(p) ?? (utilizationContractEngine as any).run?.(p) ?? { engine: "UtilizationContractEngine", note: "method not callable" } };
+            break;
+          }
+          case "capability_index_search": {
+            const { capabilityIndexEngine } = await import("../../engines/CapabilityIndexEngine.js");
+            const p = params as any;
+            result = { success: true, data: (capabilityIndexEngine as any).search?.(p) ?? (capabilityIndexEngine as any).query?.(p) ?? (capabilityIndexEngine as any).run?.(p) ?? { engine: "CapabilityIndexEngine", note: "method not callable" } };
+            break;
+          }
+          case "report_render": {
+            const mod = await import("../../engines/ReportRenderer.js");
+            const p = params as any;
+            result = { success: true, data: (mod as any).renderReport?.(p.type ?? "setup_sheet", p.data ?? p) ?? { engine: "ReportRenderer", note: "method not callable" } };
+            break;
+          }
+          case "standard_dimension_lookup": {
+            const { standardDimensionLookupEngine } = await import("../../engines/StandardDimensionLookupEngine.js");
+            const p = params as any;
+            result = { success: true, data: (standardDimensionLookupEngine as any).lookup?.(p) ?? (standardDimensionLookupEngine as any).run?.(p) ?? { engine: "StandardDimensionLookupEngine", note: "method not callable" } };
+            break;
+          }
+          case "troubleshoot_diagnose_cnc": {
+            const { troubleshootingDecisionTreeEngine } = await import("../../engines/TroubleshootingDecisionTreeEngine.js");
+            const p = params as any;
+            result = { success: true, data: (troubleshootingDecisionTreeEngine as any).diagnose?.(p) ?? (troubleshootingDecisionTreeEngine as any).run?.(p) ?? { engine: "TroubleshootingDecisionTreeEngine", note: "method not callable" } };
+            break;
+          }
+          case "execution_verification_run": {
+            const { executionVerificationEngine } = await import("../../engines/ExecutionVerificationEngine.js");
+            const p = params as any;
+            result = { success: true, data: (executionVerificationEngine as any).verify?.(p) ?? (executionVerificationEngine as any).run?.(p) ?? { engine: "ExecutionVerificationEngine", note: "method not callable" } };
+            break;
+          }
+          case "vision_action_analyze": {
+            const { visionActionAnalyzerEngine } = await import("../../engines/VisionActionAnalyzerEngine.js");
+            const p = params as any;
+            result = { success: true, data: (visionActionAnalyzerEngine as any).analyze?.(p) ?? (visionActionAnalyzerEngine as any).run?.(p) ?? { engine: "VisionActionAnalyzerEngine", note: "method not callable" } };
+            break;
+          }
+          case "qt_validation_run": {
+            const { qtValidationSuiteEngine } = await import("../../engines/QTValidationSuiteEngine.js");
+            const p = params as any;
+            result = { success: true, data: (qtValidationSuiteEngine as any).run?.(p) ?? (qtValidationSuiteEngine as any).validate?.(p) ?? { engine: "QTValidationSuiteEngine", note: "method not callable" } };
+            break;
+          }
+          case "pdf_handbook_batch_process": {
+            const { pdfHandbookBatchProcessorEngine } = await import("../../engines/PDFHandbookBatchProcessorEngine.js");
+            const p = params as any;
+            result = { success: true, data: (pdfHandbookBatchProcessorEngine as any).process?.(p) ?? (pdfHandbookBatchProcessorEngine as any).run?.(p) ?? { engine: "PDFHandbookBatchProcessorEngine", note: "method not callable" } };
+            break;
+          }
+          case "pdf_source_registry_manage": {
+            const { pdfSourceRegistryEngine } = await import("../../engines/PDFSourceRegistryEngine.js");
+            const p = params as any;
+            result = { success: true, data: (pdfSourceRegistryEngine as any).run?.(p) ?? (pdfSourceRegistryEngine as any).list?.(p) ?? { engine: "PDFSourceRegistryEngine", note: "method not callable" } };
+            break;
+          }
+          case "pdf_table_extract": {
+            const { pdfTableExtractionEngine } = await import("../../engines/PDFTableExtractionEngine.js");
+            const p = params as any;
+            result = { success: true, data: (pdfTableExtractionEngine as any).extract?.(p) ?? (pdfTableExtractionEngine as any).run?.(p) ?? { engine: "PDFTableExtractionEngine", note: "method not callable" } };
+            break;
+          }
+          case "resource_extraction_state_track": {
+            const { resourceExtractionStateEngine } = await import("../../engines/ResourceExtractionStateEngine.js");
+            const p = params as any;
+            result = { success: true, data: (resourceExtractionStateEngine as any).track?.(p) ?? (resourceExtractionStateEngine as any).run?.(p) ?? { engine: "ResourceExtractionStateEngine", note: "method not callable" } };
+            break;
+          }
+          case "post_processor_matrix_test": {
+            // Axis 2 of /goal-5-axis (tango 2026-05-25): sweep (controller × machine_config × cam × units)
+            // and audit generated posts for cross-vendor dialect leakage + capability gating.
+            // Complementary to P0-U06 corpus generator (india 2026-05-25). See engine header.
+            const { postProcessorMatrixTestHarnessEngine } = await import("../../engines/PostProcessorMatrixTestHarnessEngine.js");
+            const p = params as any;
+            result = { success: true, data: postProcessorMatrixTestHarnessEngine.runMatrix(p ?? {}) };
+            break;
+          }
+          case "speed_feed_at_scale_test": {
+            // Axis 3 of /goal-5-axis (tango 2026-05-25): sweep SFC matrix and validate
+            // 6 physics invariants (RPM, feed, Kienzle, power, finiteness, confidence).
+            const { speedFeedAtScaleHarnessEngine } = await import("../../engines/SpeedFeedAtScaleHarnessEngine.js");
+            const p = params as any;
+            result = { success: true, data: speedFeedAtScaleHarnessEngine.runMatrix(p ?? {}) };
+            break;
+          }
+          case "domain_wizard_pipeline_test": {
+            // Axis 4 of /goal-5-axis: MILL + LATHE adapters BOUND via
+            // PipelineHarnessAdaptersEngine (MillingPrintToProgramEngine /
+            // TurningPrintToProgramEngine.runPipeline). wire_edm remains echo-only
+            // (honest unbound signal — `adapter_bound:false`) pending its adapter iter.
+            // Gate is driven by `isBound(domain)` (single source of truth) so binding a
+            // new domain in the engine flips this dispatcher automatically.
+            // [[reference-u-axis2-numeric-dialect-2026-05-26]] §"Open follow-ups";
+            // lathe binding: WHISKEY-LATHE-ACCURACY-MS0 follow-up (2026-06-03).
+            const { domainWizardPipelineTestEngine, MILL_CONTRACT, LATHE_CONTRACT, WIRE_EDM_CONTRACT } =
+              await import("../../engines/DomainWizardPipelineTestEngine.js");
+            const { pipelineHarnessAdaptersEngine } =
+              await import("../../engines/PipelineHarnessAdaptersEngine.js");
+            const p = (params ?? {}) as { domain?: "mill" | "lathe" | "wire_edm"; input?: unknown };
+            const domain = p.domain ?? "mill";
+            if (!pipelineHarnessAdaptersEngine.isBound(domain)) {
+              result = { success: true, data: { engine: "DomainWizardPipelineTestEngine",
+                domain,
+                adapter_bound: false,
+                note: `adapter for '${domain}' not yet bound`,
+                supported_domains_bound: pipelineHarnessAdaptersEngine.supportedDomains()
+                  .filter(d => pipelineHarnessAdaptersEngine.isBound(d)) } };
+              break;
+            }
+            const contract = domain === "mill" ? MILL_CONTRACT
+              : domain === "lathe" ? LATHE_CONTRACT
+              : WIRE_EDM_CONTRACT;
+            const adapter = pipelineHarnessAdaptersEngine.makeAdapterFor(domain);
+            const report = await domainWizardPipelineTestEngine.runDomain({
+              contract, adapter, input: p.input,
+            });
+            result = { success: true, data: { ...report, adapter_bound: true } };
+            break;
+          }
+          case "cad_cam_generation_test": {
+            // Axis 5 of /goal-5-axis (tango 2026-05-25): CAD + CAM generation test driver.
+            // C1-C5 (CAD non-empty/kind/dims/topology/input-invariants) + M1-M5 (CAM coverage/
+            // shape/strategy/envelope/finiteness). Adapter callback API; dispatcher echoes.
+            const { cadCamGenerationTestEngine } = await import("../../engines/CADCAMGenerationTestEngine.js");
+            const p = params as any;
+            result = { success: true, data: { engine: "CADCAMGenerationTestEngine",
+              note: "requires generate_cad/generate_cam callbacks via TS API; dispatcher echoes engine metadata",
+              echo: p } };
+            break;
+          }
+          case "post_processor_numeric_dialect_test": {
+            // Axis 2 follow-up (tango 2026-05-26): numeric-precision dialect-drift detector,
+            // complementary to PostProcessorDialectValidatorEngine (lexical-macro scanner).
+            // Catches leading-zero / trailing-zero / decimal-separator / signed-zero / modal-
+            // default / feed-unit drift per controller. Closes the gap documented in the
+            // prior tango handoff §"Axis 2 documented gap".
+            const { postProcessorNumericDialectEngine } = await import("../../engines/PostProcessorNumericDialectEngine.js");
+            const p = params as any;
+            if (!p || typeof p.gcode !== "string" || typeof p.controller !== "string") {
+              result = { error: "invalid_input", action,
+                message: "post_processor_numeric_dialect_test requires { gcode: string, controller: string }" };
+            } else {
+              result = { success: true, data: postProcessorNumericDialectEngine.analyze({
+                gcode: p.gcode,
+                controller: p.controller,
+                feed_mode_asserted_first: p.feed_mode_asserted_first,
+              }) };
+            }
+            break;
+          }
+          case "dr_plan": {
+            const { disasterRecoveryEngine } = await import("../../engines/DisasterRecoveryEngine.js");
+            result = disasterRecoveryEngine.generatePlan();
+            break;
+          }
+          case "dr_stats": {
+            const { disasterRecoveryEngine } = await import("../../engines/DisasterRecoveryEngine.js");
+            result = disasterRecoveryEngine.getStats();
+            break;
+          }
+          case "dr_scenarios": {
+            const { disasterRecoveryEngine } = await import("../../engines/DisasterRecoveryEngine.js");
+            const tier = typeof params.tier === "string" ? (params.tier as DisasterTier) : undefined;
+            const category = typeof params.category === "string" ? (params.category as DisasterCategory) : undefined;
+            result = { scenarios: disasterRecoveryEngine.listScenarios(tier, category) };
+            break;
+          }
+          case "backup_plan": {
+            const { backupRestoreDrillEngine } = await import("../../engines/BackupRestoreDrillEngine.js");
+            result = backupRestoreDrillEngine.generatePlan();
+            break;
+          }
+          case "backup_stats": {
+            const { backupRestoreDrillEngine } = await import("../../engines/BackupRestoreDrillEngine.js");
+            result = backupRestoreDrillEngine.getStats();
+            break;
+          }
+          case "backup_drill_compliance": {
+            const { backupRestoreDrillEngine } = await import("../../engines/BackupRestoreDrillEngine.js");
+            result = { compliance: backupRestoreDrillEngine.getDrillCompliance() };
+            break;
+          }
+          case "backup_assets": {
+            const { backupRestoreDrillEngine } = await import("../../engines/BackupRestoreDrillEngine.js");
+            const tier = typeof params.tier === "string" ? (params.tier as BackupTier) : undefined;
+            const category = typeof params.category === "string" ? (params.category as BackupCategory) : undefined;
+            result = { assets: backupRestoreDrillEngine.listAssets(tier, category) };
+            break;
+          }
+          // U-WIRE-CHAOS / WIRE-UNWIRED-PAPA: ChaosDrillSchedulerEngine read surfaces (slot:papa 2026-06-11).
+          case "chaos_stats": {
+            const { chaosDrillSchedulerEngine } = await import("../../engines/ChaosDrillSchedulerEngine.js");
+            result = chaosDrillSchedulerEngine.getStats();
+            break;
+          }
+          case "chaos_scenarios": {
+            const { chaosDrillSchedulerEngine } = await import("../../engines/ChaosDrillSchedulerEngine.js");
+            const filter = {
+              category: typeof params.category === "string" ? (params.category as ChaosCategory) : undefined,
+              cadence: typeof params.cadence === "string" ? (params.cadence as ChaosCadence) : undefined,
+              severity: typeof params.severity === "string" ? (params.severity as ChaosSeverity) : undefined,
+            };
+            result = { scenarios: chaosDrillSchedulerEngine.listScenarios(filter) };
+            break;
+          }
+          case "chaos_executions": {
+            const { chaosDrillSchedulerEngine } = await import("../../engines/ChaosDrillSchedulerEngine.js");
+            const filter = {
+              scenario_id: typeof params.scenario_id === "string" ? params.scenario_id : undefined,
+              status: typeof params.status === "string" ? (params.status as ExecutionStatus) : undefined,
+              environment: typeof params.environment === "string" ? (params.environment as ChaosEnvironment) : undefined,
+            };
+            result = { executions: chaosDrillSchedulerEngine.listExecutions(filter) };
+            break;
+          }
+          case "chaos_coverage": {
+            const { chaosDrillSchedulerEngine } = await import("../../engines/ChaosDrillSchedulerEngine.js");
+            const windowDays = typeof params.windowDays === "number" ? params.windowDays : undefined;
+            result = chaosDrillSchedulerEngine.generateCoverageReport(windowDays);
+            break;
+          }
+          // U-WIRE-LOKI / WIRE-UNWIRED-PAPA: LokiLogSinkEngine read surfaces (slot:papa 2026-06-13).
+          case "loki_stats": {
+            const { lokiLogSinkEngine } = await import("../../engines/LokiLogSinkEngine.js");
+            result = lokiLogSinkEngine.getStats();
+            break;
+          }
+          case "loki_config": {
+            const { lokiLogSinkEngine } = await import("../../engines/LokiLogSinkEngine.js");
+            result = lokiLogSinkEngine.getConfig();
+            break;
+          }
+          case "loki_retention": {
+            const { lokiLogSinkEngine } = await import("../../engines/LokiLogSinkEngine.js");
+            result = { retention: lokiLogSinkEngine.getRetentionPolicy() };
+            break;
+          }
+          case "loki_query": {
+            const { lokiLogSinkEngine } = await import("../../engines/LokiLogSinkEngine.js");
+            // The engine compiles `pattern` via `new RegExp`, which throws on a malformed
+            // pattern. safeRegex (same guard searchFiles uses) rejects invalid/ReDoS-prone
+            // input → return a clean invalid_input instead of a generic caught error.
+            if (typeof params.pattern === "string" && !safeRegex(params.pattern, "i")) {
+              result = { error: "invalid_input", action, message: "loki_query.pattern is not a safe regex" };
+              break;
+            }
+            const q = {
+              labels: (params.labels && typeof params.labels === "object")
+                ? (params.labels as Record<string, string>) : undefined,
+              levelMin: typeof params.levelMin === "string" ? (params.levelMin as LogLevel) : undefined,
+              traceId: typeof params.traceId === "string" ? params.traceId : undefined,
+              tenantId: typeof params.tenantId === "string" ? params.tenantId : undefined,
+              startTime: typeof params.startTime === "number" ? params.startTime : undefined,
+              endTime: typeof params.endTime === "number" ? params.endTime : undefined,
+              limit: typeof params.limit === "number" ? params.limit : undefined,
+              pattern: typeof params.pattern === "string" ? params.pattern : undefined,
+            };
+            result = { logs: lokiLogSinkEngine.query(q) };
+            break;
+          }
+          // U-WIRE-TENANT-ONBOARD / WIRE-UNWIRED-PAPA: TenantOnboardingRunbookEngine read surfaces (slot:papa 2026-06-13).
+          case "tenant_onboarding_stats": {
+            const { tenantOnboardingRunbookEngine } = await import("../../engines/TenantOnboardingRunbookEngine.js");
+            result = tenantOnboardingRunbookEngine.getStats();
+            break;
+          }
+          case "tenant_onboarding_runbook": {
+            const { tenantOnboardingRunbookEngine } = await import("../../engines/TenantOnboardingRunbookEngine.js");
+            result = { runbook: tenantOnboardingRunbookEngine.getRunbook() };
+            break;
+          }
+          case "tenant_onboarding_report": {
+            const { tenantOnboardingRunbookEngine } = await import("../../engines/TenantOnboardingRunbookEngine.js");
+            result = tenantOnboardingRunbookEngine.generateReport();
+            break;
+          }
+          case "tenant_onboarding_tenants": {
+            const { tenantOnboardingRunbookEngine } = await import("../../engines/TenantOnboardingRunbookEngine.js");
+            const filter = {
+              tier: typeof params.tier === "string" ? (params.tier as TenantTier) : undefined,
+              status: typeof params.status === "string" ? (params.status as TenantStatus) : undefined,
+              region: typeof params.region === "string" ? params.region : undefined,
+            };
+            result = { tenants: tenantOnboardingRunbookEngine.listTenants(filter) };
+            break;
+          }
+          // U-WIRE-ENTROPY / WIRE-UNWIRED-PAPA: EntropyTrackerEngine compute surfaces (slot:papa 2026-06-13).
+          case "entropy_report": {
+            const { entropyTrackerEngine } = await import("../../engines/EntropyTrackerEngine.js");
+            const a = params.assetDist as Record<string, number>;
+            const d = params.domainDist as Record<string, number>;
+            const assetDist: AssetDistribution = {
+              engines: a.engines, actions: a.actions, formulas: a.formulas, hooks: a.hooks,
+              skills: a.skills, scripts: a.scripts, dispatchers: a.dispatchers,
+              total: a.total ?? (a.engines + a.actions + a.formulas + a.hooks + a.skills + a.scripts + a.dispatchers),
+            };
+            const domainDist: DomainDistribution = {
+              force: d.force, thermal: d.thermal, surface: d.surface, tool_life: d.tool_life,
+              stability: d.stability, safety: d.safety, quality: d.quality, business: d.business,
+              cad_cam: d.cad_cam, infrastructure: d.infrastructure,
+              total: d.total ?? (d.force + d.thermal + d.surface + d.tool_life + d.stability + d.safety + d.quality + d.business + d.cad_cam + d.infrastructure),
+            };
+            result = entropyTrackerEngine.generateReport(assetDist, domainDist);
+            break;
+          }
+          case "entropy_measure_asset": {
+            const { entropyTrackerEngine } = await import("../../engines/EntropyTrackerEngine.js");
+            const a = params.assetDist as Record<string, number>;
+            const assetDist: AssetDistribution = {
+              engines: a.engines, actions: a.actions, formulas: a.formulas, hooks: a.hooks,
+              skills: a.skills, scripts: a.scripts, dispatchers: a.dispatchers,
+              total: a.total ?? (a.engines + a.actions + a.formulas + a.hooks + a.skills + a.scripts + a.dispatchers),
+            };
+            result = entropyTrackerEngine.measureAssetTypeEntropy(assetDist);
+            break;
+          }
+          case "entropy_recommend": {
+            const { entropyTrackerEngine } = await import("../../engines/EntropyTrackerEngine.js");
+            const a = params.assetDist as Record<string, number>;
+            const assetDist: AssetDistribution = {
+              engines: a.engines, actions: a.actions, formulas: a.formulas, hooks: a.hooks,
+              skills: a.skills, scripts: a.scripts, dispatchers: a.dispatchers,
+              total: a.total ?? (a.engines + a.actions + a.formulas + a.hooks + a.skills + a.scripts + a.dispatchers),
+            };
+            result = { recommendations: entropyTrackerEngine.recommendDiversification(assetDist) };
+            break;
+          }
+          // U-WIRE-FORMAL / WIRE-UNWIRED-PAPA: FormalVerificationEngine (Z3 SAT/SMT) compute surfaces (slot:papa 2026-06-13).
+          // Params are zod-validated (variables/assumptions|constraints/goal shapes); the engine
+          // re-validates + fail-softs to result:"unknown" if Z3's WASM fails to load.
+          case "formal_ready": {
+            const { formalVerificationEngine } = await import("../../engines/FormalVerificationEngine.js");
+            result = { ready: await formalVerificationEngine.ready() };
+            break;
+          }
+          case "formal_prove": {
+            const { formalVerificationEngine } = await import("../../engines/FormalVerificationEngine.js");
+            result = await formalVerificationEngine.prove(params as unknown as ProofInput);
+            break;
+          }
+          case "formal_satisfy": {
+            const { formalVerificationEngine } = await import("../../engines/FormalVerificationEngine.js");
+            result = await formalVerificationEngine.satisfy(params as unknown as SatInput);
+            break;
+          }
           default:
             result = { error: "not_implemented", action, message: `Action '${action}' is registered but not yet wired to an engine. See PRISM-UNIFIED-MASTER-ROADMAP.md L1-B6.` };
         }

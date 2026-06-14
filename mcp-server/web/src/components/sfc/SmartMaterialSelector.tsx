@@ -55,7 +55,8 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
   const [recents, setRecents] = useState<string[]>(() => loadIds(RECENTS_KEY));
   const [backendResults, setBackendResults] = useState<MaterialEntry[]>([]);
   const [backendLoading, setBackendLoading] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  // React 19's useRef requires an explicit initial value (no overload for ()).
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +76,9 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
         const res = await dataApi.searchMaterials({ query, limit: 50 }) as { results?: MaterialEntry[] };
         const items = (res.results ?? (Array.isArray(res) ? res : [])) as MaterialEntry[];
         // Map backend results to MaterialEntry shape
-        const mapped: MaterialEntry[] = items.map((m: Record<string, unknown>) => ({
+        const mapped: MaterialEntry[] = items.map((mv: MaterialEntry) => {
+          const m = mv as unknown as Record<string, unknown>;
+          return ({
           id: String(m.id ?? m.name ?? ""),
           name: String(m.name ?? m.id ?? ""),
           group: String(m.group ?? m.iso_group ?? "P"),
@@ -83,7 +86,8 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
           hardness: Number(m.hardness ?? m.hardness_hb ?? 200),
           tensileStrength: Number(m.tensileStrength ?? m.tensile_strength ?? m.uts_mpa ?? 600),
           machinability: Number(m.machinability ?? m.machinability_index ?? 50),
-        }));
+        });
+        });
         setBackendResults(mapped);
       } catch {
         // Backend unavailable — local-only mode

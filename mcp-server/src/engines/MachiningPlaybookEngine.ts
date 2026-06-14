@@ -149,6 +149,432 @@ export interface PlaybookQuery {
 }
 
 // ============================================================================
+// PLAYBOOK CAPABILITY EXTENSIONS (U-PB-EXPAND-CAPABILITIES, 2026-05-22)
+// ============================================================================
+// Pure data-driven capabilities built on top of the existing 296-rule store.
+// Surface explicit rule explanation (with related-chain), coverage analysis,
+// and quantitative-formula filtering — none of which the existing query
+// surface (advise / byCategory / sequenceAdvice / antiPatterns / stats) exposes.
+
+/** Deep single-rule explanation with related-rule chain resolved. */
+export interface RuleExplanation {
+  rule: PlaybookRule;
+  /** related_rules IDs successfully resolved to real PlaybookRule entries (cycle-guarded). */
+  relatedResolved: PlaybookRule[];
+  /** related_rules IDs that did NOT resolve to a known rule. */
+  unresolvedRelated: string[];
+  hasQuantitative: boolean;
+  hasExceptions: boolean;
+  hasStandardRef: boolean;
+  evidenceLevel: EvidenceLevel | "unspecified";
+}
+
+/** Per-job coverage analysis: which categories fire, which are silent (blind-spots). */
+export interface PlaybookCoverageReport {
+  applicableCount: number;
+  totalRulesEvaluated: number;
+  byCategory: Record<string, number>;
+  bySeverity: Record<Severity, number>;
+  criticalApplicable: number;
+  /** Engine-known categories with ZERO applicable rules for this query. Sorted. */
+  blindSpotCategories: string[];
+  /** Applicable rule IDs, severity-ordered (advise() ordering). */
+  ruleIds: string[];
+}
+
+/** One row of quantitative guidance — an applicable rule that carries a formula. */
+export interface QuantitativeGuidanceEntry {
+  ruleId: string;
+  title: string;
+  severity: Severity;
+  category: RuleCategory;
+  quantitative: string;
+  reasoning: string;
+  standardRef?: string;
+}
+
+/** Bundle of applicable rules whose `quantitative?` formula is set. */
+export interface QuantitativeGuidanceReport {
+  count: number;
+  entries: QuantitativeGuidanceEntry[];
+  totalApplicable: number;
+  /** (count / totalApplicable) × 100, rounded to one decimal place. 0 when nothing applies. */
+  withQuantitativePct: number;
+}
+
+/** A single playbook-corpus integrity defect found by auditIntegrity(). */
+export type PlaybookIntegrityIssueType =
+  | "duplicate_id"        // the same rule id appears more than once in the store
+  | "dangling_related"    // related_rules points at a rule id that does not exist
+  | "self_reference"      // related_rules includes the rule's own id
+  | "asymmetric_related"  // A links to B but B does not link back to A
+  | "empty_reasoning"     // rule carries no reasoning text
+  | "unreachable_rule";   // rule has neither conditions nor conditions_all — can never match
+
+export interface PlaybookIntegrityIssue {
+  ruleId: string;
+  issueType: PlaybookIntegrityIssueType;
+  detail: string;
+}
+
+/** Playbook-corpus integrity audit — cross-reference + completeness defects. */
+export interface PlaybookIntegrityReport {
+  totalRules: number;
+  /** Distinct rule ids — less than totalRules iff a duplicate_id defect exists. */
+  uniqueRuleIds: number;
+  issueCount: number;
+  /** All defects, sorted deterministically by ruleId then issueType. */
+  issues: PlaybookIntegrityIssue[];
+  byType: Record<string, number>;
+  /** True iff issueCount === 0. */
+  healthy: boolean;
+}
+
+// ============================================================================
+// PLAYBOOK CONFLICT DETECTION (U-PB-CONFLICT-DETECT, 2026-05-22)
+// ============================================================================
+// Semantic-layer complement to auditIntegrity() (structural). Where the audit
+// finds broken cross-references, conflict detection finds rules that give
+// CONTRADICTORY parameter directives under overlapping machining conditions —
+// e.g. one rule says "increase feedrate", another says "reduce feedrate", and
+// both fire for the same material / feature / operation.
+
+/** A canonical machining parameter that a playbook rule can give a directive about. */
+export type ConflictParameter =
+  | "feedrate"
+  | "spindle_speed"
+  | "depth_of_cut"
+  | "width_of_cut"
+  | "coolant";
+
+/** Direction of a parameter directive extracted from rule text. */
+export type DirectiveDirection = "increase" | "decrease";
+
+/** One detected contradiction between two co-firing playbook rules. */
+export interface PlaybookConflict {
+  /** Rule ids of the conflicting pair, always ordered ruleIdA <= ruleIdB. */
+  ruleIdA: string;
+  ruleIdB: string;
+  /** The parameter both rules give an opposing directive on. */
+  parameter: ConflictParameter;
+  /** Direction rule A advises for `parameter`. */
+  directionA: DirectiveDirection;
+  /** Direction rule B advises for `parameter` — always the opposite of directionA. */
+  directionB: DirectiveDirection;
+  /** Shared category — co-fire detection requires both rules in the same category. */
+  category: RuleCategory;
+  /** Human-readable description of the overlapping machining context. */
+  sharedContext: string;
+}
+
+/**
+ * Playbook-corpus semantic conflict report. Complements the structural
+ * `auditIntegrity()` scan: where the audit finds broken cross-references,
+ * this finds rules giving CONTRADICTORY parameter directives for the same
+ * machining situation.
+ */
+export interface PlaybookConflictReport {
+  totalRules: number;
+  /** Same-category rule pairs whose conditions overlap — the co-fire candidate set. */
+  pairsEvaluated: number;
+  conflictCount: number;
+  /** All conflicts, sorted deterministically by ruleIdA, then ruleIdB, then parameter. */
+  conflicts: PlaybookConflict[];
+  /** conflictCount partitioned by parameter. */
+  byParameter: Record<string, number>;
+  /** True iff conflictCount === 0. */
+  conflictFree: boolean;
+  /** Directive-extraction method — honest label: a frozen token lexicon, NOT NLP. */
+  method: "lexicon-cooccurrence";
+}
+
+// ── Conflict-detection lexicons (module-private, frozen) ───────────────────
+// Directive extraction is deterministic lexicon co-occurrence: a parameter
+// synonym and a direction verb within CONFLICT_WINDOW characters of each
+// other. This is a heuristic surface for human corpus review — every reported
+// conflict carries the rule ids so a reviewer can confirm.
+
+/** Ordered canonical parameter list — drives deterministic iteration. */
+const CONFLICT_PARAMETERS: readonly ConflictParameter[] = Object.freeze([
+  "feedrate",
+  "spindle_speed",
+  "depth_of_cut",
+  "width_of_cut",
+  "coolant",
+] as const);
+
+/** Parameter → synonym tokens. Matched word-boundary, case-insensitive. */
+const CONFLICT_PARAM_LEXICON: Readonly<Record<ConflictParameter, readonly string[]>> = Object.freeze({
+  feedrate: ["feedrate", "feed rate", "feed", "feeds", "chip load", "chipload", "ipr"],
+  spindle_speed: ["spindle speed", "spindle rpm", "spindle", "rpm", "surface speed", "cutting speed", "sfm", "speed", "speeds"],
+  depth_of_cut: ["depth of cut", "axial depth", "depth", "doc", "stepdown"],
+  width_of_cut: ["width of cut", "radial depth", "radial engagement", "woc", "stepover"],
+  coolant: ["coolant", "flood coolant", "coolant pressure", "coolant flow"],
+});
+
+/** Direction verbs/comparatives — unambiguous "increase" sense. */
+const CONFLICT_INCREASE_TOKENS: ReadonlySet<string> = new Set([
+  "increase", "increased", "increasing", "raise", "raised", "raising",
+  "higher", "boost", "boosted", "boosting", "maximize", "maximise", "bump",
+]);
+
+/** Direction verbs/comparatives — unambiguous "decrease" sense. */
+const CONFLICT_DECREASE_TOKENS: ReadonlySet<string> = new Set([
+  "decrease", "decreased", "decreasing", "reduce", "reduced", "reducing",
+  "lower", "lowered", "lowering", "slower", "minimize", "minimise", "drop",
+]);
+
+/** Negation tokens that flip a following direction verb within 3 words. */
+const CONFLICT_NEGATION_TOKENS: ReadonlySet<string> = new Set([
+  "not", "never", "avoid", "without", "dont", "no",
+]);
+
+/** Half-width (characters) of the directive co-occurrence window. */
+const CONFLICT_WINDOW = 90;
+
+// ============================================================================
+// CONFLICT PRIORITY RANKING (U-PB-CONFLICT-RANK, 2026-05-22)
+// ============================================================================
+// detectConflicts() returns a flat list — every contradiction is equal. In
+// practice a critical-vs-critical conflict is FAR more urgent than a
+// tip-vs-tip one, and a conflict where one rule has ISO-standard backing
+// and the other is empirical-heuristic has an obvious winner. rankConflicts()
+// scores each PlaybookConflict on those two axes (pair severity + evidence
+// delta) and assigns a coarse priority bucket so an operator can triage.
+
+/** Coarse priority bucket for a detected playbook conflict. */
+export type ConflictPriority = "urgent" | "high" | "medium" | "low";
+
+/** A PlaybookConflict enriched with severity + evidence-based ranking. */
+export interface RankedConflict extends PlaybookConflict {
+  /** Higher of the two rules' severities. */
+  maxSeverity: Severity;
+  /** Lower of the two rules' severities. */
+  minSeverity: Severity;
+  /** Priority score in [0, 1] combining pair-severity (0.8) + evidence-delta (0.2). */
+  priorityScore: number;
+  /** Coarse bucket — urgent ≥ 0.80, high ≥ 0.55, medium ≥ 0.35, else low. */
+  priority: ConflictPriority;
+  /** Rule id whose evidence_level outranks the other's — null on tie/unknown. */
+  evidenceWinner: string | null;
+}
+
+/** Conflicts sorted by priority, with per-bucket counts. */
+export interface RankedConflictReport {
+  conflictCount: number;
+  /** All conflicts, sorted by priorityScore DESC; stable within ties. */
+  ranked: RankedConflict[];
+  /** conflictCount partitioned by priority bucket. */
+  byPriority: Record<ConflictPriority, number>;
+}
+
+// ── Resolution proposals (U-PB-SUGGEST-RESOLUTION, 2026-05-22) ───────────────
+// Closes the detect → rank → RESOLVE conflict workflow. Given two contradictory
+// rules, picks a winner based on evidence_level (primary) then severity (tie-
+// breaker), and flags ambiguous when both axes tie. Pure single-conflict logic
+// — no corpus rescans, no side effects.
+
+/** Which axis decided the resolution. */
+export type ResolutionDecidedBy = "evidence" | "severity" | "ambiguous";
+
+/** Proposal for which rule should win a detected playbook conflict. */
+export interface ResolutionProposal {
+  ruleIdA: string;
+  ruleIdB: string;
+  parameter: ConflictParameter;
+  /** id of the suggested winning rule; null when ambiguous. */
+  winnerId: string | null;
+  /** id of the rule that should yield; null when ambiguous. */
+  loserId: string | null;
+  /** Which axis decided this conflict. */
+  decidedBy: ResolutionDecidedBy;
+  /** |EVIDENCE_RANK[A] - EVIDENCE_RANK[B]| ∈ [0, 5]. */
+  evidenceDelta: number;
+  /** |SEVERITY_RANK[A] - SEVERITY_RANK[B]| ∈ [0, 3]. */
+  severityDelta: number;
+  /** Confidence in proposal ∈ [0, 1]. evidence-decided > severity-decided > ambiguous=0. */
+  confidence: number;
+  /** Operator-facing one-line rationale. */
+  rationale: string;
+  /** Convenience: true ⇔ decidedBy === "ambiguous". */
+  ambiguous: boolean;
+  /**
+   * R12 fail-loud: set when one or both rule ids could not be resolved against
+   * the engine's corpus (stale conflict input). Defaults silent on success.
+   */
+  warning?: string;
+}
+
+/** Batch resolution-proposal report over a conflict set. */
+export interface ResolutionReport {
+  conflictCount: number;
+  /** One proposal per input conflict, same order. */
+  proposals: ResolutionProposal[];
+  /** conflictCount partitioned by decision axis. */
+  byDecision: Record<ResolutionDecidedBy, number>;
+  /** Convenience mirror of byDecision.ambiguous. */
+  ambiguousCount: number;
+}
+
+// ── Related-rules graph (U-PB-RELATED-GRAPH, 2026-05-22) ──────────────────
+// Extends `explainRule()` (1-hop) to multi-hop BFS traversal over the
+// `related_rules` references — the playbook's cross-reference graph. Surfaces
+// unresolved-ref ids (stale corpus references) and cycle-edges (back-edges
+// to already-visited nodes) explicitly per R12 fail-loud — operators can
+// triage stale references rather than silently missing them in the report.
+
+/** Single node in the related-rules graph traversal. */
+export interface RelatedGraphNode {
+  /** The resolved rule itself. */
+  rule: PlaybookRule;
+  /** BFS hop depth from the root: 0 = root, 1 = direct neighbor, etc. */
+  hopDepth: number;
+}
+
+/** Directed edge in the related-rules graph. */
+export interface RelatedGraphEdge {
+  /** Source rule id (the rule whose `related_rules` field references `toId`). */
+  fromId: string;
+  /** Target rule id (resolved if present in `nodes`, in `unresolvedRefs` otherwise). */
+  toId: string;
+}
+
+/** Multi-hop BFS report rooted at a single rule. */
+export interface RelatedGraphReport {
+  /** Rule id the BFS was rooted at. */
+  rootId: string;
+  /** Cap on hop depth requested by the caller. */
+  maxDepth: number;
+  /** All resolved nodes in BFS order. nodes[0] is always the root. */
+  nodes: RelatedGraphNode[];
+  /** All forward edges (excluding cycle back-edges). */
+  edges: RelatedGraphEdge[];
+  /** Rule ids referenced via `related_rules` but absent from the corpus. */
+  unresolvedRefs: string[];
+  /** Back-edges to already-visited nodes — surfaced for cycle-detection visibility. */
+  cycleEdges: RelatedGraphEdge[];
+  /** True when BFS hit `maxDepth` and there were further-hop neighbors to explore. */
+  truncated: boolean;
+}
+
+/**
+ * Per-rule schema validation issue surfaced by validateCorpus().
+ * Lists every field that fails the required-field / non-empty contract.
+ */
+export interface SchemaIssue {
+  /** Rule id with the schema problem. */
+  id: string;
+  /** Human-readable issue descriptions (e.g. "title is empty", "conditions missing"). */
+  issues: string[];
+}
+
+/**
+ * Cross-reference issue — a rule references another rule that does not exist
+ * in the corpus. R12 fail-loud: surface the dangling edge with BOTH endpoints
+ * so an operator can fix the source rule (not just see the missing id).
+ */
+export interface UnresolvedRef {
+  /** Rule that listed the missing id in its related_rules. */
+  fromId: string;
+  /** Rule id referenced but not present in the corpus. */
+  missingId: string;
+}
+
+/**
+ * A cycle in the related_rules DAG — surfaced as the ordered path of rule ids
+ * that participate in the cycle. The path is canonicalized by rotating so the
+ * lowest-id (UTF-16 lexicographic) is index 0; the last id back-edges to
+ * path[0]. Canonicalization is monotone for ASCII ids; for Unicode ids the
+ * ordering follows JavaScript's native string-comparison (UTF-16 code-unit
+ * order), which is well-defined but may surprise on non-ASCII corpora.
+ *
+ * The `seenCycles` Set in validateCorpus() deduplicates entries using this
+ * canonical form. With DFS 3-color marking, a cycle is normally discovered
+ * exactly once (any second DFS root would find its nodes already BLACK), so
+ * the dedupe is primarily a defensive guard against future re-implementation
+ * changes — NOT a load-bearing dedupe for current DFS semantics.
+ */
+export type CycleId = string[];
+
+/**
+ * Full corpus health report from validateCorpus(). Pure read-only audit —
+ * no rule mutations. R12 fail-loud: every finding is surfaced rather than
+ * silenced. healthScore is a normalized [0,1] metric for at-a-glance triage;
+ * the detail arrays are the canonical source of truth.
+ */
+export interface CorpusValidationReport {
+  /** Total number of rules in the corpus when validation ran. */
+  totalRules: number;
+  /** Rule ids that appear more than once (corruption check). */
+  duplicateIds: string[];
+  /** Rules with NO related_rules AND no inbound references from any other rule. */
+  orphans: string[];
+  /** Stale cross-references — each entry pairs the source rule with the missing target. */
+  unresolvedRefs: UnresolvedRef[];
+  /** Cycles in the related_rules graph. Each cycle is an ordered list of rule ids. */
+  cycles: CycleId[];
+  /** Per-rule schema issues (missing/empty required fields). */
+  schemaIssues: SchemaIssue[];
+  /**
+   * Normalized health metric in [0,1]. 1.0 = clean corpus. Computed as
+   * 1 - (totalFindings / totalRules), clamped at 0. Operators should read
+   * the detail arrays before relying on this number — a single high-severity
+   * cycle is worse than the score suggests.
+   */
+  healthScore: number;
+}
+
+// Numeric ranks. Severity uses linear 1-4; evidence interleaves the
+// "validated" tier at 2.5 to encode that empirical-validated outranks
+// empirical-heuristic but does not reach manufacturer-data.
+const SEVERITY_RANK: Readonly<Record<Severity, number>> = Object.freeze({
+  critical: 4,
+  important: 3,
+  recommended: 2,
+  tip: 1,
+});
+
+const EVIDENCE_RANK: Readonly<Record<EvidenceLevel | "unspecified", number>> = Object.freeze({
+  iso_standard: 5,
+  peer_reviewed: 4,
+  manufacturer_data: 3,
+  empirical_validated: 2.5,
+  empirical_heuristic: 2,
+  theoretical: 1,
+  unspecified: 0,
+});
+
+const CONFLICT_PRIORITY_THRESHOLDS = Object.freeze({
+  urgent: 0.80,
+  high: 0.55,
+  medium: 0.35,
+});
+
+// Priority-formula tuning constants — kept named so the weighting + range
+// normalisation is explicit (and tunable in one place).
+/** Severity weight in priorityScore (sum with EVIDENCE_WEIGHT must = 1). */
+const SEVERITY_WEIGHT = 0.8;
+/** Evidence-delta weight in priorityScore. */
+const EVIDENCE_WEIGHT = 0.2;
+/** Max possible pair-severity sum: max(SEVERITY_RANK) + min(SEVERITY_RANK) = 4 + 4 = 8. */
+const SEVERITY_PAIR_MAX = 8;
+/** Max possible evidence delta: max(EVIDENCE_RANK) - min(EVIDENCE_RANK) = 5 - 0 = 5. */
+const EVIDENCE_RANK_SPAN = 5;
+/** Max possible severity delta: max(SEVERITY_RANK) - min(SEVERITY_RANK) = 4 - 1 = 3. */
+const SEVERITY_RANK_SPAN = 3;
+
+// Resolution-confidence tuning constants. Evidence-decided proposals occupy
+// the upper band [BASE, BASE+SPAN] = [0.5, 1.0]; severity-decided occupy the
+// middle [0.3, 0.7]; ambiguous = 0. The intentional overlap between bands
+// reflects that a max-margin severity (crit vs tip, 0.7) can outrank a tiny
+// evidence margin (0.5 + 0.1 = 0.6) — that's correct: a critical/tip pair
+// IS more decisive than e.g. peer_reviewed vs manufacturer_data (0.5+0.1).
+const RESOLUTION_EVIDENCE_BASE = 0.5;
+const RESOLUTION_EVIDENCE_SPAN = 0.5;
+const RESOLUTION_SEVERITY_BASE = 0.3;
+const RESOLUTION_SEVERITY_SPAN = 0.4;
+
+// ============================================================================
 // PLAYBOOK RULES DATABASE
 // ============================================================================
 
@@ -2000,6 +2426,83 @@ const PLAYBOOK_RULES: PlaybookRule[] = [
     source: "CNC Cookbook feeds/speeds guide, NYC CNC chip load fundamentals",
     evidence_level: "peer_reviewed" as const,
     quantitative: "Carbide min chip load: 0.004 inch (0.1mm). Hard milling burnishing: 0.0008 inch/tooth. Aerospace super-alloy burnishing: IPR < 0.0035 inch. MUCT = 5-20% of edge radius. Micromilling edge radius: 0.001-0.005mm.",
+  },
+  // Drilling-specific rules — closes the `drilling` category blind spot
+  // (declared at type level since corpus inception but had zero rules until
+  // U-PB-DRILL-RULES, slot:foxtrot 2026-05-23). Distinct from `deep_hole`
+  // (>5xD) and `hole_making` (mixed reaming/boring) — these rules cover
+  // SHORT-to-MODERATE drilling start, geometry, and breakthrough behavior.
+  {
+    id: "drill-spot-precenter",
+    category: "drilling",
+    severity: "important",
+    title: "Spot drill before twist drill for ±0.05mm hole positioning",
+    rule: "Use a spot drill (90° or 120° point) to a depth of 0.5-1.0× the twist drill diameter BEFORE running the twist drill on any hole requiring ±0.05mm true-position tolerance. The spot creates a precision-aligned conical seat that prevents drill walk on entry.",
+    reasoning: "A twist drill's chisel edge has zero cutting velocity at its center. On a flat or rough surface, the drill skates radially before the cutting lips engage — drift up to 0.1-0.3mm depending on point geometry, surface condition, and feed-on-entry. A spot drill's stiffer body and shorter L/D ratio holds position; the resulting conical seat constrains the twist drill's chisel edge to the seat center.",
+    conditions: [{ type: "operation_type", operations: ["drilling"] }],
+    exceptions: ["Self-centering drills (split-point geometry, 135°-140° with web thinning) on flat surfaces with rigid setup", "Drilling through pre-existing pilot holes", "CNC machines with rigid-tap-class spindle accuracy where the drill spirit-levels via Z-feed only"],
+    source: "Machinery's Handbook 31st ed., p.927 (drill point geometry); Guhring tooling catalog — 'Drill Entry Strategy'",
+    related_rules: ["drill-point-angle-material"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Spot drill depth: 0.5-1.0×D_twist. Walk without spot: 0.1-0.3mm typical, up to 0.5mm on inclined/rough surfaces.",
+  },
+  {
+    id: "drill-point-angle-material",
+    category: "drilling",
+    severity: "important",
+    title: "Match drill point angle to material: 118° general, 135° hard, 140° tough alloys",
+    rule: "Select drill point angle by material class: 118° for free-machining steels and aluminum (general-purpose), 135° for high-tensile steels >40 HRC (split-point preferred), 140° for stainless and tough nickel/titanium alloys, 60° for brass and copper (reduces grabbing). Mismatched point angle causes work hardening, premature wear, and poor hole geometry.",
+    reasoning: "The included point angle controls chip-formation geometry and thrust force. Shallower points (118°) produce a longer cutting edge that's gentler on soft material but glances off hard material. Steeper points (135-140°) concentrate force on a shorter edge — better for hard or work-hardening alloys but excess thrust on soft material causes drill walk. Split-points (134-140° with self-centering chisel grind) reduce thrust 30-40% vs standard 118° on the same drill.",
+    conditions: [{ type: "operation_type", operations: ["drilling"] }],
+    exceptions: ["Aerospace composite-stack drilling uses dual-angle (130°/60°) drills regardless of substrate class", "Through-coolant carbide drills are typically 140° regardless of material — internal coolant compensates for thrust"],
+    source: "Machinery's Handbook 31st ed., pp.917-920 (drill point geometry tables); ASM Handbook Vol.16 — Machining, ch. on drilling",
+    related_rules: ["drill-spot-precenter"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Free-machining steel/Al: 118°. Steel >40 HRC: 135° split-point. Stainless/Ti/Ni: 140°. Brass/Cu: 60-90° to prevent grab. Split-point thrust reduction: 30-40% vs standard 118°.",
+    standard_ref: "ASME B94.11M-1993 (Twist Drills, point geometry)",
+  },
+  {
+    id: "drill-stickout-runout",
+    category: "drilling",
+    severity: "important",
+    title: "Keep drill stickout ≤4×D to limit runout to 0.025mm",
+    rule: "Limit drill stickout (chuck-jaw to drill-tip distance) to 4× the drill diameter or less. Beyond 4×D, deflection under thrust load and accumulated runout produces oversized holes with poor cylindricity. Use stub-length drills, shorter holders, or shrink-fit chucks before extending stickout.",
+    reasoning: "Lateral runout at the drill tip scales as L³/D (cantilever beam deflection), so doubling stickout produces ~8× more tip deflection at the same thrust force. Even a runout-free spindle propagates ER-collet-induced wobble (typically 5-10 μm TIR at the collet face) into larger tip excursions as stickout grows. The 4×D rule keeps tip TIR within ~25 μm for typical setups, which is the hole-size-error limit before reaming becomes mandatory for H7-class holes.",
+    conditions: [{ type: "operation_type", operations: ["drilling"] }],
+    exceptions: ["Through-tool-coolant carbide drills rated for extended-length applications (use the manufacturer's published L/D ceiling, often 6-8×D)", "Guided-bushing setups where a hardened bushing supports the drill mid-length"],
+    source: "Sandvik Coromant — 'Drilling: Setup and Runout Best Practices'; Kennametal Master Catalog — drill holder selection",
+    related_rules: ["drill-point-angle-material", "DH-001"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Stickout limit: ≤4×D for ER collets. Runout at 4×D: ~25 μm TIR target. Tip deflection scales L³/D. Shrink-fit chuck TIR: 3-5 μm vs ER 5-10 μm.",
+  },
+  {
+    id: "drill-through-coolant-blind-hole",
+    category: "drilling",
+    severity: "important",
+    title: "Through-tool coolant at 40-70 bar for blind holes >3xD",
+    rule: "Use through-tool coolant at 40-70 bar pressure for blind holes deeper than 3×D when through-coolant drills are available. External coolant penetration drops below the cut-zone threshold at ~3×D in blind geometry — earlier than the 8×D threshold for through-holes (where chips can exit downward via gravity-assist).",
+    reasoning: "In a blind hole, all chip evacuation must travel UP the flutes — there's no gravity-assist exit. The annular gap fills with chips faster than in a through-hole. At only 3×D, external coolant can no longer reach the cutting lips through the chip-packed annulus. Through-tool delivery flushes coolant directly to the chisel edge at ~10 m/s, which simultaneously cools the cut and back-flushes chips up the flutes. Pressure of 40-70 bar (580-1000 psi) is the standard CNC machine through-spindle range.",
+    conditions: [{ type: "aspect_ratio_above", ratio: 3 }],
+    exceptions: ["Peck drilling (G83) with full retract to surface allows external coolant re-flood between pecks", "MQL through-spindle systems use aerosol delivery — pressure spec is irrelevant (flow rate matters instead, 40-60 mL/h)"],
+    source: "OSG — 'Through-Coolant Drilling Application Guide'; Sandvik Coromant — 'CoroDrill 870 Pressure Specification'",
+    related_rules: ["DH-004", "drill-spot-precenter"],
+    conditions_all: [{ type: "operation_type", operations: ["drilling"] }],
+    evidence_level: "manufacturer_data",
+    quantitative: "Blind hole threshold: 3×D (vs 8×D for through-holes). Pressure range: 40-70 bar (580-1000 psi). Coolant jet velocity at lips: ~10 m/s. MQL alternative: 40-60 mL/h flow rate, pressure irrelevant.",
+  },
+  {
+    id: "drill-feed-breakthrough-reduce",
+    category: "drilling",
+    severity: "important",
+    title: "Reduce feed 30-50% for final 0.5xD before breakthrough",
+    rule: "Reduce feed rate by 30-50% for the last 0.5×D of depth approaching breakthrough on a through-hole. Full feed at breakthrough causes the unsupported thin wall ahead of the drill to flex, then suddenly shear — producing burr blowout, ragged exit-edge chipping (especially in brittle materials), and sometimes catastrophic drill snapping on cast iron and hardened steels.",
+    reasoning: "As the drill approaches breakthrough, the thickness of material ahead of the cutting lips drops below the chip-thickness — there's nothing left to cut. In ductile materials this produces a folded-flap burr; in brittle materials (cast iron, hardened steel, ceramics) the unsupported edge snaps off in chunks ahead of the drill, producing chip-out on the exit face and shock-loading the drill chisel edge. Reduced feed in the breakthrough zone gives the lips time to cleanly shear the thinning wall before fracture.",
+    conditions: [{ type: "operation_type", operations: ["drilling"] }],
+    exceptions: ["Backing plates or sacrificial workpieces directly contacting the exit face provide support — feed reduction unnecessary", "Center-cutting end mills used as drills tolerate breakthrough at full feed", "Step drills with chamfer geometry self-clean the exit edge"],
+    source: "Machinery's Handbook 31st ed., pp.929-930 (drilling breakthrough behavior); JM Die operator tribal knowledge — repeat-batch cast iron breakthrough chipping observed on Mazak VTC-20B 2023-Q4",
+    related_rules: ["drill-point-angle-material"],
+    evidence_level: "empirical_heuristic",
+    quantitative: "Feed reduction zone: last 0.5×D of depth. Reduction: 30-50% of nominal feed. Worst-case unsupported wall thickness at switchover: ~0.1×D.",
   },
   {
     id: "coolant-mql-nozzle-setup",
@@ -4181,6 +4684,878 @@ const PLAYBOOK_RULES: PlaybookRule[] = [
     quantitative: "Cause: thermal cycling from interrupted cut + coolant. Each cycle: ΔT = 200-600°C. Crack initiation: ~1000-5000 cycles. Fix: dry milling (no thermal shock) or consistent flood (reduce ΔT)",
     related_rules: ["ANTI-004", "TW-006", "FA-004"],
   },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PLAYBOOK EXPANSION — U-PB-MAX-VARIABILITY (slot:foxtrot iter8 2026-05-23)
+  // Operator /goal: "expand machining, cad and cam playbooks to max statistical
+  // output. max variability and max logical node usage from PSN". 15 cited rules
+  // across 5 thin/underrepresented categories (3 each): milling, 5axis, gdt
+  // (CAD-side), toolpath_strategy (CAM-side), hsm. Every rule carries handbook
+  // or manufacturer source per slot:foxtrot tribal doctrine.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ─── milling (3→6) — basic milling tribal expansion ───────────────────────
+
+  {
+    id: "milling-climb-default",
+    category: "milling",
+    severity: "important",
+    title: "Default to climb milling for rigid CNC, conventional only for HSS or backlash",
+    rule: "Use climb milling (down milling) as the default on rigid CNC machining centers — chip starts thick and ends thin, cutting heat goes into the chip not the part, surface finish improves 30-50%. Use conventional milling (up milling) only on manual machines with backlash, HSS tools on hardened steel, or when prior surface has hard scale/skin.",
+    reasoning: "In climb milling, the cutter rotation pulls the chip away from the cut and discharges it behind the tool — the cutting edge engages at max chip thickness (clean shear, minimum rubbing) and exits at zero. Conventional milling starts at zero chip thickness, which forces the tool to rub before it cuts — work-hardens stainless/Ti, burns HSS edges, generates more heat. The backlash exception exists because climb cutting forces pull the table into the cut: on a machine with leadscrew backlash, this slams the table and breaks tools.",
+    conditions: [{ type: "operation_type", operations: ["milling", "roughing", "finishing"] }],
+    exceptions: ["Manual mills or older CNCs with measurable leadscrew backlash (>0.025mm) must use conventional", "Casting/forging with hard scale skin — conventional cuts UNDER the scale layer, climb hits the scale directly and chips the tool", "Long thin parts that pull away from the cutter under climb-load may need conventional for dimensional stability"],
+    source: "Machinery's Handbook 31st ed., pp.1010-1015 (milling — climb vs conventional); Sandvik Coromant — 'Milling Application Guide' §3.2",
+    related_rules: ["milling-minimum-chip-load", "TPS-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Surface finish improvement: 30-50% Ra reduction climb vs conventional. Tool life: 1.5-3× longer in climb. Backlash threshold for safe climb: <0.025mm leadscrew clearance.",
+  },
+  {
+    id: "milling-low-radial-chip-thin-comp",
+    category: "milling",
+    severity: "important",
+    title: "Boost feed when radial engagement drops below D/2 (chip thinning)",
+    rule: "When radial stepover ae < D/2, increase programmed feed per tooth by the chip-thinning compensation factor: f_z_adj = f_z × √(D / (4·ae·(1 - ae/D))). At ae = D/4 the factor is ~1.16; at ae = D/8 it's ~1.63. Without compensation, actual chip thickness drops below MUCT → rubbing → premature edge wear.",
+    reasoning: "Programmed feed is per tooth at the tool tip, but the ACTUAL chip thickness depends on the geometry of engagement. With full-immersion slotting (ae = D), max chip thickness equals f_z. As ae shrinks, the cut-arc shortens and max chip thickness becomes a fraction of f_z. The trochoidal/HSM strategies that use ae = D/10 are CHIP-THINNING-DEPENDENT — without the comp, the tool burnishes (sub-MUCT) and dies fast.",
+    conditions: [{ type: "operation_type", operations: ["milling"] }],
+    exceptions: ["Finishing passes intentionally use sub-MUCT for surface effect (single-pass burnish)", "Adaptive/trochoidal CAM strategies apply this compensation automatically — don't double-apply"],
+    source: "Erdel, B. (2003). *High-Speed Machining*, Hanser, §4.2. Also: HSMAdvisor + CNC Cookbook chip-thinning calculators; Iscar — 'Milling: Chip Thinning Effect' technical bulletin",
+    related_rules: ["milling-minimum-chip-load", "TPS-trochoidal-slotting"],
+    evidence_level: "peer_reviewed",
+    quantitative: "ae=D/2: factor 1.0. ae=D/4: 1.16. ae=D/8: 1.63. ae=D/10: 1.83. Formula: f_z_adj = f_z × √(D/(4·ae·(1-ae/D))) for ae<D/2.",
+  },
+  {
+    id: "milling-ramp-angle-limit",
+    category: "milling",
+    severity: "important",
+    title: "Limit ramp-in angle to manufacturer's max for end-mill geometry",
+    rule: "When ramping into stock with an end mill (no plunge), limit the ramp angle θ to the manufacturer's published max — typically 3° for standard square end mills, 8-15° for ramping-capable end mills, 30° for center-cutting end mills with helical entry geometry, and 90° (plunge) only for plunge-rated geometry. Excess ramp angle loads the corner radius beyond its design strength.",
+    reasoning: "Ramping engagement is asymmetric — the leading edge bites into uncut stock while the trailing edge is in free air. The corner radius takes ALL the radial cutting force in this geometry. Standard end mills are designed for axial-only or fully-engaged radial cutting; a ramp at 5° on a non-ramping end mill puts the corner radius at risk of chipping within ~10 ramp moves. Ramping-capable end mills have reinforced corners and chip-evacuation flutes designed for this geometry.",
+    conditions: [{ type: "operation_type", operations: ["milling", "roughing"] }],
+    exceptions: ["Helical ramp-down (G2/G3 spiral) distributes load circumferentially — typically tolerates 2-3× the manufacturer's linear-ramp angle", "Solid-carbide center-cutting end mills tolerate full plunge (90°) at reduced feed", "Drill-mills (combination drill+end mill) are designed for plunge entry"],
+    source: "Iscar — 'Milling Application Manual' §4 (ramp-in strategy); Kennametal — 'Solid End Mill Catalog' (per-geometry ramp angle spec); Sandvik CoroMill manuals",
+    related_rules: ["TPS-helical-entry"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Standard square end mill: 3° max linear ramp. Ramping end mill (reinforced corner): 8-15°. Center-cutting end mill: 30° linear, 45° helical. Plunge-rated: 90°. Helical ramp tolerance: 2-3× linear-ramp spec.",
+  },
+
+  // ─── 5axis (4→7) — multi-axis-strategy expansion ──────────────────────────
+
+  {
+    id: "5AX-005",
+    category: "5axis",
+    severity: "important",
+    title: "Tilt cutter 5-15° off-axis for ball-end finishing to escape zero-velocity tip",
+    rule: "When finishing with a ball-end mill on 5-axis, tilt the tool 5-15° off the surface normal (lead or tilt angle) so the cutting velocity at the tool-workpiece contact point is non-zero. A ball-end mill cutting straight down has ZERO surface speed at the centerline — the material plows, doesn't shear.",
+    reasoning: "The ball-end mill's effective cutting diameter at any contact point is D_eff = 2·R·sin(α), where α is the angle from the tool axis to the contact point. At α=0 (centerline), D_eff = 0 and the cutting velocity is also zero — pure rubbing/burnishing, very poor surface finish + rapid centerline tip wear. Tilting the tool 5-15° shifts the contact point off-center, gives an effective diameter of ~D·sin(5°)≈0.087D to D·sin(15°)≈0.26D, restores non-zero cutting velocity, and dramatically improves Ra (often 2-4× better).",
+    conditions: [{ type: "machine_axes", min_axes: 5 }, { type: "operation_type", operations: ["finishing"] }],
+    exceptions: ["Sphere-machining geometry where the part surface IS the tool path — tilt is geometrically impossible at certain orientations", "Toroidal (bull-nose) end mills don't have a zero-velocity center — tilt is optional for those"],
+    source: "Altintas, Y. (2012). *Manufacturing Automation*, 2nd ed., Cambridge, ch.5 (5-axis cutting mechanics); Tlusty (2000) §13.4; Siemens NX — 'Multi-Axis Surfacing Application Guide'",
+    related_rules: ["5AX-004"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Recommended lead angle: 5-15°. At lead=10°, D_eff = D·sin(10°) ≈ 0.17·D. Ra improvement vs zero-tilt: 2-4× better. Centerline tip wear at α=0: ~10× faster than at α=10°.",
+  },
+  {
+    id: "5AX-006",
+    category: "5axis",
+    severity: "important",
+    title: "Limit rotary-axis speed below 50% of machine spec to prevent stuttering",
+    rule: "Cap programmed rotary axis feedrates (A/B/C) at 50% of the machine's max rated rotary speed during simultaneous 5-axis cutting. Modern controllers (Heidenhain TNC, Siemens 840D, Fanuc 30i) have sufficient lookahead at 50% spec — running near 100% causes block-buffer underrun, stuttering motion, and visible surface tool-mark patterns.",
+    reasoning: "Simultaneous 5-axis motion requires the controller to interpolate 5 axes through hundreds of micro-blocks per second. Each block needs lookahead for jerk-limited acceleration. At >50% spec on rotary axes, the controller can't keep the lookahead buffer full while simultaneously running linear axes near their limits — the result is a stop-and-go motion pattern that prints onto the part as periodic ripple. Heidenhain calls this 'block-cycle starvation'; the fix is either slower rotary or fewer/larger blocks from CAM.",
+    conditions: [{ type: "machine_axes", min_axes: 5 }],
+    exceptions: ["3+2 positioning moves (rotary axes locked during cut) — no simultaneous lookahead burden, can use 100% rated rotary speed", "Machines with dedicated 5-axis NURBS or FastBlock controllers (Mori NT3 advanced, DMG Heidenhain 640) tolerate higher rotary speeds"],
+    source: "Heidenhain TNC — 'Cycle Optimization Manual' §6 (block-cycle constraints); Mori Seiki/DMG MORI — '5-Axis Programming Best Practices'",
+    related_rules: ["5AX-004", "HSM-LOOKAHEAD"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Rotary feed cap: 50% of rated max during simultaneous 5-axis. NURBS-controller exception: 75-100%. Block-cycle starvation onset: 60-80% rated speed depending on block size.",
+  },
+  {
+    id: "5AX-007",
+    category: "5axis",
+    severity: "important",
+    title: "Pre-test 5-axis programs in air at 50% feed before first cut on stock",
+    rule: "Run every new 5-axis program in air (offset Z by +50mm, no contact) at 50% rapid feedrate BEFORE first metal-cutting run. Look for: rotary-axis wrap warnings, kinematic-singularity slowdowns, fixture clearance, tool-changer interference, coolant nozzle collisions. 5-axis crashes are far more expensive than 3-axis (spindle + table + fixture + tool all at risk).",
+    reasoning: "5-axis machines have multi-orientation kinematics that 3-axis simulation cannot fully predict. CAM-side post-processor verification catches geometry-level issues but not machine-specific wrap, soft-limit, or rotary-pole problems. An air run at half feed surfaces these without consequence — wrong block of CAM output causing 720° unwind takes <30s to abort, whereas a metal cut crash takes hours of recovery + thousands in tools/spindle damage.",
+    conditions: [{ type: "machine_axes", min_axes: 5 }],
+    exceptions: ["Programs that have run successfully on this exact machine + fixture combo before (signed-off CAM post, no fixture changes)", "Closed-loop simulation with full digital twin of the machine kinematics signed off"],
+    source: "DMG MORI — '5-Axis Application Guide' §10 (machine kinematic verification); Mazak — 'IIntegrex Programming Manual' §safety + air-run procedure",
+    related_rules: ["5AX-001", "5AX-003"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Air-run Z offset: +50mm minimum. Air-run feedrate: 50% of programmed rapid (1000-2000 mm/min typical). Crash cost ratio 5-axis vs 3-axis: 5-20× higher (spindle + table + fixture all in line of fire).",
+  },
+
+  // ─── gdt (6→9) — CAD-side dimensioning/tolerancing expansion ──────────────
+
+  {
+    id: "GDT-007",
+    category: "gdt",
+    severity: "important",
+    title: "Bonus tolerance applies under MMC modifier — use it when functional",
+    rule: "Under MMC (Maximum Material Condition) modifier (Ⓜ in feature control frame), the geometric tolerance value can be EXCEEDED by the difference between actual feature size and MMC size. Example: hole tol 0.1Ⓜ at Ø10.0-10.2 means actual position tolerance grows to 0.3 when the hole is at LMC (Ø10.2). Use MMC on assembly-mating features for ~30% manufacturing cost reduction.",
+    reasoning: "MMC reflects the worst-case assembly fit scenario. When the hole is larger than MMC, there's MORE clearance for the mating pin, so position can drift further. The bonus tolerance is the mathematical formalization of this — the part still functions as long as position-error + size-deviation stays inside the assembly clearance envelope. Without MMC modifier (RFS — Regardless of Feature Size, the default), the position tolerance is rigid at 0.1 regardless of hole size — costs ~30% more to produce and inspect for no functional gain.",
+    conditions: [{ type: "operation_type", operations: ["inspection", "finishing"] }],
+    exceptions: ["Statistical tolerancing (Ⓢ) intentionally avoids MMC bonus to allow Gaussian distribution-based tolerance stacks", "Dynamic seal contact surfaces — RFS preserves contact area regardless of size", "Bearing-bore press fits — interference must be controlled regardless of size"],
+    source: "ASME Y14.5-2018 §4.2.2 (MMC modifier definition); Krulikowski, A. (2012). *Fundamentals of Geometric Dimensioning and Tolerancing*, 3rd ed., Cengage, ch.6",
+    related_rules: ["GDT-002"],
+    evidence_level: "iso_standard",
+    quantitative: "Bonus tolerance = |actual_size - MMC|. Example: tol 0.1Ⓜ, MMC=10.0, actual=10.15 → bonus=0.15 → total tol=0.25. Production cost savings vs RFS: 20-40% on hole patterns.",
+    standard_ref: "ASME Y14.5-2018; ISO 1101:2017",
+  },
+  {
+    id: "GDT-008",
+    category: "gdt",
+    severity: "important",
+    title: "Datum reference frame establishes the 3-2-1 immobilization sequence",
+    rule: "A Datum Reference Frame (DRF) must constrain 6 degrees of freedom via a 3-2-1 hierarchy: primary datum (3 constraints — typically a plane), secondary (2 constraints — typically a line or plane perpendicular to primary), tertiary (1 constraint — final rotational). Without this sequence, the part can rotate during measurement and produce arbitrary, irreproducible inspection results.",
+    reasoning: "A rigid body has 6 DOF (3 translational + 3 rotational). The primary datum (largest planar feature) locks 3 DOF — one translation + 2 rotations (it sits flat). The secondary datum (smaller perpendicular feature) locks 2 more DOF — another translation + 1 rotation. The tertiary datum (smallest feature) locks the final translation. Skip the hierarchy and the part 'floats' — same part measures different on different days, fails Cpk analysis, and produces inspector-disputes.",
+    conditions: [{ type: "operation_type", operations: ["inspection", "setup_strategy"] }],
+    exceptions: ["Cylindrical parts use datum axis (centerline) — locks 4 DOF in one feature; only 2 additional needed (1 translation + 1 rotation)", "Spheres use a point datum — locks 3 translations, no rotational lock (full rotational symmetry)"],
+    source: "ASME Y14.5-2018 §4.5 (Datum Reference Frame); Henzold, G. (2006). *Geometrical Dimensioning and Tolerancing for Design, Manufacturing and Inspection*, 2nd ed., Butterworth, ch.4",
+    related_rules: ["GDT-008-datum-target"],
+    evidence_level: "iso_standard",
+    standard_ref: "ASME Y14.5-2018 §4.5; ISO 5459:2011",
+  },
+  {
+    id: "GDT-009",
+    category: "gdt",
+    severity: "important",
+    title: "Profile-of-line ≠ profile-of-surface — choose by inspection method",
+    rule: "Profile-of-line (◠) tolerates the 2D cross-sectional profile at any single sectioning plane — verified by 2D contour scan. Profile-of-surface (◠ with shaded fill) tolerates the entire 3D surface envelope — verified by full CMM probe coverage. Specifying profile-of-line where profile-of-surface is needed misses out-of-plane defects (lobing, waviness, helical drift) that fail at assembly.",
+    reasoning: "Profile-of-line is a 2D tolerance — it checks the shape of any single slice through the part. A part with perfect cross-sections but a helical twist along the axis PASSES profile-of-line but FAILS profile-of-surface (and fails at assembly). Profile-of-surface is the 3D version — checks every point on the surface relative to the nominal envelope. Use profile-of-line only when the part will be inspected by 2D contour gauge (rare on modern CMM-equipped shops); default to profile-of-surface for any functional surface.",
+    conditions: [{ type: "operation_type", operations: ["finishing", "inspection"] }],
+    exceptions: ["Extruded or molded parts with controlled 2D cross-section by manufacturing process (the manufacturing constrains the 3D shape automatically)", "2D parts (gaskets, flat blanks) — profile-of-line IS the full surface"],
+    source: "ASME Y14.5-2018 §11 (profile tolerances); Krulikowski (2012), ch.10; Drake, P.J. (1999). *Dimensioning and Tolerancing Handbook*, McGraw-Hill, ch.11",
+    related_rules: ["GDT-007"],
+    evidence_level: "iso_standard",
+    standard_ref: "ASME Y14.5-2018 §11; ISO 1660:2017",
+  },
+
+  // ─── toolpath_strategy (8→11) — CAM-side strategy expansion ───────────────
+
+  {
+    id: "TPS-trochoidal-slotting",
+    category: "toolpath_strategy",
+    severity: "important",
+    title: "Use trochoidal slotting in slots ≥1.5×D — feed 2-4× faster than conventional plunge-and-cut",
+    rule: "For slots with width ≥ 1.5× tool diameter, replace plunge-then-traverse with trochoidal (circular interpolated) slotting. The tool follows overlapping circular arcs of diameter ae ≈ 0.1-0.2·D, removing material in many shallow passes. Result: 2-4× higher feedrate, dramatically reduced tool deflection, no chip evacuation issues, and full chip control.",
+    reasoning: "Conventional slot milling at full immersion (ae = D) loads every flute by the full diameter chip every revolution — radial cutting force scales with engagement, chip evacuation is poor (chips trapped in the slot), and the tool deflects severely. Trochoidal motion limits radial engagement to ae ≈ 0.1-0.2·D — chip thinning compensation lets you run 2-4× the feedrate, the small engagement leaves the tool stiff laterally, and the open trochoidal arc clears chips on every cycle.",
+    conditions: [{ type: "operation_type", operations: ["milling", "roughing"] }, { type: "feature_present", features: ["slot", "pocket"] }],
+    exceptions: ["Slots <1.5×D too narrow for trochoidal arc clearance — use plunge-mill or drill-mill", "Brittle materials (cast iron, ceramic) — trochoidal entry shock can chip the cutter; use ramp-entry instead"],
+    source: "OPEN MIND hyperMILL — 'iMachining and Trochoidal Strategy Guide'; Iscar — 'Slotting: Trochoidal vs Plunge' technical bulletin; HSMAdvisor calculators",
+    related_rules: ["milling-low-radial-chip-thin-comp", "TPS-001"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Slot-width threshold: ≥1.5×D. Trochoidal radial engagement: 0.1-0.2×D. Feedrate improvement: 2-4× vs conventional slotting. Tool deflection reduction: ~80%.",
+  },
+  {
+    id: "TPS-peel-milling",
+    category: "toolpath_strategy",
+    severity: "important",
+    title: "Peel mill (high axial, low radial) for deep pockets to reduce side-load",
+    rule: "For pockets deeper than 2×D, use peel milling: high axial engagement (ap = 1.5-3× D), low radial engagement (ae = 0.05-0.1× D), at high feedrate per tooth (1.5-2× standard). The thin slice of material the tool removes per pass is in the axial direction, not radial — radial cutting force drops by 5-10×, allowing aggressive feed without tool deflection.",
+    reasoning: "Conventional pocket milling uses shallow axial (ap = 0.5-1×D) and moderate radial (ae = 0.5-0.75×D) engagement — the tool experiences high RADIAL force, which deflects the long axial cantilever and causes poor side-wall accuracy. Peel milling flips this: nearly full-axial engagement uses the tool's stiffness in the axial direction (where it's straight), while the small radial engagement keeps lateral force minimal. Net effect: faster MRR, better side-wall finish, longer tool life, can use longer-reach tools (up to 6-8×D L/D).",
+    conditions: [{ type: "operation_type", operations: ["milling", "roughing"] }, { type: "feature_present", features: ["pocket"] }],
+    exceptions: ["Materials with built-up-edge tendency (1100 Al, soft stainless) — large axial engagement creates BUE; use shallow-axial instead", "Tool holders without minimum L/D rating for deep-axial loading — verify shrink-fit or thermal-shrink holder rated for full-immersion axial"],
+    source: "Iscar — 'Peel Milling Application Manual'; Kennametal — 'High-Productivity Milling: Peel Strategy'; Mazak — 'INTEGREX Application Tips' §peel-milling",
+    related_rules: ["TPS-trochoidal-slotting", "drill-stickout-runout"],
+    evidence_level: "manufacturer_data",
+    quantitative: "ap range: 1.5-3×D (axial). ae range: 0.05-0.1×D (radial). Feed per tooth: 1.5-2× standard finish-pass spec. L/D ceiling: 6-8×D with shrink-fit holder. Radial force reduction: 5-10× vs conventional pocket milling.",
+  },
+  {
+    id: "TPS-tangent-entry-roughing",
+    category: "toolpath_strategy",
+    severity: "important",
+    title: "Tangential entry to finish boundary leaves no entry-mark witness",
+    rule: "When finishing a contour or pocket boundary, enter and exit the cut along a tangential arc (not a perpendicular line). The cutter's lateral load builds gradually along the arc, and the exit unloads gradually — no abrupt engagement step that prints a witness mark on the finish surface.",
+    reasoning: "A perpendicular entry plows the cutter into the boundary at full lateral load instantaneously — the resulting deflection prints a 'dig-in' mark right at the entry point that's typically 5-20 μm deep, visible on cosmetic surfaces and a stress concentrator on critical parts. A tangential arc entry rotates the engagement gradually from zero to full load over a 0.1-1 mm arc length — the deflection ramps smoothly and leaves no detectable witness mark. Modern CAM systems offer 'tangent entry/exit' or 'lead-in/lead-out' as a finish-pass option.",
+    conditions: [{ type: "operation_type", operations: ["finishing", "milling"] }],
+    exceptions: ["Roughing passes where surface witness marks are removed by subsequent passes — tangent entry is unnecessary overhead", "Internal corners with no room for tangent-arc geometry — use ramp-down or spiral-in instead"],
+    source: "OPEN MIND hyperMILL — 'Finishing Pass Best Practices'; Mastercam — 'Tangent Entry/Exit Configuration Guide'; Boothroyd & Knight (2006) §7",
+    related_rules: ["TPS-001"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Arc length: 0.1-1mm typical (≥3× cusp height). Witness mark depth without tangent entry: 5-20μm typical. Ra impact on entry zone: 2-5× worse without tangent vs with.",
+  },
+
+  // ─── hsm (5→8) — high-speed-machining-specific expansion ──────────────────
+
+  {
+    id: "HSM-CHORD-TOLERANCE",
+    category: "hsm",
+    severity: "important",
+    title: "CAM chord tolerance ≤ Ra/4 for surface-quality match in HSM",
+    rule: "Set CAM chord tolerance (the max deviation of the polyline-approximated toolpath from the ideal curve) to ≤ 1/4 of the required Ra surface roughness. A part requiring Ra 3.2μm needs CAM chord tolerance ≤ 0.8μm. Coarser chord tolerance prints onto the surface as visible faceting that no amount of post-machining process improvement can eliminate.",
+    reasoning: "Toolpaths emerge from CAM as linear segments approximating curved nominal surfaces. The chord tolerance is the worst-case deviation — every chord segment leaves a flat where the curve was. At HSM feedrates (>5 m/min), these flats become VISIBLE facets on the part, even though the cutter geometry is perfect. The 1/4 rule comes from the empirical observation that chord-faceting becomes invisible below Ra/4 (deeper than the inherent cusp pattern from cutter geometry). Modern controllers (Heidenhain TNC, Siemens 840D) accept NURBS toolpaths that bypass the chord-tolerance step entirely.",
+    conditions: [{ type: "operation_type", operations: ["finishing", "milling"] }],
+    exceptions: ["NURBS-capable CAM + controller: chord tolerance is implicit in curve-degree, not explicit", "Surfaces hidden in assembly (functional but not cosmetic) — Ra/2 is acceptable", "Hand-finished parts (polish, lap) — chord tolerance up to Ra is OK, polish removes facets"],
+    source: "Heidenhain TNC — 'TNC640: HSC Optimization' §chord tolerance; Siemens 840D — '5-Axis HSC Best Practices'; Erdel (2003) §6 (HSM toolpath quality)",
+    related_rules: ["HSM-LOOKAHEAD", "TPS-001"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Chord tolerance rule: ≤Ra/4. Examples — Ra 0.8μm → tol 0.2μm. Ra 3.2μm → tol 0.8μm. Ra 12.5μm → tol 3.1μm. NURBS-bypass controllers: chord-tolerance constraint replaced by curve-degree spec.",
+  },
+  {
+    id: "HSM-LOOKAHEAD",
+    category: "hsm",
+    severity: "important",
+    title: "Block-buffer lookahead ≥200 blocks for >10 m/min HSM operation",
+    rule: "For HSM feedrates above 10 m/min, the CNC controller must look ahead at least 200 blocks (or 0.5-1 second of motion at full feed) to plan jerk-limited acceleration. Inadequate lookahead causes the controller to brake at every direction change because it can't see the next move's geometry — actual feedrates plummet to 30-50% of programmed, surface finish suffers, and feedrate variability prints as periodic banding.",
+    reasoning: "HSM machines run at high feed AND high contour density (CAM emits hundreds of micro-blocks per second). The controller must decide how to accelerate/decelerate through each block — that decision needs visibility of upcoming blocks. With 200 blocks of lookahead, the controller can identify upcoming sharp corners and start slowing 50-100 blocks in advance for a smooth deceleration. With only 20 blocks, the controller can only see one or two blocks past the current one — it must brake hard at every directional ambiguity, costing speed and finish quality. Modern controllers (TNC640, 840Dsl, 30iB) have 1000+ block lookahead built in; older controllers (TNC360, 840D classic) cap around 100.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }],
+    exceptions: ["3-axis prismatic milling with mostly straight moves — lookahead requirement drops to ~50 blocks", "Programs running below 5 m/min — block-lookahead saturation is rarely the bottleneck"],
+    source: "Heidenhain TNC — 'TNC640: HSC Programming Guide' §lookahead settings; Siemens 840D — 'Look-Ahead Function Manual'; Fanuc 30i — 'High-Speed High-Precision Function: AI Contour Control'",
+    related_rules: ["HSM-CHORD-TOLERANCE", "5AX-006"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Lookahead requirement: ≥200 blocks for >10 m/min feed. Time-equivalent: 0.5-1.0s of motion at full feed. Without lookahead: feedrate degradation 30-50%. Modern controller spec: 1000-5000 blocks (TNC640, 840Dsl, 30iB). Legacy spec: 50-100 (TNC360, 840D classic).",
+  },
+  {
+    id: "HSM-TANGENT-NO-STOP",
+    category: "hsm",
+    severity: "important",
+    title: "Eliminate full-stops in HSM contour transitions — feed never below 50% nominal",
+    rule: "In HSM contour machining, configure CAM to maintain feedrate ≥50% of nominal through ALL contour transitions (including corner blends, depth-step transitions, and pass-to-pass moves). Full stops or near-stops at corners thermally cycle the cutter — hot at cut, cooled at stop, hot again at next cut — causing micro-cracking and 5-10× faster tool wear.",
+    reasoning: "HSM tools (typically AlTiN-coated carbide or PCBN) reach steady-state thermal equilibrium during continuous cutting — the rake face hot, the body warm, the heat distributed. A full stop drops the cutting-edge temperature 200-400°C in <1 second as coolant + ambient pull heat away. The next cut spikes temperature back up. Each thermal cycle nucleates a micro-crack in the coating; after 1000-5000 cycles the coating spalls (thermal-shock failure mode, NOT abrasive wear). Maintaining ≥50% feed at all times keeps the cutter near thermal equilibrium and dramatically extends tool life.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }],
+    exceptions: ["Climb-cut roughing of cast iron — graphite particles cause built-up-edge regardless of thermal; tool life depends on abrasion not thermal cycling", "Dry-machining setups where there's no coolant-driven thermal cycle"],
+    source: "Erdel, B. (2003). *High-Speed Machining*, Hanser, §5 (HSM tool wear); Sandvik Coromant — 'HSM Tool Life Optimization'; Iscar — 'AlTiN Coating Thermal Behavior' technical bulletin",
+    related_rules: ["HSM-LOOKAHEAD", "ANTI-thermal-cycling"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Min feedrate through transitions: ≥50% nominal. Thermal cycle threshold: ΔT > 200°C per cycle. AlTiN coating life under thermal cycling: 1000-5000 cycles. Steady-feed tool life vs stop-and-go: 5-10× longer.",
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PLAYBOOK EXPANSION WAVE 2 — U-PB-MAX-VARIABILITY-W2 (slot:foxtrot iter9
+  // 2026-05-23). Operator /goal: max statistical output / max variability /
+  // synergized PSN. 18 cited rules across 6 thin categories (3 each):
+  // workholding, thermal, surface_integrity, vibration_dynamics, tool_life,
+  // spc. Wiring inheritance is automatic — rules are DATA in PLAYBOOK_RULES
+  // consumed by every existing dispatcher action (advise/lookup/byCategory)
+  // + every existing indirection (AdaptiveFeedControl + postPipeline stage
+  // + 3 AI registries). PSN synergy via per-rule related_rules
+  // cross-references creating graph edges + tribal-domain tagging.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ─── workholding (6→9, +3) — clamping/fixturing tribal expansion ──────────
+
+  {
+    id: "HOLD-008-clamp-force-yield",
+    category: "workholding",
+    severity: "important",
+    title: "Match clamping force to material yield — bracket thin-wall under 50% of yield",
+    rule: "Set clamping force so the localized stress under the clamp pad stays below 50% of the workpiece material yield strength. For aluminum 6061 (yield 276 MPa): max stress 138 MPa. For thin-walled features (wall/depth < 0.1), use multi-point distribution clamps OR vacuum/magnetic chucks instead of jaw clamps to avoid permanent deformation during machining.",
+    reasoning: "Mechanical clamps concentrate force at small contact patches. Even moderate clamp torque can yield aluminum or thin-walled steel locally. The workpiece then springs back ELASTICALLY during machining (you cut on a deformed shape), and when clamps release, residual deformation prints onto the part. Brackets thin-walled work with ≤50% yield ensures the clamp loads stay in pure elastic range — release recovers fully.",
+    conditions: [{ type: "operation_type", operations: ["setup_strategy", "milling", "turning"] }],
+    exceptions: ["Castings with thick clamping pads designed-in (3+ mm boss for vise jaws)", "Soft-jaw setups where the jaw conforms to the part profile distributing load"],
+    source: "Boothroyd & Knight (2006). *Fundamentals of Machining and Machine Tools* §11.4; Machinery's Handbook 31st ed., pp.1815-1830 (workholding); Carr Lane — 'Fixture Design Manual' §3",
+    related_rules: ["HOLD-003", "HOLD-soft-jaw"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Stress limit: ≤50% material yield. Aluminum 6061: 138 MPa max under clamp pad. Mild steel A36: 125 MPa. Stainless 304: 103 MPa. Thin-wall threshold: wall/depth <0.1 → switch to distributed-load workholding.",
+  },
+  {
+    id: "HOLD-006-soft-jaw",
+    category: "workholding",
+    severity: "important",
+    title: "Bore soft jaws to match part profile — first jaw cut is part-specific",
+    rule: "When holding round or contoured stock in a 3-jaw chuck, machine soft jaws (typically 1018 steel, sometimes brass) to match the part profile in the actual clamping diameter. Bore the soft jaws WITH a calibration ring in place that simulates the actual workpiece — this preloads the chuck the same way the real workpiece will.",
+    reasoning: "A 3-jaw chuck has finite jaw stiffness AND finite scroll-thread compliance. When you bore soft jaws empty, the bore is concentric to the chuck under zero load. When you then clamp a real part, the loaded compliance pulls the part off-center by 5-50 μm. Boring with a calibration ring matches the loaded compliance — the resulting jaws hold the part perfectly concentric in the actual loaded condition. This is critical for second-op turning where concentricity to first-op datum matters.",
+    conditions: [{ type: "operation_type", operations: ["turning", "setup_strategy"] }],
+    exceptions: ["Magnetic or hydraulic chucks with self-centering geometry — soft jaws unnecessary", "First-op rough turning where ±0.1mm concentricity is fine"],
+    source: "Machinery's Handbook 31st ed., pp.1828-1832 (chuck soft jaws); Hardinge — 'Workholding Technical Manual' §soft-jaw boring procedure",
+    related_rules: ["HOLD-003"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Compliance shift without calibration ring: 5-50 μm depending on chuck class. With calibration ring: <5 μm typical. Calibration ring material: gauge-pin steel, same diameter as workpiece ±0.025mm.",
+  },
+  {
+    id: "HOLD-007-fixture-stiffness",
+    category: "workholding",
+    severity: "important",
+    title: "Fixture stiffness must exceed 10× cutting force — measure with dial indicator",
+    rule: "Fixture stiffness at the workpiece location must exceed 10× the maximum cutting force to prevent chatter and dimensional drift during cut. Verify by applying a known force (push with calibrated push-pull gauge) at the workpiece location and measuring deflection with a dial indicator — calculate stiffness as k = F/δ.",
+    reasoning: "Fixture deflection couples to cutting dynamics — a fixture with k < 5× cutting force will form a low-frequency vibration mode at the cut location and generate chatter (frequency typically 100-500 Hz, prints as audible whine + visible chatter marks). At k > 10× cutting force, fixture deflection is < 10% of cutting-force-induced tool deflection, and stays out of the stability picture. The dial-indicator test takes 30 seconds per fixture and catches problems before first-cut.",
+    conditions: [{ type: "operation_type", operations: ["setup_strategy", "milling", "turning"] }],
+    exceptions: ["Light-cut finishing where cutting forces are <100N — fixture stiffness rarely a limit", "Custom force-controlled adaptive machining where the controller compensates for fixture compliance"],
+    source: "Tlusty, J. (2000). *Manufacturing Processes and Equipment*, Prentice Hall, §3.6 (fixture dynamics); Carr Lane — 'Fixture Design Manual' §6 (stiffness verification); SME *Tool and Manufacturing Engineers Handbook* Vol.2 §5",
+    related_rules: ["HOLD-005", "VIB-FRF-impact-test"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Stiffness ratio: ≥10× max cutting force. Test load: 100-500N range push-pull gauge. Acceptable deflection: <10μm at test load for k≥10× rule. Chatter-onset stiffness ratio: <5×.",
+  },
+
+  // ─── thermal (9→12, +3) — heat-management tribal expansion ────────────────
+
+  {
+    id: "THERM-006",
+    category: "thermal",
+    severity: "important",
+    title: "Flood coolant 8-15 bar required for stainless + titanium high-feed roughing",
+    rule: "Use flood coolant at 8-15 bar nozzle pressure (not just garden-hose flow) when high-feed-roughing stainless or titanium. Below 8 bar, coolant doesn't penetrate the chip-tool interface — heat conducts entirely into the workpiece + chip + tool, causing rapid flank wear + work hardening + dimensional drift.",
+    reasoning: "Stainless steels and titanium have low thermal conductivity (~16 W/m·K stainless, ~7 W/m·K Ti vs ~50 W/m·K steel) — heat doesn't escape into the chip easily, accumulates at the cutting zone, work-hardens the surface layer. Low-pressure coolant just washes the surface; high-pressure jets PENETRATE the chip-tool gap and remove heat at source. The 8-15 bar threshold is the empirical pressure where coolant overcomes the hydrostatic resistance of the cut zone.",
+    conditions: [{ type: "operation_type", operations: ["milling", "turning", "roughing"] }, { type: "material_iso", groups: ["M", "S"] }],
+    exceptions: ["MQL (Minimum Quantity Lubrication) at correct nozzle placement can substitute for flood — 40-60 mL/h", "Through-tool coolant (internal) substitutes for external pressure — manufacturer-rated 30-70 bar typical"],
+    source: "Sandvik Coromant — 'Stainless and Heat-Resistant Steels Application Guide' §coolant; Kennametal — 'Titanium Machining: Coolant Requirements'; Iscar — 'Hard-to-Cut Materials Guide'",
+    related_rules: ["coolant-mql-nozzle-setup", "COOL-001"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Coolant pressure: 8-15 bar nozzle, target chip-tool interface. Stainless thermal conductivity: ~16 W/m·K. Titanium: ~7 W/m·K. Steel reference: ~50 W/m·K. Flow rate: ≥20 L/min for full-flood at 10 bar.",
+  },
+  {
+    id: "THERM-007-dry-machining",
+    category: "thermal",
+    severity: "important",
+    title: "Dry-mill cast iron and graphite; never dry-cut aluminum or copper",
+    rule: "Cast iron and graphite are machined DRY — the graphite/free-graphite content self-lubricates the cut and coolant wash carries abrasive dust into machine ways. Aluminum and copper REQUIRE coolant (flood or MQL) — without it the chip welds to the tool flank (built-up edge), surface finish collapses, and tool life drops to <10% of wet-cut life.",
+    reasoning: "Cast iron's graphite flakes act as natural solid lubricant — adding coolant just suspends the abrasive iron particles into a slurry that wears machine ways + erodes seals + creates disposal issues. Aluminum is the opposite — high affinity for the cutting tool (low solubility threshold ~600°C), forms BUE immediately without coolant; copper is similar. Tool life ratio aluminum dry vs wet: 1:10 to 1:50.",
+    conditions: [{ type: "operation_type", operations: ["milling", "turning"] }],
+    exceptions: ["Heavy roughing on cast iron with deep cuts — air-blast may help chip evacuation", "Ductile cast iron (vs gray) sometimes benefits from minimal MQL at high feed rates", "Aluminum casting alloys with high Si content (A356, A380) may machine OK with MQL only"],
+    source: "Machinery's Handbook 31st ed., pp.987-995 (machining cast iron + aluminum); ASM Handbook Vol.16 — Machining (1989), ch.9 (machining of aluminum) + ch.10 (machining of cast iron); Sandvik — 'Cast Iron Machining Guide'",
+    related_rules: ["coolant-mql-nozzle-setup", "ANTI-thermal-cycling"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Cast iron dry-machining: standard practice. Aluminum dry-cut tool life: <10% of wet-cut. Aluminum BUE onset temperature: ~600°C (well below carbide softening). Copper BUE onset: ~500°C.",
+  },
+  {
+    id: "THERM-008-thermal-expansion-comp",
+    category: "thermal",
+    severity: "important",
+    title: "Thermal expansion compensation: probe twice for tight-tol precision parts",
+    rule: "On precision parts (tolerances ≤ ±0.013mm / ±0.0005in), probe critical features TWICE — once at start-of-program (cold workpiece) and once mid-program (after ~30 min cutting, workpiece thermally equilibrated). Use the delta to compensate for workpiece thermal growth, which can reach 50-100 μm on a 200mm part heated 30°C by cutting heat.",
+    reasoning: "Steel thermal expansion coefficient is 11.7 μm/m/°C — a 200mm steel part heated 30°C grows 70 μm linearly. Aluminum is ~22 μm/m/°C — same delta gives 132 μm growth. Without compensation, dimensions cut at cold-state vs heat-soaked state differ by this delta. Two-probe compensation captures the actual growth (which is geometry- and clamping-dependent, NOT just material-coefficient-times-ΔT).",
+    conditions: [{ type: "operation_type", operations: ["finishing", "inspection"] }, { type: "tolerance_below", threshold_mm: 0.013 }],
+    exceptions: ["Coolant-flooded operations where workpiece stays at coolant temperature throughout (Δ <5°C)", "Pre-heated workpieces brought to operating temperature before clamping"],
+    source: "Machinery's Handbook 31st ed., pp.2050-2055 (thermal effects in precision machining); Slocum, A.H. (1992). *Precision Machine Design*, Prentice Hall, §3 (thermal effects); NIST — 'Dimensional Metrology: Temperature Effects'",
+    related_rules: ["GDT-008"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Tolerance threshold: ≤±0.013mm. Steel thermal expansion: 11.7 μm/m/°C. Aluminum: ~22 μm/m/°C. Typical workpiece ΔT during cut: 10-40°C. 200mm steel part at ΔT=30°C: 70μm growth. Compensation method: two-probe delta + scale factor.",
+  },
+
+  // ─── surface_integrity (6→9, +3) — surface-quality + residual stress ──────
+
+  {
+    id: "SURF-007-white-layer",
+    category: "surface_integrity",
+    severity: "important",
+    title: "White layer on hard-turned surfaces signals thermal damage — limit cutting speed",
+    rule: "When hard turning (workpiece ≥45 HRC), monitor for white-layer formation by metallurgical cross-section (etch + microscopy). White layer (untempered martensite) >3-5 μm thick is THERMAL DAMAGE indicator — reduces fatigue life by 30-70%. Mitigate by reducing cutting speed 15-30% from manufacturer-recommended max OR switching to CBN inserts with sharper edge geometry.",
+    reasoning: "Hard turning generates intense localized heat at the cut zone. Above critical temperature (~723°C steel austenitizing), the workpiece surface transforms to austenite + rapidly quenches to brittle untempered martensite as the tool passes. This 'white layer' is harder than bulk material but has very low ductility — fatigue crack-initiation sites. Detection: macroetch with 2% nital, examine under 200-500× microscope. Acceptance: ≤3 μm thickness for fatigue-critical applications, ≤5 μm for static loaded.",
+    conditions: [{ type: "operation_type", operations: ["turning", "finishing"] }, { type: "hardness_above", hrc: 45 }],
+    exceptions: ["Compressive residual stress at the surface from cutting can partially offset white-layer fatigue impact — qualify via fatigue testing", "Post-machining shot peening removes white layer + adds compressive residual stress for high-cycle fatigue parts"],
+    source: "Bartarya, G. & Choudhury, S.K. (2012). *State of the art in hard turning*. Int. J. Machine Tools & Manufacture 53(1):1-14. Klocke, F. (2011). *Manufacturing Processes 2: Grinding, Honing, Lapping*, Springer, §3.4. Sandvik Coromant — 'Hard Turning Application Guide'",
+    related_rules: ["HARD-001", "SURF-residual-stress"],
+    evidence_level: "peer_reviewed",
+    quantitative: "White layer threshold: ≤3μm fatigue-critical, ≤5μm static-loaded. Fatigue life reduction at 10μm white layer: 30-70%. Detection: 2% nital macroetch + 200-500× microscope. Mitigation: 15-30% Vc reduction from spec max, or CBN sharp-edge geometry.",
+  },
+  {
+    id: "SURF-008-residual-stress-meas",
+    category: "surface_integrity",
+    severity: "important",
+    title: "Measure residual stress on fatigue-critical surfaces — X-ray diffraction is canonical",
+    rule: "For high-cycle-fatigue parts (aerospace, medical, automotive crankshafts/conrods), measure surface residual stress via X-ray diffraction sin²ψ method at multiple depths (surface, 10μm, 50μm, 100μm via electropolish). Target compressive residual stress of -200 to -600 MPa on the surface for fatigue benefit; tensile residual stress (positive) accelerates fatigue failure 5-10×.",
+    reasoning: "Machining processes induce residual stress in the surface layer. Gentle finishing (low feed, sharp tool) typically produces COMPRESSIVE residual stress (-200 to -600 MPa) which extends fatigue life. Aggressive roughing or worn tools produce TENSILE residual stress (+200 to +600 MPa) which accelerates crack initiation. The compressive layer is typically 10-100 μm thick — too thin to measure by hardness testing, requires X-ray diffraction sin²ψ method (ASTM E915) or hole-drilling strain-gauge method (ASTM E837).",
+    conditions: [{ type: "operation_type", operations: ["finishing", "inspection"] }],
+    exceptions: ["Static-load-only parts where fatigue isn't a failure mode — residual stress is irrelevant", "Parts with post-machining stress relief heat treatment that erases residual stress regardless of machining"],
+    source: "Withers, P.J. & Bhadeshia, H.K.D.H. (2001). *Residual stress. Part 1 – Measurement techniques*. Mat. Sci. & Tech. 17:355-365. ASTM E915-19 (X-ray diffraction sin²ψ method). ASM Handbook Vol.6A — Residual Stress",
+    related_rules: ["SURF-007-white-layer"],
+    evidence_level: "iso_standard",
+    quantitative: "Target compressive residual stress: -200 to -600 MPa surface. Tensile residual stress fatigue penalty: 5-10× life reduction. Measurement depth: surface + 10μm + 50μm + 100μm. Methods: ASTM E915 (XRD sin²ψ) or ASTM E837 (hole drilling).",
+    standard_ref: "ASTM E915-19; ASTM E837-20",
+  },
+  {
+    id: "SURF-009-burr-orientation",
+    category: "surface_integrity",
+    severity: "important",
+    title: "Burr orientation predicts deburring difficulty — design exit chamfers",
+    rule: "Predict burr exit-edge direction from tool feed and rotation: in conventional milling, burr forms on the side AWAY from cutter rotation; in climb milling, ON the side OF rotation. Design parts with chamfered or radiused exits where burrs are predicted so they self-deburr OR provide controlled bur surfaces for downstream brush/tumble deburr.",
+    reasoning: "Burrs form when the chip detaches at the workpiece edge — the chip has nowhere to shear-off cleanly, so it tears with a microscopic flag of plastically-deformed material attached. Burr direction depends on chip-flow direction at exit, which is determined by cutter geometry + rotation + feed direction. A 0.2mm × 45° chamfer on the predicted burr edge typically eliminates the burr (the cut shears off the chamfer instead of the part body) OR concentrates it onto the chamfer where deburring is easy.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing", "deburring"] }],
+    exceptions: ["High-tolerance edge-quality parts (medical, aerospace) where chamfers are spec-prohibited — must hand-deburr or electrochemical-deburr instead", "Brittle materials (cast iron, ceramic) — chips break rather than burr; no burr-orientation prediction applies"],
+    source: "Aurich, J.C. et al. (2009). *Burrs—Analysis, control and removal*. CIRP Annals 58(2):519-542. Gillespie, L.K. (1999). *Deburring and Edge Finishing Handbook*, SME, ch.3. ASME B89.4.10 (burr/edge-finish standards)",
+    related_rules: ["milling-climb-default", "DEB-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Predicted-edge chamfer: 0.2mm × 45° typical. Self-deburr probability with chamfer: 70-90% (depends on material ductility). Burr-height threshold for spec-compliant exit: typically <0.05mm (Class B per ISO 13715:2017).",
+    standard_ref: "ISO 13715:2017 (edge tolerances); ASME B89.4.10",
+  },
+
+  // ─── vibration_dynamics (6→9, +3) — chatter/stability tribal expansion ────
+
+  {
+    id: "VIB-FRF-impact-test",
+    category: "vibration_dynamics",
+    severity: "important",
+    title: "FRF impact test the spindle-tool assembly before high-speed finishing — find natural frequencies",
+    rule: "Before high-speed finishing (>10,000 RPM) on a new tool/holder combination, run a Frequency Response Function (FRF) impact test: instrument the tool tip with an accelerometer, strike with a calibrated modal hammer, capture FFT. Identify the dominant natural frequency (typically 800-3000 Hz on a typical 150-200mm-stickout end mill in a shrink-fit holder). Pick spindle RPM such that tooth-passing-frequency = natural-freq / k (k = lobe number, 1-4 typical).",
+    reasoning: "Chatter onset occurs at specific spindle speeds where tooth-passing frequency lines up with a structural mode. Picking RPM at a stability LOBE (where tooth-pass-freq divides the natural-freq evenly into an integer) avoids chatter entirely AND allows ~3× the depth-of-cut that off-lobe speeds support. The FRF test takes ~10 minutes per tool configuration; the resulting stability-lobe diagram is good for that tool/holder/spindle combination across all materials.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }],
+    exceptions: ["Stiffness-dominated cuts (short stubby tools <2×D L/D, light cuts <0.5mm DOC) where chatter is unlikely regardless of speed", "Process-damped operations where helix angle / variable pitch geometry suppresses chatter inherently"],
+    source: "Altintas, Y. (2012). *Manufacturing Automation*, 2nd ed., Cambridge, §3 (chatter stability); Schmitz, T.L. & Smith, K.S. (2009). *Machining Dynamics*, Springer, ch.4 (FRF impact testing). MMSystem Tap Tester instrument manual",
+    related_rules: ["HOLD-007-fixture-stiffness", "VIB-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Typical natural freq range: 800-3000 Hz (150-200mm stickout, shrink-fit holder). Stability lobe equation: n_lobe = 60·f / (z·k), k ∈ {1,2,3,4}. Lobe DOC vs off-lobe: 3× more aggressive cut. Test setup time: ~10 minutes per tool configuration.",
+  },
+  {
+    id: "VIB-VARIABLE-PITCH",
+    category: "vibration_dynamics",
+    severity: "important",
+    title: "Variable-pitch end mills suppress chatter without RPM tuning — pay 20% premium for it",
+    rule: "When chatter is recurring on a workpiece + machine setup (especially long-overhang or thin-wall work), switch to a variable-pitch end mill (uneven flute spacing) before tuning RPM. Variable pitch breaks up the periodic chip-load pattern that drives chatter — typically eliminates chatter across a wide RPM range, no FRF testing needed. Cost premium: 15-25% over uniform-pitch equivalent.",
+    reasoning: "Regenerative chatter requires a phase-locked feedback between tooth-passing and structural vibration. Variable pitch DEFEATS this by ensuring no two consecutive flutes engage at the same phase angle. The chip loads on consecutive flutes are unequal, so they don't constructively interfere with the structural mode. Result: chatter suppressed across nearly all RPMs, robust to part-to-part stiffness variation, no need for stability-lobe lookup. Trade-off: slightly worse surface finish (uneven tool marks) and 15-25% tool cost premium.",
+    conditions: [{ type: "operation_type", operations: ["milling"] }],
+    exceptions: ["High-surface-finish finish passes — variable pitch leaves uneven cusp marks; use uniform-pitch with FRF-tuned RPM instead", "Cost-sensitive high-volume work where uniform-pitch + tuned RPM is more economical"],
+    source: "Altintas, Y., Engin, S. & Budak, E. (1999). *Analytical stability prediction and design of variable pitch cutters*. ASME J. of Manufacturing Science and Engineering 121(2):173-178. Iscar — 'Variable Pitch End Mills' application catalog. Sandvik CoroMill 690 product line technical guide",
+    related_rules: ["VIB-FRF-impact-test"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Cost premium: 15-25% vs uniform-pitch. Chatter-suppression range: 80-95% of RPM range. Surface finish impact: ~10-20% Ra increase vs tuned uniform-pitch.",
+  },
+  {
+    id: "VIB-TUNED-MASS-DAMPER",
+    category: "vibration_dynamics",
+    severity: "important",
+    title: "Tuned-mass-damper holders for L/D >5 — pay premium for slender-tool stability",
+    rule: "For end mills with stickout L/D ≥ 5 (long-reach finishing in deep cavities), use tuned-mass-damper (TMD) anti-vibration holders. The holder contains an internal mass-spring system tuned to absorb the dominant tool natural frequency — typically reduces tool-tip vibration amplitude 5-10× compared to a rigid holder, allowing 2-4× more aggressive depth-of-cut at the same surface quality. Cost: 3-10× more than a rigid holder.",
+    reasoning: "Slender end mills are cantilever beams — at L/D ≥5, the bending mode dominates tool-tip motion under cutting force, and there's no surrounding structural mass to absorb it. A TMD holder adds a damped mass-spring tuned to that bending frequency (typically 200-1000 Hz) — energy from the tool's vibration transfers into the damper's motion, dissipated by the internal viscous element. Brand names: Sandvik Silent Tools, Iscar Whisper Line, Haimer Long Reach. Investment pays back in 3-5 long-cavity finishing jobs through faster cycle time + better finish.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }],
+    exceptions: ["Short stickout work (L/D <5) — TMD provides no benefit, rigid holder is more accurate", "Roughing work where surface finish doesn't matter — accept chatter, run more aggressively with cheaper holder"],
+    source: "Slocum, A.H. (1992). *Precision Machine Design*, Prentice Hall, §3.7 (TMD design); Sandvik Coromant — 'Silent Tools Anti-Vibration Tooling Manual'; Iscar — 'Whisper Line Anti-Vibration End Mill Holders'; Schmitz & Smith (2009) §5",
+    related_rules: ["VIB-FRF-impact-test", "drill-stickout-runout"],
+    evidence_level: "manufacturer_data",
+    quantitative: "L/D threshold: ≥5 for TMD benefit. Vibration amplitude reduction: 5-10× vs rigid. DOC improvement: 2-4× at same finish quality. Cost premium: 3-10× rigid holder. Tuned frequency range: 200-1000 Hz typical.",
+  },
+
+  // ─── tool_life (10→13, +3) — life-extension tribal expansion ──────────────
+
+  {
+    id: "TL-007-taylor-fit-production",
+    category: "tool_life",
+    severity: "important",
+    title: "Fit Taylor exponent n from production data — handbook value ±50% on real shop conditions",
+    rule: "Don't accept handbook Taylor exponent n (e.g., n=0.25 for carbide on steel) as authoritative for shop-specific tool life prediction. Run a 3-point production tool-life test at three cutting speeds (e.g., 80%, 100%, 120% of manufacturer-recommended Vc), measure actual tool life to wear criterion (typically VB=0.3mm flank wear), fit log-log regression: log(T) = -n · log(Vc) + log(C). Your shop's effective n is often 0.15-0.35 vs handbook 0.25.",
+    reasoning: "Taylor's tool life model T·Vc^(1/n) = C is a power-law fit — the exponent n depends on coolant, workholding stiffness, machine spindle quality, tool runout, and workpiece batch microstructure. Handbook n values assume idealized lab conditions; real shop n can be 30-50% lower (faster wear) or higher (slower wear). Three-point production fit pins down YOUR shop's actual n, enabling accurate tool-budget and lifetime quoting. Cost of 3-point test: 3 tools × 30 min cutting each = 1.5 hr per tool/material combination. Payback: accurate scheduling + reduced unscheduled tool change.",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }],
+    exceptions: ["One-off prototype work where tool-life prediction isn't economically valuable", "Low-volume work where the 3-point test cost exceeds the prediction benefit"],
+    source: "ISO 3685:1993 — Tool-life testing single-point turning tools; Shaw, M.C. (2005). *Metal Cutting Principles*, 2nd ed., Oxford, ch.7; Sandvik Coromant — 'Tool Life Testing Application Guide'",
+    related_rules: ["TL-001"],
+    evidence_level: "iso_standard",
+    quantitative: "3-point test Vc: 80%, 100%, 120% of mfr-recommended. Wear criterion: VB=0.3mm flank wear (carbide) or 0.25mm (CBN). Real-shop n range vs handbook: 0.15-0.35 (carbide on steel). Test cost: ~1.5 hr per tool/material combo.",
+    standard_ref: "ISO 3685:1993",
+  },
+  {
+    id: "TL-008-coating-material-match",
+    category: "tool_life",
+    severity: "important",
+    title: "Match coating to material: TiAlN for steel, AlCrN for stainless, AlTiN+nACo for Ti — wrong match cuts life 50%",
+    rule: "Select tool coating by workpiece material class. TiAlN (titanium aluminum nitride, golden color): general steel + cast iron, 800-900°C max. AlCrN (aluminum chromium nitride, dark gray): stainless + heat-resistant alloys, 1000°C max. AlTiN with nano-composite (nACo) overlay: titanium + nickel-based superalloys, 1100°C max + low affinity to Ti. TiCN (titanium carbo-nitride): aluminum + non-ferrous, excellent surface finish. Wrong coating cuts tool life 50% or more.",
+    reasoning: "Coatings have specific oxidation thresholds, hardness, friction coefficients, and chemical affinity. Above its oxidation threshold, the coating degrades rapidly. AlCrN forms a self-renewing Al2O3 layer at high temperature — survives stainless steel temperatures (where TiAlN would oxidize away). nACo's nano-composite microstructure resists titanium adhesion (Ti's high affinity to ferrous coatings causes BUE). Mismatched coating doesn't FAIL catastrophically — it just wears faster, often misdiagnosed as 'bad tool batch' or 'wrong feed/speed'.",
+    conditions: [{ type: "operation_type", operations: ["milling", "turning"] }],
+    exceptions: ["Uncoated carbide: still good for aluminum + free-machining steels at low Vc", "PCD/PCBN: niche tools where coatings are irrelevant (the substrate IS the cutting surface)"],
+    source: "Klocke, F. (2011). *Manufacturing Processes 1: Cutting*, Springer, ch.4 (coatings); Sandvik Coromant — 'Grades and Coatings Application Guide'; PalbitGen — 'Coating Selection Matrix'; Walter Tools — 'AlCrN vs TiAlN Comparison Bulletin'",
+    related_rules: ["TL-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "TiAlN max temp: 800-900°C, use for steel/cast iron. AlCrN max temp: 1000°C, use for stainless. nACo max temp: 1100°C, use for Ti/Ni. TiCN max temp: 400°C, use for Al/non-ferrous. Mismatch tool-life penalty: 50-70% reduction.",
+  },
+  {
+    id: "TL-009-regrind-economics",
+    category: "tool_life",
+    severity: "important",
+    title: "Regrind end mills 3-5× before retiring — check straightness + diameter loss per regrind",
+    rule: "End mills can typically be reground 3-5 times before retiring. Each regrind removes 0.5-1.0mm from the tool length and 0.1-0.2mm from the diameter (sharpens new cutting edges). Inspect after each regrind: (1) check tool-length consistency ±0.05mm, (2) check diameter loss vs spec, (3) confirm runout ≤0.013mm TIR in spindle. Cost: $20-50 per regrind vs $80-300 new tool — economic when regrind cost < 25% of new-tool cost AND remaining diameter allows ≥1 more service cycle.",
+    reasoning: "Resharpening a tool restores cutting-edge sharpness but consumes substrate. Each regrind moves the cutting edges further into the tool body, reducing effective length + diameter. After 3-5 regrinds, the remaining substrate is too short for safe service OR the diameter is too undersized for the original application (must be re-classed to a smaller cutting diameter). Economic break-even: regrind cost / new-tool cost < 0.25 AND remaining cycles ≥ 1 for at-spec service.",
+    conditions: [{ type: "operation_type", operations: ["milling"] }],
+    exceptions: ["Solid carbide micro-mills (<3mm diameter): regrinding economics rarely positive — usually retire after first wear", "Coated tools: coating doesn't survive regrind — must re-coat ($40-80 extra cost) or accept uncoated regrind performance"],
+    source: "ISO 3685:1993; Machinery's Handbook 31st ed., pp.1005-1010 (end-mill regrinding); SME Tool Engineers Handbook §regrinding economics; Cleveland Twist Drill — 'Regrinding Procedures Manual'",
+    related_rules: ["TL-007-taylor-fit-production", "TL-008-coating-material-match"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Typical regrinds before retire: 3-5. Length loss per regrind: 0.5-1.0mm. Diameter loss per regrind: 0.1-0.2mm. Regrind cost: $20-50. New-tool cost: $80-300. Economic threshold: regrind cost ≤25% of new-tool cost. Min remaining service cycles: ≥1.",
+    standard_ref: "ISO 3685:1993",
+  },
+
+  // ─── spc (6→9, +3) — statistical-process-control tribal expansion ─────────
+
+  {
+    id: "SPC-007-cpk-by-industry",
+    category: "spc",
+    severity: "important",
+    title: "Cpk targets vary by industry: aerospace 2.0, automotive 1.67, medical 1.33, general 1.0",
+    rule: "Set Cpk acceptance threshold by industry context. Aerospace AS9100 critical-feature: Cpk ≥ 2.0 (parts-per-billion defect rate). Automotive IATF 16949 production part: Cpk ≥ 1.67 (parts-per-million). Medical FDA Class III: Cpk ≥ 1.33. General industrial: Cpk ≥ 1.0. Don't quote tighter than industry standard without explicit customer requirement — over-tooling = lost margin.",
+    reasoning: "Cpk measures the distance from process mean to nearest spec limit, in units of 3σ. Higher Cpk = process running tighter inside its tolerance window = better quality + lower defect rate. But achieving higher Cpk costs MONEY (better tooling, slower cycles, more inspection). The industry standards reflect economic balance between quality and cost — aerospace pays for Cpk 2.0 because failure costs billions; general industrial accepts Cpk 1.0 because failure costs hundreds. Quoting tighter than spec eats margin without customer benefit.",
+    conditions: [{ type: "operation_type", operations: ["inspection", "finishing"] }],
+    exceptions: ["Custom customer quality spec overrides industry default — always honor the contract", "Statistical tolerancing intentionally allows tighter Cpk in exchange for relaxed worst-case spec"],
+    source: "AIAG (2005). *Statistical Process Control (SPC)*, 2nd ed.; AS9100D §8.5 (process control); IATF 16949:2016 §8.3 + §8.5; FDA 21 CFR 820 (medical quality system); Montgomery, D.C. (2019). *Introduction to Statistical Quality Control*, 8th ed., Wiley, ch.8",
+    related_rules: ["SPC-001"],
+    evidence_level: "iso_standard",
+    quantitative: "Aerospace AS9100 critical: Cpk ≥ 2.0 (DPMO < 0.0019). Automotive IATF 16949: Cpk ≥ 1.67 (DPMO < 0.57). Medical FDA Class III: Cpk ≥ 1.33 (DPMO < 63). General industrial: Cpk ≥ 1.0 (DPMO < 2700). Over-tooling cost: typically 15-40% margin reduction.",
+    standard_ref: "AS9100D; IATF 16949:2016; FDA 21 CFR 820",
+  },
+  {
+    id: "SPC-008-control-chart-selection",
+    category: "spc",
+    severity: "important",
+    title: "Control chart type by subgroup: X-bar/R for n≥2-10, I-MR for n=1, p-chart for attribute data",
+    rule: "Select control chart by subgroup size + data type. Continuous measurement, subgroup n=2-10: X-bar/R (X-bar/range) — classic Shewhart, sensitive to mean shift. Continuous measurement, n=1 (one-off inspection, expensive measurement): I-MR (Individuals + Moving Range). Attribute data (pass/fail): p-chart for proportion defective. Defect count: c-chart for defects-per-unit (constant inspection unit) or u-chart for defects-per-unit (variable inspection unit).",
+    reasoning: "Each chart type has assumptions about data distribution + subgroup independence. X-bar/R assumes within-subgroup variation reflects common-cause, between-subgroup reflects special-cause — works when you can group multiple measurements per time interval. I-MR is the n=1 specialization (e.g., destructive testing where each part is one data point). p-chart assumes Bernoulli trials with constant n. c/u-charts assume Poisson defect counts. Misapplied chart type produces misleading control limits — false alarms (wasted investigations) or missed signals (defective parts shipped).",
+    conditions: [{ type: "operation_type", operations: ["inspection"] }],
+    exceptions: ["EWMA (exponentially weighted moving average) chart preferred over Shewhart when small process shifts must be detected quickly", "CUSUM (cumulative sum) chart for detecting drift smaller than 1σ"],
+    source: "Montgomery (2019), ch.5 + ch.6; AIAG (2005). *Statistical Process Control* §III (chart selection); ASTM E2587-19 (control charts); Western Electric (1956). *Statistical Quality Control Handbook* (the original Nelson rules)",
+    related_rules: ["SPC-007-cpk-by-industry"],
+    evidence_level: "iso_standard",
+    quantitative: "X-bar/R: subgroup n=2-10. I-MR: n=1. p-chart: attribute proportion. c-chart: defects/unit constant. u-chart: defects/unit variable. EWMA preferred for shifts <1σ. CUSUM preferred for slow drifts.",
+    standard_ref: "ASTM E2587-19; AIAG SPC 2nd ed.",
+  },
+  {
+    id: "SPC-009-gauge-rr",
+    category: "spc",
+    severity: "important",
+    title: "Gauge R&R must be <10% of tolerance for production gauges, <30% for screening only",
+    rule: "Before accepting any production gauge (caliper, micrometer, height gauge, CMM probe), perform a Gauge R&R (Repeatability & Reproducibility) study per AIAG MSA: 10 parts × 3 operators × 3 replicates = 90 measurements. Calculate %GRR = (gauge variance / total variance)·100. Accept if <10% for production-decision gauges, <30% for screening/sorting-only gauges, REJECT if >30%.",
+    reasoning: "Every measurement has error: gauge error (repeatability + reproducibility) + part-to-part variation. If the gauge error is large relative to tolerance, the measurement can't reliably distinguish good parts from bad — false rejects (toss good parts) + false accepts (ship bad parts). The AIAG MSA standard 10×3×3 design separates gauge variance from part variance via ANOVA. The 10% threshold for production gauges = gauge contributes <1% to total variance; the 30% threshold for screening = gauge contributes <9% (acceptable for go/no-go but not for tight measurements).",
+    conditions: [{ type: "operation_type", operations: ["inspection"] }],
+    exceptions: ["Master gauges (Class 0 ring gauges, gauge blocks) — Gauge R&R is unnecessary, NIST-traceable calibration is the metric", "Online process gauges with continuous correlation to certified offline measurement"],
+    source: "AIAG (2010). *Measurement Systems Analysis (MSA)*, 4th ed.; ISO 5725-2:2019 (accuracy of measurement methods); Montgomery (2019), ch.8 §8.7 (gauge studies)",
+    related_rules: ["SPC-007-cpk-by-industry"],
+    evidence_level: "iso_standard",
+    quantitative: "MSA study design: 10 parts × 3 operators × 3 replicates = 90 measurements. %GRR threshold: <10% production-decision, <30% screening-only, REJECT >30%. Variance contribution: 10% threshold = gauge ~1% of total variance.",
+    standard_ref: "AIAG MSA 4th ed.; ISO 5725-2:2019",
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PLAYBOOK EXPANSION WAVE 3 — U-PB-PSN-PEER-INTEGRATION (slot:foxtrot iter10
+  // 2026-05-23). Operator /goal addendum: "Factor in new formulas and
+  // algorithms being created by other chats". 6 cited rules integrating peer
+  // work: juliett iter7-10 SF-PSN-WIRE-MS0 ships ChipTypePredictionModel
+  // (commit 0dbd4a090e), Merchant's circle predictor (601fa848df), Sandvik
+  // tribal merge (310faca8bf), merchant's circle (972d204a25). Each rule
+  // below explicitly cross-references the peer algorithm + canonical source.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ─── chip_control (5→7, +2) — chip-type prediction tribal ─────────────────
+
+  {
+    id: "CHIP-006-bue-speed-threshold",
+    category: "chip_control",
+    severity: "important",
+    title: "Built-up-edge (BUE) zone: avoid Vc 30-80 m/min on ductile steels; below 30 or above 100 m/min",
+    rule: "Built-up edge (BUE) forms at cutting speeds in the 30-80 m/min range on ductile carbon steels (AISI 1018, 1045) — chip material periodically welds to the rake face, then breaks off carrying tool material with it. Stay below 30 m/min (no BUE because temperature too low for adhesion) OR above 100 m/min (no BUE because temperature too high — chip flows past too fast to weld). The unstable BUE window kills tool life 3-10× faster than either edge.",
+    reasoning: "BUE formation requires three conditions: (1) chip-tool interface temperature high enough to plasticize chip material (~400-600°C for steel), (2) low enough to avoid melting/seizure (~800°C ceiling), and (3) sufficient time for chemical affinity to form weld. Below 30 m/min the temperature stays under the plasticization threshold; above 100 m/min the chip residence time at the rake face is too short. The middle band IS the BUE zone — known as the 'no-go' speed range for ductile steel finishing. Sources: peer-chat juliett's ChipTypePredictionModel BUE_SPEED_THRESHOLDS_COMPAT constant (algorithms/ChipTypePredictionModel.ts, commit 0dbd4a090e); Trent & Wright textbook.",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }, { type: "material_iso", groups: ["P"] }],
+    exceptions: ["High-Si aluminum alloys (>9% Si) develop BUE across a much wider Vc range — material-specific lookup required", "CBN tools at any Vc resist BUE due to chemical inertness"],
+    source: "Trent, E.M. & Wright, P.K. (2000). *Metal Cutting*, 4th ed., Butterworth, ch.6 (BUE formation); Shaw, M.C. (2005). *Metal Cutting Principles*, 2nd ed., Oxford, ch.6. PEER PSN cross-reference: algorithms/ChipTypePredictionModel.ts BUE_SPEED_THRESHOLDS_COMPAT (juliett slot, commit 0dbd4a090e 2026-05-23)",
+    related_rules: ["TL-008-coating-material-match", "ANTI-thermal-cycling"],
+    evidence_level: "peer_reviewed",
+    quantitative: "BUE zone for ductile carbon steel: Vc 30-80 m/min. Safe-below threshold: <30 m/min. Safe-above threshold: >100 m/min. Tool life penalty in BUE zone: 3-10× faster wear vs either edge.",
+  },
+  {
+    id: "CHIP-007-chip-type-decision-tree",
+    category: "chip_control",
+    severity: "important",
+    title: "Predict chip type via 6-rule precedence: discontinuous → continuous → BUE → wavy → segmented → laminar",
+    rule: "Use a 6-rule decision precedence to predict chip morphology before cutting (informs coolant + feed adjustment): (1) brittle material (cast iron, hardened steel >55 HRC) → discontinuous chip; (2) Vc in BUE zone + ductile steel → BUE chip; (3) ductile material + high speed → continuous chip; (4) Ti or Ni alloy at moderate speed → segmented (saw-tooth) chip; (5) interrupted cut + thin chip load → wavy chip; (6) default ductile → laminar continuous chip. Chip type drives chip evacuation strategy + breaker choice.",
+    reasoning: "Chip morphology is the OBSERVABLE feedback signal of the cutting process — operators read chip color, length, curl, and segmentation to diagnose cut quality. Predicting chip type BEFORE the cut lets the programmer choose: coolant flow direction, chipbreaker insert geometry, feed adjustments for chip-load control. Sources: peer-chat juliett's ChipTypePredictionModel.predictCompat() with 6-rule precedence (commit 0dbd4a090e); canonical literature on chip morphology classification.",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }],
+    exceptions: ["High-Si aluminum casting alloys produce powder/dust chips that don't fit the classical morphology types", "Cryogenic-cooled cuts can shift chip type to discontinuous for normally-continuous materials"],
+    source: "Astakhov, V.P. (2006). *Tribology of Metal Cutting*, Elsevier, ch.3 (chip morphology classification); Klocke, F. (2011). *Manufacturing Processes 1: Cutting*, Springer, ch.2. PEER PSN cross-reference: algorithms/ChipTypePredictionModel.predictCompat() 6-rule decision precedence (juliett slot, commit 0dbd4a090e 2026-05-23)",
+    related_rules: ["CHIP-006-bue-speed-threshold", "CHIP-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Decision precedence order: discontinuous(brittle/hard) > BUE(steel+BUE-zone) > segmented(Ti/Ni+moderate-Vc) > wavy(interrupted+low-fz) > continuous(ductile+high-Vc) > laminar(default-ductile). Chip-type → breaker map: discontinuous→no-breaker, continuous→C-class, segmented→T-class, BUE→avoid by Vc shift.",
+  },
+
+  // ─── cutting_force (8→10, +2) — Merchant's circle expansion ───────────────
+
+  {
+    id: "CF-009-merchants-circle",
+    category: "cutting_force",
+    severity: "important",
+    title: "Merchant's circle gives shear angle, friction force, and chip thickness ratio in one geometric construction",
+    rule: "Use Merchant's force circle for orthogonal-cutting analysis: shear angle φ = atan(r·cos(α)/(1 - r·sin(α))) where r = uncut chip thickness/chip thickness ratio + α = rake angle. Friction angle β satisfies β - α = 45° - φ (Merchant's first equation, energy minimization). Friction coefficient μ = tan(β). Predicts cutting force, thrust force, and chip-tool contact length from measured chip thickness.",
+    reasoning: "Merchant's circle reduces orthogonal cutting to plane-strain geometry — single shear plane angle φ, friction angle β, rake angle α. All forces can be decomposed graphically. The energy-minimization assumption (Merchant's first equation) gives an analytic prediction of φ that's typically within 5-15° of experimentally measured values — good enough for first-cut feed/speed selection, calibration via single test cut suffices for production. Sources: peer-chat juliett's PSN merchant's circle work in commits 972d204a25 (iter9) + 601fa848df (iter7); seminal Merchant (1944, 1945) papers.",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }],
+    exceptions: ["3D oblique cutting (helix milling) needs the Stabler/Armarego correction for inclination angle", "High-deformation rates (>10⁴ s⁻¹) violate the rate-independent assumption; use Johnson-Cook + FEM instead"],
+    source: "Merchant, M.E. (1944,1945). *Mechanics of the metal cutting process* I & II. J. Applied Physics 16(5):267-275 + 16(6):318-324. Tlusty, J. (2000). *Manufacturing Processes and Equipment*, §10.3. Shaw (2005), ch.3. PEER PSN cross-reference: PSN merchant's circle predictor (juliett slot, commits 972d204a25 + 601fa848df 2026-05-23)",
+    related_rules: ["CF-001", "Kienzle"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Shear angle: φ = atan(r·cos(α)/(1 - r·sin(α))). Merchant's first eqn: β - α = 45° - φ. Friction coefficient: μ = tan(β). Typical accuracy: ±5-15° on φ vs experimental. Chip ratio range: r = 0.1-0.6 typical.",
+  },
+  {
+    id: "CF-010-sandvik-vc-tables",
+    category: "cutting_force",
+    severity: "important",
+    title: "Sandvik per-grade Vc tables are doctrine — manufacturer-tuned ahead of Kienzle generic",
+    rule: "When Sandvik (or Kennametal, Iscar, Mitsubishi) publishes a grade-specific cutting speed range for an exact tool + material combination, use the manufacturer's value AS-IS — do not back-calculate via Kienzle generic kc values. The published Vc is empirically tuned for that grade's coating, geometry, and chipbreaker, often 20-50% above what Kienzle generic predicts.",
+    reasoning: "Generic Kienzle constants (kc1.1 by ISO group) capture material behavior but not tool/coating optimization. Sandvik GC4325 in P-class steel at Vc=350 m/min is a documented manufacturer datum — they tested it on their grade with their geometry. Kienzle generic would back-calc to ~250 m/min for the same material — they're both right within their scope, but the manufacturer value is HIGHER because they engineered for it. Override Kienzle when grade-specific data exists. Sources: peer-chat juliett's Sandvik tribal merge (commit 310faca8bf iter8); Sandvik Coromant Master Catalog 2024.",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }],
+    exceptions: ["Generic carbide grades without manufacturer-specific spec — fall back to Kienzle + ISO group", "Off-label material use (running steel grade in titanium tool) — manufacturer spec is invalid, use conservative generic"],
+    source: "Sandvik Coromant Master Catalog 2024 §turning + §milling (per-grade Vc tables); Kennametal Catalog 2024; Iscar Master Catalog. PEER PSN cross-reference: Sandvik tribal merge (juliett slot, commit 310faca8bf 2026-05-23, SF-PSN-WIRE-MS0/U-SFPSN-02C-B)",
+    related_rules: ["CF-001", "Kienzle", "TL-008-coating-material-match"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Manufacturer-tuned Vc vs Kienzle-derived: typically 20-50% higher. Example Sandvik GC4325 P-class steel: 350 m/min mfr-spec vs ~250 m/min Kienzle-generic. Use mfr value when available.",
+  },
+
+  // ─── adaptive (6→8, +2) — adaptive-control + chip-feedback ────────────────
+
+  {
+    id: "ADAPT-007-chip-type-feedback",
+    category: "adaptive",
+    severity: "important",
+    title: "Adaptive control loop should consume predicted chip type as primary input",
+    rule: "Modern adaptive feed control (force-based, vibration-based, or current-monitoring) should consume the PREDICTED chip type (from ChipTypePredictionModel or equivalent) as a primary loop input — adjust the control gain by chip-type-specific rules. Continuous chips: standard PID gain. Discontinuous (cast iron): reduce gain (cut force is noisy by nature). BUE chips: increase gain to escape the BUE zone quickly. Segmented (Ti): notch-filter at the segmentation frequency.",
+    reasoning: "A generic PID feed controller assumes the cutting force signal is monotone with feed/depth. Different chip types produce different force signatures: continuous chips give smooth signals, discontinuous chips give high-frequency noise, BUE chips give periodic spikes (each BUE shed → force drop), segmented chips give periodic teeth at the segment frequency (often 1-5 kHz for Ti). A chip-aware controller tunes its filtering + gain per type, dramatically reducing both false-positive and false-negative adaptive interventions. Sources: peer-chat juliett's PSN ChipTypePredictionModel + adaptive feedback wiring (commits 0dbd4a090e + 601fa848df); Altintas adaptive-control textbook.",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }],
+    exceptions: ["Open-loop programs without force sensing — chip-type prediction is advisory only, no closed loop", "Cryo-cooled cutting alters chip type from continuous → discontinuous for normally-continuous materials — re-predict at cryo conditions"],
+    source: "Altintas, Y. (2012). *Manufacturing Automation*, 2nd ed., Cambridge, ch.6 (adaptive control); Liang, S. & Dornfeld, D. (2008). *Tool Wear Detection via Cutting Force and Vibration Signal Analysis*. Int. J. Machine Tools & Manufacture 38(8):1023-1046. PEER PSN cross-reference: algorithms/ChipTypePredictionModel + adaptive feedback wiring (juliett slot, commits 0dbd4a090e + 601fa848df 2026-05-23)",
+    related_rules: ["CHIP-007-chip-type-decision-tree", "ADAPT-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "PID gain adjustment by chip type: continuous=1.0×, discontinuous=0.5×, BUE=1.5× (escape gain), segmented=1.0× + notch-filter at segment-freq. Segmentation frequency Ti: 1-5 kHz typical.",
+  },
+  {
+    id: "ADAPT-008-merchant-circle-realtime",
+    category: "adaptive",
+    severity: "important",
+    title: "Real-time Merchant's circle from chip-thickness measurement closes the adaptive force loop",
+    rule: "When in-process chip thickness measurement is available (force sensor + chip-flow optics, or laser triangulation on the chip), compute Merchant's circle in real time to get instantaneous shear angle + friction coefficient. Feed the deviation from nominal back to the adaptive feed controller — it captures tool wear, material batch variation, AND coolant degradation in one number.",
+    reasoning: "Tool wear (flank land growth) reduces effective rake angle → shifts Merchant's circle → friction coefficient creeps up. Material hardness variation changes shear flow stress → shifts shear angle. Coolant breakdown reduces friction-reduction effectiveness → shifts friction angle. ALL three effects show up as Merchant's-circle parameter drift before they show up in geometric error or part-out-of-spec. A real-time Merchant feedback loop catches the drift 10-100× faster than after-the-fact CMM inspection. Sources: peer-chat juliett's PSN merchant's circle + adaptive feedback PSN-wire (commits 972d204a25 + 601fa848df).",
+    conditions: [{ type: "operation_type", operations: ["turning", "milling"] }],
+    exceptions: ["Conventional machining without force sensing — real-time Merchant unavailable, use post-cut CMM as feedback", "Hard milling where measured chip thickness is too small for optical capture — fall back to spindle current as proxy"],
+    source: "Altintas (2012), ch.6 + ch.7 (force sensing + adaptive control); Schmitz & Smith (2009), §6. PEER PSN cross-reference: PSN merchant's circle + adaptive-feedback wiring (juliett slot, commits 972d204a25 + 601fa848df 2026-05-23)",
+    related_rules: ["CF-009-merchants-circle", "ADAPT-007-chip-type-feedback"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Merchant parameter drift detection latency: <100ms with force + chip-optics. CMM-feedback comparison latency: 10-100× slower. Friction-coefficient drift threshold: Δμ >10% → flag for tool change or coolant refresh.",
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PLAYBOOK EXPANSION WAVE 4 — U-PB-DEFERRED-CATEGORIES (slot:foxtrot iter12
+  // 2026-05-23). Closes deferred categories named in iter9: post_processing,
+  // micro_machining. 6 cited rules (3 each).
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ─── post_processing (6→9, +3) — G-code optimization tribal ───────────────
+
+  {
+    id: "POST-007-block-density-control",
+    category: "post_processing",
+    severity: "important",
+    title: "Block density 100-500/sec for surface quality; >500 risks controller starvation, <100 wastes capability",
+    rule: "Tune CAM post-processor output block density to 100-500 G-code blocks per second of cut time. Modern Heidenhain TNC640, Siemens 840Dsl, Fanuc 30iB handle 500+ blocks/sec without starvation. Legacy controllers (TNC360, 840D classic, Fanuc 16i/18i) cap around 100-200 blocks/sec. Excess density: controller buffer underruns → stuttering motion. Insufficient: surface faceting from coarse chord tolerance.",
+    reasoning: "Block density is the controller's input-rate constraint. Each G-code block needs parsing, lookahead processing, and acceleration planning. Below 100 blocks/sec, the toolpath is so coarse that chord-tolerance approximation prints visible facets onto the part surface (especially on curved/freeform geometry). Above 500 blocks/sec on legacy controllers, the buffer can't drain fast enough — motion stutters every few seconds, leaving periodic ripple marks. Match block density to controller class.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }],
+    exceptions: ["NURBS-capable controllers (TNC640 with NURBS option, 840Dsl FastBlock) — chord tolerance constraint replaced by curve-degree; block density becomes less critical", "3-axis straight-line work on prismatic parts — block density rarely a bottleneck"],
+    source: "Heidenhain TNC640 — 'NC Block Processing Specifications' §lookahead + block density; Siemens 840Dsl — 'Look-Ahead Function Manual' §block consumption rate; Fanuc 30iB — 'AI Contour Control Manual' §block density limits",
+    related_rules: ["HSM-LOOKAHEAD", "HSM-CHORD-TOLERANCE"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Block density target: 100-500/sec cut. Modern controller ceiling: 500+/sec. Legacy controller ceiling: 100-200/sec. Below 100/sec: visible chord-faceting on curved surfaces. Above 500/sec on legacy: stuttering motion + periodic ripple.",
+  },
+  {
+    id: "POST-008-dialect-specific-canned-cycles",
+    category: "post_processing",
+    severity: "important",
+    title: "Use controller's canned cycles when available — G81/G83/G84 are 5-20× faster than equivalent CAM-emitted long-form",
+    rule: "When the target controller supports canned cycles (G81 drilling, G83 peck-drilling, G84 tapping, G73 chip-break drilling, G85 boring), output the canned cycle from CAM — NOT the equivalent long-form linear interpolation. Canned cycles execute inside the controller's optimized firmware at 5-20× the feedrate of equivalent G01-coded sequences, and consume vastly fewer blocks in the program memory.",
+    reasoning: "Canned cycles are firmware-level operations on the CNC controller. G83 peck-drilling internally generates the up/down peck pattern at machine-native speed — typically 5-20× faster than emitting hundreds of G01 lines that approximate the same motion. Modern post-processors output canned cycles automatically; legacy or generic posts sometimes emit long-form which is slower + harder to debug + harder to override at the operator panel. Always verify the post-processor emits canned cycles when target controller supports them.",
+    conditions: [{ type: "operation_type", operations: ["drilling", "tapping"] }],
+    exceptions: ["Multi-controller portable G-code where lowest-common-denominator long-form is intentional", "Special peck patterns (variable depth, post-peck dwell) that don't match any canned cycle"],
+    source: "Smid, P. (2007). *CNC Programming Handbook*, 3rd ed., Industrial Press, ch.18 (canned cycles); Machinery's Handbook 31st ed., pp.1130-1145 (CNC canned cycles); Fanuc 0i/30i — 'G-Code Reference Manual' §canned cycles",
+    related_rules: ["DH-001", "POST-007-block-density-control"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Canned-cycle vs long-form execution speedup: 5-20×. Block-count reduction: 10-100× (one G83 line vs hundreds of G01). Common canned cycles: G81/G83/G84/G73/G85/G86/G89. Manufacturer-extended: G73.1 (Mazak), G83.1 (Mori), G84.2 (Okuma).",
+  },
+  {
+    id: "POST-009-comment-block-traceability",
+    category: "post_processing",
+    severity: "important",
+    title: "Embed traceability comments in G-code: tool, operation, CAM-source, datum-zero at every section boundary",
+    rule: "CAM post-processor must emit traceability comments at every operation boundary in G-code output: tool number + description, operation name + CAM session ID, datum-zero origin (G54/G55/G56...), expected runtime, machine prerequisites. Format as standard CNC comments `( ... )` (parens) or `;...` (semicolon) per controller dialect. Operators read these to set up the job, troubleshoot mid-run, and audit completed work.",
+    reasoning: "Bare G-code with no comments is unauditable — operators can't tell which tool block matches which print feature, post-mortem analysis of a crash is impossible, and tribal knowledge ('use 1018 vise pad here') gets lost. The comment-block convention adds <1% to program file size while making the program self-documenting. Critical for ISO 9001/AS9100 traceability requirements + IATF 16949 production part approval. Most modern CAM posts emit these by default but verification + custom additions per shop convention is universal best practice.",
+    conditions: [{ type: "operation_type", operations: ["post_processing"] }],
+    exceptions: ["Memory-constrained legacy controllers (<1MB program memory) where every byte counts — strip comments for these targets only", "Encrypted/protected G-code where traceability is intentionally suppressed for IP protection"],
+    source: "ISO 6983-1:2009 (NC programming format) + AS9100D §8.5.2 (traceability); Smid (2007) ch.5 (program structure + comments); Machinery's Handbook 31st ed., pp.1120-1130 (CNC program format)",
+    related_rules: ["POST-008-dialect-specific-canned-cycles", "GDT-008"],
+    evidence_level: "iso_standard",
+    quantitative: "Comment overhead: <1% of program file size typical. Traceability fields per operation: ≥5 (tool, op, CAM-id, datum-zero, runtime). ISO 6983-1:2009 + AS9100D §8.5.2 + IATF 16949:2016 traceability requirements.",
+    standard_ref: "ISO 6983-1:2009; AS9100D §8.5.2",
+  },
+
+  // ─── micro_machining (5→8, +3) — sub-1mm tribal expansion ─────────────────
+
+  {
+    id: "MICRO-006-runout-3um-limit",
+    category: "micro_machining",
+    severity: "important",
+    title: "Tool TIR ≤3μm for micro-mills <1mm diameter — beyond 3μm, one flute does all the cutting",
+    rule: "For micro-end mills with diameter <1mm, verify total indicator runout (TIR) ≤3μm at the cutting flutes. Higher runout means one flute removes disproportionately more material than the others — that flute wears out 5-20× faster, breaks unexpectedly, and produces dimensional drift across the feature. Use shrink-fit holders or HSK-E ER-class precision collets; standard ER chucks typically have 10-25μm TIR — UNUSABLE for micro tools.",
+    reasoning: "A 0.5mm tool with 25μm TIR effectively cuts on only the high-side flute (the low-side flute never contacts material). Programmed chip load is divided unevenly — high flute sees 2-4× nominal chip thickness, accelerating wear by power-law; low flute rubs without cutting, accelerating wear via friction-heat. The 3μm threshold preserves multi-flute load distribution: each flute sees within ±20% of nominal chip thickness, balanced wear, predictable tool life. Shrink-fit holders deliver 3-5μm TIR at the spindle face; HSK-E with high-precision collets ~3-8μm; standard ER ~10-25μm.",
+    conditions: [{ type: "operation_type", operations: ["milling"] }, { type: "feature_present", features: ["micro_feature"] }],
+    exceptions: ["Single-flute micro tools where runout doesn't disturb chip-load distribution (the one flute does all the work by design)", "Helical-only micro-tools used in scribing/burnishing modes where chip-thinning is intentional"],
+    source: "Klocke, F. (2011). *Manufacturing Processes 1: Cutting*, Springer, ch.7 (micro-machining); Dornfeld, D. et al. (2006). *Recent advances in mechanical micromachining*. CIRP Annals 55(2):745-768. Haimer — 'Micro-Tooling Runout Specifications'; Schunk Tribos shrink-fit catalog",
+    related_rules: ["drill-stickout-runout", "TL-008-coating-material-match"],
+    evidence_level: "peer_reviewed",
+    quantitative: "TIR limit for micro tools: ≤3μm at cutting flutes for D<1mm. Shrink-fit TIR: 3-5μm typical. HSK-E precision collet: 3-8μm. Standard ER: 10-25μm (UNUSABLE). Wear penalty at 25μm TIR on 0.5mm tool: 5-20× faster on high-side flute.",
+  },
+  {
+    id: "MICRO-007-spindle-speed-scaling",
+    category: "micro_machining",
+    severity: "important",
+    title: "Scale spindle speed inversely with tool diameter — micro tools need 30k-60k RPM for proper Vc",
+    rule: "Calculate required spindle speed for micro tools as n = (Vc × 1000) / (π × D), where Vc is the material's recommended cutting speed. For D=0.5mm tool in steel (Vc=80 m/min): n = 50,930 RPM. Most general-purpose machining centers cap at 8,000-15,000 RPM — INADEQUATE for micro work. Requires dedicated high-speed spindle (HSK-E25/E32 micro-spindle, 40,000-80,000 RPM) or air-turbine spindle attachment (50,000-150,000 RPM).",
+    reasoning: "Cutting speed (Vc) is a material property tied to thermal physics — too slow → built-up edge + work hardening; too fast → tool burn-through. Vc is the surface speed at the tool edge, scaled by RPM × diameter. As diameter shrinks, RPM must INCREASE proportionally to maintain Vc. A 0.5mm tool needs ~50,000 RPM to achieve the same Vc as a 10mm tool at 2,550 RPM. Standard machining centers can't reach this — without a high-speed spindle, micro work runs at sub-optimal Vc (typically 1/5 to 1/10 of recommended), producing 50-90% poorer tool life + surface finish.",
+    conditions: [{ type: "operation_type", operations: ["milling"] }, { type: "feature_present", features: ["micro_feature"] }],
+    exceptions: ["Materials with very low recommended Vc (graphite, some plastics) — standard 10,000-15,000 RPM may suffice", "Very soft aluminum + brass at low feed where sub-optimal Vc is tolerable for prototype/one-off"],
+    source: "Klocke (2011) ch.7 (micro-machining cutting speed scaling); Dornfeld et al. (2006); Nakanishi/NSK air-turbine spindle catalog; Datron neo (40,000 RPM micro-machining center) technical guide",
+    related_rules: ["MICRO-006-runout-3um-limit", "milling-minimum-chip-load"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Spindle speed formula: n_rpm = (Vc_m_per_min × 1000) / (π × D_mm). Steel @ D=0.5mm: 50,930 RPM. Steel @ D=1mm: 25,465 RPM. Steel @ D=0.1mm: 254,648 RPM. Standard MC ceiling: 8,000-15,000 RPM. High-speed spindle: 40,000-80,000. Air-turbine: 50,000-150,000.",
+  },
+  {
+    id: "MICRO-008-edge-radius-min-chip",
+    category: "micro_machining",
+    severity: "important",
+    title: "Minimum chip load = 1-2× tool edge radius; below this, ploughing dominates over shearing",
+    rule: "Set chip load per tooth f_z ≥ 1-2× the tool's cutting-edge radius (typically 0.001-0.005mm for micro-tools, much smaller than the 0.05-0.1mm radius on standard end mills). Below this minimum-uncut-chip-thickness (MUCT), the tool plows the material rather than shearing it — converts cutting energy into friction heat, work-hardens ductile materials, produces poor surface finish.",
+    reasoning: "Standard end mills have edge radius ~0.05mm (the manufactured chamfer on the cutting edge). At chip load 0.1-0.3mm, chip thickness >> edge radius, so the chip cleanly shears off. Micro-mills are sharpened to edge radius 0.001-0.005mm — the MUCT scales accordingly. Below MUCT, the workpiece material flows AROUND the edge instead of being sheared — produces a smeared/burnished surface, generates excess heat, work-hardens stainless/titanium to the point that subsequent passes can't cut at all. The 1-2× edge-radius minimum keeps the cut in clean-shear regime.",
+    conditions: [{ type: "operation_type", operations: ["milling"] }, { type: "feature_present", features: ["micro_feature"] }],
+    exceptions: ["Intentional burnishing/superfinishing passes where sub-MUCT operation is the desired surface-modification mode (single-pass only)", "Diamond-tip ULTRA-precision tools with edge radius <0.0001mm — MUCT becomes molecular-scale, normal cutting physics still applies"],
+    source: "Vogler, M.P. et al. (2003). *On the modeling and analysis of machining performance in micro-endmilling*. ASME J. Manuf. Sci. Eng. 126(4):685-694. Klocke (2011) ch.7; Liu, X. et al. (2004). *The mechanics of machining at the microscale*. ASME J. Manuf. Sci. Eng. 126(4):666-678",
+    related_rules: ["MICRO-006-runout-3um-limit", "MICRO-007-spindle-speed-scaling", "milling-minimum-chip-load"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Min chip load f_z ≥ 1-2× edge radius. Micro-tool edge radius: 0.001-0.005mm. Standard end-mill edge radius: 0.05-0.1mm. Sub-MUCT consequences: ploughing-dominated cut, 2-5× heat generation, work-hardening on stainless/Ti.",
+  },
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // PLAYBOOK EXPANSION WAVE 5 — U-PB-FINAL-CATEGORIES (slot:foxtrot iter14
+  // 2026-05-23). Closes remaining deferred categories: datum, dimensional_accuracy,
+  // hybrid_additive. 9 cited rules (3 each). Session total: 54 cited rules across
+  // 19 categories. Brings playbook to operator-requested "max statistical output".
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ─── datum (4→7, +3) — datum selection + preservation ─────────────────────
+
+  {
+    id: "DATUM-005-functional-vs-manufacturing",
+    category: "datum",
+    severity: "important",
+    title: "Choose functional datum (mating surface) for inspection, NOT a convenient manufacturing datum",
+    rule: "Select datums based on the part's FUNCTIONAL relationship to its mating assembly — the surface that bolts to the next part, the bore that pivots on the shaft, the face that seals against the gasket. Inspection datums should match these functional surfaces, NOT the convenient machined-flat that's easier to set up on. Wrong datum choice produces parts that measure 'in spec' but fail in assembly.",
+    reasoning: "GD&T tolerances cascade from datums. If the inspection datum is a different surface from the assembly mating face, then small angular errors between those surfaces show up as massive tolerance violations at the actual mating interface — even though the part 'inspected good'. Functional datum selection is mandatory per ASME Y14.5 §4.7 (datum feature selection). The exception is fixture/manufacturing datums for ROUGHING ops, which must transfer cleanly to functional datums before finish.",
+    conditions: [{ type: "operation_type", operations: ["setup_strategy", "inspection"] }],
+    exceptions: ["Symmetric parts (cylinders) where any cross-section is functionally equivalent — manufacturing datum acceptable", "Roughing-op datums for stock-removal sequence before finish operations on functional datums"],
+    source: "ASME Y14.5-2018 §4.7 (datum feature selection); Krulikowski, A. (2012). *Fundamentals of GD&T*, 3rd ed., Cengage, ch.5; Henzold, G. (2006). *Geometrical Dimensioning and Tolerancing*, 2nd ed., Butterworth, ch.4",
+    related_rules: ["GDT-008", "GDT-009"],
+    evidence_level: "iso_standard",
+    standard_ref: "ASME Y14.5-2018 §4.7; ISO 5459:2011",
+  },
+  {
+    id: "DATUM-006-3-2-1-transfer",
+    category: "datum",
+    severity: "important",
+    title: "Datum transfer between ops must preserve original DRF — never re-establish from machined surfaces",
+    rule: "When a part requires multiple machining operations across multiple setups, the SECOND setup's datums must transfer from the FIRST setup's datums — typically by using a datum-target feature machined in op-1 (a pocket, a hole, a stepped face). Never re-locate from a freshly-machined surface, because the machining tolerance is now baked into the datum chain.",
+    reasoning: "Datums establish the part's coordinate frame. If op-1 produces a face with ±0.05mm tolerance, and op-2 datums from that face, op-2 inherits the ±0.05mm error PLUS its own machining error — tolerances stack. Datum-target features (deliberate locating fixtures created in op-1) preserve the original DRF integrity across ops. ASME Y14.5 §4.24 defines datum-target methods (point/line/area targets) for this exact purpose.",
+    conditions: [{ type: "operation_type", operations: ["setup_strategy"] }],
+    exceptions: ["Single-setup operations where datum transfer is irrelevant", "Parts with sufficient stock allowance for in-process re-datuming with verification probing"],
+    source: "ASME Y14.5-2018 §4.24 (datum targets); Henzold (2006), ch.4; Drake, P.J. (1999). *Dimensioning and Tolerancing Handbook*, McGraw-Hill, ch.5",
+    related_rules: ["DATUM-005-functional-vs-manufacturing", "GDT-008"],
+    evidence_level: "iso_standard",
+    standard_ref: "ASME Y14.5-2018 §4.24",
+  },
+  {
+    id: "DATUM-007-axis-vs-center-plane",
+    category: "datum",
+    severity: "important",
+    title: "Use datum AXIS for cylindrical parts; center-plane for symmetric prismatic — never both",
+    rule: "For rotational parts (shafts, bushings, bearings), establish the primary datum as the AXIS of the cylindrical feature — locks 4 DOF (two translations + two rotations) in one feature. For symmetric prismatic parts (rectangular blocks with through-features about a center), use the CENTER PLANE — locks 3 DOF. Mixing axis + center-plane on the same DRF produces redundant constraints and conflicting inspection results.",
+    reasoning: "A datum axis is a derived geometric entity — the central line of a cylinder. Locking the part to its axis means rotations around that axis are FREE (which is correct for rotational parts). A center plane is similar but for non-rotational symmetry. Per ASME Y14.5 §4.10-4.11, these are distinct datum features with distinct DOF effects. Mixing them creates over-constraint, where inspection tries to satisfy contradictory geometric conditions simultaneously — typically rejects good parts.",
+    conditions: [{ type: "operation_type", operations: ["inspection", "setup_strategy"] }],
+    exceptions: ["Compound features (rotational with key/keyway) where both axis + center-plane datums coexist — locked rotation by design"],
+    source: "ASME Y14.5-2018 §4.10 (datum axis) + §4.11 (datum center plane); Krulikowski (2012) ch.5",
+    related_rules: ["DATUM-005-functional-vs-manufacturing", "GDT-008"],
+    evidence_level: "iso_standard",
+    standard_ref: "ASME Y14.5-2018 §4.10-4.11",
+  },
+
+  // ─── dimensional_accuracy (6→9, +3) — precision-machining additions ───────
+
+  {
+    id: "DA-007-abbe-error",
+    category: "dimensional_accuracy",
+    severity: "important",
+    title: "Abbe error: angular error × measurement-offset is a sin/tan multiplier — minimize the offset",
+    rule: "Abbe error = angular error × perpendicular distance from the measurement axis to the workpiece — multiplied by sin(angular error). On a CMM probe 100mm offset from the spindle axis with 0.001° spindle tilt error: Abbe error = 100 × tan(0.001°) = 1.75μm. Minimize OFFSET, not just spindle accuracy — moving the probe closer to the spindle axis cuts Abbe error proportionally.",
+    reasoning: "Ernst Abbe (1890s) formalized the geometric truth that angular errors in a measurement axis are MULTIPLIED by perpendicular offset to the measurement point. CMMs, lathes, mills, and surface gauges all suffer from this. A 0.001° error in a 1m-long axis is 17.5μm at the far end — undetectable as angular error but catastrophic as dimensional error. Modern high-precision machines (Kern, Mikron) minimize Abbe by co-locating the measurement scale, the spindle, and the workpiece in a single column. Older machines often have 50-200mm Abbe offsets.",
+    conditions: [{ type: "operation_type", operations: ["inspection", "finishing"] }],
+    exceptions: ["Closed-loop optical / laser interferometer metrology where the measurement axis IS the reference axis — no Abbe offset", "Coordinate measurement with software compensation that calibrates the offset out"],
+    source: "Abbe, E. (1890). *Meßapparate für Physiker*. Slocum, A.H. (1992). *Precision Machine Design*, Prentice Hall, §2.7 (Abbe principle); NIST — 'Dimensional Metrology Best Practices' §Abbe; Kern Microtechnik — 'Precision Machine Architecture'",
+    related_rules: ["GDT-008", "DA-001"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Abbe error formula: ΔL = d × tan(θ). Example: d=100mm, θ=0.001° → ΔL=1.75μm. d=1000mm, θ=0.001° → 17.5μm. Kern Micro Vario Abbe offset: <5mm by design. Standard CNC mill Abbe offset: 50-200mm.",
+  },
+  {
+    id: "DA-008-volumetric-accuracy-map",
+    category: "dimensional_accuracy",
+    severity: "important",
+    title: "Map volumetric accuracy via laser interferometer + ball-bar; apply compensation tables for ±0.005mm work",
+    rule: "For parts requiring ±0.005mm or tighter tolerances across a >300mm work envelope, perform volumetric-accuracy mapping: ball-bar test (Renishaw or API) per ISO 230-4, laser interferometer linear/squareness measurement per ISO 230-1/-2/-7, generate 21-error compensation table, load into controller. Without compensation, a typical CNC mill has 20-80μm volumetric error across a 500mm cube — exceeds the tolerance for fine work.",
+    reasoning: "Every machine axis has small linear positioning errors, straightness errors, angular errors, and squareness errors. ISO 230 defines the 21-error model for 3-axis machines (6 errors × 3 axes + 3 squareness). Without compensation, these errors stack — a part machined at the corner of the envelope can be 50-100μm off from a part machined at the center. Modern controllers (Heidenhain TNC, Siemens 840D, Fanuc) accept compensation tables that mathematically correct toolpath in real-time using interpolated error maps. Pays back on tight-tolerance work within 5-10 jobs.",
+    conditions: [{ type: "operation_type", operations: ["finishing", "inspection"] }, { type: "tolerance_below", threshold_mm: 0.005 }],
+    exceptions: ["Small work envelope (<300mm cube) where volumetric stack-up stays within tolerance naturally", "Loose-tol roughing operations where 50-100μm machine-frame error is irrelevant"],
+    source: "ISO 230-1:2012 (geometric accuracy linear axes); ISO 230-2:2014 (positioning accuracy); ISO 230-4:2005 (circular tests/ball-bar); Renishaw — 'Ballbar Diagnostics' manual; Slocum (1992) §3 (precision machine error budgets); Heidenhain TNC640 — 'Machine Compensation Tables' manual",
+    related_rules: ["DA-007-abbe-error", "THERM-008-thermal-expansion-comp"],
+    evidence_level: "iso_standard",
+    quantitative: "21-error model per ISO 230. Volumetric error typical CNC mill: 20-80μm @ 500mm cube. Post-compensation: 5-15μm typical. Tolerance threshold for required comp: ≤±0.005mm. Ball-bar test: ISO 230-4. Laser interferometer: ISO 230-1/-2/-7.",
+    standard_ref: "ISO 230-1:2012; ISO 230-2:2014; ISO 230-4:2005; ISO 230-7:2015",
+  },
+  {
+    id: "DA-009-thermal-stable-time",
+    category: "dimensional_accuracy",
+    severity: "important",
+    title: "Thermal-stable time before precision finishing: 4-8 hr post-startup; 30 min between hot operations",
+    rule: "For sub-±0.013mm tolerance work, allow 4-8 hours of warm-up after machine cold start before precision finishing. Between hot operations (e.g., heavy roughing → finishing), allow 30 minutes thermal-stable time. Heavy cutting heats the spindle bearing 5-15°C, ball-screws 3-10°C, casting 2-5°C — each of which moves machine geometry by 5-50μm per °C depending on axis length.",
+    reasoning: "Machine geometry is temperature-dependent. A 1m steel ball-screw expands 11.7μm/°C — a 5°C delta from spindle heat input shifts the X-axis by 58μm relative to the workpiece. Cold-machined parts produced just after machine startup differ from heat-soaked parts in the middle of a long production run by exactly this amount. World-class shops (Kern, Mikron, DMG MORI) condition the machine room to ±0.5°C and allow long warm-up; less-precision shops live with the variation. Per ISO 230-3 thermal effects testing.",
+    conditions: [{ type: "operation_type", operations: ["finishing", "inspection"] }, { type: "tolerance_below", threshold_mm: 0.013 }],
+    exceptions: ["Machines with closed-loop thermal compensation (Heidenhain CTC, Siemens TempComp, Mori-Seiki Thermo-Friendly) actively measure + correct — warm-up time reduced 60-80%", "Roughing-only work where 50μm thermal drift is within tolerance"],
+    source: "ISO 230-3:2020 (determination of thermal effects); Bryan, J. (1990). *International status of thermal error research*. CIRP Annals 39(2):645-656; Slocum (1992) §3; Kern Microtechnik — 'Thermally Stable Machine Architecture' technical guide",
+    related_rules: ["THERM-008-thermal-expansion-comp", "DA-008-volumetric-accuracy-map"],
+    evidence_level: "iso_standard",
+    quantitative: "Warm-up time: 4-8 hr cold start, 30 min hot→hot transition. Spindle thermal expansion: 5-15μm/°C. Ball-screw expansion: 11.7μm/m/°C steel. Room temperature spec (precision shop): ±0.5°C. ISO 230-3 thermal compensation test.",
+    standard_ref: "ISO 230-3:2020",
+  },
+
+  // ─── hybrid_additive (5→8, +3) — hybrid AM+SM expansion ───────────────────
+
+  {
+    id: "HYBAM-006-distortion-from-AM",
+    category: "hybrid_additive",
+    severity: "important",
+    title: "AM-then-machine: leave 0.5-2mm machining allowance to remove distortion + as-built surface roughness",
+    rule: "Hybrid manufacturing (Direct Energy Deposition or Powder-Bed Fusion → CNC finish machining): leave 0.5-2mm of AM-deposited material as machining allowance for finishing. AM processes produce distortion (residual stress + thermal warp) and surface roughness (Ra 6-25μm typical for DED, Ra 10-50μm for L-PBF). Machining allowance absorbs both — finished surface emerges from base-material below the as-built layer.",
+    reasoning: "AM is layer-by-layer deposition with massive thermal gradients — each layer cools and contracts onto the previous, building residual tensile stress. For DED on titanium: typical distortion 0.5-3mm across a 100mm part. For L-PBF on Inconel 718: 0.1-1mm. The as-built surface has the rough texture of solidified melt pools + partially-melted powder. Allowing 0.5-2mm of machining stock removes BOTH the distortion (machined surface tracks the design geometry, not the warped AM geometry) AND the as-built roughness in one operation. Less stock = risk of negative material allowance on the warped side. More stock = wasted material + extra machine time.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }],
+    exceptions: ["Net-shape AM (rare, mostly only for non-functional surfaces) — no machining required", "Specific high-precision AM systems (Velo3D, EOS M-Line) with closed-loop process control producing <0.1mm distortion + Ra <5μm"],
+    source: "DebRoy, T. et al. (2018). *Additive manufacturing of metallic components — Process, structure and properties*. Progress in Materials Science 92:112-224; Gibson, I., Rosen, D. & Stucker, B. (2021). *Additive Manufacturing Technologies*, 3rd ed., Springer, ch.18; ASTM F3434-20 (hybrid manufacturing terminology); Mazak — 'Integrex with DED — Hybrid Manufacturing Application Guide'",
+    related_rules: ["SURF-008-residual-stress-meas", "THERM-008-thermal-expansion-comp"],
+    evidence_level: "peer_reviewed",
+    quantitative: "Machining allowance: 0.5-2mm typical. DED distortion: 0.5-3mm/100mm. L-PBF distortion: 0.1-1mm/100mm. As-built Ra DED: 6-25μm. As-built Ra L-PBF: 10-50μm. Net-shape AM precision: <0.1mm distortion + Ra<5μm (Velo3D, EOS M-Line).",
+    standard_ref: "ASTM F3434-20",
+  },
+  {
+    id: "HYBAM-007-stress-relief-before-machine",
+    category: "hybrid_additive",
+    severity: "important",
+    title: "Stress-relieve AM parts BEFORE machining if walls thinner than 5×D or aspect ratio >5:1",
+    rule: "Before CNC finishing of AM parts with thin walls (<5× tool diameter) or high aspect ratios (>5:1), apply a stress-relief heat treatment: typically 650°C × 4 hr for Ti-6Al-4V, 980°C × 1 hr for Inconel 718. Residual AM stress released during machining causes immediate distortion (10-100μm per cut) — clamped-flat workpiece springs back the moment clamps release. Stress relief makes geometry stable.",
+    reasoning: "AM-deposited material can carry residual tensile stress up to 80% of yield strength. As CNC removes material, the stress redistributes — internal force balance shifts, the part deforms. For a thin-wall part, even 50μm of distortion exceeds the tolerance. Stress relief at high temperature (below tempering temp) allows dislocation rearrangement that relaxes residual stress to <10% of yield. Trade-off: heat treatment costs $50-200 per part + 1-2 day cycle, but eliminates the dimensional instability that would otherwise scrap the part.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing"] }, { type: "material_iso", groups: ["S", "N"] }],
+    exceptions: ["Thick-section AM parts (walls >5×D, aspect <5:1) where residual stress redistribution causes negligible distortion", "AM systems with in-process stress-management (controlled cool-down, scanning strategy optimization) producing low-stress as-built parts"],
+    source: "DebRoy et al. (2018) §residual stress; Gibson et al. (2021) ch.16 (post-processing); ASTM F3301-18 (additive manufacturing post-processing reference); ASTM F2924-14 (additive manufacturing of Ti-6Al-4V); Pratt & Whitney AM Process Spec PS-AM-001 (stress relief protocols)",
+    related_rules: ["HYBAM-006-distortion-from-AM", "SURF-008-residual-stress-meas"],
+    evidence_level: "iso_standard",
+    quantitative: "Stress relief Ti-6Al-4V: 650°C × 4 hr (below β-transus 995°C). Inconel 718: 980°C × 1 hr + 720°C × 8 hr age. Pre-stress-relief residual stress: 50-80% yield. Post-stress-relief: <10% yield. Distortion during machining without relief: 10-100μm typical.",
+    standard_ref: "ASTM F3301-18; ASTM F2924-14",
+  },
+  {
+    id: "HYBAM-008-DED-CNC-interface-precision",
+    category: "hybrid_additive",
+    severity: "important",
+    title: "DED-then-CNC requires re-datuming at interface — touch-probe + 3-2-1 in single setup",
+    rule: "On Mazak Integrex (or DMG MORI Lasertec, Okuma MULTUS) hybrid DED+CNC machines, re-establish workpiece datums between the DED deposition phase and the CNC finishing phase using a touch probe + 3-2-1 datum sequence — never assume the part's coordinate frame survived deposition unchanged. AM thermal distortion can shift the workpiece 10-200μm relative to the machine zero.",
+    reasoning: "Hybrid machines deposit material, then machine it in the SAME setup. The temptation is to trust the machine's saved coordinate frame from the start of the job. But the deposition phase thermally distorts the workpiece (sometimes 100+μm) — machining starts from a different position than the CAM expected. Touch-probing key features (3 points on the primary face, 2 on secondary, 1 on tertiary per ASME Y14.5 datum hierarchy) re-establishes the part's actual location relative to the machine. Modern hybrid machines (Mazak Integrex, DMG MORI Lasertec 65, Okuma MULTUS U-V) have probe cycles built into the post-deposition workflow for this exact purpose.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing", "setup_strategy"] }],
+    exceptions: ["Closed-loop in-process metrology hybrid systems (research-grade only) that continuously track workpiece position during DED", "Single-pass deposit-and-finish operations where deposition zone doesn't propagate distortion to datum features"],
+    source: "Mazak — 'Integrex Hybrid Manufacturing Application Guide' §AM-to-CNC datum transfer; DMG MORI — 'Lasertec 65 3D Hybrid Manufacturing Manual'; Okuma — 'MULTUS U-V Hybrid Programming Guide'; ASTM F3434-20 (hybrid manufacturing terminology + setup)",
+    related_rules: ["HYBAM-006-distortion-from-AM", "DATUM-006-3-2-1-transfer", "GDT-008"],
+    evidence_level: "manufacturer_data",
+    quantitative: "Post-deposition position shift: 10-200μm. Datum re-establishment via touch probe: 3-2-1 sequence (6 points total). Machines with built-in hybrid probing: Mazak Integrex / DMG Lasertec / Okuma MULTUS U-V. Required probe accuracy: ≤2μm TIR.",
+    standard_ref: "ASTM F3434-20",
+  },
+
 ];
 
 // ============================================================================
@@ -4366,7 +5741,868 @@ export class MachiningPlaybookEngine {
     return counts;
   }
 
+  // ── Playbook capability extensions (U-PB-EXPAND-CAPABILITIES) ──────────
+
+  /**
+   * Deep single-rule explanation: the rule itself plus every `related_rules`
+   * cross-reference resolved to its actual rule (cycle-guarded by id) and a
+   * parallel list of IDs that failed to resolve. Surfaces presence flags for
+   * the rich optional fields the rest of the playbook surface does not expose.
+   */
+  explainRule(ruleId: string): RuleExplanation | null {
+    const rule = this.rules.find((r) => r.id === ruleId);
+    if (!rule) return null;
+
+    const relatedIds = Array.isArray(rule.related_rules) ? rule.related_rules : [];
+    const relatedResolved: PlaybookRule[] = [];
+    const unresolvedRelated: string[] = [];
+    // Seed with the rule's own id so a self-reference is silently dropped
+    // rather than re-included, and a duplicate id in related_rules is folded.
+    const seen = new Set<string>([ruleId]);
+    for (const rid of relatedIds) {
+      if (typeof rid !== "string" || rid.length === 0 || seen.has(rid)) continue;
+      seen.add(rid);
+      const r = this.rules.find((x) => x.id === rid);
+      if (r) relatedResolved.push(r);
+      else unresolvedRelated.push(rid);
+    }
+
+    return {
+      rule,
+      relatedResolved,
+      unresolvedRelated,
+      hasQuantitative: typeof rule.quantitative === "string" && rule.quantitative.length > 0,
+      hasExceptions: Array.isArray(rule.exceptions) && rule.exceptions.length > 0,
+      hasStandardRef: typeof rule.standard_ref === "string" && rule.standard_ref.length > 0,
+      evidenceLevel: rule.evidence_level ?? "unspecified",
+    };
+  }
+
+  /**
+   * Multi-hop BFS over the `related_rules` cross-reference graph rooted at
+   * `ruleId`. Extends `explainRule()` (1-hop) to arbitrary depth with:
+   *
+   * - **Cycle guard** via `seen` Set — a back-edge to an already-visited node
+   *   lands in `cycleEdges` (visible to operators), not silently dropped.
+   * - **Unresolved-ref surfacing** — rule ids referenced via `related_rules`
+   *   but absent from the corpus land in `unresolvedRefs` (R12 fail-loud).
+   * - **Truncation flag** — `truncated=true` when BFS hit `maxDepth` with
+   *   further-hop neighbors still to explore (so the report doesn't lie
+   *   about exhaustiveness).
+   *
+   * `maxDepth` defaults to 2 (root → neighbor → neighbor-of-neighbor).
+   * `maxDepth=0` returns only the root node (no edges traversed).
+   * Returns `null` when `ruleId` is not in the corpus — same shape as
+   * `explainRule()` for caller consistency. Pure read-only — no mutations.
+   */
+  relatedGraph(ruleId: string, maxDepth: number = 2): RelatedGraphReport | null {
+    const root = this.rules.find((r) => r.id === ruleId);
+    if (!root) return null;
+    const cappedDepth = Math.max(0, Math.floor(maxDepth));
+
+    const nodes: RelatedGraphNode[] = [{ rule: root, hopDepth: 0 }];
+    const edges: RelatedGraphEdge[] = [];
+    const unresolvedRefs: string[] = [];
+    const seenUnresolved = new Set<string>();
+    const cycleEdges: RelatedGraphEdge[] = [];
+    const visited = new Set<string>([ruleId]);
+    let truncated = false;
+
+    // BFS frontier — each entry is [rule, depth].
+    const frontier: Array<[PlaybookRule, number]> = [[root, 0]];
+
+    while (frontier.length > 0) {
+      const [current, depth] = frontier.shift()!;
+      const relatedIds = Array.isArray(current.related_rules) ? current.related_rules : [];
+      for (const rid of relatedIds) {
+        if (typeof rid !== "string" || rid.length === 0) continue;
+        // Self-reference: silently skip (it's a no-op edge).
+        if (rid === current.id) continue;
+
+        if (visited.has(rid)) {
+          // Back-edge to an already-visited node → cycle. Record it (deduped
+          // by from/to pair) so operators can see the cycle exists rather
+          // than silently dropping it.
+          const dup = cycleEdges.some((e) => e.fromId === current.id && e.toId === rid);
+          if (!dup) cycleEdges.push({ fromId: current.id, toId: rid });
+          continue;
+        }
+
+        if (depth >= cappedDepth) {
+          // We've hit the depth cap. There IS a further neighbor we are
+          // intentionally NOT exploring → set truncated, do NOT add to
+          // nodes/edges (would imply full exhaustion at higher depth).
+          truncated = true;
+          continue;
+        }
+
+        const r = this.rules.find((x) => x.id === rid);
+        if (!r) {
+          // Stale reference — R12 fail-loud, dedupe.
+          if (!seenUnresolved.has(rid)) {
+            seenUnresolved.add(rid);
+            unresolvedRefs.push(rid);
+          }
+          edges.push({ fromId: current.id, toId: rid });
+          continue;
+        }
+
+        // Resolved + unvisited: enqueue at depth+1.
+        visited.add(rid);
+        nodes.push({ rule: r, hopDepth: depth + 1 });
+        edges.push({ fromId: current.id, toId: rid });
+        frontier.push([r, depth + 1]);
+      }
+    }
+
+    return {
+      rootId: ruleId,
+      maxDepth: cappedDepth,
+      nodes,
+      edges,
+      unresolvedRefs,
+      cycleEdges,
+      truncated,
+    };
+  }
+
+  /**
+   * Corpus-wide health audit. Pure read-only — no rule mutation. Surfaces
+   * every structural issue an operator should know before relying on the
+   * playbook in a production decision:
+   *
+   *   - duplicateIds: corruption check (same id loaded twice)
+   *   - orphans: rules with no related_rules AND no inbound references
+   *     (isolated nodes — usable but disconnected from the knowledge graph)
+   *   - unresolvedRefs: stale cross-references (R12 — name the missing
+   *     target AND the source rule that needs fixing, not just the missing id)
+   *   - cycles: cycles in the related_rules DAG, canonicalized + deduplicated
+   *     (lowest-id-rotation as canonical form so {A→B→C→A} and {B→C→A→B}
+   *     dedupe correctly)
+   *   - schemaIssues: per-rule missing/empty required fields
+   *   - healthScore: normalized [0,1] for at-a-glance triage
+   *
+   * Leverages the same graph machinery as relatedGraph() but runs over the
+   * entire corpus rather than a single rooted BFS. Operators should pair
+   * this with relatedGraph(ruleId) for per-rule deep-dive when an issue
+   * is surfaced corpus-wide.
+   */
+  validateCorpus(): CorpusValidationReport {
+    const rules = this.rules;
+    const totalRules = rules.length;
+
+    // 1. Duplicate ids — same id loaded into the corpus more than once.
+    const idCount = new Map<string, number>();
+    for (const r of rules) {
+      idCount.set(r.id, (idCount.get(r.id) || 0) + 1);
+    }
+    const duplicateIds: string[] = [];
+    for (const [id, n] of idCount) {
+      if (n > 1) duplicateIds.push(id);
+    }
+    duplicateIds.sort();
+
+    // 2. Inbound-reference count — used for orphan detection. We count
+    // edges INTO each id, skipping malformed/self/unresolved refs (those
+    // would inflate inbound and mask real orphans).
+    const idSet = new Set(rules.map((r) => r.id));
+    const inbound = new Map<string, number>();
+    for (const r of rules) {
+      if (!inbound.has(r.id)) inbound.set(r.id, 0);
+    }
+    for (const r of rules) {
+      const rel = Array.isArray(r.related_rules) ? r.related_rules : [];
+      for (const rid of rel) {
+        if (typeof rid !== "string" || rid.length === 0) continue;
+        if (rid === r.id) continue;
+        if (!idSet.has(rid)) continue;
+        inbound.set(rid, (inbound.get(rid) || 0) + 1);
+      }
+    }
+
+    // 3. Orphans — rules with NO outbound related_rules AND NO inbound
+    // refs from any other rule (truly isolated from the graph).
+    const orphans: string[] = [];
+    for (const r of rules) {
+      const rel = Array.isArray(r.related_rules) ? r.related_rules : [];
+      const hasOutbound = rel.some(
+        (x) => typeof x === "string" && x.length > 0 && x !== r.id,
+      );
+      const hasInbound = (inbound.get(r.id) || 0) > 0;
+      if (!hasOutbound && !hasInbound) orphans.push(r.id);
+    }
+    orphans.sort();
+
+    // 4. Unresolved refs (corpus-wide). R12 — pair the source rule
+    // with the missing target so an operator can fix the right rule.
+    const unresolvedSeen = new Set<string>();
+    const unresolvedRefs: UnresolvedRef[] = [];
+    for (const r of rules) {
+      const rel = Array.isArray(r.related_rules) ? r.related_rules : [];
+      for (const rid of rel) {
+        if (typeof rid !== "string" || rid.length === 0) continue;
+        if (rid === r.id) continue;
+        if (!idSet.has(rid)) {
+          const key = `${r.id}|${rid}`;
+          if (!unresolvedSeen.has(key)) {
+            unresolvedSeen.add(key);
+            unresolvedRefs.push({ fromId: r.id, missingId: rid });
+          }
+        }
+      }
+    }
+
+    // 5. Cycle detection — iterative DFS with 3-color (white/grey/black).
+    // ITERATIVE (not recursive) to eliminate stack-overflow risk on deep
+    // corpora — a 5,000-rule linear chain would exhaust Node's default
+    // call-stack with recursion. Each callStack frame tracks the rule id
+    // and the next-child cursor `iter`; traversalStack mirrors the recursion
+    // path for cycle slice extraction. When a grey vertex is hit, extract
+    // the cycle slice from traversalStack and canonicalize.
+    const ruleById = new Map(rules.map((r) => [r.id, r]));
+    const WHITE = 0;
+    const GREY = 1;
+    const BLACK = 2;
+    const color = new Map<string, number>();
+    for (const r of rules) color.set(r.id, WHITE);
+    const cycles: CycleId[] = [];
+    const seenCycles = new Set<string>();
+
+    interface DfsFrame {
+      id: string;
+      relatedRules: ReadonlyArray<string | unknown>;
+      iter: number;
+    }
+
+    const recordCycle = (rid: string, traversalStack: string[]): void => {
+      const startIdx = traversalStack.indexOf(rid);
+      if (startIdx < 0) return;
+      const cycle = traversalStack.slice(startIdx);
+      // Canonicalize: rotate so the lowest id (UTF-16 lex order) is index 0.
+      let minIdx = 0;
+      for (let i = 1; i < cycle.length; i++) {
+        if (cycle[i] < cycle[minIdx]) minIdx = i;
+      }
+      const canonical = [...cycle.slice(minIdx), ...cycle.slice(0, minIdx)];
+      const key = canonical.join("→"); // U+2192 RIGHTWARDS ARROW
+      if (!seenCycles.has(key)) {
+        seenCycles.add(key);
+        cycles.push(canonical);
+      }
+    };
+
+    for (const root of rules) {
+      if (color.get(root.id) !== WHITE) continue;
+      // Begin iterative DFS rooted at `root`. callStack mirrors recursion
+      // (each frame = one nested DFS call); traversalStack carries only
+      // the current path from `root` for cycle-slice extraction.
+      color.set(root.id, GREY);
+      const rootRel = Array.isArray(root.related_rules) ? root.related_rules : [];
+      const callStack: DfsFrame[] = [{ id: root.id, relatedRules: rootRel, iter: 0 }];
+      const traversalStack: string[] = [root.id];
+
+      while (callStack.length > 0) {
+        const top = callStack[callStack.length - 1];
+        let descended = false;
+
+        while (top.iter < top.relatedRules.length) {
+          const rid = top.relatedRules[top.iter++];
+          if (typeof rid !== "string" || rid.length === 0) continue;
+          if (rid === top.id) continue;
+          if (!idSet.has(rid)) continue;
+          const c = color.get(rid);
+          if (c === GREY) {
+            recordCycle(rid, traversalStack);
+          } else if (c === WHITE) {
+            // Descend: simulate the recursive call by pushing a new frame.
+            color.set(rid, GREY);
+            const childRule = ruleById.get(rid);
+            const childRel =
+              childRule && Array.isArray(childRule.related_rules) ? childRule.related_rules : [];
+            callStack.push({ id: rid, relatedRules: childRel, iter: 0 });
+            traversalStack.push(rid);
+            descended = true;
+            break; // process the new top frame on the next while-iteration
+          }
+        }
+
+        if (!descended) {
+          // All children processed — mark BLACK and pop (mirrors recursion return).
+          color.set(top.id, BLACK);
+          traversalStack.pop();
+          callStack.pop();
+        }
+      }
+    }
+
+    // 6. Schema issues — required fields per PlaybookRule contract.
+    // We surface each missing/empty field as a distinct issue string so
+    // an operator can fix all of them in one pass.
+    const schemaIssues: SchemaIssue[] = [];
+    for (const r of rules) {
+      const issues: string[] = [];
+      if (typeof r.id !== "string" || r.id.length === 0) issues.push("id is missing or empty");
+      if (typeof r.category !== "string" || (r.category as string).length === 0) issues.push("category is missing or empty");
+      if (typeof r.severity !== "string" || (r.severity as string).length === 0) issues.push("severity is missing or empty");
+      if (typeof r.title !== "string" || r.title.length === 0) issues.push("title is missing or empty");
+      if (typeof r.rule !== "string" || r.rule.length === 0) issues.push("rule is missing or empty");
+      if (typeof r.reasoning !== "string" || r.reasoning.length === 0) issues.push("reasoning is missing or empty");
+      if (!Array.isArray(r.conditions)) issues.push("conditions must be an array");
+      if (!Array.isArray(r.exceptions)) issues.push("exceptions must be an array");
+      if (typeof r.source !== "string" || r.source.length === 0) issues.push("source is missing or empty");
+      if (issues.length > 0) {
+        schemaIssues.push({ id: r.id && r.id.length > 0 ? r.id : "<unidentified>", issues });
+      }
+    }
+
+    // 7. Health score — normalized [0,1]. Operators should read the
+    // detail arrays before relying on this number (one high-severity
+    // cycle is worse than the aggregate score suggests).
+    const totalFindings =
+      duplicateIds.length +
+      orphans.length +
+      unresolvedRefs.length +
+      cycles.length +
+      schemaIssues.length;
+    const healthScore = totalRules > 0
+      ? Math.max(0, 1 - totalFindings / totalRules)
+      : 1;
+
+    return {
+      totalRules,
+      duplicateIds,
+      orphans,
+      unresolvedRefs,
+      cycles,
+      schemaIssues,
+      healthScore,
+    };
+  }
+
+  /**
+   * Playbook coverage analysis for a job context. Aggregates `advise()` output
+   * into per-category / per-severity counts, identifies categories with ZERO
+   * applicable rules (playbook blind-spots), and returns the applicable rule
+   * IDs in severity order. Pure read-only aggregation over `advise()`.
+   */
+  coverageReport(query: PlaybookQuery): PlaybookCoverageReport {
+    const { rules: applicable } = this.advise(query);
+
+    // Data-driven: enumerate the categories the rule store actually carries so
+    // the blind-spot list reflects engine reality, not a hardcoded enum list.
+    const knownCategories = new Set<string>();
+    for (const r of this.rules) knownCategories.add(r.category);
+
+    const byCategory: Record<string, number> = {};
+    const bySeverity: Record<Severity, number> = {
+      critical: 0,
+      important: 0,
+      recommended: 0,
+      tip: 0,
+    };
+    for (const r of applicable) {
+      byCategory[r.category] = (byCategory[r.category] ?? 0) + 1;
+      bySeverity[r.severity] = (bySeverity[r.severity] ?? 0) + 1;
+    }
+
+    const blindSpotCategories: string[] = [];
+    for (const cat of knownCategories) {
+      if (!(cat in byCategory)) blindSpotCategories.push(cat);
+    }
+    blindSpotCategories.sort();
+
+    return {
+      applicableCount: applicable.length,
+      totalRulesEvaluated: this.rules.length,
+      byCategory,
+      bySeverity,
+      criticalApplicable: bySeverity.critical,
+      blindSpotCategories,
+      ruleIds: applicable.map((r) => r.id),
+    };
+  }
+
+  /**
+   * Surface applicable playbook rules that carry a `quantitative?` threshold
+   * formula. Where `advise()` returns a flat list of every applicable rule,
+   * this filters to ONLY those whose numeric guidance is encoded — giving
+   * callers a focused view of the quantitative knowledge applicable to a
+   * machining context (otherwise inert documentation).
+   */
+  quantitativeGuidance(query: PlaybookQuery): QuantitativeGuidanceReport {
+    const { rules: applicable } = this.advise(query);
+    const entries: QuantitativeGuidanceEntry[] = [];
+
+    for (const r of applicable) {
+      if (typeof r.quantitative === "string" && r.quantitative.length > 0) {
+        const entry: QuantitativeGuidanceEntry = {
+          ruleId: r.id,
+          title: r.title,
+          severity: r.severity,
+          category: r.category,
+          quantitative: r.quantitative,
+          reasoning: r.reasoning,
+        };
+        if (typeof r.standard_ref === "string" && r.standard_ref.length > 0) {
+          entry.standardRef = r.standard_ref;
+        }
+        entries.push(entry);
+      }
+    }
+
+    const withQuantitativePct =
+      applicable.length > 0 ? Math.round((entries.length / applicable.length) * 1000) / 10 : 0;
+
+    return {
+      count: entries.length,
+      entries,
+      totalApplicable: applicable.length,
+      withQuantitativePct,
+    };
+  }
+
+  /**
+   * Playbook-corpus integrity audit. Scans every rule for cross-reference and
+   * completeness defects that silently degrade playbook quality:
+   *   - duplicate_id      — the same rule id registered twice
+   *   - dangling_related  — related_rules pointing at a non-existent rule id
+   *   - self_reference    — related_rules including the rule's own id
+   *   - asymmetric_related— A → B with no B → A link back
+   *   - empty_reasoning   — a rule with no reasoning text
+   *   - unreachable_rule  — neither conditions nor conditions_all → never matches
+   *
+   * Pure read-only scan over the rule store; the result is deterministic
+   * (issues sorted by ruleId then issueType). Honest about the canonical
+   * corpus — it does NOT assume the shipped 296 rules are defect-free.
+   */
+  auditIntegrity(): PlaybookIntegrityReport {
+    const issues: PlaybookIntegrityIssue[] = [];
+
+    // id frequency — drives duplicate_id + the known-id set.
+    const idCounts = new Map<string, number>();
+    for (const r of this.rules) {
+      idCounts.set(r.id, (idCounts.get(r.id) ?? 0) + 1);
+    }
+    const knownIds = new Set<string>(idCounts.keys());
+
+    // Forward related-rule map (sanitized) for the asymmetry check.
+    const relMap = new Map<string, Set<string>>();
+    for (const r of this.rules) {
+      const rel = Array.isArray(r.related_rules)
+        ? r.related_rules.filter((x): x is string => typeof x === "string" && x.length > 0)
+        : [];
+      // last-writer-wins on a duplicate id is fine — the asymmetry check only
+      // needs *a* link set per id, and a duplicate id is already its own defect.
+      relMap.set(r.id, new Set(rel));
+    }
+
+    const reportedDup = new Set<string>();
+    for (const r of this.rules) {
+      if ((idCounts.get(r.id) ?? 0) > 1 && !reportedDup.has(r.id)) {
+        reportedDup.add(r.id);
+        issues.push({
+          ruleId: r.id,
+          issueType: "duplicate_id",
+          detail: `rule id appears ${idCounts.get(r.id)} times in the store`,
+        });
+      }
+
+      if (typeof r.reasoning !== "string" || r.reasoning.trim().length === 0) {
+        issues.push({
+          ruleId: r.id,
+          issueType: "empty_reasoning",
+          detail: "rule carries no reasoning text — the WHY behind the advice is missing",
+        });
+      }
+
+      const hasConditions = Array.isArray(r.conditions) && r.conditions.length > 0;
+      const hasConditionsAll = Array.isArray(r.conditions_all) && r.conditions_all.length > 0;
+      if (!hasConditions && !hasConditionsAll) {
+        issues.push({
+          ruleId: r.id,
+          issueType: "unreachable_rule",
+          detail: "rule has neither conditions nor conditions_all — advise() can never match it",
+        });
+      }
+
+      const rel = relMap.get(r.id) ?? new Set<string>();
+      for (const target of rel) {
+        if (target === r.id) {
+          issues.push({
+            ruleId: r.id,
+            issueType: "self_reference",
+            detail: "related_rules includes the rule's own id",
+          });
+          continue;
+        }
+        if (!knownIds.has(target)) {
+          issues.push({
+            ruleId: r.id,
+            issueType: "dangling_related",
+            detail: `related_rules points at unknown rule '${target}'`,
+          });
+          continue;
+        }
+        const back = relMap.get(target);
+        if (back && !back.has(r.id)) {
+          issues.push({
+            ruleId: r.id,
+            issueType: "asymmetric_related",
+            detail: `links to '${target}' but '${target}' does not link back`,
+          });
+        }
+      }
+    }
+
+    issues.sort((a, b) => {
+      if (a.ruleId !== b.ruleId) return a.ruleId < b.ruleId ? -1 : 1;
+      if (a.issueType !== b.issueType) return a.issueType < b.issueType ? -1 : 1;
+      return 0;
+    });
+
+    const byType: Record<string, number> = {};
+    for (const i of issues) byType[i.issueType] = (byType[i.issueType] ?? 0) + 1;
+
+    return {
+      totalRules: this.rules.length,
+      uniqueRuleIds: knownIds.size,
+      issueCount: issues.length,
+      issues,
+      byType,
+      healthy: issues.length === 0,
+    };
+  }
+
+  /**
+   * Playbook-corpus semantic conflict scan. Finds pairs of rules that give
+   * CONTRADICTORY parameter directives (e.g. one says "increase feedrate",
+   * the other "reduce feedrate") AND co-fire — i.e. both apply to the same
+   * machining situation (same category with overlapping conditions).
+   *
+   * This is the semantic-layer complement to `auditIntegrity()`: the audit
+   * finds broken cross-references, this finds advice that contradicts itself.
+   *
+   * Directive extraction is deterministic lexicon co-occurrence (see the
+   * CONFLICT_* lexicons) — a heuristic review surface, NOT NLP. A rule that
+   * advises BOTH directions for one parameter (internally ambiguous) is
+   * excluded from that parameter's conflict test rather than mis-reported.
+   * Pure read-only scan; the report is deterministic (conflicts sorted by
+   * ruleIdA, then ruleIdB, then parameter).
+   */
+  detectConflicts(): PlaybookConflictReport {
+    // Extract directives once per rule (O(n) — avoids re-parsing in the pair loop).
+    const directives = new Map<string, Map<ConflictParameter, Set<DirectiveDirection>>>();
+    for (const r of this.rules) {
+      directives.set(
+        r.id,
+        this.extractDirectives(typeof r.rule === "string" ? r.rule : ""),
+      );
+    }
+
+    const conflicts: PlaybookConflict[] = [];
+    let pairsEvaluated = 0;
+    const n = this.rules.length;
+
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const r1 = this.rules[i];
+        const r2 = this.rules[j];
+        if (r1.category !== r2.category) continue;
+        const sharedContext = this.describeOverlap(r1, r2);
+        if (sharedContext === null) continue;
+        pairsEvaluated++;
+
+        // Order the pair so ruleIdA <= ruleIdB — deterministic output.
+        const aFirst = r1.id <= r2.id;
+        const ruleA = aFirst ? r1 : r2;
+        const ruleB = aFirst ? r2 : r1;
+        const dirA = directives.get(ruleA.id);
+        const dirB = directives.get(ruleB.id);
+        if (!dirA || !dirB) continue;
+
+        for (const param of CONFLICT_PARAMETERS) {
+          const setA = dirA.get(param);
+          const setB = dirB.get(param);
+          // Both rules must give a CLEAN (unambiguous, single) directive.
+          if (!setA || !setB || setA.size !== 1 || setB.size !== 1) continue;
+          const directionA = [...setA][0];
+          const directionB = [...setB][0];
+          if (directionA === directionB) continue; // same advice — not a conflict
+          conflicts.push({
+            ruleIdA: ruleA.id,
+            ruleIdB: ruleB.id,
+            parameter: param,
+            directionA,
+            directionB,
+            category: ruleA.category,
+            sharedContext,
+          });
+        }
+      }
+    }
+
+    conflicts.sort((a, b) => {
+      if (a.ruleIdA !== b.ruleIdA) return a.ruleIdA < b.ruleIdA ? -1 : 1;
+      if (a.ruleIdB !== b.ruleIdB) return a.ruleIdB < b.ruleIdB ? -1 : 1;
+      if (a.parameter !== b.parameter) return a.parameter < b.parameter ? -1 : 1;
+      return 0;
+    });
+
+    const byParameter: Record<string, number> = {};
+    for (const c of conflicts) byParameter[c.parameter] = (byParameter[c.parameter] ?? 0) + 1;
+
+    return {
+      totalRules: n,
+      pairsEvaluated,
+      conflictCount: conflicts.length,
+      conflicts,
+      byParameter,
+      conflictFree: conflicts.length === 0,
+      method: "lexicon-cooccurrence",
+    };
+  }
+
+  /**
+   * Rank the conflicts produced by `detectConflicts()` by priority so an
+   * operator can triage. Each conflict gets a `priorityScore` in [0, 1]
+   * combining pair-severity (the max + min of the two rules' severity
+   * ranks, normalised) at 80% weight and evidence-level delta (how much
+   * stronger one rule's source is than the other's) at 20%. The score
+   * buckets into urgent/high/medium/low; `evidenceWinner` names the
+   * stronger-sourced rule or `null` on tie/unknown.
+   *
+   * Pure ranking — never re-scans the corpus. Pass the output of
+   * `detectConflicts()` to avoid recomputation, or omit `input` to fetch
+   * it. Sort is stable: within a priorityScore tie, the deterministic
+   * (ruleIdA, ruleIdB, parameter) order from `detectConflicts()` is kept
+   * (ES2019+ guarantees stable Array.prototype.sort).
+   *
+   * Defensive against unknown severity / evidence_level strings in
+   * mal-authored rules: unknown severity → "tip" rank (1), unknown
+   * evidence_level → "unspecified" rank (0). Never throws.
+   */
+  rankConflicts(input?: PlaybookConflictReport): RankedConflictReport {
+    const report = input ?? this.detectConflicts();
+
+    // Build a rule-id lookup for severity + evidence_level access.
+    const byId = new Map<string, PlaybookRule>();
+    for (const r of this.rules) byId.set(r.id, r);
+
+    const ranked: RankedConflict[] = report.conflicts.map((c) => {
+      const ra = byId.get(c.ruleIdA);
+      const rb = byId.get(c.ruleIdB);
+      const sevA = SEVERITY_RANK[ra?.severity as Severity] ?? 1;
+      const sevB = SEVERITY_RANK[rb?.severity as Severity] ?? 1;
+      const evA = EVIDENCE_RANK[(ra?.evidence_level ?? "unspecified") as EvidenceLevel | "unspecified"] ?? 0;
+      const evB = EVIDENCE_RANK[(rb?.evidence_level ?? "unspecified") as EvidenceLevel | "unspecified"] ?? 0;
+      // pairSeverity ∈ [0.25, 1.0]: both tip→0.25, both critical→1.0.
+      const pairSeverity = (Math.max(sevA, sevB) + Math.min(sevA, sevB)) / SEVERITY_PAIR_MAX;
+      // evidenceDelta ∈ [0, 1]: 0 (both same source) → 1 (ISO vs unspecified).
+      const evidenceDelta = Math.abs(evA - evB) / EVIDENCE_RANK_SPAN;
+      const priorityScore = Math.min(1, Math.max(0,
+        pairSeverity * SEVERITY_WEIGHT + evidenceDelta * EVIDENCE_WEIGHT));
+      const priority: ConflictPriority =
+        priorityScore >= CONFLICT_PRIORITY_THRESHOLDS.urgent ? "urgent"
+        : priorityScore >= CONFLICT_PRIORITY_THRESHOLDS.high ? "high"
+        : priorityScore >= CONFLICT_PRIORITY_THRESHOLDS.medium ? "medium"
+        : "low";
+      // Severity names paired with their ranks for the max/min extraction.
+      const aSev: Severity = (ra?.severity as Severity) ?? "tip";
+      const bSev: Severity = (rb?.severity as Severity) ?? "tip";
+      const maxSeverity = sevA >= sevB ? aSev : bSev;
+      const minSeverity = sevA <= sevB ? aSev : bSev;
+      const evidenceWinner =
+        evA > evB ? c.ruleIdA
+        : evB > evA ? c.ruleIdB
+        : null;
+      return {
+        ...c,
+        maxSeverity,
+        minSeverity,
+        priorityScore,
+        priority,
+        evidenceWinner,
+      };
+    });
+
+    // Stable sort: priorityScore DESC; ES2019 guarantees stable Array.sort,
+    // so within a score tie the input order (deterministic from detectConflicts)
+    // is preserved.
+    ranked.sort((a, b) => b.priorityScore - a.priorityScore);
+
+    const byPriority: Record<ConflictPriority, number> = {
+      urgent: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    };
+    for (const r of ranked) byPriority[r.priority]++;
+
+    return {
+      conflictCount: ranked.length,
+      ranked,
+      byPriority,
+    };
+  }
+
+  /**
+   * Propose which rule should win a single playbook conflict — closes the
+   * detect → rank → RESOLVE workflow. Decision hierarchy:
+   *   1. Primary: higher evidence_level (ISO > peer_reviewed > manufacturer_data
+   *      > empirical_validated > empirical_heuristic > theoretical > unspecified).
+   *   2. Tiebreaker: higher severity (critical > important > recommended > tip).
+   *   3. Both tied → ambiguous; winnerId/loserId null, requires human judgment.
+   *
+   * Confidence reflects margin: evidence-decided ∈ [0.5, 1.0], severity-decided
+   * ∈ [0.3, 0.7], ambiguous = 0. The intentional band overlap is correct —
+   * a crit/tip severity pair (0.7) outranks a tiny evidence margin (0.6),
+   * matching operator intuition that a critical-vs-tip clash is more decisive
+   * than peer_reviewed-vs-manufacturer_data.
+   *
+   * Defensive against malformed rules: unknown severity → "tip" rank (1),
+   * unknown evidence_level → "unspecified" rank (0) — same fallbacks as
+   * rankConflicts(). Never throws. Accepts either a raw PlaybookConflict or
+   * a RankedConflict (extra ranking fields are ignored).
+   *
+   * Pure single-conflict — no corpus rescans, no side effects.
+   */
+  suggestResolution(conflict: PlaybookConflict | RankedConflict): ResolutionProposal {
+    const byId = new Map<string, PlaybookRule>();
+    for (const r of this.rules) byId.set(r.id, r);
+    return this.proposeFromConflict(conflict, byId);
+  }
+
+  /**
+   * Batch variant of `suggestResolution()` over a conflict set. Accepts the
+   * output of `detectConflicts()` OR `rankConflicts()` (or omit `input` to
+   * fetch fresh). Returns one ResolutionProposal per input conflict in the
+   * same order. `byDecision` buckets let callers dashboard the split between
+   * evidence-decided / severity-decided / ambiguous — useful for operators
+   * tuning corpus evidence-tagging coverage.
+   *
+   * Composition-friendly: never re-scans the rule store; reuses the same
+   * lookup map across all proposals so 1000-conflict batches cost O(N+R)
+   * not O(N*R).
+   */
+  suggestResolutions(input?: PlaybookConflictReport | RankedConflictReport): ResolutionReport {
+    let conflicts: Array<PlaybookConflict | RankedConflict>;
+    if (input === undefined) {
+      conflicts = this.detectConflicts().conflicts;
+    } else if ("ranked" in input) {
+      conflicts = input.ranked;
+    } else {
+      conflicts = input.conflicts;
+    }
+    const byId = new Map<string, PlaybookRule>();
+    for (const r of this.rules) byId.set(r.id, r);
+    const proposals = conflicts.map((c) => this.proposeFromConflict(c, byId));
+    const byDecision: Record<ResolutionDecidedBy, number> = {
+      evidence: 0,
+      severity: 0,
+      ambiguous: 0,
+    };
+    for (const p of proposals) byDecision[p.decidedBy]++;
+    return {
+      conflictCount: proposals.length,
+      proposals,
+      byDecision,
+      ambiguousCount: byDecision.ambiguous,
+    };
+  }
+
   // ── Private helpers ────────────────────────────────────────────────────
+
+  /** Shared core for suggestResolution() + suggestResolutions(). */
+  private proposeFromConflict(
+    c: PlaybookConflict | RankedConflict,
+    byId: Map<string, PlaybookRule>,
+  ): ResolutionProposal {
+    const ra = byId.get(c.ruleIdA);
+    const rb = byId.get(c.ruleIdB);
+    const sevA = SEVERITY_RANK[ra?.severity as Severity] ?? 1;
+    const sevB = SEVERITY_RANK[rb?.severity as Severity] ?? 1;
+    const evA = EVIDENCE_RANK[(ra?.evidence_level ?? "unspecified") as EvidenceLevel | "unspecified"] ?? 0;
+    const evB = EVIDENCE_RANK[(rb?.evidence_level ?? "unspecified") as EvidenceLevel | "unspecified"] ?? 0;
+    // NOTE: un-normalized scale — rankConflicts() at line ~5043 uses
+    // `Math.abs(evA - evB) / EVIDENCE_RANK_SPAN` (∈ [0, 1] normalized) for
+    // priority-score weighting. proposeFromConflict() keeps the raw delta
+    // ∈ [0, 5] because the confidence formula (line ~5200) divides by
+    // EVIDENCE_RANK_SPAN at the call site to land in [0.5, 1.0]. Same
+    // variable name, different scales — by design (Reviewer B P1-1).
+    const evidenceDelta = Math.abs(evA - evB);
+    const severityDelta = Math.abs(sevA - sevB);
+
+    // R12 fail-loud: stale conflict input (rule ids that no longer exist in
+    // the corpus) would otherwise fall silently into the ambiguous branch
+    // below and emit "human judgment required" — a dishonest rationale when
+    // the true cause is "corpus lookup failed". Detect + surface explicitly.
+    let warning: string | undefined;
+    if (!ra && !rb) {
+      warning = `Neither rule found in corpus: ruleIdA="${c.ruleIdA}", ruleIdB="${c.ruleIdB}". Conflict input may be stale.`;
+    } else if (!ra) {
+      warning = `ruleIdA "${c.ruleIdA}" not found in corpus — resolution uses default ranks (severity=tip, evidence=unspecified).`;
+    } else if (!rb) {
+      warning = `ruleIdB "${c.ruleIdB}" not found in corpus — resolution uses default ranks (severity=tip, evidence=unspecified).`;
+    }
+
+    let winnerId: string | null;
+    let loserId: string | null;
+    let decidedBy: ResolutionDecidedBy;
+    let confidence: number;
+    let rationale: string;
+
+    if (evidenceDelta > 0) {
+      decidedBy = "evidence";
+      if (evA > evB) {
+        winnerId = c.ruleIdA;
+        loserId = c.ruleIdB;
+      } else {
+        winnerId = c.ruleIdB;
+        loserId = c.ruleIdA;
+      }
+      confidence = RESOLUTION_EVIDENCE_BASE +
+        RESOLUTION_EVIDENCE_SPAN * (evidenceDelta / EVIDENCE_RANK_SPAN);
+      rationale = `Higher evidence_level wins: ${winnerId} (evidence delta=${evidenceDelta.toFixed(1)} on 0-5 scale).`;
+    } else if (severityDelta > 0) {
+      decidedBy = "severity";
+      if (sevA > sevB) {
+        winnerId = c.ruleIdA;
+        loserId = c.ruleIdB;
+      } else {
+        winnerId = c.ruleIdB;
+        loserId = c.ruleIdA;
+      }
+      confidence = RESOLUTION_SEVERITY_BASE +
+        RESOLUTION_SEVERITY_SPAN * (severityDelta / SEVERITY_RANK_SPAN);
+      rationale = `Tie on evidence; higher severity wins: ${winnerId} (severity delta=${severityDelta} on 0-3 scale).`;
+    } else {
+      decidedBy = "ambiguous";
+      winnerId = null;
+      loserId = null;
+      confidence = 0;
+      // R12 fail-loud: when the ambiguity is caused by missing rules (not by
+      // a real evidence+severity tie), say so honestly rather than blaming
+      // the operator's judgment.
+      rationale = warning
+        ? `Ambiguous — ${warning}`
+        : "Both axes tied (equal evidence_level and severity) — human judgment required.";
+    }
+
+    return {
+      ruleIdA: c.ruleIdA,
+      ruleIdB: c.ruleIdB,
+      parameter: c.parameter,
+      winnerId,
+      loserId,
+      decidedBy,
+      evidenceDelta,
+      severityDelta,
+      confidence,
+      rationale,
+      ambiguous: decidedBy === "ambiguous",
+      ...(warning ? { warning } : {}),
+    };
+  }
 
   private ruleMatches(rule: PlaybookRule, query: PlaybookQuery): boolean {
     // OR conditions — any match triggers (existing behavior)
@@ -4464,6 +6700,148 @@ export class MachiningPlaybookEngine {
     };
     const related = map[op] || [];
     return related.some(r => feature.toLowerCase().includes(r));
+  }
+
+  /**
+   * Extract parameter directives from a rule's advice text via deterministic
+   * lexicon co-occurrence. Each direction verb (increase / decrease, with
+   * negation resolved) is attributed to the NEAREST parameter-synonym
+   * occurrence within CONFLICT_WINDOW characters — nearest-match attribution
+   * keeps a verb about one parameter from bleeding onto another. A
+   * per-parameter direction set of size 2 means the rule is internally
+   * ambiguous about that parameter.
+   *
+   * Heuristic, NOT NLP: a verb genuinely about parameter X that happens to
+   * sit closest to a mention of parameter Y can still be mis-attributed.
+   * Every conflict the caller reports therefore carries the rule ids so a
+   * human can verify against the actual rule text.
+   */
+  private extractDirectives(text: string): Map<ConflictParameter, Set<DirectiveDirection>> {
+    const out = new Map<ConflictParameter, Set<DirectiveDirection>>();
+    if (typeof text !== "string" || text.length === 0) return out;
+    // Strip apostrophes so "don't" tokenizes as the negation token "dont".
+    const lower = text.toLowerCase().replace(/['’]/g, "");
+
+    // 1. Locate every parameter-synonym occurrence (centre char offset).
+    const paramHits: Array<{ param: ConflictParameter; at: number }> = [];
+    for (const param of CONFLICT_PARAMETERS) {
+      for (const syn of CONFLICT_PARAM_LEXICON[param]) {
+        const escaped = syn.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        for (const m of lower.matchAll(new RegExp(`\\b${escaped}\\b`, "g"))) {
+          paramHits.push({ param, at: (m.index ?? 0) + (m[0].length >> 1) });
+        }
+      }
+    }
+    if (paramHits.length === 0) return out;
+
+    // 2. Tokenize into words (offsets preserved) for verb + negation scanning.
+    const words: Array<{ w: string; at: number }> = [];
+    for (const m of lower.matchAll(/[a-z0-9]+/g)) {
+      words.push({ w: m[0], at: m.index ?? 0 });
+    }
+
+    // 3. Each direction verb → nearest parameter within the window.
+    for (let i = 0; i < words.length; i++) {
+      const base: DirectiveDirection | null =
+        CONFLICT_INCREASE_TOKENS.has(words[i].w) ? "increase"
+        : CONFLICT_DECREASE_TOKENS.has(words[i].w) ? "decrease"
+        : null;
+      if (base === null) continue;
+      // A negation token in the 3 words immediately before flips the sense.
+      let negated = false;
+      for (let k = 1; k <= 3 && i - k >= 0; k++) {
+        if (CONFLICT_NEGATION_TOKENS.has(words[i - k].w)) { negated = true; break; }
+      }
+      const dir: DirectiveDirection =
+        negated ? (base === "increase" ? "decrease" : "increase") : base;
+
+      let nearest: ConflictParameter | null = null;
+      let nearestDist = Infinity;
+      for (const p of paramHits) {
+        const d = Math.abs(p.at - words[i].at);
+        if (d < nearestDist) { nearestDist = d; nearest = p.param; }
+      }
+      if (nearest !== null && nearestDist <= CONFLICT_WINDOW) {
+        let set = out.get(nearest);
+        if (!set) { set = new Set<DirectiveDirection>(); out.set(nearest, set); }
+        set.add(dir);
+      }
+    }
+    return out;
+  }
+
+  /**
+   * Collect the discrete (non-threshold) condition values a rule fires on:
+   * whether it has an `always` trigger, plus material / feature / operation
+   * sets. Folds BOTH OR-logic `conditions` AND AND-logic `conditions_all`
+   * into the discrete set — two rules co-fire when a single query can
+   * satisfy both, so the union of their trigger surfaces is the correct
+   * overlap basis. Defensive against malformed runtime conditions in either
+   * array.
+   */
+  private conditionDiscretes(rule: PlaybookRule): {
+    always: boolean;
+    materials: Set<string>;
+    features: Set<string>;
+    operations: Set<string>;
+  } {
+    const out = {
+      always: false,
+      materials: new Set<string>(),
+      features: new Set<string>(),
+      operations: new Set<string>(),
+    };
+    for (const arr of [rule.conditions, rule.conditions_all]) {
+      if (!Array.isArray(arr)) continue;
+      for (const c of arr) {
+        if (!c || typeof c !== "object") continue;
+        switch (c.type) {
+          case "always":
+            out.always = true;
+            break;
+          case "material_iso":
+            for (const g of Array.isArray(c.groups) ? c.groups : []) {
+              if (typeof g === "string") out.materials.add(g);
+            }
+            break;
+          case "feature_present":
+            for (const f of Array.isArray(c.features) ? c.features : []) {
+              if (typeof f === "string") out.features.add(f);
+            }
+            break;
+          case "operation_type":
+            for (const o of Array.isArray(c.operations) ? c.operations : []) {
+              if (typeof o === "string") out.operations.add(o);
+            }
+            break;
+        }
+      }
+    }
+    return out;
+  }
+
+  /**
+   * Describe the overlapping machining context that makes two rules co-fire,
+   * or null when their trigger conditions do not overlap. A shared discrete
+   * condition (material / feature / operation) is preferred for the context
+   * string; an `always`-triggered rule overlaps any rule in its category.
+   */
+  private describeOverlap(r1: PlaybookRule, r2: PlaybookRule): string | null {
+    const a = this.conditionDiscretes(r1);
+    const b = this.conditionDiscretes(r2);
+    const materials = [...a.materials].filter((m) => b.materials.has(m)).sort();
+    const features = [...a.features].filter((f) => b.features.has(f)).sort();
+    const operations = [...a.operations].filter((o) => b.operations.has(o)).sort();
+    const parts: string[] = [];
+    if (materials.length) parts.push(`material ${materials.join("/")}`);
+    if (features.length) parts.push(`feature ${features.join("/")}`);
+    if (operations.length) parts.push(`operation ${operations.join("/")}`);
+    if (parts.length) return parts.join("; ");
+    if (a.always || b.always) {
+      if (a.always && b.always) return "both rules apply unconditionally (always)";
+      return `rule ${a.always ? r1.id : r2.id} applies unconditionally (always)`;
+    }
+    return null;
   }
 }
 
